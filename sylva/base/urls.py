@@ -3,6 +3,9 @@ from django.conf.urls.defaults import *
 
 urlpatterns = patterns('base.views',
 
-    # Index
+    # index
     url(r'^$', 'index', name="index"),
+
+    # dashboard
+    url(r'^dashboard/$', 'dashboard', name="dashboard"),
 )

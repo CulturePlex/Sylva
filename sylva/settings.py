@@ -5,6 +5,7 @@ from django.utils.translation import gettext_lazy as _
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
+ugettext = lambda s: s
 
 PROJECT_NAME = u"Sylva Project"
 PROJECT_ROOT = path.dirname(path.abspath(__file__))
@@ -25,6 +26,17 @@ DATABASES = {
         'PORT': '',                      # Set to empty string for default. Not used with sqlite3.
     }
 }
+GRAPHDATABASES = {
+    'default': {
+        'ENGINE': 'engines.gdb.backends.neo4j',
+        'NAME': 'db/data',
+        'USER': '',
+        'PASSWORD': '',
+        'SCHEMA': 'http',
+        'HOST': 'localhost',
+        'PORT': '7474',
+    }
+}
 
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
@@ -37,7 +49,11 @@ TIME_ZONE = 'America/Toronto'
 
 # Language code for this installation. All choices can be found here:
 # http://www.i18nguy.com/unicode/language-identifiers.html
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'en-ca'
+LANGUAGES = (
+  ('en', ugettext('English')),
+  ('es', ugettext('Español')),
+)
 
 SITE_ID = 1
 
@@ -99,7 +115,8 @@ TEMPLATE_LOADERS = (
 )
 
 TEMPLATE_CONTEXT_PROCESSORS = (
-    "django.core.context_processors.auth",
+    # "django.core.context_processors.auth",
+    "django.contrib.auth.context_processors.auth",
     "django.core.context_processors.debug",
     "django.core.context_processors.i18n",
     "django.core.context_processors.media",
@@ -109,11 +126,13 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     "base.context_processors.current_date",
     "base.context_processors.google_api_key",
     "base.context_processors.google_analytics_code",
+    "base.context_processors.debug",
 )
 
 MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.locale.LocaleMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
@@ -136,9 +155,25 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
+    'userena',
+    'userena.contrib.umessages',
+    'guardian',
+    'easy_thumbnails',
     'sorl.thumbnail',
     'base',
 )
+
+AUTHENTICATION_BACKENDS = (
+    'userena.backends.UserenaAuthenticationBackend',
+    'guardian.backends.ObjectPermissionBackend',
+    'django.contrib.auth.backends.ModelBackend',
+)
+
+ANONYMOUS_USER_ID = -1
+AUTH_PROFILE_MODULE = "base.UserProfile"
+LOGIN_REDIRECT_URL = '/dashboard/' # '/accounts/%(username)s/'
+LOGIN_URL = '/accounts/signin/'
+LOGOUT_URL = '/accounts/signout/'
 
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to
@@ -162,3 +197,9 @@ LOGGING = {
         },
     }
 }
+
+# Userena settings
+USERENA_DEFAULT_PRIVACY = "open"
+USERENA_DISABLE_PROFILE_LIST = False
+USERENA_WITHOUT_USERNAMES = True
+USERENA_LANGUAGE_FIELD = "language"

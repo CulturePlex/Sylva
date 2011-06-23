@@ -12,25 +12,31 @@ urlpatterns = patterns('',
     url(r'^', include('base.urls')),
 
     # accounts
-    url(r'^accounts/', include('accounts.urls')),
+    url(r'^accounts/', include('userena.urls')),
+
+    # i18n
+    url(r'^i18n/', include('django.conf.urls.i18n')),
+
+    # messaging
+    url(r'^messages/', include('userena.contrib.umessages.urls')),
 
     # data
-    url(r'^data/', include('data.urls')),
+    # url(r'^data/', include('data.urls')),
 
     # engines
-    url(r'^engines/', include('engines.urls')),
+    # url(r'^engines/', include('engines.urls')),
 
     # graphs
-    url(r'^graphs/', include('graphs.urls')),
+    # url(r'^graphs/', include('graphs.urls')),
 
     # operators
-    url(r'^operators/', include('operators.urls')),
+    # url(r'^operators/', include('operators.urls')),
 
     # schemas
-    url(r'^schemas/', include('schemas.urls')),
+    # url(r'^schemas/', include('schemas.urls')),
 
     # tools
-    url(r'^tools/', include('tools.urls')),
+    # url(r'^tools/', include('tools.urls')),
 
     # admin_media
     url(r'^admin/', include(admin.site.urls)),

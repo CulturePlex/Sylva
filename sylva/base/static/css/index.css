@@ -81,37 +81,37 @@ zoom:1;
 }
 
 #main {
-padding-top: 50px;
+padding-top:99px;
 }
 
 #main
 header.global {
-width: 1170px;
-background-color: white;
-margin: auto;
-padding: 15px;
+width:1100px;
+background-color:#fff;
+margin:auto;
+padding:0 50px;
 }
 
 #main header.global .nav-wrapper {
-display: block;
-width: 100%;
-height: 50px;
-position: absolute;
-top: 0;
-left: 0;
-background: #B8D0C3;
-border-bottom: 1px solid #348E82;
+display:block;
+width:100%;
+height:99px;
+position:absolute;
+top:0;
+left:0;
+background:#B8D0C3;
+border-bottom: 5px solid #348E82;
 }
 
 #main header.global .nav-wrapper
 .inside {
-width: 1200px;
-height: 49px;
-background-image: url(../img/sylva_logo_text_header.png);
+width:1200px;
+height:99px;
+background-image: url(../img/sylva_logo_header.png);
 background-repeat: no-repeat;
-background-position: 10px 4px;
+background-position: 10px center;
 background-color: #D6E7DF;
-margin: auto;
+margin:auto;
 }
 
 #main header.global
@@ -157,7 +157,7 @@ border-bottom:solid 1px #FFF;
 
 #main header.global nav.main
 ul {
-margin-right: 15px;
+margin-right:50px;
 }
 
 #main header.global nav.main ul
@@ -180,20 +180,20 @@ a.plans {
 
 #main header.global nav.main ul li
 a {
-border-radius: 4px;
--moz-border-radius: 4px;
--webkit-border-radius: 4px;
-box-shadow: 0 1px 1px rgba(0, 0, 0, 0.9);
--webkit-box-shadow: 0 1px 1px rgba(0, 0, 0, 0.9);
--moz-box-shadow: 0 1px 1px rgba(0, 0, 0, 0.9);
-display: block;
-margin-top: 1px;
-font-size: 12px;
-font-weight: 700;
-color: #262626;
-text-decoration: none;
-padding: 5px 5px 5px 5px;
-background-color: white;
+border-radius:4px;
+-moz-border-radius:4px;
+-webkit-border-radius:4px;
+box-shadow:0 1px 1px rgba(0,0,0,0.9);
+-webkit-box-shadow:0 1px 1px rgba(0,0,0,0.9);
+-moz-box-shadow:0 1px 1px rgba(0,0,0,0.9);
+display:block;
+margin-top:1px;
+font-size:12px;
+font-weight:700;
+color:#262626;
+line-height:32px;
+text-decoration:none;
+padding: 5px 20px 5px 20px;
 }
 
 #main header.global nav.main ul li
@@ -202,15 +202,16 @@ opacity:0.2;
 cursor:default;
 }
 
+/*#main header.global nav.main ul li a.link-portfolio*/
+/*span {*/
+/*padding-right:10px;*/
+/*background:url(../img/rarr.gif) no-repeat 100% 59%;*/
+/*background:url(../img/larr.gif) no-repeat 0 59%;*/
+/*}*/
+
 #main header.global nav.main ul li a.link-home
 span {
-background: url(../img/larr.gif) no-repeat 0 50%;
-padding: 2px 2px 2px 10px;
-}
-
-#main header.global nav.main ul li a.link
-span {
-padding-left:13px;
+padding-left:12px;
 }
 
 #main header.global nav.main ul li a:hover {
@@ -221,7 +222,7 @@ box-shadow:0 0 5px rgba(52,142,130,0.75);
 
 #main header.global nav
 ul {
-padding: 13px 0 0 0;
+padding:29px 0;
 }
 
 #main header.global nav ul
@@ -237,7 +238,9 @@ padding-top:5px;
 
 #main header.global h1
 a {
+    background: url("../img/sylva_logo_text.png") no-repeat scroll center center transparent;
     display: block;
+    height: 120px;
     text-align: center;
 /*text-indent:-9999em;*/
 }
@@ -248,11 +251,14 @@ cursor:default;
 }
 
 #body {
-background: white;
-width: 1160px;
-position: relative;
-margin: auto;
-padding: 20px;}
+background:#FFF;
+width:1200px;
+/*overflow:hidden;*/
+position:relative;
+margin:auto;
+/*padding:0 50px;*/
+padding: 0px;
+}
 
 #body #homepage,#body
 #portfolio {
@@ -436,19 +442,19 @@ padding-bottom:60px;
 
 #main
 #footer.global {
-background: white;
-width: 1160px;
-position: relative;
-margin: auto;
-padding: 20px;
+background:#FFF;
+width:1100px;
+position:relative;
+margin:auto;
+padding:50px;
 }
 
 #main #footer.global
 .inside {
-border-top: solid 1px #DADADA;
-width: 100%;
-padding-top: 15px;
-padding-bottom: 25px;
+border-top:solid 1px #dadada;
+width:100%;
+padding-top:30px;
+padding-bottom:20px;
 }
 
 #main #footer.global .inside

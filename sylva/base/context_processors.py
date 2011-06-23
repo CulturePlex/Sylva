@@ -3,6 +3,9 @@ from datetime import datetime
 
 from django.conf import settings
 
+from userena.forms import AuthenticationForm
+
+
 def project_name(request):
     return {'PROJECT_NAME': getattr(settings, "PROJECT_NAME", None)}
 
@@ -17,3 +20,8 @@ def google_analytics_code(request):
 
 def current_date(request):
     return {'CURRENT_DATE': datetime.now()}
+
+def debug(request):
+    return {'DEBUG': getattr(settings, "DEBUG", False)}
+
+

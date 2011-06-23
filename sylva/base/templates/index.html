@@ -1,52 +1,156 @@
 {% extends "base.html" %}
 {% load i18n %}
 
-{% block title %}
-{% trans "Home" %}
+{% block extra_links %}
+    <link rel="stylesheet" type="text/css" href="{{ STATIC_PREFIX }}css/index.css" />
+    <link rel="stylesheet" type="text/css" href="{{ STATIC_PREFIX }}css/carousel.css" />
+{% endblock %}
+{% block extra_scripts %}
+    {{ block.super }}
+    <script type="text/javascript" src="{{ STATIC_PREFIX }}js/jquery.slides.min.js"></script>
+    <script type="text/javascript" src="http://gsgd.co.uk/sandbox/jquery/easing/jquery.easing.1.3.js"></script>
+    <script>
+        (function($) {
+            init = function() {
+                // Slideshow
+                $(function(){
+                    $('#slides').slides({
+                        preload: true,
+                        preloadImage: '{{ STATIC_PREFIX }}img/loading.gif',
+                        play: 5000,
+                        pause: 2500,
+                        hoverPause: true,
+                    });
+                });
+                {% if not user_is_signedin and not is_index %}
+                // Login modal window
+                $("#loginFormButton").click(function(e) {
+                    $("#loginForm").modal({
+                        overlayClose: true,
+                        opacity: 60,
+                        overlayCss: {backgroundColor: "#f2f2f2"},
+                        modal: true,
+                        onClose: function(e) {
+                            location.href = "{% url base.views.index %}";
+                        }
+                    });
+                    return false;
+                });
+                $("#loginFormButton").click();
+                {% endif %}
+            };
+            $(document).ready(init);
+        })(jQuery);
+    </script>
 {% endblock %}
 
-{% block header_slogan %}
-  <div id="header2">
-    <!-- the large header slogan which is over top of the grass image can either be changed, or removed below -->
-    <div id="header2-slogan1"><p>Page segmentation platform and</p></div>
-    <div id="header2-slogan2"><p>transcription of ancient documents</p></div>
-    <!-- end header slogan -->
+{% block content_title %}
+    <h1><a href="" class="inactive"></a></h1>
+{% endblock %}
+
+{% block contact_navigation %}
+    <nav class="contact">
+    <ul>
+      <li>
+          <h2>Contact us</h2>
+          <a href="mailto:admin@cultureplex.ca" rel="">admin@cultureplex.ca</a>
+        </li>
+        <li>
+          <h2>Follow us</h2>
+          <a href="http://www.twitter.com/sylvaproject" rel="external" target="blank">@sylvaproject</a>
+        </li>
+        <li>
+          <h2>Read our blog</h2>
+          <a href="http://sylva.blogs.cultureplex.ca/" rel="external" target="blank">sylva.blogs.cultureplex.ca</a>
+        </li>
+      </ul>
+    </nav>
+{% endblock %}
+
+{% block main_navigation %}
+  <nav class="main">
+    <ul>
+      <li><a href="" class="link signup active" title="{% trans "Invitation only, sorry." %}"><span>{% trans "Sign up" %}</span></a></li>
+      {% if request.user.is_authenticated %}
+      <li><a href="{% url django.contrib.auth.views.logout %}" class="link logout login"><span>{% trans "Sign out" %}</span></a></li>
+      {% else %}
+      <li><a href="{% url userena.views.signin %}" class="link login" id="loginFormButton"><span>{% trans "Sign in" %}</span></a></li>
+      {% endif %}
+      <li><a href="" class="link plans"><span>{% trans "Plans" %}</span></a></li>
+    </ul>
+    {% if user_is_signedin %}
+    <a href="{% url userena.views.profile_edit request.user %}">{{ request.user }}</a>
+    {% endif %}
+  </nav>
+  <div id="loginForm" style="display: none;">
+  {% if form %}
+        {% if form.errors %}
+            <p>Your username and password didn't match. Please try again.</p>
+        {% endif %}
+
+        <form method="post" action=".">
+        {% csrf_token %}
+        {{ form }}
+        <input type="submit" value="login" />
+        <input type="hidden" name="next" value="{{ next }}" />
+        </form>
+  {% else %}
+        {% trans "You signed out. Come back soon!" %}
+  {% endif %}
   </div>
 {% endblock %}
 
-{% block header %}
-<h1>{% trans "How does it work?" %}</h1>
-{% endblock %}
+{% block content %}
+  <div id="homepage">
 
-{% block prefooter %}
-<div id="body-divider"></div><!-- the division between the light green content section, and the dark -->
-    <div id="content2">
-        <div class="content-padding">
-          <!-- content blocks (three side by side), can remove if needed, this was just an example -->
-          <div class="content2-block">
-            <h2>{% trans "News" %}</h2>
-            <p><em>November 18th, 2010</em></p>
-            <p>Presence in the official presentation of the Cultureplex Lab at UWO.</p>
-          </div>
-          <div class="content-divider"></div>
-          <div class="content2-block">
-            <h3>{% trans "Open Source" %}</h3>
-            <p>This software will be licensed under a FLOSS license soon.</p>
-          </div>
-          <div class="content-divider"></div>
-            <div class="content2-block">
-            <h4>{% trans "Sign in" %}</h4>
-            <p>{% trans "You can get a free account if you has no one yet" %}:</p>
-            <div id="subscribe">
-              <form action="." enctype="multipart/form-data" method="post">
-                <input name="name" type="text" value="{% trans "Your name" %}" class="inputstyle" />
-                <input name="email" type="password" value="{% trans "Your password" %}" class="inputstyle" />
-                <input type="submit" value="Sign in" class="button" />
-              </form>
-            </div>
-          <!-- end content blocks -->
-          </div>
-          <div class="clearfloats"></div>
+    <div class="text-replacement" style="margin-left: 0px; opacity: 1; ">
+        <p class="slogan">{% trans "A Relaxed-Schema Graph Database Management System" %}.</p>
+        <div id="container">
+        <div id="slideshow"> 
+<!--            <img src="{{ STATIC_PREFIX }}img/new-ribbon.png" width="112" height="112" alt="New Ribbon" id="ribbon"> -->
+            <div id="slides"> 
+                <div class="slides_container"> 
+                    <a href="http://www.flickr.com/photos/jliba/4665625073/" title="145.365 - Happy Bokeh Thursday! | Flickr - Photo Sharing!" target="_blank"><img src="{{ STATIC_PREFIX }}img/slide-1.jpg" width="570" height="270" alt="Slide 1"></a> 
+                    <a href="http://www.flickr.com/photos/stephangeyer/3020487807/" title="Taxi | Flickr - Photo Sharing!" target="_blank"><img src="{{ STATIC_PREFIX }}img/slide-2.jpg" width="570" height="270" alt="Slide 2"></a> 
+                    <a href="http://www.flickr.com/photos/childofwar/2984345060/" title="Happy Bokeh raining Day | Flickr - Photo Sharing!" target="_blank"><img src="{{ STATIC_PREFIX }}img/slide-3.jpg" width="570" height="270" alt="Slide 3"></a> 
+                    <a href="http://www.flickr.com/photos/b-tal/117037943/" title="We Eat Light | Flickr - Photo Sharing!" target="_blank"><img src="{{ STATIC_PREFIX }}img/slide-4.jpg" width="570" height="270" alt="Slide 4"></a> 
+                    <a href="http://www.flickr.com/photos/bu7amd/3447416780/" title="“I must go down to the sea again, to the lonely sea and the sky; and all I ask is a tall ship and a star to steer her by.” | Flickr - Photo Sharing!" target="_blank"><img src="{{ STATIC_PREFIX }}img/slide-5.jpg" width="570" height="270" alt="Slide 5"></a> 
+                    <a href="http://www.flickr.com/photos/streetpreacher/2078765853/" title="twelve.inch | Flickr - Photo Sharing!" target="_blank"><img src="{{ STATIC_PREFIX }}img/slide-6.jpg" width="570" height="270" alt="Slide 6"></a> 
+                    <a href="http://www.flickr.com/photos/aftab/3152515428/" title="Save my love for loneliness | Flickr - Photo Sharing!" target="_blank"><img src="{{ STATIC_PREFIX }}img/slide-7.jpg" width="570" height="270" alt="Slide 7"></a> 
+                </div> 
+                <a href="#" class="prev"><img src="{{ STATIC_PREFIX }}img/arrow-prev.png" width="24" height="43" alt="Arrow Prev"></a> 
+                <a href="#" class="next"><img src="{{ STATIC_PREFIX }}img/arrow-next.png" width="24" height="43" alt="Arrow Next"></a> 
+            </div> 
+            <img src="{{ STATIC_PREFIX }}img/example-frame.png" width="739" height="341" alt="Example Frame" id="frame"> 
+        </div> 
+        </div>
     </div>
-</div>
+
+    <div id="body-divider"></div><!-- the division between the light green content section, and the dark -->
+        <div id="content2">
+            <div class="content-padding">
+              <!-- content blocks (three side by side), can remove if needed, this was just an example -->
+              <div class="content2-block">
+                <h2 class="model">{% trans "Model" %}</h3>
+                <p>{% blocktrans %}Create an schema of your data and change it all the times you need. Absolute flexibility for editing the schema again and again. Even you can decide what happends with the referencail integrity and cascade deletions.{% endblocktrans %}</p>
+              </div>
+              <div class="content-divider"></div>
+              <div class="content2-block">
+                <h2 class="collect">{% trans "Collect" %}</h2>
+                <p>{% blocktrans %}As many people as you want can work simultaneously collecting the data. From any place in the world, just having a browser and an Internet connection available.{% endblocktrans %}</p>
+                <p>{% blocktrans %}The data belongs to you, so you can export them whenever you need to the most common formats: GML, GEXF, CSV, etc.{% endblocktrans %}</p>
+              </div>
+              <div class="content-divider"></div>
+                <div class="content2-block">
+                <h2 class="query">{% trans "Query" %}</h4>
+                <p>{% blocktrans %}Research on your connected data discovering new information through the powerfull system of quering.{% endblocktrans %}</p>
+                <p>{% blocktrans %}Setup an expermient, save it and share it with others.{% endblocktrans %}</p>
+              <!-- end content blocks -->
+              </div>
+              <div class="clearfloats"></div>
+        </div>
+    </div>
+
+          </section><!-- end section.portfolio -->
+  </div><!-- end #portfolio -->
 {% endblock %}
