@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render_to_response, redirect
 from django.template import RequestContext
 
-from userena.views import signup
+from userena.views import signin, signup
 
 
 def index(request):
@@ -12,6 +12,11 @@ def index(request):
     return render_to_response('index.html',
                               {'is_index': True},
                               context_instance=RequestContext(request))
+
+def signin_redirect(request, *args, **kwargs):
+    if request.user.is_authenticated() and request.user.is_superuser:
+        return redirect("dashboard")
+    return signin(request, *args, **kwargs)
 
 def signup_redirect(request, *args, **kwargs):
     if request.user.is_authenticated() and request.user.is_superuser:

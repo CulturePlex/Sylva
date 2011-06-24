@@ -127,6 +127,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     "base.context_processors.google_api_key",
     "base.context_processors.google_analytics_code",
     "base.context_processors.debug",
+    "base.context_processors.logout",
 )
 
 MIDDLEWARE_CLASSES = (
@@ -203,3 +204,4 @@ USERENA_DEFAULT_PRIVACY = "open"
 USERENA_DISABLE_PROFILE_LIST = False
 USERENA_WITHOUT_USERNAMES = True
 USERENA_LANGUAGE_FIELD = "language"
+USERENA_SIGNIN_REDIRECT_URL = LOGIN_REDIRECT_URL

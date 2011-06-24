@@ -579,7 +579,7 @@ background:#FFF;
 #content2 h2,h3,h4,h5,h6 {
 /*  background:#1D5600 url(../img/headline-arrow.gif) no-repeat top left;*/
   font:normal 25px serif;
-  line-height:25px;
+/*  line-height:25px;*/
   color:#348E82;
   text-shadow:1px 1px 1px #A19C60;
   padding-bottom:10px;

@@ -24,4 +24,7 @@ def current_date(request):
 def debug(request):
     return {'DEBUG': getattr(settings, "DEBUG", False)}
 
+def logout(request):
+    return {'LOGOUT_URL': getattr(settings, "LOGOUT_URL", "/accounts/logout/")}
+
 

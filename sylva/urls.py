@@ -12,6 +12,7 @@ urlpatterns = patterns('',
     url(r'^', include('base.urls')),
 
     # accounts
+    url(r'^accounts/signin/', "base.views.signin_redirect", name="signin"),
     url(r'^accounts/signup/', "base.views.signup_redirect", name="signup"),
     url(r'^accounts/', include('userena.urls')),
 
