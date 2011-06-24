@@ -70,7 +70,7 @@
 {% block main_navigation %}
   <nav class="main">
     <ul>
-      <li><a href="" class="link signup active" title="{% trans "Invitation only, sorry." %}"><span>{% trans "Sign up" %}</span></a></li>
+      <li><a href="{% url signup %}" class="link signup active" title="{% trans "Invitation only, sorry." %}"><span>{% trans "Sign up" %}</span></a></li>
       {% if request.user.is_authenticated %}
       <li><a href="{% url django.contrib.auth.views.logout %}" class="link logout login"><span>{% trans "Sign out" %}</span></a></li>
       {% else %}
