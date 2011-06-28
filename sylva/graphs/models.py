@@ -1,11 +1,10 @@
-import re
-import simplejson
-from random import randint
-
-from django.contrib.auth.models import ContentType, Permission, User
-from django.core.exceptions import ValidationError
+# -*- coding: utf-8 -*-
+from django.contrib.auth.models import User
 from django.utils.translation import gettext as _
 from django.db import models
+
+# from data.models import Data
+# from schemas.models import Schema
 
 
 class Graph(models.Model):
@@ -13,7 +12,12 @@ class Graph(models.Model):
     description = models.TextField(_('description'))
     public = models.BooleanField(_('is public?'), default=True)
     order = models.IntegerField(_('order'))
+
     owner = models.ForeignKey(User, verbose_name=_('owner'))
+    # data = models.ForeignKey(Data, verbose_name=_('data'))
+    # schema = models.ForeignKey(Schema, verbose_name=_('schema'),
+    #                            null=True, blank=True)
+    relaxed = models.BooleanField(_('Is schema-relaxed?'), default=False)
 
     class Meta:
         unique_together = ["owner", "name"]  # TODO: Add constraint in forms
@@ -24,3 +28,11 @@ class Graph(models.Model):
 
     def __unicode__(self):
         return self.name
+
+    # TODO: Decide if a graph details view is required
+    # @models.permalink
+    # def get_absolute_url(self):
+    #     return ('graphs.views.details', [str(self.id)])
+
+    def get_gdb(self):
+        return self.data.get_gdb()

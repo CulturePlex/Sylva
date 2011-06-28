@@ -23,19 +23,19 @@ urlpatterns = patterns('',
     url(r'^messages/', include('userena.contrib.umessages.urls')),
 
     # data
-    # url(r'^data/', include('data.urls')),
+    url(r'^data/', include('data.urls')),
 
     # engines
-    # url(r'^engines/', include('engines.urls')),
+    url(r'^engines/', include('engines.urls')),
 
     # graphs
-    # url(r'^graphs/', include('graphs.urls')),
+    url(r'^graphs/', include('graphs.urls')),
 
     # operators
     # url(r'^operators/', include('operators.urls')),
 
     # schemas
-    # url(r'^schemas/', include('schemas.urls')),
+    url(r'^schemas/', include('schemas.urls')),
 
     # tools
     # url(r'^tools/', include('tools.urls')),

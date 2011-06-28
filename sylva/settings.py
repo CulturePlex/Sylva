@@ -11,7 +11,7 @@ PROJECT_NAME = u"Sylva Project"
 PROJECT_ROOT = path.dirname(path.abspath(__file__))
 
 ADMINS = (
-    ('CulturePlex Lab', 'admin@cultureplex.ca'),
+    ('CulturePlex Lab', 'info@cultureplex.ca'),
 )
 
 MANAGERS = ADMINS
@@ -162,6 +162,10 @@ INSTALLED_APPS = (
     'easy_thumbnails',
     'sorl.thumbnail',
     'base',
+    'data',
+    'graphs',
+    'schemas',
+    'engines',
 )
 
 AUTHENTICATION_BACKENDS = (
