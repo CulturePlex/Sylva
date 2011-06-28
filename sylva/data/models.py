@@ -25,7 +25,7 @@ class Data(models.Model):
             return _(u"Data for graph \"%s\" on \"%s\"") % (self.graph.name,
                                                             self.instance.name)
         else:
-            return _(u"Data for graph \"%s\" on public instance") \
+            return _(u"Data for graph \"%s\" on default instance") \
                    % self.graph.name
 
     def get_gdb(self):
