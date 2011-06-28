@@ -6,8 +6,7 @@ from django.db import models
 from graphs.models import Graph
 
 class Schema(models.Model):
-    graph = models.OneToOneField(Graph, verbose_name=_('schema'),
-                                 null=True, blank=True, parent_link=True)
+    graph = models.OneToOneField(Graph, verbose_name=_('graph'))
 
     class Meta:
         permissions = (
@@ -15,7 +14,7 @@ class Schema(models.Model):
         )
 
     def __unicode__(self):
-        return "%s" % (self.name)
+        return _("Schema for graph \"%s\"") % (self.graph.name)
 
     @models.permalink
     def get_absolute_url(self):

@@ -9,9 +9,9 @@ from django.db import models
 
 class Graph(models.Model):
     name = models.CharField(_('name'), max_length=120)
-    description = models.TextField(_('description'))
+    description = models.TextField(_('description'), null=True, blank=True)
     public = models.BooleanField(_('is public?'), default=True)
-    order = models.IntegerField(_('order'))
+    order = models.IntegerField(_('order'), null=True, blank=True)
 
     owner = models.ForeignKey(User, verbose_name=_('owner'))
     # data = models.ForeignKey(Data, verbose_name=_('data'))
