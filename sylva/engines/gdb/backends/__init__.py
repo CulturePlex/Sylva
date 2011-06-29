@@ -11,14 +11,10 @@ class BaseGraphDatabase(object):
 class BlueprintsGraphDatabase(BaseGraphDatabase):
 
     def create_node(self, properties):
-        node_properties = {}
-        #TODO Default properties
-        for key, value in properties.items():
-            node_properties[key] = value
         # index = self.gdb.getIndex('all_nodes', 'VERTICES')
         # Create node and set properties
         node = self.gdb.addVertex()
-        for key, value in node_properties.iteritems():
+        for key, value in properties.iteritems():
             node.setProperty(key, value)
         # Index node
         # TODO index.put('key1', properties['key1'], node)
