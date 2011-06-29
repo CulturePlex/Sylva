@@ -24,7 +24,8 @@ class Schema(models.Model):
 class NodeType(models.Model):
     name = models.CharField(_('name'), max_length=30)
     description = models.TextField(_('description'), blank=True, null=True)
-    inheritance = models.ForeignKey('self', verbose_name=_("inheritance"))
+    inheritance = models.ForeignKey('self', null=True, blank=True,
+                                    verbose_name=_("inheritance"))
     schema = models.ForeignKey(Schema)
 
     def __unicode__(self):
@@ -39,14 +40,11 @@ class NodeType(models.Model):
 
 class RelationshipType(models.Model):
 
-    def validate_schema(self, value):
-        if self.source.schema != value and self.target.schema != value:
-            raise ValidationError(u"Schema %s doesn't match" % value)
-
     name = models.CharField(_('name'), max_length=30)
     description = models.TextField(_('description'), blank=True, null=True)
-    inheritance = models.ForeignKey('self', verbose_name=_("inheritance"))
-    schema = models.ForeignKey(Schema, validators=[validate_schema])
+    inheritance = models.ForeignKey('self', null=True, blank=True,
+                                    verbose_name=_("inheritance"))
+    schema = models.ForeignKey(Schema)
     source = models.ForeignKey(NodeType, related_name='node_source',
                                verbose_name=_("source node"),
                                help_text=_("Source node type"))
@@ -111,4 +109,4 @@ class RelationshipProperty(BaseProperty):
                                      verbose_name=_('relationship'))
 
     class Meta:
-        verbose_name_plural = _("Edge properties")
+        verbose_name_plural = _("Relationship properties")
