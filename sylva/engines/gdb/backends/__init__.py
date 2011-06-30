@@ -4,8 +4,10 @@ import datetime
 
 class BaseGraphDatabase(object):
 
-    def __init__(self, url):
+    def __init__(self, url, params=None, graph=None):
         self.url = url
+        self.params = params or {}
+        self.graph = graph
 
 
 class BlueprintsGraphDatabase(BaseGraphDatabase):
