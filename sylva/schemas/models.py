@@ -1,12 +1,10 @@
 # -*- coding: utf-8 -*-
 from django.utils.translation import gettext as _
-from django.core.exceptions import ValidationError
 from django.db import models
 
-from graphs.models import Graph
 
 class Schema(models.Model):
-    graph = models.OneToOneField(Graph, verbose_name=_('graph'))
+    # graph = models.OneToOneField(Graph, verbose_name=_('graph'))
 
     class Meta:
         permissions = (
@@ -14,7 +12,7 @@ class Schema(models.Model):
         )
 
     def __unicode__(self):
-        return _("Schema for graph \"%s\"") % (self.graph.name)
+        return _("Schema \"%s\"") % (self.id)
 
     @models.permalink
     def get_absolute_url(self):

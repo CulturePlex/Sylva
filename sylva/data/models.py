@@ -5,11 +5,9 @@ from django.db import models
 from engines.gdb.utils import get_gdb
 from engines.models import Instance
 
-from graphs.models import Graph
-
 
 class Data(models.Model):
-    graph = models.OneToOneField(Graph, verbose_name=_('graph'))
+    # graph = models.OneToOneField(Graph, verbose_name=_('graph'))
     instance = models.ForeignKey(Instance,
                                  verbose_name=_("Graph database instance"),
                                  blank=True, null=True)
@@ -22,11 +20,9 @@ class Data(models.Model):
 
     def __unicode__(self):
         if self.instance:
-            return _(u"Data for graph \"%s\" on \"%s\"") % (self.graph.name,
-                                                            self.instance.name)
+            return _(u"Data on instance \"%s\"") % self.instance.name
         else:
-            return _(u"Data for graph \"%s\" on default instance") \
-                   % self.graph.name
+            return _(u"Data on default instance")
 
     def get_gdb(self):
         if self.instance:

@@ -66,22 +66,23 @@ class Instance(models.Model):
         else:
             if self.username and self.password and self.port:
                 connection_string = "%s://%s:%s@%s:%s/%s/" % (self.scheme,
-                                                             self.username,
-                                                             self.password,
-                                                             self.host,
-                                                             self.port,
-                                                             self.path)
+                                                              self.username,
+                                                              self.password,
+                                                              self.host,
+                                                              self.port,
+                                                              self.path)
             elif self.username and self.port:
                 connection_string = "%s://%s@%s:%s/%s/" % (self.scheme,
-                                                          self.username,
-                                                          self.host, self.port,
-                                                          self.path)
+                                                           self.username,
+                                                           self.host,
+                                                           self.port,
+                                                           self.path)
             elif self.port:
                 connection_string = "%s://%s:%s/%s/" % (self.scheme, self.host,
                                                         self.port, self.path)
             else:
                 connection_string = "%s://%s/%s/" % (self.scheme, self.host,
-                                                    self.path)
+                                                     self.path)
             if self.query:
                 connection_string = "%?%s" % (connection_string, self.query)
             if self.fragment:
