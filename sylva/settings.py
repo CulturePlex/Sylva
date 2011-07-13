@@ -29,12 +29,12 @@ DATABASES = {
 GRAPHDATABASES = {
     'default': {
         'ENGINE': 'engines.gdb.backends.neo4j',
-        'NAME': 'db/data',
+        'NAME': 'db/sylva',  # Changed to avoid overwrites from testing
         'USER': '',
         'PASSWORD': '',
         'SCHEMA': 'http',
         'HOST': 'localhost',
-        'PORT': '7474',
+        'PORT': '7373',  # Changed to avoid overwrites from testing
     }
 }
 
