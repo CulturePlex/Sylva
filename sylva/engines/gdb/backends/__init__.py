@@ -29,7 +29,7 @@ class BaseGraphDatabase(object):
         Create a node.
         If "properties" is a dictionary, they will be added to the node.
         If "label" is a string, the node will be labeled with "label".
-        Return the id of the node created.
+        Return the id of the node created and set it to it.
         """
         raise NotImplementedError("Method has to be implemented")
 
@@ -42,6 +42,12 @@ class BaseGraphDatabase(object):
     def get_node_label(self, id):
         """
         Get the label of the node "id".
+        """
+        raise NotImplementedError("Method has to be implemented")
+
+    def set_node_label(self, id, label):
+        """
+        Set the label of the node "id".
         """
         raise NotImplementedError("Method has to be implemented")
 
@@ -96,9 +102,27 @@ class BaseGraphDatabase(object):
         and "properties", containing a dictionary with the properties.
         """
 
-    def get_all_nodes(self):
+    def get_nodes(self, ids, include_properties=False):
+        """
+        Get all the nodes which "id" is on the list "ids".
+        If "include_properties" is True, each element in the list will be a
+        dictionary with two keys: "id", containing the id of the relationship,
+        and "properties", containing a dictionary with the properties.
+        """
+        raise NotImplementedError("Method has to be implemented")
+
+    def delete_nodes(self, ids):
+        """
+        Delete all the nodes which "id" is on the list "ids".
+        """
+        raise NotImplementedError("Method has to be implemented")
+
+    def get_all_nodes(self, include_properties=False):
         """
         Get an iterator for all nodes.
+        If "include_properties" is True, each element in the list will be a
+        dictionary with two keys: "id", containing the id of the relationship,
+        and "properties", containing a dictionary with the properties.
         """
         raise NotImplementedError("Method has to be implemented")
 
@@ -118,19 +142,25 @@ class BaseGraphDatabase(object):
         Create a relationship from node "id1" to node "id2".
         If "label" is a string, the relationship will be labeled with "label".
         If "properties" is a dictionary, they will be added to the node.
-        It returns the id of the relationship created.
-        """
-        raise NotImplementedError("Method has to be implemented")
-
-    def delete_relationship(self, id):
-        """
-        Delete the relationship "id".
+        Return the id of the relationship created and set it to it.
         """
         raise NotImplementedError("Method has to be implemented")
 
     def get_relationship_label(self, id):
         """
         Get the label of the relationship "id".
+        """
+        raise NotImplementedError("Method has to be implemented")
+
+    def set_relationship_label(self, id, label):
+        """
+        Set the label of the relationship "id".
+        """
+        raise NotImplementedError("Method has to be implemented")
+
+    def delete_relationship(self, id):
+        """
+        Delete the relationship "id".
         """
         raise NotImplementedError("Method has to be implemented")
 
@@ -175,21 +205,47 @@ class BaseGraphDatabase(object):
         """
         raise NotImplementedError("Method has to be implemented")
 
-    def get_relationship_nodes(self, id, include_properties=False):
+    def get_relationship_source(self, id, include_properties=False):
         """
-        Get the list of all nodes ids implied in some relationship. Each
-        element in the list is a dictionary with three keys: "source" with the id
-        of the start node, "target" with the id of the end node, and "label"
-        with the type of the relationship.
-        If "include_properties" is True, a new key "properties" is added to the
-        returned dictionaries, containing a dictionary with the properties of
-        the relationship.
+        Get the node id for the source node of the relationship "id".
+        keys, "id" with the id of the source node, and "properties" containing
+        a dictionary with the properties of the node.
         """
         raise NotImplementedError("Method has to be implemented")
 
-    def get_all_relationship(self):
+    def set_relationship_source(self, relationship_id, node_id):
+        """
+        Set the source node of the relationship "relationship_id".
+        """
+        raise NotImplementedError("Method has to be implemented")
+
+    def get_relationship_target(self, id, include_properties=False):
+        """
+        Get the node id for the target node of the relationship "id".
+        If "include_properties" is True, a dictionart is returned with two
+        keys, "id" with the id of the target node, and "properties" containing
+        a dictionary with the properties of the node.
+        """
+        raise NotImplementedError("Method has to be implemented")
+
+    def set_relationship_target(self, relationship_id, node_id):
+        """
+        Set the target node of the relationship "relationship_id".
+        """
+        raise NotImplementedError("Method has to be implemented")
+
+    def delete_relationships(self, ids):
+        """
+        Delete all the relationships which "id" is on the list "ids".
+        """
+        raise NotImplementedError("Method has to be implemented")
+
+    def get_all_relationship(self, include_properties=False):
         """
         Get an iterator for all relationship.
+        If "include_properties" is True, a new key "properties" is added to the
+        returned dictionaries, containing a dictionary with the properties of
+        the relationship.
         """
         raise NotImplementedError("Method has to be implemented")
 
