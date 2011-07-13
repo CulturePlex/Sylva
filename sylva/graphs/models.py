@@ -16,8 +16,8 @@ class Graph(models.Model, GraphMixin):
     order = models.IntegerField(_('order'), null=True, blank=True)
 
     owner = models.ForeignKey(User, verbose_name=_('owner'))
-    data = models.ForeignKey(Data, verbose_name=_('data'))
-    schema = models.ForeignKey(Schema, verbose_name=_('schema'),
+    data = models.OneToOneField(Data, verbose_name=_('data'))
+    schema = models.OneToOneField(Schema, verbose_name=_('schema'),
                                null=True, blank=True)
     relaxed = models.BooleanField(_('Is schema-relaxed?'), default=False)
 

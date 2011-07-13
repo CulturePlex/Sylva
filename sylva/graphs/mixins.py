@@ -3,11 +3,13 @@
 
 class GraphMixin(object):
 
-    def nodes(self):
+    def _nodes(self):
         return NodesManager(self)
+    nodes = property(_nodes)
 
-    def relationships(self):
+    def _relationships(self):
         return RelationshipsManager(self)
+    relationships = property(_relationships)
 
 
 class BaseManager(object):
@@ -15,7 +17,7 @@ class BaseManager(object):
     def __init__(self, graph):
         self.graph = graph
         self.gdb = graph.data.get_gdb()
-        self.schema = graph.relaxed and graph.schema
+        self.schema = (not graph.relaxed) and graph.schema
         self.data = graph.data
 
     def filter_dict(self, properties=None):
@@ -265,8 +267,9 @@ class Node(BaseElement):
         self.gdb.delete_node_property(key)
         del self._properties[key]
 
-    def relationships(self):
+    def _relationships(self):
         return NodeRelationshipsManager(self.graph, self.schema, self.id)
+    relationships = property(_relationships)
 
     def _get_properties(self):
         self._properties = self.gdb.get_node_properties(self.id)

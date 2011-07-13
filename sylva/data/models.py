@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
-from django.utils.translation import gettext as _
+from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
+from django.utils.translation import gettext as _
 
 from engines.gdb.utils import get_gdb
 from engines.models import Instance
@@ -19,10 +20,18 @@ class Data(models.Model):
         verbose_name_plural = _("data")
 
     def __unicode__(self):
-        if self.instance:
-            return _(u"Data on instance \"%s\"") % self.instance.name
-        else:
-            return _(u"Data on default instance")
+        try:
+            if self.instance:
+                return _(u"Data for \"%s\" on instance \"%s\"") \
+                       % (self.graph.name, self.instance.name)
+            else:
+                return _(u"Data for \"%s\" on default instance") \
+                       % self.graph.name
+        except ObjectDoesNotExist:
+            if self.instance:
+                return _(u"Data on instance \"%s\"") % self.instance.name
+            else:
+                return _(u"Data on default instance")
 
     def get_gdb(self):
         if self.instance:
