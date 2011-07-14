@@ -1,17 +1,31 @@
 # -*- coding: utf-8 -*-
 
-from engines.gdb.backends import BaseGraphDatabase
+from engines.gdb.backends import (BaseGraphDatabase,
+                                NodeDoesNotExist,
+                                RelationshipDoesNotExist)
 
 
 class BlueprintsGraphDatabase(BaseGraphDatabase):
+
+    def __get_vertex(self, id):
+        vertex = self.gdb.getVertex(id)
+        if not vertex:
+            raise NodeDoesNotExist(id)
+        return vertex
+
+    def __get_edge(self, id):
+        edge = self.gdb.getEdge(id)
+        if not edge:
+            raise RelationshipDoesNotExist(id)
+        return edge
 
     def __validate_property(self, key):
         if key.startswith('_'):
             raise ValueError("%s: Keys starting with _ \
                             are not allowed" % key)
 
-    def __check_property(self, key):
-        if key not in vertex.getPropertyKeys():
+    def __check_property(self, element, key):
+        if key not in element.getPropertyKeys():
             raise KeyError("%s key does not exist" % key)
 
     def __get_public_properties(self, element):
@@ -28,11 +42,11 @@ class BlueprintsGraphDatabase(BaseGraphDatabase):
         return element.getProperty("_label")
 
     def __set_element_label(self, element, label):
-        return element.getProperty("_label", label)
+        return element.setProperty("_label", label)
 
     def __get_element_property(self, element, key):
         self.__validate_property(key)
-        self.__check_property(key)
+        self.__check_property(element, key)
         return element.getProperty(key)
 
     def __set_element_property(self, element, key, value):
@@ -41,11 +55,11 @@ class BlueprintsGraphDatabase(BaseGraphDatabase):
 
     def __delete_element_property(self, element, key):
         self.__validate_property(key)
-        self.__check_property(key)
+        self.__check_property(element, key)
         element.removeProperty(key)
 
     def __get_element_properties(self, element):
-        return self.__public_properties(element)
+        return self.__get_public_properties(element)
 
     def __set_element_properties(self, element, properties):
         for key in properties:
@@ -56,12 +70,12 @@ class BlueprintsGraphDatabase(BaseGraphDatabase):
             element.setProperty(key, value)
 
     def __delete_element_properties(self, element):
-        for key in self._get_public_keys(element):
+        for key in self.__get_public_keys(element):
             element.removeProperty(key)
 
     def create_node(self, label, properties=None):
         #Label must be a string
-        if not label or not type(label) == basestring:
+        if not label or not isinstance(label, basestring):
             raise TypeError("label must be a string")
         vertex = self.gdb.addVertex()
         if type(properties) == dict:
@@ -76,44 +90,44 @@ class BlueprintsGraphDatabase(BaseGraphDatabase):
         return vertex.getId()
 
     def delete_node(self, id):
-        vertex = self.gdb.getVertex(id)
+        vertex = self.__get_vertex(id)
         self.gdb.removeVertex(vertex)
 
     def get_node_label(self, id):
-        vertex = self.gdb.getVertex(id)
+        vertex = self.__get_vertex(id)
         return self.__get_element_label(vertex)
 
     def set_node_label(self, id, label):
-        vertex = self.gdb.getVertex(id)
+        vertex = self.__get_vertex(id)
         return self.__set_element_label(vertex, label)
 
     def get_node_property(self, id, key):
-        vertex = self.gdb.getVertex(id)
+        vertex = self.__get_vertex(id)
         return self.__get_element_property(vertex, key)
 
     def set_node_property(self, id, key, value):
-        vertex = self.gdb.getVertex(id)
-        self.__set_element_property(vertex, key)
+        vertex = self.__get_vertex(id)
+        self.__set_element_property(vertex, key, value)
 
     def delete_node_property(self, id, key):
-        vertex = self.gdb.getVertex(id)
+        vertex = self.__get_vertex(id)
         self.__delete_element_property(vertex, key)
 
     def get_node_properties(self, id):
-        vertex = self.gdb.getVertex(id)
-        return self.__public_properties(vertex)
+        vertex = self.__get_vertex(id)
+        return self.__get_public_properties(vertex)
 
     def set_node_properties(self, id, properties):
-        vertex = self.gdb.getVertex(id)
+        vertex = self.__get_vertex(id)
         self.__set_element_properties(vertex, properties)
 
     def delete_node_properties(self, id):
-        vertex = self.gdb.getVertex(id)
+        vertex = self.__get_vertex(id)
         self.__delete_element_properties(vertex)
 
     def get_node_relationships(self, id, incoming=False, outgoing=False,
                                include_properties=False):
-        vertex = self.gdb.getVertex(id)
+        vertex = self.__get_vertex(id)
         if not incoming and outgoing:
             edges = vertex.getOutEdges()
         elif incoming and notoutgoing:
@@ -160,10 +174,10 @@ class BlueprintsGraphDatabase(BaseGraphDatabase):
 
     def create_relationship(self, id1, id2, label, properties=None):
         #Label must be a string
-        if not label or not type(label) == basestring:
+        if not label or not isinstance(label, basestring):
             raise TypeError("label must be a string")
-        v1 = self.gdb.getVertex(id1)
-        v2 = self.gdb.getVertex(id2)
+        v1 = self.__get_vertex(id1)
+        v2 = self.__get_vertex(id2)
         edge = self.gdb.addEdge(v1, v2, label)
         if type(properties) == dict:
             #Properties starting with _ are not allowed
@@ -177,43 +191,43 @@ class BlueprintsGraphDatabase(BaseGraphDatabase):
         return edge.getId()
 
     def get_relationship_label(self, id):
-        edge = self.gdb.getEdge(id)
+        edge = self.__get_edge(id)
         return self.__get_element_label(edge)
 
     def set_relationship_label(self, id, label):
-        edge = self.gdb.getEdge(id)
+        edge = self.__get_edge(id)
         self.__set_element_label(edge, label)
 
     def delete_relationship(self, id):
-        edge = self.gdb.getEdge(id)
+        edge = self.__get_edge(id)
         self.gdb.removeEdge(edge)
 
     def get_relationship_property(self, id, key):
-        edge = self.gdb.getEdge(id)
+        edge = self.__get_edge(id)
         return self.__get_element_property(edge, key)
 
     def set_relationship_property(self, id, key, value):
-        edge = self.gdb.getEdge(id)
+        edge = self.__get_edge(id)
         self.__set_element_property(edge, key, value)
 
     def delete_relationship_property(self, id, key):
-        edge = self.gdb.getEdge(id)
+        edge = self.__get_edge(id)
         self.__delete_element_property(edge, key)
 
     def get_relationship_properties(self, id):
-        edge = self.gdb.getEdge(id)
+        edge = self.__get_edge(id)
         return self.__get_element_properties(edge)
 
     def set_relationship_properties(self, id, properties):
-        edge = self.gdb.getEdge(id)
+        edge = self.__get_edge(id)
         self.__set_element_properties(edge, properties)
 
     def delete_relationship_properties(self, id):
-        edge = self.gdb.getEdge(id)
+        edge = self.__get_edge(id)
         self.__delete_element_properties(edge)
 
     def get_relationship_source(self, id, include_properties=False):
-        edge = self.gdb.getEdge(id)
+        edge = self.__get_edge(id)
         vertex = edge.getOutVertex()
         if include_properties:
             return {"id": vertex.getId(),
@@ -222,8 +236,8 @@ class BlueprintsGraphDatabase(BaseGraphDatabase):
             return vertex.getId()
 
     def set_relationship_source(self, relationship_id, node_id):
-        v1 = self.gdb.getVertex(node_id)
-        edge = self.gdb.getEdge(relationship_id)
+        v1 = self.__get_vertex(node_id)
+        edge = self.__get_edge(relationship_id)
         v2 = edge.getInVertex()
         label = edge.getLabel()
         self.create_relationship(v1.getId(), v2.getId(), label,
@@ -231,7 +245,7 @@ class BlueprintsGraphDatabase(BaseGraphDatabase):
         self.gdb.removeEdge(edge)
 
     def get_relationship_target(self, id, include_properties=False):
-        edge = self.gdb.getEdge(id)
+        edge = self.__get_edge(id)
         vertex = edge.getInVertex()
         if include_properties:
             return {"id": vertex.getId(),
@@ -240,8 +254,8 @@ class BlueprintsGraphDatabase(BaseGraphDatabase):
             return vertex.getId()
 
     def set_relationship_target(self, relationship_id, node_id):
-        v2 = self.gdb.getVertex(node_id)
-        edge = self.gdb.getEdge(relationship_id)
+        v2 = self.__get_vertex(node_id)
+        edge = self.__get_edge(relationship_id)
         v1 = edge.getOutVertex()
         label = edge.getLabel()
         self.create_relationship(v1.getId(), v2.getId(), label,
