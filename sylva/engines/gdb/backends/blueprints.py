@@ -1,0 +1,282 @@
+# -*- coding: utf-8 -*-
+
+from engines.gdb.backends import BaseGraphDatabase
+
+
+class BlueprintsGraphDatabase(BaseGraphDatabase):
+
+    def __validate_property(self, key):
+        if key.startswith('_'):
+            raise ValueError("%s: Keys starting with _ \
+                            are not allowed" % key)
+
+    def __check_property(self, key):
+        if key not in vertex.getPropertyKeys():
+            raise KeyError("%s key does not exist" % key)
+
+    def __get_public_properties(self, element):
+        properties = {}
+        for key in element.getPropertyKeys():
+            if not key.startswith('_'):
+                properties[key] = element.getProperty(key)
+        return properties
+ 
+    def __get_public_keys(self, element):
+        return self.__get_public_properties(element).keys()
+
+    def __get_element_label(self, element):
+        return element.getProperty("_label")
+
+    def __set_element_label(self, element, label):
+        return element.getProperty("_label", label)
+
+    def __get_element_property(self, element, key):
+        self.__validate_property(key)
+        self.__check_property(key)
+        return element.getProperty(key)
+
+    def __set_element_property(self, element, key, value):
+        self.__validate_property(key)
+        element.setProperty(key, value)
+
+    def __delete_element_property(self, element, key):
+        self.__validate_property(key)
+        self.__check_property(key)
+        element.removeProperty(key)
+
+    def __get_element_properties(self, element):
+        return self.__public_properties(element)
+
+    def __set_element_properties(self, element, properties):
+        for key in properties:
+            self.__validate_property(key)
+        for key in self.__get_public_keys(element):
+            element.removeProperty(key)
+        for key, value in properties.iteritems():
+            element.setProperty(key, value)
+
+    def __delete_element_properties(self, element):
+        for key in self._get_public_keys(element):
+            element.removeProperty(key)
+
+    def create_node(self, label, properties=None):
+        #Label must be a string
+        if not label or not type(label) == basestring:
+            raise TypeError("label must be a string")
+        vertex = self.gdb.addVertex()
+        if type(properties) == dict:
+            #Properties starting with _ are not allowed
+            for key in properties.keys():
+                self.__validate_property(key)
+            for key, value in properties.iteritems():
+                vertex.setProperty(key, value)
+        #_id and _label are mandatory internal properties
+        vertex.setProperty("_id", vertex.getId())
+        vertex.setProperty("_label", label)
+        return vertex.getId()
+
+    def delete_node(self, id):
+        vertex = self.gdb.getVertex(id)
+        self.gdb.removeVertex(vertex)
+
+    def get_node_label(self, id):
+        vertex = self.gdb.getVertex(id)
+        return self.__get_element_label(vertex)
+
+    def set_node_label(self, id, label):
+        vertex = self.gdb.getVertex(id)
+        return self.__set_element_label(vertex, label)
+
+    def get_node_property(self, id, key):
+        vertex = self.gdb.getVertex(id)
+        return self.__get_element_property(vertex, key)
+
+    def set_node_property(self, id, key, value):
+        vertex = self.gdb.getVertex(id)
+        self.__set_element_property(vertex, key)
+
+    def delete_node_property(self, id, key):
+        vertex = self.gdb.getVertex(id)
+        self.__delete_element_property(vertex, key)
+
+    def get_node_properties(self, id):
+        vertex = self.gdb.getVertex(id)
+        return self.__public_properties(vertex)
+
+    def set_node_properties(self, id, properties):
+        vertex = self.gdb.getVertex(id)
+        self.__set_element_properties(vertex, properties)
+
+    def delete_node_properties(self, id):
+        vertex = self.gdb.getVertex(id)
+        self.__delete_element_properties(vertex)
+
+    def get_node_relationships(self, id, incoming=False, outgoing=False,
+                               include_properties=False):
+        vertex = self.gdb.getVertex(id)
+        if not incoming and outgoing:
+            edges = vertex.getOutEdges()
+        elif incoming and notoutgoing:
+            edges = vertex.getInEdges()
+        else:
+            edges = vertex.getBothEdges()
+        edges_list = list(edges)
+        if include_properties:
+            return [{'id': e.getId(),
+                    'properties': self.get_relationship_properties(e)} \
+                            for e in edges_list]
+        else:
+            return [e.getId() for e in edges_list]
+
+    def get_nodes(self, ids, include_properties=False):
+        result = []
+        for _id in ids:
+            result.append({'id': _id,
+                            'properties': self.get_node_properties(_id)})
+        return result
+
+    def delete_nodes(self, ids):
+        for _id in ids:
+            vertex = self.gdb.getVertex(_id)
+            self.gdb.removeVertex(vertex)
+
+    def get_all_nodes(self, include_properties=False):
+        """
+        Get an iterator for all nodes.
+        If "include_properties" is True, each element in the list will be a
+        dictionary with two keys: "id", containing the id of the relationship,
+        and "properties", containing a dictionary with the properties.
+        """
+        raise NotImplementedError("Method has to be implemented")
+
+    def get_filtered_nodes(self, **lookups):
+        """
+        Get an iterator for filtered nodes using the parameters expressed in
+        the dictionary lookups.
+        The most usual lookups from Django should be implemented.
+        More info: https://docs.djangoproject.com/en/dev/ref/models/querysets/#field-lookups
+        """
+        raise NotImplementedError("Method has to be implemented")
+
+    def create_relationship(self, id1, id2, label, properties=None):
+        #Label must be a string
+        if not label or not type(label) == basestring:
+            raise TypeError("label must be a string")
+        v1 = self.gdb.getVertex(id1)
+        v2 = self.gdb.getVertex(id2)
+        edge = self.gdb.addEdge(v1, v2, label)
+        if type(properties) == dict:
+            #Properties starting with _ are not allowed
+            for key in properties.keys():
+                self.__validate_property(key)
+            for key, value in properties.iteritems():
+                edge.setProperty(key, value)
+        #_id and _label are mandatory internal properties
+        edge.setProperty("_id", edge.getId())
+        edge.setProperty("_label", label)
+        return edge.getId()
+
+    def get_relationship_label(self, id):
+        edge = self.gdb.getEdge(id)
+        return self.__get_element_label(edge)
+
+    def set_relationship_label(self, id, label):
+        edge = self.gdb.getEdge(id)
+        self.__set_element_label(edge, label)
+
+    def delete_relationship(self, id):
+        edge = self.gdb.getEdge(id)
+        self.gdb.removeEdge(edge)
+
+    def get_relationship_property(self, id, key):
+        edge = self.gdb.getEdge(id)
+        return self.__get_element_property(edge, key)
+
+    def set_relationship_property(self, id, key, value):
+        edge = self.gdb.getEdge(id)
+        self.__set_element_property(edge, key, value)
+
+    def delete_relationship_property(self, id, key):
+        edge = self.gdb.getEdge(id)
+        self.__delete_element_property(edge, key)
+
+    def get_relationship_properties(self, id):
+        edge = self.gdb.getEdge(id)
+        return self.__get_element_properties(edge)
+
+    def set_relationship_properties(self, id, properties):
+        edge = self.gdb.getEdge(id)
+        self.__set_element_properties(edge, properties)
+
+    def delete_relationship_properties(self, id):
+        edge = self.gdb.getEdge(id)
+        self.__delete_element_properties(edge)
+
+    def get_relationship_source(self, id, include_properties=False):
+        edge = self.gdb.getEdge(id)
+        vertex = edge.getOutVertex()
+        if include_properties:
+            return {"id": vertex.getId(),
+                    "properties": self.__get_element_properties(vertex)}
+        else:
+            return vertex.getId()
+
+    def set_relationship_source(self, relationship_id, node_id):
+        v1 = self.gdb.getVertex(node_id)
+        edge = self.gdb.getEdge(relationship_id)
+        v2 = edge.getInVertex()
+        label = edge.getLabel()
+        self.create_relationship(v1.getId(), v2.getId(), label,
+                                self.__get_element_properties(edge))
+        self.gdb.removeEdge(edge)
+
+    def get_relationship_target(self, id, include_properties=False):
+        edge = self.gdb.getEdge(id)
+        vertex = edge.getInVertex()
+        if include_properties:
+            return {"id": vertex.getId(),
+                    "properties": self.__get_element_properties(vertex)}
+        else:
+            return vertex.getId()
+
+    def set_relationship_target(self, relationship_id, node_id):
+        v2 = self.gdb.getVertex(node_id)
+        edge = self.gdb.getEdge(relationship_id)
+        v1 = edge.getOutVertex()
+        label = edge.getLabel()
+        self.create_relationship(v1.getId(), v2.getId(), label,
+                                self.__get_element_properties(edge))
+        self.gdb.removeEdge(edge)
+
+    def delete_relationships(self, ids):
+        for _id in ids:
+            edge = self.gdb.getEdge(_id)
+            self.gdb.removeEdge(edge)
+
+    def get_all_relationship(self, include_properties=False):
+        """
+        Get an iterator for all relationship.
+        If "include_properties" is True, a new key "properties" is added to the
+        returned dictionaries, containing a dictionary with the properties of
+        the relationship.
+        """
+        raise NotImplementedError("Method has to be implemented")
+
+    def get_filtered_relationship(self, **lookups):
+        """
+        Get an iterator for filtered relationship using the parameters
+        expressed in the dictionary lookups.
+        The most usual lookups from Django should be implemented.
+        More info: https://docs.djangoproject.com/en/dev/ref/models/querysets/#field-lookups
+        """
+        raise NotImplementedError("Method has to be implemented")
+
+    # Quering
+
+    def query(self, *args, **kwargs):
+        # TODO: Define the requirements of the queries.
+        """
+        XXX
+        """
+        raise NotImplementedError("Method has to be implemented")
+
