@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from engines.gdb.backends import GraphDatabaseError
 
 
 class GraphMixin(object):
@@ -22,8 +23,8 @@ class BaseManager(object):
 
     def filter_dict(self, properties=None):
         if properties:
-            return dict(filter(lambda x: not str(x[0]).startswith("_"),
-                               properties.items()))
+            return dict(filter(lambda (k, v): not str(k).startswith("_"),
+                               properties.iteritems()))
         else:
             return {}
 
@@ -50,23 +51,23 @@ class NodesManager(BaseManager):
 
     def all(self):
         nodes = []
-        for node_dict in self.gdb.get_all_nodes(include_properties=True):
-            node = Node(node_dict["id"], self.graph,
-                         properties=node_dict["properties"])
+        eltos = self.gdb.get_all_nodes(include_properties=True)
+        for node_id, node_properties in eltos.iteritems():
+            node = Node(node_id, self.graph, properties=node_properties)
             nodes.append(node)
         return nodes
 
     def iterator(self):
-        for node_dict in self.gdb.get_all_nodes(include_properties=True):
-            node = Node(node_dict["id"], self.graph,
-                        properties=node_dict["properties"])
+        eltos = self.gdb.get_all_nodes(include_properties=True)
+        for node_id, node_properties in eltos.iteritems():
+            node = Node(node_id, self.graph, properties=node_properties)
             yield node
 
     def in_bulk(self, id_list):
         nodes = []
-        for node_dict in self.gdb.get_nodes(id_list, include_properties=True):
-            node = Node(node_dict["id"], self.graph,
-                        properties=node_dict["properties"])
+        eltos = self.gdb.get_nodes_properties(id_list)
+        for node_id, node_properties in eltos.iteritems():
+            node = Node(node_id, self.graph, properties=node_properties)
             nodes.append(node)
         return nodes
 
@@ -87,25 +88,25 @@ class RelationshipsManager(BaseManager):
     def all(self):
         relationships = []
         eltos = self.gdb.get_all_relationships(include_properties=True)
-        for relationship_dict in eltos:
-            relationship = Relationship(relationship_dict["id"], self.graph,
-                                    properties=relationship_dict["properties"])
+        for relationship_id, relationship_properties in eltos.iteritems():
+            relationship = Relationship(relationship_id, self.graph,
+                                        properties=relationship_properties)
             relationships.append(relationship)
         return relationships
 
     def iterator(self):
         eltos = self.gdb.get_all_relationships(include_properties=True)
-        for relationship_dict in eltos:
-            relationship = Relationship(relationship_dict["id"], self.graph,
-                                    properties=relationship_dict["properties"])
+        for relationship_id, relationship_properties in eltos:
+            relationship = Relationship(relationship_id, self.graph,
+                                        properties=relationship_properties)
             yield relationship
 
     def in_bulk(self, id_list):
         relationships = []
         eltos = self.gdb.get_relationships(id_list, include_properties=True)
-        for relationship_dict in eltos:
-            relationship = Relationship(relationship_dict["id"], self.graph,
-                                    properties=relationship_dict["properties"])
+        for relationship_id, relationship_properties in eltos:
+            relationship = Relationship(relationship_id, self.graph,
+                                        properties=relationship_properties)
             relationships.append(relationship)
         return relationships
 
@@ -133,9 +134,9 @@ class NodeRelationshipsManager(BaseManager):
         relationships = []
         eltos = self.gdb.get_node_relationships(self.node_id,
                                                 include_properties=True)
-        for relationship_dict in eltos:
-            relationship = Relationship(relationship_dict["id"], self.graph,
-                                    properties=relationship_dict["properties"])
+        for relationship_id, relationship_properties in eltos:
+            relationship = Relationship(relationship_id, self.graph,
+                                        properties=relationship_properties)
             relationships.append(relationship)
         return relationships
 
@@ -143,9 +144,9 @@ class NodeRelationshipsManager(BaseManager):
         relationships = []
         eltos = self.gdb.get_node_relationships(self.node_id, incoming=True,
                                                 include_properties=True)
-        for relationship_dict in eltos:
-            relationship = Relationship(relationship_dict["id"], self.graph,
-                                    properties=relationship_dict["properties"])
+        for relationship_id, relationship_properties in eltos:
+            relationship = Relationship(relationship_id, self.graph,
+                                        properties=relationship_properties)
             relationships.append(relationship)
         return relationships
 
@@ -153,31 +154,48 @@ class NodeRelationshipsManager(BaseManager):
         relationships = []
         eltos = self.gdb.get_node_relationships(self.node_id, outgoing=True,
                                                 include_properties=True)
-        for relationship_dict in eltos:
-            relationship = Relationship(relationship_dict["id"], self.graph,
-                                    properties=relationship_dict["properties"])
+        for relationship_id, relationship_properties in eltos:
+            relationship = Relationship(relationship_id, self.graph,
+                                        properties=relationship_properties)
             relationships.append(relationship)
         return relationships
 
     def iterator(self):
         iterator = self.gdb.get_node_relationships(include_properties=True)
-        for relationship_dict in iterator:
-            relationship = Relationship(relationship_dict["id"], self.graph,
-                                    properties=relationship_dict["properties"])
+        for relationship_id, relationship_properties in iterator:
+            relationship = Relationship(relationship_id, self.graph,
+                                        properties=relationship_properties)
             yield relationship
 
     def in_bulk(self, id_list):
         relationships = []
         eltos = self.gdb.get_node_relationships(self.node_id, incoming=True,
                                                 include_properties=True)
-        for relationship_dict in eltos:
-            relationship = Relationship(relationship_dict["id"], self.graph,
-                                    properties=relationship_dict["properties"])
+        for relationship_id, relationship_properties in eltos:
+            relationship = Relationship(relationship_id, self.graph,
+                                        properties=relationship_properties)
             relationships.append(relationship)
         return relationships
 
     def _get(self):
         return Relationship(self.node_id, self.graph)
+
+
+class PropertyDict(dict):
+
+    def __init__(self, element=None, *args, **kwargs):
+        self.element = element
+        super(PropertyDict, self).__init__(*args, **kwargs)
+
+    def update(self, properties, **kwargs):
+        super(PropertyDict, self).update(properties, **kwargs)
+        if self.element:
+            if isinstance(self.element, Node):
+                self.element.gdb.update_node_properties(self.element.id,
+                                                        properties=properties)
+            elif isinstance(self.element, Relationship):
+                self.element.gdb.update_relationship_properties(self.element.id,
+                                                        properties=properties)
 
 
 class BaseElement(object):
@@ -194,7 +212,7 @@ class BaseElement(object):
         if not properties:
             self._get_properties()
         else:
-            self._properties = properties
+            self._properties = self._set_properties(properties)
 
     def get(self, key, *args, **kwargs):
         try:
@@ -279,7 +297,7 @@ class Node(BaseElement):
         if not properties:
             return None
         self.gdb.set_node_properties(self.id, properties=properties)
-        self._properties = properties
+        self._properties = PropertyDict(self, properties)
         return self._properties
 
     def _del_properties(self):
@@ -347,7 +365,7 @@ class Relationship(BaseElement):
             return None
         self.gdb.set_relationship_properties(self.id,
                                              properties=properties)
-        self._properties = properties
+        self._properties = PropertyDict(self, properties)
         return self._properties
 
     def _del_properties(self):

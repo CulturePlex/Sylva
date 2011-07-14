@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import datetime
 
 
 class BaseGraphDatabase(object):
@@ -10,7 +9,7 @@ class BaseGraphDatabase(object):
             with character '_'.
     Note 2: The implementation of indices shouldn't be exposed to outside from
             this class. The indices must be used internally.
-    Note 3: It doesn't allow properties keys startng with "__" defined by
+    Note 3: It doesn't allow properties keys startng with '_' defined by
             users, because they are reserved to implementations details.
             So all dictionaries of properties must be cleaned after and before
             of being returned, updated and sent.
@@ -61,7 +60,6 @@ class BaseGraphDatabase(object):
     def set_node_property(self, id, key, value):
         """
         Set to "value" the property identified by "key" of the node "id".
-        Raise KeyError if "key" is not present.
         """
         raise NotImplementedError("Method has to be implemented")
 
@@ -84,6 +82,12 @@ class BaseGraphDatabase(object):
         """
         raise NotImplementedError("Method has to be implemented")
 
+    def update_node_properties(self, id, properties):
+        """
+        Update to "properties" the dictionary of properties of the node "id".
+        """
+        raise NotImplementedError("Method has to be implemented")
+
     def delete_node_properties(self, id):
         """
         Delete all the properties of the node "id".
@@ -93,36 +97,32 @@ class BaseGraphDatabase(object):
     def get_node_relationships(self, id, incoming=False, outgoing=False,
                                include_properties=False):
         """
-        Get the list of all relationships ids related with the node "id",
+        Get a dictionary with all relationships ids related with the node "id",
         incoming and outgoing.
         If "incoming" is True, it only returns the ids for incoming ones.
         If "outgoing" is True, it only returns the ids for outgoing ones.
-        If "include_properties" is True, each element in the list will be a
-        dictionary with two keys: "id", containing the id of the relationship,
-        and "properties", containing a dictionary with the properties.
+        If "include_properties" is True, the value of the associated key "id"
+        will be  a dictionary containing the properties.
         """
 
-    def get_nodes(self, ids, include_properties=False):
+    def get_nodes_properties(self, ids):
         """
-        Get all the nodes which "id" is on the list "ids".
-        If "include_properties" is True, each element in the list will be a
-        dictionary with two keys: "id", containing the id of the relationship,
-        and "properties", containing a dictionary with the properties.
+        Get a dictionary whose keys are the nodes "id" and the value is a
+        dictionary containing the properties.
         """
         raise NotImplementedError("Method has to be implemented")
 
     def delete_nodes(self, ids):
         """
-        Delete all the nodes which "id" is on the list "ids".
+        Delete all the nodes whose "id" is on the list "ids".
         """
         raise NotImplementedError("Method has to be implemented")
 
     def get_all_nodes(self, include_properties=False):
         """
-        Get an iterator for all nodes.
-        If "include_properties" is True, each element in the list will be a
-        dictionary with two keys: "id", containing the id of the relationship,
-        and "properties", containing a dictionary with the properties.
+        Get an iterator for the dictionary of all nodes, whose keys are "ids"
+        If "include_properties" is True, the value of the associated key "id"
+        will be a dictionary containing the properties.
         """
         raise NotImplementedError("Method has to be implemented")
 
@@ -175,7 +175,6 @@ class BaseGraphDatabase(object):
         """
         Set to "value" the property identified by "key" of the
         relationship "id".
-        Raise KeyError if "key" is not present.
         """
         raise NotImplementedError("Method has to be implemented")
 
@@ -199,6 +198,12 @@ class BaseGraphDatabase(object):
         """
         raise NotImplementedError("Method has to be implemented")
 
+    def update_relationship_properties(self, id, properties):
+        """
+        Update to "properties" the dictionary of properties of the node "id".
+        """
+        raise NotImplementedError("Method has to be implemented")
+
     def delete_relationship_properties(self, id):
         """
         Delete all the properties of the relationship "id".
@@ -207,9 +212,9 @@ class BaseGraphDatabase(object):
 
     def get_relationship_source(self, id, include_properties=False):
         """
-        Get the node id for the source node of the relationship "id".
-        keys, "id" with the id of the source node, and "properties" containing
-        a dictionary with the properties of the node.
+        Get a dictionary of the relationship "id". The key will be the
+        source node "id" and the value will be a dictionary containing
+        the properties of the node.
         """
         raise NotImplementedError("Method has to be implemented")
 
@@ -221,10 +226,9 @@ class BaseGraphDatabase(object):
 
     def get_relationship_target(self, id, include_properties=False):
         """
-        Get the node id for the target node of the relationship "id".
-        If "include_properties" is True, a dictionart is returned with two
-        keys, "id" with the id of the target node, and "properties" containing
-        a dictionary with the properties of the node.
+        Get a dictionary of the relationship "id". The key will be the
+        target node "id" and the value will be a dictionary containing
+        the properties of the node.
         """
         raise NotImplementedError("Method has to be implemented")
 
@@ -242,10 +246,10 @@ class BaseGraphDatabase(object):
 
     def get_all_relationship(self, include_properties=False):
         """
-        Get an iterator for all relationship.
-        If "include_properties" is True, a new key "properties" is added to the
-        returned dictionaries, containing a dictionary with the properties of
-        the relationship.
+        Get an iterator for the dictionary of all relationships, whose keys
+        are "ids".
+        If "include_properties" is True, the value of the associated key "id"
+        will be a dictionary containing the properties.
         """
         raise NotImplementedError("Method has to be implemented")
 
@@ -267,48 +271,45 @@ class BaseGraphDatabase(object):
         """
         raise NotImplementedError("Method has to be implemented")
 
+    # Deleting the graph
 
-class BlueprintsGraphDatabase(BaseGraphDatabase):
+    def delete(self):
+        """
+        Delete the entire graph and all the information related: nodes,
+        relationships, indices, etc.
+        """
+        raise NotImplementedError("Method has to be implemented")
 
-    def create_node(self, properties):
-        # index = self.gdb.getIndex('all_nodes', 'VERTICES')
-        # Create node and set properties
-        node = self.gdb.addVertex()
-        for key, value in properties.iteritems():
-            node.setProperty(key, value)
-        # Index node
-        # TODO index.put('key1', properties['key1'], node)
-        return node
 
-    def element_exists(self, index, key, value):
-        return index.count(key, value)
+class GraphDatabaseError(Exception):
+    pass
 
-    def search_in_index(self, index, key, value):
-        return index.get(key, value)
 
-    def filter_by_property(self, nodes, prop, value):
-        return [n for n in nodes if n.getProperty(prop) == value]
+class GraphDatabaseConnectionError(GraphDatabaseError):
 
-    def get_timestamp(self):
-        timestamp = datetime.datetime.now()
-        return timestamp.strftime('%Y-%m-%d %H:%M:%S')
+    def __init__(self, url, *args, **kwargs):
+        self.url = url
 
-    def update_timestamp(self, element, username):
-        element.setProperty('_timestamp', self.get_timestamp())
-        element.setProperty('_user', username)
+    def __str__(self):
+        return "Unable to connect to \"%s\" doesn't exist" % repr(self.url)
 
-    def create_relationship(self, node1, node2, label, properties):
-        index = self.gdb.getIndex('all_relationships', 'EDGES')
-        edge_str = "%s:%s:%s" % (node1.getId(),
-                                label,
-                                node2.getId())
-        properties['edge_str'] = edge_str
-        # Avoid creating duplicated edges
-        if self.element_exists(index, properties):
-            return None
-        edge = self.gdb.addEdge(None, node1, node2, label)
-        for key, value in properties.iteritems():
-            edge.setProperty(key, value)
-        #Index edge
-        index.put('edge_str', edge_str, edge)
-        return edge
+
+class ObjectDoesNotExist(GraphDatabaseError):
+
+    def __init__(self, object_id, *args, **kwargs):
+        self.id = object_id
+
+    def __str__(self):
+        return "Object with identifier \"%s\" doesn't exist" % repr(self.id)
+
+
+class NodeDoesNotExist(ObjectDoesNotExist):
+
+    def __str__(self):
+        return "Node \"%s\" doesn't exist" % repr(self.id)
+
+
+class RelationshipDoesNotExis(ObjectDoesNotExist):
+
+    def __str__(self):
+        return "Node \"%s\" doesn't exist" % repr(self.id)
