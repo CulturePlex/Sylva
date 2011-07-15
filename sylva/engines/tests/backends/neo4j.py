@@ -47,6 +47,12 @@ class Neo4jEngineTestSuite(TestCase):
         properties = {'p1': 'v1', 'p2': 'v2'}
         g.set_node_properties(node_id, properties)
         self.assertEqual(properties, g.get_node_properties(node_id))
+        new_properties = {'p2': 'b2', 'p3': 'v3'}
+        g.update_node_properties(node_id, new_properties)
+        self.assertIn('p1', g.get_node_properties(node_id))
+        self.assertIn('p2', g.get_node_properties(node_id))
+        self.assertIn('p3', g.get_node_properties(node_id))
+        self.assertEqual(g.get_node_property(node_id, 'p2'), 'b2')
         g.delete_node_properties(node_id)
         self.assertEqual({}, g.get_node_properties(node_id))
         g.delete_node(node_id)
@@ -81,5 +87,14 @@ class Neo4jEngineTestSuite(TestCase):
                             "myValue")
         g.delete_relationship_property(r_id, "myProp")
         self.assertNotIn("myProp", g.get_relationship_properties(r_id))
+        properties = {'p1': 'v1', 'p2': 'v2'}
+        g.set_relationship_properties(r_id, properties)
+        self.assertEqual(properties, g.get_relationship_properties(r_id))
+        new_properties = {'p2': 'b2', 'p3': 'v3'}
+        g.update_relationship_properties(r_id, new_properties)
+        self.assertIn('p1', g.get_relationship_properties(r_id))
+        self.assertIn('p2', g.get_relationship_properties(r_id))
+        self.assertIn('p3', g.get_relationship_properties(r_id))
+        self.assertEqual(g.get_relationship_property(r_id, 'p2'), 'b2')
         g.delete_relationship(r_id)
         g.delete_nodes([node1_id, node2_id])

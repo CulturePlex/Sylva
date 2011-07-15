@@ -69,6 +69,12 @@ class BlueprintsGraphDatabase(BaseGraphDatabase):
         for key, value in properties.iteritems():
             element.setProperty(key, value)
 
+    def __update_element_properties(self, element, properties):
+        for key in properties:
+            self.__validate_property(key)
+        for key, value in properties.iteritems():
+            element.setProperty(key, value)
+
     def __delete_element_properties(self, element):
         for key in self.__get_public_keys(element):
             element.removeProperty(key)
@@ -120,6 +126,10 @@ class BlueprintsGraphDatabase(BaseGraphDatabase):
     def set_node_properties(self, id, properties):
         vertex = self.__get_vertex(id)
         self.__set_element_properties(vertex, properties)
+
+    def update_node_properties(self, id, properties):
+        vertex = self.__get_vertex(id)
+        self.__update_element_properties(vertex, properties)
 
     def delete_node_properties(self, id):
         vertex = self.__get_vertex(id)
@@ -221,6 +231,10 @@ class BlueprintsGraphDatabase(BaseGraphDatabase):
     def set_relationship_properties(self, id, properties):
         edge = self.__get_edge(id)
         self.__set_element_properties(edge, properties)
+
+    def update_relationship_properties(self, id, properties):
+        edge = self.__get_edge(id)
+        self.__update_element_properties(edge, properties)
 
     def delete_relationship_properties(self, id):
         edge = self.__get_edge(id)
