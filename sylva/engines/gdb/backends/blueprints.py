@@ -144,19 +144,19 @@ class BlueprintsGraphDatabase(BaseGraphDatabase):
             edges = vertex.getInEdges()
         else:
             edges = vertex.getBothEdges()
-        edges_list = list(edges)
+        edges_list = [e.getId() for e in list(edges)]
+        result = {}
         if include_properties:
-            return [{'id': e.getId(),
-                    'properties': self.get_relationship_properties(e)} \
-                            for e in edges_list]
+            for e in edges_list:
+                result[e] = self.get_relationship_properties(e)
+            return result
         else:
-            return [e.getId() for e in edges_list]
+            return result.fromkeys(edges_list)
 
-    def get_nodes(self, ids, include_properties=False):
-        result = []
+    def get_nodes_properties(self, ids):
+        result = {}
         for _id in ids:
-            result.append({'id': _id,
-                            'properties': self.get_node_properties(_id)})
+            result[_id] = self.get_node_properties(_id)
         return result
 
     def delete_nodes(self, ids):
@@ -244,10 +244,9 @@ class BlueprintsGraphDatabase(BaseGraphDatabase):
         edge = self.__get_edge(id)
         vertex = edge.getOutVertex()
         if include_properties:
-            return {"id": vertex.getId(),
-                    "properties": self.__get_element_properties(vertex)}
+            return {vertex.getId(): self.__get_element_properties(vertex)}
         else:
-            return vertex.getId()
+            return {vertex.getId(): None}
 
     def set_relationship_source(self, relationship_id, node_id):
         v1 = self.__get_vertex(node_id)
@@ -262,10 +261,9 @@ class BlueprintsGraphDatabase(BaseGraphDatabase):
         edge = self.__get_edge(id)
         vertex = edge.getInVertex()
         if include_properties:
-            return {"id": vertex.getId(),
-                    "properties": self.__get_element_properties(vertex)}
+            return {vertex.getId(): self.__get_element_properties(vertex)}
         else:
-            return vertex.getId()
+            return {vertex.getId(): None}
 
     def set_relationship_target(self, relationship_id, node_id):
         v2 = self.__get_vertex(node_id)

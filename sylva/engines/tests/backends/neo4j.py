@@ -65,10 +65,16 @@ class Neo4jEngineTestSuite(TestCase):
         relationship_id = g.create_relationship(node1_id,
                                                 node2_id,
                                                 "myLabel")
+        g.set_relationship_property(relationship_id, 'p1', 'v1')
         self.assertEqual(g.get_relationship_source(relationship_id),
-                            node1_id)
+                {node1_id: None})
         self.assertEqual(g.get_relationship_target(relationship_id),
-                            node2_id)
+                {node2_id: None})
+        self.assertEqual(g.get_node_relationships(node1_id),
+                {relationship_id: None})
+        self.assertEqual(g.get_node_relationships(node1_id, 
+                                                include_properties=True),
+                        {relationship_id: {'p1': 'v1'}})
         g.delete_relationship(relationship_id)
         g.delete_nodes([node1_id, node2_id])
 
@@ -98,3 +104,23 @@ class Neo4jEngineTestSuite(TestCase):
         self.assertEqual(g.get_relationship_property(r_id, 'p2'), 'b2')
         g.delete_relationship(r_id)
         g.delete_nodes([node1_id, node2_id])
+
+    def testGetNodeProperties(self):
+        g = GraphDatabase(self.NEO4J_TEST_HOST)
+        node1_id = g.create_node("1")
+        node2_id = g.create_node("2")
+        node3_id = g.create_node("3")
+        node4_id = g.create_node("4")
+        node5_id = g.create_node("5")
+        properties = {'p1': 'v1'}
+        g.set_node_properties(node1_id, properties)
+        g.set_node_properties(node2_id, properties)
+        g.set_node_properties(node3_id, properties)
+        g.set_node_properties(node4_id, properties)
+        g.set_node_properties(node5_id, properties)
+        node_ids = [node1_id, node2_id, node3_id, node4_id, node5_id]
+        result = g.get_nodes_properties(node_ids)
+        node_structure = {}
+        node_structure = node_structure.fromkeys(node_ids, properties)
+        self.assertEqual(result, node_structure)
+        g.delete_nodes(node_ids) 
