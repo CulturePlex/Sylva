@@ -7,6 +7,8 @@ from engines.gdb.backends import (BaseGraphDatabase,
 
 class BlueprintsGraphDatabase(BaseGraphDatabase):
 
+    PRIVATE_PREFIX = '_'
+
     def __get_vertex(self, id):
         vertex = self.gdb.getVertex(id)
         if not vertex:
@@ -20,9 +22,9 @@ class BlueprintsGraphDatabase(BaseGraphDatabase):
         return edge
 
     def __validate_property(self, key):
-        if key.startswith('_'):
-            raise ValueError("%s: Keys starting with _ \
-                            are not allowed" % key)
+        if key.startswith(self.PRIVATE_PREFIX):
+            raise ValueError("%s: Keys starting with %s \
+                            are not allowed" % (key, self.PRIVATE_PREFIX))
 
     def __check_property(self, element, key):
         if key not in element.getPropertyKeys():
@@ -31,7 +33,7 @@ class BlueprintsGraphDatabase(BaseGraphDatabase):
     def __get_public_properties(self, element):
         properties = {}
         for key in element.getPropertyKeys():
-            if not key.startswith('_'):
+            if not key.startswith('_') and not key.startswith(self.PRIVATE_PREFIX):
                 properties[key] = element.getProperty(key)
         return properties
  
@@ -39,10 +41,10 @@ class BlueprintsGraphDatabase(BaseGraphDatabase):
         return self.__get_public_properties(element).keys()
 
     def __get_element_label(self, element):
-        return element.getProperty("_label")
+        return element.getProperty("%slabel" % self.PRIVATE_PREFIX)
 
     def __set_element_label(self, element, label):
-        return element.setProperty("_label", label)
+        return element.setProperty("%slabel" % self.PRIVATE_PREFIX, label)
 
     def __get_element_property(self, element, key):
         self.__validate_property(key)
@@ -90,9 +92,8 @@ class BlueprintsGraphDatabase(BaseGraphDatabase):
                 self.__validate_property(key)
             for key, value in properties.iteritems():
                 vertex.setProperty(key, value)
-        #_id and _label are mandatory internal properties
-        vertex.setProperty("_id", vertex.getId())
-        vertex.setProperty("_label", label)
+        #_label is a mandatory internal properties
+        vertex.setProperty("%slabel" % self.PRIVATE_PREFIX, label)
         return vertex.getId()
 
     def delete_node(self, id):
@@ -195,9 +196,8 @@ class BlueprintsGraphDatabase(BaseGraphDatabase):
                 self.__validate_property(key)
             for key, value in properties.iteritems():
                 edge.setProperty(key, value)
-        #_id and _label are mandatory internal properties
-        edge.setProperty("_id", edge.getId())
-        edge.setProperty("_label", label)
+        #_label is a mandatory internal property
+        edge.setProperty("%slabel" % self.PRIVATE_PREFIX, label)
         return edge.getId()
 
     def get_relationship_label(self, id):
