@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 from pyblueprints.neo4j import Neo4jIndexableGraph as Neo4jGraphDatabase
+from pyblueprints.neo4j import Neo4jDatabaseConnectionError
 
+from engines.gdb.backends import GraphDatabaseConnectionError
 from engines.gdb.backends.blueprints import BlueprintsGraphDatabase
 
 
@@ -10,4 +12,7 @@ class GraphDatabase(BlueprintsGraphDatabase):
         self.url = url
         self.params = params or {}
         self.graph = graph
-        self.gdb = Neo4jGraphDatabase(self.url)
+        try:
+            self.gdb = Neo4jGraphDatabase(self.url)
+        except Neo4jDatabaseConnectionError:
+            raise GraphDatabaseConnectionError(self.url) 
