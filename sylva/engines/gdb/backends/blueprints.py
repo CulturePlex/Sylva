@@ -7,6 +7,8 @@ from engines.gdb.backends import (BaseGraphDatabase,
 
 class BlueprintsGraphDatabase(BaseGraphDatabase):
 
+    PRIVATE_PREFIX = '_'
+
     def __get_vertex(self, id):
         vertex = self.gdb.getVertex(id)
         if not vertex:
@@ -20,9 +22,9 @@ class BlueprintsGraphDatabase(BaseGraphDatabase):
         return edge
 
     def __validate_property(self, key):
-        if key.startswith('_'):
-            raise ValueError("%s: Keys starting with _ \
-                            are not allowed" % key)
+        if key.startswith(self.PRIVATE_PREFIX):
+            raise ValueError("%s: Keys starting with %s \
+                            are not allowed" % (key, self.PRIVATE_PREFIX))
 
     def __check_property(self, element, key):
         if key not in element.getPropertyKeys():
@@ -31,7 +33,7 @@ class BlueprintsGraphDatabase(BaseGraphDatabase):
     def __get_public_properties(self, element):
         properties = {}
         for key in element.getPropertyKeys():
-            if not key.startswith('_'):
+            if not key.startswith('_') and not key.startswith(self.PRIVATE_PREFIX):
                 properties[key] = element.getProperty(key)
         return properties
  
@@ -39,10 +41,10 @@ class BlueprintsGraphDatabase(BaseGraphDatabase):
         return self.__get_public_properties(element).keys()
 
     def __get_element_label(self, element):
-        return element.getProperty("_label")
+        return element.getProperty("%slabel" % self.PRIVATE_PREFIX)
 
     def __set_element_label(self, element, label):
-        return element.setProperty("_label", label)
+        return element.setProperty("%slabel" % self.PRIVATE_PREFIX, label)
 
     def __get_element_property(self, element, key):
         self.__validate_property(key)
@@ -69,6 +71,12 @@ class BlueprintsGraphDatabase(BaseGraphDatabase):
         for key, value in properties.iteritems():
             element.setProperty(key, value)
 
+    def __update_element_properties(self, element, properties):
+        for key in properties:
+            self.__validate_property(key)
+        for key, value in properties.iteritems():
+            element.setProperty(key, value)
+
     def __delete_element_properties(self, element):
         for key in self.__get_public_keys(element):
             element.removeProperty(key)
@@ -84,9 +92,8 @@ class BlueprintsGraphDatabase(BaseGraphDatabase):
                 self.__validate_property(key)
             for key, value in properties.iteritems():
                 vertex.setProperty(key, value)
-        #_id and _label are mandatory internal properties
-        vertex.setProperty("_id", vertex.getId())
-        vertex.setProperty("_label", label)
+        #_label is a mandatory internal properties
+        vertex.setProperty("%slabel" % self.PRIVATE_PREFIX, label)
         return vertex.getId()
 
     def delete_node(self, id):
@@ -121,6 +128,10 @@ class BlueprintsGraphDatabase(BaseGraphDatabase):
         vertex = self.__get_vertex(id)
         self.__set_element_properties(vertex, properties)
 
+    def update_node_properties(self, id, properties):
+        vertex = self.__get_vertex(id)
+        self.__update_element_properties(vertex, properties)
+
     def delete_node_properties(self, id):
         vertex = self.__get_vertex(id)
         self.__delete_element_properties(vertex)
@@ -134,19 +145,19 @@ class BlueprintsGraphDatabase(BaseGraphDatabase):
             edges = vertex.getInEdges()
         else:
             edges = vertex.getBothEdges()
-        edges_list = list(edges)
+        edges_list = [e.getId() for e in list(edges)]
+        result = {}
         if include_properties:
-            return [{'id': e.getId(),
-                    'properties': self.get_relationship_properties(e)} \
-                            for e in edges_list]
+            for e in edges_list:
+                result[e] = self.get_relationship_properties(e)
+            return result
         else:
-            return [e.getId() for e in edges_list]
+            return result.fromkeys(edges_list)
 
-    def get_nodes(self, ids, include_properties=False):
-        result = []
+    def get_nodes_properties(self, ids):
+        result = {}
         for _id in ids:
-            result.append({'id': _id,
-                            'properties': self.get_node_properties(_id)})
+            result[_id] = self.get_node_properties(_id)
         return result
 
     def delete_nodes(self, ids):
@@ -185,9 +196,8 @@ class BlueprintsGraphDatabase(BaseGraphDatabase):
                 self.__validate_property(key)
             for key, value in properties.iteritems():
                 edge.setProperty(key, value)
-        #_id and _label are mandatory internal properties
-        edge.setProperty("_id", edge.getId())
-        edge.setProperty("_label", label)
+        #_label is a mandatory internal property
+        edge.setProperty("%slabel" % self.PRIVATE_PREFIX, label)
         return edge.getId()
 
     def get_relationship_label(self, id):
@@ -222,6 +232,10 @@ class BlueprintsGraphDatabase(BaseGraphDatabase):
         edge = self.__get_edge(id)
         self.__set_element_properties(edge, properties)
 
+    def update_relationship_properties(self, id, properties):
+        edge = self.__get_edge(id)
+        self.__update_element_properties(edge, properties)
+
     def delete_relationship_properties(self, id):
         edge = self.__get_edge(id)
         self.__delete_element_properties(edge)
@@ -230,10 +244,9 @@ class BlueprintsGraphDatabase(BaseGraphDatabase):
         edge = self.__get_edge(id)
         vertex = edge.getOutVertex()
         if include_properties:
-            return {"id": vertex.getId(),
-                    "properties": self.__get_element_properties(vertex)}
+            return {vertex.getId(): self.__get_element_properties(vertex)}
         else:
-            return vertex.getId()
+            return {vertex.getId(): None}
 
     def set_relationship_source(self, relationship_id, node_id):
         v1 = self.__get_vertex(node_id)
@@ -248,10 +261,9 @@ class BlueprintsGraphDatabase(BaseGraphDatabase):
         edge = self.__get_edge(id)
         vertex = edge.getInVertex()
         if include_properties:
-            return {"id": vertex.getId(),
-                    "properties": self.__get_element_properties(vertex)}
+            return {vertex.getId(): self.__get_element_properties(vertex)}
         else:
-            return vertex.getId()
+            return {vertex.getId(): None}
 
     def set_relationship_target(self, relationship_id, node_id):
         v2 = self.__get_vertex(node_id)

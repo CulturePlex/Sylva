@@ -16,3 +16,4 @@ requests==0.5.0
 simplejson==2.1.6
 sorl-thumbnail==11.05.2
 wsgiref==0.1.2
+pyblueprints==0.3.1

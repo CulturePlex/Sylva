@@ -285,13 +285,17 @@ class GraphDatabaseError(Exception):
     pass
 
 
+class GraphDatabaseInitializationError(GraphDatabaseError):
+    pass
+
+
 class GraphDatabaseConnectionError(GraphDatabaseError):
 
     def __init__(self, url, *args, **kwargs):
         self.url = url
 
     def __str__(self):
-        return "Unable to connect to \"%s\" doesn't exist" % repr(self.url)
+        return "Unable to connect to \"%s\"" % repr(self.url)
 
 
 class ObjectDoesNotExist(GraphDatabaseError):
