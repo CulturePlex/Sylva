@@ -35,6 +35,15 @@ GRAPHDATABASES = {
         'SCHEMA': 'http',
         'HOST': 'localhost',
         'PORT': '7373',  # Changed to avoid overwrites from testing
+    },
+    'tests': {
+        'ENGINE': 'engines.gdb.backends.neo4j',
+        'NAME': 'db/data',
+        'USER': '',
+        'PASSWORD': '',
+        'SCHEMA': 'http',
+        'HOST': 'localhost',
+        'PORT': '7474',
     }
 }
 

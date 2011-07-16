@@ -12,3 +12,8 @@
 {% block navigation_buttons %}
 {% endblock %}
 
+{% block content %}
+{% for graph in graphs %}
+    {{ graph.name }}
+{% endfor %}
+{% endblock %}

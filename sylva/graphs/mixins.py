@@ -274,7 +274,7 @@ class Node(BaseElement):
             del self
 
     def __getitem__(self, key):
-        self._properties[key] = self.gdb.get_node_property(self.id)
+        self._properties[key] = self.gdb.get_node_property(self.id, key)
         return self._properties[key]
 
     def __setitem__(self, key, value):

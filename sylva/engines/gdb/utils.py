@@ -17,7 +17,8 @@ def get_connection_string(properties):
     schema = properties["SCHEMA"]
     host = properties["HOST"]
     port = properties["PORT"]
-    path = (properties["PATH"] or properties["NAME"]).strip("/")
+    path = (properties.get("PATH", "")
+            or properties.get("NAME", "")).strip("/")
     user = properties["USER"]
     password = properties["PASSWORD"]
     if user and password:

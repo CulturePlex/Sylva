@@ -309,7 +309,7 @@ class NodeDoesNotExist(ObjectDoesNotExist):
         return "Node \"%s\" doesn't exist" % repr(self.id)
 
 
-class RelationshipDoesNotExis(ObjectDoesNotExist):
+class RelationshipDoesNotExist(ObjectDoesNotExist):
 
     def __str__(self):
-        return "Node \"%s\" doesn't exist" % repr(self.id)
+        return "Relationship \"%s\" doesn't exist" % repr(self.id)

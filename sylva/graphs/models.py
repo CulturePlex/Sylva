@@ -15,7 +15,8 @@ class Graph(models.Model, GraphMixin):
     public = models.BooleanField(_('is public?'), default=True)
     order = models.IntegerField(_('order'), null=True, blank=True)
 
-    owner = models.ForeignKey(User, verbose_name=_('owner'))
+    owner = models.ForeignKey(User, verbose_name=_('owner'),
+                              related_name='graphs')
     data = models.OneToOneField(Data, verbose_name=_('data'))
     schema = models.OneToOneField(Schema, verbose_name=_('schema'),
                                null=True, blank=True)
