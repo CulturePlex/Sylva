@@ -285,6 +285,10 @@ class Node(BaseElement):
         self.gdb.delete_node_property(key)
         del self._properties[key]
 
+    def _get_label(self):
+        return self.gdb.get_node_label(self.id)
+    label = property(_get_label)
+
     def _relationships(self):
         return NodeRelationshipsManager(self.graph, self.schema, self.id)
     relationships = property(_relationships)

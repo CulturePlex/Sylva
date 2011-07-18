@@ -35,7 +35,10 @@ class Data(models.Model):
 
     def get_gdb(self):
         if self.instance:
-            return self.instance.get_gdb()
+            try:
+                return self.instance.get_gdb(self.graph)
+            except ObjectDoesNotExist:
+                return self.instance.get_gdb()
         else:
             return get_gdb()
 
