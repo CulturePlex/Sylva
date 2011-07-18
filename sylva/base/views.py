@@ -26,5 +26,5 @@ def signup_redirect(request, *args, **kwargs):
 @login_required()
 def dashboard(request):
     return render_to_response('dashboard.html',
-                              {"graphs": request.user.graph_set.all()},
+                              {"graphs": request.user.graphs.all()},
                               context_instance=RequestContext(request))
