@@ -9,6 +9,20 @@ class BlueprintsGraphDatabase(BaseGraphDatabase):
 
     PRIVATE_PREFIX = '_'
 
+    def setup_indexes(self):
+        vertex_index_name = "%s_nodes" % self.graph_id
+        edge_index_name = "%s_relationships" % self.graph_id
+        vertex_index = self.gdb.getIndex(vertex_index_name, "vertex")
+        if not vertex_index:
+            vertex_index = self.gdb.createManualIndex(vertex_index_name,
+                                                    "vertex")
+        edge_index = self.gdb.getIndex(edge_index_name, "edge")
+        if not edge_index:
+            edge_index = self.gdb.createManualIndex(edge_index_name,
+                                                    "edge")
+        self.node_index = vertex_index
+        self.relationship_index = edge_index
+
     def __get_vertex(self, id):
         vertex = self.gdb.getVertex(id)
         if not vertex:
@@ -92,8 +106,13 @@ class BlueprintsGraphDatabase(BaseGraphDatabase):
                 self.__validate_property(key)
             for key, value in properties.iteritems():
                 vertex.setProperty(key, value)
-        #_label is a mandatory internal properties
+        #_id and _label is a mandatory internal properties
+        if not "_id" in vertex.getPropertyKeys():
+            vertex.setProperty("_id", vertex.getId())
         vertex.setProperty("%slabel" % self.PRIVATE_PREFIX, label)
+        self.node_index.put("id", str(vertex.getId()), vertex)
+        self.node_index.put("label", label, vertex)
+        self.node_index.put("graph", self.graph_id, vertex)
         return vertex.getId()
 
     def delete_node(self, id):
@@ -166,13 +185,11 @@ class BlueprintsGraphDatabase(BaseGraphDatabase):
             self.gdb.removeVertex(vertex)
 
     def get_all_nodes(self, include_properties=False):
-        """
-        Get an iterator for all nodes.
-        If "include_properties" is True, each element in the list will be a
-        dictionary with two keys: "id", containing the id of the relationship,
-        and "properties", containing a dictionary with the properties.
-        """
-        raise NotImplementedError("Method has to be implemented")
+        for node in self.node_index.get("graph", self.graph_id):
+            if include_properties:
+                yield {node.getId(): self.get_node_properties(node.getId())}
+            else:
+                yield node.getId()
 
     def get_filtered_nodes(self, **lookups):
         """
@@ -196,8 +213,13 @@ class BlueprintsGraphDatabase(BaseGraphDatabase):
                 self.__validate_property(key)
             for key, value in properties.iteritems():
                 edge.setProperty(key, value)
-        #_label is a mandatory internal property
+        #_id and _label is a mandatory internal property
+        if not "_id" in edge.getPropertyKeys():
+            edge.setProperty("_id", edge.getId())
         edge.setProperty("%slabel" % self.PRIVATE_PREFIX, label)
+        self.relationship_index.put("id", str(edge.getId()), edge)
+        self.relationship_index.put("label", label, edge)
+        self.relationship_index.put("graph", self.graph_id, edge)
         return edge.getId()
 
     def get_relationship_label(self, id):
@@ -279,16 +301,15 @@ class BlueprintsGraphDatabase(BaseGraphDatabase):
             edge = self.gdb.getEdge(_id)
             self.gdb.removeEdge(edge)
 
-    def get_all_relationship(self, include_properties=False):
-        """
-        Get an iterator for all relationship.
-        If "include_properties" is True, a new key "properties" is added to the
-        returned dictionaries, containing a dictionary with the properties of
-        the relationship.
-        """
-        raise NotImplementedError("Method has to be implemented")
+    def get_all_relationships(self, include_properties=False):
+        for rel in self.relationship_index.get("graph", self.graph_id):
+            if include_properties:
+                yield {rel.getId(): \
+                        self.get_relationship_properties(rel.getId())}
+            else:
+                yield rel.getId()
 
-    def get_filtered_relationship(self, **lookups):
+    def get_filtered_relationships(self, **lookups):
         """
         Get an iterator for filtered relationship using the parameters
         expressed in the dictionary lookups.

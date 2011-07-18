@@ -19,8 +19,12 @@ class GraphDatabase(BlueprintsGraphDatabase):
             raise GraphDatabaseInitializationError(error_msg)
         self.graph = graph
         self.graphname = self.params.get("graphname")
+        if not self.graph:
+            raise GraphDatabaseInitializationError("graph parameter required")
+        self.graph_id = str(self.graph.id)
         try:
             server = RexsterServer(self.url)
             self.gdb = RexsterGraphDatabase(server, self.graphname) 
         except RexsterException:
             raise GraphDatabaseConnectionError(self.url) 
+        self.setup_indexes()
