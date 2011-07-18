@@ -16,13 +16,21 @@ class RexsterEngineTestSuite(BlueprintsEngineTestSuite):
 
     def returnBlueprintsGraph(self):
         return GraphDatabase(self.REXSTER_TEST_HOST, 
+                            {"graphname": self.REXSTER_TEST_GRAPHNAME},
+                            graph=self.sylva_graph)
+
+    def testMissingGraph(self):
+        self.assertRaises(GraphDatabaseInitializationError,
+                            GraphDatabase,
+                            self.REXSTER_TEST_HOST, 
                             {"graphname": self.REXSTER_TEST_GRAPHNAME})
 
     def testInvalidUrl(self):
         self.assertRaises(GraphDatabaseConnectionError,
                             GraphDatabase,
                             'http://invalidurl',
-                            {"graphname": self.REXSTER_TEST_GRAPHNAME})
+                            {"graphname": self.REXSTER_TEST_GRAPHNAME},
+                            graph=self.sylva_graph)
 
     def testMissingParameter(self):
         self.assertRaises(GraphDatabaseInitializationError,
