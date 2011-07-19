@@ -61,7 +61,7 @@ class BlueprintsEngineTestSuite(TestCase):
         node2_id = g.create_node("2")
         relationship_id = g.create_relationship(node1_id,
                                                 node2_id,
-                                                "myLabel")
+                                                "ñoñóñö")
         g.set_relationship_property(relationship_id, 'p1', 'v1')
         self.assertEqual(g.get_relationship_source(relationship_id),
                 {node1_id: None})
