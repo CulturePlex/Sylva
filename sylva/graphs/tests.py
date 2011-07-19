@@ -34,3 +34,24 @@ class GraphTest(TestCase):
         n = self.graph.nodes.create(label=u"test/ñôde")
         self.assertIsNotNone(n)
         self.assertEqual(n.label, u"test/ñôde")
+
+    def test_relationships_create(self):
+        """
+        Tests relation creation
+        """
+        n1 = self.graph.nodes.create(label="test node 1")
+        n2 = self.graph.nodes.create(label="test node 2")
+        r = self.graph.relationships.create(n1, n2, "test relation")
+        self.assertIsNotNone(r)
+        self.assertEqual(r.label, "test relation")
+
+    def test_relationships_create_unicode(self):
+        """
+        Tests relation creation
+        """
+        n1 = self.graph.nodes.create(label="test node 1")
+        n2 = self.graph.nodes.create(label="test node 2")
+        r = self.graph.relationships.create(n1, n2, u"test rêlatíoñ")
+        self.assertIsNotNone(r)
+        self.assertEqual(r.label, u"test rêlatíoñ")
+
