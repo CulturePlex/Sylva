@@ -3,12 +3,19 @@
 
 from django.test import TestCase
 from engines.gdb.backends import NodeDoesNotExist, RelationshipDoesNotExist
+from graphs.models import Graph, User
+from data.models import Data
 
 
 class BlueprintsEngineTestSuite(TestCase):
    
     def setUp(self):
-        pass
+        u = User(username="Diego")
+        u.save()
+        d = Data()
+        d.save()
+        self.sylva_graph = Graph(name="mygraph", data=d, owner=u)
+        self.sylva_graph.save()
 
     def tearDown(self):
         pass
@@ -54,7 +61,7 @@ class BlueprintsEngineTestSuite(TestCase):
         node2_id = g.create_node("2")
         relationship_id = g.create_relationship(node1_id,
                                                 node2_id,
-                                                "myLabel")
+                                                "ñoñóñö")
         g.set_relationship_property(relationship_id, 'p1', 'v1')
         self.assertEqual(g.get_relationship_source(relationship_id),
                 {node1_id: None})
@@ -115,3 +122,56 @@ class BlueprintsEngineTestSuite(TestCase):
         self.assertEqual(result, node_structure)
         g.delete_nodes(node_ids) 
 
+    def testGetAllNodes(self):
+        g = self.returnBlueprintsGraph()
+        node1_id = g.create_node("1")
+        node2_id = g.create_node("2")
+        node3_id = g.create_node("3")
+        node4_id = g.create_node("4")
+        node5_id = g.create_node("5")
+        properties = {'p1': 'v1'}
+        g.set_node_properties(node1_id, properties)
+        g.set_node_properties(node2_id, properties)
+        g.set_node_properties(node3_id, properties)
+        g.set_node_properties(node4_id, properties)
+        g.set_node_properties(node5_id, properties)
+        node_ids = [node1_id, node2_id, node3_id, node4_id, node5_id]
+        result = list(g.get_all_nodes(include_properties=True))
+        expected_result = [{node1_id: {"p1": "v1"}},
+                            {node2_id: {"p1": "v1"}},
+                            {node3_id: {"p1": "v1"}},
+                            {node4_id: {"p1": "v1"}},
+                            {node5_id: {"p1": "v1"}}]
+        for element in expected_result:
+            self.assertIn(element, result)
+        g.delete_nodes(node_ids) 
+
+    def testGetAllRelationships(self):
+        g = self.returnBlueprintsGraph()
+        node1_id = g.create_node("1")
+        node2_id = g.create_node("2")
+        node3_id = g.create_node("3")
+        node4_id = g.create_node("4")
+        node5_id = g.create_node("5")
+        rel1_id = g.create_relationship(node1_id, node2_id, 'rel')
+        rel2_id = g.create_relationship(node2_id, node3_id, 'rel')
+        rel3_id = g.create_relationship(node2_id, node4_id, 'rel')
+        rel4_id = g.create_relationship(node3_id, node1_id, 'rel')
+        rel5_id = g.create_relationship(node3_id, node5_id, 'rel')
+        properties = {'p1': 'v1'}
+        g.set_relationship_properties(rel1_id, properties)
+        g.set_relationship_properties(rel2_id, properties)
+        g.set_relationship_properties(rel3_id, properties)
+        g.set_relationship_properties(rel4_id, properties)
+        g.set_relationship_properties(rel5_id, properties)
+        node_ids = [node1_id, node2_id, node3_id, node4_id, node5_id]
+        rel_ids = [rel1_id, rel2_id, rel3_id, rel4_id, rel5_id]
+        result = list(g.get_all_relationships(include_properties=True))
+        expected_result = [{rel1_id: {"p1": "v1"}},
+                            {rel2_id: {"p1": "v1"}},
+                            {rel3_id: {"p1": "v1"}},
+                            {rel4_id: {"p1": "v1"}},
+                            {rel5_id: {"p1": "v1"}}]
+        self.assertEqual(result, expected_result)
+        g.delete_relationships(rel_ids)
+        g.delete_nodes(node_ids) 

@@ -20,7 +20,8 @@ class Neo4jEngineTestSuite(BlueprintsEngineTestSuite):
                             'http://invalidurl')
 
     def returnBlueprintsGraph(self):
-        return GraphDatabase(self.NEO4J_TEST_HOST)
+        return GraphDatabase(self.NEO4J_TEST_HOST,
+                            graph=self.sylva_graph)
 
     def testValidUrl(self):
         g = self.returnBlueprintsGraph()
