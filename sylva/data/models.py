@@ -34,13 +34,16 @@ class Data(models.Model):
                 return _(u"Data on default instance")
 
     def get_gdb(self):
-        if self.instance:
-            try:
-                return self.instance.get_gdb(self.graph)
-            except ObjectDoesNotExist:
+        try:
+            if self.instance:
+                return self.instance.get_gdb(graph=self.graph)
+            else:
+                return get_gdb(graph=self.graph)
+        except ObjectDoesNotExist:
+            if self.instance:
                 return self.instance.get_gdb()
-        else:
-            return get_gdb()
+            else:
+                return get_gdb()
 
     @models.permalink
     def get_absolute_url(self):

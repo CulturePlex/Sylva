@@ -4,12 +4,12 @@ from django.utils.importlib import import_module
 from django.utils.translation import gettext as _
 
 
-def get_gdb(using="default"):
+def get_gdb(graph, using="default"):
     gdb_properties = settings.GRAPHDATABASES[using]
     connection_string = get_connection_string(gdb_properties)
     engine = gdb_properties["ENGINE"]
     module = import_module(engine)
-    gdb = module.GraphDatabase(connection_string)
+    gdb = module.GraphDatabase(connection_string, graph=graph)
     return gdb
 
 

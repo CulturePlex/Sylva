@@ -23,7 +23,7 @@ class BaseManager(object):
 
     def filter_dict(self, properties=None):
         if properties:
-            return dict(filter(lambda (k, v): not str(k).startswith("_"),
+            return dict(filter(lambda (k, v): not unicode(k).startswith("_"),
                                properties.iteritems()))
         else:
             return {}
@@ -115,6 +115,10 @@ class RelationshipsManager(BaseManager):
 
 
 class NodeRelationshipsManager(BaseManager):
+
+    def __init__(self, graph, node_id=None):
+        super(NodeRelationshipsManager, self).__init__(graph)
+        self.node_id = node_id
 
     def create(self, target, label, properties=None, outgoing=False):
         properties = self.filter_dict(properties)
@@ -290,7 +294,7 @@ class Node(BaseElement):
     label = property(_get_label)
 
     def _relationships(self):
-        return NodeRelationshipsManager(self.graph, self.schema, self.id)
+        return NodeRelationshipsManager(self.graph, self.id)
     relationships = property(_relationships)
 
     def _get_properties(self):
