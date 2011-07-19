@@ -286,7 +286,7 @@ class Node(BaseElement):
         self._properties[key] = value
 
     def __delitem__(self, key):
-        self.gdb.delete_node_property(key)
+        self.gdb.delete_node_property(self.id, key)
         del self._properties[key]
 
     def _get_label(self):
