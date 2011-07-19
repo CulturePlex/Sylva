@@ -8,7 +8,8 @@ httplib2==0.7.1
 ipdb==0.3
 ipython==0.10.2
 lucene-querybuilder==0.1.2
-neo4jrestclient==1.4.2
+# neo4jrestclient==1.4.2 dev
+-e git+git://github.com/versae/neo4j-rest-client.git#egg=neo4jrestclient
 pyblueprints==0.3.2
 pycrypto==2.3
 python-rexster==0.1.1
