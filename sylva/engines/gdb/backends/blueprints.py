@@ -164,14 +164,11 @@ class BlueprintsGraphDatabase(BaseGraphDatabase):
             edges = vertex.getInEdges()
         else:
             edges = vertex.getBothEdges()
-        edges_list = [e.getId() for e in list(edges)]
-        result = {}
         if include_properties:
-            for e in edges_list:
-                result[e] = self.get_relationship_properties(e)
-            return result
+            return [(e.getId(), self.get_relationship_properties(e.getId())) \
+                        for e in list(edges)]
         else:
-            return result.fromkeys(edges_list)
+            return [(e.getId(), None) for e in list(edges)]
 
     def get_nodes_properties(self, ids):
         result = {}
@@ -187,9 +184,9 @@ class BlueprintsGraphDatabase(BaseGraphDatabase):
     def get_all_nodes(self, include_properties=False):
         for node in self.node_index.get("graph", self.graph_id):
             if include_properties:
-                yield {node.getId(): self.get_node_properties(node.getId())}
+                yield (node.getId(), self.get_node_properties(node.getId()))
             else:
-                yield node.getId()
+                yield (node.getId(), None)
 
     def get_filtered_nodes(self, **lookups):
         """
@@ -266,9 +263,9 @@ class BlueprintsGraphDatabase(BaseGraphDatabase):
         edge = self.__get_edge(id)
         vertex = edge.getOutVertex()
         if include_properties:
-            return {vertex.getId(): self.__get_element_properties(vertex)}
+            return (vertex.getId(), self.__get_element_properties(vertex))
         else:
-            return {vertex.getId(): None}
+            return (vertex.getId(), None)
 
     def set_relationship_source(self, relationship_id, node_id):
         v1 = self.__get_vertex(node_id)
@@ -283,9 +280,9 @@ class BlueprintsGraphDatabase(BaseGraphDatabase):
         edge = self.__get_edge(id)
         vertex = edge.getInVertex()
         if include_properties:
-            return {vertex.getId(): self.__get_element_properties(vertex)}
+            return (vertex.getId(), self.__get_element_properties(vertex))
         else:
-            return {vertex.getId(): None}
+            return (vertex.getId(), None)
 
     def set_relationship_target(self, relationship_id, node_id):
         v2 = self.__get_vertex(node_id)
@@ -304,10 +301,10 @@ class BlueprintsGraphDatabase(BaseGraphDatabase):
     def get_all_relationships(self, include_properties=False):
         for rel in self.relationship_index.get("graph", self.graph_id):
             if include_properties:
-                yield {rel.getId(): \
-                        self.get_relationship_properties(rel.getId())}
+                yield (rel.getId(), \
+                        self.get_relationship_properties(rel.getId()))
             else:
-                yield rel.getId()
+                yield (rel.getId(), None)
 
     def get_filtered_relationships(self, **lookups):
         """

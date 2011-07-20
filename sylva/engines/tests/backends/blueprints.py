@@ -64,14 +64,14 @@ class BlueprintsEngineTestSuite(TestCase):
                                                 "ñoñóñö")
         g.set_relationship_property(relationship_id, 'p1', 'v1')
         self.assertEqual(g.get_relationship_source(relationship_id),
-                {node1_id: None})
+                (node1_id, None))
         self.assertEqual(g.get_relationship_target(relationship_id),
-                {node2_id: None})
+                (node2_id, None))
         self.assertEqual(g.get_node_relationships(node1_id),
-                {relationship_id: None})
+                [(relationship_id, None)])
         self.assertEqual(g.get_node_relationships(node1_id, 
                                                 include_properties=True),
-                        {relationship_id: {'p1': 'v1'}})
+                        [(relationship_id, {'p1': 'v1'})])
         g.delete_relationship(relationship_id)
         g.delete_nodes([node1_id, node2_id])
 
@@ -137,11 +137,11 @@ class BlueprintsEngineTestSuite(TestCase):
         g.set_node_properties(node5_id, properties)
         node_ids = [node1_id, node2_id, node3_id, node4_id, node5_id]
         result = list(g.get_all_nodes(include_properties=True))
-        expected_result = [{node1_id: {"p1": "v1"}},
-                            {node2_id: {"p1": "v1"}},
-                            {node3_id: {"p1": "v1"}},
-                            {node4_id: {"p1": "v1"}},
-                            {node5_id: {"p1": "v1"}}]
+        expected_result = [(node1_id, {"p1": "v1"}),
+                            (node2_id, {"p1": "v1"}),
+                            (node3_id, {"p1": "v1"}),
+                            (node4_id, {"p1": "v1"}),
+                            (node5_id, {"p1": "v1"})]
         for element in expected_result:
             self.assertIn(element, result)
         g.delete_nodes(node_ids) 
@@ -167,11 +167,12 @@ class BlueprintsEngineTestSuite(TestCase):
         node_ids = [node1_id, node2_id, node3_id, node4_id, node5_id]
         rel_ids = [rel1_id, rel2_id, rel3_id, rel4_id, rel5_id]
         result = list(g.get_all_relationships(include_properties=True))
-        expected_result = [{rel1_id: {"p1": "v1"}},
-                            {rel2_id: {"p1": "v1"}},
-                            {rel3_id: {"p1": "v1"}},
-                            {rel4_id: {"p1": "v1"}},
-                            {rel5_id: {"p1": "v1"}}]
-        self.assertEqual(result, expected_result)
+        expected_result = [(rel1_id, {"p1": "v1"}),
+                            (rel2_id, {"p1": "v1"}),
+                            (rel3_id, {"p1": "v1"}),
+                            (rel4_id, {"p1": "v1"}),
+                            (rel5_id, {"p1": "v1"})]
+        for element in expected_result:
+            self.assertIn(element, result)
         g.delete_relationships(rel_ids)
         g.delete_nodes(node_ids) 
