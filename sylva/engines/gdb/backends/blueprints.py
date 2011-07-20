@@ -160,7 +160,7 @@ class BlueprintsGraphDatabase(BaseGraphDatabase):
         vertex = self.__get_vertex(id)
         if not incoming and outgoing:
             edges = vertex.getOutEdges()
-        elif incoming and notoutgoing:
+        elif incoming and not outgoing:
             edges = vertex.getInEdges()
         else:
             edges = vertex.getBothEdges()
