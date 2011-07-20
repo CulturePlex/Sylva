@@ -271,3 +271,69 @@ class GraphTest(TestCase):
         self.assertEqual(n[self.unicode_label], self.unicode_label)
         del n[self.unicode_label]
         self.assertNotIn(self.unicode_label, n)
+
+    def test_node_get_relationships(self):
+        """
+        Tests relation creation
+        """
+        n1 = self.graph.nodes.create(label=self.label)
+        n2 = self.graph.nodes.create(label=self.label)
+        r1 = n1.relationships.create(n2, self.label,
+                                    properties=self.properties)
+        r1_id = r1.id
+        r2 = n2.relationships.create(n1, self.label,
+                                    properties=self.properties)
+        r2_id = r2.id
+        self.assertIsNotNone(r1)
+        self.assertIsNotNone(r2)
+        self.assertEqual(r1.label, self.label)
+        self.assertEqual(r2.label, self.label)
+        self.assertEqual(len(n1.relationships.all()), 2)
+        self.assertEqual(len(n1.relationships.incoming()), 1)
+        self.assertEqual(len(n1.relationships.outgoing()), 1)
+        self.assertEqual(len(n2.relationships.all()), 2)
+        self.assertEqual(len(n2.relationships.incoming()), 1)
+        self.assertEqual(len(n2.relationships.outgoing()), 1)
+        self.assertEqual(n1.relationships.incoming()[0].properties,
+                         self.properties)
+        self.assertEqual(n2.relationships.incoming()[0].properties,
+                         self.properties)
+        self.assertEqual(n1.relationships.outgoing()[0].properties,
+                         self.properties)
+        self.assertEqual(n2.relationships.outgoing()[0].properties,
+                         self.properties)
+        self.assertEqual(self.graph.relationships.get(r1_id), r1)
+        self.assertEqual(self.graph.relationships.get(r2_id), r2)
+
+    def test_node_get_relationships_unicode(self):
+        """
+        Tests relation creation
+        """
+        n1 = self.graph.nodes.create(label=self.unicode_label)
+        n2 = self.graph.nodes.create(label=self.unicode_label)
+        r1 = n1.relationships.create(n2, self.unicode_label,
+                                    properties=self.unicode_properties)
+        r1_id = r1.id
+        r2 = n2.relationships.create(n1, self.unicode_label,
+                                    properties=self.unicode_properties)
+        r2_id = r2.id
+        self.assertIsNotNone(r1)
+        self.assertIsNotNone(r2)
+        self.assertEqual(r1.label, self.unicode_label)
+        self.assertEqual(r2.label, self.unicode_label)
+        self.assertEqual(len(n1.relationships.all()), 2)
+        self.assertEqual(len(n1.relationships.incoming()), 1)
+        self.assertEqual(len(n1.relationships.outgoing()), 1)
+        self.assertEqual(len(n2.relationships.all()), 2)
+        self.assertEqual(len(n2.relationships.incoming()), 1)
+        self.assertEqual(len(n2.relationships.outgoing()), 1)
+        self.assertEqual(n1.relationships.incoming()[0].properties,
+                         self.unicode_properties)
+        self.assertEqual(n2.relationships.incoming()[0].properties,
+                         self.unicode_properties)
+        self.assertEqual(n1.relationships.outgoing()[0].properties,
+                         self.unicode_properties)
+        self.assertEqual(n2.relationships.outgoing()[0].properties,
+                         self.unicode_properties)
+        self.assertEqual(self.graph.relationships.get(r1_id), r1)
+        self.assertEqual(self.graph.relationships.get(r2_id), r2)

@@ -52,21 +52,21 @@ class NodesManager(BaseManager):
     def all(self):
         nodes = []
         eltos = self.gdb.get_all_nodes(include_properties=True)
-        for node_id, node_properties in eltos.iteritems():
+        for node_id, node_properties in eltos:
             node = Node(node_id, self.graph, properties=node_properties)
             nodes.append(node)
         return nodes
 
     def iterator(self):
         eltos = self.gdb.get_all_nodes(include_properties=True)
-        for node_id, node_properties in eltos.iteritems():
+        for node_id, node_properties in eltos:
             node = Node(node_id, self.graph, properties=node_properties)
             yield node
 
     def in_bulk(self, id_list):
         nodes = []
         eltos = self.gdb.get_nodes_properties(id_list)
-        for node_id, node_properties in eltos.iteritems():
+        for node_id, node_properties in eltos:
             node = Node(node_id, self.graph, properties=node_properties)
             nodes.append(node)
         return nodes
@@ -88,7 +88,7 @@ class RelationshipsManager(BaseManager):
     def all(self):
         relationships = []
         eltos = self.gdb.get_all_relationships(include_properties=True)
-        for relationship_id, relationship_properties in eltos.iteritems():
+        for relationship_id, relationship_properties in eltos:
             relationship = Relationship(relationship_id, self.graph,
                                         properties=relationship_properties)
             relationships.append(relationship)
@@ -96,7 +96,7 @@ class RelationshipsManager(BaseManager):
 
     def iterator(self):
         eltos = self.gdb.get_all_relationships(include_properties=True)
-        for relationship_id, relationship_properties in eltos:
+        for relationship_id, relationship_properties in eltos.iteritems():
             relationship = Relationship(relationship_id, self.graph,
                                         properties=relationship_properties)
             yield relationship
@@ -104,7 +104,7 @@ class RelationshipsManager(BaseManager):
     def in_bulk(self, id_list):
         relationships = []
         eltos = self.gdb.get_relationships(id_list, include_properties=True)
-        for relationship_id, relationship_properties in eltos:
+        for relationship_id, relationship_properties in eltos.items():
             relationship = Relationship(relationship_id, self.graph,
                                         properties=relationship_properties)
             relationships.append(relationship)
@@ -138,7 +138,7 @@ class NodeRelationshipsManager(BaseManager):
         relationships = []
         eltos = self.gdb.get_node_relationships(self.node_id,
                                                 include_properties=True)
-        for relationship_id, relationship_properties in eltos:
+        for relationship_id, relationship_properties in eltos.items():
             relationship = Relationship(relationship_id, self.graph,
                                         properties=relationship_properties)
             relationships.append(relationship)
@@ -148,7 +148,7 @@ class NodeRelationshipsManager(BaseManager):
         relationships = []
         eltos = self.gdb.get_node_relationships(self.node_id, incoming=True,
                                                 include_properties=True)
-        for relationship_id, relationship_properties in eltos:
+        for relationship_id, relationship_properties in eltos.items():
             relationship = Relationship(relationship_id, self.graph,
                                         properties=relationship_properties)
             relationships.append(relationship)
@@ -158,7 +158,7 @@ class NodeRelationshipsManager(BaseManager):
         relationships = []
         eltos = self.gdb.get_node_relationships(self.node_id, outgoing=True,
                                                 include_properties=True)
-        for relationship_id, relationship_properties in eltos:
+        for relationship_id, relationship_properties in eltos.items():
             relationship = Relationship(relationship_id, self.graph,
                                         properties=relationship_properties)
             relationships.append(relationship)
@@ -166,7 +166,7 @@ class NodeRelationshipsManager(BaseManager):
 
     def iterator(self):
         iterator = self.gdb.get_node_relationships(include_properties=True)
-        for relationship_id, relationship_properties in iterator:
+        for relationship_id, relationship_properties in iterator.iteritems():
             relationship = Relationship(relationship_id, self.graph,
                                         properties=relationship_properties)
             yield relationship
@@ -175,7 +175,7 @@ class NodeRelationshipsManager(BaseManager):
         relationships = []
         eltos = self.gdb.get_node_relationships(self.node_id, incoming=True,
                                                 include_properties=True)
-        for relationship_id, relationship_properties in eltos:
+        for relationship_id, relationship_properties in eltos.items():
             relationship = Relationship(relationship_id, self.graph,
                                         properties=relationship_properties)
             relationships.append(relationship)
@@ -208,7 +208,7 @@ class BaseElement(object):
     """
 
     def __init__(self, id, graph, properties=None):
-        self.id = id
+        self._id = id
         self.graph = graph
         self.gdb = graph.data.get_gdb()
         self.schema = graph.relaxed and graph.schema
@@ -261,6 +261,10 @@ class BaseElement(object):
 
     def __unicode__(self):
         return u"<%s: %s>" % (self.__class__.__name__, self.id)
+
+    def _get_id(self):
+        return self._id
+    id = property(_get_id)
 
 
 class Node(BaseElement):
