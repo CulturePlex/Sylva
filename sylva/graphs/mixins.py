@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from engines.gdb.backends import GraphDatabaseError
 
 
 class LimitReachedException(Exception):
@@ -63,7 +62,7 @@ class NodesManager(BaseManager):
             self.data.save()
             return node
         else:
-            raise NodesLimitReached
+            raise NodesLimitReachedException
 
     def all(self):
         nodes = []
@@ -105,8 +104,7 @@ class RelationshipsManager(BaseManager):
             self.data.save()
             return relationship
         else:
-            raise RelationshipsLimitReached
-
+            raise RelationshipsLimitReachedException
 
     def all(self):
         relationships = []
@@ -160,13 +158,13 @@ class NodeRelationshipsManager(BaseManager):
             self.data.save()
             return relationship
         else:
-            raise RelationshipsLimitReached
+            raise RelationshipsLimitReachedException
 
     def all(self):
         relationships = []
         eltos = self.gdb.get_node_relationships(self.node_id,
                                                 include_properties=True)
-        for relationship_id, relationship_properties in eltos.items():
+        for relationship_id, relationship_properties in eltos:
             relationship = Relationship(relationship_id, self.graph,
                                         properties=relationship_properties)
             relationships.append(relationship)
@@ -176,7 +174,7 @@ class NodeRelationshipsManager(BaseManager):
         relationships = []
         eltos = self.gdb.get_node_relationships(self.node_id, incoming=True,
                                                 include_properties=True)
-        for relationship_id, relationship_properties in eltos.items():
+        for relationship_id, relationship_properties in eltos:
             relationship = Relationship(relationship_id, self.graph,
                                         properties=relationship_properties)
             relationships.append(relationship)
@@ -186,7 +184,7 @@ class NodeRelationshipsManager(BaseManager):
         relationships = []
         eltos = self.gdb.get_node_relationships(self.node_id, outgoing=True,
                                                 include_properties=True)
-        for relationship_id, relationship_properties in eltos.items():
+        for relationship_id, relationship_properties in eltos:
             relationship = Relationship(relationship_id, self.graph,
                                         properties=relationship_properties)
             relationships.append(relationship)
