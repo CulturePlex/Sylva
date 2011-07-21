@@ -18,11 +18,8 @@ from graphs.mixins import (NodesLimitReachedException,
 class GraphTest(TestCase):
 
     def setUp(self):
-        d = Data.objects.create()
         u = User.objects.create()
-        a = Account.objects.create(type=1, nodes=1000, relationships=10000)
-        up = UserProfile.objects.create(user=u, account=a)
-        self.graph = Graph.objects.create(name="Test", owner=u, data=d)
+        self.graph = Graph.objects.create(name="Test", owner=u)
         self.label = "Test label"
         self.properties = {"property": "value with spaces"}
         self.unicode_label = u"T€śŧ łá¶ël"
@@ -363,10 +360,9 @@ class GraphTest(TestCase):
         relationships_limit = account.relationships
         account.relationships = 1
         account.save()
-        import ipdb; ipdb.set_trace()
         self.assertRaises(RelationshipsLimitReachedException,
                           self.graph.relationships.create,
                           n2, n1, label=self.unicode_label)
-        account.relationships = nodes_relationships
+        account.relationships = relationships_limit
         account.save()
-        n2 = self.graph.relationships.create(n1, label=self.unicode_label)
+        n2 = self.graph.relationships.create(n2, n1, label=self.unicode_label)

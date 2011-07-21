@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from django.core.exceptions import ObjectDoesNotExist
 
+from accounts.models import Account
 from engines.gdb.utils import get_gdb
 
 
@@ -25,7 +26,9 @@ class DataMixin(object):
         else:
             try:
                 profile = user.get_profile()
-                return (self.total_nodes <= profile.account.nodes)
+                # HACK: Avoid the QuerySet cache
+                account = Account.objects.get(pk=profile.account.id)
+                return (self.total_nodes < account.nodes)
             except:
                 return False
 
@@ -36,7 +39,8 @@ class DataMixin(object):
         else:
             try:
                 profile = user.get_profile()
-                return (self.total_relationships \
-                        <= profile.account.relationships)
+                # HACK: Avoid the QuerySet cache
+                account = Account.objects.get(pk=profile.account.id)
+                return (self.total_relationships < account.relationships)
             except:
                 return False
