@@ -8,8 +8,11 @@ Replace this with more appropriate tests for your application.
 
 from django.test import TestCase
 
+from accounts.models import Account, UserProfile
 from data.models import Data
 from graphs.models import Graph, User
+from graphs.mixins import (NodesLimitReachedException,
+                           RelationshipsLimitReachedException)
 
 
 class GraphTest(TestCase):
@@ -17,6 +20,8 @@ class GraphTest(TestCase):
     def setUp(self):
         d = Data.objects.create()
         u = User.objects.create()
+        a = Account.objects.create(type=1, nodes=1000, relationships=10000)
+        up = UserProfile.objects.create(user=u, account=a)
         self.graph = Graph.objects.create(name="Test", owner=u, data=d)
         self.label = "Test label"
         self.properties = {"property": "value with spaces"}
@@ -337,3 +342,31 @@ class GraphTest(TestCase):
                          self.unicode_properties)
         self.assertEqual(self.graph.relationships.get(r1_id), r1)
         self.assertEqual(self.graph.relationships.get(r2_id), r2)
+
+    def test_nodes_account_limit(self):
+        account = self.graph.owner.get_profile().account
+        n1 = self.graph.nodes.create(label=self.unicode_label)
+        nodes_limit = account.nodes
+        account.nodes = 1
+        account.save()
+        self.assertRaises(NodesLimitReachedException, self.graph.nodes.create,
+                          label=self.unicode_label)
+        account.nodes = nodes_limit
+        account.save()
+        n2 = self.graph.nodes.create(label=self.unicode_label)
+
+    def test_relationships_account_limit(self):
+        account = self.graph.owner.get_profile().account
+        n1 = self.graph.nodes.create(label=self.unicode_label)
+        n2 = self.graph.nodes.create(label=self.unicode_label)
+        r1 = n1.relationships.create(n2, label=self.unicode_label)
+        relationships_limit = account.relationships
+        account.relationships = 1
+        account.save()
+        import ipdb; ipdb.set_trace()
+        self.assertRaises(RelationshipsLimitReachedException,
+                          self.graph.relationships.create,
+                          n2, n1, label=self.unicode_label)
+        account.relationships = nodes_relationships
+        account.save()
+        n2 = self.graph.relationships.create(n1, label=self.unicode_label)

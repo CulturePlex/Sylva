@@ -2,6 +2,8 @@
 from django.contrib.auth.models import User
 from django.utils.translation import gettext as _
 from django.db import models
+from django.db.models.signals import pre_save
+from django.dispatch import receiver
 
 from data.models import Data
 from schemas.models import Schema
@@ -36,3 +38,11 @@ class Graph(models.Model, GraphMixin):
     # @models.permalink
     # def get_absolute_url(self):
     #     return ('graphs.views.details', [str(self.id)])
+
+
+@receiver(pre_save, sender=Graph)
+def create_profile_account(*args, **kwargs):
+    graph = kwargs.get("instance", None)
+    if graph and not graph.data:
+        data = Data.objects.create()
+        graph.data = data

@@ -2,6 +2,18 @@
 from engines.gdb.backends import GraphDatabaseError
 
 
+class LimitReachedException(Exception):
+    pass
+
+
+class NodesLimitReachedException(LimitReachedException):
+    pass
+
+
+class RelationshipsLimitReachedException(LimitReachedException):
+    pass
+
+
 class GraphMixin(object):
 
     def _nodes(self):
@@ -43,11 +55,15 @@ class BaseManager(object):
 class NodesManager(BaseManager):
 
     def create(self, label, properties=None):
-        properties = self.filter_dict(properties)
-        node_id = self.gdb.create_node(label=label, properties=properties)
-        self.data.total_nodes += 1
-        self.data.save()
-        return Node(node_id, self.graph, properties=properties)
+        if self.data.can_add_nodes():
+            properties = self.filter_dict(properties)
+            node_id = self.gdb.create_node(label=label, properties=properties)
+            node = Node(node_id, self.graph, properties=properties)
+            self.data.total_nodes += 1
+            self.data.save()
+            return node
+        else:
+            raise NodesLimitReached
 
     def all(self):
         nodes = []
@@ -79,11 +95,18 @@ class RelationshipsManager(BaseManager):
 
     def create(self, source, target, label, properties=None):
         properties = self.filter_dict(properties)
-        self.data.total_relationships += 1
-        self.data.save()
-        relationship_id = self.gdb.create_relationship(source.id, target.id,
-                                                       label, properties)
-        return Relationship(relationship_id, self.graph, properties=properties)
+
+        if self.data.can_add_relationships():
+            relationship_id = self.gdb.create_relationship(source.id, target.id,
+                                                           label, properties)
+            relationship = Relationship(relationship_id, self.graph,
+                                        properties=properties)
+            self.data.total_relationships += 1
+            self.data.save()
+            return relationship
+        else:
+            raise RelationshipsLimitReached
+
 
     def all(self):
         relationships = []
@@ -130,9 +153,14 @@ class NodeRelationshipsManager(BaseManager):
             target_id = self.node_id
         relationship_id = self.gdb.create_relationship(source_id, target_id,
                                                        label, properties)
-        self.data.total_nodes += 1
-        self.data.save()
-        return Relationship(relationship_id, self.graph, properties=properties)
+        if self.data.can_add_relationships():
+            relationship = Relationship(relationship_id, self.graph,
+                                        properties=properties)
+            self.data.total_relationships += 1
+            self.data.save()
+            return relationship
+        else:
+            raise RelationshipsLimitReached
 
     def all(self):
         relationships = []
