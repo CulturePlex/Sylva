@@ -7,11 +7,8 @@ from django.dispatch import receiver
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.utils.translation import gettext as _
-from django.conf import settings
 
 from userena.models import UserenaLanguageBaseProfile
-
-from data.models import Data
 
 
 class Account(models.Model):
@@ -51,7 +48,7 @@ class UserProfile(UserenaLanguageBaseProfile):
                                               blank=True,
                                               null=True)
     website = models.URLField(_('website'), blank=True, verify_exists=False)
-    location =  models.CharField(_('location'), max_length=255, blank=True)
+    location = models.CharField(_('location'), max_length=255, blank=True)
     birth_date = models.DateField(_('birth date'), blank=True, null=True)
     about_me = models.TextField(_('about me'), blank=True)
     instituion = models.CharField(_('instituion'), blank=True, null=True,
@@ -66,7 +63,8 @@ class UserProfile(UserenaLanguageBaseProfile):
 
     @property
     def age(self):
-        if not self.birth_date: return False
+        if not self.birth_date:
+            return False
         else:
             today = datetime.date.today()
             # Raised when birth date is February 29 and the current year is not
@@ -76,8 +74,10 @@ class UserProfile(UserenaLanguageBaseProfile):
             except ValueError:
                 day = today.day - 1 if today.day != 1 else today.day + 2
                 birthday = self.birth_date.replace(year=today.year, day=day)
-            if birthday > today: return today.year - self.birth_date.year - 1
-            else: return today.year - self.birth_date.year
+            if birthday > today:
+                return today.year - self.birth_date.year - 1
+            else:
+                return today.year - self.birth_date.year
 
 
 @receiver(post_save, sender=User)
@@ -88,7 +88,6 @@ def create_profile_account(*args, **kwargs):
         try:
             user.get_profile().account
         except UserProfile.DoesNotExist:
-            d = Data.objects.create()
             accounts = Account.objects.filter(type=1)
             if not accounts:
                 account = Account.objects.create(**settings.ACCOUNT_FREE)
