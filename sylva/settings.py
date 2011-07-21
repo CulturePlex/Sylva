@@ -175,6 +175,7 @@ INSTALLED_APPS = (
     'graphs',
     'schemas',
     'engines',
+    'accounts',
 )
 
 AUTHENTICATION_BACKENDS = (
@@ -184,7 +185,7 @@ AUTHENTICATION_BACKENDS = (
 )
 
 ANONYMOUS_USER_ID = -1
-AUTH_PROFILE_MODULE = "base.UserProfile"
+AUTH_PROFILE_MODULE = "accounts.UserProfile"
 LOGIN_REDIRECT_URL = '/dashboard/' # '/accounts/%(username)s/'
 LOGIN_URL = '/accounts/signin/'
 LOGOUT_URL = '/accounts/signout/'
@@ -218,3 +219,14 @@ USERENA_DISABLE_PROFILE_LIST = False
 USERENA_WITHOUT_USERNAMES = True
 USERENA_LANGUAGE_FIELD = "language"
 USERENA_SIGNIN_REDIRECT_URL = LOGIN_REDIRECT_URL
+
+# Sylva settings
+ACCOUNT_FREE = {
+    "name": "Free account",
+    "type": 1,  # Free
+    "graphs": 10,
+    "nodes": 1000,
+    "relationships": 10000,
+    "storage": 10,
+    "queries": 10,
+}

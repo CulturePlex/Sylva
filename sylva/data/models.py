@@ -3,11 +3,11 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.utils.translation import gettext as _
 
-from engines.gdb.utils import get_gdb
 from engines.models import Instance
+from data.mixins import DataMixin
 
 
-class Data(models.Model):
+class Data(models.Model, DataMixin):
     # graph = models.OneToOneField(Graph, verbose_name=_('graph'))
     instance = models.ForeignKey(Instance,
                                  verbose_name=_("Graph database instance"),
@@ -15,6 +15,7 @@ class Data(models.Model):
     total_nodes = models.IntegerField(_("total nodes"), default=0)
     total_relationships = models.IntegerField(_("total relationships"),
                                               default=0)
+    total_queries = models.IntegerField(_("total queries"), default=0)
 
     class Meta:
         verbose_name_plural = _("data")
@@ -32,18 +33,6 @@ class Data(models.Model):
                 return _(u"Data on instance \"%s\"") % self.instance.name
             else:
                 return _(u"Data on default instance")
-
-    def get_gdb(self):
-        try:
-            if self.instance:
-                return self.instance.get_gdb(graph=self.graph)
-            else:
-                return get_gdb(graph=self.graph)
-        except ObjectDoesNotExist:
-            if self.instance:
-                return self.instance.get_gdb()
-            else:
-                return get_gdb()
 
     @models.permalink
     def get_absolute_url(self):

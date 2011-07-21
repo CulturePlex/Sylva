@@ -23,10 +23,11 @@ class BaseGraphDatabase(object):
 
     # Nodes methdos
 
-    def create_node(self, label, properties=None):
+    def create_node(self, label, properties=None, type=None):
         """
         Create a node.
         If "properties" is a dictionary, they will be added to the node.
+        If "type" is not None, it will be added like a inner property.
         If "label" is a string, the node will be labeled with "label".
         Return the id of the node created and set it to it.
         """
@@ -44,9 +45,21 @@ class BaseGraphDatabase(object):
         """
         raise NotImplementedError("Method has to be implemented")
 
-    def set_node_label(self, id, label):
+    def set_node_type(self, id, type):
         """
-        Set the label of the node "id".
+        Set the type of the node "type".
+        """
+        raise NotImplementedError("Method has to be implemented")
+
+    def get_node_type(self, type):
+        """
+        Get the type of the node "type".
+        """
+        raise NotImplementedError("Method has to be implemented")
+
+    def set_node_type(self, id, label):
+        """
+        Set the type of the node "id".
         """
         raise NotImplementedError("Method has to be implemented")
 
@@ -97,17 +110,19 @@ class BaseGraphDatabase(object):
     def get_node_relationships(self, id, incoming=False, outgoing=False,
                                include_properties=False):
         """
-        Get a dictionary with all relationships ids related with the node "id",
+        Get a list of tuples with all relationships. The first element is "id"
+        and the second is None.
         incoming and outgoing.
         If "incoming" is True, it only returns the ids for incoming ones.
         If "outgoing" is True, it only returns the ids for outgoing ones.
-        If "include_properties" is True, the value of the associated key "id"
-        will be  a dictionary containing the properties.
+        If "include_properties" is True, the value of the second value of the 
+        tuple is a dictionary containing the properties.
         """
 
     def get_nodes_properties(self, ids):
         """
-        Get a dictionary whose keys are the nodes "id" and the value is a
+        Get a list of tuples for the nodes with "id" in the list "ids",
+        whose first element is the nodes "id" and the second one is a
         dictionary containing the properties.
         """
         raise NotImplementedError("Method has to be implemented")
@@ -120,8 +135,9 @@ class BaseGraphDatabase(object):
 
     def get_all_nodes(self, include_properties=False):
         """
-        Get an iterator for the dictionary of all nodes, whose keys are "ids"
-        If "include_properties" is True, the value of the associated key "id"
+        Get an iterator for the list of tuples of all nodes, the first element
+        is the id of the node.
+        If "include_properties" is True, the second element in the tuple
         will be a dictionary containing the properties.
         """
         raise NotImplementedError("Method has to be implemented")
@@ -137,10 +153,11 @@ class BaseGraphDatabase(object):
 
     # Relationships methdos
 
-    def create_relationship(self, id1, id2, label, properties=None):
+    def create_relationship(self, id1, id2, label, properties=None, type=None):
         """
         Create a relationship from node "id1" to node "id2".
         If "label" is a string, the relationship will be labeled with "label".
+        If "type" is not None, it will be added like a inner property.
         If "properties" is a dictionary, they will be added to the node.
         Return the id of the relationship created and set it to it.
         """
@@ -155,6 +172,18 @@ class BaseGraphDatabase(object):
     def set_relationship_label(self, id, label):
         """
         Set the label of the relationship "id".
+        """
+        raise NotImplementedError("Method has to be implemented")
+
+    def get_relationship_type(self, type):
+        """
+        Get the type of the relationship "type".
+        """
+        raise NotImplementedError("Method has to be implemented")
+
+    def set_relationship_type(self, id, type):
+        """
+        Set the type of the relationship "type".
         """
         raise NotImplementedError("Method has to be implemented")
 
@@ -212,8 +241,8 @@ class BaseGraphDatabase(object):
 
     def get_relationship_source(self, id, include_properties=False):
         """
-        Get a dictionary of the relationship "id". The key will be the
-        source node "id" and the value will be a dictionary containing
+        Get the tuple of the relationship "id". The first element will be the
+        source node "id" and the second one will be a dictionary containing
         the properties of the node.
         """
         raise NotImplementedError("Method has to be implemented")
@@ -226,8 +255,8 @@ class BaseGraphDatabase(object):
 
     def get_relationship_target(self, id, include_properties=False):
         """
-        Get a dictionary of the relationship "id". The key will be the
-        target node "id" and the value will be a dictionary containing
+        Get the tuple of the relationship "id". The first element will be the
+        target node "id" and the second one will be a dictionary containing
         the properties of the node.
         """
         raise NotImplementedError("Method has to be implemented")
@@ -246,9 +275,9 @@ class BaseGraphDatabase(object):
 
     def get_all_relationship(self, include_properties=False):
         """
-        Get an iterator for the dictionary of all relationships, whose keys
-        are "ids".
-        If "include_properties" is True, the value of the associated key "id"
+        Get an iterator for the list of tuples of all relationships, the
+        first element is the id of the node.
+        If "include_properties" is True, the second element in the tuple
         will be a dictionary containing the properties.
         """
         raise NotImplementedError("Method has to be implemented")
