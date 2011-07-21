@@ -43,7 +43,9 @@ class Graph(models.Model, GraphMixin):
 @receiver(pre_save, sender=Graph)
 def create_data_graph(*args, **kwargs):
     graph = kwargs.get("instance", None)
-    if graph and not graph.data:
-        data = Data.objects.create()
-        graph.data = data
-    return graph
+    if graph:
+        try:
+            graph.data
+        except Data.DoesNotExist:
+            data = Data.objects.create()
+            graph.data = data
