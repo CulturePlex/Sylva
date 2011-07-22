@@ -22,8 +22,8 @@ class GraphTest(TestCase):
         self.graph = Graph.objects.create(name="Test", owner=u)
         self.label = "Test label"
         self.properties = {"property": "value with spaces"}
-        self.unicode_label = u"T€śŧ łá¶ël"
-        self.unicode_properties = {u"p röp€rtŷ": u"uní©od e/välúê"}
+        self.unicode_label = u"T€/śŧ łá¶ël+-"
+        self.unicode_properties = {u"p röp/€rtŷ": u"uní©od e/välúê"}
 
     def test_nodes_create(self):
         """
