@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}
+{% trans "Dashboard" %}
+{% endblock %}
+
+{% block content_title %}
+<h1>{% trans "Graphs" %} » {% trans "Create" %}</h1>
+{% endblock %}
+
+{% block navigation_buttons %}
+{{ block.super }}
+{% endblock %}
+
+{% block content %}
+<form method="post" action="." id="graphsCreate" name="graphs_create">
+{% csrf_token %}
+{{ form.as_p }}
+<input type="submit" name="addGraph" value="{% trans "Create new graph" %}" id="createGraph" />
+<span class="buttonLinkOption">or <a href="{% url dashboard %}">Cancel</a>.</span>
+</form>
+
+{% endblock %}

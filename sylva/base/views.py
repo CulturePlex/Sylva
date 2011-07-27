@@ -13,18 +13,22 @@ def index(request):
                               {'is_index': True},
                               context_instance=RequestContext(request))
 
+
 def signin_redirect(request, *args, **kwargs):
     if request.user.is_authenticated() and request.user.is_superuser:
         return redirect("dashboard")
     return signin(request, *args, **kwargs)
+
 
 def signup_redirect(request, *args, **kwargs):
     if request.user.is_authenticated() and request.user.is_superuser:
         return signup(request, *args, **kwargs)
     return redirect("index")
 
+
 @login_required()
 def dashboard(request):
     return render_to_response('dashboard.html',
-                              {"graphs": request.user.graphs.all()},
+                              {"graphs": request.user.graphs.all(),
+                               "instances": request.user.instances.all(),},
                               context_instance=RequestContext(request))

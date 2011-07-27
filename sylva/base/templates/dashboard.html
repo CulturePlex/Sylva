@@ -13,7 +13,28 @@
 {% endblock %}
 
 {% block content %}
+<h2>{% trans "Graphs" %}</h2>
+<p>
 {% for graph in graphs %}
-    {{ graph.name }} {{ graph.description }}
+    <div>
+    <span class="itemTitle">{{ graph.name }}</span>
+    <span class="itemDescription">{{ graph.description }}</span>
+    </div>
+{% empty %}
+    {% trans "There're no graphs yet." %}
 {% endfor %}
+</p>
+<a class="button" href="{% url graphs.views.create %}">{% trans "Create new graph" %}</a>
+
+
+<h2>{% trans "Instances" %}</h2>
+<p>
+{% for instance in instances %}
+    {{ instance.name }}: {{ instance.engine }}
+{% empty %}
+    {% trans "There're no instances yet." %}
+{% endfor %}
+</p>
+<a href="#">{% trans "Buy an own instance" %}</a>
+
 {% endblock %}

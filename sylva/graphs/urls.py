@@ -8,6 +8,9 @@ from django.contrib import admin
 admin.autodiscover()
 
 urlpatterns = patterns('graphs.views',
+    # create
+    url(r'^create/$', 'create', name="graph_create"),
+
     # edit
-    url(r'/(?P<graph_id>\d+)/edit/^', 'edit', name="graph_edit"),
+    url(r'^(?P<graph_id>\d+)/edit/$', 'edit', name="graph_edit"),
 )

@@ -41,7 +41,8 @@ class Instance(models.Model):
                                       help_text=_("Type again to change"))
     query = models.TextField(_("query"), null=True, blank=True)
     fragment = models.TextField(_("fragment"), null=True, blank=True)
-    owner = models.ForeignKey(User, verbose_name=_('owner'))
+    owner = models.ForeignKey(User, verbose_name=_('owner'),
+                              related_name="instances")
 
     def __unicode__(self):
         return u"%s ~ %s" % (self.name, self._get_connection_string())
