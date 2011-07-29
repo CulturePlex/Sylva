@@ -13,28 +13,84 @@
 {% endblock %}
 
 {% block content %}
+        <div id="content2">
+              <!-- content blocks (three side by side), can remove if needed, this was just an example -->
+              <div class="content2-block">
+
+<div class="dashboard-graphs">
+<a class="button" href="{% url graph_create %}">{% trans "Create new graph" %}</a>
 <h2>{% trans "Graphs" %}</h2>
-<p>
+<div class="graph-list">
 {% for graph in graphs %}
-    <div>
-    <span class="itemTitle">{{ graph.name }}</span>
-    <span class="itemDescription">{{ graph.description }}</span>
+    <div class="graph-item">
+        <span class="graph-title"><a href="{% url graph_view graph.id %}">{{ graph.name|truncatewords_html:7 }}</a></span>
+        <q class="graph-description">{{ graph.description|truncatewords_html:40 }}</q>
+        <div class="flags">
+            <div class="flags-block">
+                <span class="graph-instance">
+                    {% if graph.data.instance %}
+                        {% trans "On instance" %}  <a href="">{{ graph.data.instance|truncatewords_html:4 }}</a>.
+                    {% else %}
+                        {% trans "On default instance" %}. <!-- <a href="">{% trans "instance" %}</a>. -->
+                    {% endif %}
+                </span>
+                <span class="graph-collaborators">
+                    {{ graph.data.total_nodes }} <a href="{% url graph_collaborators graph.id %}">{% trans "collaborators" %}</a>.
+                </span>
+            </div>
+            <div class="flags-divider"></div>
+            <div class="flags-block">
+                <span class="graph-total">
+                    {{ graph.data.total_nodes }} <a href="{% url nodes_list graph.id %}">{% trans "nodes" %}</a>, 
+                    {{ graph.data.total_relationships }} <a href="{% url relationships_list graph.id %}">{% trans "relationships" %}</a>.
+                </span>
+                <span class="graph-schema">
+                    {% if graph.relaxed %}
+                        {% trans "Relaxed" %}
+                    {% else %}
+                        {% trans "Strict" %}
+                    {% endif %}
+                     <a href="{% url schema_edit graph.id %}">{% trans "schema" %}</a>.
+                </span>
+            </div>
+        </div>
     </div>
 {% empty %}
     {% trans "There're no graphs yet." %}
 {% endfor %}
-</p>
-<a class="button" href="{% url graphs.views.create %}">{% trans "Create new graph" %}</a>
+</div>
+</div>
 
+<span class="clear"></span>
 
+<div class="dashboard-graphs">
+<a class="disabled">{% trans "Buy an own instance" %}</a>
 <h2>{% trans "Instances" %}</h2>
-<p>
+<div class="instance-list">
 {% for instance in instances %}
-    {{ instance.name }}: {{ instance.engine }}
+    <p class="instance-item">
+    <span class="instance-title">{{ instance.name }}</span>
+    <q>{{ instance.engine }}</q>
+    </p>
 {% empty %}
     {% trans "There're no instances yet." %}
 {% endfor %}
-</p>
-<a href="#">{% trans "Buy an own instance" %}</a>
+</div>
+</div>
+
+              </div>
+              <div class="content-divider"></div>
+              <div class="content2-block">
+                <h2 class="collect">{% trans "Activity" %}</h2>
+                <p>Activity 1: blah, blah</p>
+                <p>Activity 2: blah, blah</p>
+              </div>
+              <div class="content-divider"></div>
+              <div class="content2-block">
+                <h2 class="query">{% trans "Statistics" %}</h4>
+                <p><img src="http://www.lorenzogil.com/projects/pycha/browser/trunk/examples/piechart.png?format=raw" /></p>
+              <!-- end content blocks -->
+              </div>
+    </div>
 
 {% endblock %}

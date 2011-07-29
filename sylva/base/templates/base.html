@@ -35,8 +35,18 @@
 
   <div id="main">
     <header class="global">
+      {% block menu_navigation %}
+      <nav class="menu">
+        <ul>
+<!--          <li><a href="{% url userena.views.profile_detail request.user %}" class="text">{{ request.user }}</a></li>-->
+          {% block menu_buttons %}
+<!--          <li><a href="{% url dashboard %}" class="link"><span>{% trans "Dashboard" %}</span></a></li>-->
+          {% endblock %}
+<!--          <li><a href="{{ LOGOUT_URL }}" class="link"><span>{% trans "Sign out" %}</span></a></li>-->
+        </ul>
+      </nav>
+      {% endblock %}
       {% block content_title %}
-      <h1></h1>
       {% endblock %}
       <div class="nav-wrapper">
 

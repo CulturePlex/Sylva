@@ -10,7 +10,7 @@ ipython==0.10.2
 lucene-querybuilder==0.1.2
 # neo4jrestclient==1.4.2 dev
 -e git+git://github.com/versae/neo4j-rest-client.git#egg=neo4jrestclient
-pyblueprints==0.3.2
+pyblueprints==0.5
 pycrypto==2.3
 python-rexster==0.1.1
 requests==0.5.0
