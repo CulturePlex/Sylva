@@ -9,8 +9,15 @@ admin.autodiscover()
 
 urlpatterns = patterns('graphs.views',
     # create
-    url(r'^create/$', 'create', name="graph_create"),
+    url(r'^create/$', 'graph_create', name="graph_create"),
 
     # edit
-    url(r'^(?P<graph_id>\d+)/edit/$', 'edit', name="graph_edit"),
+    url(r'^(?P<graph_id>\d+)/edit/$', 'graph_edit', name="graph_edit"),
+
+    # view
+    url(r'^(?P<graph_id>\d+)/$', 'graph_view', name="graph_view"),
+
+    # collaborators edit
+    url(r'^(?P<graph_id>\d+)/collaborators/$', 'graph_collaborators',
+        name="graph_collaborators"),
 )

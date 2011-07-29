@@ -19,6 +19,9 @@ class Data(models.Model, DataMixin):
 
     class Meta:
         verbose_name_plural = _("data")
+        permissions = (
+            ('view_data', _('View nodes and relationships')),
+        )
 
     def __unicode__(self):
         try:

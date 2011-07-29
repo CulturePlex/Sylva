@@ -9,5 +9,5 @@ admin.autodiscover()
 
 urlpatterns = patterns('schemas.views',
     # edit
-    url(r'/(?P<schema_id>\d+)/edit/^', 'edit', name="schema_edit"),
+    url(r'^(?P<graph_id>\d+)/$', 'schema_edit', name="schema_edit"),
 )

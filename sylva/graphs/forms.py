@@ -8,4 +8,4 @@ class GraphForm(ModelForm):
 
     class Meta:
         model = Graph
-        fields = ("name", "description", "owner")
+        fields = ("name", "description")

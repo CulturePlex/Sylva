@@ -8,6 +8,10 @@ from django.contrib import admin
 admin.autodiscover()
 
 urlpatterns = patterns('data.views',
-    # edit
-    url(r'/(?P<data_id>\d+)/edit/^', 'edit', name="data_edit"),
+    # list nodes
+    url(r'^(?P<graph_id>\d+)/nodes/$', 'nodes_list', name="nodes_list"),
+
+    # list relationships
+    url(r'^(?P<graph_id>\d+)/relationships/$', 'relationships_list',
+        name="relationships_list"),
 )
