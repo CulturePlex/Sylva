@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from django.core.exceptions import ObjectDoesNotExist
 from django.utils.translation import gettext as _
 from django.db import models
 
@@ -12,19 +13,30 @@ class Schema(models.Model):
         )
 
     def __unicode__(self):
-        return _("Schema \"%s\"") % (self.id)
+        try:
+            return _(u"Schema for \"%s\"") % (self.graph.name)
+        except ObjectDoesNotExist:
+            return _(u"Schema \"%s\"") % (self.id)
 
     @models.permalink
     def get_absolute_url(self):
         return ('schemas.views.edit', [str(self.id)])
 
 
-class NodeType(models.Model):
+class BaseType(models.Model):
     name = models.CharField(_('name'), max_length=30)
     description = models.TextField(_('description'), blank=True, null=True)
-    inheritance = models.ForeignKey('self', null=True, blank=True,
-                                    verbose_name=_("inheritance"))
     schema = models.ForeignKey(Schema)
+
+    class Meta:
+        abstract = True
+
+
+class NodeType(BaseType):
+    inheritance = models.ForeignKey('self', null=True, blank=True,
+                                    verbose_name=_("inheritance"),
+                                    help_text=_("Choose the type which " \
+                                                "inherits from."))
 
     def __unicode__(self):
         return "%s" % (self.name)
@@ -37,12 +49,8 @@ class NodeType(models.Model):
 
 
 class RelationshipType(models.Model):
-
-    name = models.CharField(_('name'), max_length=30)
-    description = models.TextField(_('description'), blank=True, null=True)
     inheritance = models.ForeignKey('self', null=True, blank=True,
                                     verbose_name=_("inheritance"))
-    schema = models.ForeignKey(Schema)
     source = models.ForeignKey(NodeType, related_name='node_source',
                                verbose_name=_("source node"),
                                help_text=_("Source node type"))

@@ -49,3 +49,10 @@ def create_data_graph(*args, **kwargs):
         except Data.DoesNotExist:
             data = Data.objects.create()
             graph.data = data
+
+@receiver(pre_save, sender=Graph)
+def create_schema_graph(*args, **kwargs):
+    graph = kwargs.get("instance", None)
+    if graph and not graph.schema:
+        schema = Schema.objects.create()
+        graph.schema = schema

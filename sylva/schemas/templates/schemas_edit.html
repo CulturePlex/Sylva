@@ -21,4 +21,91 @@
 {% endblock %}
 
 {% block content %}
+
+<div id="content" class="colM">
+<h2>Types</h2>
+<form action="." method="POST">
+    {% csrf_token %}
+    {{ node_type_form.as_p }}
+    <input type="submit" value="Create new type"/>
+</form>
+<br class="clear">
+<div id="content-main">
+{% for node_type in node_types %}
+    <!--
+    <h3>{{ node_type.name|capfirst }}</h3>
+    -->
+    <div>
+    <fieldset class="module aligned wide">
+    {% if node_type.name %}<h2>{{ node_type.name|capfirst }}</h2>{% endif %}
+    {% for node_property in node_type.nodeproperty_set.all %}
+         <div class="form-row">
+         <div>
+            <label {% if node_property.required %}class="required"{% endif %}>⌂ {{ node_property.key|capfirst }}</label>
+            [{{ node_property.get_datatype }}] <p class="help">{{ node_property.default }}</p>
+            <a class="changelink" href="">
+                Edit
+            </a>
+            <a class="deletelink" href="">
+                Remove
+            </a>
+        </div>
+        </div>
+    {% endfor %}
+    {% for edge in node_type.get_edges %}
+         <div class="form-row">
+         <div>
+            <label>→ {{ edge.relation.name|capfirst }}</label>
+            [{% if edge.arity < 1 %}∞{% else %}{{ edge.arity }} × {% endif %} {{ edge.node_to.name|capfirst }}] <p class="help"></p>
+            <a class="changelink" href="">
+                Edit
+            </a>
+            {% if edge.relation.edgeproperty_set.all|length <= 0 %}
+            <a class="deletelink" href="">
+                Remove
+            </a>
+            {% endif %}
+            <a class="addlink" href="">
+                Add relation property
+            </a>
+            {% if edge.relation.edgeproperty_set.all %}
+                {% for edge_propery in edge.relation.edgeproperty_set.all %}
+                <div class="form-row">
+                <div>
+                    <label {% if edge_propery.required %}class="required"{% endif %}>⌂ {{ edge_propery.key|capfirst }}</label>
+                    [{{ edge_propery.get_datatype }}] <p class="help">{{ edge_propery.default }}</p>
+                    <a class="changelink" href="">
+                        Edit
+                    </a>
+                    <a class="deletelink" href="">
+                        Remove
+                    </a>
+                </div>
+                </div>
+                {% endfor %}
+            {% endif %}
+        </div>
+        </div>
+    {% endfor %}
+    </fieldset>
+    <div class="submit-row">
+        <a class="addlink"
+           href="">
+            Add property
+        </a>
+        <a class="addlink"
+           href="">
+            Add relation
+        </a>
+        <!--
+        <input type="button" value="Add another" class="default" name="_save">
+        <input type="submit" value="Save and add another" name="_addanother">
+        <input type="submit" value="Save and continue editing" name="_continue">
+        -->
+    </div>
+    </div>
+{% endfor %}
+</div>
+</div>
+
 {% endblock %}
