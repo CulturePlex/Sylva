@@ -27,16 +27,19 @@ class BaseType(models.Model):
     name = models.CharField(_('name'), max_length=30)
     description = models.TextField(_('description'), blank=True, null=True)
     schema = models.ForeignKey(Schema)
+    order = models.IntegerField(_('order'), blank=True, null=True)
 
     class Meta:
         abstract = True
+        ordering = ("order", )
 
 
 class NodeType(BaseType):
     inheritance = models.ForeignKey('self', null=True, blank=True,
                                     verbose_name=_("inheritance"),
-                                    help_text=_("Choose the type which " \
-                                                "inherits from."))
+                                    help_text=_("Choose the Type which " \
+                                                "properties will be " \
+                                                "inherited from") + ".")
 
     def __unicode__(self):
         return "%s" % (self.name)
@@ -75,7 +78,7 @@ class BaseProperty(models.Model):
                                blank=True, null=True)
     value = models.CharField(_('value'), max_length=255, blank=True)
     DATATYPE_CHOICES = (
-        (u'u', _(u'Undefined')),
+        (u'u', _(u'Default')),
         (u'n', _(u'Number')),
         (u's', _(u'String')),
         (u'b', _(u'Boolean')),
@@ -86,7 +89,7 @@ class BaseProperty(models.Model):
                                 default=u"u")
     required = models.BooleanField(_('is required?'), default=False)
     description = models.TextField(_('description'), blank=True, null=True)
-    order = models.IntegerField(_('order'))
+    order = models.IntegerField(_('order'), blank=True, null=True)
 
     class Meta:
         abstract = True
@@ -104,7 +107,8 @@ class BaseProperty(models.Model):
 
 
 class NodeProperty(BaseProperty):
-    node = models.ForeignKey(NodeType, verbose_name=_('node'))
+    node = models.ForeignKey(NodeType, verbose_name=_('node'),
+                             related_name="properties")
 
     class Meta:
         verbose_name_plural = _("Node properties")
@@ -112,7 +116,8 @@ class NodeProperty(BaseProperty):
 
 class RelationshipProperty(BaseProperty):
     relationship = models.ForeignKey(RelationshipType,
-                                     verbose_name=_('relationship'))
+                                     verbose_name=_('relationship'),
+                                     related_name="properties")
 
     class Meta:
         verbose_name_plural = _("Relationship properties")

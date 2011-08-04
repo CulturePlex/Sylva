@@ -10,4 +10,13 @@ admin.autodiscover()
 urlpatterns = patterns('schemas.views',
     # edit
     url(r'^(?P<graph_id>\d+)/$', 'schema_edit', name="schema_edit"),
+
+    # node type create
+    url(r'^(?P<graph_id>\d+)/types/create/$', 'schema_nodetype_create',
+        name="schema_nodetype_create"),
+
+    # relationship type create
+    url(r'^(?P<graph_id>\d+)/allowed/create/$',
+        'schema_relationshiptype_create',
+        name="schema_relationshiptype_create"),
 )

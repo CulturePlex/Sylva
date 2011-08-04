@@ -40,6 +40,14 @@ label {
 /*    margin-top: 10px;*/
 }
 
+th {
+    cursor: pointer;
+    font-size: 115%;
+    font-weight: bold;
+/*    display: inline-block;*/
+/*    margin-top: 10px;*/
+}
+
 textarea {
     overflow: auto;
 }
@@ -336,6 +344,31 @@ a {
 }
 
 
+#content3 {
+    /*  width:992px;*/
+    min-height: 450px;
+    /*  background:#1D5600;*/
+    text-align: left;
+    padding-top: 0px;
+    padding-bottom: 30px;
+}
+
+#content3 p {
+    text-align:justify;
+    padding-bottom:10px;
+}
+
+.content3-block {
+    width:365px;
+    float:left;
+}
+
+.content3-block p {
+    width:365px; 
+    float:left;
+    text-align:left;
+}
+
 #content2 {
     /*  width:992px;*/
     min-height: 450px;
@@ -350,9 +383,15 @@ a {
     padding-bottom:10px;
 }
 
-.content2-block {
-    width:365px;
+.content2-first {
+    width:350px;
     float:left;
+}
+
+.content2-second {
+    width: 750px;
+    float: left;
+    padding-left: 19px;
 }
 
 .content2-block p {
@@ -368,6 +407,15 @@ a {
     min-height: 400px;
     float: left;
     padding: 0px 10px 0px 10px; 
+}
+
+#content2 .content-divider {
+    background: url(../img/content-divider.gif) repeat-y top center;
+    width: 1px;
+    min-height: 420px;
+    float: left;
+    padding: 0px 10px 0px 10px;
+    margin-top: 0;
 }
 /* end divider */
 
@@ -448,7 +496,7 @@ form p {
 
 select {
     border: solid 1px #DADADA;
-    width: 315px;
+    width: 317px;
 }
 
 .button,input[type="button"],input[type="submit"] {
@@ -708,3 +756,46 @@ li {
     float: left;
     list-style: none;
 }
+
+/* Node types properties */
+
+.nodetype-properties-table tr.formset td {
+    padding-bottom: 10px;
+}
+
+.nodetype-properties-table label {
+    display: block;
+}
+
+.nodetype-properties-table span label {
+    display: initial;
+}
+
+.nodetype-properties-table input[type="text"] {
+    width: 250px;
+    display: block;
+}
+
+.nodetype-properties-table table.subform input[type="text"] {
+    width: 225px;
+    display: block;
+}
+
+.nodetype-properties-table table.subform span.number input[type="text"] {
+    width: 25px;
+    display: block;
+}
+
+.nodetype-properties-table input[type="checkbox"] {
+    margin-top: -4px;
+}
+
+.nodetype-properties-table select {
+    width: 100px;
+}
+
+.nodetype-properties-table textarea {
+    height: 30px;
+    width: 405px;
+}
+

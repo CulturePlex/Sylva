@@ -13,12 +13,12 @@
 {% endblock %}
 
 {% block content %}
-        <div id="content2">
+        <div id="content3">
               <!-- content blocks (three side by side), can remove if needed, this was just an example -->
-              <div class="content2-block">
+              <div class="content3-block">
 
 <div class="dashboard-graphs">
-<a class="button" href="{% url graph_create %}">{% trans "Create new graph" %}</a>
+<a class="button" href="{% url graph_create %}">{% trans "New Graph" %}</a>
 <h2>{% trans "Graphs" %}</h2>
 <div class="graph-list">
 {% for graph in graphs %}
@@ -89,13 +89,13 @@
 
               </div>
               <div class="content-divider"></div>
-              <div class="content2-block">
+              <div class="content3-block">
                 <h2 class="collect">{% trans "Activity" %}</h2>
                 <p>Activity 1: blah, blah</p>
                 <p>Activity 2: blah, blah</p>
               </div>
               <div class="content-divider"></div>
-              <div class="content2-block">
+              <div class="content3-block">
                 <h2 class="query">{% trans "Statistics" %}</h4>
                 <p><img src="http://www.lorenzogil.com/projects/pycha/browser/trunk/examples/piechart.png?format=raw" /></p>
               <!-- end content blocks -->
