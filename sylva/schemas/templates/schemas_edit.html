@@ -42,8 +42,8 @@
     {% for edge in node_type.get_outgoing_relationships %}
          <div class="form-row">
          <div>
-            <label>→ {{ edge.relation.name|capfirst }}</label>
-            [{% if edge.arity < 1 %}∞{% else %}{{ edge.arity }} × {% endif %} {{ edge.node_to.name|capfirst }}] <p class="help"></p>
+            <label>→ {{ edge.name|capfirst }}</label>
+            [{% if edge.arity < 1 %}∞{% else %}{{ edge.arity }} × {% endif %} {{ edge.target.name|capfirst }}] <p class="help"></p>
             {% if edge.relation.edgeproperty_set.all %}
                 {% for edge_propery in edge.relation.edgeproperty_set.all %}
                 <div class="form-row">
@@ -58,24 +58,15 @@
         </div>
     {% endfor %}
     </fieldset>
-    <div class="submit-row">
-        <a class="addlink"
-           href="">
-            Add property
-        </a>
-        <a class="addlink"
-           href="">
-            Add relation
-        </a>
-        <!--
-        <input type="button" value="Add another" class="default" name="_save">
-        <input type="submit" value="Save and add another" name="_addanother">
-        <input type="submit" value="Save and continue editing" name="_continue">
-        -->
-    </div>
     </div>
 {% endfor %}
 </div>
 <a class="button" href="{% url schema_nodetype_create graph.id %}">{% trans "New Type" %}</a>
-<span class="buttonLinkOption">{% trans "or" %} <a href="{% url schema_relationshiptype_create graph.id %}">{% trans "Allowed Relationship" %}</a>.</span>
+<span class="buttonLinkOption">
+{% if node_types %}
+    {% trans "or" %} <a href="{% url schema_relationshiptype_create graph.id %}">{% trans "Allowed Relationship" %}</a>.
+{% else %}
+    {% trans "There's no types defined yet" %}.
+{% endif %}
+</span>
 {% endblock %}

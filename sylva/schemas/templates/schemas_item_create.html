@@ -1,0 +1,167 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block extra_scripts %}
+    <script type="text/javascript" src="{{ STATIC_PREFIX }}js/jquery.formsets.1.2.min.js"></script>
+{% endblock %}
+
+{% block navigation_buttons %}
+{{ block.super }}
+{% endblock %}
+
+{% block title %}
+{{ graph.name }}
+{% endblock %}
+
+{% block menu_buttons %}
+<li><a href="{% url graph_view graph.id %}" class="link"><span>{% trans "Graph" %}</span></a></li>
+<li><a href="{% url nodes_list graph.id %}" class="link"><span>{% trans "Nodes" %}</span></a></li>
+<li><a href="{% url relationships_list graph.id %}" class="link"><span>{% trans "Relationships" %}</span></a></li>
+<li><a href="{% url schema_edit graph.id %}" class="text"><span>{% trans "Schema" %}</span></a></li>
+<li><a href="{% url graph_collaborators graph.id %}" class="link"><span>{% trans "Collaborators" %}</span></a></li>
+{% endblock %}
+
+{% block content_title %}
+<h2>{% trans "Graphs" %} » {{ graph.name|truncatewords_html:5 }} » {% trans "Schema" %} » {% trans "New" %} {{ item_type }}</h2>
+{% endblock %}
+
+{% block content %}
+<div id="content2">
+<form action="." method="POST" id="itemType">
+{% csrf_token %}
+    <div class="content2-first">
+        <h2>{{ item_type }}</h2>
+        {% for field in form %}
+            <p {% if field.name in fields_to_hide and not field.value %}class="hidden"{% endif %}>
+            {{ field.errors }}
+            {{ field.label_tag }}
+            {{ field }}
+            {% if field.help_text %}
+                <span class="helptext">
+                {{ field.help_text }}
+                </span>
+            {% endif %}
+            </p>
+        {% endfor %}
+        <input type="submit" value="Save Type"/>
+        <span class="buttonLinkOption">{% trans "or" %} <a href="{% url schema_edit graph.id %}">{% trans "Cancel" %}</a>.</span>
+    </div>
+    <div class="content-divider"></div>
+    <div class="content2-second">
+        <h2>{% trans "Properties" %}</h2>
+        <table cellspacing="0" class="itemtype-properties-table" width="100%">
+            <tbody class="dynamic">
+            {{ formset.management_form }}
+            {% for form in formset.forms %}
+                <tr class="formset {% cycle "row1" "row2" %}">
+                    <td>
+                        {{ form.key.errors }}
+                        {{ form.key.label_tag }}
+                        {{ form.key }}
+                        {{ form.key.help_text }}
+                        <span {% if not form.instance.required %}class="hidden"{% endif %}>
+                            {{ form.required.errors }}
+                            {{ form.required }}
+                            {{ form.required.label_tag }}
+                            <span class="helptext">
+                            {{ form.required.help_text }}
+                            </span>
+                        </span>
+                    </td>
+                    <td>
+                        <!-- I'm really sad about this :'( -->
+                        <table class="subform">
+                            <tr >
+                            <td {% if form.instance.datatype == "u" %}class="hidden"{% endif %}>
+                                {{ form.datatype.errors }}
+                                {{ form.datatype.label_tag }}
+                                {{ form.datatype }}
+                                <span class="helptext">
+                                {{ form.datatype.help_text }}
+                                </span>
+                            </td>
+                            <td {% if not form.instance.default %}class="hidden"{% endif %}>
+                                {{ form.default.errors }}
+                                {{ form.default.label_tag }}
+                                {{ form.default }}
+                                <span class="helptext">
+                                {{ form.default.help_text }}
+                                </span>
+                            </td>
+                            <td {% if not form.instance.order %}class="hidden"{% endif %}>
+                                <span class="number">
+                                {{ form.order.errors }}
+                                {{ form.order.label_tag }}
+                                {{ form.order }}
+                                <span class="helptext">
+                                {{ form.order.help_text }}
+                                </span>
+                                </span>
+                            </td>
+                            </tr><tr>
+                            <td colspan="3">
+                                {{ form.description.errors }}
+                                {{ form.description.label_tag }}
+                                {{ form.description }}
+                                <span class="helptext">
+                                {{ form.description.help_text }}
+                                </span>
+                            </td>
+                            </tr>
+                        </table>
+                    </td>
+                    <td class="delete">{% if form.instance.pk %}{{ form.DELETE }}{% endif %}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        <span class="buttonLinkOption" id="advancedMode">&nbsp;{% trans "or" %}
+            <a id="advancedModeButton" href="javascript:void(0)">{% trans "Advanced Mode" %}</a>.
+        </span>
+    </div>
+<!--    <div class="content-divider"></div>-->
+<!--    <div class="content3-block">-->
+<!--        <h2>{% trans "Relationship" %}</h4>-->
+<!--    </div>-->
+</form>
+</div>
+
+<script type="text/javascript">
+    (function($) {
+        rowAdded = function(row) {
+            // FIXME: The class "hidden" is not property set in new rows
+            //        added dynamicly.
+            var $hidden = $(".hidden");
+            if ($hidden.is(":visible")) {
+                // $(row).add(".hidden").hide();
+            } else {
+                // $(row).add(".hidden").show();
+            }
+        }
+
+        init = function() {
+            $("#itemType tbody tr.formset").formset({
+                prefix: "properties",
+                addCssClass: "button addButton",
+                addText: "{% trans "New Property" %}",
+                extraClasses: ["row1", "row2"],
+                added: rowAdded
+            });
+            $("#itemType table.itemtype-properties-table tbody.dynamic").append($("#advancedMode"));
+            $("#advancedModeButton").click(function() {
+                var $hidden = $(".hidden");
+                if ($hidden.is(":visible")) {
+                    $(this).html("{% trans "Regular Mode" %}");
+                    $hidden.hide()
+                    $(".itemtype-properties-table textarea").removeClass("expand");
+                } else {
+                    $(this).html("{% trans "Advanced Mode" %}");
+                    $hidden.show();
+                    $(".itemtype-properties-table textarea").addClass("expand");
+                }
+            });
+        }
+        init();
+    })(jQuery);
+</script>
+{% endblock %}

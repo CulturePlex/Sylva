@@ -24,7 +24,7 @@ class Schema(models.Model):
 
 
 class BaseType(models.Model):
-    name = models.CharField(_('name'), max_length=30)
+    name = models.CharField(_('name'), max_length=100)
     description = models.TextField(_('description'), blank=True, null=True)
     schema = models.ForeignKey(Schema)
     order = models.IntegerField(_('order'), blank=True, null=True)
@@ -39,7 +39,7 @@ class NodeType(BaseType):
                                     verbose_name=_("inheritance"),
                                     help_text=_("Choose the Type which " \
                                                 "properties will be " \
-                                                "inherited from") + ".")
+                                                "inherited from"))
 
     def __unicode__(self):
         return "%s" % (self.name)
@@ -51,17 +51,27 @@ class NodeType(BaseType):
         return RelationshipType.objects.filter(source=self)
 
 
-class RelationshipType(models.Model):
+class RelationshipType(BaseType):
+    inverse = models.CharField(_('inverse name'), max_length=100,
+                               null=True, blank=True,
+                               help_text=_("For example, " \
+                                           "if name is \"writes\", inverse is " \
+                                           "\"written by\""))
     inheritance = models.ForeignKey('self', null=True, blank=True,
-                                    verbose_name=_("inheritance"))
+                                    verbose_name=_("inheritance"),
+                                    help_text=_("Choose the Type which " \
+                                                "properties will be " \
+                                                "inherited from"))
     source = models.ForeignKey(NodeType, related_name='node_source',
-                               verbose_name=_("source node"),
-                               help_text=_("Source node type"))
+                               verbose_name=_("source"),
+                               help_text=_("Source type of the " \
+                                           "allowed relationship"))
     target = models.ForeignKey(NodeType, related_name='node_target',
-                               verbose_name=_("target node"),
-                               help_text=_("Target node type"))
-    arity = models.IntegerField(_('arity'), default=0,
-                                help_text=_("Type 0 for infinite arity"))
+                               verbose_name=_("target"),
+                               help_text=_("Target type of the " \
+                                           "allowed relationship"))
+    arity = models.IntegerField(_('arity'), default=0, blank=True,
+                                help_text=_("Leave blank for infinite arity"))
 
     def save(self, *args, **kwargs):
         if not self.arity or self.arity < 1:

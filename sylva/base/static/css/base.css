@@ -50,6 +50,7 @@ th {
 
 textarea {
     overflow: auto;
+    height: 80px;
 }
 
 button,input,select,textarea {
@@ -74,6 +75,10 @@ html {
     width: 0;
     height: 0;
     margin: 20px 0 20px 0;
+}
+
+.hidden {
+    display: none;
 }
 
 a.disabled,a.disabled:hover {
@@ -299,7 +304,6 @@ cursor:default;
     padding-top: 0px;
 }
 
-
 #main
 #footer.global {
     background: white;
@@ -307,6 +311,7 @@ cursor:default;
     position: relative;
     margin: auto;
     padding: 20px;
+    z-index: -1;
 }
 
 #main #footer.global
@@ -332,7 +337,6 @@ nav.main,#main #footer.global .inside
 }
 
 
-a,#body #portfolio .piece .description p
 a,#main #footer.global .inside
 a {
     color: #555;
@@ -350,7 +354,8 @@ a {
     /*  background:#1D5600;*/
     text-align: left;
     padding-top: 0px;
-    padding-bottom: 30px;
+    padding-bottom: 5px;
+    overflow: hidden;
 }
 
 #content3 p {
@@ -375,7 +380,8 @@ a {
     /*  background:#1D5600;*/
     text-align: left;
     padding-top: 0px;
-    padding-bottom: 30px;
+    padding-bottom: 5px;
+    overflow: hidden;
 }
 
 #content2 p {
@@ -384,14 +390,15 @@ a {
 }
 
 .content2-first {
-    width:350px;
-    float:left;
+    width: 347px;
+    float: left;
+    padding-left: 2px;
 }
 
 .content2-second {
-    width: 750px;
+    width: 740px;
     float: left;
-    padding-left: 19px;
+    padding-left: 30px;
 }
 
 .content2-block p {
@@ -490,6 +497,22 @@ input[type="checkbox"] {
     width: auto;
 }
 
+form {
+    max-width: 321px;
+}
+
+#content2 form {
+    max-width: initial;
+}
+
+#content3 form {
+    max-width: initial;
+}
+
+.content2-first ul.errorlist li {
+    margin-right: 26px;
+}
+
 form p {
     padding-bottom: 15px;
 }
@@ -534,23 +557,29 @@ select {
     display: block;
 }
 
+ul.errorlist {
+    position: relative;
+    float: right;
+    margin-right: 5px;
+}
+
 .errorlist li {
-border-radius: 4px;
+    border-radius: 4px;
     -moz-border-radius: 4px;
     -webkit-border-radius: 4px;
     box-shadow: 0 1px 1px rgba(255, 0, 0, 0.9);
     -webkit-box-shadow: 0 1px 1px rgba(255, 0, 0, 0.9);
     -moz-box-shadow: 0 1px 1px rgba(255, 0, 0, 0.9);
     display: block;
-    margin: 2px 0px 2px 0px;
+/*    margin: 2px 0px 2px 0px;*/
     font-size: 90%;
     text-decoration: none;
-    padding: 2px 2px 2px 10px;
+    padding: 0px 5px 0px 5px;
     background-color: #FDD;
     border: none;
     border-top: solid 1px red;
     font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
-    width: 300px;
+/*    width: 175px;*/
     vertical-align: middle;
     font-style: italic;
 }
@@ -759,43 +788,51 @@ li {
 
 /* Node types properties */
 
-.nodetype-properties-table tr.formset td {
+.itemtype-properties-table tr.formset td {
     padding-bottom: 10px;
+    vertical-align: top;
 }
 
-.nodetype-properties-table label {
+.itemtype-properties-table label {
     display: block;
 }
 
-.nodetype-properties-table span label {
+.itemtype-properties-table span label {
     display: initial;
 }
 
-.nodetype-properties-table input[type="text"] {
+.itemtype-properties-table input[type="text"] {
     width: 250px;
     display: block;
 }
 
-.nodetype-properties-table table.subform input[type="text"] {
+.itemtype-properties-table table.subform input[type="text"] {
     width: 225px;
     display: block;
 }
 
-.nodetype-properties-table table.subform span.number input[type="text"] {
+.itemtype-properties-table table.subform span.number input[type="text"] {
     width: 25px;
     display: block;
 }
 
-.nodetype-properties-table input[type="checkbox"] {
+.itemtype-properties-table input[type="checkbox"] {
     margin-top: -4px;
 }
 
-.nodetype-properties-table select {
+.itemtype-properties-table select {
     width: 100px;
 }
 
-.nodetype-properties-table textarea {
-    height: 30px;
+.itemtype-properties-table textarea {
+    height: 15px;
     width: 405px;
+    overflow: hidden;
+}
+
+.itemtype-properties-table textarea.expand {
+    height: 45px;
+    width: 405px;
+    overflow: auto;
 }
 

@@ -9,28 +9,26 @@ from django.utils.translation import gettext as _
 from schemas.models import (NodeType, NodeProperty,
                             RelationshipType, RelationshipProperty)
 
+
 class NodeTypeForm(forms.ModelForm):
 
     class Meta:
         model = NodeType
-        exclude = ("schema", )
+        exclude = ("schema", "order")
+
+NodePropertyFormSet = inlineformset_factory(NodeType, NodeProperty,
+                                            extra=1, can_delete=True)
 
 
 class RelationshipTypeForm(forms.ModelForm):
 
     class Meta:
         model = RelationshipType
+        fields = ("source", "name", "inverse", "target", "description",
+                  "arity", "inheritance")
 
 
-class NodePropertyForm(forms.ModelForm):
+RelationshipTypeFormSet = inlineformset_factory(RelationshipType,
+                                                RelationshipProperty,
+                                                extra=1, can_delete=True)
 
-    class Meta:
-        model = NodeProperty
-        exclude = ("order", "node", "value")
-
-    def save(self, *args, **kwargs):
-        self.instance.node = self.initial["node"]
-        super(NodePropertyForm, self).save(*args, **kwargs)
-
-NodePropertyFormSet = inlineformset_factory(NodeType, NodeProperty,
-                                            extra=1, can_delete=True)
