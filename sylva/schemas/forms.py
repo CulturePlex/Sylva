@@ -22,6 +22,14 @@ NodePropertyFormSet = inlineformset_factory(NodeType, NodeProperty,
 
 class RelationshipTypeForm(forms.ModelForm):
 
+    def __init__(self, *args, **kwargs):
+        schema = kwargs.pop("schema", None)
+        super(RelationshipTypeForm, self).__init__(*args, **kwargs)
+        if schema:
+            nodetypes =  schema.nodetype_set.all()
+            self.fields["source"].queryset = nodetypes
+            self.fields["target"].queryset = nodetypes
+
     class Meta:
         model = RelationshipType
         fields = ("source", "name", "inverse", "target", "description",

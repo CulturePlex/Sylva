@@ -60,11 +60,11 @@ RelationshipTypeForm, RelationshipTypeFormSet
 def schema_relationshiptype_create(request, graph_id):
     graph = get_object_or_404(Graph, id=graph_id)
     empty_relationshiptype = RelationshipType()
-    form = RelationshipTypeForm(initial={"arity": None})
+    form = RelationshipTypeForm(initial={"arity": None}, schema=graph.schema)
     formset = RelationshipTypeFormSet(instance=empty_relationshiptype)
     if request.POST:
         data = request.POST.copy()
-        form = RelationshipTypeForm(data=data)
+        form = RelationshipTypeForm(data=data, schema=graph.schema)
         formset = RelationshipTypeFormSet(data=data,
                                           instance=empty_relationshiptype)
         if form.is_valid() and formset.is_valid():

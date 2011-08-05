@@ -21,7 +21,7 @@ class GraphForm(ModelForm):
             instances = Instance.objects.filter(owner=user)
             self.fields["instance"].queryset = instances
             empty_label = _("Choose your backend instance")
-        self.fields["instance"].empty_label = empty_label
+            self.fields["instance"].empty_label = empty_label
         help_text = _("Buy a <a href='%s'>new instance</a>.") \
                     % reverse("dashboard")
         self.fields["instance"].help_text = help_text
