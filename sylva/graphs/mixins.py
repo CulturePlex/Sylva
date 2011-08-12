@@ -64,13 +64,25 @@ class NodesManager(BaseManager):
         else:
             raise NodesLimitReachedException
 
-    def all(self):
+    def __create_node_list(self, eltos):
         nodes = []
-        eltos = self.gdb.get_all_nodes(include_properties=True)
         for node_id, node_properties in eltos:
             node = Node(node_id, self.graph, properties=node_properties)
             nodes.append(node)
         return nodes
+
+    def all(self):
+        eltos = self.gdb.get_all_nodes(include_properties=True)
+        return self.__create_node_list(eltos)
+
+    def filter(self, **options):
+        if "label" in options:
+            label = options.get("label")
+            eltos = self.gdb.get_nodes_by_label(label,
+                                                include_properties=True)
+            return self.__create_node_list(eltos)
+        else:
+            return []
 
     def iterator(self):
         eltos = self.gdb.get_all_nodes(include_properties=True)

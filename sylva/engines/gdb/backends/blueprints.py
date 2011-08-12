@@ -181,12 +181,20 @@ class BlueprintsGraphDatabase(BaseGraphDatabase):
             vertex = self.gdb.getVertex(_id)
             self.gdb.removeVertex(vertex)
 
-    def get_all_nodes(self, include_properties=False):
-        for node in self.node_index.get("graph", self.graph_id):
+    def __yield_nodes(self, nodes, include_properties):
+        for node in nodes:
             if include_properties:
                 yield (node.getId(), self.get_node_properties(node.getId()))
             else:
                 yield (node.getId(), None)
+
+    def get_all_nodes(self, include_properties=False):
+        return self.__yield_nodes(self.node_index.get("graph", self.graph_id),
+                    include_properties)
+
+    def get_nodes_by_label(self, label, include_properties=False):
+        return self.__yield_nodes(self.node_index.get("label", label),
+                    include_properties)
 
     def get_filtered_nodes(self, **lookups):
         """
