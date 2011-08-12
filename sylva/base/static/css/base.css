@@ -836,3 +836,40 @@ li {
     overflow: auto;
 }
 
+div#datalist {
+    width: 90%;
+    margin-left: 55px;
+    margin-bottom: 20px;
+    border:1px solid #348E82;
+    text-align: center;
+}
+
+#list_topbar_title {
+    background-color: #B8D0C3;
+}
+
+#list_bottombar {
+    background-color: #D6E7DF;
+    padding: 5px;
+}
+
+#list_bottombar a {
+    margin: 5px 50px 5px 50px;
+}
+
+.list_content {
+    display: none;
+    margin: 10px;
+}
+
+#content_table table, th {
+    border: 1px solid #348E82;
+    padding: 5px 20px 5px 20px;
+    background-color: #D6E7DF;
+}
+
+#content_table td {
+    border: 1px solid #348E82;
+    padding-top: 3px;
+    padding-bottom: 3px;
+}

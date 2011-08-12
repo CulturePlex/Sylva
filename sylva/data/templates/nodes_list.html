@@ -22,4 +22,38 @@
 {% endblock %}
 
 {% block content %}
+{% for option in option_list %}
+    <div id="datalist">
+
+        <div id="list_topbar">
+            <h2 id="list_topbar_title">{{ option.0 }}</h2>
+        </div>
+        <div id="lc_{{ forloop.counter }}" class="list_content">
+            <table id="content_table">
+                <tr>
+                    {% for key in option.1 %}
+                       <th>{{ key }}</th>
+                    {% endfor %}
+                </tr>
+                {% for row in option.2 %}
+                    <tr>
+                        {% for cell in row %}
+                            <td>{{ cell }}</td>
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+            </table>
+        </div>
+        <div id="list_bottombar">
+            <a href="javascript:;" onmousedown="divId='lc_'+{{forloop.counter}};if(document.getElementById(divId).style.display == 'none'){ document.getElementById(divId).style.display = 'block'; }else{ document.getElementById(divId).style.display = 'none'; }">
+                {% trans "Preview" %}</a>
+                    <a>{% blocktrans with node_type=option.0 %}
+                Show full {{ node_type }} nodes list
+            {% endblocktrans %}</a>
+            <a>{% blocktrans with node_type=option.0 %}
+                Add new {{ node_type }} node
+            {% endblocktrans %}</a>
+        </div>
+    </div>
+{% endfor %}
 {% endblock %}
