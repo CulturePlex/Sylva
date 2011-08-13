@@ -10,6 +10,8 @@ admin.autodiscover()
 urlpatterns = patterns('data.views',
     # list nodes
     url(r'^(?P<graph_id>\d+)/nodes/$', 'nodes_list', name="nodes_list"),
+    url(r'^(?P<graph_id>\d+)/nodes/(?P<node_type_id>\d+)/$', 
+        'nodes_list_full', name="nodes_list_full"),
 
     # list relationships
     url(r'^(?P<graph_id>\d+)/relationships/$', 'relationships_list',

@@ -28,7 +28,11 @@
         <div id="list_topbar">
             <h2 id="list_topbar_title">{{ option.0 }}</h2>
         </div>
-        <div id="lc_{{ forloop.counter }}" class="list_content">
+        {% if option.3 %}
+            <div id="lc_{{ forloop.counter }}" class="list_content" style="display:none">
+        {% else %}
+            <div id="lc_{{ forloop.counter }}" class="list_content">
+        {% endif %}
             <table id="content_table">
                 <tr>
                     {% for key in option.1 %}
@@ -45,14 +49,18 @@
             </table>
         </div>
         <div id="list_bottombar">
+            {% if option.3 %}
             <a href="javascript:;" onmousedown="divId='lc_'+{{forloop.counter}};if(document.getElementById(divId).style.display == 'none'){ document.getElementById(divId).style.display = 'block'; }else{ document.getElementById(divId).style.display = 'none'; }">
-                {% trans "Preview" %}</a>
-                    <a>{% blocktrans with node_type=option.0 %}
+                {% trans "Toggle preview" %}</a>
+            <a href="{% url nodes_list_full graph.id option.3 %}">
+                {% blocktrans with node_type=option.0 %}
                 Show full {{ node_type }} nodes list
-            {% endblocktrans %}</a>
-            <a>{% blocktrans with node_type=option.0 %}
-                Add new {{ node_type }} node
-            {% endblocktrans %}</a>
+                {% endblocktrans %}</a>
+            {% endif %}
+            <a>
+                {% blocktrans with node_type=option.0 %}
+                    Add new {{ node_type }} node
+                {% endblocktrans %}</a>
         </div>
     </div>
 {% endfor %}
