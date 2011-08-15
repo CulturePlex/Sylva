@@ -306,13 +306,22 @@ class BlueprintsGraphDatabase(BaseGraphDatabase):
             edge = self.gdb.getEdge(_id)
             self.gdb.removeEdge(edge)
 
-    def get_all_relationships(self, include_properties=False):
-        for rel in self.relationship_index.get("graph", self.graph_id):
+    def __yield_relationships(self, relationships, include_properties):
+        for rel in relationships:
             if include_properties:
                 yield (rel.getId(), \
                         self.get_relationship_properties(rel.getId()))
             else:
                 yield (rel.getId(), None)
+
+    def get_all_relationships(self, include_properties=False):
+        return self.__yield_relationships(
+                self.relationship_index.get("graph", self.graph_id))
+           
+    def get_relationships_by_label(self, label, include_properties=False):
+        return self.__yield_relationships(
+                self.relationship_index.get("label", label),
+                                            include_properties)
 
     def get_filtered_relationships(self, **lookups):
         """
