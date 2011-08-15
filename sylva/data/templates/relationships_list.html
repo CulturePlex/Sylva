@@ -1,25 +1,22 @@
-{% extends "base.html" %}
+{% extends "results_list.html" %}
+
 {% load i18n %}
-
-{% block navigation_buttons %}
-{{ block.super }}
-{% endblock %}
-
-{% block title %}
-{{ graph.name }}
-{% endblock %}
-
-{% block menu_buttons %}
-<li><a href="{% url graph_view graph.id %}" class="link"><span>{% trans "Graph" %}</span></a></li>
-<li><a href="{% url nodes_list graph.id %}" class="link"><span>{% trans "Nodes" %}</span></a></li>
-<li><a href="{% url relationships_list graph.id %}" class="text"><span>{% trans "Relationships" %}</span></a></li>
-<li><a href="{% url schema_edit graph.id %}" class="link"><span>{% trans "Schema" %}</span></a></li>
-<li><a href="{% url graph_collaborators graph.id %}" class="link"><span>{% trans "Collaborators" %}</span></a></li>
-{% endblock %}
 
 {% block content_title %}
 <h2>{% trans "Graphs" %} » {{ graph.name|truncatewords_html:5 }} » {% trans "Relationships" %}</h2>
 {% endblock %}
 
-{% block content %}
+{% block content_bottom_bar %}
+    {% if option.3 %}
+        <a href="javascript:;" onmousedown="divId='lc_'+{{forloop.counter}};if(document.getElementById(divId).style.display == 'none'){ document.getElementById(divId).style.display = 'block'; }else{ document.getElementById(divId).style.display = 'none'; }">
+            {% trans "Toggle preview" %}</a>
+        <a href="{% url relationships_list_full graph.id option.3 %}">
+            {% blocktrans with relationship_type=option.0 %}
+            Show full {{ relationship_type }} relationships list
+            {% endblocktrans %}</a>
+        {% endif %}
+        <a>
+            {% blocktrans with relationship_type=option.0 %}
+                Add new {{ relationship_type }} relationship
+            {% endblocktrans %}</a>
 {% endblock %}

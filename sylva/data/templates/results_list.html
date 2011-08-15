@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block navigation_buttons %}
+{{ block.super }}
+{% endblock %}
+
+{% block title %}
+{{ graph.name }}
+{% endblock %}
+
+{% block menu_buttons %}
+<li><a href="{% url graph_view graph.id %}" class="link"><span>{% trans "Graph" %}</span></a></li>
+<li><a href="{% url nodes_list graph.id %}" class="text"><span>{% trans "Nodes" %}</span></a></li>
+<li><a href="{% url relationships_list graph.id %}" class="link"><span>{% trans "Relationships" %}</span></a></li>
+<li><a href="{% url schema_edit graph.id %}" class="link"><span>{% trans "Schema" %}</span></a></li>
+<li><a href="{% url graph_collaborators graph.id %}" class="link"><span>{% trans "Collaborators" %}</span></a></li>
+{% endblock %}
+
+{% block content_title %}
+<h2>{% trans "Graphs" %} » {{ graph.name|truncatewords_html:5 }} » {% trans "Results" %}</h2>
+{% endblock %}
+
+{% block content %}
+{% for option in option_list %}
+    <div id="datalist">
+
+        <div id="list_topbar">
+            <h2 id="list_topbar_title">{{ option.0 }}</h2>
+        </div>
+        {% if option.3 %}
+            <div id="lc_{{ forloop.counter }}" class="list_content" style="display:none">
+        {% else %}
+            <div id="lc_{{ forloop.counter }}" class="list_content">
+        {% endif %}
+            <table id="content_table">
+                <tr>
+                    {% for key in option.1 %}
+                       <th>{{ key }}</th>
+                    {% endfor %}
+                </tr>
+                {% for row in option.2 %}
+                    <tr>
+                        {% for cell in row %}
+                            <td>{{ cell }}</td>
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+            </table>
+        </div>
+        <div id="list_bottombar">
+            {% block content_bottom_bar %}
+            {% endblock %}
+
+        </div>
+    </div>
+{% endfor %}
+{% endblock %}
