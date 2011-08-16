@@ -64,7 +64,7 @@ class NodesManager(BaseManager):
         else:
             raise NodesLimitReachedException
 
-    def __create_node_list(self, eltos):
+    def _create_node_list(self, eltos):
         nodes = []
         for node_id, node_properties in eltos:
             node = Node(node_id, self.graph, properties=node_properties)
@@ -73,14 +73,14 @@ class NodesManager(BaseManager):
 
     def all(self):
         eltos = self.gdb.get_all_nodes(include_properties=True)
-        return self.__create_node_list(eltos)
+        return self._create_node_list(eltos)
 
     def filter(self, **options):
         if "label" in options:
             label = options.get("label")
             eltos = self.gdb.get_nodes_by_label(label,
                                                 include_properties=True)
-            return self.__create_node_list(eltos)
+            return self._create_node_list(eltos)
         else:
             return []
 
@@ -127,7 +127,7 @@ class RelationshipsManager(BaseManager):
             relationships.append(relationship)
         return relationships
 
-    def __create_relationship_list(self, eltos):
+    def _create_relationship_list(self, eltos):
         relationships = []
         for relationship_id, relationship_properties in eltos:
             relationship = Relationship(relationship_id, self.graph,
@@ -137,14 +137,14 @@ class RelationshipsManager(BaseManager):
 
     def all(self):
         eltos = self.gdb.get_all_relationships(include_properties=True)
-        return self.__create_relationship_list(eltos)
+        return self._create_relationship_list(eltos)
 
     def filter(self, **options):
         if "label" in options:
             label = options.get("label")
             eltos = self.gdb.get_relationships_by_label(label,
                                                 include_properties=True)
-            return self.__create_relationship_list(eltos)
+            return self._create_relationship_list(eltos)
         else:
             return []
 
