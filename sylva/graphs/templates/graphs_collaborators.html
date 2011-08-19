@@ -9,6 +9,17 @@
 {{ graph.name }}
 {% endblock %}
 
+{% block extra_scripts %}
+<script type="text/javascript" src="{{ STATIC_PREFIX }}js/chosen.jquery.min.js"></script>
+<link rel="stylesheet" type="text/css" href="{{ STATIC_PREFIX }}css/chosen.css" />
+<script type="text/javascript">
+   
+{% block body_attrs %}
+onload="$('.chzn-select').chosen();"
+{% endblock %}>
+</script>
+{% endblock %}
+
 {% block menu_buttons %}
 <li><a href="{% url graph_view graph.id %}" class="link"><span>{% trans "Graph" %}</span></a></li>
 <li><a href="{% url nodes_list graph.id %}" class="link"><span>{% trans "Nodes" %}</span></a></li>
@@ -22,4 +33,35 @@
 {% endblock %}
 
 {% block content %}
+<div id="content4">
+    <div id="left-content">
+        <p>Graph owner: <a href="#">{{ graph.owner }}</a></p>
+        <hr/>
+        <p>Current collaborators:</p>
+        <ul>
+            <li><a href="#">{{ graph.owner }}</a></li>
+            {% for c in collaborators %}
+            <li><a href="#">{{ c.username }}</a></li>
+            {% endfor %}
+        </ul>
+    </div>
+    <div id="right-content">
+        <p>Select an user to edit as a collaborator:</p>
+        <select class="chzn-select" name="user_id" 
+            onLoad="alert('load');" onChange="alert('1');">
+            {% for u in users %}
+                <option value="{{ u.id }}">{{ u.username }}</option>
+            {% endfor %}
+            </select>
+            <div id="permissions">
+                <p>Permissions:</p>
+                <form>
+                {% for p in permissions %}
+                    <input type="checkbox" value="{{ p.id}}">
+                    <span>{{ p.name }}</span><br/>
+                {% endfor %}
+                </form>
+            </div>
+    </div>
+</div>
 {% endblock %}

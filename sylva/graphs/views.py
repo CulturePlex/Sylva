@@ -1,9 +1,12 @@
 # -*- coding: utf-8 -*-
 from django.db import transaction
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.shortcuts import get_object_or_404, render_to_response, redirect
 from django.template import RequestContext
+
+from guardian.shortcuts import get_users_with_perms, get_perms_for_model
 
 from data.models import Data
 from graphs.forms import GraphForm
@@ -51,7 +54,13 @@ def graph_create(request):
 
 @login_required()
 def graph_collaborators(request, graph_id):
+    #TODO Only graph owner should be able to do this
     graph = get_object_or_404(Graph, id=graph_id)
+    users = User.objects.all()
+    collaborators = get_users_with_perms(graph)
+    permissions = get_perms_for_model(graph)
     return render_to_response('graphs_collaborators.html',
-                              {"graph": graph},
+                              {"graph": graph,
+                                  "permissions": permissions,
+                                  "users": users},
                               context_instance=RequestContext(request))
