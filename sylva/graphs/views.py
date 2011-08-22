@@ -1,9 +1,12 @@
 # -*- coding: utf-8 -*-
+import simplejson
+
 from django.db import transaction
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
-from django.shortcuts import get_object_or_404, render_to_response, redirect
+from django.shortcuts import (get_object_or_404, render_to_response, redirect,
+                                HttpResponse)
 from django.template import RequestContext
 
 from guardian.shortcuts import get_users_with_perms, get_perms_for_model
@@ -64,3 +67,15 @@ def graph_collaborators(request, graph_id):
                                   "permissions": permissions,
                                   "users": users},
                               context_instance=RequestContext(request))
+
+@login_required()
+def user_permissions(request, graph_id):
+    if request.is_ajax():
+        graph = get_object_or_404(Graph, id=graph_id)
+        user_id = request.GET['user_id']
+        user = get_object_or_404(User, id=user_id)
+        permissions = get_perms_for_model(graph)
+        user_permissions = {}
+        for p in permissions:
+            user_permissions[p.id] = user.has_perm(p)
+    return HttpResponse(simplejson.dumps(user_permissions))

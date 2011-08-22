@@ -13,12 +13,37 @@
 <script type="text/javascript" src="{{ STATIC_PREFIX }}js/chosen.jquery.min.js"></script>
 <link rel="stylesheet" type="text/css" href="{{ STATIC_PREFIX }}css/chosen.css" />
 <script type="text/javascript">
+    function refreshPermissions() {
+        var permissionsDiv = document.getElementById("user_permissions");
+        user = document.getElementById('user_sel').value;
+        permissionsDiv.style.display = "none";
+        checks = $('.perm_chk');
+        for(i=0;i<checks.length;i++) {
+            checks[i].checked = false;
+        }
+        if (user!="") {
+            $.ajax({url:"{% url user_permissions graph.id %}",
+                    data: {user_id: user},
+                    success: function(user_permissions) {
+                        perms = JSON.parse(user_permissions);
+                        for(var i in perms) {
+                            if (perms[i]) {
+                                chk = document.getElementById("perm_"+i);
+                                chk.checked = true;
+                            }
+                        }
+                    }
+            });
+            permissionsDiv.style.display = "block";
+       }
+    }
+</script>
+{% endblock %}
    
 {% block body_attrs %}
 onload="$('.chzn-select').chosen();"
-{% endblock %}>
-</script>
 {% endblock %}
+
 
 {% block menu_buttons %}
 <li><a href="{% url graph_view graph.id %}" class="link"><span>{% trans "Graph" %}</span></a></li>
@@ -47,20 +72,21 @@ onload="$('.chzn-select').chosen();"
     </div>
     <div id="right-content">
         <p>Select an user to edit as a collaborator:</p>
-        <select class="chzn-select" name="user_id" 
-            onLoad="alert('load');" onChange="alert('1');">
+        <select id="user_sel" class="chzn-select" name="user_id" 
+            onChange="refreshPermissions();">
+            <option value=""></option> 
             {% for u in users %}
                 <option value="{{ u.id }}">{{ u.username }}</option>
             {% endfor %}
             </select>
             <div id="permissions">
                 <p>Permissions:</p>
-                <form>
+                <div id="user_permissions" style="display:none">
                 {% for p in permissions %}
-                    <input type="checkbox" value="{{ p.id}}">
+                <input id="perm_{{ p.id }}" class="perm_chk" type="checkbox">
                     <span>{{ p.name }}</span><br/>
                 {% endfor %}
-                </form>
+                </div>
             </div>
     </div>
 </div>

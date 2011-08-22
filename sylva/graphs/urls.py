@@ -20,4 +20,9 @@ urlpatterns = patterns('graphs.views',
     # collaborators edit
     url(r'^(?P<graph_id>\d+)/collaborators/$', 'graph_collaborators',
         name="graph_collaborators"),
+
+    # user permissions retrieval
+    url(r'^(?P<graph_id>\d+)/collaborators/permissions/$',
+        'user_permissions',
+        name="user_permissions"),
 )
