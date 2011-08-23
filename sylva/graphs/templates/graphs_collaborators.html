@@ -58,8 +58,8 @@ onload="$('.chzn-select').chosen();"
 {% endblock %}
 
 {% block content %}
-<div id="content4">
-    <div id="left-content">
+<div id="content2">
+    <div class="content2-first">
         <p>Graph owner: <a href="#">{{ graph.owner }}</a></p>
         <hr/>
         <p>Current collaborators:</p>
@@ -70,7 +70,8 @@ onload="$('.chzn-select').chosen();"
             {% endfor %}
         </ul>
     </div>
-    <div id="right-content">
+    <div class="content-divider"></div>
+    <div class="content2-second">
         <p>Select an user to edit as a collaborator:</p>
         <select id="user_sel" class="chzn-select" name="user_id" 
             onChange="refreshPermissions();">
