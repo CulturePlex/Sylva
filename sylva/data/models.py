@@ -44,19 +44,21 @@ class Data(models.Model, DataMixin):
 
 class MediaNode(models.Model):
     node_id = models.CharField(_("node identifier"), max_length=100)
-    data = models.ForeignKey(Data, verbose_name=_("data"))
+    data = models.ForeignKey(Data, verbose_name=_("data"), related_name="data")
 
     def __unicode__(self):
         return u'%s' % (self.node_id)
 
 
 class MediaFile(models.Model):
-    media_node = models.ForeignKey(MediaNode, verbose_name=_("media node"))
+    media_node = models.ForeignKey(MediaNode, verbose_name=_("media node"),
+                                   related_name="files")
     media_label = models.CharField(_("media label"), max_length=150)
     MEDIA_TYPES = (('image', _('Image')),
                    ('audio', _('Audio')),
                    ('video', _('Video')),
-                   ('docum', _('Document')))
+                   ('docum', _('Document')),
+                   ('other', _('Other')))
     media_type = models.CharField(_("media type"), max_length=5,
                                   choices=MEDIA_TYPES)
     media_file = models.FileField(_("media file"), upload_to='nodes')
@@ -71,7 +73,8 @@ class MediaFile(models.Model):
 
 
 class MediaLink(models.Model):
-    media_node = models.ForeignKey(MediaNode, verbose_name=_("media node"))
+    media_node = models.ForeignKey(MediaNode, verbose_name=_("media node"),
+                                   related_name="links")
     media_label = models.CharField(_("media label"), max_length=150)
     media_link = models.URLField(_('media URL'), verify_exists=False)
 

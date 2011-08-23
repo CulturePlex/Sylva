@@ -151,11 +151,11 @@
             $("#advancedModeButton").click(function() {
                 var $hidden = $(".hidden");
                 if ($hidden.is(":visible")) {
-                    $(this).html("{% trans "Regular Mode" %}");
+                    $(this).html("{% trans "Advanced Mode" %}");
                     $hidden.hide()
                     $(".itemtype-properties-table textarea").removeClass("expand");
                 } else {
-                    $(this).html("{% trans "Advanced Mode" %}");
+                    $(this).html("{% trans "RegularMode" %}");
                     $hidden.show();
                     $(".itemtype-properties-table textarea").addClass("expand");
                 }

@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block extra_scripts %}
+    <script type="text/javascript" src="{{ STATIC_PREFIX }}js/jquery.formsets.1.2.min.js"></script>
+{% endblock %}
+
+{% block navigation_buttons %}
+{{ block.super }}
+{% endblock %}
+
+{% block title %}
+{{ graph.name }}
+{% endblock %}
+
+{% block menu_buttons %}
+<li><a href="{% url graph_view graph.id %}" class="link"><span>{% trans "Graph" %}</span></a></li>
+<li><a href="{% url nodes_list graph.id %}" class="text"><span>{% trans "Nodes" %}</span></a></li>
+<li><a href="{% url relationships_list graph.id %}" class="link"><span>{% trans "Relationships" %}</span></a></li>
+<li><a href="{% url schema_edit graph.id %}" class="link"><span>{% trans "Schema" %}</span></a></li>
+<li><a href="{% url graph_collaborators graph.id %}" class="link"><span>{% trans "Collaborators" %}</span></a></li>
+{% endblock %}
+
+{% block content_title %}
+<h2>{% trans "Graphs" %} » {{ graph.name|truncatewords_html:5 }} » {% trans "Nodes" %} » {% trans "New" %} {{ nodetype.name }}</h2>
+{% endblock %}
+
+{% block content %}
+<div id="content3">
+<form action="." method="POST">
+{% csrf_token %}
+    <div class="content{% if relationshiptype_forms %}3-block{% else %}2-first{% endif %}">
+        <h2>{% trans "New" %} {{ nodetype.name|capfirst }}</h2>
+        {% for field in nodetype_form %}
+            <p {% if field.name in fields_to_hide and not field.value %}class="hidden"{% endif %}>
+            {{ field.errors }}
+            {{ field.label_tag }}
+            {{ field }}
+            {% if field.help_text %}
+                <span class="helptext">
+                {{ field.help_text }}
+                </span>
+            {% endif %}
+            </p>
+        {% endfor %}
+        <input type="submit" value="{% trans "Save" %} {{ nodetype.name|capfirst }}"/>
+        <span class="buttonLinkOption">{% trans "or" %} <a href="{% url nodes_list graph.id %}">{% trans "Cancel" %}</a>.</span>
+    </div>
+    {% if relationshiptype_forms %}
+    <div class="content-divider"></div>
+    <div class="content3-block">
+        {% for form_name, relationshiptype_form in relationshiptype_forms.items %}
+            <h2>{{ form_name }}</h2>
+            {{ relationshiptype_form }}
+        {% endfor %}
+    </div>
+    {% endif %}
+    <div class="content-divider"></div>
+    <div class="content{% if relationshiptype_forms %}3-block{% else %}2-second{% endif %}">
+        <h2>{% trans "Media" %}</h2>
+    </div>
+</form>
+</div>
+
+
+{% endblock %}

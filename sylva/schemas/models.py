@@ -37,7 +37,7 @@ class BaseType(models.Model):
 class NodeType(BaseType):
     inheritance = models.ForeignKey('self', null=True, blank=True,
                                     verbose_name=_("inheritance"),
-                                    help_text=_("Choose the Type which " \
+                                    help_text=_("Choose the type which " \
                                                 "properties will be " \
                                                 "inherited from"))
 
@@ -59,14 +59,14 @@ class RelationshipType(BaseType):
                                            "\"written by\""))
     inheritance = models.ForeignKey('self', null=True, blank=True,
                                     verbose_name=_("inheritance"),
-                                    help_text=_("Choose the Type which " \
+                                    help_text=_("Choose the type which " \
                                                 "properties will be " \
                                                 "inherited from"))
-    source = models.ForeignKey(NodeType, related_name='node_source',
+    source = models.ForeignKey(NodeType, related_name='outgoing_relationships',
                                verbose_name=_("source"),
                                help_text=_("Source type of the " \
                                            "allowed relationship"))
-    target = models.ForeignKey(NodeType, related_name='node_target',
+    target = models.ForeignKey(NodeType, related_name='incoming_relationships',
                                verbose_name=_("target"),
                                help_text=_("Target type of the " \
                                            "allowed relationship"))
