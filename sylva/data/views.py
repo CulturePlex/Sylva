@@ -8,6 +8,7 @@ from guardian.decorators import permission_required
 from data.models import Data
 from graphs.models import Graph
 from schemas.models import NodeType
+from schemas.forms import ItemTypeForm
 
 
 def create_data(properties, data_list):
@@ -56,6 +57,23 @@ def nodes_list_full(request, graph_id, node_type_id):
 
 
 @permission_required("data.view_data", (Data, "graph__id", "graph_id"))
+def nodes_create(request, graph_id, node_type_id):
+    graph = get_object_or_404(Graph, id=graph_id)
+    nodetype = get_object_or_404(NodeType, id=node_type_id)
+    nodetype_form = ItemTypeForm(itemtype=nodetype)
+    relationshiptype_forms = {}
+    for relationship in nodetype.outgoing_relationships.all():
+        relationshiptype_form = ItemTypeForm(itemtype=relationship)
+        relationshiptype_forms[relationship.name] = relationshiptype_form
+    return render_to_response('nodes_create.html',
+        {"graph": graph,
+         "nodetype": nodetype,
+         "nodetype_form": nodetype_form,
+         "relationshiptype_forms": relationshiptype_forms},
+        context_instance=RequestContext(request))
+
+
+@permission_required("data.view_data", (Data, "graph__id", "graph_id"))
 def relationships_list(request, graph_id):
     graph = get_object_or_404(Graph, id=graph_id)
     data_preview = []
@@ -72,7 +90,7 @@ def relationships_list(request, graph_id):
                                   "option_list": data_preview},
                               context_instance=RequestContext(request))
 
-    
+
 @permission_required("data.view_data", (Data, "graph__id", "graph_id"))
 def relationships_list_full(request, graph_id, relationship_type_id):
     graph = get_object_or_404(Graph, id=graph_id)

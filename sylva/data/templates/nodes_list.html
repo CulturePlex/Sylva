@@ -15,7 +15,7 @@
             Show full {{ node_type }} nodes list
             {% endblocktrans %}</a>
         {% endif %}
-        <a>
+        <a href="{% url nodes_create graph.id option.3 %}">
             {% blocktrans with node_type=option.0 %}
                 Add new {{ node_type }} node
             {% endblocktrans %}</a>

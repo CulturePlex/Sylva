@@ -54,7 +54,7 @@ def schema_nodetype_create(request, graph_id):
                                                   "inheritance"],
                                "formset": formset},
                               context_instance=RequestContext(request))
-RelationshipTypeForm, RelationshipTypeFormSet
+
 
 @login_required()
 def schema_relationshiptype_create(request, graph_id):
