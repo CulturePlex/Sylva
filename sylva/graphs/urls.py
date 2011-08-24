@@ -21,8 +21,8 @@ urlpatterns = patterns('graphs.views',
     url(r'^(?P<graph_id>\d+)/collaborators/$', 'graph_collaborators',
         name="graph_collaborators"),
 
-    # user permissions retrieval
-    url(r'^(?P<graph_id>\d+)/collaborators/permissions/$',
-        'user_permissions',
-        name="user_permissions"),
+    # user permissions update
+    url(r'^(?P<graph_id>\d+)/collaborators/change_permission/$',
+        'change_permission',
+        name="change_permission"),
 )

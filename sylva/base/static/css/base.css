@@ -873,3 +873,20 @@ div#datalist {
     padding-bottom: 3px;
 }
 
+#permissions_table {
+    text-align: center;
+    border-style: solid;
+    border-width: 2px;
+}
+
+#permissions_table th {
+    font-size: small;
+    padding: 1px;
+    vertical-align: center;
+}
+
+#permissions_table td {
+    border-width: 1px;
+    border-style: solid;
+    padding: 2px;
+}
