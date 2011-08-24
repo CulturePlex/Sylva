@@ -13,29 +13,19 @@
 <script type="text/javascript" src="{{ STATIC_PREFIX }}js/chosen.jquery.min.js"></script>
 <link rel="stylesheet" type="text/css" href="{{ STATIC_PREFIX }}css/chosen.css" />
 <script type="text/javascript">
-    function refreshPermissions() {
-        var permissionsDiv = document.getElementById("user_permissions");
-        user = document.getElementById('user_sel').value;
-        permissionsDiv.style.display = "none";
-        checks = $('.perm_chk');
-        for(i=0;i<checks.length;i++) {
-            checks[i].checked = false;
-        }
-        if (user!="") {
-            $.ajax({url:"{% url user_permissions graph.id %}",
-                    data: {user_id: user},
-                    success: function(user_permissions) {
-                        perms = JSON.parse(user_permissions);
-                        for(var i in perms) {
-                            if (perms[i]) {
-                                chk = document.getElementById("perm_"+i);
-                                chk.checked = true;
-                            }
-                        }
-                    }
-            });
-            permissionsDiv.style.display = "block";
-       }
+    function addUser() {
+        var userSel = document.getElementById('user_sel');
+        var index = userSel.selectedIndex;
+        setPermission(userSel.value, 'graph', 'view_graph');
+        location.href = "{% url graph_collaborators graph.id %}";
+    }
+
+    function setPermission(userID, objectStr, permissionStr) {
+        $.ajax({url: "{% url change_permission graph.id %}",
+            data: {user_id: userID,
+                object_str: objectStr,
+                permission_str: permissionStr},
+        });
     }
 </script>
 {% endblock %}
@@ -58,35 +48,50 @@ onload="$('.chzn-select').chosen();"
 {% endblock %}
 
 {% block content %}
-<div id="content4">
-    <div id="left-content">
+<div id="content2">
+    <div class="content2-first">
         <p>Graph owner: <a href="#">{{ graph.owner }}</a></p>
         <hr/>
-        <p>Current collaborators:</p>
-        <ul>
-            <li><a href="#">{{ graph.owner }}</a></li>
-            {% for c in collaborators %}
-            <li><a href="#">{{ c.username }}</a></li>
-            {% endfor %}
-        </ul>
-    </div>
-    <div id="right-content">
-        <p>Select an user to edit as a collaborator:</p>
+        <p>Select an user to add as a collaborator:</p>
         <select id="user_sel" class="chzn-select" name="user_id" 
-            onChange="refreshPermissions();">
+            onChange="addUser();">
             <option value=""></option> 
             {% for u in users %}
                 <option value="{{ u.id }}">{{ u.username }}</option>
             {% endfor %}
             </select>
-            <div id="permissions">
-                <p>Permissions:</p>
-                <div id="user_permissions" style="display:none">
-                {% for p in permissions %}
-                <input id="perm_{{ p.id }}" class="perm_chk" type="checkbox">
-                    <span>{{ p.name }}</span><br/>
-                {% endfor %}
-                </div>
+    </div>
+    <div class="content-divider"></div>
+    <div class="content2-second">
+           <div id="permissions">
+               <p>Collaborators permissions:</p>
+               <table id="permissions_table">
+                   <tr>
+                       <th>User</th>
+                       <th colspan="2">Graph</th>
+                       <th colspan="2">Schema</th>
+                       <th colspan="4">Data</th>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        {% for p in permissions %}
+                            <td>{{ p }}</td>
+                        {% endfor %}
+                   </tr>
+                    {% for item in permissions_table %}
+                        <tr>
+                            <td><a href="#">{{ item.user_name }}</a></td>
+
+                        {% for p in item.perms %}
+                            <td>
+                                <input class="perm_chk" type="checkbox"
+                                {% if p.2 %}checked{% endif %}
+                                onChange="setPermission({{ item.user_id }}, '{{ p.0 }}', '{{ p.1 }}')">
+                            </td>
+                        {% endfor %}
+                        </tr>
+                    {% endfor %}
+                </table>
             </div>
     </div>
 </div>

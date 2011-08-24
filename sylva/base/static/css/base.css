@@ -873,39 +873,20 @@ div#datalist {
     padding-bottom: 3px;
 }
 
-#content4 {
-    min-height:300px;
+#permissions_table {
+    text-align: center;
+    border-style: solid;
+    border-width: 2px;
 }
 
-#content4 div {
-    margin-bottom: 20px;
+#permissions_table th {
+    font-size: small;
+    padding: 1px;
+    vertical-align: center;
 }
 
-#left-content {
-    float: left;
-    min-width:30%;
-}
-
-#right-content {
-    position: absolute;
-    left: 400px;
-}
-
-#content4 p {
-    font-size: 12pt;
-    margin-bottom: 5px;
-}
-
-#content4 ul {
-    list-style-type: square;
-    margin: 5px;
-}
-
-#content4 hr {
-    margin: 10px 20px 10px 0px;
-    color: #348E82;
-}
-
-#content4 span {
-    margin-left: 3px;
+#permissions_table td {
+    border-width: 1px;
+    border-style: solid;
+    padding: 2px;
 }
