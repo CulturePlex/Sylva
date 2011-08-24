@@ -189,12 +189,13 @@ class BlueprintsGraphDatabase(BaseGraphDatabase):
                 yield (node.getId(), None)
 
     def get_all_nodes(self, include_properties=False):
-        return self.__yield_nodes(self.node_index.get("graph", self.graph_id),
-                    include_properties)
+        return self.__yield_nodes(self.node_index.get("graph",
+                                                      unicode(self.graph_id)),
+                                  include_properties)
 
     def get_nodes_by_label(self, label, include_properties=False):
-        return self.__yield_nodes(self.node_index.get("label", label),
-                    include_properties)
+        return self.__yield_nodes(self.node_index.get("label", unicode(label)),
+                                  include_properties)
 
     def get_filtered_nodes(self, **lookups):
         """
@@ -316,11 +317,11 @@ class BlueprintsGraphDatabase(BaseGraphDatabase):
 
     def get_all_relationships(self, include_properties=False):
         return self.__yield_relationships(
-                self.relationship_index.get("graph", self.graph_id))
+                self.relationship_index.get("graph", unicode(self.graph_id)))
            
     def get_relationships_by_label(self, label, include_properties=False):
         return self.__yield_relationships(
-                self.relationship_index.get("label", label),
+                self.relationship_index.get("label", unicode(label)),
                                             include_properties)
 
     def get_filtered_relationships(self, **lookups):

@@ -24,10 +24,12 @@ class Schema(models.Model):
 
 
 class BaseType(models.Model):
-    name = models.CharField(_('name'), max_length=100)
-    description = models.TextField(_('description'), blank=True, null=True)
+    name = models.CharField(_('name'), max_length=150)
+    plural_name = models.CharField(_('plural name'), max_length=175,
+                                   null=True, blank=True)
+    description = models.TextField(_('description'), null=True, blank=True)
     schema = models.ForeignKey(Schema)
-    order = models.IntegerField(_('order'), blank=True, null=True)
+    order = models.IntegerField(_('order'), null=True, blank=True)
 
     class Meta:
         abstract = True
@@ -50,13 +52,21 @@ class NodeType(BaseType):
     def get_outgoing_relationships(self):
         return RelationshipType.objects.filter(source=self)
 
+    def all(self):
+        if self.id:
+            return self.schema.graph.nodes.filter(label=self.id)
+        else:
+            return []
+
 
 class RelationshipType(BaseType):
-    inverse = models.CharField(_('inverse name'), max_length=100,
+    inverse = models.CharField(_('inverse name'), max_length=150,
                                null=True, blank=True,
                                help_text=_("For example, " \
-                                           "if name is \"writes\", inverse is " \
-                                           "\"written by\""))
+                                           "if name is \"writes\", inverse " \
+                                           "is \"written by\""))
+    plural_inverse = models.CharField(_('plural inverse name'), max_length=175,
+                                      null=True, blank=True)
     inheritance = models.ForeignKey('self', null=True, blank=True,
                                     verbose_name=_("inheritance"),
                                     help_text=_("Choose the type which " \

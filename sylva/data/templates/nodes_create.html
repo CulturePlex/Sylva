@@ -29,9 +29,9 @@
 <div id="content3">
 <form action="." method="POST">
 {% csrf_token %}
-    <div class="content{% if relationshiptype_forms %}3-block{% else %}2-first{% endif %}">
+    <div class="content{% if relationship_formsets %}3-block{% else %}2-first{% endif %}">
         <h2>{% trans "New" %} {{ nodetype.name|capfirst }}</h2>
-        {% for field in nodetype_form %}
+        {% for field in node_form %}
             <p {% if field.name in fields_to_hide and not field.value %}class="hidden"{% endif %}>
             {{ field.errors }}
             {{ field.label_tag }}
@@ -46,17 +46,17 @@
         <input type="submit" value="{% trans "Save" %} {{ nodetype.name|capfirst }}"/>
         <span class="buttonLinkOption">{% trans "or" %} <a href="{% url nodes_list graph.id %}">{% trans "Cancel" %}</a>.</span>
     </div>
-    {% if relationshiptype_forms %}
+    {% if relationship_formsets %}
     <div class="content-divider"></div>
     <div class="content3-block">
-        {% for form_name, relationshiptype_form in relationshiptype_forms.items %}
-            <h2>{{ form_name }}</h2>
-            {{ relationshiptype_form }}
+        <h2>{% trans "Relationships" %}</h2>
+        {% for form_name, relationship_formset in relationship_formsets.items %}
+            {{ relationship_formset.as_p }}
         {% endfor %}
     </div>
     {% endif %}
     <div class="content-divider"></div>
-    <div class="content{% if relationshiptype_forms %}3-block{% else %}2-second{% endif %}">
+    <div class="content{% if relationship_formsets %}3-block{% else %}2-second{% endif %}">
         <h2>{% trans "Media" %}</h2>
     </div>
 </form>

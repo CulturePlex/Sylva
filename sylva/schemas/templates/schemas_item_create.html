@@ -129,7 +129,7 @@
 <script type="text/javascript">
     (function($) {
         rowAdded = function(row) {
-            // FIXME: The class "hidden" is not property set in new rows
+            // FIXME: The class "hidden" is not properly set in new rows
             //        added dynamicly.
             var $hidden = $(".hidden");
             if ($hidden.is(":visible")) {
@@ -155,7 +155,7 @@
                     $hidden.hide()
                     $(".itemtype-properties-table textarea").removeClass("expand");
                 } else {
-                    $(this).html("{% trans "RegularMode" %}");
+                    $(this).html("{% trans "Regular Mode" %}");
                     $hidden.show();
                     $(".itemtype-properties-table textarea").addClass("expand");
                 }

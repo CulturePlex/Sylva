@@ -325,6 +325,15 @@ class BaseElement(object):
         return self._id
     id = property(_get_id)
 
+    def _get_display(self):
+        if not self._properties:
+            return str(self._id)
+        else:
+            # TODO: Set a priority over the properties in order to show a
+            #       representative property of the element.
+            return str(self._id)
+    display = property(_get_display)
+
 
 class Node(BaseElement):
     """

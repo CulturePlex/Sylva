@@ -57,6 +57,24 @@
         </div>
         </div>
     {% endfor %}
+    {% for edge in node_type.get_incoming_relationships %}
+         <div class="form-row">
+         <div>
+            <label>← {% if edge.arity < 1 %}∞{% else %}{{ edge.arity }} × {% endif %} {% trans "is" %} {% if edge.inverse %}{{ edge.inverse|capfirst }}{% else %}{{ edge.name|capfirst }}{% endif %}</label>
+            [{% trans "by" %} {{ edge.source.name|capfirst }}] <p class="help"></p>
+            {% if edge.relation.edgeproperty_set.all %}
+                {% for edge_propery in edge.relation.edgeproperty_set.all %}
+                <div class="form-row">
+                <div>
+                    <label {% if edge_propery.required %}class="required"{% endif %}>⌂ {{ edge_propery.key|capfirst }}</label>
+                    [{{ edge_propery.get_datatype }}] <p class="help">{{ edge_propery.default }}</p>
+                </div>
+                </div>
+                {% endfor %}
+            {% endif %}
+        </div>
+        </div>
+    {% endfor %}
     </fieldset>
     </div>
 {% endfor %}

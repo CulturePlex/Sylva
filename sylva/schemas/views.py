@@ -50,8 +50,9 @@ def schema_nodetype_create(request, graph_id):
                               {"graph": graph,
                                "item_type": _("Type"),
                                "form": form,
-                               "fields_to_hide": ["inverse", "arity",
-                                                  "inheritance"],
+                               "fields_to_hide": ["plural_name",
+                                                  "inverse", "plural_inverse",
+                                                  "arity", "inheritance"],
                                "formset": formset},
                               context_instance=RequestContext(request))
 
@@ -85,7 +86,8 @@ def schema_relationshiptype_create(request, graph_id):
                               {"graph": graph,
                                "item_type": _("Allowed Relationship"),
                                "form": form,
-                               "fields_to_hide": ["inverse", "arity",
-                                                  "inheritance"],
+                               "fields_to_hide": ["plural_name",
+                                                  "inverse", "plural_inverse",
+                                                  "arity", "inheritance"],
                                "formset": formset},
                               context_instance=RequestContext(request))
