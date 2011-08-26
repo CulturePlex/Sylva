@@ -50,14 +50,17 @@
     <div class="content-divider"></div>
     <div class="content3-block">
         <h2>{% trans "Relationships" %}</h2>
-        {% for form_name, relationship_formset in relationship_formsets.items %}
+        {% for relationship_formset in relationship_formsets %}
             {{ relationship_formset.as_p }}
         {% endfor %}
     </div>
     {% endif %}
     <div class="content-divider"></div>
     <div class="content{% if relationship_formsets %}3-block{% else %}2-second{% endif %}">
-        <h2>{% trans "Media" %}</h2>
+        <h2>{% trans "Files" %}</h2>
+        {{ mediafile_formset.as_p }}
+        <h2>{% trans "Links" %}</h2>
+        {{ medialink_formset.as_p }}
     </div>
 </form>
 </div>

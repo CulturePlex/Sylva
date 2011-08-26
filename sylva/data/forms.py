@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 from django import forms
-from django.forms.formsets import BaseFormSet, formset_factory
+from django.forms.formsets import BaseFormSet
+from django.forms.models import inlineformset_factory
 from django.utils.translation import gettext as _
 
+from data.models import MediaNode, MediaFile, MediaLink
 from schemas.models import RelationshipType
 
 
@@ -180,3 +182,15 @@ class TypeBaseFormSet(BaseFormSet):
 #            if key in self.data and len(self.data[key]) > 0:
 #                properties[key] = self.data[key]
 #        properties["_slug"] = self.data["_slug"]
+
+
+class MediaNodeForm(forms.ModelForm):
+
+    class Meta:
+        model = MediaNode
+
+MediaFileFormSet = inlineformset_factory(MediaNode, MediaFile,
+                                         extra=1, can_delete=True)
+
+MediaLinkFormSet = inlineformset_factory(MediaNode, MediaLink,
+                                         extra=1, can_delete=True)

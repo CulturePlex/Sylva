@@ -7,7 +7,8 @@ from django.shortcuts import get_object_or_404
 from guardian.decorators import permission_required
 
 from data.models import Data
-from data.forms import NodeForm, RelationshipForm, TypeBaseFormSet
+from data.forms import (NodeForm, RelationshipForm, TypeBaseFormSet,
+                        MediaFileFormSet, MediaLinkFormSet)
 from graphs.models import Graph
 from schemas.models import NodeType
 
@@ -63,7 +64,7 @@ def nodes_create(request, graph_id, node_type_id):
     graph = get_object_or_404(Graph, id=graph_id)
     nodetype = get_object_or_404(NodeType, id=node_type_id)
     node_form = NodeForm(itemtype=nodetype)
-    relationship_formsets = {}
+    relationship_formsets = []
     for relationship in nodetype.outgoing_relationships.all():
         if relationship.arity > 0:
             RelationshipFormSet = formset_factory(RelationshipForm,
@@ -76,12 +77,16 @@ def nodes_create(request, graph_id, node_type_id):
                                                   formset=TypeBaseFormSet,
                                                   extra=1)
         relationship_formset = RelationshipFormSet(itemtype=relationship)
-        relationship_formsets[relationship.name] = relationship_formset
+        relationship_formsets.append(relationship_formset)
+    mediafile_formset = MediaFileFormSet()
+    medialink_formset = MediaLinkFormSet()
     return render_to_response('nodes_create.html',
         {"graph": graph,
          "nodetype": nodetype,
          "node_form": node_form,
-         "relationship_formsets": relationship_formsets},
+         "relationship_formsets": relationship_formsets,
+         "mediafile_formset": mediafile_formset,
+         "medialink_formset": medialink_formset},
         context_instance=RequestContext(request))
 
 
