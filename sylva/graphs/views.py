@@ -6,7 +6,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.shortcuts import (get_object_or_404, render_to_response, redirect,
-                                HttpResponse)
+                                HttpResponse, HttpResponseRedirect)
 from django.template import RequestContext
 
 from guardian import shortcuts as guardian
@@ -63,8 +63,10 @@ def graph_create(request):
 
 @login_required()
 def graph_collaborators(request, graph_id):
-    #TODO Only graph owner should be able to do this
+    # Only graph owner should be able to do this
     graph = get_object_or_404(Graph, id=graph_id)
+    if request.user != graph.owner:
+        return redirect('%s?next=%s' % (reverse("signin"), request.path))
     users = User.objects.all()
     collaborators = guardian.get_users_with_perms(graph)
     graph_permissions = guardian.get_perms_for_model(graph)
