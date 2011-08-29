@@ -17,7 +17,7 @@
         var userSel = document.getElementById('user_sel');
         var index = userSel.selectedIndex;
         setPermission(userSel.value, 'graph', 'view_graph');
-        location.href = "{% url graph_collaborators graph.id %}";
+        window.location.href = "{% url graph_collaborators graph.id %}";
     }
 
     function setPermission(userID, objectStr, permissionStr) {
@@ -25,6 +25,12 @@
             data: {user_id: userID,
                 object_str: objectStr,
                 permission_str: permissionStr},
+            error: function(error) {
+                if (error["responseText"] == "owner") {
+                    var control = document.getElementById("chk_" + objectStr + "_" + permissionStr);
+                    control.checked = true;
+                }
+            },
         });
     }
 </script>
@@ -84,7 +90,7 @@ onload="$('.chzn-select').chosen();"
 
                         {% for p in item.perms %}
                             <td>
-                                <input class="perm_chk" type="checkbox"
+                                <input id="chk_{{ p.0 }}_{{ p.1 }}"class="perm_chk" type="checkbox"
                                 {% if p.2 %}checked{% endif %}
                                 onChange="setPermission({{ item.user_id }}, '{{ p.0 }}', '{{ p.1 }}')">
                             </td>

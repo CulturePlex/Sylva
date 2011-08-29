@@ -100,6 +100,9 @@ def change_permission(request, graph_id):
         object_str = request.GET['object_str']
         permission_str = request.GET['permission_str']
         user = get_object_or_404(User, id=user_id)
+        # Owner permissions cannot be deleted
+        if user == graph.owner:
+            return HttpResponse("owner", status=500)
         aux = {'graph': graph,
                 'schema': graph.schema,
                 'data': graph.data}
