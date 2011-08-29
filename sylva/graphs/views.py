@@ -13,14 +13,8 @@ from guardian import shortcuts as guardian
 
 from data.models import Data
 from graphs.forms import GraphForm
-from graphs.models import Graph
+from graphs.models import Graph, PERMISSIONS
 from schemas.models import Schema
-
-
-PERMISSIONS = {'graph': ['change_graph', 'view_graph'],
-                'schema': ['change_schema', 'view_schema'],
-                'data': ['add_data', 'change_data',
-                        'delete_data', 'view_data']}
 
 
 @login_required()

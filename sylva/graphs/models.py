@@ -2,13 +2,21 @@
 from django.contrib.auth.models import User
 from django.utils.translation import gettext as _
 from django.db import models
-from django.db.models.signals import pre_save
+from django.db.models.signals import pre_save, post_save
 from django.dispatch import receiver
+
+from guardian import shortcuts as guardian
 
 from data.models import Data
 from schemas.models import Schema
 
 from graphs.mixins import GraphMixin
+
+
+PERMISSIONS = {'graph': ['change_graph', 'view_graph'],
+                'schema': ['change_schema', 'view_schema'],
+                'data': ['add_data', 'change_data',
+                        'delete_data', 'view_data']}
 
 
 class Graph(models.Model, GraphMixin):
@@ -50,9 +58,23 @@ def create_data_graph(*args, **kwargs):
             data = Data.objects.create()
             graph.data = data
 
+
 @receiver(pre_save, sender=Graph)
 def create_schema_graph(*args, **kwargs):
     graph = kwargs.get("instance", None)
     if graph and not graph.schema:
         schema = Schema.objects.create()
         graph.schema = schema
+
+
+@receiver(post_save, sender=Graph)
+def assign_permissions_to_owner(*args, **kwargs):
+    graph = kwargs.get("instance", None)
+    if graph:
+        owner = graph.owner
+        aux = {'graph': graph,
+                'schema': graph.schema,
+                'data': graph.data}
+        for permission_type in aux:
+            for permission in PERMISSIONS[permission_type]:
+                guardian.assign(permission, owner, aux[permission_type])
