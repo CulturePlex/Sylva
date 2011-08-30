@@ -13,13 +13,6 @@
 <script type="text/javascript" src="{{ STATIC_PREFIX }}js/chosen.jquery.min.js"></script>
 <link rel="stylesheet" type="text/css" href="{{ STATIC_PREFIX }}css/chosen.css" />
 <script type="text/javascript">
-    function addUser() {
-        var userSel = document.getElementById('user_sel');
-        var index = userSel.selectedIndex;
-        setPermission(userSel.value, 'graph', 'view_graph');
-        window.location.href = "{% url graph_collaborators graph.id %}";
-    }
-
     function setPermission(userID, objectStr, permissionStr) {
         $.ajax({url: "{% url change_permission graph.id %}",
             data: {user_id: userID,
@@ -58,14 +51,11 @@ onload="$('.chzn-select').chosen();"
     <div class="content2-first">
         <p>Graph owner: <a href="#">{{ graph.owner }}</a></p>
         <hr/>
-        <p>Select an user to add as a collaborator:</p>
-        <select id="user_sel" class="chzn-select" name="user_id" 
-            onChange="addUser();">
-            <option value=""></option> 
-            {% for u in users %}
-                <option value="{{ u.id }}">{{ u.username }}</option>
-            {% endfor %}
-            </select>
+        <form action="." method="POST">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <input type="submit" value="Add collaborator"/>
+        </form>
     </div>
     <div class="content-divider"></div>
     <div class="content2-second">

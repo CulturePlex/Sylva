@@ -12,7 +12,7 @@ from django.template import RequestContext
 from guardian import shortcuts as guardian
 
 from data.models import Data
-from graphs.forms import GraphForm
+from graphs.forms import GraphForm, AddCollaboratorForm
 from graphs.models import Graph, PERMISSIONS
 from schemas.models import Schema
 
@@ -62,7 +62,18 @@ def graph_collaborators(request, graph_id):
     if request.user != graph.owner:
         return redirect('%s?next=%s' % (reverse("signin"), request.path))
     users = User.objects.all()
-    collaborators = guardian.get_users_with_perms(graph)
+    collaborators = list(guardian.get_users_with_perms(graph))
+    if request.POST:
+        data = request.POST.copy()
+        form = AddCollaboratorForm(data=data, graph=graph,
+                                collaborators=collaborators)
+        if form.is_valid():
+            user_id = form.cleaned_data["new_collaborator"]
+            user = get_object_or_404(User, id=user_id)
+            guardian.assign('view_graph', user, graph)
+            collaborators.append(user)
+    else:
+        form = AddCollaboratorForm(graph=graph, collaborators=collaborators)
     graph_permissions = guardian.get_perms_for_model(graph)
     permissions_list = []
     permissions_table = []
@@ -83,12 +94,12 @@ def graph_collaborators(request, graph_id):
                 else:
                     permission_row['perms'].append((item_str, p, False))
         permissions_table.append(permission_row) 
-    users = [u for u in users if u != graph.owner and u not in collaborators]
+    #users = [u for u in users if u != graph.owner and u not in collaborators]
     return render_to_response('graphs_collaborators.html',
                               {"graph": graph,
                                   "permissions": permissions_list,
                                   "permissions_table": permissions_table,
-                                  "users": users},
+                                  "form": form},
                               context_instance=RequestContext(request))
 
 
