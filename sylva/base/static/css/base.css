@@ -459,7 +459,7 @@ a:hover {
     text-decoration: underline;
 }
 
-span.buttonLinkOption,p.forgot-password {
+span.buttonLinkOption {
     vertical-align: middle;
     display: inline-block;
     margin-top: 2px;
@@ -470,6 +470,12 @@ span.buttonLinkOption a {
     font-weight: bold;
 }
 
+p.forgot-password {
+    vertical-align: middle;
+    display: inline-block;
+    margin-top: 17px;
+    margin-left: 2px;
+}
 
 /* Defaults */
 .button,input,textarea,select {
