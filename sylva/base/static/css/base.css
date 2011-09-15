@@ -364,8 +364,9 @@ a {
 }
 
 .content3-block {
-    width:365px;
-    float:left;
+    width: 365px;
+    float: left;
+    margin-left: 1px;
 }
 
 .content3-block p {
