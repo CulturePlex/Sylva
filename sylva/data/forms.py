@@ -89,7 +89,6 @@ class RelationshipForm(ItemForm):
     def populate_relationship_properties(self, itemtype, initial=None):
         # Relationship properties
         if isinstance(itemtype, RelationshipType):
-            import ipdb; ipdb.set_trace()
             field_attrs = {
                 "required": True,
                 "initial": "",
