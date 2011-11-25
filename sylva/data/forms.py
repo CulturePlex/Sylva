@@ -13,6 +13,8 @@ class ItemForm(forms.Form):
     def __init__(self, itemtype, *args, **kwargs):
         super(ItemForm, self).__init__(label_suffix="", *args, **kwargs)
         self.populate_fields(itemtype, initial=kwargs.get("initial", None))
+        self.graph = itemtype.schema.graph
+        self.itemtype = itemtype
 
     def populate_fields(self, itemtype, initial=None):
         self.populate_node_properties(itemtype, initial=initial)
@@ -41,6 +43,15 @@ class ItemForm(forms.Form):
                 field = forms.CharField(**field_attrs)
             self.fields[item_property.key] = field
 
+    def save(self, *args, **kwargs):
+        if self.cleaned_data:
+            if self.graph.relaxed:
+                # TODO Check the names of the variables
+                pass
+            # Selecting  a proper label
+            label = self.cleaned_data[self.cleaned_data.keys()[0]]
+            self.graph.nodes.create(label=label, properties=self.cleaned_data)
+
 
 class NodeForm(ItemForm):
     pass
@@ -68,6 +79,9 @@ class RelationshipForm(ItemForm):
             # from django.template import defaultfilters
             # defaultfilters.sluggify
             self.fields[itemtype.name] = field
+
+    def save(self, *args, **kwargs):
+        pass
 
 
 def relationship_formset_factory(relationship, *args, **kwargs):

@@ -27,7 +27,7 @@
 
 {% block content %}
 <div id="content3">
-<form action="." method="POST">
+<form action="." method="POST" enctype="multipart/form-data">
 {% csrf_token %}
     <div class="content{% if relationship_formsets %}3-block{% else %}2-first{% endif %}">
         <h2>{% trans "New" %} {{ nodetype.name|capfirst }}</h2>

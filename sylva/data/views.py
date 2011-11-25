@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from django.core.urlresolvers import reverse
 from django.forms.formsets import formset_factory
 from django.shortcuts import render_to_response, redirect
 from django.template import RequestContext
@@ -63,7 +64,11 @@ def nodes_list_full(request, graph_id, node_type_id):
 def nodes_create(request, graph_id, node_type_id):
     graph = get_object_or_404(Graph, id=graph_id)
     nodetype = get_object_or_404(NodeType, id=node_type_id)
-    node_form = NodeForm(itemtype=nodetype)
+    if request.POST:
+        data = request.POST.copy()
+    else:
+        data = None
+    node_form = NodeForm(itemtype=nodetype, data=data)
     relationship_formsets = []
     for relationship in nodetype.outgoing_relationships.all():
         if relationship.arity > 0:
@@ -76,10 +81,23 @@ def nodes_create(request, graph_id, node_type_id):
             RelationshipFormSet = formset_factory(RelationshipForm,
                                                   formset=TypeBaseFormSet,
                                                   extra=1)
-        relationship_formset = RelationshipFormSet(itemtype=relationship)
+        relationship_formset = RelationshipFormSet(itemtype=relationship,
+                                                   data=data)
         relationship_formsets.append(relationship_formset)
-    mediafile_formset = MediaFileFormSet()
-    medialink_formset = MediaLinkFormSet()
+    # TODO: Use dynamic formset
+    mediafile_formset = MediaFileFormSet(data=data)
+    medialink_formset = MediaLinkFormSet(data=data)
+    if (data and node_form.is_valid()
+        and mediafile_formset.is_valid() and  medialink_formset.is_valid()
+        and all([rf.is_valid() for rf in relationship_formsets])):
+        node_form.save()
+        for relationship_formset in relationship_formsets:
+            for relationship_form in relationship_formset.forms:
+                relationship_form.save()
+        mediafile_formset.save()
+        medialink_formset.save()
+        redirect_url = reverse("nodes_list_full", args=[graph.id, node_type_id])
+        return redirect(redirect_url)
     return render_to_response('nodes_create.html',
         {"graph": graph,
          "nodetype": nodetype,

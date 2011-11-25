@@ -29,6 +29,9 @@
         {% endif %}
         <div class="flags">
             <div class="flags-block">
+                <span class="graph-owner">
+                    {% trans "By"%} <a title="{{ graph.owner }}" href="{% url userena.views.profile_detail graph.owner %}">{{ graph.owner }}</a>.
+                </span>
                 <span class="graph-nodes">
                     {{ graph.data.total_nodes }} <a title="{% trans "Nodes" %}" href="{% url nodes_list graph.id %}">{% trans "nodes" %}</a>.
                 </span>
@@ -55,6 +58,9 @@
                 </span>
                 <span class="graph-collaborators">
                     {{ graph.data.total_nodes }} <a title="{% trans "Collaborators" %}" href="{% url graph_collaborators graph.id %}">{% trans "collaborators" %}</a>.
+                </span>
+                <span class="graph-queries">
+                    {% trans "No queries yet" %}.
                 </span>
                 <span class="graph-instance">
                     {% if graph.data.instance %}

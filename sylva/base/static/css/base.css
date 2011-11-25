@@ -113,7 +113,7 @@ header.global {
     width: 1170px;
     background-color: white;
     margin: auto;
-    padding: 10px 15px 10px 15px ;
+    padding: 10px 15px 5px 15px;
 }
 
 #main header.global .nav-wrapper {
@@ -292,11 +292,16 @@ cursor:default;
 }
 
 #body {
+/*    background: white;*/
+/*    width: 1140px;*/
+/*    position: relative;*/
+/*    margin: auto;*/
+/*    padding: 5px 30px 5px 30px;*/
     background: white;
-    width: 1140px;
+    width: 1150px;
     position: relative;
     margin: auto;
-    padding: 5px 30px 5px 30px;
+    padding: 5px 30px 5px 20px;
 }
 
 #body
@@ -597,7 +602,7 @@ ul.errorlist {
 }
 
 .graph-item {
-    padding-bottom: 60px;
+    padding-bottom: 80px;
 }
 
 .graph-title {
@@ -634,8 +639,24 @@ ul.errorlist {
     margin-left: 10px;
 }
 
+.graph-owner {
+    background: transparent url(../img/badge_16.png) left center no-repeat;
+    padding: 1px 5px 1px 16px;
+    height: 16px;
+    display: block;
+    margin-left: 10px;
+}
+
 .graph-nodes {
     background: transparent url(../img/nodes_16.png) left center no-repeat;
+    padding: 1px 5px 1px 16px;
+    height: 16px;
+    display: block;
+    margin-left: 10px;
+}
+
+.graph-queries {
+    background: transparent url(../img/lab_16.png) left center no-repeat;
     padding: 1px 5px 1px 16px;
     height: 16px;
     display: block;
@@ -656,6 +677,28 @@ ul.errorlist {
     height: 16px;
     display: block;
     margin-left: 10px;
+}
+
+.graph-visualization {
+    background: transparent url(../img/grid.jpg) repeat;
+    padding: 5px;
+    height: 70px;
+    width: 100%;
+    display: block;
+    margin-bottom: 10px;
+    color: gray;
+    font-style: italic;
+    border: 1px solid #F2F2F2;
+}
+
+.graph-visualization .not-available {
+    padding: 5px;
+    color: gray;
+    font-style: italic;
+    border: 1px solid gray;
+    text-align: center;
+    font-size: 1.5em;
+    border: none;
 }
 
 .graph-collaborators {
@@ -707,7 +750,7 @@ ul.errorlist {
 .flags-divider {
     background: url(../img/content-divider.gif) no-repeat top center;
     width: 1px;
-    min-height: 40px;
+    min-height: 55px;
     float: left;
     padding: 15px 2px 0px 2px;
 }
