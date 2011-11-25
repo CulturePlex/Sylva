@@ -15,6 +15,8 @@ class ItemForm(forms.Form):
         self.populate_fields(itemtype, initial=kwargs.get("initial", None))
         self.graph = itemtype.schema.graph
         self.itemtype = itemtype
+        self.itemtype_properties = [prop["key"] for prop
+                                    in itemtype.properties.all().values("key")]
 
     def populate_fields(self, itemtype, initial=None):
         self.populate_node_properties(itemtype, initial=initial)
@@ -43,14 +45,35 @@ class ItemForm(forms.Form):
                 field = forms.CharField(**field_attrs)
             self.fields[item_property.key] = field
 
+    def clean(self):
+        cleaned_data = super(ItemForm, self).clean()
+        if (len(cleaned_data) <= 0
+            or not any([bool(unicode(v).strip()) for v in cleaned_data.values()])):
+            msg = _("At least one field must be filled")
+            for field_key, field_value in cleaned_data.items():
+                if not field_value.strip():
+                    self._errors[field_key] = self.error_class([msg])
+                    del cleaned_data[field_key]
+        return cleaned_data
+
     def save(self, *args, **kwargs):
-        if self.cleaned_data:
+        properties = self.cleaned_data
+        if (properties
+            and any([bool(unicode(v).strip()) for v in properties.values()])):
             if self.graph.relaxed:
-                # TODO Check the names of the variables
-                pass
-            # Selecting  a proper label
-            label = self.cleaned_data[self.cleaned_data.keys()[0]]
-            self.graph.nodes.create(label=label, properties=self.cleaned_data)
+                properties_items = properties.items()
+                for field_key, field_value in properties_items:
+                    if field_key not in self.itemtype_properties:
+                        properties.pop(field_key)
+            # Assign to label the value of the identifier of the NodeType
+            # Selecting a proper label (the first not blank)
+            # label = ""
+            # for field_key, field_value in properties.items():
+            #     if unicode(field_value).strip():
+            #         label = unicode(field_value)
+            #         break
+            self.graph.nodes.create(label=unicode(self.itemtype.id),
+                                    properties=properties)
 
 
 class NodeForm(ItemForm):
@@ -66,16 +89,19 @@ class RelationshipForm(ItemForm):
     def populate_relationship_properties(self, itemtype, initial=None):
         # Relationship properties
         if isinstance(itemtype, RelationshipType):
+            import ipdb; ipdb.set_trace()
             field_attrs = {
                 "required": True,
                 "initial": "",
                 "label": itemtype.name,
                 "help_text": _("Choose the target of the relationship"),
-                "choices": [(n.id, n.display)
-                            for n in itemtype.target.all()],
+#                "choices": [(n.id, n.display)
+#                            for n in itemtype.source.all()],
+                "choices": [(n.id, ("; ".join(n.properties.values()))[:25])
+                            for n in itemtype.source.all()],
             }
             field = forms.ChoiceField(**field_attrs)
-            # Is needed to sluggify this?
+            # TODO: Is needed to sluggify this?
             # from django.template import defaultfilters
             # defaultfilters.sluggify
             self.fields[itemtype.name] = field
