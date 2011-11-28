@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 from django import forms
+from django.core.exceptions import ValidationError
 from django.forms.formsets import BaseFormSet
 from django.forms.models import inlineformset_factory
+from django.template.defaultfilters import slugify
 from django.utils.translation import gettext as _
 
 from data.models import MediaNode, MediaFile, MediaLink
@@ -16,7 +18,8 @@ class ItemForm(forms.Form):
         self.graph = itemtype.schema.graph
         self.itemtype = itemtype
         self.itemtype_properties = [prop["key"] for prop
-                                    in itemtype.properties.all().values("key")]
+                                    in itemtype.properties.all().values("key")
+                                    if itemtype.name != prop["key"]]
 
     def populate_fields(self, itemtype, initial=None):
         self.populate_node_properties(itemtype, initial=initial)
@@ -45,10 +48,41 @@ class ItemForm(forms.Form):
                 field = forms.CharField(**field_attrs)
             self.fields[item_property.key] = field
 
+    def _clean_fields(self):
+        # Taken from django/forms/forms.py
+        for name, field in self.fields.items():
+            # value_from_datadict() gets the data from the data dictionaries.
+            # Each widget type knows how to retrieve its own data, because some
+            # widgets split data over several HTML fields.
+            value = field.widget.value_from_datadict(self.data, self.files,
+                                                     self.add_prefix(name))
+            try:
+                if isinstance(field, forms.fields.FileField):
+                    initial = self.initial.get(name, field.initial)
+                    value = field.clean(value, initial)
+                else:
+                    value = field.clean(value)
+                self.cleaned_data[name] = value
+                if hasattr(self, 'clean_%s' % name):
+                    value = getattr(self, 'clean_%s' % name)()
+                    self.cleaned_data[name] = value
+            except UnicodeError, e:
+                # Here it is the difference: we need to sluggify the field name
+                slug_name = slugify(name)
+                if hasattr(self, 'clean_%s' % slug_name):
+                    value = getattr(self, 'clean_%s' % slug_name)()
+                    self.cleaned_data[name] = value
+            except ValidationError, e:
+                self._errors[name] = self.error_class(e.messages)
+                if name in self.cleaned_data:
+                    del self.cleaned_data[name]
+
     def clean(self):
         cleaned_data = super(ItemForm, self).clean()
-        if (len(cleaned_data) <= 0
-            or not any([bool(unicode(v).strip()) for v in cleaned_data.values()])):
+        not_false_values = [bool(unicode(v).strip())
+                            for v in cleaned_data.values()]
+        if (len(cleaned_data) <= 0 or
+            not any(not_false_values)):
             msg = _("At least one field must be filled")
             for field_key, field_value in cleaned_data.items():
                 if not field_value.strip():
@@ -56,7 +90,7 @@ class ItemForm(forms.Form):
                     del cleaned_data[field_key]
         return cleaned_data
 
-    def save(self, *args, **kwargs):
+    def save(self, commit=True, *args, **kwargs):
         properties = self.cleaned_data
         if (properties
             and any([bool(unicode(v).strip()) for v in properties.values()])):
@@ -66,14 +100,12 @@ class ItemForm(forms.Form):
                     if field_key not in self.itemtype_properties:
                         properties.pop(field_key)
             # Assign to label the value of the identifier of the NodeType
-            # Selecting a proper label (the first not blank)
-            # label = ""
-            # for field_key, field_value in properties.items():
-            #     if unicode(field_value).strip():
-            #         label = unicode(field_value)
-            #         break
-            self.graph.nodes.create(label=unicode(self.itemtype.id),
-                                    properties=properties)
+            label = unicode(self.itemtype.id)
+            if commit:
+                return self.graph.nodes.create(label=label,
+                                               properties=properties)
+            else:
+                return (label, properties)
 
 
 class NodeForm(ItemForm):
@@ -89,24 +121,48 @@ class RelationshipForm(ItemForm):
     def populate_relationship_properties(self, itemtype, initial=None):
         # Relationship properties
         if isinstance(itemtype, RelationshipType):
+            choices = [(n.id, n.display) for n in itemtype.target.all()]
             field_attrs = {
                 "required": True,
                 "initial": "",
                 "label": itemtype.name,
                 "help_text": _("Choose the target of the relationship"),
-#                "choices": [(n.id, n.display)
-#                            for n in itemtype.source.all()],
-                "choices": [(n.id, ("; ".join(n.properties.values()))[:25])
-                            for n in itemtype.source.all()],
+                "choices": [(u"", u"---------")] + choices,
             }
             field = forms.ChoiceField(**field_attrs)
-            # TODO: Is needed to sluggify this?
-            # from django.template import defaultfilters
-            # defaultfilters.sluggify
             self.fields[itemtype.name] = field
 
-    def save(self, *args, **kwargs):
-        pass
+    def clean(self):
+        cleaned_data = super(ItemForm, self).clean()
+        if self.itemtype.name in cleaned_data:
+            target_node_id = cleaned_data[self.itemtype.name]
+            target_node = self.graph.nodes.get(target_node_id)
+            if target_node.label != unicode(self.itemtype.target.id):
+                msg = _("The target must be %s" % self.itemtype.target.name)
+                self._errors[self.itemtype.name] = self.error_class([msg])
+                del cleaned_data[self.itemtype.name]
+        else:
+            msg = _("The target must be %s" % self.itemtype.target.name)
+            self._errors[self.itemtype.name] = self.error_class([msg])
+        return cleaned_data
+
+    def save(self, source_node, commit=True, *args, **kwargs):
+        properties = self.cleaned_data
+        if (properties
+            and any([bool(unicode(v).strip()) for v in properties.values()])):
+            if self.graph.relaxed:
+                properties_items = properties.items()
+                for field_key, field_value in properties_items:
+                    if (field_key not in self.itemtype_properties):
+                        properties.pop(field_key)
+            target_node_id = properties.pop(self.itemtype.name)
+            label = unicode(self.itemtype.id)
+            if commit:
+                self.graph.relationships.create(source_node.id, target_node_id,
+                                                label=label,
+                                                properties=properties)
+            else:
+                return (source_node.id, target_node_id, label, properties)
 
 
 def relationship_formset_factory(relationship, *args, **kwargs):

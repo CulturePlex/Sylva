@@ -106,9 +106,16 @@ class RelationshipsManager(BaseManager):
 
     def create(self, source, target, label, properties=None):
         properties = self.filter_dict(properties)
-
+        if isinstance(source, Node):
+            source_id = source.id
+        else:
+            source_id = source
+        if isinstance(target, Node):
+            target_id = target.id
+        else:
+            target_id = target
         if self.data.can_add_relationships():
-            relationship_id = self.gdb.create_relationship(source.id, target.id,
+            relationship_id = self.gdb.create_relationship(source_id, target_id,
                                                            label, properties)
             relationship = Relationship(relationship_id, self.graph,
                                         properties=properties)
@@ -325,13 +332,21 @@ class BaseElement(object):
         return self._id
     id = property(_get_id)
 
-    def _get_display(self):
+    def _get_display(self, separator=u"|"):
         if not self._properties:
-            return str(self._id)
+            return u"%s" % self._id
         else:
             # TODO: Set a priority over the properties in order to show a
             #       representative property of the element.
-            return str(self._id)
+            properties_to_display = []
+            properties_values = self._properties.values()[:5]
+            for i in range(len(properties_values)):
+                if properties_values[i]:
+                    properties_to_display.append(properties_values[i])
+            if properties_to_display:
+                return (u" %s " % separator).join(properties_to_display)
+            else:
+                return u"%s" % self._id
     display = property(_get_display)
 
 

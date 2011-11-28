@@ -50,20 +50,69 @@
     <div class="content-divider"></div>
     <div class="content3-block">
         <h2>{% trans "Relationships" %}</h2>
-        {% for relationship_formset in relationship_formsets %}
+        {% for prefix, relationship_formset in relationship_formsets.items %}
+            <div id="{{ prefix }}">
             {{ relationship_formset.as_p }}
+            </div>
         {% endfor %}
     </div>
     {% endif %}
     <div class="content-divider"></div>
     <div class="content{% if relationship_formsets %}3-block{% else %}2-second{% endif %}">
         <h2>{% trans "Files" %}</h2>
+        <div id="__files">
         {{ mediafile_formset.as_p }}
+        </div>
         <h2>{% trans "Links" %}</h2>
+        <div id="__links">
         {{ medialink_formset.as_p }}
+        </div>
     </div>
 </form>
 </div>
 
 
+<script type="text/javascript">
+    (function($) {
+        {% for prefix, relationship_formset in relationship_formsets.items %}
+        init_{{ prefix }} = function() {
+            $("div#{{ prefix }}").formset({
+                prefix: "{{ prefix }}",
+                addCssClass: "button addButton",
+                addText: "{% trans "New" %} {{ prefix|capfirst }}",
+                extraClasses: ["row1", "row2"],
+                added: function(row) {$("#{{prefix}} p:last label").hide();},
+                deleteText: "{% trans "Remove" %} {{ prefix|capfirst }}"
+            });
+        };
+        $("#{{prefix}} p:last label").hide();
+        init_{{ prefix }}();
+        $("#{{ prefix }} p:last label").hide();
+        {% endfor %}
+        init_files = function() {
+            $("div#__files").formset({
+                prefix: "__files",
+                addCssClass: "button addButton",
+                addText: "{% trans "New File" %}",
+                extraClasses: ["row1", "row2"],
+                added: function(row) {$("#__files p:last label").hide();},
+                deleteText: "{% trans "Remove File" %}"
+            });
+        };
+        $("#__files p:last label").hide();
+        init_files();
+        init_links = function() {
+            $("div#__links").formset({
+                prefix: "__links",
+                addCssClass: "button addButton",
+                addText: "{% trans "New Link" %}",
+                extraClasses: ["row1", "row2"],
+                added: function(row) {$("#__links p:last label").hide();},
+                deleteText: "{% trans "Remove Link" %}"
+            });
+        };
+        $("#__links p:last label").hide();
+        init_links();
+    })(jQuery);
+</script>
 {% endblock %}

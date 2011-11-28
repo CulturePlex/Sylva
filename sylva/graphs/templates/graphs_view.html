@@ -22,10 +22,6 @@
 {% endblock %}
 
 {% block content %}
-
-{% if graph.description %}
-<q>{{ graph.description }}</q>
-{% endif %}
 <div class="graph-visualization" id="graph-visualization">
     {% trans "Visualization" %}
     <div class="not-available">
@@ -35,10 +31,12 @@
     </div>
 </div>
 <div class="graph-item">
-    <span class="graph-title"><a href="{% url graph_view graph.id %}">{{ graph.name|truncatewords_html:7 }}</a></span>
-    {% if graph.description %}
-    <q class="graph-description">{{ graph.description|truncatewords_html:40 }}</q>
-    {% endif %}
+    <span class="graph-title">
+        <a href="{% url graph_view graph.id %}">{{ graph.name|truncatewords_html:7 }}</a>:
+        {% if graph.description %}
+        <q class="graph-description">{{ graph.description|truncatewords_html:40 }}</q>
+        {% endif %}
+    </span>
     <div class="flags">
         <div class="flags-block">
             <span class="graph-owner">

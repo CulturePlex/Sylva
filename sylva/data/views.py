@@ -3,6 +3,7 @@ from django.core.urlresolvers import reverse
 from django.forms.formsets import formset_factory
 from django.shortcuts import render_to_response, redirect
 from django.template import RequestContext
+from django.template.defaultfilters import slugify
 from django.shortcuts import get_object_or_404
 
 from guardian.decorators import permission_required
@@ -69,7 +70,7 @@ def nodes_create(request, graph_id, node_type_id):
     else:
         data = None
     node_form = NodeForm(itemtype=nodetype, data=data)
-    relationship_formsets = []
+    relationship_formsets = {}
     for relationship in nodetype.outgoing_relationships.all():
         if relationship.arity > 0:
             RelationshipFormSet = formset_factory(RelationshipForm,
@@ -77,23 +78,26 @@ def nodes_create(request, graph_id, node_type_id):
                                                   max_num=relationship.arity,
                                                   extra=1)
         else:
-            # TODO: Use dynamic formset
             RelationshipFormSet = formset_factory(RelationshipForm,
                                                   formset=TypeBaseFormSet,
+                                                  can_delete=True,
                                                   extra=1)
+        formset_prefix = slugify(relationship.name)
         relationship_formset = RelationshipFormSet(itemtype=relationship,
+                                                   prefix=formset_prefix,
                                                    data=data)
-        relationship_formsets.append(relationship_formset)
+        relationship_formsets[formset_prefix] = relationship_formset
     # TODO: Use dynamic formset
-    mediafile_formset = MediaFileFormSet(data=data)
-    medialink_formset = MediaLinkFormSet(data=data)
+    mediafile_formset = MediaFileFormSet(data=data, prefix="__files")
+    medialink_formset = MediaLinkFormSet(data=data, prefix="__links")
     if (data and node_form.is_valid()
         and mediafile_formset.is_valid() and  medialink_formset.is_valid()
-        and all([rf.is_valid() for rf in relationship_formsets])):
-        node_form.save()
-        for relationship_formset in relationship_formsets:
+        and all([rf.is_valid() for rf in relationship_formsets.values()])):
+        # TODO: This should be under a transaction
+        node = node_form.save()
+        for relationship_formset in relationship_formsets.values():
             for relationship_form in relationship_formset.forms:
-                relationship_form.save()
+                relationship_form.save(source_node=node)
         mediafile_formset.save()
         medialink_formset.save()
         redirect_url = reverse("nodes_list_full", args=[graph.id, node_type_id])
