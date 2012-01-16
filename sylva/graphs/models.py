@@ -59,6 +59,10 @@ class Graph(models.Model, GraphMixin):
     # def get_absolute_url(self):
     #     return ('graphs.views.details', [str(self.id)])
 
+    def get_collaborators(self):
+        collaborators = list(guardian.get_users_with_perms(self))
+        return collaborators
+
 
 @receiver(pre_save, sender=Graph)
 def create_data_graph(*args, **kwargs):

@@ -57,7 +57,7 @@
                     {% endif %}
                 </span>
                 <span class="graph-collaborators">
-                    {{ graph.data.total_nodes }} <a title="{% trans "Collaborators" %}" href="{% url graph_collaborators graph.id %}">{% trans "collaborators" %}</a>.
+                    {{ graph.get_collaborators|length }} <a title="{% trans "Collaborators" %}" href="{% url graph_collaborators graph.id %}">{% trans "collaborators" %}</a>.
                 </span>
                 <span class="graph-queries">
                     {% trans "No queries yet" %}.
