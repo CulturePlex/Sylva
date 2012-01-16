@@ -13,10 +13,22 @@ from schemas.models import Schema
 from graphs.mixins import GraphMixin
 
 
-PERMISSIONS = {'graph': ['change_graph', 'view_graph'],
-                'schema': ['change_schema', 'view_schema'],
-                'data': ['add_data', 'change_data',
-                        'delete_data', 'view_data']}
+PERMISSIONS = {
+    'graph': {
+        'change_graph': _("Change graph"),
+        'view_graph': _("View graph"),
+    },
+    'schema': {
+        'change_schema': _("Change schema"),
+        'view_schema': _("View schema"),
+    },
+    'data': {
+        'add_data': _("Add data"),
+        'view_data': _("View data"),
+        'delete_data': _("Delete data"),
+        'view_data': _("View data"),
+    },
+}
 
 
 class Graph(models.Model, GraphMixin):
@@ -76,5 +88,5 @@ def assign_permissions_to_owner(*args, **kwargs):
                 'schema': graph.schema,
                 'data': graph.data}
         for permission_type in aux:
-            for permission in PERMISSIONS[permission_type]:
+            for permission in PERMISSIONS[permission_type].keys():
                 guardian.assign(permission, owner, aux[permission_type])

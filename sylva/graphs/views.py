@@ -79,7 +79,7 @@ def graph_collaborators(request, graph_id):
     permissions_table = []
     aux = (('graph', graph), ('schema', graph.schema), ('data', graph.data))
     for item in aux:
-        for p in PERMISSIONS[item[0]]:
+        for p in PERMISSIONS[item[0]].values():
             permissions_list.append(p)
     for user in collaborators:
         permission_row = {}
@@ -88,7 +88,7 @@ def graph_collaborators(request, graph_id):
         permission_row['perms'] = []
         for item_str, item_obj in aux:
             user_permissions = guardian.get_perms(user, item_obj)
-            for p in PERMISSIONS[item_str]:
+            for p in PERMISSIONS[item_str].keys():
                 if p in user_permissions:
                     permission_row['perms'].append((item_str, p, True))
                 else:
