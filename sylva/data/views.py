@@ -33,7 +33,7 @@ def nodes_list(request, graph_id):
     for type_element in graph.schema.nodetype_set.all():
         properties = [p.key for p in type_element.properties.all()]
         data = create_data(properties,
-                    graph.nodes.filter(label=type_element.name)[:5])
+                    graph.nodes.filter(label=type_element.id)[:5])
         data_preview.append([type_element.name,
             properties,
             data,
@@ -51,14 +51,17 @@ def nodes_list_full(request, graph_id, node_type_id):
     data_preview = []
     properties = [p.key for p in type_element.properties.all()]
     data = create_data(properties,
-                graph.nodes.filter(label=type_element.name))
+                graph.nodes.filter(label=type_element.id))
     data_preview.append([type_element.name,
         properties,
-        data])
-    return render_to_response('nodes_list.html',
-                              {"graph": graph,
-                                  "option_list": data_preview},
-                              context_instance=RequestContext(request))
+        data,
+        type_element.id])
+    nodes = graph.nodes.filter(label=node_type_id)
+    return render_to_response('nodes_list.html', {
+                                "graph": graph,
+                                "option_list": data_preview,
+                                "nodes": nodes,
+                              }, context_instance=RequestContext(request))
 
 
 @permission_required("data.change_data", (Data, "graph__id", "graph_id"))
@@ -119,7 +122,7 @@ def relationships_list(request, graph_id):
     for type_element in graph.schema.relationshiptype_set.all():
         properties = [p.key for p in type_element.properties.all()]
         data = create_data(properties,
-                    graph.relationships.filter(label=type_element.name)[:5])
+                    graph.relationships.filter(label=type_element.id)[:5])
         data_preview.append([type_element.name,
             properties,
             data,
@@ -138,10 +141,11 @@ def relationships_list_full(request, graph_id, relationship_type_id):
     data_preview = []
     properties = [p.key for p in type_element.properties.all()]
     data = create_data(properties,
-                graph.relationships.filter(label=type_element.name))
+                graph.relationships.filter(label=type_element.id))
     data_preview.append([type_element.name,
         properties,
-        data])
+        data,
+        type_element.id])
     return render_to_response('nodes_list.html',
                               {"graph": graph,
                                   "option_list": data_preview},
