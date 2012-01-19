@@ -10,6 +10,7 @@
     <script src="{{ STATIC_PREFIX }}import_tool/js/sylva-importer.js"></script>
     <script type="text/javascript">
         var sylvaSchema = JSON.parse('{{ sylva_schema|safe }}');
+        Importer.addNodeURL = "{% url ajax_node_create graph.id %}";
         jQuery(document).ready(function(){
           GraphEditor.USES_DRAWER = false;
           GraphEditor.init();
@@ -41,12 +42,8 @@
 
             var nodes = GraphEditor.getGraphNodesJSON();
             $('#import-progress-bar').attr('max', Object.keys(nodes).length);
-            var counter = 0;
             $.each(nodes, function(index, value){
-              $('#import-progress-bar').attr('value', counter);
-              $('#import-progress-text').text('Adding node ' + index);
-              Importer.addNode(index + " - " + value);
-              counter++;
+              Importer.addNode(index, value);
             });
           });
 

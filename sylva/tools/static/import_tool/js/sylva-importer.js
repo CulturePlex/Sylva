@@ -6,11 +6,11 @@ GraphEditor.progressBar.hide = function() {
 }
 
 var graphSchema;
-//var sylvaSchema = {"nodeTypes":{"City":{},"Museum":{},"Artist":{},"Artwork":{}},"allowedEdges":{"City_located in_Museum":{"source":"City","label":"located in","target":"Museum"},"Artwork_kept in_Museum":{"source":"Artwork","label":"kept in","target":"Museum"},"Artwork_created by_Artist":{"source":"Artwork","label":"created by","target":"Artist"}}};
-
-//var sylvaSchema = {"nodeTypes":{"City":{},"Artist":{},"Artwork":{}},"allowedEdges":{"City_located in_Museum":{"source":"City","label":"located in","target":"Museum"},"Artwork_kept in_Museum":{"source":"Artwork","label":"kept in","target":"Museum"},"Artwork_created by_Artist":{"source":"Artwork","label":"created by","target":"Artist"}}};
 
 var Importer = {
+  counter: 0,
+  addNodeURL: undefined,
+
   schemaIsCompatible: function(graphSchema, sylvaSchema){
     // Each nodetype in graphSchema exists in sylva schema
     var compatible = true;
@@ -52,8 +52,24 @@ var Importer = {
     $('#second-step-info').text(text);
   },
 
-  addNode: function(node){
-    //TODO Node creation view
-    console.log(node);
+  addNode: function(nodeName, nodeData){
+    var nodeType = nodeData.type;
+    delete nodeData.position;
+    delete nodeData.type;
+    nodeData.nameLabel = nodeName;
+    var properties = JSON.stringify(nodeData);
+
+    $.ajax({
+      url: Importer.addNodeURL,
+      data: {
+        type: nodeType,
+        properties: properties
+      },
+      success: function(){
+        Importer.counter++;
+        $('#import-progress-text').text('Node ' + nodeName + ' added');
+        $('#import-progress-bar').attr('value', Importer.counter);
+      },
+    });
   }
 };
