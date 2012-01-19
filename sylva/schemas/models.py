@@ -18,6 +18,16 @@ class Schema(models.Model):
         except ObjectDoesNotExist:
             return _(u"Schema \"%s\"") % (self.id)
 
+    def export(self):
+        schema_dict = {}
+        schema_dict["node_types"] = []
+        for node_type in self.nodetype_set.all():
+            schema_dict["node_types"].append(node_type)
+        schema_dict["relationship_types"] = []
+        for r_type in self.relationshiptype_set.all():
+            schema_dict["relationship_types"].append(r_type)
+        return schema_dict
+
     @models.permalink
     def get_absolute_url(self):
         return ('schemas.views.edit', [str(self.id)])
