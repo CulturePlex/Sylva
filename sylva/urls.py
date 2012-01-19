@@ -38,7 +38,7 @@ urlpatterns = patterns('',
     url(r'^schemas/', include('schemas.urls')),
 
     # tools
-    # url(r'^tools/', include('tools.urls')),
+    url(r'^tools/', include('tools.urls')),
 
     # admin_media
     url(r'^admin/', include(admin.site.urls)),

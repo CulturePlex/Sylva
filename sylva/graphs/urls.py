@@ -21,10 +21,6 @@ urlpatterns = patterns('graphs.views',
     url(r'^(?P<graph_id>\d+)/collaborators/$', 'graph_collaborators',
         name="graph_collaborators"),
 
-    # import tool
-    url(r'^(?P<graph_id>\d+)/import_tool/$', 'graph_import_tool',
-        name="import_tool"),
-
     # user permissions update
     url(r'^(?P<graph_id>\d+)/collaborators/change_permission/$',
         'change_permission',
