@@ -92,7 +92,6 @@ class ItemForm(forms.Form):
 
     def save(self, commit=True, *args, **kwargs):
         properties = self.cleaned_data
-        import ipdb;ipdb.set_trace()
         if (properties
             and any([bool(unicode(v).strip()) for v in properties.values()])):
             if self.graph.relaxed:
