@@ -55,6 +55,7 @@
             {% for form in formset.forms %}
                 <tr class="formset {% cycle "row1" "row2" %}">
                     <td>
+                        {{ form.id }}
                         {{ form.key.errors }}
                         {{ form.key.label_tag }}
                         {{ form.key }}
@@ -130,7 +131,7 @@
     (function($) {
         rowAdded = function(row) {
             // FIXME: The class "hidden" is not properly set in new rows
-            //        added dynamicly.
+            //        added dynamically.
             var $hidden = $(".hidden");
             if ($hidden.is(":visible")) {
                 // $(row).add(".hidden").hide();

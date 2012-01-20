@@ -30,7 +30,7 @@
     -->
     <div>
     <fieldset class="module aligned wide">
-    {% if node_type.name %}<h2>{{ node_type.name|capfirst }}</h2>{% endif %}
+    {% if node_type.name %}<h2><a href="{% url schema_nodetype_edit graph.id node_type.id %}">{{ node_type.name|capfirst }}</a></h2>{% endif %}
     {% for node_property in node_type.properties.all %}
          <div class="form-row">
          <div>
@@ -42,7 +42,7 @@
     {% for edge in node_type.get_outgoing_relationships %}
          <div class="form-row">
          <div>
-            <label>→ {{ edge.name|capfirst }}</label>
+            <label>→ <a href="{% url schema_relationshiptype_edit graph.id edge.id %}">{{ edge.name|capfirst }}</a></label>
             [{% if edge.arity < 1 %}∞{% else %}{{ edge.arity }} × {% endif %} {{ edge.target.name|capfirst }}] <p class="help"></p>
             {% if edge.relation.edgeproperty_set.all %}
                 {% for edge_propery in edge.relation.edgeproperty_set.all %}
@@ -60,7 +60,7 @@
     {% for edge in node_type.get_incoming_relationships %}
          <div class="form-row">
          <div>
-            <label>← {% if edge.arity < 1 %}∞{% else %}{{ edge.arity }} × {% endif %} {% trans "is" %} {% if edge.inverse %}{{ edge.inverse|capfirst }}{% else %}{{ edge.name|capfirst }}{% endif %}</label>
+            <label>← <a href="{% url schema_relationshiptype_edit graph.id edge.id %}">{% if edge.arity < 1 %}∞{% else %}{{ edge.arity }} × {% endif %} {% trans "is" %} {% if edge.inverse %}{{ edge.inverse|capfirst }}{% else %}{{ edge.name|capfirst }}{% endif %}</a></label>
             [{% trans "by" %} {{ edge.source.name|capfirst }}] <p class="help"></p>
             {% if edge.relation.edgeproperty_set.all %}
                 {% for edge_propery in edge.relation.edgeproperty_set.all %}

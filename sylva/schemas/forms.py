@@ -22,9 +22,9 @@ class RelationshipTypeForm(forms.ModelForm):
         schema = kwargs.pop("schema", None)
         super(RelationshipTypeForm, self).__init__(*args, **kwargs)
         if schema:
-            nodetypes = schema.nodetype_set.all()
-            self.fields["source"].queryset = nodetypes
-            self.fields["target"].queryset = nodetypes
+            nodetypes_qs = schema.nodetype_set.all()
+            self.fields["source"].queryset = nodetypes_qs
+            self.fields["target"].queryset = nodetypes_qs
 
     class Meta:
         model = RelationshipType
