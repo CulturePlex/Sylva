@@ -11,6 +11,7 @@
     <script type="text/javascript">
         var sylvaSchema = JSON.parse('{{ sylva_schema|safe }}');
         Importer.addNodeURL = "{% url ajax_node_create graph.id %}";
+        Importer.addRelationshipURL = "{% url ajax_relationship_create graph.id %}";
         jQuery(document).ready(function(){
           GraphEditor.USES_DRAWER = false;
           GraphEditor.init();
@@ -20,7 +21,7 @@
           $('#third-step').hide();
 
           //Second step
-          $('body').bind('endFirstStep', function(){
+          $('body').bind('fileLoaded', function(){
             $('#first-step').hide();
             $('#second-step').show();
 
@@ -31,20 +32,21 @@
 
             // Check imported schema is compatible with Sylva schema
             if (Importer.schemaIsCompatible(graphSchema, sylvaSchema)) {
-              $('body').trigger($.Event('endSecondStep'));
+              $('body').trigger($.Event('schemasValidated'));
             }
           });
 
           //Third step
-          $('body').bind('endSecondStep', function(){
+          $('body').bind('schemasValidated', function(){
             $('#second-step').hide();
             $('#third-step').show();
 
             var nodes = GraphEditor.getGraphNodesJSON();
-            $('#import-progress-bar').attr('max', Object.keys(nodes).length);
-            $.each(nodes, function(index, value){
-              Importer.addNode(index, value);
-            });
+            var edges = GraphEditor.getGraphEdgesJSON();
+            Importer.addData(GraphEditor.getGraphNodesJSON(),
+                            GraphEditor.getGraphEdgesJSON(),
+                            '#import-progress-bar',
+                            '#import-progress-text');
           });
 
         });

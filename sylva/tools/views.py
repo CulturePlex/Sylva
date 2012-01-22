@@ -33,11 +33,24 @@ def graph_import_tool(request, graph_id):
                             },
                             context_instance=RequestContext(request))
 
+
 @permission_required("data.change_data", (Data, "graph__id", "graph_id"))
 def ajax_node_create(request, graph_id):
     graph = get_object_or_404(Graph, id=graph_id)
     data = request.GET.copy()
     properties = simplejson.loads(data["properties"])
     label = graph.schema.nodetype_set.get(name=data["type"])
-    graph.nodes.create(label.name, properties)
+    node = graph.nodes.create(label.name, properties)
+    return HttpResponse(simplejson.dumps({"id": node.id}))
+
+
+@permission_required("data.change_data", (Data, "graph__id", "graph_id"))
+def ajax_relationship_create(request, graph_id):
+    graph = get_object_or_404(Graph, id=graph_id)
+    data = request.GET.copy()
+    source = graph.nodes.get(data["sourceId"])
+    target = graph.nodes.get(data["targetId"])
+    label = data["type"]
+    properties = {}
+    graph.relationships.create(source, target, label, properties)
     return HttpResponse(simplejson.dumps({}))

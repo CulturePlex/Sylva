@@ -1,7 +1,7 @@
 GraphEditor.progressBar.hide = function() {
   $('#'+GraphEditor.progressBarId).hide();
   GraphEditor._stopRefreshing = false;
-  $('body').trigger($.Event('endFirstStep'));
+  $('body').trigger($.Event('fileLoaded'));
   GraphEditor.refresh();
 }
 
@@ -10,6 +10,12 @@ var graphSchema;
 var Importer = {
   counter: 0,
   addNodeURL: undefined,
+  addRelationshipURL: undefined,
+
+  nodes: undefined,
+  edges: undefined,
+  progressBarId: undefined,
+  progressTextId: undefined,
 
   schemaIsCompatible: function(graphSchema, sylvaSchema){
     // Each nodetype in graphSchema exists in sylva schema
@@ -27,8 +33,6 @@ var Importer = {
     // Each allowedtype in graphSchema exists in graph schema
     $.each(graphSchema.allowedEdges, function(index, value){
       if (!sylvaSchema.allowedEdges.hasOwnProperty(index)){
-        console.log(sylvaSchema.allowedEdges);
-        console.log(index, " no esta");
         Importer.error("Edge", value);
         compatible = false;
         return false;
@@ -54,22 +58,84 @@ var Importer = {
 
   addNode: function(nodeName, nodeData){
     var nodeType = nodeData.type;
-    delete nodeData.position;
-    delete nodeData.type;
-    nodeData.nameLabel = nodeName;
-    var properties = JSON.stringify(nodeData);
+    var properties = {};
+    $.each(nodeData, function(index, value){
+      properties[index] = value;
+    });
+    delete properties.position;
+    delete properties.type;
+    properties.nameLabel = nodeName;
+    var nodeKey = nodeName + '_' + nodeType;
 
     $.ajax({
       url: Importer.addNodeURL,
       data: {
         type: nodeType,
-        properties: properties
+        properties: JSON.stringify(properties)
       },
-      success: function(){
+      success: function(response){
+        response = JSON.parse(response);
         Importer.counter++;
-        $('#import-progress-text').text('Node ' + nodeName + ' added');
-        $('#import-progress-bar').attr('value', Importer.counter);
+        $(Importer.progressTextId).text('Node ' + nodeName + ' added');
+        $(Importer.progressBarId).attr('value', Importer.counter);
+        nodeData._id = response.id;
+        
+        // If all the nodes are inserted then we can start with the edges
+        if (Importer.counter == Object.keys(Importer.nodes).length){
+          $('body').trigger($.Event('endNodeInsertion'));
+        }
       },
+    });
+  },
+
+  addEdge: function(sourceName, edgeLabel, targetName){
+    $.ajax({
+      url: Importer.addRelationshipURL,
+      data: {
+        type: edgeLabel,
+        sourceId: Importer.nodes[sourceName]._id,
+        targetId: Importer.nodes[targetName]._id
+      },
+      success: function(response){
+        response = JSON.parse(response);
+        Importer.counter++;
+        var relationshipText = sourceName + ' -> ' + edgeLabel + ' -> ' + targetName;
+        $(Importer.progressTextId).text('Relationship ' + relationshipText + ' created.');
+        $(Importer.progressBarId).attr('value', Importer.counter);
+        if (Importer.counterMax === Importer.counter){
+          $('body').trigger($.Event('importFinished'));
+        }
+      }
+    });
+  },
+
+  addData: function(_nodes, _edges, _progressBarId, _progressTextId){
+    Importer.nodes = _nodes;
+    Importer.edges = _edges;
+    Importer.progressBarId = _progressBarId;
+    Importer.progressTextId = _progressTextId;
+    
+    // Progress bar initialization
+    Importer.counterMax = Object.keys(Importer.nodes).length + Importer.edges.length;
+    $(Importer.progressBarId).attr('max', Importer.counterMax);
+        ;
+
+    // Nodes import
+    $.each(Importer.nodes, function(index, value){
+      Importer.addNode(index, value);
+    });
+
+    // Edges import when nodes are done
+    $('body').bind('endNodeInsertion', function() {
+      $.each(Importer.edges, function(index, value){
+        Importer.addEdge(value.source, value.type, value.target);
+      });
+    });
+    
+    // Final message
+    $('body').bind('importFinished', function(){
+      $(Importer.progressTextId).text("Import process finished. Added " +
+            Importer.counter + " elements.");
     });
   }
 };
