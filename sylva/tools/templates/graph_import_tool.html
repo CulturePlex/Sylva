@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}
+{{ graph.name }}
+{% endblock %}
+
+{% block extra_scripts %}
+    <script src="{{ STATIC_PREFIX }}import_tool/js/graph-editor.js"></script>
+    <script src="{{ STATIC_PREFIX }}import_tool/js/sylva-importer.js"></script>
+    <script type="text/javascript">
+        var sylvaSchema = JSON.parse('{{ sylva_schema|safe }}');
+        Importer.addNodeURL = "{% url ajax_node_create graph.id %}";
+        Importer.addRelationshipURL = "{% url ajax_relationship_create graph.id %}";
+        jQuery(document).ready(function(){
+          GraphEditor.USES_DRAWER = false;
+          GraphEditor.init();
+
+          // First step
+          $('#second-step').hide();
+          $('#third-step').hide();
+
+          //Second step
+          $('body').bind('fileLoaded', function(){
+            $('#first-step').hide();
+            $('#second-step').show();
+
+            graphSchema = GraphEditor.loadSchema();
+            GraphEditor.schemaToList('sylva-schema-nodes',
+                  'sylva-schema-edges',
+                  sylvaSchema);
+
+            // Check imported schema is compatible with Sylva schema
+            if (Importer.schemaIsCompatible(graphSchema, sylvaSchema)) {
+              $('body').trigger($.Event('schemasValidated'));
+            }
+          });
+
+          //Third step
+          $('body').bind('schemasValidated', function(){
+            $('#second-step').hide();
+            $('#third-step').show();
+
+            var nodes = GraphEditor.getGraphNodesJSON();
+            var edges = GraphEditor.getGraphEdgesJSON();
+            Importer.addData(GraphEditor.getGraphNodesJSON(),
+                            GraphEditor.getGraphEdgesJSON(),
+                            '#import-progress-bar',
+                            '#import-progress-text');
+          });
+
+        });
+    </script>
+{% endblock %}
+
+{% block content_title %}
+<h2>{% trans "Graphs" %} » {{ graph.name|truncatewords_html:8 }} » {% trans "Import tool" %}</h2>
+{% endblock %}
+
+{% block content %}
+<div id="content2">
+    <div class="content2-second">
+ 
+        <div id="import-gexf">
+          <div id="first-step">
+            <p class="sylva-info">This tool allows to import data from a Gephi (GEXF)
+            file into Sylva. Load the file with the widget below this text to get 
+            started.
+            </p>
+            <label for="gexf-file">Import GEXF</label>
+            <input type="file" id="files" name="files[]" multiple  />
+            <div id="progress-bar">
+              <strong>Please wait while your graph data is loaded...</strong>
+            </div>
+          </div>
+          <div id="second-step">
+            <p id="second-step-info" class="sylva-info"></p>
+            <div style="float:left">
+              <h2>Your graph schema</h2>
+              <span class="graph-title">Node Types</span>
+              <ul id="graph-schema-nodes"></ul>
+              <span class="graph-title">Edge Types</span>
+              <ul id="graph-schema-edges"></ul>
+            </div>
+            <div style="float:right">
+              <h2>Sylva graph schema</h2>
+              <span class="graph-title">Node Types</span>
+              <ul id="sylva-schema-nodes"></ul>
+              <span class="graph-title">Edge Types</span>
+              <ul id="sylva-schema-edges"></ul>
+            </div>
+          </div>
+          <div id="third-step">
+            <progress id="import-progress-bar"></progress>
+            <p id="import-progress-text"></p>
+            <h2>Data Sumary</h2>
+            <h4>Nodes</h4>
+            <ul id="node-list"></ul>
+            <h4>Relationships</h4>
+            <ol id="edge-list"></ol>
+          </div>
+        </div>
+        <div id="sec-debug" style="display:none">
+          <h3>Graph Nodes Debug</h3>
+          <textarea id="id_graph_nodes" rows="10" cols="80" name="graph_nodes">{}</textarea>
+          <h3>Graph Edges Debug</h3>
+          <textarea id="id_graph_edges" rows="10" cols="80" name="graph_edges">[]</textarea>
+          <h3>Graph Schema Debug</h3>
+          <textarea id="id_graph_schema" rows="10" cols="80" name="graph_schema">{}</textarea>
+        </div>
+    </div>
+</div>
+{% endblock %}

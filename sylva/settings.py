@@ -175,6 +175,7 @@ INSTALLED_APPS = (
     'schemas',
     'engines',
     'accounts',
+    'tools',
 )
 
 AUTHENTICATION_BACKENDS = (
