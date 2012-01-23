@@ -307,7 +307,7 @@ class BlueprintsGraphDatabase(BaseGraphDatabase):
             edge = self.gdb.getEdge(_id)
             self.gdb.removeEdge(edge)
 
-    def __yield_relationships(self, relationships, include_properties):
+    def __yield_relationships(self, relationships, include_properties=False):
         for rel in relationships:
             if include_properties:
                 yield (rel.getId(), \
