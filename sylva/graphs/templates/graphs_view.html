@@ -25,8 +25,10 @@
 <div class="graph-visualization" id="graph-visualization">
     {% trans "Visualization" %}
     <div class="not-available">
-    {% blocktrans %}
-    Sorry, the graph visualization feature is not available yet. Please, try to <a title="Download as .gexf" href="#">download</a> as a <a href="http://gephi.org/" title="Gephi, The Open Graph Visualization Platform">Gephi</a> file.
+    {% blocktrans with graph.id as graph_id %}
+    Sorry, the graph visualization feature is not available yet. Please, try to 
+    <a title="Download as .gexf" href="/tools/{{ graph_id }}/export/">download</a> 
+    as a <a href="http://gephi.org/" title="Gephi, The Open Graph Visualization Platform">Gephi</a> file.
     {% endblocktrans %}
     </div>
 </div>

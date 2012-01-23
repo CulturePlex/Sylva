@@ -10,6 +10,8 @@ from guardian.decorators import permission_required
 from data.models import Data
 from graphs.models import Graph
 
+from converters import GEXFConverter
+
 
 @login_required()
 def graph_import_tool(request, graph_id):
@@ -54,3 +56,18 @@ def ajax_relationship_create(request, graph_id):
     properties = {}
     graph.relationships.create(source, target, label, properties)
     return HttpResponse(simplejson.dumps({}))
+
+
+@permission_required("data.view_data", (Data, "graph__id", "graph_id"))
+def graph_export_tool(request, graph_id):
+    graph = get_object_or_404(Graph, id=graph_id)
+    converter = GEXFConverter(graph)
+    response_data = converter.export()
+    response = HttpResponse(mimetype='application/xml')
+    response['Content-Disposition'] = 'attachment; filename=graph.gexf'
+    response.write(response_data)
+    return response
+
+
+
+
