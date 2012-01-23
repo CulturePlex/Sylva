@@ -430,8 +430,8 @@ class Relationship(BaseElement):
         del self._properties[key]
 
     def _get_source(self):
-        node_id = self.gdb.get_relationship_source(self.id)
-        return Node(self.graph, node_id)
+        node_id, properties = self.gdb.get_relationship_source(self.id)
+        return Node(node_id, self.graph, properties)
 
     def _set_source(self, node):
         self.gdb.set_relationship_source(self.id, node.id)
@@ -439,8 +439,8 @@ class Relationship(BaseElement):
     source = property(_get_source, _set_source)
 
     def _get_target(self):
-        node_id = self.gdb.get_relationship_target(self.id)
-        return Node(self.graph, node_id)
+        node_id, properties = self.gdb.get_relationship_target(self.id)
+        return Node(node_id, self.graph, properties)
 
     def _set_target(self, node):
         self.gdb.set_relationship_target(self.id, node.id)
