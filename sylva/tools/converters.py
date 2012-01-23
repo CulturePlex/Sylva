@@ -1,0 +1,98 @@
+import datetime
+import simplejson
+
+
+class BaseConverter(object):
+
+    html_codes = (
+        ('&', '&amp;'),
+        ('<', '&lt;'),
+        ('>', '&gt;'),
+        ('"', '&quot;'),
+        ("'", '&#39;'),
+    )
+    
+    def __init__(self, graph):
+        self.graph = graph
+
+
+    def encode_html(self, value):
+        if isinstance(value, basestring):
+            for replacement in self.html_codes:
+                value = value.replace(replacement[0], replacement[1])
+        return value
+
+class GEXFConverter(BaseConverter):
+    " Converts a Sylva neo4j graph to GEXF 1.2"
+
+    def export(self):
+        today = datetime.datetime.now()
+        date = "%s-%s-%s" % (today.year, today.month, today.day)
+        attribute_counter = 0
+        node_attributes = {}
+        edge_attributes = {}
+        nodes = ''
+        for node in self.graph.nodes.all():
+            nodes += """
+                <node id="%s" label="%s">
+                <attvalues>""" % (node.id, node.label)
+            for key, value in node.properties.iteritems():
+                if key not in node_attributes:
+                    node_attributes[key] = attribute_counter
+                    attribute_counter += 1
+                nodes += """
+                    <attvalue for="%s" value="%s"/>""" % (node_attributes[key],
+                            self.encode_html(value))
+            nodes += """
+                </attvalues>
+                </node>"""
+        attribute_counter = 0
+        edges = ''
+        for edge in self.graph.relationships.all():
+            edges += """
+                <edge id="%s" source="%s" target="%s" label="%s">
+                <attvalues>""" % (edge.id, 
+                        edge.source.id,
+                        edge.target.id,
+                        edge.label)
+            for key, value in edge.properties.iteritems():
+                if key not in edge_attributes:
+                    edge_attributes[key] = attribute_counter
+                    attribute_counter += 1
+                edges += """
+                    <attvalue for="%s" value="%s"/>""" % (edge_attributes[key],
+                            self.encode_html(value))
+            edges += """
+                </attvalues>
+                </edge>"""
+        node_attributes_xml = ''
+        for key, value in node_attributes.iteritems():
+            node_attributes_xml += """
+                <attribute id="%s" title="%s" type="string"/>""" % (value,
+                        key)
+        edge_attributes_xml = ''
+        for key, value in edge_attributes.iteritems():
+            edge_attributes_xml += """
+                <attribute id="%s" title="%s" type="string"/>""" % (value,
+                        key)
+        gephi_format = """<?xml version="1.0" encoding="UTF-8"?> 
+<gexf xmlns="http://www.gexf.net/1.2draft" xmlns:viz="http://www.gexf.net/1.2draft/viz" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.gexf.net/1.2draft http://www.gexf.net/1.2draft/gexf.xsd" version="1.2"> 
+    <meta lastmodifieddate="%s"> 
+        <creator>Sylva</creator> 
+        <description>A Sylva exported file</description> 
+    </meta> 
+    <graph mode="static" defaultedgetype="directed"> 
+        <attributes class="node">
+            %s
+        </attributes>
+        <attributes class="edge">
+            %s
+        </attributes>
+        <nodes>%s
+        </nodes> 
+        <edges>%s
+        </edges> 
+    </graph> 
+</gexf>""" % (date, node_attributes_xml, edge_attributes_xml, nodes, edges)
+        return gephi_format
+
