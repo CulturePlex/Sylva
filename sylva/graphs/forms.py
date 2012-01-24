@@ -37,11 +37,13 @@ class AddCollaboratorForm(forms.Form):
                         widget=forms.Select(attrs={'class': 'chzn-select'}))
                             
     def __init__(self, *args, **kwargs):
+        anonymous_name = _("Any User")
         graph = kwargs.pop("graph", None)
         collaborators = kwargs.pop("collaborators", [])
         super(AddCollaboratorForm, self).__init__(*args, **kwargs)
         if graph:
-            no_collaborators = [(u.id, u.username) \
-                    for u in User.objects.all() \
-                    if u != graph.owner and u not in collaborators]
+            no_collaborators = [
+                (u.id, ((u.id != -1) and u.username or anonymous_name)) \
+                for u in User.objects.all() \
+                if u != graph.owner and u not in collaborators]
             self.fields["new_collaborator"].choices = no_collaborators
