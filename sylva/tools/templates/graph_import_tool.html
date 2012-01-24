@@ -17,6 +17,7 @@
           GraphEditor.init();
 
           // First step
+          $('#validation-controls').hide();
           $('#second-step').hide();
           $('#third-step').hide();
 
@@ -24,21 +25,33 @@
           $('body').bind('fileLoaded', function(){
             $('#first-step').hide();
             $('#second-step').show();
+            $('#validation-controls').show();
 
-            graphSchema = GraphEditor.loadSchema();
             GraphEditor.schemaToList('sylva-schema-nodes',
                   'sylva-schema-edges',
                   sylvaSchema);
 
-            // Check imported schema is compatible with Sylva schema
-            if (Importer.schemaIsCompatible(graphSchema, sylvaSchema)) {
-              $('body').trigger($.Event('schemasValidated'));
-            }
+            $('#check-schema-btn').click(function(){
+              // Load schema data with selected labels
+              graphSchema = GraphEditor.loadSchema(
+                $('#node-type-label').val(),
+                $('#edge-type-label').val()
+              );
+
+              // Check imported schema is compatible with Sylva schema
+              if (Importer.schemaIsCompatible(graphSchema, sylvaSchema)) {
+                $('#check-schema-btn').text('Start import process');
+                $('#check-schema-btn').click(function(){
+                  $('body').trigger($.Event('schemasValidated'));
+                });
+              }
+            });
           });
 
           //Third step
           $('body').bind('schemasValidated', function(){
             $('#second-step').hide();
+            $('#validation-controls').hide();
             $('#third-step').show();
 
             var nodes = GraphEditor.getGraphNodesJSON();
@@ -59,8 +72,15 @@
 
 {% block content %}
 <div id="content2">
+    <div class="content2-first" id="validation-controls">
+      <label for="node-type-label">Node type label</label>
+      <input id="node-type-label" value="type" type="text" />
+      <label for="edge-type-label">Relationship type label</label>
+      <input id="edge-type-label" value="type" type="text" />
+      <button id="check-schema-btn">Validate schema</button>
+    </div>
+    <div class="content-divider"></div>
     <div class="content2-second">
- 
         <div id="import-gexf">
           <div id="first-step">
             <p class="sylva-info">This tool allows to import data from a Gephi (GEXF)

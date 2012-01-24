@@ -19,6 +19,8 @@ var GraphEditor = {
   graphEdgesId: "id_graph_edges",
   progressBarId: "progress-bar",
 
+  schema: null,
+
   progressBar: {
     show: function() {
       $('#'+GraphEditor.progressBarId).show();
@@ -246,23 +248,27 @@ var GraphEditor = {
     });
   },
 
-  loadSchema: function(){
+  loadSchema: function(nodeTypeLabel, edgeTypeLabel){
+    var nodeTypeLabel = (nodeTypeLabel === undefined) ? "atype" : nodeTypeLabel;
+    var edgeTypeLabel = (edgeTypeLabel === undefined) ? "type" : edgeTypeLabel;
     // Introspect graph schema
     var nodes = this.getGraphNodesJSON();
     var nodeTypes = {};
     $.each(nodes, function(index, item){
-      if (!nodeTypes.hasOwnProperty(item.type)) {
-        nodeTypes[item["type"]] = {};
+      if (!nodeTypes.hasOwnProperty(item[nodeTypeLabel])) {
+        nodeTypes[item[nodeTypeLabel]] = {};
       }
     });
     var edgeTypes = {}
     $.each(this.getGraphEdgesJSON(), function(index, item){
-      var edgeLabel = nodes[item.source].type + "_" + item.type + "_" + nodes[item.target].type;
+      var edgeLabel = nodes[item.source].type + "_" +
+          item[edgeTypeLabel] +
+          "_" + nodes[item.target].type;
       if (!edgeTypes.hasOwnProperty(edgeLabel)){
         edgeTypes[edgeLabel] = {
-          source: nodes[item.source].type,
-          label: item.type,
-          target: nodes[item.target].type
+          source: nodes[item.source][nodeTypeLabel],
+          label: item[edgeTypeLabel],
+          target: nodes[item.target][nodeTypeLabel]
         };
       }
     });
@@ -270,6 +276,7 @@ var GraphEditor = {
       nodeTypes: nodeTypes,
       allowedEdges: edgeTypes
     }
+    this.schema = schema;
     this.schemaToList('graph-schema-nodes',
                       'graph-schema-edges',
                       schema);
