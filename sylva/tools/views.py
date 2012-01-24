@@ -42,7 +42,7 @@ def ajax_node_create(request, graph_id):
     data = request.GET.copy()
     properties = simplejson.loads(data["properties"])
     label = graph.schema.nodetype_set.get(name=data["type"])
-    node = graph.nodes.create(label.name, properties)
+    node = graph.nodes.create(str(label.id), properties)
     return HttpResponse(simplejson.dumps({"id": node.id}))
 
 
@@ -52,9 +52,11 @@ def ajax_relationship_create(request, graph_id):
     data = request.GET.copy()
     source = graph.nodes.get(data["sourceId"])
     target = graph.nodes.get(data["targetId"])
-    label = data["type"]
+    label = graph.schema.relationshiptype_set.get(name=data["type"],
+            source=source.label,
+            target=target.label)
     properties = {}
-    graph.relationships.create(source, target, label, properties)
+    graph.relationships.create(source, target, str(label.id), properties)
     return HttpResponse(simplejson.dumps({}))
 
 
