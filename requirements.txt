@@ -17,3 +17,4 @@ requests==0.8.2
 simplejson==2.2.1
 sorl-thumbnail==11.09.1
 wsgiref==0.1.2
+celery==2.4.6
