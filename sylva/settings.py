@@ -176,6 +176,9 @@ INSTALLED_APPS = (
     'engines',
     'accounts',
     'tools',
+    'celery',
+    'djcelery',
+    'djkombu',
 )
 
 AUTHENTICATION_BACKENDS = (
@@ -230,3 +233,13 @@ ACCOUNT_FREE = {
     "storage": 10,
     "queries": 10,
 }
+
+# DJANGO_ORM_CELERY SETTINGS
+BROKER_URL = "django://"
+
+# RABBITMQ/CELERY SETTINGS
+#BROKER_HOST = "localhost"
+#BROKER_PORT = 5672
+#BROKER_USER = "sylva"
+#BROKER_PASSWORD = "sylva"
+#BROKER_VHOST = "myvhost"
