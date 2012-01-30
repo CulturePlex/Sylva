@@ -79,10 +79,10 @@
             $("div#{{ prefix }}").formset({
                 prefix: "{{ prefix }}",
                 addCssClass: "button addButton",
-                addText: "{% trans "New" %} {{ prefix|capfirst }}",
+                addText: "{% trans "Add" %} {{ prefix|capfirst }}".replace("_", " "),
                 extraClasses: ["row1", "row2"],
                 added: function(row) {$("#{{prefix}} p:last label").hide();},
-                deleteText: "{% trans "Remove Relationship" %} {{ prefix|capfirst }}"
+                deleteText: "{% trans "Remove Relationship" %} {{ prefix|capfirst }}".replace("_", " ")
             });
         };
         $("#{{prefix}} p:last label").hide();
@@ -93,7 +93,7 @@
             $("div#__files").formset({
                 prefix: "__files",
                 addCssClass: "button addButton",
-                addText: "{% trans "New File" %}",
+                addText: "{% trans "Add File" %}",
                 extraClasses: ["row1", "row2"],
                 added: function(row) {$("#__files p:last label").hide();},
                 deleteText: "{% trans "Remove File" %}"
@@ -105,7 +105,7 @@
             $("div#__links").formset({
                 prefix: "__links",
                 addCssClass: "button addButton",
-                addText: "{% trans "New Link" %}",
+                addText: "{% trans "Add Link" %}",
                 extraClasses: ["row1", "row2"],
                 added: function(row) {$("#__links p:last label").hide();},
                 deleteText: "{% trans "Remove Link" %}"

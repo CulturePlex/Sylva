@@ -85,7 +85,7 @@ def nodes_create(request, graph_id, node_type_id):
                                                   formset=TypeBaseFormSet,
                                                   can_delete=True,
                                                   extra=1)
-        formset_prefix = slugify(relationship.name)
+        formset_prefix = slugify(relationship.name).replace("-", "_")
         relationship_formset = RelationshipFormSet(itemtype=relationship,
                                                    prefix=formset_prefix,
                                                    data=data)
