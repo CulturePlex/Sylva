@@ -52,5 +52,18 @@
             {% block content_bottom_bar %}{% endblock %}
         </div>
     </div>
+{% empty %}
+    {% block empty_for %}
+        <a class="button" href="{% url schema_nodetype_create graph.id %}">{% trans "New Type" %}</a>
+        <span class="buttonLinkOption">
+        {% trans "There are no types defined yet" %}.
+        </span>
+    {% endblock %}
 {% endfor %}
+    {% if graph.data.total_nodes == 0 and graph.data.total_relationships == 0 %}
+        <a class="button" href="{% url import_tool graph.id %}">{% trans "Import" %}</a>
+        <span class="buttonLinkOption">
+            {% trans "Import a graph in GEXF format, or nodes and relationships in CSV format" %}.
+        </span>
+    {% endif %}
 {% endblock %}

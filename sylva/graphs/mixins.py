@@ -342,7 +342,7 @@ class BaseElement(object):
             properties_values = self._properties.values()[:5]
             for i in range(len(properties_values)):
                 if properties_values[i]:
-                    properties_to_display.append(properties_values[i])
+                    properties_to_display.append(unicode(properties_values[i]))
             if properties_to_display:
                 return (u" %s " % separator).join(properties_to_display)
             else:

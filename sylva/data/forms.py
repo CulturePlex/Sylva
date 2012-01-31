@@ -26,7 +26,7 @@ class ItemForm(forms.Form):
 
     def populate_node_properties(self, itemtype, initial=None):
         # Node properties
-        for item_property in itemtype.properties.all():
+        for item_property in itemtype.properties.all().order_by("order"):
             datatype_dict = item_property.get_datatype_dict()
             label = item_property.key
             # TODO: Fix the required value rendering

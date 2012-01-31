@@ -529,6 +529,14 @@ form {
     font-weight: bold;
 }
 
+#content3 a.delete-row {
+    background: url(../img/recycle-full.png) no-repeat center 15px;
+    height: 45px;
+    display: block;
+    padding: 0 0 0 2px;
+    font-weight: bold;
+}
+
 
 .content2-first ul.errorlist li {
     margin-right: 26px;

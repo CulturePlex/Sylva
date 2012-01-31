@@ -28,3 +28,10 @@
                 Add new {{ relationship_type }} relationship
             {% endblocktrans %}</a>
 {% endblock %}
+
+{% block empty_for %}
+<a class="button" href="{% url schema_nodetype_create graph.id %}">{% trans "New Type" %}</a>
+<span class="buttonLinkOption">
+{% trans "or" %} <a href="{% url schema_relationshiptype_create graph.id %}">{% trans "Allowed Relationship" %}</a>.
+{% trans "There are no types or no allowed relationships defined yet" %}.
+{% endblock %}

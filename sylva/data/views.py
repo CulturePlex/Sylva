@@ -21,7 +21,7 @@ def create_data(properties, data_list):
     for element in data_list:
         row = []
         for p in properties:
-            row.append(element.get(p))
+            row.append(element.get(p, ""))
         data.append(row)
     return data
 
