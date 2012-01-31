@@ -66,10 +66,8 @@ def ajax_relationship_create(request, graph_id):
 def graph_export_tool(request, graph_id):
     graph = get_object_or_404(Graph, id=graph_id)
     converter = GEXFConverter(graph)
-    response_data = converter.export()
-    response = HttpResponse(mimetype='application/xml')
+    response = HttpResponse(converter.stream_export(), mimetype='application/xml')
     response['Content-Disposition'] = 'attachment; filename=graph.gexf'
-    response.write(response_data)
     return response
 
 
