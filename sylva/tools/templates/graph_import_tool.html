@@ -23,7 +23,6 @@
 
           //Second step
           $('body').bind('fileLoaded', function(){
-            $('#first-step').hide();
             $('#second-step').show();
             $('#validation-controls').show();
 
@@ -32,24 +31,38 @@
                   sylvaSchema);
 
             $('#check-schema-btn').click(function(){
+              $('#check-schema-btn').unbind();
               // Load schema data with selected labels
-              graphSchema = GraphEditor.loadSchema(
+              Importer.graphSchema = GraphEditor.loadSchema(
                 $('#node-type-label').val(),
                 $('#edge-type-label').val()
               );
 
               // Check imported schema is compatible with Sylva schema
-              if (Importer.schemaIsCompatible(graphSchema, sylvaSchema)) {
-                $('#check-schema-btn').text('Start import process');
+              if (Importer.schemaIsCompatible(sylvaSchema)) {
+                $('#check-schema-btn').text('Start matching process');
                 $('#check-schema-btn').click(function(){
-                  $('body').trigger($.Event('schemasValidated'));
+                  $('#check-schema-btn').unbind();
+                  $('body').trigger($.Event('schemasAccepted'));
                 });
               }
             });
           });
 
-          //Third step
-          $('body').bind('schemasValidated', function(){
+          
+          // Node Types matching validation
+          var importController = $('#import-controller');
+          $('body').bind('schemasAccepted', function(){
+            $('#first-step').hide();
+            Importer.validateNodes(importController);
+          });
+
+          // Relationship Types matching validation
+          $('body').bind('nodesValidated', function(){
+            Importer.validateRelationships(importController);
+          });
+
+          $('body').bind('edgesValidated', function(){
             $('#second-step').hide();
             $('#validation-controls').hide();
             $('#third-step').show();
@@ -71,28 +84,31 @@
 {% endblock %}
 
 {% block content %}
-<div id="content2">
+  <div id="content2">
+    <div id="first-step">
+      <p class="sylva-info">This tool allows to import data from a Gephi (GEXF)
+        file into Sylva. Load the file with the widget below this text to get 
+        started.
+      </p>
+      <label for="gexf-file">Import GEXF</label>
+      <input type="file" id="files" name="files[]" multiple  />
+      <div id="progress-bar">
+        <strong>Please wait while your graph data is loaded...</strong>
+      </div>
+    </div>
+    <hr/>
     <div class="content2-first" id="validation-controls">
-      <label for="node-type-label">Node type label</label>
-      <input id="node-type-label" value="type" type="text" />
-      <label for="edge-type-label">Relationship type label</label>
-      <input id="edge-type-label" value="type" type="text" />
+      <div id="import-controller">
+        <label for="node-type-label">Node type label</label>
+        <input id="node-type-label" value="type" type="text" />
+        <label for="edge-type-label">Relationship type label</label>
+        <input id="edge-type-label" value="type" type="text" />
+      </div>
       <button id="check-schema-btn">Validate schema</button>
     </div>
     <div class="content-divider"></div>
     <div class="content2-second">
         <div id="import-gexf">
-          <div id="first-step">
-            <p class="sylva-info">This tool allows to import data from a Gephi (GEXF)
-            file into Sylva. Load the file with the widget below this text to get 
-            started.
-            </p>
-            <label for="gexf-file">Import GEXF</label>
-            <input type="file" id="files" name="files[]" multiple  />
-            <div id="progress-bar">
-              <strong>Please wait while your graph data is loaded...</strong>
-            </div>
-          </div>
           <div id="second-step">
             <p id="second-step-info" class="sylva-info"></p>
             <div style="float:left">
@@ -104,6 +120,7 @@
             </div>
             <div style="float:right">
               <h2>Sylva graph schema</h2>
+              <div id="sylva-schema"></div>
               <span class="graph-title">Node Types</span>
               <ul id="sylva-schema-nodes"></ul>
               <span class="graph-title">Edge Types</span>

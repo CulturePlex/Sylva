@@ -192,6 +192,10 @@ var GraphEditor = {
     });
   },
 
+  edgeText: function(sourceLabel, targetLabel, typeLabel){
+    return sourceLabel + ' -> ' + targetLabel + ' (' + typeLabel + ')';
+  },
+
   loadGEXF: function(){
         function handleFileSelect(evt) {
         GraphEditor.progressBar.show();
@@ -243,20 +247,33 @@ var GraphEditor = {
     });
     //Set edges
     $.each(this.getGraphEdgesJSON(), function(index, item){
-      var edgeText = item.source + " -> " + item.target + " (" + item.type + ")";
+      var edgeText = GraphEditor.edgeText(item.source, item.target, item.type);
       GraphEditor.addEdgeToList(edgeText);
     });
   },
 
   loadSchema: function(nodeTypeLabel, edgeTypeLabel){
-    var nodeTypeLabel = (nodeTypeLabel === undefined) ? "atype" : nodeTypeLabel;
+    var nodeTypeLabel = (nodeTypeLabel === undefined) ? "type" : nodeTypeLabel;
     var edgeTypeLabel = (edgeTypeLabel === undefined) ? "type" : edgeTypeLabel;
     // Introspect graph schema
     var nodes = this.getGraphNodesJSON();
     var nodeTypes = {};
+    var nodeTypeProperties;
     $.each(nodes, function(index, item){
+
+      // Node properties
+      nodeTypeProperties = {_nameLabel: {}};
+      $.each(item, function(pIndex, pValue){
+        if (pIndex !== nodeTypeLabel && pIndex !== "position"){
+          nodeTypeProperties[pIndex] = {};
+        }
+      });
       if (!nodeTypes.hasOwnProperty(item[nodeTypeLabel])) {
-        nodeTypes[item[nodeTypeLabel]] = {};
+        nodeTypes[item[nodeTypeLabel]] = nodeTypeProperties;
+      } else {
+        $.each(nodeTypeProperties, function(pIndex, pValue){
+          nodeTypes[item[nodeTypeLabel]][pIndex] = {};
+        });
       }
     });
     var edgeTypes = {}
@@ -285,14 +302,30 @@ var GraphEditor = {
   },
 
   schemaToList: function(nodeElement, edgeElement, schema){
-    var list = document.getElementById(nodeElement);
+    var elementType, elementAttributes, edgeText;
+    // NodeType list
     $.each(schema.nodeTypes, function(index, value){
-      GraphEditor.addElementToList(index, list);
+      // NodeType attributes
+      elementAttributes = $('<ul>');
+      $.each(value, function(index2, value2){
+        elementAttributes.append(
+          $('<li>').append(index2));
+      });
+      // NodeType element
+      elementType = $('<li>');
+      elementType.append(index);
+      elementType.append(elementAttributes);
+      $('#'+nodeElement).append(elementType);
     });
-    var list = document.getElementById(edgeElement);
+
+
+    // RelationshipType list
     $.each(schema.allowedEdges, function(index, value){
-      var edgeText = value.source + " -> " + value.target + " (" + value.label + ")";
-      GraphEditor.addElementToList(edgeText, list);
+      // RelationshipType element
+      elementType = $('<li>');
+      edgeText = GraphEditor.edgeText(value.source, value.target, value.label);
+        elementType.append(edgeText);
+        $('#'+edgeElement).append(elementType);
     });
   },
 
