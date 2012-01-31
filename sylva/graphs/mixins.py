@@ -157,7 +157,7 @@ class RelationshipsManager(BaseManager):
 
     def iterator(self):
         eltos = self.gdb.get_all_relationships(include_properties=True)
-        for relationship_id, relationship_properties in eltos.iteritems():
+        for relationship_id, relationship_properties in eltos:
             relationship = Relationship(relationship_id, self.graph,
                                         properties=relationship_properties)
             yield relationship
