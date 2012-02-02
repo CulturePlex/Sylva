@@ -142,15 +142,24 @@ var Importer = {
 
   validateNodes: function(importController){
     importController.empty();
+    var nodeAttributes;
     var nodeMatcher = $('<select>').append($('<option>'));
     $.each(Importer.graphSchema.nodeTypes, function(item, value){
       nodeMatcher
         .append($('<option>')
           .attr('value', item)
             .append(item));
+      nodeAttributes = $('<select>').append($('<option>'));
+      $.each(value, function(attribute){
+        nodeAttributes
+          .append($('<option>')
+            .attr('value', attribute)
+              .append(attribute));
+      });
     });
 
     var selectId;
+    var selectedAtttributeId;
     $.each(sylvaSchema.nodeTypes, function(item, value){
       selectId = item + '_matcher';
       importController
@@ -162,6 +171,16 @@ var Importer = {
         .append(nodeMatcher.clone()
           .attr('id', selectId)
         );
+      $.each(value, function(attribute){
+        selectedAtttributeId = attribute + '_' + selectId;
+        importController
+          .append($('<label>')
+            .attr('for', selectedAtttributeId)
+              .append(item + ':' + attribute));
+        importController
+          .append(nodeAttributes.clone()
+            .attr('id', selectedAtttributeId));
+      });
     });
 
     $('#check-schema-btn').text('Validate node types matching');
