@@ -160,6 +160,8 @@ var Importer = {
 
     var selectId;
     var selectedAtttributeId;
+    
+    // Draw nodeType matching selectors
     $.each(sylvaSchema.nodeTypes, function(item, value){
       selectId = item + '_matcher';
       importController
@@ -171,6 +173,11 @@ var Importer = {
         .append(nodeMatcher.clone()
           .attr('id', selectId)
         );
+
+      // Autoselect value if matches the label
+      $('#'+selectId).val(item);
+
+      // Type attributes management
       $.each(value, function(attribute){
         selectedAtttributeId = attribute + '_' + selectId;
         importController
