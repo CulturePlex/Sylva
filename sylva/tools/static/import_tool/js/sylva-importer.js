@@ -60,12 +60,13 @@ var Importer = {
   addNode: function(nodeName, nodeData){
     var nodeType = Importer.matching.nodeTypes[nodeData.type];
     var properties = {};
-    $.each(nodeData, function(index, value){
-      properties[index] = value;
+    $.each(Importer.matching.nodeAttributes[nodeType], function(index, value){
+      if (value === '_nameLabel'){
+        properties[index] = nodeName;
+      } else {
+        properties[index] = nodeData[value];
+      }
     });
-    delete properties.position;
-    delete properties.type;
-    properties.nameLabel = nodeName;
     var nodeKey = nodeName + '_' + nodeType;
 
     $.ajax({
@@ -141,6 +142,9 @@ var Importer = {
   },
 
   validateNodes: function(importController){
+    
+    Importer.matching.nodeAttributeWidgets = {};
+    
     importController.empty();
     var nodeAttributes;
     var nodeMatcher = $('<select>').append($('<option>'));
@@ -156,11 +160,16 @@ var Importer = {
             .attr('value', attribute)
               .append(attribute));
       });
+      
+      // Store nodeType attributes selectors
+      Importer.matching.nodeAttributeWidgets[item] = nodeAttributes.clone();
+   
     });
 
     var selectId;
     var selectedAtttributeId;
-    
+
+
     // Draw nodeType matching selectors
     $.each(sylvaSchema.nodeTypes, function(item, value){
       selectId = item + '_matcher';
@@ -173,10 +182,7 @@ var Importer = {
         .append(nodeMatcher.clone()
           .attr('id', selectId)
         );
-
-      // Autoselect value if matches the label
-      $('#'+selectId).val(item);
-
+      
       // Type attributes management
       $.each(value, function(attribute){
         selectedAtttributeId = attribute + '_' + selectId;
@@ -185,18 +191,35 @@ var Importer = {
             .attr('for', selectedAtttributeId)
               .append(item + ':' + attribute));
         importController
-          .append(nodeAttributes.clone()
+          .append($('<select>')
             .attr('id', selectedAtttributeId));
       });
+
+      // Bind change event to reload attributes selector
+      $('#'+selectId).change(function(evt){
+        var query = 'select[id$=_' + evt.target.id + ']';
+        var widget = Importer.matching.nodeAttributeWidgets[evt.target.value];
+        $(query).html(widget.html());
+      });
+
+      // Autoselect value if matches the label
+      var oldVal = $('#'+selectId).val();
+      $('#'+selectId).val(item);
+      var newVal = $('#'+selectId).val();
+      if (newVal !== oldVal){
+        $('#'+selectId).trigger('change');
+      }
+
     });
 
     $('#check-schema-btn').text('Validate node types matching');
     $('#check-schema-btn').click(function(){
-      var selectedValue;
+      var selectedValue, selectedAttribute, attSelector;
       var validates = true;
       Importer.matching["nodeTypes"] = {};
+      Importer.matching["nodeAttributes"] = {};
       $.each(sylvaSchema.nodeTypes, function(item, value){
-        selectedValue = $('#'+item+'_matcher').val()
+        selectedValue = $('#'+item+'_matcher').val();
         if (selectedValue === ""){
           alert("ERROR: NodeType does not match: " + item);
           validates = false;
@@ -204,6 +227,21 @@ var Importer = {
         } else {
           Importer.matching.nodeTypes[item] = selectedValue;
         }
+
+        // Attributes
+        Importer.matching.nodeAttributes[item] = {};
+        $.each(value, function(attribute){
+          attSelector = '#' + attribute + '_' + item + '_matcher';
+          selectedAttribute = $(attSelector).val();
+          if (selectedAttribute === ""){
+            alert("ERROR: NodeType attribute does not match: " + attribute);
+            validates = false;
+            return false;
+          } else {
+            Importer.matching.nodeAttributes[item][attribute] = selectedAttribute;
+          }
+        });
+
       });
       if (validates) {
         $('#check-schema-btn').unbind();
