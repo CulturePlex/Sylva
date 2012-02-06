@@ -133,7 +133,6 @@ def relationships_list(request, graph_id):
                     True)
         columns = ["source", "target"]
         columns.extend(properties)
-        print columns
         data_preview.append([type_element.name,
             columns,
             data,
@@ -152,9 +151,12 @@ def relationships_list_full(request, graph_id, relationship_type_id):
     data_preview = []
     properties = [p.key for p in type_element.properties.all()]
     data = create_data(properties,
-                graph.relationships.filter(label=type_element.id))
+                graph.relationships.filter(label=type_element.id),
+                True)
+    columns = ["source", "target"]
+    columns.extend(properties)
     data_preview.append([type_element.name,
-        properties,
+        columns,
         data,
         type_element.id])
     return render_to_response('nodes_list.html',
