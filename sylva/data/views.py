@@ -18,11 +18,14 @@ from graphs.models import Graph
 from schemas.models import NodeType
 
 
-def create_data(properties, data_list):
+def create_data(properties, data_list, add_edge_extras=False):
     data = []
     #TODO In the preview we must cut the number of nodes better
     for element in data_list:
         row = []
+        if add_edge_extras:
+            row.append(element.source.id)
+            row.append(element.target.id)
         for p in properties:
             row.append(element.get(p, ""))
         row.append(element.id)
@@ -126,9 +129,13 @@ def relationships_list(request, graph_id):
     for type_element in graph.schema.relationshiptype_set.all():
         properties = [p.key for p in type_element.properties.all()]
         data = create_data(properties,
-                    graph.relationships.filter(label=type_element.id)[:5])
+                    graph.relationships.filter(label=type_element.id)[:5],
+                    True)
+        columns = ["source", "target"]
+        columns.extend(properties)
+        print columns
         data_preview.append([type_element.name,
-            properties,
+            columns,
             data,
             type_element.id])
     return render_to_response('relationships_list.html',
