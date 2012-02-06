@@ -85,26 +85,28 @@
 
 {% block content %}
   <div id="content2">
-    <div id="first-step">
-      <p class="sylva-info">This tool allows to import data from a Gephi (GEXF)
-        file into Sylva. Load the file with the widget below this text to get 
-        started.
-      </p>
-      <label for="gexf-file">Import GEXF</label>
-      <input type="file" id="files" name="files[]" multiple  />
-      <div id="progress-bar">
-        <strong>Please wait while your graph data is loaded...</strong>
+    <div class="content2-first">
+      <div id="first-step">
+        <p class="sylva-info">This tool allows to import data from a Gephi (GEXF)
+          file into Sylva. Load the file with the widget below this text to get 
+          started.
+        </p>
+        <label for="gexf-file">Import GEXF</label>
+        <input type="file" id="files" name="files[]" multiple  />
+        <div id="progress-bar">
+          <strong>Please wait while your graph data is loaded...</strong>
+        </div>
       </div>
-    </div>
-    <hr/>
-    <div class="content2-first" id="validation-controls">
-      <div id="import-controller">
-        <label for="node-type-label">Node type label</label>
-        <input id="node-type-label" value="type" type="text" />
-        <label for="edge-type-label">Relationship type label</label>
-        <input id="edge-type-label" value="type" type="text" />
+      <hr/>
+      <div id="validation-controls">
+        <div id="import-controller">
+          <label for="node-type-label">Node type label</label>
+          <input id="node-type-label" value="type" type="text" />
+          <label for="edge-type-label">Relationship type label</label>
+          <input id="edge-type-label" value="type" type="text" />
+        </div>
+        <button id="check-schema-btn">Validate schema</button>
       </div>
-      <button id="check-schema-btn">Validate schema</button>
     </div>
     <div class="content-divider"></div>
     <div class="content2-second">
