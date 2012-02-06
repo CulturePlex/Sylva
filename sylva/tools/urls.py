@@ -4,7 +4,7 @@ from django.conf.urls.defaults import patterns, include, url
 urlpatterns = patterns('tools.views',
     # import tool
     url(r'^(?P<graph_id>\d+)/import/$', 'graph_import_tool',
-        name="import_tool"),
+        name="tool_import"),
 
     # ajax creation methods
     url(r'^(?P<graph_id>\d+)/ajax-node/create/$', 
@@ -14,5 +14,5 @@ urlpatterns = patterns('tools.views',
 
     # export tool
     url(r'^(?P<graph_id>\d+)/export/$', 'graph_export_tool',
-        name="export_tool"),
+        name="tool_export"),
 )
