@@ -9,6 +9,18 @@
 {{ graph.name }}
 {% endblock %}
 
+{% block extra_scripts %}
+{{ block.super }}
+<script type="text/javascript">
+    var toggleColumn = function(selectId){
+        var value = $('#'+selectId).val();
+        var columnClass = selectId.replace('toggle_', '') + '_' + value;
+        $('.'+columnClass).toggle();
+        $('#'+selectId).val(0);
+    }
+</script>
+{% endblock %}
+
 {% block menu_buttons %}
 <li><a href="{% url graph_view graph.id %}" class="link"><span>{% trans "Graph" %}</span></a></li>
 <li><a href="{% url nodes_list graph.id %}" class="text"><span>{% trans "Nodes" %}</span></a></li>
@@ -33,10 +45,17 @@
         {% else %}
             <div id="lc_{{ forloop.counter }}" class="list_content">
         {% endif %}
+            <select id="toggle_{{ option.0 }}" onChange="toggleColumn('toggle_{{ option.0 }}')">
+                <option value="0">Select attribute to toggle visualization</option>
+                {% for key in option.1 %}
+                    <option value="{{ forloop.counter }}">{{ key }}</option>
+                {% endfor %}
+            </select>
+
             <table id="content_table">
                 <tr>
                     {% for key in option.1 %}
-                       <th>{{ key }}</th>
+                    <th class="{{ option.0 }}_{{ forloop.counter }}">{{ key }}</th>
                     {% endfor %}
                     <th>
                         {% block last_row_element_title %}
@@ -51,7 +70,7 @@
                                 {% block last_row_element %}{% endblock %}
                             </td>
                             {% else %}
-                                <td>{{ cell }}</td>
+                            <td class="{{ option.0 }}_{{ forloop.counter }}">{{ cell }}</td>
                             {% endif %}
                         {% endfor %}
                     </tr>
