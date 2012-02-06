@@ -14,6 +14,9 @@ urlpatterns = patterns('data.views',
         'nodes_create', name="nodes_create"),
     url(r'^(?P<graph_id>\d+)/nodes/(?P<node_type_id>\d+)/$', 
         'nodes_list_full', name="nodes_list_full"),
+    url(r'^(?P<graph_id>\d+)/node/(?P<node_id>\d+)/relationships/$', 
+        'node_relationships', name="node_relationships"),
+
 
     # list relationships
     url(r'^(?P<graph_id>\d+)/relationships/$', 'relationships_list',

@@ -38,11 +38,21 @@
                     {% for key in option.1 %}
                        <th>{{ key }}</th>
                     {% endfor %}
+                    <th>
+                        {% block last_row_element_title %}
+                        {% endblock %}
+                    </th>
                 </tr>
                 {% for row in option.2 %}
                     <tr>
                         {% for cell in row %}
-                            <td>{{ cell }}</td>
+                            {% if forloop.last %}
+                            <td>
+                                {% block last_row_element %}{% endblock %}
+                            </td>
+                            {% else %}
+                                <td>{{ cell }}</td>
+                            {% endif %}
                         {% endfor %}
                     </tr>
                 {% endfor %}

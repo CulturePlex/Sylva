@@ -1,7 +1,10 @@
 # -*- coding: utf-8 -*-
+import simplejson
+
 from django.core.urlresolvers import reverse
 from django.forms.formsets import formset_factory
-from django.shortcuts import render_to_response, redirect
+from django.shortcuts import (render_to_response,
+                        redirect, HttpResponse)
 from django.template import RequestContext
 from django.template.defaultfilters import slugify
 from django.shortcuts import get_object_or_404
@@ -22,6 +25,7 @@ def create_data(properties, data_list):
         row = []
         for p in properties:
             row.append(element.get(p, ""))
+        row.append(element.id)
         data.append(row)
     return data
 
@@ -150,3 +154,20 @@ def relationships_list_full(request, graph_id, relationship_type_id):
                               {"graph": graph,
                                   "option_list": data_preview},
                               context_instance=RequestContext(request))
+
+
+@permission_required("data.view_data", (Data, "graph__id", "graph_id"))
+def node_relationships(request, graph_id, node_id):
+    print node_id
+    graph = get_object_or_404(Graph, id=graph_id)
+    node = graph.nodes.get(int(node_id))
+    result = []
+    for r in node.relationships.incoming():
+        result.append({"node": r.source.id,
+                        "direction": "incoming",
+                        "label": r.label})
+    for r in node.relationships.outgoing():
+        result.append({"node": r.target.id,
+                        "direction": "outgoing",
+                        "label": r.label})
+    return HttpResponse(simplejson.dumps(result))

@@ -6,6 +6,43 @@
 <h2>{% trans "Graphs" %} » {{ graph.name|truncatewords_html:5 }} » {% trans "Nodes" %}</h2>
 {% endblock %}
 
+{% block extra_scripts %}
+{{ blocks.super }}
+<script type="text/javascript">
+    var retrieveRelationships = function(url, elementId){
+        $.ajax({
+            url: url,
+            success: function(data){
+                var relationships = JSON.parse(data);
+                html = $('<span>');
+                $.each(relationships, function(index, item){
+                    html.append($('<a>')
+                        .attr('href', '#')
+                          .append(item.node))
+                            .append(' | ');
+                });
+                $('#'+elementId).replaceWith(html);
+            },
+            error: function(error){
+                console.log("ERROR: ", error);
+            }
+        });
+    };
+</script>
+{% endblock %}
+
+{% block last_row_element %}
+<a id="rel_{{ cell }}"
+  onClick="retrieveRelationships('{% url node_relationships graph.id cell %}', 'rel_{{ cell }}')">
+    Retrieve relationships
+</a>
+{% endblock %}
+
+{% block last_row_element_title %}
+{% trans "Relationships" %}
+{% endblock %}
+
+
 {% block content_bottom_bar %}
     {% if option.3 %}
         <a href="javascript:;" onmousedown="divId='lc_'+{{forloop.counter}};if(document.getElementById(divId).style.display == 'none'){ document.getElementById(divId).style.display = 'block'; }else{ document.getElementById(divId).style.display = 'none'; }">
