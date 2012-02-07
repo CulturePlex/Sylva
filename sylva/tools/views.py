@@ -20,8 +20,9 @@ def graph_import_tool(request, graph_id):
     schema = graph.schema.export()
     schema_json = {"nodeTypes": {}, "allowedEdges":{}}
     for node_type in schema["node_types"]:
-        attribute_names = [n.key for n in node_type.properties.all()]
-        attributes = dict(zip(attribute_names, attribute_names))
+        attributes = {}
+        for n in node_type.properties.all():
+            attributes[n.key] = n.required
         schema_json["nodeTypes"][node_type.name] = attributes
     for edge_type in schema["relationship_types"]:
         edge_name = "%s_%s_%s" % (edge_type.source.name,

@@ -61,10 +61,12 @@ var Importer = {
     var nodeType = Importer.matching.nodeTypes[nodeData.type];
     var properties = {};
     $.each(Importer.matching.nodeAttributes[nodeType], function(index, value){
-      if (value === '_nameLabel'){
-        properties[index] = nodeName;
-      } else {
-        properties[index] = nodeData[value];
+      if (value !== ""){
+        if (value === '_nameLabel'){
+         properties[index] = nodeName;
+        } else {
+          properties[index] = nodeData[value];
+        }
       }
     });
     var nodeKey = nodeName + '_' + nodeType;
@@ -184,12 +186,16 @@ var Importer = {
         );
       
       // Type attributes management
-      $.each(value, function(attribute){
+      $.each(value, function(attribute, required){
         selectedAtttributeId = attribute + '_' + selectId;
         importController
           .append($('<label>')
             .attr('for', selectedAtttributeId)
               .append(item + ':' + attribute));
+        if (required) {
+          $('label[for='+selectedAtttributeId+']')
+            .css('color', 'red');
+        }
         importController
           .append($('<select>')
             .attr('id', selectedAtttributeId));
@@ -230,11 +236,11 @@ var Importer = {
 
         // Attributes
         Importer.matching.nodeAttributes[item] = {};
-        $.each(value, function(attribute){
+        $.each(value, function(attribute, required){
           attSelector = '#' + attribute + '_' + item + '_matcher';
           selectedAttribute = $(attSelector).val();
-          if (selectedAttribute === ""){
-            alert("ERROR: NodeType attribute does not match: " + attribute);
+          if (required && selectedAttribute === ""){
+            alert("ERROR: " + item + " attribute is required: " + attribute);
             validates = false;
             return false;
           } else {
