@@ -34,7 +34,7 @@
 </div>
 <div class="graph-item">
     <span class="graph-title">
-        <a href="{% url graph_view graph.id %}">{{ graph.name|truncatewords_html:7 }}</a>:
+        <a href="{% url graph_edit graph.id %}">{{ graph.name|truncatewords_html:7 }}</a>:
         {% if graph.description %}
         <q class="graph-description">{{ graph.description|truncatewords_html:40 }}</q>
         {% endif %}

@@ -27,8 +27,20 @@ def graph_view(request, graph_id):
 
 @login_required()
 def graph_edit(request, graph_id):
-    return render_to_response('graphs_edit.html',
-                              {},
+    graph = get_object_or_404(Graph, id=graph_id)
+    form = GraphForm(user=request.user, instance=graph)
+    if request.POST:
+        data = request.POST.copy()
+        form = GraphForm(data=data, user=request.user, instance=graph)
+        if form.is_valid():
+            with transaction.commit_on_success(): 
+                instance = form.cleaned_data["instance"]
+                graph = form.save(commit=False)
+                graph.save()
+            redirect_url = reverse("graph_view", args=[graph.id])
+            return redirect(redirect_url)
+    return render_to_response('graphs_create.html',
+                              {"form": form},
                               context_instance=RequestContext(request))
 
 

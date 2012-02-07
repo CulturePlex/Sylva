@@ -5,6 +5,8 @@ from django.core.urlresolvers import reverse
 from django.forms import ModelForm
 from django.utils.translation import gettext as _
 
+from django.conf import settings
+
 from data.models import Data
 from graphs.models import Graph
 from engines.models import Instance
@@ -18,18 +20,21 @@ class GraphForm(ModelForm):
     def __init__(self, *args, **kwargs):
         user = kwargs.pop("user", None)
         super(GraphForm, self).__init__(*args, **kwargs)
-        if user:
-            instances = Instance.objects.filter(owner=user)
-            self.fields["instance"].queryset = instances
-            empty_label = _("Choose your backend instance")
-            self.fields["instance"].empty_label = empty_label
-        help_text = _("Buy a <a href='%s'>new instance</a>.") \
-                    % reverse("dashboard")
-        self.fields["instance"].help_text = help_text
+        if settings.OPTIONS["ALLOW_INSTANCES"]:
+            if user:
+                instances = Instance.objects.filter(owner=user)
+                self.fields["instance"].queryset = instances
+                empty_label = _("Choose your backend instance")
+                self.fields["instance"].empty_label = empty_label
+            help_text = _("Buy a <a href='%s'>new instance</a>.") \
+                        % reverse("dashboard")
+            self.fields["instance"].help_text = help_text
+        else:
+            self.fields["instance"].widget = forms.HiddenInput()
 
     class Meta:
         model = Graph
-        fields = ("name", "description")
+        fields = ("name", "description", "relaxed")
 
 
 class AddCollaboratorForm(forms.Form):

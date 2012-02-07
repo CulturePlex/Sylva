@@ -80,20 +80,22 @@
 
 <span class="clear"></span>
 
-<div class="dashboard-graphs">
-<a class="disabled">{% trans "Buy an own instance" %}</a>
-<h2>{% trans "Instances" %}</h2>
-<div class="instance-list">
-{% for instance in instances %}
-    <p class="instance-item">
-    <span class="instance-title">{{ instance.name }}</span>
-    <q>{{ instance.engine }}</q>
-    </p>
-{% empty %}
-    {% trans "There're no instances yet." %}
-{% endfor %}
-</div>
-</div>
+{% if OPTIONS.ALLOW_INSTANCES %}
+    <div class="dashboard-graphs">
+    <a class="disabled">{% trans "Buy an own instance" %}</a>
+    <h2>{% trans "Instances" %}</h2>
+    <div class="instance-list">
+    {% for instance in instances %}
+        <p class="instance-item">
+        <span class="instance-title">{{ instance.name }}</span>
+        <q>{{ instance.engine }}</q>
+        </p>
+    {% empty %}
+        {% trans "There're no instances yet." %}
+    {% endfor %}
+    </div>
+    </div>
+{% endif %}
 
               </div>
               <div class="content-divider"></div>

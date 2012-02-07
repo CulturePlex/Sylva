@@ -27,4 +27,6 @@ def debug(request):
 def logout(request):
     return {'LOGOUT_URL': getattr(settings, "LOGOUT_URL", "/accounts/logout/")}
 
+def options(request):
+    return {'OPTIONS': getattr(settings, "OPTIONS", {})}
 
