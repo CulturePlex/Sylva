@@ -28,10 +28,14 @@ def graph_import_tool(request, graph_id):
         edge_name = "%s_%s_%s" % (edge_type.source.name,
                                 edge_type.name,
                                 edge_type.target.name)
+        edge_attributes = {}
+        for n in edge_type.properties.all():
+            edge_attributes[n.key] = n.required
         schema_json["allowedEdges"][edge_name] = {
                 "source": edge_type.source.name,
                 "label": edge_type.name,
-                "target": edge_type.target.name}
+                "target": edge_type.target.name,
+                "properties": edge_attributes}
     return render_to_response('graph_import_tool.html', {
                                 "graph": graph,
                                 "sylva_schema": simplejson.dumps(schema_json),

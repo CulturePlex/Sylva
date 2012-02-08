@@ -321,10 +321,21 @@ var GraphEditor = {
 
     // RelationshipType list
     $.each(schema.allowedEdges, function(index, value){
+
+      // EdgeTypes attributes
+      elementAttributes = $('<ul>');
+      if (value.properties !== undefined){
+        $.each(value.properties, function(index2, value2){
+          elementAttributes.append(
+            $('<li>').append(index2));
+        });
+      }
+
       // RelationshipType element
       elementType = $('<li>');
       edgeText = GraphEditor.edgeText(value.source, value.target, value.label);
         elementType.append(edgeText);
+        elementType.append(elementAttributes);
         $('#'+edgeElement).append(elementType);
     });
   },
