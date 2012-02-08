@@ -336,11 +336,13 @@ var Importer = {
 
     $('#check-schema-btn').text('Validate relationship types matching');
     $('#check-schema-btn').click(function(){
-      var selectedValue, selectedLabel;
+      var selectedValue, selectedLabel, selectedAttribute;
       var validates = true;
       Importer.matching["edgeTypes"] = {};
+      Importer.matching["edgeAttributes"] = {};
       $.each(sylvaSchema.allowedEdges, function(item, value){
-        selectedValue = $('#'+item.split(" ").join("")+'_matcher').val()
+        var itemId = item.split(" ").join("")+'_matcher';
+        selectedValue = $('#'+itemId).val()
         if (selectedValue === ""){
           alert("ERROR: RelationshipType does not match: " + item);
           validates = false;
@@ -349,6 +351,22 @@ var Importer = {
           selectedLabel = Importer.graphSchema.allowedEdges[item].label;
           Importer.matching.edgeTypes[selectedLabel] = value.label;
         }
+        
+        // Attributes
+        Importer.matching.edgeAttributes[item] = {};
+        $.each(value.properties, function(attribute, required){
+          attSelector = '#' + attribute + '_' + itemId;
+          selectedAttribute = $(attSelector).val(); 
+          if (required && selectedAttribute === ""){
+            alert("ERROR: " + item + " attribute is required: " + attribute);
+            validates = false;
+            return false;
+          } else {
+            Importer.matching.edgeAttributes[item][attribute] = selectedAttribute;
+          }
+        });
+
+
       });
       if (validates) {
         $('#check-schema-btn').unbind();
