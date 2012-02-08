@@ -101,7 +101,7 @@ var GraphEditor = {
     }
   },
 
-  addEdge: function(_source, _type, _target){
+  addEdge: function(_source, _type, _target, _properties){
     // Only prompts if the parameter is not sent
     var edgeSource = _source !== undefined ? _source : prompt("Enter source node");
     var edgeType = _type !== undefined ? _type: prompt("Enter relationship type");
@@ -120,7 +120,8 @@ var GraphEditor = {
       return;
     }
     var json = this.getGraphEdgesJSON();
-    var newEdge = {"source": edgeSource, "target": edgeTarget, "type": edgeType};
+    var properties = (_properties !== undefined) ? _properties : {};
+    var newEdge = {source: edgeSource, target: edgeTarget, type: edgeType, properties: properties};
     json.push(newEdge);
     this.setGraphEdgesJSON(json);
     if (this.USES_DRAWER) {
@@ -210,23 +211,39 @@ var GraphEditor = {
             return function(e) {
               var gexfContent = e.target.result;
               // GEXF IMPORTATION FUNCTION
-              $(gexfContent).find('node').each(function(){
-                GraphEditor.addNode($(this).attr('label'), {
-                                    "score": 0,
-                                    "type": $(this).find('attvalue').attr('value'),
-                                    "position": {
-                                      "x":$(this).find('viz\\:position').attr('x'),
-                                      "y":$(this).find('viz\\:position').attr('y')
-                                    }
+
+              // NODES
+              $(gexfContent).find('node').each(function(index, item){
+                
+                // Node custom attributes
+                var attributes = {};
+                $(this).find('attvalue').each(function(index){
+                    attributes[$(this).attr('for').toLowerCase()] = $(this).attr('value');
                 });
+
+                // Node position
+                attributes["position"] =  {
+                    "x":$(this).find('viz\\:position').attr('x'),
+                    "y":$(this).find('viz\\:position').attr('y')
+                }
+                
+                GraphEditor.addNode($(this).attr('label'), attributes);
               });
+
+              // EDGES
               $(gexfContent).find('edge').each(function(){
+
+                //  Edge custom attributes
+                var attributes = {};
+                $(this).find('attvalue').each(function(index){
+                    attributes[$(this).attr('for').toLowerCase()] = $(this).attr('value');
+                });
                 var sourceId = $(this).attr('source');
                 var targetId = $(this).attr('target');
                 var source = $(gexfContent).find('node#'+sourceId).attr('label');
                 var target = $(gexfContent).find('node#'+targetId).attr('label');
                 var type = $(this).attr('label');
-                GraphEditor.addEdge(source, type, target);
+                GraphEditor.addEdge(source, type, target, attributes);
               });
               GraphEditor.progressBar.hide();
             };
@@ -285,7 +302,8 @@ var GraphEditor = {
         edgeTypes[edgeLabel] = {
           source: nodes[item.source][nodeTypeLabel],
           label: item[edgeTypeLabel],
-          target: nodes[item.target][nodeTypeLabel]
+          target: nodes[item.target][nodeTypeLabel],
+          properties: item.properties
         };
       }
     });
