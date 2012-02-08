@@ -257,8 +257,12 @@ var Importer = {
   },
 
   validateRelationships: function(importController){
+
+    Importer.matching.edgeAttributeWidgets = {};
+
     var edgeText;
     importController.empty();
+    var edgeAttributes;
     var relationshipMatcher = $('<select>').append($('<option>'));
     $.each(Importer.graphSchema.allowedEdges, function(item, value){
       edgeText = GraphEditor.edgeText(value.source, value.target, value.label);
@@ -266,9 +270,23 @@ var Importer = {
         .append($('<option>')
           .attr('value', item)
             .append(edgeText));
+      edgeAttributes = $('<select>').append($('<option>'));
+      $.each(value.properties, function(attribute){
+        edgeAttributes
+          .append($('<option>')
+            .attr('value', attribute)
+              .append(attribute));
+      });
+
+      // Store edgeType attributes selectors
+      Importer.matching.edgeAttributeWidgets[item] = edgeAttributes.clone();
+
     });
 
+
     var selectId;
+
+    // Draw allowedEdges matching selectors
     $.each(sylvaSchema.allowedEdges, function(item, value){
       selectId = item.split(" ").join("") + '_matcher';
       edgeText = GraphEditor.edgeText(value.source, value.target, value.label);
@@ -281,6 +299,39 @@ var Importer = {
         .append(relationshipMatcher.clone()
           .attr('id', selectId)
         );
+
+      // Type attributes management
+      $.each(value.properties, function(attribute, required){
+        selectedAtttributeId = attribute + '_' + selectId;
+        importController
+          .append($('<label>')
+            .attr('for', selectedAtttributeId)
+              .append(item + ':' + attribute));
+        if (required) {
+          $('label[for='+selectedAtttributeId+']')
+            .css('color', 'red');
+        }
+        importController
+          .append($('<select>')
+            .attr('id', selectedAtttributeId));
+      });
+
+      // Bind change event to reload attributes selector
+      $('#'+selectId).change(function(evt){
+        var query = 'select[id$=_' + evt.target.id + ']';
+        var widget = Importer.matching.edgeAttributeWidgets[evt.target.value];
+        $(query).html(widget.html());
+      }); 
+
+      // Autoselect value if matches the label
+      var oldVal = $('#'+selectId).val();
+      $('#'+selectId).val(item);
+      var newVal = $('#'+selectId).val();
+      if (newVal !== oldVal){
+        $('#'+selectId).trigger('change');
+      }
+
+
     });
 
     $('#check-schema-btn').text('Validate relationship types matching');
