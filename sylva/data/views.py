@@ -15,7 +15,7 @@ from data.models import Data
 from data.forms import (NodeForm, RelationshipForm, TypeBaseFormSet,
                         MediaFileFormSet, MediaLinkFormSet)
 from graphs.models import Graph
-from schemas.models import NodeType
+from schemas.models import NodeType, RelationshipType
 
 
 def create_data(properties, data_list, add_edge_extras=False):
@@ -167,16 +167,19 @@ def relationships_list_full(request, graph_id, relationship_type_id):
 
 @permission_required("data.view_data", (Data, "graph__id", "graph_id"))
 def node_relationships(request, graph_id, node_id):
-    print node_id
     graph = get_object_or_404(Graph, id=graph_id)
     node = graph.nodes.get(int(node_id))
     result = []
     for r in node.relationships.incoming():
-        result.append({"node": r.source.id,
+        label = get_object_or_404(RelationshipType, id=r.label)
+        result.append({"node_id": r.source.id,
+                        "node_display": r.source.display,
                         "direction": "incoming",
-                        "label": r.label})
+                        "label": label.name})
     for r in node.relationships.outgoing():
-        result.append({"node": r.target.id,
+        label = get_object_or_404(RelationshipType, id=r.label)
+        result.append({"node_id": r.target.id,
+                        "node_display": r.target.display,
                         "direction": "outgoing",
-                        "label": r.label})
+                        "label": r.label.name})
     return HttpResponse(simplejson.dumps(result))

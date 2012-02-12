@@ -13,12 +13,14 @@
         $.ajax({
             url: url,
             success: function(data){
+                var label;
                 var relationships = JSON.parse(data);
                 html = $('<span>');
                 $.each(relationships, function(index, item){
+                    label = item.node_display + '-' + item.label;
                     html.append($('<a>')
                         .attr('href', '#')
-                          .append(item.node))
+                          .append(label))
                             .append(' | ');
                 });
                 $('#'+elementId).replaceWith(html);
