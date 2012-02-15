@@ -98,6 +98,16 @@ class NodesManager(BaseManager):
             nodes.append(node)
         return nodes
 
+    def delete(self, **options):
+        if "label" in options:
+            label = options.get("label")
+            eltos = self.gdb.get_nodes_by_label(label,
+                                                include_properties=False)
+            self.gdb.delete_nodes(eltos)
+        else:
+            eltos = self.gdb.get_all_nodes(include_properties=False)
+            self.gdb.delete_nodes([node_id for node_id, props in eltos])
+
     def _get(self, node_id):
         return Node(node_id, self.graph)
 
@@ -170,6 +180,17 @@ class RelationshipsManager(BaseManager):
                                         properties=relationship_properties)
             relationships.append(relationship)
         return relationships
+
+    def delete(self, **options):
+        if "label" in options:
+            label = options.get("label")
+            eltos = self.gdb.get_relationships_by_label(label,
+                                                    include_properties=False)
+            self.gdb.delete_relationships([node_id
+                                          for node_id, props in eltos])
+        else:
+            eltos = self.gdb.get_all_relationships(include_properties=False)
+            self.gdb.delete_relationships(eltos)
 
     def _get(self, node_id):
         return Relationship(node_id, self.graph)

@@ -9,7 +9,9 @@ from django.utils.translation import gettext as _
 
 from graphs.models import Graph
 from schemas.forms import (NodeTypeForm, NodePropertyFormSet,
-                           RelationshipTypeForm, RelationshipTypeFormSet)
+                           RelationshipTypeForm, RelationshipTypeFormSet,
+                           TypeDeleteForm, TypeDeleteConfirmForm,
+                           ON_DELETE_NOTHING, ON_DELETE_CASCADE)
 from schemas.models import NodeType, RelationshipType
 
 
@@ -28,6 +30,45 @@ def schema_edit(request, graph_id):
 @login_required()
 def schema_nodetype_create(request, graph_id):
     return schema_nodetype_edit(request, graph_id)
+
+
+@login_required()
+def schema_nodetype_delete(request, graph_id, nodetype_id):
+    graph = get_object_or_404(Graph, id=graph_id)
+    nodetype = get_object_or_404(NodeType, id=nodetype_id)
+    count = len(graph.nodes.filter(label=nodetype.id, properties=False))
+    redirect_url = reverse("schema_edit", args=[graph.id])
+    if count == 0:
+        form = TypeDeleteConfirmForm()
+        if request.POST:
+            data = request.POST.copy()
+            form = TypeDeleteConfirmForm(data=data)
+            if form.is_valid():
+                confirm = form.cleaned_data["confirm"]
+                if confirm:
+                    nodetype.delete()
+                    return redirect(redirect_url)
+    else:
+        form = TypeDeleteForm(count=count)
+        if request.POST:
+            data = request.POST.copy()
+            form = TypeDeleteForm(data=data, count=count)
+            if form.is_valid():
+                option = form.cleaned_data["option"]
+                if option == ON_DELETE_CASCADE:
+                    graph.nodes.delete(label=nodetype.id)
+                nodetype.delete()
+                return redirect(redirect_url)
+    return render_to_response('schemas_item_delete.html',
+                              {"graph": graph,
+                               "item_type_label": _("Type"),
+                               "item_type": "node",
+                               "item_type_id": nodetype_id,
+                               "item_type_name": nodetype.name,
+                               "item_type_count": count,
+                               "form": form,
+                               "type_id": nodetype_id},
+                              context_instance=RequestContext(request))
 
 
 @login_required()
@@ -56,7 +97,9 @@ def schema_nodetype_edit(request, graph_id, nodetype_id=None):
             return redirect(redirect_url)
     return render_to_response('schemas_item_edit.html',
                               {"graph": graph,
-                               "item_type": _("Type"),
+                               "item_type_label": _("Type"),
+                               "item_type": "node",
+                               "item_type_id": nodetype_id,
                                "form": form,
                                "fields_to_hide": ["plural_name",
                                                   "inverse", "plural_inverse",
@@ -71,11 +114,11 @@ def schema_relationshiptype_create(request, graph_id):
 
 
 @login_required()
-def schema_relationshiptype_edit(request, graph_id, relationship_type_id=None):
+def schema_relationshiptype_edit(request, graph_id, relationshiptype_id=None):
     graph = get_object_or_404(Graph, id=graph_id)
-    if relationship_type_id:
+    if relationshiptype_id:
         empty_relationshiptype = get_object_or_404(RelationshipType,
-                                                   id=relationship_type_id)
+                                                   id=relationshiptype_id)
     else:
         empty_relationshiptype = RelationshipType()
     form = RelationshipTypeForm(initial={"arity": None}, schema=graph.schema,
@@ -89,24 +132,67 @@ def schema_relationshiptype_edit(request, graph_id, relationship_type_id=None):
                                           instance=empty_relationshiptype)
         if form.is_valid() and formset.is_valid():
             with transaction.commit_on_success():
-                relationship_type = form.save(commit=False)
-                if (relationship_type.source.schema != graph.schema
-                    or relationship_type.target.schema != graph.schema):
+                relationshiptype = form.save(commit=False)
+                if (relationshiptype.source.schema != graph.schema
+                    or relationshiptype.target.schema != graph.schema):
                         raise ValidationError("Operation not allowed")
-                relationship_type.schema = graph.schema
-                relationship_type.save()
+                relationshiptype.schema = graph.schema
+                relationshiptype.save()
                 instances = formset.save(commit=False)
                 for instance in instances:
-                    instance.relationship = relationship_type
+                    instance.relationship = relationshiptype
                     instance.save()
                 redirect_url = reverse("schema_edit", args=[graph.id])
             return redirect(redirect_url)
     return render_to_response('schemas_item_edit.html',
                               {"graph": graph,
-                               "item_type": _("Allowed Relationship"),
+                               "item_type_label": _("Allowed Relationship"),
+                               "item_type": "relationship",
+                               "item_type_id": relationshiptype_id,
                                "form": form,
                                "fields_to_hide": ["plural_name",
                                                   "inverse", "plural_inverse",
                                                   "arity", "inheritance"],
                                "formset": formset},
+                              context_instance=RequestContext(request))
+
+@login_required()
+def schema_relationshiptype_delete(request, graph_id,
+                                   relationshiptype_id):
+    graph = get_object_or_404(Graph, id=graph_id)
+    relationshiptype = get_object_or_404(RelationshipType,
+                                         id=relationshiptype_id)
+    count = len(graph.relationships.filter(label=relationshiptype.id,
+                                           properties=False))
+    redirect_url = reverse("schema_edit", args=[graph.id])
+    if count == 0:
+        form = TypeDeleteConfirmForm()
+        if request.POST:
+            data = request.POST.copy()
+            form = TypeDeleteConfirmForm(data=data)
+            if form.is_valid():
+                confirm = form.cleaned_data["confirm"]
+                if confirm:
+                    relationshiptype.delete()
+                    return redirect(redirect_url)
+    else:
+        form = TypeDeleteForm(count=count)
+        if request.POST:
+            data = request.POST.copy()
+            form = TypeDeleteForm(data=data, count=count)
+            if form.is_valid():
+                option = form.cleaned_data["option"]
+                if option == ON_DELETE_CASCADE:
+                    graph.relationships.delete(label=relationshiptype.id)
+                relationshiptype.delete()
+                return redirect(redirect_url)
+    return render_to_response('schemas_item_delete.html',
+                              {"graph": graph,
+                               "item_type_label": _("Allowed Relationship"),
+                               "item_type": "relationship",
+                               "item_type_id": relationshiptype_id,
+                               "item_type_name": relationshiptype.name,
+                               "item_type_count": count,
+                               "form": form,
+                               "type_id": relationshiptype_id},
                               context_instance=RequestContext(request))

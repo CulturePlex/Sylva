@@ -504,7 +504,7 @@ p.forgot-password {
     vertical-align: middle;
 }
 
-input[type="checkbox"] {
+input[type="checkbox"],input[type="radio"] {
     display: initial;
     width: auto;
 }

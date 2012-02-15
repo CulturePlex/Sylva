@@ -22,7 +22,7 @@
 {% endblock %}
 
 {% block content_title %}
-<h2>{% trans "Graphs" %} » {{ graph.name|truncatewords_html:5 }} » {% trans "Schema" %} » {% trans "New" %} {{ item_type }}</h2>
+<h2>{% trans "Graphs" %} » {{ graph.name|truncatewords_html:5 }} » {% trans "Schema" %} » {% trans "New" %} {{ item_type_label }}</h2>
 {% endblock %}
 
 {% block content %}
@@ -30,7 +30,7 @@
 <form action="." method="POST" id="itemType">
 {% csrf_token %}
     <div class="content2-first">
-        <h2>{{ item_type }}</h2>
+        <h2>{{ item_type_label }}</h2>
         {% for field in form %}
             <p {% if field.name in fields_to_hide and not field.value %}class="hidden"{% endif %}>
             {{ field.errors }}
@@ -43,8 +43,19 @@
             {% endif %}
             </p>
         {% endfor %}
-        <input type="submit" value="Save Type"/>
-        <span class="buttonLinkOption">{% trans "or" %} <a href="{% url schema_edit graph.id %}">{% trans "Cancel" %}</a>.</span>
+        <input type="submit" value="{% trans "Save Type" %}"/>
+        <span class="buttonLinkOption">
+            {% if item_type_id %}
+                {% if item_type == "relationship" %}
+                <a class="delete" href="{% url schema_relationshiptype_delete graph.id item_type_id %}">{% trans "Remove" %}</a>
+                {% endif %}
+                {% if item_type == "node" %}
+                <a class="delete" href="{% url schema_nodetype_delete graph.id item_type_id %}">{% trans "Remove" %}</a>
+                {% endif %}
+            {% endif %}
+            {% trans "or" %} <a href="{% url schema_edit graph.id %}">{% trans "Cancel" %}</a>.
+        </span>
+        
     </div>
     <div class="content-divider"></div>
     <div class="content2-second">
