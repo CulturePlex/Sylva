@@ -60,13 +60,33 @@
     <div class="content-divider"></div>
     <div class="content{% if relationship_formsets %}3-block{% else %}2-second{% endif %}">
         <h2>{% trans "Files" %}</h2>
-        <div id="__files">
-        {{ mediafile_formset.as_p }}
-        </div>
+        {{ mediafile_formset.management_form }}
+        {% for mediafile_form in mediafile_formset.forms %}
+            {% if forloop.last %}
+                <div id="{{ mediafile_formset.prefix }}">
+                {{ mediafile_form.as_p }}
+                </div>
+            {% else %}
+                <div class="initial" id="{{ mediafile_formset.prefix }}-form-{{ forloop.counter0 }}">
+                {{ mediafile_form.as_p }}
+                <a class="delete-row initial-form" href="javascript:void(0)">{% trans "Remove File" %}</a>
+                </div>
+            {% endif %}
+        {% endfor %}
         <h2>{% trans "Links" %}</h2>
-        <div id="__links">
-        {{ medialink_formset.as_p }}
-        </div>
+        {{ medialink_formset.management_form }}
+        {% for medialink_form in medialink_formset.forms %}
+            {% if forloop.last %}
+                <div id="{{ medialink_formset.prefix }}">
+                {{ medialink_form.as_p }}
+                </div>
+            {% else %}
+                <div class="initial" id="{{ medialink_formset.prefix }}-form-{{ forloop.counter0 }}">
+                {{ medialink_form.as_p }}
+                <a class="delete-row initial-form" href="javascript:void(0)">{% trans "Remove Link" %}</a>
+                </div>
+            {% endif %}
+        {% endfor %}
     </div>
 </form>
 </div>
@@ -85,34 +105,43 @@
                 deleteText: "{% trans "Remove Relationship" %} {{ prefix|capfirst }}".replace("_", " ")
             });
         };
-        $("#{{prefix}} p:last label").hide();
+        $("#{{ prefix }} p:last label").hide();
         init_{{ prefix }}();
         $("#{{ prefix }} p:last label").hide();
         {% endfor %}
-        init_files = function() {
-            $("div#__files").formset({
-                prefix: "__files",
+        init{{ mediafile_formset.prefix }} = function() {
+            $("div#{{ mediafile_formset.prefix }}").formset({
+                prefix: "{{ mediafile_formset.prefix }}",
                 addCssClass: "button addButton",
                 addText: "{% trans "Add File" %}",
                 extraClasses: ["row1", "row2"],
-                added: function(row) {$("#__files p:last label").hide();},
+                added: function(row) {$("#{{ mediafile_formset.prefix }} p:last label").hide();},
                 deleteText: "{% trans "Remove File" %}"
             });
         };
-        $("#__files p:last label").hide();
-        init_files();
-        init_links = function() {
-            $("div#__links").formset({
-                prefix: "__links",
+        $("#{{ mediafile_formset.prefix }} p:last label").hide();
+        init{{ mediafile_formset.prefix }}();
+        init{{ medialink_formset.prefix }} = function() {
+            $("div#{{ medialink_formset.prefix }}").formset({
+                prefix: "{{ medialink_formset.prefix }}",
                 addCssClass: "button addButton",
                 addText: "{% trans "Add Link" %}",
                 extraClasses: ["row1", "row2"],
-                added: function(row) {$("#__links p:last label").hide();},
+                added: function(row) {$("#{{ medialink_formset.prefix }} p:last label").hide();},
                 deleteText: "{% trans "Remove Link" %}"
             });
         };
-        $("#__links p:last label").hide();
-        init_links();
+        $("#{{ medialink_formset.prefix }} p:last label").hide();
+        init{{ medialink_formset.prefix }}();
+        $(".initial-form").click(function(e) {
+            console.log();
+            $(this).siblings("p:last").children("input[type='checkbox']").attr("checked", "checked")
+            $(this).parents("div.initial").hide();
+        });
+        // For old browsers
+        $(".initial-form").parents("div.initial").each(function(i, form) {
+            $(form).children("p:last").hide();
+        });
     })(jQuery);
 </script>
 {% endblock %}

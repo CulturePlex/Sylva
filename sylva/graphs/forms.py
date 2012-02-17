@@ -20,7 +20,7 @@ class GraphForm(ModelForm):
     def __init__(self, *args, **kwargs):
         user = kwargs.pop("user", None)
         super(GraphForm, self).__init__(*args, **kwargs)
-        if settings.OPTIONS["ALLOW_INSTANCES"]:
+        if settings.OPTIONS["ALLOWS_INSTANCES"]:
             if user:
                 instances = Instance.objects.filter(owner=user)
                 self.fields["instance"].queryset = instances

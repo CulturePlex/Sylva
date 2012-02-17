@@ -11,7 +11,7 @@ from django.shortcuts import get_object_or_404
 
 from guardian.decorators import permission_required
 
-from data.models import Data
+from data.models import Data, MediaNode
 from data.forms import (NodeForm, RelationshipForm, TypeBaseFormSet,
                         MediaFileFormSet, MediaLinkFormSet)
 from graphs.models import Graph
@@ -77,8 +77,14 @@ def nodes_create(request, graph_id, node_type_id):
     nodetype = get_object_or_404(NodeType, id=node_type_id)
     if request.POST:
         data = request.POST.copy()
+        mediafile_formset = MediaFileFormSet(data=data, files=request.FILES,
+                                             prefix="__files")
+        medialink_formset = MediaLinkFormSet(data=data, files=request.FILES,
+                                             prefix="__links")
     else:
         data = None
+        mediafile_formset = MediaFileFormSet(prefix="__files")
+        medialink_formset = MediaLinkFormSet(prefix="__links")
     node_form = NodeForm(itemtype=nodetype, data=data)
     relationship_formsets = {}
     for relationship in nodetype.outgoing_relationships.all():
@@ -97,9 +103,6 @@ def nodes_create(request, graph_id, node_type_id):
                                                    prefix=formset_prefix,
                                                    data=data)
         relationship_formsets[formset_prefix] = relationship_formset
-    # TODO: Use dynamic formset
-    mediafile_formset = MediaFileFormSet(data=data, prefix="__files")
-    medialink_formset = MediaLinkFormSet(data=data, prefix="__links")
     if (data and node_form.is_valid()
         and mediafile_formset.is_valid() and  medialink_formset.is_valid()
         and all([rf.is_valid() for rf in relationship_formsets.values()])):
@@ -108,9 +111,87 @@ def nodes_create(request, graph_id, node_type_id):
         for relationship_formset in relationship_formsets.values():
             for relationship_form in relationship_formset.forms:
                 relationship_form.save(source_node=node)
-        mediafile_formset.save()
-        medialink_formset.save()
+        # Manage files and links
+        mediafiles = mediafile_formset.save(commit=False)
+        media_node = MediaNode.objects.create(node_id=node.id, data=graph.data)
+        for mediafile in mediafiles:
+            mediafile.media_node = media_node
+            mediafile.save()
+        medialinks = medialink_formset.save(commit=False)
+        for medialink in medialinks:
+            medialink.media_node = media_node
+            medialink.save()
         redirect_url = reverse("nodes_list_full", args=[graph.id, node_type_id])
+        return redirect(redirect_url)
+    return render_to_response('nodes_create.html',
+        {"graph": graph,
+         "nodetype": nodetype,
+         "node_form": node_form,
+         "relationship_formsets": relationship_formsets,
+         "mediafile_formset": mediafile_formset,
+         "medialink_formset": medialink_formset},
+        context_instance=RequestContext(request))
+
+
+@permission_required("data.change_data", (Data, "graph__id", "graph_id"))
+def nodes_edit(request, graph_id, node_id):
+    graph = get_object_or_404(Graph, id=graph_id)
+    node = graph.nodes.get(node_id)
+    nodetype = get_object_or_404(NodeType, id=node.label)
+    try:
+        media_node = MediaNode.objects.get(node_id=node.id, data=graph.data)
+    except MediaNode.DoesNotExist:
+        media_node = MediaNode()
+    if request.POST:
+        data = request.POST.copy()
+        mediafile_formset = MediaFileFormSet(instance=media_node,
+                                             data=data, files=request.FILES,
+                                             prefix="__files")
+        medialink_formset = MediaLinkFormSet(instance=media_node,
+                                             data=data, files=request.FILES,
+                                             prefix="__links")
+    else:
+        data = None
+        mediafile_formset = MediaFileFormSet(instance=media_node,
+                                             data=data, prefix="__files")
+        medialink_formset = MediaLinkFormSet(instance=media_node,
+                                             data=data, prefix="__links")
+    node_form = NodeForm(itemtype=nodetype, initial=node.properties, data=data)
+    relationship_formsets = {}
+    for relationship in nodetype.outgoing_relationships.all():
+        if relationship.arity > 0:
+            RelationshipFormSet = formset_factory(RelationshipForm,
+                                                  formset=TypeBaseFormSet,
+                                                  max_num=relationship.arity,
+                                                  extra=1)
+        else:
+            RelationshipFormSet = formset_factory(RelationshipForm,
+                                                  formset=TypeBaseFormSet,
+                                                  can_delete=True,
+                                                  extra=1)
+        formset_prefix = slugify(relationship.name).replace("-", "_")
+        relationship_formset = RelationshipFormSet(itemtype=relationship,
+                                                   prefix=formset_prefix,
+                                                   data=data)
+        relationship_formsets[formset_prefix] = relationship_formset
+    if (data and node_form.is_valid()
+        and mediafile_formset.is_valid() and  medialink_formset.is_valid()
+        and all([rf.is_valid() for rf in relationship_formsets.values()])):
+        # TODO: This should be under a transaction
+        node = node_form.save()
+        for relationship_formset in relationship_formsets.values():
+            for relationship_form in relationship_formset.forms:
+                relationship_form.save(source_node=node)
+        mediafiles = mediafile_formset.save(commit=False)
+        # Manage files and links
+        for mediafile in mediafiles:
+            mediafile.media_node = media_node
+            mediafile.save()
+        medialinks = medialink_formset.save(commit=False)
+        for medialink in medialinks:
+            medialink.media_node = media_node
+            medialink.save()
+        redirect_url = reverse("nodes_list_full", args=[graph.id, nodetype.id])
         return redirect(redirect_url)
     return render_to_response('nodes_create.html',
         {"graph": graph,

@@ -507,6 +507,7 @@ p.forgot-password {
 input[type="checkbox"],input[type="radio"] {
     display: initial;
     width: auto;
+    margin-top: -4px;
 }
 
 form {
@@ -530,13 +531,25 @@ form {
 }
 
 #content3 a.delete-row {
-    background: url(../img/recycle-full.png) no-repeat center 15px;
-    height: 45px;
-    display: block;
-    padding: 0 0 0 2px;
+/*    background: url(../img/recycle-full.png) no-repeat center 15px;*/
+/*    height: 45px;*/
+/*    display: block;*/
+/*    padding: 0 0 0 2px;*/
+/*    font-weight: bold;*/
+    background: url(../img/recycle-full.png) no-repeat left -2px;
+    height: 35px;
+/*    display: block;*/
+    padding: 10px 0 0 30px;
     font-weight: bold;
 }
 
+div.dynamic-form,div.initial {
+    margin-bottom: 15px;
+}
+
+div.initial p:last-child {
+    display: none;
+}
 
 .content2-first ul.errorlist li {
     margin-right: 26px;

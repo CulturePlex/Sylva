@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 from django.utils.translation import gettext as _
 
 from engines.models import Instance
@@ -16,6 +18,7 @@ class Data(models.Model, DataMixin):
     total_relationships = models.IntegerField(_("total relationships"),
                                               default=0)
     total_queries = models.IntegerField(_("total queries"), default=0)
+    total_storage = models.IntegerField(_("total storage"), default=0)
 
     class Meta:
         verbose_name_plural = _("data")
@@ -58,7 +61,7 @@ class MediaFile(models.Model):
 
     def __unicode__(self):
         return _(u'%s (%s for %s)') % (self.media_label,
-                                       self.get_media_type_display(),
+                                       self.media_file.name,
                                        self.media_node.node_id)
 
     class Meta:
@@ -78,3 +81,16 @@ class MediaLink(models.Model):
 
     class Meta:
         verbose_name_plural = _("Media links")
+
+
+@receiver(post_save, sender=MediaFile)
+def create_schema_graph(*args, **kwargs):
+    instance = kwargs.get("instance", None)
+    print 1
+    size = instance.media_file.size
+    print size
+    data = instance.media_node.data
+    print data
+    data.total_storage += size
+    print data.total_storage
+    data.save()

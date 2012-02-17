@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from django import forms
+from django.conf import settings
 from django.forms.models import inlineformset_factory
 from django.utils.translation import gettext as _
 
@@ -52,7 +53,10 @@ class NodeTypeForm(forms.ModelForm):
 
     class Meta:
         model = NodeType
-        exclude = ("schema", "order")
+        if settings.OPTIONS["ALLOWS_INHERITANCE"]:
+            exclude = ("schema", "order")
+        else:
+            exclude = ("schema", "order", "inheritance")
 
 NodePropertyFormSet = inlineformset_factory(NodeType, NodeProperty,
                                             extra=1, can_delete=True)
@@ -70,9 +74,13 @@ class RelationshipTypeForm(forms.ModelForm):
 
     class Meta:
         model = RelationshipType
-        fields = ("source", "name", "plural_name", "inverse", "plural_inverse",
-                  "target", "description", "arity", "inheritance")
-
+        if settings.OPTIONS["ALLOWS_INHERITANCE"]:
+            fields = ("source", "name", "plural_name", "inverse",
+                      "plural_inverse", "target", "description", "arity",
+                      "inheritance")
+        else:
+            fields = ("source", "name", "plural_name", "inverse",
+                      "plural_inverse", "target", "description", "arity")
 
 RelationshipTypeFormSet = inlineformset_factory(RelationshipType,
                                                 RelationshipProperty,

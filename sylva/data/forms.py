@@ -32,9 +32,13 @@ class ItemForm(forms.Form):
             # TODO: Fix the required value rendering
             if item_property.required:
                 label = "%s *" % label
+            if initial:
+                initial_value = initial.get(label, item_property.default)
+            else:
+                initial_value =  item_property.default
             field_attrs = {
                 "required": item_property.required,
-                "initial": item_property.default,
+                "initial": initial_value,
                 "label": label,
                 "help_text": item_property.description,
             }

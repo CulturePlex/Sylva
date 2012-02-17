@@ -36,7 +36,7 @@
 {% block last_row_element %}
 <a id="rel_{{ cell }}"
   onClick="retrieveRelationships('{% url node_relationships graph.id cell %}', 'rel_{{ cell }}')">
-    Retrieve relationships
+    {% trans "Retrieve relationships" %}
 </a>
 {% endblock %}
 

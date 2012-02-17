@@ -70,7 +70,11 @@
                                 {% block last_row_element %}{% endblock %}
                             </td>
                             {% else %}
-                            <td class="{{ option.0|slugify }}_{{ forloop.counter }}">{{ cell }}</td>
+                            <td class="{{ option.0|slugify }}_{{ forloop.counter }}">
+                            <a id="rel_edit_{{ cell }}" href="{% url nodes_edit graph.id row|last %}">
+                            {{ cell }}
+                            </a>
+                            </td>
                             {% endif %}
                         {% endfor %}
                     </tr>
