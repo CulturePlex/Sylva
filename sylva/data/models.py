@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
-from django.db.models.signals import post_save
+from django.db.models.signals import pre_delete, post_save
 from django.dispatch import receiver
 from django.utils.translation import gettext as _
 
@@ -86,11 +86,16 @@ class MediaLink(models.Model):
 @receiver(post_save, sender=MediaFile)
 def create_schema_graph(*args, **kwargs):
     instance = kwargs.get("instance", None)
-    print 1
     size = instance.media_file.size
-    print size
     data = instance.media_node.data
-    print data
     data.total_storage += size
-    print data.total_storage
+    data.save()
+
+
+@receiver(pre_delete, sender=MediaFile)
+def delete_schema_graph(*args, **kwargs):
+    instance = kwargs.get("instance", None)
+    size = instance.media_file.size
+    data = instance.media_node.data
+    data.total_storage -= size
     data.save()

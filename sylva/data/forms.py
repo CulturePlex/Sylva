@@ -1,13 +1,15 @@
 # -*- coding: utf-8 -*-
 from django import forms
 from django.core.exceptions import ValidationError
-from django.forms.formsets import BaseFormSet
+from django.forms.formsets import BaseFormSet, DELETION_FIELD_NAME
 from django.forms.models import inlineformset_factory
 from django.template.defaultfilters import slugify
 from django.utils.translation import gettext as _
 
 from data.models import MediaNode, MediaFile, MediaLink
 from schemas.models import RelationshipType
+
+ITEM_FIELD_NAME = "_ITEM_ID"
 
 
 class ItemForm(forms.Form):
@@ -16,6 +18,8 @@ class ItemForm(forms.Form):
         super(ItemForm, self).__init__(label_suffix="", *args, **kwargs)
         self.populate_fields(itemtype, initial=kwargs.get("initial", None))
         self.graph = itemtype.schema.graph
+        self.item_id = None
+        self.delete = None
         self.itemtype = itemtype
         self.itemtype_properties = [prop["key"] for prop
                                     in itemtype.properties.all().values("key")
@@ -35,7 +39,7 @@ class ItemForm(forms.Form):
             if initial:
                 initial_value = initial.get(label, item_property.default)
             else:
-                initial_value =  item_property.default
+                initial_value = item_property.default
             field_attrs = {
                 "required": item_property.required,
                 "initial": initial_value,
@@ -51,6 +55,17 @@ class ItemForm(forms.Form):
             else:
                 field = forms.CharField(**field_attrs)
             self.fields[item_property.key] = field
+        if initial and ITEM_FIELD_NAME in initial:
+            self.item_id = initial[ITEM_FIELD_NAME]
+            field_attrs = {
+                "required": True,
+                "initial": self.item_id,
+                "label": "",
+                "widget": forms.HiddenInput(),
+            }
+            field = forms.CharField(**field_attrs)
+            self.fields[ITEM_FIELD_NAME] = field
+
 
     def _clean_fields(self):
         # Taken from django/forms/forms.py
@@ -85,6 +100,10 @@ class ItemForm(forms.Form):
         cleaned_data = super(ItemForm, self).clean()
         not_false_values = [bool(unicode(v).strip())
                             for v in cleaned_data.values()]
+        if DELETION_FIELD_NAME in cleaned_data:
+            self.delete = cleaned_data.pop(DELETION_FIELD_NAME)
+        if ITEM_FIELD_NAME in cleaned_data:
+            self.item_id = cleaned_data.pop(ITEM_FIELD_NAME)
         if (len(cleaned_data) <= 0 or
             not any(not_false_values)):
             msg = _("At least one field must be filled")
@@ -106,8 +125,16 @@ class ItemForm(forms.Form):
             # Assign to label the value of the identifier of the NodeType
             label = unicode(self.itemtype.id)
             if commit:
-                return self.graph.nodes.create(label=label,
-                                               properties=properties)
+                if self.item_id:
+                    if self.delete:
+                        return self.graph.nodes.delete(id=self.item_id)
+                    else:
+                        node = self.graph.nodes.get(self.item_id)
+                        node.properties = properties
+                    return node
+                else:
+                    return self.graph.nodes.create(label=label,
+                                                   properties=properties)
             else:
                 return (label, properties)
 
@@ -132,16 +159,19 @@ class RelationshipForm(ItemForm):
                 "label": itemtype.name,
                 "help_text": _("Choose the target of the relationship"),
                 "choices": [(u"", u"---------")] + choices,
+                "widget": forms.Select(attrs={
+                    "class": "autocomplete"
+                }),
             }
             field = forms.ChoiceField(**field_attrs)
             self.fields[itemtype.name] = field
 
     def clean(self):
-        cleaned_data = super(ItemForm, self).clean()
+        cleaned_data = super(RelationshipForm, self).clean()
         if self.itemtype.name in cleaned_data:
             target_node_id = cleaned_data[self.itemtype.name]
-            target_node = self.graph.nodes.get(target_node_id)
-            if target_node.label != unicode(self.itemtype.target.id):
+            self.target_node = self.graph.nodes.get(target_node_id)
+            if self.target_node.label != unicode(self.itemtype.target.id):
                 msg = _("The target must be %s" % self.itemtype.target.name)
                 self._errors[self.itemtype.name] = self.error_class([msg])
                 del cleaned_data[self.itemtype.name]
@@ -150,21 +180,31 @@ class RelationshipForm(ItemForm):
             self._errors[self.itemtype.name] = self.error_class([msg])
         return cleaned_data
 
-    def save(self, source_node, commit=True, *args, **kwargs):
+    def save(self, source_node=None, commit=True, *args, **kwargs):
         properties = self.cleaned_data
         if (properties
             and any([bool(unicode(v).strip()) for v in properties.values()])):
-            if self.graph.relaxed:
+            target_node_id = properties.pop(self.itemtype.name)
+            if not self.graph.relaxed:
                 properties_items = properties.items()
                 for field_key, field_value in properties_items:
                     if (field_key not in self.itemtype_properties):
                         properties.pop(field_key)
-            target_node_id = properties.pop(self.itemtype.name)
             label = unicode(self.itemtype.id)
-            if commit:
-                self.graph.relationships.create(source_node.id, target_node_id,
-                                                label=label,
-                                                properties=properties)
+            if commit and (self.item_id or source_node):
+                if self.item_id:
+                    if self.delete:
+                        return self.graph.relationships.delete(id=self.item_id)
+                    else:
+                        rel = self.graph.relationships.get(self.item_id)
+                        rel.properties = properties
+                        rel.target = self.target_node
+                        return rel
+                else:
+                    return self.graph.relationships.create(source_node.id,
+                                                           target_node_id,
+                                                           label=label,
+                                                       properties=properties)
             else:
                 return (source_node.id, target_node_id, label, properties)
 

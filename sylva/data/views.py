@@ -13,7 +13,8 @@ from guardian.decorators import permission_required
 
 from data.models import Data, MediaNode
 from data.forms import (NodeForm, RelationshipForm, TypeBaseFormSet,
-                        MediaFileFormSet, MediaLinkFormSet)
+                        MediaFileFormSet, MediaLinkFormSet,
+                        ITEM_FIELD_NAME)
 from graphs.models import Graph
 from schemas.models import NodeType, RelationshipType
 
@@ -123,7 +124,7 @@ def nodes_create(request, graph_id, node_type_id):
             medialink.save()
         redirect_url = reverse("nodes_list_full", args=[graph.id, node_type_id])
         return redirect(redirect_url)
-    return render_to_response('nodes_create.html',
+    return render_to_response('nodes_editcreate.html',
         {"graph": graph,
          "nodetype": nodetype,
          "node_form": node_form,
@@ -156,9 +157,21 @@ def nodes_edit(request, graph_id, node_id):
                                              data=data, prefix="__files")
         medialink_formset = MediaLinkFormSet(instance=media_node,
                                              data=data, prefix="__links")
-    node_form = NodeForm(itemtype=nodetype, initial=node.properties, data=data)
+    node_initial = node.properties.copy()
+    node_initial.update({ITEM_FIELD_NAME: node.id})
+    node_form = NodeForm(itemtype=nodetype, initial=node_initial, data=data)
+    initial = []
+    for relationship in node.relationships.all():
+        properties = relationship.properties
+        relationship_type = RelationshipType.objects.get(id=relationship.label)
+        properties.update({
+            relationship_type.name: relationship.target.id,
+            ITEM_FIELD_NAME: relationship.id,
+        })
+        initial.append(properties)
     relationship_formsets = {}
-    for relationship in nodetype.outgoing_relationships.all():
+    allowed_outgoing_relationships = nodetype.outgoing_relationships.all()
+    for relationship in allowed_outgoing_relationships:
         if relationship.arity > 0:
             RelationshipFormSet = formset_factory(RelationshipForm,
                                                   formset=TypeBaseFormSet,
@@ -172,6 +185,7 @@ def nodes_edit(request, graph_id, node_id):
         formset_prefix = slugify(relationship.name).replace("-", "_")
         relationship_formset = RelationshipFormSet(itemtype=relationship,
                                                    prefix=formset_prefix,
+                                                   initial=initial,
                                                    data=data)
         relationship_formsets[formset_prefix] = relationship_formset
     if (data and node_form.is_valid()
@@ -193,7 +207,7 @@ def nodes_edit(request, graph_id, node_id):
             medialink.save()
         redirect_url = reverse("nodes_list_full", args=[graph.id, nodetype.id])
         return redirect(redirect_url)
-    return render_to_response('nodes_create.html',
+    return render_to_response('nodes_editcreate.html',
         {"graph": graph,
          "nodetype": nodetype,
          "node_form": node_form,

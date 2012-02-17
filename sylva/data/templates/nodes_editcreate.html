@@ -1,9 +1,18 @@
 {% extends "base.html" %}
 {% load i18n %}
+{% load string_filters %}
 
 {% block extra_scripts %}
+    <script type="text/javascript" src="{{ STATIC_PREFIX }}js/chosen.jquery.min.js"></script>
     <script type="text/javascript" src="{{ STATIC_PREFIX }}js/jquery.formsets.1.2.min.js"></script>
 {% endblock %}
+{% block extra_links %}
+    <link rel="stylesheet" type="text/css" href="/static/css/chosen.css" />
+{% endblock %}
+
+{% comment %}
+{% block body_attrs %}onload="$('select.autocomplete').chosen();"{% endblock %}
+{% endcomment %}
 
 {% block navigation_buttons %}
 {{ block.super }}
@@ -51,9 +60,19 @@
     <div class="content3-block">
         <h2>{% trans "Relationships" %}</h2>
         {% for prefix, relationship_formset in relationship_formsets.items %}
-            <div id="{{ prefix }}">
-            {{ relationship_formset.as_p }}
-            </div>
+            {{ relationship_formset.management_form }}
+            {% for relationship_form in relationship_formset %}
+                {% if forloop.last %}
+                    <div id="{{ prefix }}">
+                    {{ relationship_form.as_p }}
+                    </div>
+                {% else %}
+                    <div class="initial" id="{{ prefix }}-form-{{ forloop.counter0 }}">
+                    {{ relationship_form.as_p }}
+                    <a class="delete-row initial-form" href="javascript:void(0)">{% trans "Remove Relationship" %} {{ prefix|capfirst|replacechar:"_ " }}</a>
+                    </div>
+                {% endif %}
+            {% endfor %}
         {% endfor %}
     </div>
     {% endif %}
