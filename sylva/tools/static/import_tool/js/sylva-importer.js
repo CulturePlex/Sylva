@@ -42,14 +42,11 @@ var Importer = {
           $('#edge-type-label').val()
         );
 
-        // Check imported schema is compatible with Sylva schema
-        if (Importer.schemaIsCompatible(sylvaSchema)) {
-          $('#check-schema-btn').text('Start matching process');
-          $('#check-schema-btn').click(function(){
-            $('#check-schema-btn').unbind();
-            $('body').trigger($.Event('schemasAccepted'));
-          });
-        }
+        $('#check-schema-btn').text('Start matching process');
+        $('#check-schema-btn').click(function(){
+          $('#check-schema-btn').unbind();
+          $('body').trigger($.Event('schemasAccepted'));
+        });
       });
     });
   },
@@ -78,37 +75,6 @@ var Importer = {
           '#import-progress-bar',
           '#import-progress-text');
     });
-  },
-
-  schemaIsCompatible: function(sylvaSchema){
-    // Each nodetype in graphSchema exists in sylva schema
-    var compatible = true;
-    $.each(Importer.graphSchema.nodeTypes, function(index, value){
-      if (!sylvaSchema.nodeTypes.hasOwnProperty(index)){
-        Importer.error("Node", index);
-        compatible = false;
-        return false;
-      }
-    });
-    if (!compatible){
-      return false;
-    }
-    // Each allowedtype in graphSchema exists in graph schema
-    $.each(Importer.graphSchema.allowedEdges, function(index, value){
-      if (!sylvaSchema.allowedEdges.hasOwnProperty(index)){
-        Importer.error("Edge", value);
-        compatible = false;
-        return false;
-      }
-      with (sylvaSchema.allowedEdges[index]){
-        if (value.source != source || value.label != label || value.target != target){
-          Importer.error("Edge", value);
-          compatible = false;
-          return false;
-        }
-      }
-    });
-    return compatible;
   },
 
   error: function(dataType, dataValue){
@@ -150,17 +116,34 @@ var Importer = {
         if (Importer.counter == Object.keys(Importer.nodes).length){
           $('body').trigger($.Event('endNodeInsertion'));
         }
-      },
+      }
     });
   },
 
-  addEdge: function(sourceName, edgeLabel, targetName){
+  addEdge: function(sourceName, edgeLabel, targetName, edgeData){
+    var edgeType;
+    $.each(Importer.matching.edgeTypes, function(index, item){
+      if (item.label === edgeLabel) {
+        edgeType = index;
+        return false;
+      }
+    });
+
+    var properties = {};
+
+    $.each(Importer.matching.edgeAttributes[edgeType], function(index, value){
+      if (value != ""){
+        properties[index] = edgeData[value];
+      }
+    });
+
     $.ajax({
       url: Importer.addRelationshipURL,
       data: {
-        type: Importer.matching.edgeTypes[edgeLabel],
+        type: Importer.matching.edgeTypes[edgeType].label,
         sourceId: Importer.nodes[sourceName]._id,
-        targetId: Importer.nodes[targetName]._id
+        targetId: Importer.nodes[targetName]._id,
+        properties: JSON.stringify(properties)
       },
       success: function(response){
         response = JSON.parse(response);
@@ -194,7 +177,7 @@ var Importer = {
     // Edges import when nodes are done
     $('body').bind('endNodeInsertion', function() {
       $.each(Importer.edges, function(index, value){
-        Importer.addEdge(value.source, value.type, value.target);
+        Importer.addEdge(value.source, value.type, value.target, value.properties);
       });
     });
     
@@ -349,7 +332,8 @@ var Importer = {
     var selectId;
 
     // Draw allowedEdges matching selectors
-    $.each(sylvaSchema.allowedEdges, function(item, value){
+    $.each(sylvaSchema.allowedEdges, function(i, value){
+      var item = value.source + '_' + value.label + '_' + value.target;
       selectId = item.split(" ").join("") + '_matcher';
       edgeText = GraphEditor.edgeText(value.source, value.target, value.label);
       importController
@@ -400,9 +384,10 @@ var Importer = {
     $('#check-schema-btn').click(function(){
       var selectedValue, selectedLabel, selectedAttribute;
       var validates = true;
-      Importer.matching["edgeTypes"] = {};
-      Importer.matching["edgeAttributes"] = {};
-      $.each(sylvaSchema.allowedEdges, function(item, value){
+      Importer.matching["edgeTypes"] = [];
+      Importer.matching["edgeAttributes"] = [];
+      $.each(sylvaSchema.allowedEdges, function(i, value){
+        var item = value.source + '_' + value.label + '_' + value.target;
         var itemId = item.split(" ").join("")+'_matcher';
         selectedValue = $('#'+itemId).val()
         if (selectedValue === ""){
@@ -410,12 +395,18 @@ var Importer = {
           validates = false;
           return false;
         } else {
-          selectedLabel = Importer.graphSchema.allowedEdges[item].label;
-          Importer.matching.edgeTypes[selectedLabel] = value.label;
+          selectedLabel = Importer.graphSchema.allowedEdges[item].source +
+                            Importer.graphSchema.allowedEdges[item].label +
+                            Importer.graphSchema.allowedEdges[item].target;
+          Importer.matching.edgeTypes.push({
+            label: value.label,
+            source: value.source,
+            target: value.target
+          });
         }
         
         // Attributes
-        Importer.matching.edgeAttributes[item] = {};
+        var attributes = {};
         $.each(value.properties, function(attribute, required){
           attSelector = '#' + attribute + '_' + itemId;
           selectedAttribute = $(attSelector).val(); 
@@ -424,9 +415,10 @@ var Importer = {
             validates = false;
             return false;
           } else {
-            Importer.matching.edgeAttributes[item][attribute] = selectedAttribute;
+            attributes[attribute] = selectedAttribute;
           }
         });
+        Importer.matching.edgeAttributes.push(attributes);
 
 
       });

@@ -18,24 +18,21 @@ def graph_import_tool(request, graph_id):
     graph = get_object_or_404(Graph, id=graph_id)
     # Schema jsonification
     schema = graph.schema.export()
-    schema_json = {"nodeTypes": {}, "allowedEdges":{}}
+    schema_json = {"nodeTypes": {}, "allowedEdges":[]}
     for node_type in schema["node_types"]:
         attributes = {}
         for n in node_type.properties.all():
             attributes[n.key] = n.required
         schema_json["nodeTypes"][node_type.name] = attributes
     for edge_type in schema["relationship_types"]:
-        edge_name = "%s_%s_%s" % (edge_type.source.name,
-                                edge_type.name,
-                                edge_type.target.name)
         edge_attributes = {}
         for n in edge_type.properties.all():
             edge_attributes[n.key] = n.required
-        schema_json["allowedEdges"][edge_name] = {
+        schema_json["allowedEdges"].append({
                 "source": edge_type.source.name,
                 "label": edge_type.name,
                 "target": edge_type.target.name,
-                "properties": edge_attributes}
+                "properties": edge_attributes})
     return render_to_response('graph_import_tool.html', {
                                 "graph": graph,
                                 "sylva_schema": simplejson.dumps(schema_json),
@@ -62,7 +59,9 @@ def ajax_relationship_create(request, graph_id):
     label = graph.schema.relationshiptype_set.get(name=data["type"],
             source=source.label,
             target=target.label)
-    properties = {}
+    properties = data.get("properties", {})
+    if properties:
+        properties = simplejson.loads(properties)
     graph.relationships.create(source, target, str(label.id), properties)
     return HttpResponse(simplejson.dumps({}))
 
