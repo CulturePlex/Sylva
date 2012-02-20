@@ -13,67 +13,21 @@
         Importer.addNodeURL = "{% url ajax_node_create graph.id %}";
         Importer.addRelationshipURL = "{% url ajax_relationship_create graph.id %}";
         jQuery(document).ready(function(){
+          // GraphEditor object configuration
           GraphEditor.USES_DRAWER = false;
           GraphEditor.init();
 
           // First step
-          $('#validation-controls').hide();
-          $('#second-step').hide();
-          $('#third-step').hide();
+          Importer.loadFileStep();
 
-          //Second step
-          $('body').bind('fileLoaded', function(){
-            $('#second-step').show();
-            $('#validation-controls').show();
-
-            GraphEditor.schemaToList('sylva-schema-nodes',
-                  'sylva-schema-edges',
-                  sylvaSchema);
-
-            $('#check-schema-btn').click(function(){
-              $('#check-schema-btn').unbind();
-              // Load schema data with selected labels
-              Importer.graphSchema = GraphEditor.loadSchema(
-                $('#node-type-label').val(),
-                $('#edge-type-label').val()
-              );
-
-              // Check imported schema is compatible with Sylva schema
-              if (Importer.schemaIsCompatible(sylvaSchema)) {
-                $('#check-schema-btn').text('Start matching process');
-                $('#check-schema-btn').click(function(){
-                  $('#check-schema-btn').unbind();
-                  $('body').trigger($.Event('schemasAccepted'));
-                });
-              }
-            });
-          });
-
+          // Second step
+          Importer.validateSchemasStep();
           
           // Node Types matching validation
-          var importController = $('#import-controller');
-          $('body').bind('schemasAccepted', function(){
-            $('#first-step').hide();
-            Importer.validateNodes(importController);
-          });
+          Importer.nodeTypesMatchingStep();
 
           // Relationship Types matching validation
-          $('body').bind('nodesValidated', function(){
-            Importer.validateRelationships(importController);
-          });
-
-          $('body').bind('edgesValidated', function(){
-            $('#second-step').hide();
-            $('#validation-controls').hide();
-            $('#third-step').show();
-
-            var nodes = GraphEditor.getGraphNodesJSON();
-            var edges = GraphEditor.getGraphEdgesJSON();
-            Importer.addData(GraphEditor.getGraphNodesJSON(),
-                            GraphEditor.getGraphEdgesJSON(),
-                            '#import-progress-bar',
-                            '#import-progress-text');
-          });
+          Importer.relationshipTypesMatchingStep()
 
         });
     </script>

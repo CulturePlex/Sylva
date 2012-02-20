@@ -14,9 +14,71 @@ var Importer = {
   edges: undefined,
   progressBarId: undefined,
   progressTextId: undefined,
+  importController: '#import-controller',
 
   graphSchema: undefined,
   matching: {},
+
+  loadFileStep: function() {
+    $('#validation-controls').hide();
+    $('#second-step').hide();
+    $('#third-step').hide();
+  },
+
+  validateSchemasStep: function() {
+    $('body').bind('fileLoaded', function(){
+      $('#second-step').show();
+      $('#validation-controls').show();
+
+      GraphEditor.schemaToList('sylva-schema-nodes',
+            'sylva-schema-edges',
+            sylvaSchema);
+
+      $('#check-schema-btn').click(function(){
+        $('#check-schema-btn').unbind();
+        // Load schema data with selected labels
+        Importer.graphSchema = GraphEditor.loadSchema(
+          $('#node-type-label').val(),
+          $('#edge-type-label').val()
+        );
+
+        // Check imported schema is compatible with Sylva schema
+        if (Importer.schemaIsCompatible(sylvaSchema)) {
+          $('#check-schema-btn').text('Start matching process');
+          $('#check-schema-btn').click(function(){
+            $('#check-schema-btn').unbind();
+            $('body').trigger($.Event('schemasAccepted'));
+          });
+        }
+      });
+    });
+  },
+
+  nodeTypesMatchingStep: function() {
+    $('body').bind('schemasAccepted', function(){
+      $('#first-step').hide();
+      Importer.validateNodes($(Importer.importController));
+    });
+  },
+
+  relationshipTypesMatchingStep: function() {
+    $('body').bind('nodesValidated', function(){
+      Importer.validateRelationships($(Importer.importController));
+    });
+
+    $('body').bind('edgesValidated', function(){
+      $('#second-step').hide();
+      $('#validation-controls').hide();
+      $('#third-step').show();
+
+      var nodes = GraphEditor.getGraphNodesJSON();
+      var edges = GraphEditor.getGraphEdgesJSON();
+      Importer.addData(GraphEditor.getGraphNodesJSON(),
+          GraphEditor.getGraphEdgesJSON(),
+          '#import-progress-bar',
+          '#import-progress-text');
+    });
+  },
 
   schemaIsCompatible: function(sylvaSchema){
     // Each nodetype in graphSchema exists in sylva schema
