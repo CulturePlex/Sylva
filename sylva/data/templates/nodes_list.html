@@ -23,18 +23,31 @@
                           .append(label))
                             .append(' | ');
                 });
-                $('#'+elementId).replaceWith(html);
+                $('#'+elementId)
+                  .replaceWith(html)
+                    .addClass('is-loaded');
             },
             error: function(error){
                 console.log("ERROR: ", error);
             }
         });
     };
+
+    // Bind events to data toggle controls to start the auto fetching of relationships
+    $('.data-preview-toggle').live('mousedown', function(){
+        $.each($('.retrieve-relationships'), function(index){
+          var element = $(this);
+          // Fetch elements that are not already loaded and are visible
+          if (!element.hasClass('is-loaded') && element.closest('div').css('display') == "block") {
+            element.click();
+          }
+        });
+    });
 </script>
 {% endblock %}
 
 {% block last_row_element %}
-<a id="rel_{{ cell }}"
+<a class="retrieve-relationships" id="rel_{{ cell }}"
   onClick="retrieveRelationships('{% url node_relationships graph.id cell %}', 'rel_{{ cell }}')">
     {% trans "Retrieve relationships" %}
 </a>
@@ -47,7 +60,7 @@
 
 {% block content_bottom_bar %}
     {% if option.3 %}
-        <a href="javascript:;" onmousedown="divId='lc_'+{{forloop.counter}};if(document.getElementById(divId).style.display == 'none'){ document.getElementById(divId).style.display = 'block'; }else{ document.getElementById(divId).style.display = 'none'; }">
+        <a class="data-preview-toggle" href="javascript:;" onmousedown="divId='lc_'+{{forloop.counter}};if(document.getElementById(divId).style.display == 'none'){ document.getElementById(divId).style.display = 'block'; }else{ document.getElementById(divId).style.display = 'none'; }">
             {% trans "Toggle preview" %}</a>
         <a href="{% url nodes_list_full graph.id option.3 %}">
             {% blocktrans with node_type=option.0 %}

@@ -276,5 +276,5 @@ def node_relationships(request, graph_id, node_id):
         result.append({"node_id": r.target.id,
                         "node_display": r.target.display,
                         "direction": "outgoing",
-                        "label": r.label.name})
+                        "label": label.name})
     return HttpResponse(simplejson.dumps(result))
