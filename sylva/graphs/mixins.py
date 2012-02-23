@@ -39,6 +39,7 @@ class BaseManager(object):
                 popped = [properties.pop(k) for k in properties.keys() \
                                             if (k not in property_keys \
                                                 or unicode(k).startswith("_"))]
+                del popped
                 return properties
             else:
                 return dict(filter(lambda (k, v): \
@@ -147,15 +148,6 @@ class RelationshipsManager(BaseManager):
             return relationship
         else:
             raise RelationshipsLimitReachedException
-
-    def all(self):
-        relationships = []
-        eltos = self.gdb.get_all_relationships(include_properties=True)
-        for relationship_id, relationship_properties in eltos:
-            relationship = Relationship(relationship_id, self.graph,
-                                        properties=relationship_properties)
-            relationships.append(relationship)
-        return relationships
 
     def _create_relationship_list(self, eltos):
         relationships = []
@@ -379,6 +371,7 @@ class BaseElement(object):
                 popped = [properties.pop(k) for k in properties.keys() \
                                             if (k not in property_keys \
                                                 or unicode(k).startswith("_"))]
+                del popped
                 return properties
             else:
                 return dict(filter(lambda (k, v): \
