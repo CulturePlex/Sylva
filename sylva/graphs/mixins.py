@@ -32,10 +32,18 @@ class BaseManager(object):
         self.schema = (not graph.relaxed) and graph.schema
         self.data = graph.data
 
-    def filter_dict(self, properties=None):
+    def _filter_dict(self, properties, itemtype):
         if properties:
-            return dict(filter(lambda (k, v): not unicode(k).startswith("_"),
-                               properties.iteritems()))
+            if self.schema:
+                property_keys = [p.key for p in itemtype.properties.all()]
+                popped = [properties.pop(k) for k in properties.keys() \
+                                            if (k not in property_keys \
+                                                or unicode(k).startswith("_"))]
+                return properties
+            else:
+                return dict(filter(lambda (k, v): \
+                                    not unicode(k).startswith("_"),
+                                   properties.iteritems()))
         else:
             return {}
 
@@ -55,7 +63,8 @@ class NodesManager(BaseManager):
 
     def create(self, label, properties=None):
         if self.data.can_add_nodes():
-            properties = self.filter_dict(properties)
+            nodetype = self.schema.nodetype_set.get(pk=label)
+            properties = self._filter_dict(properties, nodetype)
             node_id = self.gdb.create_node(label=label, properties=properties)
             node = Node(node_id, self.graph, properties=properties)
             self.data.total_nodes += 1
@@ -118,7 +127,6 @@ class NodesManager(BaseManager):
 class RelationshipsManager(BaseManager):
 
     def create(self, source, target, label, properties=None):
-        properties = self.filter_dict(properties)
         if isinstance(source, Node):
             source_id = source.id
         else:
@@ -128,6 +136,8 @@ class RelationshipsManager(BaseManager):
         else:
             target_id = target
         if self.data.can_add_relationships():
+            relationshiptype = self.schema.relationshiptype_set.get(pk=label)
+            properties = self._filter_dict(properties, relationshiptype)
             relationship_id = self.gdb.create_relationship(source_id, target_id,
                                                            label, properties)
             relationship = Relationship(relationship_id, self.graph,
@@ -209,16 +219,19 @@ class NodeRelationshipsManager(BaseManager):
         self.node_id = node_id
 
     def create(self, target, label, properties=None, outgoing=False):
-        properties = self.filter_dict(properties)
         if outgoing:
             source_id = self.node_id
             target_id = target.id
         else:
             source_id = target.id
             target_id = self.node_id
-        relationship_id = self.gdb.create_relationship(source_id, target_id,
-                                                       label, properties)
         if self.data.can_add_relationships():
+            relationshiptype = self.schema.relationshiptype_set.get(pk=label)
+            properties = self._filter_dict(properties, relationshiptype)
+            relationship_id = self.gdb.create_relationship(source_id,
+                                                           target_id,
+                                                           label,
+                                                           properties)
             relationship = Relationship(relationship_id, self.graph,
                                         properties=properties)
             self.data.total_relationships += 1
@@ -304,7 +317,7 @@ class BaseElement(object):
         self._id = id
         self.graph = graph
         self.gdb = graph.data.get_gdb()
-        self.schema = graph.relaxed and graph.schema
+        self.schema = (not graph.relaxed) and graph.schema
         self.data = graph.data
         if not properties:
             self._get_properties()
@@ -359,6 +372,21 @@ class BaseElement(object):
         return self._id
     id = property(_get_id)
 
+    def _filter_dict(self, properties):
+        if properties:
+            if self.schema:
+                property_keys = self._get_property_keys()
+                popped = [properties.pop(k) for k in properties.keys() \
+                                            if (k not in property_keys \
+                                                or unicode(k).startswith("_"))]
+                return properties
+            else:
+                return dict(filter(lambda (k, v): \
+                                    not unicode(k).startswith("_"),
+                                   properties.iteritems()))
+        else:
+            return {}
+
     def _get_display(self, separator=u"|"):
         if not self._properties:
             return u"%s" % self._id
@@ -411,6 +439,11 @@ class Node(BaseElement):
         return NodeRelationshipsManager(self.graph, self.id)
     relationships = property(_relationships)
 
+    def _get_property_keys(self):
+        itemtype = self.schema.nodetype_set.get(pk=self.label)
+        property_keys = [p.key for p in itemtype.properties.all()]
+        return property_keys
+
     def _get_properties(self):
         self._properties = self.gdb.get_node_properties(self.id)
         return self._properties
@@ -418,6 +451,7 @@ class Node(BaseElement):
     def _set_properties(self, properties=None):
         if not properties:
             return None
+        properties = self._filter_dict(properties)
         self.gdb.set_node_properties(self.id, properties=properties)
         self._properties = PropertyDict(self, properties)
         return self._properties
@@ -478,6 +512,11 @@ class Relationship(BaseElement):
         return self.gdb.get_relationship_label(self.id)
     label = property(_get_label)
 
+    def _get_property_keys(self):
+        itemtype = self.schema.relationshiptype_set.get(pk=self.label)
+        property_keys = [p.key for p in itemtype.properties.all()]
+        return property_keys
+
     def _get_properties(self):
         self._properties = self.gdb.get_relationship_properties(self.id)
         return self._properties
@@ -485,6 +524,7 @@ class Relationship(BaseElement):
     def _set_properties(self, properties=None):
         if not properties:
             return None
+        properties = self._filter_dict(properties)
         self.gdb.set_relationship_properties(self.id,
                                              properties=properties)
         self._properties = PropertyDict(self, properties)
