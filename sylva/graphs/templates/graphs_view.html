@@ -22,11 +22,29 @@
 {% endblock %}
 
 {% block content %}
-<div class="graph-visualization" id="graph-visualization">
-    {% trans "Visualization" %}
+<canvas id="graphcanvas">{% trans "Your browser does not support graph visualization" %}</canvas>
+<!-- Start of DOM elements working as memory system and debugging -->        
+<div id="sec-debug">
+  <div id="sec-node-list">
+    <ul id="node-list"></ul>
+  </div>
+  <div id="sec-edge-list">
+    <ol id="edge-list"></ol>
+  </div>
+
+  <h3>Graph Nodes Debug</h3>
+  <textarea id="id_graph_nodes" rows="10" cols="80" name="graph_nodes">{}</textarea>
+  <h3>Graph Edges Debug</h3>
+  <textarea id="id_graph_edges" rows="10" cols="80" name="graph_edges">[]</textarea>
+  <h3>Graph Schema Debug</h3>
+  <textarea id="id_graph_schema" rows="10" cols="80" name="graph_schema">{}</textarea>
+</div>
+<!-- End of DOM elements working as memory system and debugging -->        
+
+<div>
     <div class="not-available">
     {% blocktrans with graph.id as graph_id %}
-    Sorry, the graph visualization feature is not available yet. Please, try to 
+    You can also try to
     <a title="Download as .gexf" href="/tools/{{ graph_id }}/export/">download</a> 
     as a <a href="http://gephi.org/" title="Gephi, The Open Graph Visualization Platform">Gephi</a> file.
     {% endblocktrans %}
@@ -84,4 +102,25 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/processing-1.3.6.min.js"></script>
+<script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/graph-editor.js"></script>
+<script type="text/javascript">
+
+var nodes = {{ nodes|safe }};
+var edges = {{ edges|safe }};
+
+$(document).ready(function(){
+  $('#sec-debug').hide(); // Comment this line to Debug the graph creation
+  GraphEditor.PDE_URL = "{{ STATIC_PREFIX }}graphs/js/graphdrawer.pde";
+  GraphEditor.USES_DRAWER = true;
+  GraphEditor.init();
+  $('#id_graph_nodes').val(JSON.stringify(nodes));
+  $('#id_graph_edges').val(JSON.stringify(edges));
+
+});
+
+</script>
 {% endblock %}

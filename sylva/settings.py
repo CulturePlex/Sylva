@@ -241,6 +241,9 @@ OPTIONS = {
     "ALLOWS_INHERITANCE": ALLOWS_INHERITANCE,
 }
 
+# This setting controls the size of the graph preview in the graph screen
+PREVIEW_NODES = 15
+
 # DJANGO_ORM_CELERY SETTINGS
 BROKER_URL = "django://"
 
