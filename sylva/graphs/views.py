@@ -14,14 +14,42 @@ from guardian import shortcuts as guardian
 from data.models import Data
 from graphs.forms import GraphForm, AddCollaboratorForm
 from graphs.models import Graph, PERMISSIONS
-from schemas.models import Schema
-
+from schemas.models import Schema, RelationshipType
+from settings import PREVIEW_NODES
 
 @login_required()
 def graph_view(request, graph_id):
+
+    def jsonify_graph(graph, n_elements):
+        """
+        Returns a tuple with the format (nodes, edges) with the 
+        elements of a subgraph jsonified.
+        The subgraph is composed by the first random "n_elements"
+        nodes traversed from the first one
+        """
+        nodes = {}
+        edges = []
+        for n in graph.nodes.iterator():
+            if n.display not in nodes:
+                nodes[n.display] = n.properties
+                for r in n.relationships.all():
+                    label = get_object_or_404(RelationshipType, id=r.label)
+                    nodes[r.target.display] = r.target.properties
+                    edges.append({'source': n.display,
+                                    'type': label.name,
+                                    'target': r.target.display,
+                                    'properties': r.properties})
+                    if len(nodes) >= n_elements: break
+            if len(nodes) >= n_elements: break
+        return (nodes, edges)
+        
+
     graph = get_object_or_404(Graph, id=graph_id)
+    nodes, edges = jsonify_graph(graph, PREVIEW_NODES)
     return render_to_response('graphs_view.html',
-                              {"graph": graph},
+                              {"graph": graph,
+                                "nodes": simplejson.dumps(nodes),
+                                "edges": simplejson.dumps(edges)},
                               context_instance=RequestContext(request))
 
 
