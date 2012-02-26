@@ -5,6 +5,10 @@
 {{ graph.name }}
 {% endblock %}
 
+{% block extra_links %}
+  <link rel="stylesheet" type="text/css" href="{{ STATIC_PREFIX }}import_tool/css/import.css" />
+{% endblock %}
+
 {% block extra_scripts %}
     <script src="{{ STATIC_PREFIX }}import_tool/js/graph-editor.js"></script>
     <script src="{{ STATIC_PREFIX }}import_tool/js/sylva-importer.js"></script>

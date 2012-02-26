@@ -1,0 +1,11 @@
+.import-property-matcher {
+  margin-left: 30px
+}
+
+.import-property-matcher label {
+  font-weight: normal
+}
+
+.import-property-matcher select {
+  width: 287px;
+}

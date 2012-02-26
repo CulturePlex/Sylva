@@ -215,35 +215,42 @@ var Importer = {
 
     var selectId;
     var selectedAtttributeId;
+    var elementDiv;
 
 
     // Draw nodeType matching selectors
     $.each(sylvaSchema.nodeTypes, function(item, value){
       selectId = item + '_matcher';
-      importController
+      elementDiv = $('<div>').addClass('import-type-matcher');
+      elementDiv
         .append($('<label>')
           .attr('for', selectId)
             .append(item)
         );
-      importController
+      elementDiv
         .append(nodeMatcher.clone()
           .attr('id', selectId)
         );
+      importController
+        .append(elementDiv);
       
       // Type attributes management
       $.each(value, function(attribute, required){
         selectedAtttributeId = attribute + '_' + selectId;
-        importController
+        elementDiv = $('<div>').addClass('import-property-matcher');
+        elementDiv
           .append($('<label>')
             .attr('for', selectedAtttributeId)
               .append(item + ':' + attribute));
+        elementDiv
+          .append($('<select>')
+            .attr('id', selectedAtttributeId));
+        importController
+          .append(elementDiv);
         if (required) {
           $('label[for='+selectedAtttributeId+']')
             .css('color', 'red');
         }
-        importController
-          .append($('<select>')
-            .attr('id', selectedAtttributeId));
       });
 
       // Bind change event to reload attributes selector
@@ -330,36 +337,42 @@ var Importer = {
 
 
     var selectId;
+    var elementDiv;
 
     // Draw allowedEdges matching selectors
     $.each(sylvaSchema.allowedEdges, function(i, value){
       var item = value.source + '_' + value.label + '_' + value.target;
       selectId = item.split(" ").join("") + '_matcher';
       edgeText = GraphEditor.edgeText(value.source, value.target, value.label);
-      importController
+      elementDiv = $('<div>').addClass('import-type-matcher');
+      elementDiv
         .append($('<label>')
           .attr('for', selectId)
             .append(edgeText)
         );
-      importController
+      elementDiv
         .append(relationshipMatcher.clone()
           .attr('id', selectId)
         );
+      importController.append(elementDiv);
 
       // Type attributes management
       $.each(value.properties, function(attribute, required){
         selectedAtttributeId = attribute + '_' + selectId;
-        importController
+        elementDiv = $('<div>').addClass('import-property-matcher');
+        elementDiv
           .append($('<label>')
             .attr('for', selectedAtttributeId)
               .append(item + ':' + attribute));
+        elementDiv
+          .append($('<select>')
+            .attr('id', selectedAtttributeId));
+        importController
+          .append(elementDiv);
         if (required) {
           $('label[for='+selectedAtttributeId+']')
             .css('color', 'red');
         }
-        importController
-          .append($('<select>')
-            .attr('id', selectedAtttributeId));
       });
 
       // Bind change event to reload attributes selector
