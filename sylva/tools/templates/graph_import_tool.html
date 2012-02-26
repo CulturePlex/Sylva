@@ -6,12 +6,12 @@
 {% endblock %}
 
 {% block extra_links %}
-  <link rel="stylesheet" type="text/css" href="{{ STATIC_PREFIX }}import_tool/css/import.css" />
+  <link rel="stylesheet" type="text/css" href="{{ STATIC_PREFIX }}tools/css/import.css" />
 {% endblock %}
 
 {% block extra_scripts %}
-    <script src="{{ STATIC_PREFIX }}import_tool/js/graph-editor.js"></script>
-    <script src="{{ STATIC_PREFIX }}import_tool/js/sylva-importer.js"></script>
+    <script src="{{ STATIC_PREFIX }}tools/js/graph-editor.js"></script>
+    <script src="{{ STATIC_PREFIX }}tools/js/sylva-importer.js"></script>
     <script type="text/javascript">
         var sylvaSchema = JSON.parse('{{ sylva_schema|safe }}');
         Importer.addNodeURL = "{% url ajax_node_create graph.id %}";
