@@ -194,7 +194,7 @@ var GraphEditor = {
   },
 
   edgeText: function(sourceLabel, targetLabel, typeLabel){
-    return sourceLabel + ' -> ' + targetLabel + ' (' + typeLabel + ')';
+    return sourceLabel + ' &rarr; ' + targetLabel + ' (' + typeLabel + ')';
   },
 
   loadGEXF: function(){
