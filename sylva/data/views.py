@@ -3,11 +3,11 @@ import simplejson
 
 from django.core.urlresolvers import reverse
 from django.forms.formsets import formset_factory
-from django.shortcuts import (render_to_response,
-                        redirect, HttpResponse)
+from django.shortcuts import (render_to_response, get_object_or_404,
+                             redirect, HttpResponse)
 from django.template import RequestContext
 from django.template.defaultfilters import slugify
-from django.shortcuts import get_object_or_404
+from django.utils.translation import gettext as _
 
 from guardian.decorators import permission_required
 
@@ -87,7 +87,7 @@ def nodes_create(request, graph_id, node_type_id):
         mediafile_formset = MediaFileFormSet(prefix="__files")
         medialink_formset = MediaLinkFormSet(prefix="__links")
     node_form = NodeForm(itemtype=nodetype, data=data)
-    relationship_formsets = {}
+    outgoing_formsets = {}
     for relationship in nodetype.outgoing_relationships.all():
         if relationship.arity > 0:
             RelationshipFormSet = formset_factory(RelationshipForm,
@@ -100,18 +100,41 @@ def nodes_create(request, graph_id, node_type_id):
                                                   can_delete=True,
                                                   extra=1)
         formset_prefix = slugify(relationship.name).replace("-", "_")
-        relationship_formset = RelationshipFormSet(itemtype=relationship,
+        outgoing_formset = RelationshipFormSet(itemtype=relationship,
+                                                   instance=nodetype,
                                                    prefix=formset_prefix,
                                                    data=data)
-        relationship_formsets[formset_prefix] = relationship_formset
+        outgoing_formsets[formset_prefix] = outgoing_formset
+    incoming_formsets = {}
+    for relationship in nodetype.incoming_relationships.all():
+        if relationship.arity > 0:
+            RelationshipFormSet = formset_factory(RelationshipForm,
+                                                  formset=TypeBaseFormSet,
+                                                  max_num=relationship.arity,
+                                                  extra=1)
+        else:
+            RelationshipFormSet = formset_factory(RelationshipForm,
+                                                  formset=TypeBaseFormSet,
+                                                  can_delete=True,
+                                                  extra=1)
+        formset_prefix = slugify(relationship.name).replace("-", "_")
+        incoming_formset = RelationshipFormSet(itemtype=relationship,
+                                                   instance=nodetype,
+                                                   prefix=formset_prefix,
+                                                   data=data)
+        incoming_formsets[formset_prefix] = incoming_formset
     if (data and node_form.is_valid()
         and mediafile_formset.is_valid() and  medialink_formset.is_valid()
-        and all([rf.is_valid() for rf in relationship_formsets.values()])):
+        and all([rf.is_valid() for rf in outgoing_formsets.values()])
+        and all([rf.is_valid() for rf in incoming_formsets.values()])):
         # TODO: This should be under a transaction
         node = node_form.save()
-        for relationship_formset in relationship_formsets.values():
-            for relationship_form in relationship_formset.forms:
-                relationship_form.save(source_node=node)
+        for outgoing_formset in outgoing_formsets.values():
+            for outgoing_form in outgoing_formset.forms:
+                outgoing_form.save(related_node=node)
+        for incoming_formset in incoming_formsets.values():
+            for incoming_form in incoming_formset.forms:
+                incoming_form.save(related_node=node)
         # Manage files and links
         mediafiles = mediafile_formset.save(commit=False)
         media_node = MediaNode.objects.create(node_id=node.id, data=graph.data)
@@ -128,9 +151,11 @@ def nodes_create(request, graph_id, node_type_id):
         {"graph": graph,
          "nodetype": nodetype,
          "node_form": node_form,
-         "relationship_formsets": relationship_formsets,
+         "outgoing_formsets": outgoing_formsets,
+         "incoming_formsets": incoming_formsets,
          "mediafile_formset": mediafile_formset,
-         "medialink_formset": medialink_formset},
+         "medialink_formset": medialink_formset,
+         "action": _("New")},
         context_instance=RequestContext(request))
 
 
@@ -161,15 +186,16 @@ def nodes_edit(request, graph_id, node_id):
     node_initial.update({ITEM_FIELD_NAME: node.id})
     node_form = NodeForm(itemtype=nodetype, initial=node_initial, data=data)
     initial = []
+    # Outgoing relationships
     for relationship in node.relationships.all():
         properties = relationship.properties
-        relationship_type = RelationshipType.objects.get(id=relationship.label)
+        outgoing_type = RelationshipType.objects.get(id=relationship.label)
         properties.update({
-            relationship_type.name: relationship.target.id,
+            outgoing_type.name: relationship.target.id,
             ITEM_FIELD_NAME: relationship.id,
         })
         initial.append(properties)
-    relationship_formsets = {}
+    outgoing_formsets = {}
     allowed_outgoing_relationships = nodetype.outgoing_relationships.all()
     for relationship in allowed_outgoing_relationships:
         if relationship.arity > 0:
@@ -183,19 +209,54 @@ def nodes_edit(request, graph_id, node_id):
                                                   can_delete=True,
                                                   extra=1)
         formset_prefix = slugify(relationship.name).replace("-", "_")
-        relationship_formset = RelationshipFormSet(itemtype=relationship,
+        outgoing_formset = RelationshipFormSet(itemtype=relationship,
+                                                   instance=nodetype,
                                                    prefix=formset_prefix,
                                                    initial=initial,
                                                    data=data)
-        relationship_formsets[formset_prefix] = relationship_formset
+        outgoing_formsets[formset_prefix] = outgoing_formset
+    # Incoming relationships
+    for relationship in node.relationships.all():
+        properties = relationship.properties
+        incoming_type = RelationshipType.objects.get(id=relationship.label)
+        properties.update({
+            incoming_type.name: relationship.source.id,
+            ITEM_FIELD_NAME: relationship.id,
+        })
+        initial.append(properties)
+    incoming_formsets = {}
+    allowed_incoming_relationships = nodetype.incoming_relationships.all()
+    for relationship in allowed_incoming_relationships:
+        if relationship.arity > 0:
+            RelationshipFormSet = formset_factory(RelationshipForm,
+                                                  formset=TypeBaseFormSet,
+                                                  max_num=relationship.arity,
+                                                  extra=1)
+        else:
+            RelationshipFormSet = formset_factory(RelationshipForm,
+                                                  formset=TypeBaseFormSet,
+                                                  can_delete=True,
+                                                  extra=1)
+        formset_prefix = slugify(relationship.name).replace("-", "_")
+        incoming_formset = RelationshipFormSet(itemtype=relationship,
+                                                   instance=nodetype,
+                                                   prefix=formset_prefix,
+                                                   initial=initial,
+                                                   data=data)
+        incoming_formsets[formset_prefix] = incoming_formset
+    # Save forms and formsets
     if (data and node_form.is_valid()
         and mediafile_formset.is_valid() and  medialink_formset.is_valid()
-        and all([rf.is_valid() for rf in relationship_formsets.values()])):
+        and all([rf.is_valid() for rf in outgoing_formsets.values()])
+        and all([rf.is_valid() for rf in incoming_formsets.values()])):
         # TODO: This should be under a transaction
         node = node_form.save()
-        for relationship_formset in relationship_formsets.values():
-            for relationship_form in relationship_formset.forms:
-                relationship_form.save(source_node=node)
+        for outgoing_formset in outgoing_formsets.values():
+            for outgoing_form in outgoing_formset.forms:
+                outgoing_form.save(related_node=node)
+        for incoming_formset in incoming_formsets.values():
+            for incoming_form in incoming_formset.forms:
+                incoming_form.save(related_node=node)
         mediafiles = mediafile_formset.save(commit=False)
         # Manage files and links
         for mediafile in mediafiles:
@@ -211,9 +272,11 @@ def nodes_edit(request, graph_id, node_id):
         {"graph": graph,
          "nodetype": nodetype,
          "node_form": node_form,
-         "relationship_formsets": relationship_formsets,
+         "outgoing_formsets": outgoing_formsets,
+         "incoming_formsets": incoming_formsets,
          "mediafile_formset": mediafile_formset,
-         "medialink_formset": medialink_formset},
+         "medialink_formset": medialink_formset,
+         "action": _("Edit")},
         context_instance=RequestContext(request))
 
 

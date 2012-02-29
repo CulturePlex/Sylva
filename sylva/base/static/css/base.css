@@ -547,6 +547,31 @@ div.dynamic-form,div.initial {
     margin-bottom: 15px;
 }
 
+/* Formsets relationships */
+.relationships div.dynamic-form p {
+    display: none;
+    margin-left: 20px;
+}
+
+.relationships div.dynamic-form p input[type="text"],
+.relationships div.dynamic-form p select,
+.relationships div.dynamic-form p textarea {
+    width: 263px;
+}
+
+.relationships div.dynamic-form p:first-child {
+    display: block;
+    margin-left: inherit;
+}
+
+.relationships div.dynamic-form p:first-child input[type="text"],
+.relationships div.dynamic-form p:first-child select,
+.relationships div.dynamic-form p:first-child textarea {
+    width: 300px;
+}
+
+
+/* End */
 div.initial p:last-child {
     display: none;
 }

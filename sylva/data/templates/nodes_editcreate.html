@@ -31,15 +31,15 @@
 {% endblock %}
 
 {% block content_title %}
-<h2>{% trans "Graphs" %} » {{ graph.name|truncatewords_html:5 }} » {% trans "Nodes" %} » {% trans "New" %} {{ nodetype.name }}</h2>
+<h2>{% trans "Graphs" %} » {{ graph.name|truncatewords_html:5 }} » {% trans "Nodes" %} » {{ action }} {{ nodetype.name }}</h2>
 {% endblock %}
 
 {% block content %}
 <div id="content3">
 <form action="." method="POST" enctype="multipart/form-data">
 {% csrf_token %}
-    <div class="content{% if relationship_formsets %}3-block{% else %}2-first{% endif %}">
-        <h2>{% trans "New" %} {{ nodetype.name|capfirst }}</h2>
+    <div class="content{% if outgoing_formsets or incoming_formsets %}3-block{% else %}2-first{% endif %}">
+        <h2>{{ action }}: {{ nodetype.name|capfirst }}</h2>
         {% for field in node_form %}
             <p {% if field.name in fields_to_hide and not field.value %}class="hidden"{% endif %}>
             {{ field.errors }}
@@ -55,29 +55,49 @@
         <input type="submit" value="{% trans "Save" %} {{ nodetype.name|capfirst }}"/>
         <span class="buttonLinkOption">{% trans "or" %} <a href="{% url nodes_list graph.id %}">{% trans "Cancel" %}</a>.</span>
     </div>
-    {% if relationship_formsets %}
+    {% if outgoing_formsets or incoming_formsets %}
     <div class="content-divider"></div>
-    <div class="content3-block">
-        <h2>{% trans "Relationships" %}</h2>
-        {% for prefix, relationship_formset in relationship_formsets.items %}
-            {{ relationship_formset.management_form }}
-            {% for relationship_form in relationship_formset %}
-                {% if forloop.last %}
-                    <div id="{{ prefix }}">
-                    {{ relationship_form.as_p }}
-                    </div>
-                {% else %}
-                    <div class="initial" id="{{ prefix }}-form-{{ forloop.counter0 }}">
-                    {{ relationship_form.as_p }}
-                    <a class="delete-row initial-form" href="javascript:void(0)">{% trans "Remove Relationship" %} {{ prefix|capfirst|replacechar:"_ " }}</a>
-                    </div>
-                {% endif %}
+    <div class="content3-block relationships">
+    {% if outgoing_formsets %}
+            <h2>{% trans "Outgoing" %}</h2>
+            {% for prefix, outgoing_formset in outgoing_formsets.items %}
+                {{ outgoing_formset.management_form }}
+                {% for outgoing_form in outgoing_formset %}
+                    {% if forloop.last %}
+                        <div id="{{ prefix }}">
+                        {{ outgoing_form.as_p }}
+                        </div>
+                    {% else %}
+                        <div class="initial" id="{{ prefix }}-form-{{ forloop.counter0 }}">
+                        {{ outgoing_form.as_p }}
+                        <a class="delete-row initial-form" href="javascript:void(0)">{% trans "Remove Relationship" %} {{ outgoing_formset.itemtype.name }}</a>
+                        </div>
+                    {% endif %}
+                {% endfor %}
             {% endfor %}
-        {% endfor %}
+        {% endif %}
+        {% if incoming_formsets %}
+            <h2>{% trans "Incoming" %}</h2>
+            {% for prefix, incoming_formset in incoming_formsets.items %}
+                {{ incoming_formset.management_form }}
+                {% for incoming_form in incoming_formset %}
+                    {% if forloop.last %}
+                        <div id="{{ prefix }}">
+                        {{ incoming_form.as_p }}
+                        </div>
+                    {% else %}
+                        <div class="initial" id="{{ prefix }}-form-{{ forloop.counter0 }}">
+                        {{ incoming_form.as_p }}
+                        <a class="delete-row initial-form" href="javascript:void(0)">{% trans "Remove Relationship" %} {{ incoming_formset.itemtype.name }}</a>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            {% endfor %}
+        {% endif %}
     </div>
     {% endif %}
     <div class="content-divider"></div>
-    <div class="content{% if relationship_formsets %}3-block{% else %}2-second{% endif %}">
+    <div class="content{% if outgoing_formsets or incoming_formsets %}3-block{% else %}2-second{% endif %}">
         <h2>{% trans "Files" %}</h2>
         {{ mediafile_formset.management_form }}
         {% for mediafile_form in mediafile_formset.forms %}
@@ -113,15 +133,30 @@
 
 <script type="text/javascript">
     (function($) {
-        {% for prefix, relationship_formset in relationship_formsets.items %}
+        {% for prefix, outgoing_formset in outgoing_formsets.items %}
         init_{{ prefix }} = function() {
             $("div#{{ prefix }}").formset({
                 prefix: "{{ prefix }}",
                 addCssClass: "button addButton",
-                addText: "{% trans "Add" %} {{ prefix|capfirst }}".replace("_", " "),
+                addText: "{% trans "Add" %} {{ prefix|capfirst|replacechar:"_ " }}",
                 extraClasses: ["row1", "row2"],
                 added: function(row) {$("#{{prefix}} p:last label").hide();},
-                deleteText: "{% trans "Remove Relationship" %} {{ prefix|capfirst }}".replace("_", " ")
+                deleteText: "{% trans "Remove Relationship" %} {{ outgoing_formset.itemtype.name }}"
+            });
+        };
+        $("#{{ prefix }} p:last label").hide();
+        init_{{ prefix }}();
+        $("#{{ prefix }} p:last label").hide();
+        {% endfor %}
+        {% for prefix, incoming_formset in incoming_formsets.items %}
+        init_{{ prefix }} = function() {
+            $("div#{{ prefix }}").formset({
+                prefix: "{{ prefix }}",
+                addCssClass: "button addButton",
+                addText: "{% trans "Add" %} {{ prefix|capfirst|replacechar:"_ " }}",
+                extraClasses: ["row1", "row2"],
+                added: function(row) {$("#{{prefix}} p:last label").hide();},
+                deleteText: "{% trans "Remove Relationship" %} {{ incoming_formset.itemtype.name }}"
             });
         };
         $("#{{ prefix }} p:last label").hide();
@@ -160,6 +195,10 @@
         // For old browsers
         $(".initial-form").parents("div.initial").each(function(i, form) {
             $(form).children("p:last").hide();
+        });
+        // For the properties of the relationships
+        $(".toggleProperties").click(function (e) {
+            $(this).parents("p").siblings("p").toggle()
         });
     })(jQuery);
 </script>

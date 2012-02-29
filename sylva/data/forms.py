@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from django import forms
 from django.core.exceptions import ValidationError
+from django.core.urlresolvers import reverse
 from django.forms.formsets import BaseFormSet, DELETION_FIELD_NAME
 from django.forms.models import inlineformset_factory
 from django.template.defaultfilters import slugify
@@ -14,18 +15,25 @@ ITEM_FIELD_NAME = "_ITEM_ID"
 
 class ItemForm(forms.Form):
 
-    def __init__(self, itemtype, *args, **kwargs):
+    def __init__(self, itemtype, instance=None, *args, **kwargs):
         super(ItemForm, self).__init__(label_suffix="", *args, **kwargs)
-        self.populate_fields(itemtype, initial=kwargs.get("initial", None))
+        self.populate_fields(itemtype, instance=instance,
+                             initial=kwargs.get("initial", None))
         self.graph = itemtype.schema.graph
         self.item_id = None
         self.delete = None
+        self.instance = instance
         self.itemtype = itemtype
+        if hasattr(itemtype, "source"):
+            if instance == itemtype.source:
+                self.direction = "target"
+            else:
+                self.direction = "source"
         self.itemtype_properties = [prop["key"] for prop
                                     in itemtype.properties.all().values("key")
                                     if itemtype.name != prop["key"]]
 
-    def populate_fields(self, itemtype, initial=None):
+    def populate_fields(self, itemtype, instance=None, initial=None):
         self.populate_node_properties(itemtype, initial=initial)
 
     def populate_node_properties(self, itemtype, initial=None):
@@ -55,6 +63,7 @@ class ItemForm(forms.Form):
             else:
                 field = forms.CharField(**field_attrs)
             self.fields[item_property.key] = field
+            print field.label
         if initial and ITEM_FIELD_NAME in initial:
             self.item_id = initial[ITEM_FIELD_NAME]
             field_attrs = {
@@ -145,19 +154,49 @@ class NodeForm(ItemForm):
 
 class RelationshipForm(ItemForm):
 
-    def populate_fields(self, itemtype, initial=None):
-        self.populate_relationship_properties(itemtype, initial=initial)
+    def populate_fields(self, itemtype, instance=None, initial=None):
+        self.populate_relationship_properties(itemtype, instance=instance,
+                                              initial=initial)
         self.populate_node_properties(itemtype, initial=initial)
 
-    def populate_relationship_properties(self, itemtype, initial=None):
+    def populate_relationship_properties(self, itemtype, instance=None,
+                                         initial=None):
         # Relationship properties
         if isinstance(itemtype, RelationshipType):
-            choices = [(n.id, n.display) for n in itemtype.target.all()]
+            if instance == itemtype.source:
+                label = u"→ %s" % itemtype.name
+                choices = [(n.id, n.display) for n in itemtype.target.all()]
+                direction = u"target"
+                url_create = reverse("nodes_create",
+                                     args=[itemtype.schema.graph.id,
+                                           itemtype.target.id])
+            else:
+                label = u"← %s" % (itemtype.inverse or itemtype.name)
+                choices = [(n.id, n.display) for n in itemtype.source.all()]
+                direction = u"source"
+                url_create = reverse("nodes_create",
+                                     args=[itemtype.schema.graph.id,
+                                           itemtype.source.id])
+            if itemtype.properties.count() == 0:
+                help_text = _("%s of the relationship. "
+                               "<a href=\"%s\">Add %s</a>. ") \
+                             % (direction.capitalize(),
+                                url_create,
+                                getattr(itemtype, direction).name)
+            else:
+                help_text = _("%s of the relationship. "
+                               "<a href=\"%s\">Add %s</a>. "
+                               "<a href=\"javascript:void(0);\""
+                               "   class=\"toggleProperties\">"
+                               "Toggle properties</a>.") \
+                             % (direction.capitalize(),
+                                url_create,
+                                getattr(itemtype, direction).name)
             field_attrs = {
                 "required": True,
                 "initial": "",
-                "label": itemtype.name,
-                "help_text": _("Choose the target of the relationship"),
+                "label": label,
+                "help_text": help_text,
                 "choices": [(u"", u"---------")] + choices,
                 "widget": forms.Select(attrs={
                     "class": "autocomplete"
@@ -168,45 +207,66 @@ class RelationshipForm(ItemForm):
 
     def clean(self):
         cleaned_data = super(RelationshipForm, self).clean()
+        direction = self.direction
         if self.itemtype.name in cleaned_data:
-            target_node_id = cleaned_data[self.itemtype.name]
-            self.target_node = self.graph.nodes.get(target_node_id)
-            if self.target_node.label != unicode(self.itemtype.target.id):
-                msg = _("The target must be %s" % self.itemtype.target.name)
+            node_id = cleaned_data[self.itemtype.name]
+            node = self.graph.nodes.get(node_id)
+            node_attr = "%s_node" % direction
+            setattr(self, node_attr, node)
+            itemtype_id = unicode(getattr(self.itemtype, direction).id)
+            if getattr(self, node_attr).label != itemtype_id:
+                itemtype_attr = getattr(self.itemtype, direction)
+                msg = _("The %s must be %s") \
+                      % (direction, itemtype_attr.name)
                 self._errors[self.itemtype.name] = self.error_class([msg])
                 del cleaned_data[self.itemtype.name]
         else:
-            msg = _("The target must be %s" % self.itemtype.target.name)
+            itemtype_attr = getattr(self.itemtype, direction)
+            msg = _("The %s must be %s") % (direction, itemtype_attr.name)
             self._errors[self.itemtype.name] = self.error_class([msg])
         return cleaned_data
 
-    def save(self, source_node=None, commit=True, *args, **kwargs):
+    def save(self, related_node=None, commit=True, *args, **kwargs):
         properties = self.cleaned_data
         if (properties
             and any([bool(unicode(v).strip()) for v in properties.values()])):
-            target_node_id = properties.pop(self.itemtype.name)
+            node_id = properties.pop(self.itemtype.name)
             if not self.graph.relaxed:
                 properties_items = properties.items()
                 for field_key, field_value in properties_items:
                     if (field_key not in self.itemtype_properties):
                         properties.pop(field_key)
             label = unicode(self.itemtype.id)
-            if commit and (self.item_id or source_node):
+            if commit and (self.item_id or related_node):
                 if self.item_id:
                     if self.delete:
                         return self.graph.relationships.delete(id=self.item_id)
                     else:
                         rel = self.graph.relationships.get(self.item_id)
                         rel.properties = properties
-                        rel.target = self.target_node
+                        node_attr = "%s_node" % self.direction
+                        self_node = getattr(self, node_attr)
+                        setattr(rel, self.direction, self_node)
                         return rel
                 else:
-                    return self.graph.relationships.create(source_node.id,
-                                                           target_node_id,
-                                                           label=label,
-                                                       properties=properties)
+                    if self.instance == self.itemtype.source:
+                        # Direction →
+                        return self.graph.relationships.create(
+                            related_node.id,
+                            node_id,
+                            label=label,
+                            properties=properties
+                        )
+                    else:
+                        # Direction ←
+                        return self.graph.relationships.create(
+                            node_id,
+                            related_node.id,
+                            label=label,
+                            properties=properties
+                        )
             else:
-                return (source_node.id, target_node_id, label, properties)
+                return (source_node.id, node_id, label, properties)
 
 
 def relationship_formset_factory(relationship, *args, **kwargs):
@@ -215,8 +275,9 @@ def relationship_formset_factory(relationship, *args, **kwargs):
 
 class TypeBaseFormSet(BaseFormSet):
 
-    def __init__(self, itemtype, *args, **kwargs):
+    def __init__(self, itemtype, instance=None, *args, **kwargs):
         self.itemtype = itemtype
+        self.instance = instance
         super(TypeBaseFormSet, self).__init__(*args, **kwargs)
 
     def _construct_form(self, i, **kwargs):
@@ -237,7 +298,7 @@ class TypeBaseFormSet(BaseFormSet):
             defaults['empty_permitted'] = True
         defaults.update(kwargs)
         # This is the only line distinct to original implementation from django
-        form = self.form(self.itemtype, **defaults)
+        form = self.form(self.itemtype, instance=self.instance, **defaults)
         self.add_fields(form, i)
         return form
 
