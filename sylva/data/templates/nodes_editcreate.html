@@ -138,10 +138,10 @@
             $("div#{{ prefix }}").formset({
                 prefix: "{{ prefix }}",
                 addCssClass: "button addButton",
-                addText: "{% trans "Add" %} {{ prefix|capfirst|replacechar:"_ " }}",
+                addText: "{% trans "Add" %} {{ outgoing_formset.itemtype.name }}  ({{ outgoing_formset.itemtype.target.name }})",
                 extraClasses: ["row1", "row2"],
                 added: function(row) {$("#{{prefix}} p:last label").hide();},
-                deleteText: "{% trans "Remove Relationship" %} {{ outgoing_formset.itemtype.name }}"
+                deleteText: "{% trans "Remove" %} {{ outgoing_formset.itemtype.name }}"
             });
         };
         $("#{{ prefix }} p:last label").hide();
@@ -153,10 +153,10 @@
             $("div#{{ prefix }}").formset({
                 prefix: "{{ prefix }}",
                 addCssClass: "button addButton",
-                addText: "{% trans "Add" %} {{ prefix|capfirst|replacechar:"_ " }}",
+                addText: "{% trans "Add" %} {{ incoming_formset.itemtype.name }} ({{ incoming_formset.itemtype.source.name }})",
                 extraClasses: ["row1", "row2"],
                 added: function(row) {$("#{{prefix}} p:last label").hide();},
-                deleteText: "{% trans "Remove Relationship" %} {{ incoming_formset.itemtype.name }}"
+                deleteText: "{% trans "Remove" %} {{ incoming_formset.itemtype.name }}"
             });
         };
         $("#{{ prefix }} p:last label").hide();

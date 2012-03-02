@@ -39,39 +39,59 @@
         </div>
         </div>
     {% endfor %}
-    {% for edge in node_type.get_outgoing_relationships %}
+    {% regroup node_type.get_outgoing_relationships by name as outgoing_relationships %}
+    {% for relationship_name in outgoing_relationships %}
          <div class="form-row">
          <div>
-            <label>→ <a href="{% url schema_relationshiptype_edit graph.id edge.id %}">{{ edge.name|capfirst }}</a></label>
-            [{% if edge.arity < 1 %}∞{% else %}{{ edge.arity }} × {% endif %} {{ edge.target.name|capfirst }}] <p class="help"></p>
-            {% if edge.relation.edgeproperty_set.all %}
-                {% for edge_propery in edge.relation.edgeproperty_set.all %}
+            <label>→ {{ relationship_name.grouper|capfirst }}</label>
+            {% for relationship in relationship_name.list %}
                 <div class="form-row">
-                <div>
-                    <label {% if edge_propery.required %}class="required"{% endif %}>⌂ {{ edge_propery.key|capfirst }}</label>
-                    [{{ edge_propery.get_datatype }}] <p class="help">{{ edge_propery.default }}</p>
+                <a href="{% url schema_relationshiptype_edit graph.id relationship.id %}">
+                    {% if relationship.arity < 1 %}∞{% else %}{{ relationship.arity }} × {% endif %} {{ relationship.target.name|capfirst }}
+                </a>
+                {% if relationship.properties %}
+                    {% for relationship_propery in relationship.properties.all %}
+                    <div>
+                        <label {% if relationship_propery.required %}class="required"{% endif %}>⌂ {{ relationship_propery.key|capfirst }}</label>
+                        [{{ relationship_propery.get_datatype }}] <p class="help">{{ relationship_propery.default }}</p>
+                    </div>
+                    {% endfor %}
                 </div>
-                </div>
-                {% endfor %}
-            {% endif %}
+                {% endif %}
+            {% endfor %}
+            <a class="buttonLinkOption" href="{% url schema_relationshiptype_create graph.id %}?source={{ node_type.id }}&name={{ relationship_name.grouper }}">
+                {% trans "Add relationship" %}
+            </a>
         </div>
         </div>
     {% endfor %}
-    {% for edge in node_type.get_incoming_relationships %}
+    {% regroup node_type.get_incoming_relationships by inverse as incoming_relationships %}
+    {% for relationship_name in incoming_relationships %}
          <div class="form-row">
          <div>
-            <label>← <a href="{% url schema_relationshiptype_edit graph.id edge.id %}">{% if edge.arity < 1 %}∞{% else %}{{ edge.arity }} × {% endif %} {% trans "is" %} {% if edge.inverse %}{{ edge.inverse|capfirst }}{% else %}{{ edge.name|capfirst }}{% endif %}</a></label>
-            [{% trans "by" %} {{ edge.source.name|capfirst }}] <p class="help"></p>
-            {% if edge.relation.edgeproperty_set.all %}
-                {% for edge_propery in edge.relation.edgeproperty_set.all %}
+            <label>←
+                {% if relationship_name.grouper %}{{ relationship_name.grouper|capfirst }}{% else %}{{ relationship_name.list.0.name|capfirst }}{% endif %}
+            </label>
+            {% for relationship in relationship_name.list %}
                 <div class="form-row">
-                <div>
-                    <label {% if edge_propery.required %}class="required"{% endif %}>⌂ {{ edge_propery.key|capfirst }}</label>
-                    [{{ edge_propery.get_datatype }}] <p class="help">{{ edge_propery.default }}</p>
-                </div>
-                </div>
-                {% endfor %}
-            {% endif %}
+                <a href="{% url schema_relationshiptype_edit graph.id relationship.id %}">
+                    {% if relationship.arity < 1 %}∞{% else %}{{ relationship.arity }} × {% endif %}
+                    {{ relationship.source.name|capfirst }}
+                </a>
+                {% if relationship.relation.relationshipproperty_set.all %}
+                    {% for relationship_propery in relationship.relation.relationshipproperty_set.all %}
+                    <div class="form-row">
+                    <div>
+                        <label {% if relationship_propery.required %}class="required"{% endif %}>⌂ {{ relationship_propery.key|capfirst }}</label>
+                        [{{ relationship_propery.get_datatype }}] <p class="help">{{ relationship_propery.default }}</p>
+                    </div>
+                    </div>
+                    {% endfor %}
+                {% endif %}
+            {% endfor %}
+            <a class="buttonLinkOption" href="{% url schema_relationshiptype_create graph.id %}?target={{ node_type.id }}&inverse={{ relationship_name.grouper }}&name={{ relationship_name.list.0.name }}">
+                {% trans "Add relationship" %}
+            </a>
         </div>
         </div>
     {% endfor %}

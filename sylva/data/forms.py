@@ -31,7 +31,7 @@ class ItemForm(forms.Form):
                 self.direction = "source"
         self.itemtype_properties = [prop["key"] for prop
                                     in itemtype.properties.all().values("key")
-                                    if itemtype.name != prop["key"]]
+                                    if itemtype.id != prop["key"]]
 
     def populate_fields(self, itemtype, instance=None, initial=None):
         self.populate_node_properties(itemtype, initial=initial)
@@ -63,7 +63,6 @@ class ItemForm(forms.Form):
             else:
                 field = forms.CharField(**field_attrs)
             self.fields[item_property.key] = field
-            print field.label
         if initial and ITEM_FIELD_NAME in initial:
             self.item_id = initial[ITEM_FIELD_NAME]
             field_attrs = {
@@ -164,16 +163,18 @@ class RelationshipForm(ItemForm):
         # Relationship properties
         if isinstance(itemtype, RelationshipType):
             if instance == itemtype.source:
-                label = u"→ %s" % itemtype.name
-                choices = [(n.id, n.display) for n in itemtype.target.all()]
                 direction = u"target"
+                label = u"→ %s (%s)" % (itemtype.name,
+                                        getattr(itemtype, direction).name)
+                choices = [(n.id, n.display) for n in itemtype.target.all()]
                 url_create = reverse("nodes_create",
                                      args=[itemtype.schema.graph.id,
                                            itemtype.target.id])
             else:
-                label = u"← %s" % (itemtype.inverse or itemtype.name)
-                choices = [(n.id, n.display) for n in itemtype.source.all()]
                 direction = u"source"
+                label = u"← (%s) %s" % (getattr(itemtype, direction).name,
+                                        itemtype.inverse or itemtype.name)
+                choices = [(n.id, n.display) for n in itemtype.source.all()]
                 url_create = reverse("nodes_create",
                                      args=[itemtype.schema.graph.id,
                                            itemtype.source.id])
@@ -203,13 +204,13 @@ class RelationshipForm(ItemForm):
                 }),
             }
             field = forms.ChoiceField(**field_attrs)
-            self.fields[itemtype.name] = field
+            self.fields[itemtype.id] = field
 
     def clean(self):
         cleaned_data = super(RelationshipForm, self).clean()
         direction = self.direction
-        if self.itemtype.name in cleaned_data:
-            node_id = cleaned_data[self.itemtype.name]
+        if self.itemtype.id in cleaned_data:
+            node_id = cleaned_data[self.itemtype.id]
             node = self.graph.nodes.get(node_id)
             node_attr = "%s_node" % direction
             setattr(self, node_attr, node)
@@ -218,19 +219,19 @@ class RelationshipForm(ItemForm):
                 itemtype_attr = getattr(self.itemtype, direction)
                 msg = _("The %s must be %s") \
                       % (direction, itemtype_attr.name)
-                self._errors[self.itemtype.name] = self.error_class([msg])
-                del cleaned_data[self.itemtype.name]
+                self._errors[self.itemtype.id] = self.error_class([msg])
+                del cleaned_data[self.itemtype.id]
         else:
             itemtype_attr = getattr(self.itemtype, direction)
             msg = _("The %s must be %s") % (direction, itemtype_attr.name)
-            self._errors[self.itemtype.name] = self.error_class([msg])
+            self._errors[self.itemtype.id] = self.error_class([msg])
         return cleaned_data
 
     def save(self, related_node=None, commit=True, *args, **kwargs):
         properties = self.cleaned_data
         if (properties
             and any([bool(unicode(v).strip()) for v in properties.values()])):
-            node_id = properties.pop(self.itemtype.name)
+            node_id = properties.pop(self.itemtype.id)
             if not self.graph.relaxed:
                 properties_items = properties.items()
                 for field_key, field_value in properties_items:

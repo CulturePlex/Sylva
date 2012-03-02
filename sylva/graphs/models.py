@@ -17,6 +17,7 @@ PERMISSIONS = {
     'graph': {
         'change_graph': _("Change graph"),
         'view_graph': _("View graph"),
+#        'change_collaborators': _("Change collaborators"),
     },
     'schema': {
         'change_schema': _("Change schema"),
@@ -26,7 +27,6 @@ PERMISSIONS = {
         'add_data': _("Add data"),
         'view_data': _("View data"),
         'delete_data': _("Delete data"),
-        'view_data': _("View data"),
     },
 }
 

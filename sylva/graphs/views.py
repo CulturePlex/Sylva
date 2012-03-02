@@ -10,6 +10,7 @@ from django.shortcuts import (get_object_or_404, render_to_response, redirect,
 from django.template import RequestContext
 
 from guardian import shortcuts as guardian
+from guardian.decorators import permission_required
 
 from data.models import Data
 from graphs.forms import GraphForm, AddCollaboratorForm
@@ -17,7 +18,7 @@ from graphs.models import Graph, PERMISSIONS
 from schemas.models import Schema, RelationshipType
 from settings import PREVIEW_NODES
 
-@login_required()
+@permission_required("graphs.view_graph", (Graph, "id", "graph_id"))
 def graph_view(request, graph_id):
 
     def jsonify_graph(graph, n_elements):
@@ -53,7 +54,7 @@ def graph_view(request, graph_id):
                               context_instance=RequestContext(request))
 
 
-@login_required()
+@permission_required("graphs.change_graph", (Graph, "id", "graph_id"))
 def graph_edit(request, graph_id):
     graph = get_object_or_404(Graph, id=graph_id)
     form = GraphForm(user=request.user, instance=graph)
@@ -95,14 +96,15 @@ def graph_create(request):
                               context_instance=RequestContext(request))
 
 
-@login_required()
+@permission_required("graphs.change_collaborators", (Graph, "id", "graph_id"))
 def graph_collaborators(request, graph_id):
     # Only graph owner should be able to do this
     graph = get_object_or_404(Graph, id=graph_id)
     if request.user != graph.owner:
         return redirect('%s?next=%s' % (reverse("signin"), request.path))
     users = User.objects.all()
-    collaborators = list(guardian.get_users_with_perms(graph))
+    all_collaborators = guardian.get_users_with_perms(graph)
+    collaborators = list(all_collaborators.exclude(pk=request.user.id))
     if request.POST:
         data = request.POST.copy()
         form = AddCollaboratorForm(data=data, graph=graph,
@@ -143,7 +145,7 @@ def graph_collaborators(request, graph_id):
                               context_instance=RequestContext(request))
 
 
-@login_required()
+@permission_required("graphs.change_collaborators", (Graph, "id", "graph_id"))
 def change_permission(request, graph_id):
     if request.is_ajax():
         graph = get_object_or_404(Graph, id=graph_id)

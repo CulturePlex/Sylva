@@ -43,7 +43,7 @@ class BaseType(models.Model):
 
     class Meta:
         abstract = True
-        ordering = ("order", )
+        ordering = ("order", "name")
 
 
 class NodeType(BaseType):

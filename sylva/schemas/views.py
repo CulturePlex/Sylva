@@ -7,7 +7,9 @@ from django.template import RequestContext
 from django.shortcuts import get_object_or_404, render_to_response, redirect
 from django.utils.translation import gettext as _
 
-from graphs.models import Graph
+from guardian.decorators import permission_required
+
+from graphs.models import Graph, Schema
 from schemas.forms import (NodeTypeForm, NodePropertyFormSet,
                            RelationshipTypeForm, RelationshipTypeFormSet,
                            TypeDeleteForm, TypeDeleteConfirmForm,
@@ -15,7 +17,7 @@ from schemas.forms import (NodeTypeForm, NodePropertyFormSet,
 from schemas.models import NodeType, RelationshipType
 
 
-@login_required()
+@permission_required("schemas.change_schema", (Schema, "graph__id", "graph_id"))
 def schema_edit(request, graph_id):
     graph = get_object_or_404(Graph, id=graph_id)
     nodetypes = NodeType.objects.filter(schema__graph__id=graph_id)
@@ -27,12 +29,7 @@ def schema_edit(request, graph_id):
                               context_instance=RequestContext(request))
 
 
-@login_required()
-def schema_nodetype_create(request, graph_id):
-    return schema_nodetype_edit(request, graph_id)
-
-
-@login_required()
+@permission_required("schemas.delete_schema", (Schema, "graph__id", "graph_id"))
 def schema_nodetype_delete(request, graph_id, nodetype_id):
     graph = get_object_or_404(Graph, id=graph_id)
     nodetype = get_object_or_404(NodeType, id=nodetype_id)
@@ -71,8 +68,17 @@ def schema_nodetype_delete(request, graph_id, nodetype_id):
                               context_instance=RequestContext(request))
 
 
-@login_required()
-def schema_nodetype_edit(request, graph_id, nodetype_id=None):
+@permission_required("schemas.edit_schema", (Schema, "graph__id", "graph_id"))
+def schema_nodetype_create(request, graph_id):
+    return schema_nodetype_editcreate(request, graph_id)
+
+
+@permission_required("schemas.edit_schema", (Schema, "graph__id", "graph_id"))
+def schema_nodetype_edit(request, graph_id, nodetype_id):
+    return schema_nodetype_editcreate(request, graph_id, nodetype_id)
+
+
+def schema_nodetype_editcreate(request, graph_id, nodetype_id=None):
     graph = get_object_or_404(Graph, id=graph_id)
     if nodetype_id:
         empty_nodetype = get_object_or_404(NodeType, id=nodetype_id)
@@ -108,20 +114,30 @@ def schema_nodetype_edit(request, graph_id, nodetype_id=None):
                               context_instance=RequestContext(request))
 
 
-@login_required()
+@permission_required("schemas.edit_schema", (Schema, "graph__id", "graph_id"))
 def schema_relationshiptype_create(request, graph_id):
-    return schema_relationshiptype_edit(request, graph_id)
+    return schema_relationshiptype_editcreate(request, graph_id)
 
 
-@login_required()
-def schema_relationshiptype_edit(request, graph_id, relationshiptype_id=None):
+@permission_required("schemas.edit_schema", (Schema, "graph__id", "graph_id"))
+def schema_relationshiptype_edit(request, graph_id, relationshiptype_id):
+    return schema_relationshiptype_editcreate(request, graph_id,
+                                       relationshiptype_id=relationshiptype_id)
+
+
+def schema_relationshiptype_editcreate(request, graph_id,
+                                       relationshiptype_id=None):
     graph = get_object_or_404(Graph, id=graph_id)
     if relationshiptype_id:
         empty_relationshiptype = get_object_or_404(RelationshipType,
                                                    id=relationshiptype_id)
     else:
         empty_relationshiptype = RelationshipType()
-    form = RelationshipTypeForm(initial={"arity": None}, schema=graph.schema,
+    initial = {"arity": None}
+    for field_name in ["source", "name", "target", "inverse"]:
+        if field_name in request.GET:
+            initial[field_name] = request.GET.get(field_name)
+    form = RelationshipTypeForm(initial=initial, schema=graph.schema,
                                 instance=empty_relationshiptype)
     formset = RelationshipTypeFormSet(instance=empty_relationshiptype)
     if request.POST:
@@ -156,7 +172,8 @@ def schema_relationshiptype_edit(request, graph_id, relationshiptype_id=None):
                                "formset": formset},
                               context_instance=RequestContext(request))
 
-@login_required()
+
+@permission_required("schemas.edit_schema", (Schema, "graph__id", "graph_id"))
 def schema_relationshiptype_delete(request, graph_id,
                                    relationshiptype_id):
     graph = get_object_or_404(Graph, id=graph_id)
