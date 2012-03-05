@@ -41,15 +41,16 @@
         {% else %}
             <div id="lc_{{ forloop.counter }}" class="list_content">
         {% endif %}
-            <select id="toggle_{{ option.0|slugify }}" onChange="toggleColumn('toggle_{{ option.0|slugify }}')">
-                <option value="0">{% trans "Toggle column" %}</option>
-                {% for key in option.1 %}
-                    <option value="{{ forloop.counter }}">{{ key }}</option>
-                {% endfor %}
-            </select>
-
             <table id="content_table">
                 <tr>
+                    <th>
+                        <select id="toggle_{{ option.0|slugify }}" onChange="toggleColumn('toggle_{{ option.0|slugify }}')">
+                            <option disabled="disabled" value="0">{% trans "Toggle column" %}:</option>
+                            {% for key in option.1 %}
+                                <option value="{{ forloop.counter }}">{{ key }}</option>
+                            {% endfor %}
+                        </select>
+                    </th>
                     {% for key in option.1 %}
                     <th class="{{ option.0|slugify }}_{{ forloop.counter }}">{{ key }}</th>
                     {% endfor %}
@@ -60,6 +61,7 @@
                 </tr>
                 {% for row in option.2 %}
                     <tr>
+                        <td>{{ forloop.counter }}</td>
                         {% for cell in row %}
                             {% if forloop.last %}
                             <td>

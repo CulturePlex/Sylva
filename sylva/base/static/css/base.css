@@ -967,15 +967,34 @@ div#datalist {
     margin: 10px;
 }
 
+table#content_table {
+    width: 100%;
+}
+
 #content_table table, th {
-    border: 1px solid #348E82;
+/*    border: 1px solid #348E82;*/
     padding: 5px 20px 5px 20px;
     background-color: #D6E7DF;
 }
+#content_table table, th select {
+    color: #555;
+    display: inline;
+    width: 20px;
+    height: 30px;
+    padding: 0px;
+    margin: 0px;
+    font-weight: bold;
+    border: 1px solid #D6E7DF;
+    background-color: #D6E7DF;
+    box-shadow: none;
+    /* Firefox*/
+/*    padding: 3px 0 0;*/
+}
 
 #content_table td {
-    border: 1px solid #348E82;
+/*    border: 1px solid #348E82;*/
     padding: 5px;
+    text-align: center;
 /*    padding-bottom: 3px;*/
 }
 
