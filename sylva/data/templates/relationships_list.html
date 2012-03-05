@@ -16,17 +16,20 @@
 
 {% block content_bottom_bar %}
     {% if option.3 %}
-        <a href="javascript:;" onmousedown="divId='lc_'+{{forloop.counter}};if(document.getElementById(divId).style.display == 'none'){ document.getElementById(divId).style.display = 'block'; }else{ document.getElementById(divId).style.display = 'none'; }">
-            {% trans "Toggle preview" %}</a>
+        <a class="button addButton">
+            {% blocktrans with relationship_type=option.0 %}
+                Add {{ relationship_type }}
+            {% endblocktrans %}</a>
+        <span class="buttonLinkOption">
+        <a href="javascript:;" onclick="divId='lc_'+{{forloop.counter}};if(document.getElementById(divId).style.display == 'none'){ document.getElementById(divId).style.display = 'block'; }else{ document.getElementById(divId).style.display = 'none'; }">
+            {% trans "Preview" %}</a>
+        {% trans "or" %}
         <a href="{% url relationships_list_full graph.id option.3 %}">
             {% blocktrans with relationship_type=option.0 %}
-            Show full {{ relationship_type }} relationships list
+            Show all
             {% endblocktrans %}</a>
         {% endif %}
-        <a>
-            {% blocktrans with relationship_type=option.0 %}
-                Add new {{ relationship_type }} relationship
-            {% endblocktrans %}</a>
+        </span>
 {% endblock %}
 
 {% block empty_for %}

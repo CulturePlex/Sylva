@@ -34,7 +34,7 @@
     };
 
     // Bind events to data toggle controls to start the auto fetching of relationships
-    $('.data-preview-toggle').live('mousedown', function(){
+    $('.data-preview-toggle').live('click', function(){
         $.each($('.retrieve-relationships'), function(index){
           var element = $(this);
           // Fetch elements that are not already loaded and are visible
@@ -60,15 +60,18 @@
 
 {% block content_bottom_bar %}
     {% if option.3 %}
-        <a class="data-preview-toggle" href="javascript:;" onmousedown="divId='lc_'+{{forloop.counter}};if(document.getElementById(divId).style.display == 'none'){ document.getElementById(divId).style.display = 'block'; }else{ document.getElementById(divId).style.display = 'none'; }">
-            {% trans "Toggle preview" %}</a>
+        <a class="button addButton" href="{% url nodes_create graph.id option.3 %}">
+            {% blocktrans with node_type=option.0 %}
+                Add {{ node_type }}
+            {% endblocktrans %}</a>
+        <span class="buttonLinkOption">
+        <a class="data-preview-toggle" href="javascript:;" onClick="divId='lc_'+{{forloop.counter}};if(document.getElementById(divId).style.display == 'none'){ document.getElementById(divId).style.display = 'block'; }else{ document.getElementById(divId).style.display = 'none'; }">
+            {% trans "Preview" %}</a>
+        {% trans "or" %}
         <a href="{% url nodes_list_full graph.id option.3 %}">
             {% blocktrans with node_type=option.0 %}
-            Show full {{ node_type }} nodes list
+            Show all
             {% endblocktrans %}</a>
+        </span>
     {% endif %}
-        <a href="{% url nodes_create graph.id option.3 %}">
-            {% blocktrans with node_type=option.0 %}
-                Add new {{ node_type }} node
-            {% endblocktrans %}</a>
 {% endblock %}

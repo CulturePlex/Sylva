@@ -954,12 +954,13 @@ div#datalist {
 }
 
 #list_bottombar {
-    background-color: #D6E7DF;
-    padding: 5px;
+/*    background-color: #D6E7DF;*/
+/*    padding: 5px;*/
+    padding-bottom: 25px;
 }
 
 #list_bottombar a {
-    margin: 5px 50px 5px 50px;
+/*    margin: 5px 50px 5px 50px;*/
 }
 
 .list_content {
@@ -974,8 +975,8 @@ div#datalist {
 
 #content_table td {
     border: 1px solid #348E82;
-    padding-top: 3px;
-    padding-bottom: 3px;
+    padding: 5px;
+/*    padding-bottom: 3px;*/
 }
 
 #permissions_table {

@@ -35,18 +35,14 @@
 
 {% block content %}
 {% for option in option_list %}
-    <div id="datalist">
-
-        <div id="list_topbar">
-            <h2 id="list_topbar_title">{{ option.0 }}</h2>
-        </div>
+    <h2 >{{ option.0 }}</h2>
         {% if option.3 %}
             <div id="lc_{{ forloop.counter }}" class="list_content" style="display:none">
         {% else %}
             <div id="lc_{{ forloop.counter }}" class="list_content">
         {% endif %}
             <select id="toggle_{{ option.0|slugify }}" onChange="toggleColumn('toggle_{{ option.0|slugify }}')">
-                <option value="0">Select attribute to toggle visualization</option>
+                <option value="0">{% trans "Toggle column" %}</option>
                 {% for key in option.1 %}
                     <option value="{{ forloop.counter }}">{{ key }}</option>
                 {% endfor %}
@@ -84,7 +80,6 @@
         <div id="list_bottombar">
             {% block content_bottom_bar %}{% endblock %}
         </div>
-    </div>
 {% empty %}
     {% block empty_for %}
         <a class="button" href="{% url schema_nodetype_create graph.id %}">{% trans "New Type" %}</a>
