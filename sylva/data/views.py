@@ -187,19 +187,28 @@ def nodes_edit(request, graph_id, node_id):
     node_initial = node.properties.copy()
     node_initial.update({ITEM_FIELD_NAME: node.id})
     node_form = NodeForm(itemtype=nodetype, initial=node_initial, data=data)
-    initial = []
     # Outgoing relationships
-    for relationship in node.relationships.all():
-        properties = relationship.properties
-        outgoing_type = RelationshipType.objects.get(id=relationship.label)
-        properties.update({
-            outgoing_type.name: relationship.target.id,
-            ITEM_FIELD_NAME: relationship.id,
-        })
-        initial.append(properties)
+#    initial = []
+#    for relationship in node.relationships.all():
+#        properties = relationship.properties
+#        outgoing_type = RelationshipType.objects.get(id=relationship.label)
+#        properties.update({
+#            outgoing_type.id: relationship.target.id,
+#            ITEM_FIELD_NAME: relationship.id,
+#        })
+#        initial.append(properties)
     outgoing_formsets = {}
     allowed_outgoing_relationships = nodetype.outgoing_relationships.all()
     for relationship in allowed_outgoing_relationships:
+        initial = []
+        graph_relationships = node.relationships.filter(label=relationship.id)
+        for graph_relationship in graph_relationships:
+            properties = graph_relationship.properties
+            properties.update({
+                relationship.id: graph_relationship.target.id,
+                ITEM_FIELD_NAME: graph_relationship.id,
+            })
+            initial.append(properties)
         if relationship.arity > 0:
             RelationshipFormSet = formset_factory(RelationshipForm,
                                                   formset=TypeBaseFormSet,
@@ -219,17 +228,27 @@ def nodes_edit(request, graph_id, node_id):
                                                    data=data)
         outgoing_formsets[formset_prefix] = outgoing_formset
     # Incoming relationships
-    for relationship in node.relationships.all():
-        properties = relationship.properties
-        incoming_type = RelationshipType.objects.get(id=relationship.label)
-        properties.update({
-            incoming_type.name: relationship.source.id,
-            ITEM_FIELD_NAME: relationship.id,
-        })
-        initial.append(properties)
+#    initial = []
+#    for relationship in node.relationships.all():
+#        properties = relationship.properties
+#        incoming_type = RelationshipType.objects.get(id=relationship.label)
+#        properties.update({
+#            incoming_type.id: relationship.source.id,
+#            ITEM_FIELD_NAME: relationship.id,
+#        })
+#        initial.append(properties)
     incoming_formsets = {}
     allowed_incoming_relationships = nodetype.incoming_relationships.all()
     for relationship in allowed_incoming_relationships:
+        initial = []
+        graph_relationships = node.relationships.filter(label=relationship.id)
+        for graph_relationship in graph_relationships:
+            properties = graph_relationship.properties
+            properties.update({
+                relationship.id: graph_relationship.source.id,
+                ITEM_FIELD_NAME: graph_relationship.id,
+            })
+            initial.append(properties)
         if relationship.arity > 0:
             RelationshipFormSet = formset_factory(RelationshipForm,
                                                   formset=TypeBaseFormSet,

@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from engines.gdb.backends import NodeDoesNotExist, RelationshipDoesNotExist
 
 
 class LimitReachedException(Exception):
@@ -61,6 +62,7 @@ class BaseManager(object):
 
 
 class NodesManager(BaseManager):
+    NodeDoesNotExist = NodeDoesNotExist
 
     def create(self, label, properties=None):
         if self.data.can_add_nodes():
@@ -126,6 +128,7 @@ class NodesManager(BaseManager):
 
 
 class RelationshipsManager(BaseManager):
+    RelationshipDoesNotExist = RelationshipDoesNotExist
 
     def create(self, source, target, label, properties=None):
         if isinstance(source, Node):
@@ -236,6 +239,28 @@ class NodeRelationshipsManager(BaseManager):
         relationships = []
         eltos = self.gdb.get_node_relationships(self.node_id,
                                                 include_properties=True)
+        for relationship_id, relationship_properties in eltos:
+            relationship = Relationship(relationship_id, self.graph,
+                                        properties=relationship_properties)
+            relationships.append(relationship)
+        return relationships
+
+    def filter(self, **options):
+        label= None
+        if "label" in options:
+            label = options.get("label")
+        relationships = []
+        eltos = self.gdb.get_node_relationships(self.node_id,
+                                                include_properties=True,
+                                                label=label)
+        for relationship_id, relationship_properties in eltos:
+            relationship = Relationship(relationship_id, self.graph,
+                                        properties=relationship_properties)
+            relationships.append(relationship)
+        return relationships
+
+    def _create_relationship_list(self, eltos):
+        relationships = []
         for relationship_id, relationship_properties in eltos:
             relationship = Relationship(relationship_id, self.graph,
                                         properties=relationship_properties)

@@ -61,7 +61,11 @@
                 </tr>
                 {% for row in option.2 %}
                     <tr>
-                        <td>{{ forloop.counter }}</td>
+                        <td>
+                            <a href="{% url nodes_edit graph.id row|last %}">
+                            {{ forloop.counter }}
+                            </a>
+                        </td>
                         {% for cell in row %}
                             {% if forloop.last %}
                             <td>

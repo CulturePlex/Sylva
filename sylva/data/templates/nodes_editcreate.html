@@ -39,7 +39,7 @@
 <form action="." method="POST" enctype="multipart/form-data">
 {% csrf_token %}
     <div class="content{% if outgoing_formsets or incoming_formsets %}3-block{% else %}2-first{% endif %}">
-        <h2>{{ action }}: {{ nodetype.name|capfirst }}</h2>
+        <h2>{% trans "Properties" %}</h2>
         {% for field in node_form %}
             <p {% if field.name in fields_to_hide and not field.value %}class="hidden"{% endif %}>
             {{ field.errors }}
@@ -58,8 +58,17 @@
     {% if outgoing_formsets or incoming_formsets %}
     <div class="content-divider"></div>
     <div class="content3-block relationships">
+    <select id="h2-relationships">
+        <option value="all">{% trans "All Relationships" %}</option>
+        {% if incoming_formsets %}
+        <option value="incoming">{% trans "Incoming" %}</option>
+        {% endif %}
+        {% if outgoing_formsets %}
+        <option value="outgoing">{% trans "Outgoing" %}</option>
+        {% endif %}
+    </select>
     {% if outgoing_formsets %}
-            <h2>{% trans "Outgoing" %}</h2>
+            <span class="all-relationships outgoing-relationships">
             {% for prefix, outgoing_formset in outgoing_formsets.items %}
                 {{ outgoing_formset.management_form }}
                 {% for outgoing_form in outgoing_formset %}
@@ -70,14 +79,15 @@
                     {% else %}
                         <div class="initial" id="{{ prefix }}-form-{{ forloop.counter0 }}">
                         {{ outgoing_form.as_p }}
-                        <a class="delete-row initial-form" href="javascript:void(0)">{% trans "Remove Relationship" %} {{ outgoing_formset.itemtype.name }}</a>
+                        <a class="delete-row initial-form" href="javascript:void(0)">{% trans "Remove" %} {{ outgoing_formset.itemtype.name }}</a>
                         </div>
                     {% endif %}
                 {% endfor %}
             {% endfor %}
+            </span>
         {% endif %}
         {% if incoming_formsets %}
-            <h2>{% trans "Incoming" %}</h2>
+            <span class="all-relationships incoming-relationships">
             {% for prefix, incoming_formset in incoming_formsets.items %}
                 {{ incoming_formset.management_form }}
                 {% for incoming_form in incoming_formset %}
@@ -88,11 +98,19 @@
                     {% else %}
                         <div class="initial" id="{{ prefix }}-form-{{ forloop.counter0 }}">
                         {{ incoming_form.as_p }}
-                        <a class="delete-row initial-form" href="javascript:void(0)">{% trans "Remove Relationship" %} {{ incoming_formset.itemtype.name }}</a>
+                        <a class="delete-row initial-form" href="javascript:void(0)">
+                            {% trans "Remove" %}
+                            {% if incoming_formset.itemtype.inverse %}
+                                {{ incoming_formset.itemtype.inverse }}
+                            {% else %}
+                                {{ incoming_formset.itemtype.name }}
+                            {% endif %}
+                        </a>
                         </div>
                     {% endif %}
                 {% endfor %}
             {% endfor %}
+            </span>
         {% endif %}
     </div>
     {% endif %}
@@ -133,6 +151,7 @@
 
 <script type="text/javascript">
     (function($) {
+        // Outgoing
         {% for prefix, outgoing_formset in outgoing_formsets.items %}
         init_{{ prefix }} = function() {
             $("div#{{ prefix }}").formset({
@@ -148,21 +167,24 @@
         init_{{ prefix }}();
         $("#{{ prefix }} p:last label").hide();
         {% endfor %}
+        // Incoming
         {% for prefix, incoming_formset in incoming_formsets.items %}
         init_{{ prefix }} = function() {
+            var label = "{% if incoming_formset.itemtype.inverse %}{{ incoming_formset.itemtype.inverse }}{% else %}{{ incoming_formset.itemtype.name }}{% endif %}";
             $("div#{{ prefix }}").formset({
                 prefix: "{{ prefix }}",
                 addCssClass: "button addButton",
-                addText: "{% trans "Add" %} {{ incoming_formset.itemtype.name }} ({{ incoming_formset.itemtype.source.name }})",
+                addText: "{% trans "Add" %} "+ label,  // +" ({{ incoming_formset.itemtype.source.name }})",
                 extraClasses: ["row1", "row2"],
                 added: function(row) {$("#{{prefix}} p:last label").hide();},
-                deleteText: "{% trans "Remove" %} {{ incoming_formset.itemtype.name }}"
+                deleteText: "{% trans "Remove" %} "+ label
             });
         };
         $("#{{ prefix }} p:last label").hide();
         init_{{ prefix }}();
         $("#{{ prefix }} p:last label").hide();
         {% endfor %}
+        // Files
         init{{ mediafile_formset.prefix }} = function() {
             $("div#{{ mediafile_formset.prefix }}").formset({
                 prefix: "{{ mediafile_formset.prefix }}",
@@ -186,6 +208,7 @@
             });
         };
         $("#{{ medialink_formset.prefix }} p:last label").hide();
+        // Links
         init{{ medialink_formset.prefix }}();
         $(".initial-form").click(function(e) {
             console.log();
@@ -198,7 +221,17 @@
         });
         // For the properties of the relationships
         $(".toggleProperties").click(function (e) {
-            $(this).parents("p").siblings("p").toggle()
+            $(this).parents("p").siblings("p").toggle();
+            var last = $(this).parents("p").siblings("p:last")
+            if (last.parent().hasClass("initial")) {
+                last.hide();
+            }
+        });
+        // Selecting the type of relationships to show
+        $("#h2-relationships").change(function (e) {
+            var val = $(this).val();
+            $(".all-relationships").hide();
+            $("."+ val +"-relationships").show();
         });
     })(jQuery);
 </script>

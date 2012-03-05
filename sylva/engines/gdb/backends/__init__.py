@@ -108,7 +108,7 @@ class BaseGraphDatabase(object):
         raise NotImplementedError("Method has to be implemented")
 
     def get_node_relationships(self, id, incoming=False, outgoing=False,
-                               include_properties=False):
+                               include_properties=False, label=None):
         """
         Get a list of tuples with all relationships. The first element is "id"
         and the second is None.
@@ -117,6 +117,7 @@ class BaseGraphDatabase(object):
         If "outgoing" is True, it only returns the ids for outgoing ones.
         If "include_properties" is True, the value of the second value of the 
         tuple is a dictionary containing the properties.
+        If "label" is provided, relationships will be filtered.
         """
 
     def get_nodes_properties(self, ids):

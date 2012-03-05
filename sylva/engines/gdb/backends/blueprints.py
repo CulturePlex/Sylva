@@ -156,7 +156,7 @@ class BlueprintsGraphDatabase(BaseGraphDatabase):
         self.__delete_element_properties(vertex)
 
     def get_node_relationships(self, id, incoming=False, outgoing=False,
-                               include_properties=False):
+                               include_properties=False, label=None):
         vertex = self.__get_vertex(id)
         if not incoming and outgoing:
             edges = vertex.getOutEdges()
@@ -165,10 +165,22 @@ class BlueprintsGraphDatabase(BaseGraphDatabase):
         else:
             edges = vertex.getBothEdges()
         if include_properties:
-            return [(e.getId(), self.get_relationship_properties(e.getId())) \
+            if label:
+                return [(e.getId(),
+                          self.get_relationship_properties(e.getId()))
+                        for e in list(edges)
+                        if str(label) == str(e.getLabel())]
+            else:
+                return [(e.getId(),
+                          self.get_relationship_properties(e.getId()))
                         for e in list(edges)]
         else:
-            return [(e.getId(), None) for e in list(edges)]
+            if label:
+                return [(e.getId(), None) for e in list(edges)]
+            else:
+                return [(e.getId(), None)
+                        for e in list(edges)
+                        if str(label) == str(e.getLabel())]
 
     def get_nodes_properties(self, ids):
         result = {}

@@ -60,8 +60,8 @@ class Graph(models.Model, GraphMixin):
     #     return ('graphs.views.details', [str(self.id)])
 
     def get_collaborators(self):
-        collaborators = list(guardian.get_users_with_perms(self))
-        return collaborators
+        all_collaborators = guardian.get_users_with_perms(self)
+        return list(all_collaborators.exclude(id=self.owner.id))
 
 
 @receiver(pre_save, sender=Graph)
