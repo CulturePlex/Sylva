@@ -48,4 +48,5 @@
                 </span>
             </div>
         </div>
+    <input type="hidden" class="stats-series" value='{"title": "{{ graph.name }}", "nodes": {{ graph.data.total_nodes }}, "relationships": {{ graph.data.total_relationships }}, "storage": {{ graph.data.total_storage }}, "label": "{% if graph.owner == user %}{% trans "Owned" %}{% else %}{% trans "Collaboration" %}{% endif %}", "type": "{% if graph.owner == user %}owned{% else %}collaboration{% endif %}"}' />
     </div>

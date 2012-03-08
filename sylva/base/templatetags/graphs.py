@@ -4,6 +4,6 @@ from django.db.models import Count
 
 register = Library()
 
-@register.inclusion_tag('graphs_info.html')
-def graph_info(graph):
-    return {'graph': graph}
+@register.inclusion_tag('graphs_info.html', takes_context=True)
+def graph_info(context, graph):
+    return {'graph': graph, 'user': context["user"]}
