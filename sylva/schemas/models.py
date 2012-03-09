@@ -3,9 +3,12 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.utils.translation import gettext as _
 from django.db import models
 
+from base.fields import AutoSlugField
+
 
 class Schema(models.Model):
     # graph = models.OneToOneField(Graph, verbose_name=_('graph'))
+    options = models.TextField(_('options'), null=True, blank=True)
 
     class Meta:
         permissions = (
@@ -35,13 +38,18 @@ class Schema(models.Model):
 
 class BaseType(models.Model):
     name = models.CharField(_('name'), max_length=150)
+    slug = AutoSlugField(populate_from=['name'], max_length=200,
+                         editable=False)
     plural_name = models.CharField(_('plural name'), max_length=175,
                                    null=True, blank=True)
     description = models.TextField(_('description'), null=True, blank=True)
     schema = models.ForeignKey(Schema)
     order = models.IntegerField(_('order'), null=True, blank=True)
+    total = models.IntegerField(_("total objects"), default=0)
+    validation = models.TextField(_('validation'), blank=True, null=True)
 
     class Meta:
+        unique = ("slug", )
         abstract = True
         ordering = ("order", "name")
 
@@ -90,12 +98,18 @@ class RelationshipType(BaseType):
                                verbose_name=_("target"),
                                help_text=_("Target type of the " \
                                            "allowed relationship"))
-    arity = models.IntegerField(_('arity'), default=0, blank=True,
-                                help_text=_("Leave blank for infinite arity"))
+    arity_source = models.IntegerField(_('Source arity'), default=0, blank=True,
+                                help_text=_("Leave blank for infinite arity,"
+                                            "or type with format min:max."))
+    arity_target = models.IntegerField(_('Target arity'), default=0, blank=True,
+                                help_text=_("Leave blank for infinite arity,"
+                                            "or type with format min:max."))
 
     def save(self, *args, **kwargs):
-        if not self.arity or self.arity < 1:
-            self.arity = 0
+        if not self.arity_source or self.arity_source < 1:
+            self.arity_source = 0
+        if not self.arity_target or self.arity_target < 1:
+            self.arity_target = 0
         super(RelationshipType, self).save(*args, **kwargs)
 
     def __unicode__(self):
@@ -104,6 +118,8 @@ class RelationshipType(BaseType):
 
 class BaseProperty(models.Model):
     key = models.CharField(_('key'), max_length=50)
+    slug = AutoSlugField(populate_from=['key'], max_length=750,
+                         editable=False)
     default = models.CharField(_('default value'), max_length=255,
                                blank=True, null=True)
     value = models.CharField(_('value'), max_length=255, blank=True)
@@ -113,15 +129,20 @@ class BaseProperty(models.Model):
         (u's', _(u'String')),
         (u'b', _(u'Boolean')),
         (u'd', _(u'Date')),
+        (u't', _(u'Time')),
+        (u'o', _(u'Options')),
     )
     datatype = models.CharField(_('data type'),
                                 max_length=1, choices=DATATYPE_CHOICES,
                                 default=u"u")
     required = models.BooleanField(_('is required?'), default=False)
+    display = models.BooleanField(_('is required?'), default=False)
     description = models.TextField(_('description'), blank=True, null=True)
+    validation = models.TextField(_('validation'), blank=True, null=True)
     order = models.IntegerField(_('order'), blank=True, null=True)
 
     class Meta:
+        unique = ("slug", )
         abstract = True
         ordering = ("order", )
 

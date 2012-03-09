@@ -57,6 +57,7 @@ class UserProfile(UserenaLanguageBaseProfile):
                                max_length=150)
     lab = models.CharField(_('laboratoy'), blank=True, null=True,
                            max_length=150)
+    options = models.TextField(_('options'), null=True, blank=True)
     user = models.OneToOneField(User, verbose_name=_('user'))
     account = models.ForeignKey(Account, verbose_name=_('account'),
                                    related_name="users")

@@ -7,11 +7,11 @@ from django.dispatch import receiver
 
 from guardian import shortcuts as guardian
 
+from base.fields import AutoSlugField
 from data.models import Data
 from schemas.models import Schema
 
 from graphs.mixins import GraphMixin
-
 
 PERMISSIONS = {
     'graph': {
@@ -33,6 +33,8 @@ PERMISSIONS = {
 
 class Graph(models.Model, GraphMixin):
     name = models.CharField(_('name'), max_length=120)
+    slug = AutoSlugField(populate_from=['name'], max_length=200,
+                         editable=False)
     description = models.TextField(_('description'), null=True, blank=True)
     public = models.BooleanField(_('is public?'), default=True)
     order = models.IntegerField(_('order'), null=True, blank=True)
@@ -43,8 +45,10 @@ class Graph(models.Model, GraphMixin):
     schema = models.OneToOneField(Schema, verbose_name=_('schema'),
                                null=True, blank=True)
     relaxed = models.BooleanField(_('Is schema-relaxed?'), default=False)
+    options = models.TextField(_('options'), null=True, blank=True)
 
     class Meta:
+        unique = ("slug", )
         unique_together = ["owner", "name"]  # TODO: Add constraint in forms
         ordering = ("order", )
         permissions = (
@@ -89,8 +93,8 @@ def assign_permissions_to_owner(*args, **kwargs):
     if graph:
         owner = graph.owner
         aux = {'graph': graph,
-                'schema': graph.schema,
-                'data': graph.data}
+               'schema': graph.schema,
+               'data': graph.data}
         for permission_type in aux:
             for permission in PERMISSIONS[permission_type].keys():
                 guardian.assign(permission, owner, aux[permission_type])
