@@ -14,8 +14,8 @@ from converters import GEXFConverter
 
 
 @login_required()
-def graph_import_tool(request, graph_id):
-    graph = get_object_or_404(Graph, id=graph_id)
+def graph_import_tool(request, graph_slug):
+    graph = get_object_or_404(Graph, slug=graph_slug)
     # Schema jsonification
     schema = graph.schema.export()
     schema_json = {"nodeTypes": {}, "allowedEdges":[]}
@@ -40,9 +40,9 @@ def graph_import_tool(request, graph_id):
                             context_instance=RequestContext(request))
 
 
-@permission_required("data.change_data", (Data, "graph__id", "graph_id"))
-def ajax_node_create(request, graph_id):
-    graph = get_object_or_404(Graph, id=graph_id)
+@permission_required("data.change_data", (Data, "graph__slug", "graph_slug"))
+def ajax_node_create(request, graph_slug):
+    graph = get_object_or_404(Graph, slug=graph_slug)
     data = request.GET.copy()
     properties = simplejson.loads(data["properties"])
     label = graph.schema.nodetype_set.get(name=data["type"])
@@ -50,9 +50,9 @@ def ajax_node_create(request, graph_id):
     return HttpResponse(simplejson.dumps({"id": node.id}))
 
 
-@permission_required("data.change_data", (Data, "graph__id", "graph_id"))
-def ajax_relationship_create(request, graph_id):
-    graph = get_object_or_404(Graph, id=graph_id)
+@permission_required("data.change_data", (Data, "graph__slug", "graph_slug"))
+def ajax_relationship_create(request, graph_slug):
+    graph = get_object_or_404(Graph, slug=graph_slug)
     data = request.GET.copy()
     source = graph.nodes.get(data["sourceId"])
     target = graph.nodes.get(data["targetId"])
@@ -66,9 +66,9 @@ def ajax_relationship_create(request, graph_id):
     return HttpResponse(simplejson.dumps({}))
 
 
-@permission_required("data.view_data", (Data, "graph__id", "graph_id"))
-def graph_export_tool(request, graph_id):
-    graph = get_object_or_404(Graph, id=graph_id)
+@permission_required("data.view_data", (Data, "graph__slug", "graph_slug"))
+def graph_export_tool(request, graph_slug):
+    graph = get_object_or_404(Graph, slug=graph_slug)
     converter = GEXFConverter(graph)
     response = HttpResponse(converter.stream_export(), mimetype='application/xml')
     response['Content-Disposition'] = \

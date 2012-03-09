@@ -176,9 +176,7 @@ INSTALLED_APPS = (
     'engines',
     'accounts',
     'tools',
-    'celery',
-    'djcelery',
-    'djkombu',
+    'south',
 )
 
 AUTHENTICATION_BACKENDS = (

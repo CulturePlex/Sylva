@@ -2,7 +2,7 @@
 {% load i18n graphs %}
 
 {% block extra_scripts %}
-    <script type="text/javascript" src="https://raw.github.com/HumbleSoftware/Flotr2/master/flotr2.min.js"></script>
+    <script type="text/javascript" src="{{ STATIC_PREFIX }}js/flotr2.min.js"></script>
     <script type="text/javascript" src="{{ STATIC_PREFIX }}js/dashboard.stats.js"></script>
 {% endblock %}
 
@@ -72,8 +72,12 @@
           <div class="content-divider"></div>
           <div class="content3-block">
             <h2 class="query">{% trans "Statistics" %}</h4>
+            {% if graphs or collaborations %}
             {% trans "Relationships (Y axe), Nodes (X axe), Storage (bubble size)." %}
             <div id="dashboardStats" style="width: 375px; height: 500px;"></div>
+            {% else %}
+            {% trans "There're no statistics yet." %}
+            {% endif %}
           <!-- end content blocks -->
           </div>
 </div>

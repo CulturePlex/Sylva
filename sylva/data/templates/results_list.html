@@ -22,11 +22,11 @@
 {% endblock %}
 
 {% block menu_buttons %}
-<li><a href="{% url graph_view graph.id %}" class="link"><span>{% trans "Graph" %}</span></a></li>
-<li><a href="{% url nodes_list graph.id %}" class="text"><span>{% trans "Nodes" %}</span></a></li>
-<li><a href="{% url relationships_list graph.id %}" class="link"><span>{% trans "Relationships" %}</span></a></li>
-<li><a href="{% url schema_edit graph.id %}" class="link"><span>{% trans "Schema" %}</span></a></li>
-<li><a href="{% url graph_collaborators graph.id %}" class="link"><span>{% trans "Collaborators" %}</span></a></li>
+<li><a href="{% url graph_view graph.slug %}" class="link"><span>{% trans "Graph" %}</span></a></li>
+<li><a href="{% url nodes_list graph.slug %}" class="text"><span>{% trans "Nodes" %}</span></a></li>
+<li><a href="{% url relationships_list graph.slug %}" class="link"><span>{% trans "Relationships" %}</span></a></li>
+<li><a href="{% url schema_edit graph.slug %}" class="link"><span>{% trans "Schema" %}</span></a></li>
+<li><a href="{% url graph_collaborators graph.slug %}" class="link"><span>{% trans "Collaborators" %}</span></a></li>
 {% endblock %}
 
 {% block content_title %}
@@ -62,7 +62,7 @@
                 {% for row in option.2 %}
                     <tr>
                         <td>
-                            <a href="{% url nodes_edit graph.id row|last %}">
+                            <a href="{% url nodes_edit graph.slug row|last %}">
                             {{ forloop.counter }}
                             </a>
                         </td>
@@ -73,7 +73,7 @@
                             </td>
                             {% else %}
                             <td class="{{ option.0|slugify }}_{{ forloop.counter }}">
-                            <a id="rel_edit_{{ cell }}" href="{% url nodes_edit graph.id row|last %}">
+                            <a id="rel_edit_{{ cell }}" href="{% url nodes_edit graph.slug row|last %}">
                             {{ cell }}
                             </a>
                             </td>
@@ -88,14 +88,14 @@
         </div>
 {% empty %}
     {% block empty_for %}
-        <a class="button" href="{% url schema_nodetype_create graph.id %}">{% trans "New Type" %}</a>
+        <a class="button" href="{% url schema_nodetype_create graph.slug %}">{% trans "New Type" %}</a>
         <span class="buttonLinkOption">
         {% trans "There are no types defined yet" %}.
         </span>
     {% endblock %}
 {% endfor %}
     {% if graph.data.total_nodes == 0 and graph.data.total_relationships == 0 and option_list or graph.schema.relaxed %}
-        <a class="button" href="{% url tool_import graph.id %}">{% trans "Import" %}</a>
+        <a class="button" href="{% url tool_import graph.slug %}">{% trans "Import" %}</a>
         <span class="buttonLinkOption">
             {% trans "Import a graph in GEXF format, or nodes and relationships in CSV format" %}.
         </span>

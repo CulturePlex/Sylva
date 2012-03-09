@@ -54,9 +54,9 @@ class NodeTypeForm(forms.ModelForm):
     class Meta:
         model = NodeType
         if settings.OPTIONS["ALLOWS_INHERITANCE"]:
-            exclude = ("schema", "order")
+            exclude = ("schema", "order", "total")
         else:
-            exclude = ("schema", "order", "inheritance")
+            exclude = ("schema", "order", "total", "inheritance")
 
 NodePropertyFormSet = inlineformset_factory(NodeType, NodeProperty,
                                             extra=1, can_delete=True)
@@ -76,11 +76,13 @@ class RelationshipTypeForm(forms.ModelForm):
         model = RelationshipType
         if settings.OPTIONS["ALLOWS_INHERITANCE"]:
             fields = ("source", "name", "plural_name", "inverse",
-                      "plural_inverse", "target", "description", "arity",
+                      "plural_inverse", "target", "description",
+                      "arity_source", "arity_target",
                       "inheritance")
         else:
             fields = ("source", "name", "plural_name", "inverse",
-                      "plural_inverse", "target", "description", "arity")
+                      "plural_inverse", "target", "description",
+                      "arity_source", "arity_target")
 
 RelationshipTypeFormSet = inlineformset_factory(RelationshipType,
                                                 RelationshipProperty,

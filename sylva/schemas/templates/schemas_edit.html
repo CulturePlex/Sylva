@@ -10,11 +10,11 @@
 {% endblock %}
 
 {% block menu_buttons %}
-<li><a href="{% url graph_view graph.id %}" class="link"><span>{% trans "Graph" %}</span></a></li>
-<li><a href="{% url nodes_list graph.id %}" class="link"><span>{% trans "Nodes" %}</span></a></li>
-<li><a href="{% url relationships_list graph.id %}" class="link"><span>{% trans "Relationships" %}</span></a></li>
-<li><a href="{% url schema_edit graph.id %}" class="text"><span>{% trans "Schema" %}</span></a></li>
-<li><a href="{% url graph_collaborators graph.id %}" class="link"><span>{% trans "Collaborators" %}</span></a></li>
+<li><a href="{% url graph_view graph.slug %}" class="link"><span>{% trans "Graph" %}</span></a></li>
+<li><a href="{% url nodes_list graph.slug %}" class="link"><span>{% trans "Nodes" %}</span></a></li>
+<li><a href="{% url relationships_list graph.slug %}" class="link"><span>{% trans "Relationships" %}</span></a></li>
+<li><a href="{% url schema_edit graph.slug %}" class="text"><span>{% trans "Schema" %}</span></a></li>
+<li><a href="{% url graph_collaborators graph.slug %}" class="link"><span>{% trans "Collaborators" %}</span></a></li>
 {% endblock %}
 
 {% block content_title %}
@@ -30,7 +30,7 @@
     -->
     <div>
     <fieldset class="module aligned wide">
-    {% if node_type.name %}<h2><a href="{% url schema_nodetype_edit graph.id node_type.id %}">{{ node_type.name|capfirst }}</a></h2>{% endif %}
+    {% if node_type.name %}<h2><a href="{% url schema_nodetype_edit graph.slug node_type.id %}">{{ node_type.name|capfirst }}</a></h2>{% endif %}
     {% for node_property in node_type.properties.all %}
          <div class="form-row">
          <div>
@@ -46,7 +46,7 @@
             <label>→ {{ relationship_name.grouper|capfirst }}</label>
             {% for relationship in relationship_name.list %}
                 <div class="form-row">
-                <a href="{% url schema_relationshiptype_edit graph.id relationship.id %}">
+                <a href="{% url schema_relationshiptype_edit graph.slug relationship.id %}">
                     {% if relationship.arity < 1 %}∞{% else %}{{ relationship.arity }} × {% endif %} {{ relationship.target.name|capfirst }}
                 </a>
                 {% if relationship.properties %}
@@ -59,7 +59,7 @@
                 </div>
                 {% endif %}
             {% endfor %}
-            <a class="buttonLinkOption" href="{% url schema_relationshiptype_create graph.id %}?source={{ node_type.id }}&name={{ relationship_name.grouper }}">
+            <a class="buttonLinkOption" href="{% url schema_relationshiptype_create graph.slug %}?source={{ node_type.id }}&name={{ relationship_name.grouper }}">
                 {% trans "Add relationship" %}
             </a>
         </div>
@@ -74,7 +74,7 @@
             </label>
             {% for relationship in relationship_name.list %}
                 <div class="form-row">
-                <a href="{% url schema_relationshiptype_edit graph.id relationship.id %}">
+                <a href="{% url schema_relationshiptype_edit graph.slug relationship.id %}">
                     {% if relationship.arity < 1 %}∞{% else %}{{ relationship.arity }} × {% endif %}
                     {{ relationship.source.name|capfirst }}
                 </a>
@@ -89,7 +89,7 @@
                     {% endfor %}
                 {% endif %}
             {% endfor %}
-            <a class="buttonLinkOption" href="{% url schema_relationshiptype_create graph.id %}?target={{ node_type.id }}&inverse={{ relationship_name.grouper }}&name={{ relationship_name.list.0.name }}">
+            <a class="buttonLinkOption" href="{% url schema_relationshiptype_create graph.slug %}?target={{ node_type.id }}&inverse={{ relationship_name.grouper }}&name={{ relationship_name.list.0.name }}">
                 {% trans "Add relationship" %}
             </a>
         </div>
@@ -99,10 +99,10 @@
     </div>
 {% endfor %}
 </div>
-<a class="button" href="{% url schema_nodetype_create graph.id %}">{% trans "New Type" %}</a>
+<a class="button" href="{% url schema_nodetype_create graph.slug %}">{% trans "New Type" %}</a>
 <span class="buttonLinkOption">
 {% if node_types %}
-    {% trans "or" %} <a href="{% url schema_relationshiptype_create graph.id %}">{% trans "Allowed Relationship" %}</a>.
+    {% trans "or" %} <a href="{% url schema_relationshiptype_create graph.slug %}">{% trans "Allowed Relationship" %}</a>.
 {% else %}
     {% trans "There are no types defined yet" %}.
 {% endif %}

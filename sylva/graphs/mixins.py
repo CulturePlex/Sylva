@@ -66,8 +66,11 @@ class NodesManager(BaseManager):
 
     def create(self, label, properties=None):
         if self.data.can_add_nodes():
-            nodetype = self.schema.nodetype_set.get(pk=label)
-            properties = self._filter_dict(properties, nodetype)
+            if self.schema:
+                nodetype = self.schema.nodetype_set.get(pk=label)
+                properties = self._filter_dict(properties, nodetype)
+                nodetype.total += 1
+                nodetype.save()
             node_id = self.gdb.create_node(label=label, properties=properties)
             node = Node(node_id, self.graph, properties=properties)
             self.data.total_nodes += 1
@@ -140,8 +143,11 @@ class RelationshipsManager(BaseManager):
         else:
             target_id = target
         if self.data.can_add_relationships():
-            relationshiptype = self.schema.relationshiptype_set.get(pk=label)
-            properties = self._filter_dict(properties, relationshiptype)
+            if self.schema:
+                reltype = self.schema.relationshiptype_set.get(pk=label)
+                properties = self._filter_dict(properties, reltype)
+                reltype.total += 1
+                reltype.save()
             relationship_id = self.gdb.create_relationship(source_id, target_id,
                                                            label, properties)
             relationship = Relationship(relationship_id, self.graph,
@@ -221,8 +227,11 @@ class NodeRelationshipsManager(BaseManager):
             source_id = target.id
             target_id = self.node_id
         if self.data.can_add_relationships():
-            relationshiptype = self.schema.relationshiptype_set.get(pk=label)
-            properties = self._filter_dict(properties, relationshiptype)
+            if self.schema:
+                relationshiptype = self.schema.relationshiptype_set.get(pk=label)
+                properties = self._filter_dict(properties, relationshiptype)
+                relationshiptype.total += 1
+                relationshiptype.save()
             relationship_id = self.gdb.create_relationship(source_id,
                                                            target_id,
                                                            label,
@@ -405,17 +414,18 @@ class BaseElement(object):
         else:
             return {}
 
-    def _get_display(self, separator=u"|"):
+    def _get_display(self, separator=u", "):
         if not self._properties:
             return u"%s" % self._id
         else:
-            # TODO: Set a priority over the properties in order to show a
-            #       representative property of the element.
-            properties_to_display = []
-            properties_values = self._properties.values()[:5]
-            for i in range(len(properties_values)):
-                if properties_values[i]:
-                    properties_to_display.append(unicode(properties_values[i]))
+            properties_to_display = self._get_properties_display()
+            if not properties_to_display:
+                properties_to_display = []
+                properties_values = self._properties.values()[:5]
+                for i in range(len(properties_values)):
+                    if properties_values[i]:
+                        unicode_value = unicode(properties_values[i])
+                        properties_to_display.append(unicode_value)
             if properties_to_display:
                 return (u" %s " % separator).join(properties_to_display)
             else:
@@ -435,6 +445,10 @@ class Node(BaseElement):
             self.gdb.delete_node(self.id)
             self.data.total_nodes -= 1
             self.data.save()
+            if self.schema:
+                nodetype = self.schema.nodetype_set.get(pk=self.label)
+                nodetype.total -= 1
+                nodetype.save()
             del self
 
     def __getitem__(self, key):
@@ -457,9 +471,26 @@ class Node(BaseElement):
         return NodeRelationshipsManager(self.graph, self.id)
     relationships = property(_relationships)
 
+    def _get_properties_display(self):
+        displays = []
+        if self.schema:
+            nodetype = self.schema.nodetype_set.get(pk=self.label)
+            displays = nodetype.properties.filter(display=True)
+            if not displays:
+                displays = nodetype.properties.all()[:2]
+        properties_to_display = []
+        properties = self._properties
+        for display in displays:
+            if display.key in properties:
+                properties_to_display.append(properties[display.key])
+        return properties_to_display
+
     def _get_property_keys(self):
-        itemtype = self.schema.nodetype_set.get(pk=self.label)
-        property_keys = [p.key for p in itemtype.properties.all()]
+        itemtypes = self.schema.nodetype_set.filter(pk=self.label)
+        if itemtypes:
+            property_keys = [p.key for p in itemtypes[0].properties.all()]
+        else:
+            property_keys = []
         return property_keys
 
     def _get_properties(self):
@@ -493,6 +524,10 @@ class Relationship(BaseElement):
             self.gdb.delete_relationship(self.id)
             self.data.total_relationships -= 1
             self.data.save()
+            if self.schema:
+                reltype = self.schema.relationshiptype_set.get(pk=self.label)
+                reltype.total -= 1
+                reltype.save()
             del self
 
     def __getitem__(self, key):
@@ -531,8 +566,11 @@ class Relationship(BaseElement):
     label = property(_get_label)
 
     def _get_property_keys(self):
-        itemtype = self.schema.relationshiptype_set.get(pk=self.label)
-        property_keys = [p.key for p in itemtype.properties.all()]
+        itemtypes = self.schema.relationshiptype_set.filter(pk=self.label)
+        if itemtypes:
+            property_keys = [p.key for p in itemtypes[0].properties.all()]
+        else:
+            property_keys = []
         return property_keys
 
     def _get_properties(self):

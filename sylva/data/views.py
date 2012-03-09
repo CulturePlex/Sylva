@@ -34,9 +34,9 @@ def create_data(properties, data_list, add_edge_extras=False):
     return data
 
 
-@permission_required("data.view_data", (Data, "graph__id", "graph_id"))
-def nodes_list(request, graph_id):
-    graph = get_object_or_404(Graph, id=graph_id)
+@permission_required("data.view_data", (Data, "graph__slug", "graph_slug"))
+def nodes_list(request, graph_slug):
+    graph = get_object_or_404(Graph, slug=graph_slug)
     data_preview = []
     for type_element in graph.schema.nodetype_set.all():
         properties = [p.key for p in type_element.properties.all()]
@@ -52,9 +52,9 @@ def nodes_list(request, graph_id):
                               context_instance=RequestContext(request))
 
 
-@permission_required("data.view_data", (Data, "graph__id", "graph_id"))
-def nodes_list_full(request, graph_id, node_type_id):
-    graph = get_object_or_404(Graph, id=graph_id)
+@permission_required("data.view_data", (Data, "graph__slug", "graph_slug"))
+def nodes_list_full(request, graph_slug, node_type_id):
+    graph = get_object_or_404(Graph, slug=graph_slug)
     type_element = get_object_or_404(NodeType, id=node_type_id)
     data_preview = []
     properties = [p.key for p in type_element.properties.all()]
@@ -72,9 +72,9 @@ def nodes_list_full(request, graph_id, node_type_id):
                               }, context_instance=RequestContext(request))
 
 
-@permission_required("data.change_data", (Data, "graph__id", "graph_id"))
-def nodes_create(request, graph_id, node_type_id):
-    graph = get_object_or_404(Graph, id=graph_id)
+@permission_required("data.change_data", (Data, "graph__slug", "graph_slug"))
+def nodes_create(request, graph_slug, node_type_id):
+    graph = get_object_or_404(Graph, slug=graph_slug)
     nodetype = get_object_or_404(NodeType, id=node_type_id)
     if request.POST:
         data = request.POST.copy()
@@ -89,10 +89,11 @@ def nodes_create(request, graph_id, node_type_id):
     node_form = NodeForm(itemtype=nodetype, data=data)
     outgoing_formsets = {}
     for relationship in nodetype.outgoing_relationships.all():
-        if relationship.arity > 0:
+        arity = relationship.arity_target
+        if arity > 0:
             RelationshipFormSet = formset_factory(RelationshipForm,
                                                   formset=TypeBaseFormSet,
-                                                  max_num=relationship.arity,
+                                                  max_num=arity,
                                                   extra=1)
         else:
             RelationshipFormSet = formset_factory(RelationshipForm,
@@ -108,10 +109,11 @@ def nodes_create(request, graph_id, node_type_id):
         outgoing_formsets[formset_prefix] = outgoing_formset
     incoming_formsets = {}
     for relationship in nodetype.incoming_relationships.all():
-        if relationship.arity > 0:
+        arity = relationship.arity_source
+        if arity > 0:
             RelationshipFormSet = formset_factory(RelationshipForm,
                                                   formset=TypeBaseFormSet,
-                                                  max_num=relationship.arity,
+                                                  max_num=arity,
                                                   extra=1)
         else:
             RelationshipFormSet = formset_factory(RelationshipForm,
@@ -147,7 +149,7 @@ def nodes_create(request, graph_id, node_type_id):
         for medialink in medialinks:
             medialink.media_node = media_node
             medialink.save()
-        redirect_url = reverse("nodes_list_full", args=[graph.id, node_type_id])
+        redirect_url = reverse("nodes_list_full", args=[graph.slug, node_type_id])
         return redirect(redirect_url)
     return render_to_response('nodes_editcreate.html',
         {"graph": graph,
@@ -161,9 +163,9 @@ def nodes_create(request, graph_id, node_type_id):
         context_instance=RequestContext(request))
 
 
-@permission_required("data.change_data", (Data, "graph__id", "graph_id"))
-def nodes_edit(request, graph_id, node_id):
-    graph = get_object_or_404(Graph, id=graph_id)
+@permission_required("data.change_data", (Data, "graph__slug", "graph_slug"))
+def nodes_edit(request, graph_slug, node_id):
+    graph = get_object_or_404(Graph, slug=graph_slug)
     node = graph.nodes.get(node_id)
     nodetype = get_object_or_404(NodeType, id=node.label)
     try:
@@ -289,7 +291,7 @@ def nodes_edit(request, graph_id, node_id):
         for medialink in medialinks:
             medialink.media_node = media_node
             medialink.save()
-        redirect_url = reverse("nodes_list_full", args=[graph.id, nodetype.id])
+        redirect_url = reverse("nodes_list_full", args=[graph.slug, nodetype.id])
         return redirect(redirect_url)
     return render_to_response('nodes_editcreate.html',
         {"graph": graph,
@@ -303,9 +305,9 @@ def nodes_edit(request, graph_id, node_id):
         context_instance=RequestContext(request))
 
 
-@permission_required("data.view_data", (Data, "graph__id", "graph_id"))
-def relationships_list(request, graph_id):
-    graph = get_object_or_404(Graph, id=graph_id)
+@permission_required("data.view_data", (Data, "graph__slug", "graph_slug"))
+def relationships_list(request, graph_slug):
+    graph = get_object_or_404(Graph, slug=graph_slug)
     data_preview = []
     for type_element in graph.schema.relationshiptype_set.all():
         properties = [p.key for p in type_element.properties.all()]
@@ -327,9 +329,9 @@ def relationships_list(request, graph_id):
                               context_instance=RequestContext(request))
 
 
-@permission_required("data.view_data", (Data, "graph__id", "graph_id"))
-def relationships_list_full(request, graph_id, relationship_type_id):
-    graph = get_object_or_404(Graph, id=graph_id)
+@permission_required("data.view_data", (Data, "graph__slug", "graph_slug"))
+def relationships_list_full(request, graph_slug, relationship_type_id):
+    graph = get_object_or_404(Graph, slug=graph_slug)
     type_element = get_object_or_404(RelationshipType,
                                     id=relationship_type_id)
     data_preview = []
@@ -349,9 +351,9 @@ def relationships_list_full(request, graph_id, relationship_type_id):
                               context_instance=RequestContext(request))
 
 
-@permission_required("data.view_data", (Data, "graph__id", "graph_id"))
-def node_relationships(request, graph_id, node_id):
-    graph = get_object_or_404(Graph, id=graph_id)
+@permission_required("data.view_data", (Data, "graph__slug", "graph_slug"))
+def node_relationships(request, graph_slug, node_id):
+    graph = get_object_or_404(Graph, slug=graph_slug)
     node = graph.nodes.get(int(node_id))
     result = []
     for r in node.relationships.incoming():

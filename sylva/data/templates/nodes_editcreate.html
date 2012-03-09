@@ -23,11 +23,11 @@
 {% endblock %}
 
 {% block menu_buttons %}
-<li><a href="{% url graph_view graph.id %}" class="link"><span>{% trans "Graph" %}</span></a></li>
-<li><a href="{% url nodes_list graph.id %}" class="text"><span>{% trans "Nodes" %}</span></a></li>
-<li><a href="{% url relationships_list graph.id %}" class="link"><span>{% trans "Relationships" %}</span></a></li>
-<li><a href="{% url schema_edit graph.id %}" class="link"><span>{% trans "Schema" %}</span></a></li>
-<li><a href="{% url graph_collaborators graph.id %}" class="link"><span>{% trans "Collaborators" %}</span></a></li>
+<li><a href="{% url graph_view graph.slug %}" class="link"><span>{% trans "Graph" %}</span></a></li>
+<li><a href="{% url nodes_list graph.slug %}" class="text"><span>{% trans "Nodes" %}</span></a></li>
+<li><a href="{% url relationships_list graph.slug %}" class="link"><span>{% trans "Relationships" %}</span></a></li>
+<li><a href="{% url schema_edit graph.slug %}" class="link"><span>{% trans "Schema" %}</span></a></li>
+<li><a href="{% url graph_collaborators graph.slug %}" class="link"><span>{% trans "Collaborators" %}</span></a></li>
 {% endblock %}
 
 {% block content_title %}
@@ -53,7 +53,7 @@
             </p>
         {% endfor %}
         <input type="submit" value="{% trans "Save" %} {{ nodetype.name|capfirst }}"/>
-        <span class="buttonLinkOption">{% trans "or" %} <a href="{% url nodes_list graph.id %}">{% trans "Cancel" %}</a>.</span>
+        <span class="buttonLinkOption">{% trans "or" %} <a href="{% url nodes_list graph.slug %}">{% trans "Cancel" %}</a>.</span>
     </div>
     {% if outgoing_formsets or incoming_formsets %}
     <div class="content-divider"></div>

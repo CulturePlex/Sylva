@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from django import forms
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.forms import ModelForm
@@ -47,8 +48,9 @@ class AddCollaboratorForm(forms.Form):
         collaborators = kwargs.pop("collaborators", [])
         super(AddCollaboratorForm, self).__init__(*args, **kwargs)
         if graph:
+            users = User.objects.all().exclude(pk=settings.ANONYMOUS_USER_ID)
             no_collaborators = [
                 (u.id, ((u.id != -1) and u.username or anonymous_name)) \
-                for u in User.objects.all() \
+                for u in users \
                 if u != graph.owner and u not in collaborators]
             self.fields["new_collaborator"].choices = no_collaborators

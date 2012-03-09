@@ -10,11 +10,11 @@
 {% endblock %}
 
 {% block menu_buttons %}
-<li><a href="{% url graph_view graph.id %}" class="text"><span>{% trans "Graph" %}</span></a></li>
-<li><a href="{% url nodes_list graph.id %}" class="link"><span>{% trans "Nodes" %}</span></a></li>
-<li><a href="{% url relationships_list graph.id %}" class="link"><span>{% trans "Relationships" %}</span></a></li>
-<li><a href="{% url schema_edit graph.id %}" class="link"><span>{% trans "Schema" %}</span></a></li>
-<li><a href="{% url graph_collaborators graph.id %}" class="link"><span>{% trans "Collaborators" %}</span></a></li>
+<li><a href="{% url graph_view graph.slug %}" class="text"><span>{% trans "Graph" %}</span></a></li>
+<li><a href="{% url nodes_list graph.slug %}" class="link"><span>{% trans "Nodes" %}</span></a></li>
+<li><a href="{% url relationships_list graph.slug %}" class="link"><span>{% trans "Relationships" %}</span></a></li>
+<li><a href="{% url schema_edit graph.slug %}" class="link"><span>{% trans "Schema" %}</span></a></li>
+<li><a href="{% url graph_collaborators graph.slug %}" class="link"><span>{% trans "Collaborators" %}</span></a></li>
 {% endblock %}
 
 {% block content_title %}
@@ -43,7 +43,7 @@
 
 <div>
     <div class="not-available">
-    {% blocktrans with graph.id as graph_id %}
+    {% blocktrans with graph.slug as graph_id %}
     You can also try to
     <a title="Download as .gexf" href="/tools/{{ graph_id }}/export/">download</a> 
     as a <a href="http://gephi.org/" title="Gephi, The Open Graph Visualization Platform">Gephi</a> file.

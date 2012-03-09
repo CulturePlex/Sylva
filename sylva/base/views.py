@@ -38,5 +38,5 @@ def dashboard(request):
     return render_to_response('dashboard.html',
                               {"graphs": graphs,
                                "collaborations": collaborations,
-                               "instances": request.user.instances.all(),},
+                               "instances": request.user.instances.all()},
                               context_instance=RequestContext(request))

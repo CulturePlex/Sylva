@@ -17,10 +17,11 @@ from schemas.forms import (NodeTypeForm, NodePropertyFormSet,
 from schemas.models import NodeType, RelationshipType
 
 
-@permission_required("schemas.change_schema", (Schema, "graph__id", "graph_id"))
-def schema_edit(request, graph_id):
-    graph = get_object_or_404(Graph, id=graph_id)
-    nodetypes = NodeType.objects.filter(schema__graph__id=graph_id)
+@permission_required("schemas.change_schema",
+                     (Schema, "graph__slug", "graph_slug"))
+def schema_edit(request, graph_slug):
+    graph = get_object_or_404(Graph, slug=graph_slug)
+    nodetypes = NodeType.objects.filter(schema__graph__slug=graph_slug)
     reltypes = None
     return render_to_response('schemas_edit.html',
                               {"graph": graph,
@@ -29,12 +30,13 @@ def schema_edit(request, graph_id):
                               context_instance=RequestContext(request))
 
 
-@permission_required("schemas.delete_schema", (Schema, "graph__id", "graph_id"))
-def schema_nodetype_delete(request, graph_id, nodetype_id):
-    graph = get_object_or_404(Graph, id=graph_id)
+@permission_required("schemas.delete_schema",
+                     (Schema, "graph__slug", "graph_slug"))
+def schema_nodetype_delete(request, graph_slug, nodetype_id):
+    graph = get_object_or_404(Graph, slug=graph_slug)
     nodetype = get_object_or_404(NodeType, id=nodetype_id)
     count = len(graph.nodes.filter(label=nodetype.id, properties=False))
-    redirect_url = reverse("schema_edit", args=[graph.id])
+    redirect_url = reverse("schema_edit", args=[graph.slug])
     if count == 0:
         form = TypeDeleteConfirmForm()
         if request.POST:
@@ -68,18 +70,20 @@ def schema_nodetype_delete(request, graph_id, nodetype_id):
                               context_instance=RequestContext(request))
 
 
-@permission_required("schemas.edit_schema", (Schema, "graph__id", "graph_id"))
-def schema_nodetype_create(request, graph_id):
-    return schema_nodetype_editcreate(request, graph_id)
+@permission_required("schemas.edit_schema",
+                     (Schema, "graph__slug", "graph_slug"))
+def schema_nodetype_create(request, graph_slug):
+    return schema_nodetype_editcreate(request, graph_slug)
 
 
-@permission_required("schemas.edit_schema", (Schema, "graph__id", "graph_id"))
-def schema_nodetype_edit(request, graph_id, nodetype_id):
-    return schema_nodetype_editcreate(request, graph_id, nodetype_id)
+@permission_required("schemas.edit_schema",
+                     (Schema, "graph__slug", "graph_slug"))
+def schema_nodetype_edit(request, graph_slug, nodetype_id):
+    return schema_nodetype_editcreate(request, graph_slug, nodetype_id)
 
 
-def schema_nodetype_editcreate(request, graph_id, nodetype_id=None):
-    graph = get_object_or_404(Graph, id=graph_id)
+def schema_nodetype_editcreate(request, graph_slug, nodetype_id=None):
+    graph = get_object_or_404(Graph, slug=graph_slug)
     if nodetype_id:
         empty_nodetype = get_object_or_404(NodeType, id=nodetype_id)
     else:
@@ -99,7 +103,7 @@ def schema_nodetype_editcreate(request, graph_id, nodetype_id=None):
                 for instance in instances:
                     instance.node = node_type
                     instance.save()
-                redirect_url = reverse("schema_edit", args=[graph.id])
+                redirect_url = reverse("schema_edit", args=[graph.slug])
             return redirect(redirect_url)
     return render_to_response('schemas_item_edit.html',
                               {"graph": graph,
@@ -109,31 +113,36 @@ def schema_nodetype_editcreate(request, graph_id, nodetype_id=None):
                                "form": form,
                                "fields_to_hide": ["plural_name",
                                                   "inverse", "plural_inverse",
-                                                  "arity", "inheritance"],
+                                                  "arity_source",
+                                                  "arity_target",
+                                                  "validation",
+                                                  "inheritance"],
                                "formset": formset},
                               context_instance=RequestContext(request))
 
 
-@permission_required("schemas.edit_schema", (Schema, "graph__id", "graph_id"))
-def schema_relationshiptype_create(request, graph_id):
-    return schema_relationshiptype_editcreate(request, graph_id)
+@permission_required("schemas.edit_schema",
+                     (Schema, "graph__slug", "graph_slug"))
+def schema_relationshiptype_create(request, graph_slug):
+    return schema_relationshiptype_editcreate(request, graph_slug)
 
 
-@permission_required("schemas.edit_schema", (Schema, "graph__id", "graph_id"))
-def schema_relationshiptype_edit(request, graph_id, relationshiptype_id):
-    return schema_relationshiptype_editcreate(request, graph_id,
+@permission_required("schemas.edit_schema",
+                     (Schema, "graph__slug", "graph_slug"))
+def schema_relationshiptype_edit(request, graph_slug, relationshiptype_id):
+    return schema_relationshiptype_editcreate(request, graph_slug,
                                        relationshiptype_id=relationshiptype_id)
 
 
-def schema_relationshiptype_editcreate(request, graph_id,
+def schema_relationshiptype_editcreate(request, graph_slug,
                                        relationshiptype_id=None):
-    graph = get_object_or_404(Graph, id=graph_id)
+    graph = get_object_or_404(Graph, slug=graph_slug)
     if relationshiptype_id:
         empty_relationshiptype = get_object_or_404(RelationshipType,
                                                    id=relationshiptype_id)
     else:
         empty_relationshiptype = RelationshipType()
-    initial = {"arity": None}
+    initial = {"arity_source": None, "arity_target": None}
     for field_name in ["source", "name", "target", "inverse"]:
         if field_name in request.GET:
             initial[field_name] = request.GET.get(field_name)
@@ -158,7 +167,7 @@ def schema_relationshiptype_editcreate(request, graph_id,
                 for instance in instances:
                     instance.relationship = relationshiptype
                     instance.save()
-                redirect_url = reverse("schema_edit", args=[graph.id])
+                redirect_url = reverse("schema_edit", args=[graph.slug])
             return redirect(redirect_url)
     return render_to_response('schemas_item_edit.html',
                               {"graph": graph,
@@ -168,20 +177,24 @@ def schema_relationshiptype_editcreate(request, graph_id,
                                "form": form,
                                "fields_to_hide": ["plural_name",
                                                   "inverse", "plural_inverse",
-                                                  "arity", "inheritance"],
+                                                  "arity_source",
+                                                  "arity_target",
+                                                  "validation",
+                                                  "inheritance"],
                                "formset": formset},
                               context_instance=RequestContext(request))
 
 
-@permission_required("schemas.edit_schema", (Schema, "graph__id", "graph_id"))
-def schema_relationshiptype_delete(request, graph_id,
+@permission_required("schemas.edit_schema",
+                     (Schema, "graph__slug", "graph_slug"))
+def schema_relationshiptype_delete(request, graph_slug,
                                    relationshiptype_id):
-    graph = get_object_or_404(Graph, id=graph_id)
+    graph = get_object_or_404(Graph, slug=graph_slug)
     relationshiptype = get_object_or_404(RelationshipType,
                                          id=relationshiptype_id)
     count = len(graph.relationships.filter(label=relationshiptype.id,
                                            properties=False))
-    redirect_url = reverse("schema_edit", args=[graph.id])
+    redirect_url = reverse("schema_edit", args=[graph.slug])
     if count == 0:
         form = TypeDeleteConfirmForm()
         if request.POST:

@@ -34,7 +34,7 @@ PERMISSIONS = {
 class Graph(models.Model, GraphMixin):
     name = models.CharField(_('name'), max_length=120)
     slug = AutoSlugField(populate_from=['name'], max_length=200,
-                         editable=False)
+                         editable=False, unique=True)
     description = models.TextField(_('description'), null=True, blank=True)
     public = models.BooleanField(_('is public?'), default=True)
     order = models.IntegerField(_('order'), null=True, blank=True)
@@ -48,7 +48,6 @@ class Graph(models.Model, GraphMixin):
     options = models.TextField(_('options'), null=True, blank=True)
 
     class Meta:
-        unique = ("slug", )
         unique_together = ["owner", "name"]  # TODO: Add constraint in forms
         ordering = ("order", )
         permissions = (

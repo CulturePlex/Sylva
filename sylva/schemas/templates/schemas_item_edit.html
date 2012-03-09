@@ -14,11 +14,11 @@
 {% endblock %}
 
 {% block menu_buttons %}
-<li><a href="{% url graph_view graph.id %}" class="link"><span>{% trans "Graph" %}</span></a></li>
-<li><a href="{% url nodes_list graph.id %}" class="link"><span>{% trans "Nodes" %}</span></a></li>
-<li><a href="{% url relationships_list graph.id %}" class="link"><span>{% trans "Relationships" %}</span></a></li>
-<li><a href="{% url schema_edit graph.id %}" class="text"><span>{% trans "Schema" %}</span></a></li>
-<li><a href="{% url graph_collaborators graph.id %}" class="link"><span>{% trans "Collaborators" %}</span></a></li>
+<li><a href="{% url graph_view graph.slug %}" class="link"><span>{% trans "Graph" %}</span></a></li>
+<li><a href="{% url nodes_list graph.slug %}" class="link"><span>{% trans "Nodes" %}</span></a></li>
+<li><a href="{% url relationships_list graph.slug %}" class="link"><span>{% trans "Relationships" %}</span></a></li>
+<li><a href="{% url schema_edit graph.slug %}" class="text"><span>{% trans "Schema" %}</span></a></li>
+<li><a href="{% url graph_collaborators graph.slug %}" class="link"><span>{% trans "Collaborators" %}</span></a></li>
 {% endblock %}
 
 {% block content_title %}
@@ -32,7 +32,7 @@
     <div class="content2-first">
         <h2>{{ item_type_label }}</h2>
         {% for field in form %}
-            <p {% if field.name in fields_to_hide and not field.value %}class="hidden"{% endif %}>
+            <p {% if field.name in fields_to_hide and not field.value or field.name == "validation" %}class="hidden"{% endif %}>
             {{ field.errors }}
             {{ field.label_tag }}
             {{ field }}
@@ -47,13 +47,13 @@
         <span class="buttonLinkOption">
             {% if item_type_id %}
                 {% if item_type == "relationship" %}
-                <a class="delete" href="{% url schema_relationshiptype_delete graph.id item_type_id %}">{% trans "Remove" %}</a>
+                <a class="delete" href="{% url schema_relationshiptype_delete graph.slug item_type_id %}">{% trans "Remove" %}</a>
                 {% endif %}
                 {% if item_type == "node" %}
-                <a class="delete" href="{% url schema_nodetype_delete graph.id item_type_id %}">{% trans "Remove" %}</a>
+                <a class="delete" href="{% url schema_nodetype_delete graph.slug item_type_id %}">{% trans "Remove" %}</a>
                 {% endif %}
             {% endif %}
-            {% trans "or" %} <a href="{% url schema_edit graph.id %}">{% trans "Cancel" %}</a>.
+            {% trans "or" %} <a href="{% url schema_edit graph.slug %}">{% trans "Cancel" %}</a>.
         </span>
         
     </div>
@@ -71,6 +71,14 @@
                         {{ form.key.label_tag }}
                         {{ form.key }}
                         {{ form.key.help_text }}
+                        <span >
+                            {{ form.display.errors }}
+                            {{ form.display }}
+                            {{ form.display.label_tag }}
+                            <span class="helptext">
+                            {{ form.display.help_text }}
+                            </span>
+                        </span>
                         <span {% if not form.instance.required %}class="hidden"{% endif %}>
                             {{ form.required.errors }}
                             {{ form.required }}
@@ -117,6 +125,14 @@
                                 {{ form.description }}
                                 <span class="helptext">
                                 {{ form.description.help_text }}
+                                </span>
+                                <span class="hidden">
+                                {{ form.validation.errors }}
+                                {{ form.validation.label_tag }}
+                                {{ form.validation }}
+                                <span class="helptext">
+                                {{ form.validation.help_text }}
+                                </span>
                                 </span>
                             </td>
                             </tr>

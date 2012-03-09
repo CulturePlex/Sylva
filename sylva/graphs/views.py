@@ -2,6 +2,7 @@
 import simplejson
 
 from django.db import transaction
+from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
@@ -18,8 +19,8 @@ from graphs.models import Graph, PERMISSIONS
 from schemas.models import Schema, RelationshipType
 from settings import PREVIEW_NODES
 
-@permission_required("graphs.view_graph", (Graph, "id", "graph_id"))
-def graph_view(request, graph_id):
+@permission_required("graphs.view_graph", (Graph, "slug", "graph_slug"))
+def graph_view(request, graph_slug):
 
     def jsonify_graph(graph, n_elements):
         """
@@ -34,18 +35,19 @@ def graph_view(request, graph_id):
             if n.display not in nodes:
                 nodes[n.display] = n.properties
                 for r in n.relationships.all():
-                    label = get_object_or_404(RelationshipType, id=r.label)
-                    nodes[r.target.display] = r.target.properties
-                    edges.append({'source': n.display,
-                                    'type': label.name,
-                                    'target': r.target.display,
-                                    'properties': r.properties})
-                    if len(nodes) >= n_elements: break
+                    labels = RelationshipType.objects.filter(id=r.label)
+                    if labels:
+                        nodes[r.target.display] = r.target.properties
+                        edges.append({'source': n.display,
+                                        'type': labels[0].name,
+                                        'target': r.target.display,
+                                        'properties': r.properties})
+                        if len(nodes) >= n_elements: break
             if len(nodes) >= n_elements: break
         return (nodes, edges)
         
 
-    graph = get_object_or_404(Graph, id=graph_id)
+    graph = get_object_or_404(Graph, slug=graph_slug)
     nodes, edges = jsonify_graph(graph, PREVIEW_NODES)
     return render_to_response('graphs_view.html',
                               {"graph": graph,
@@ -54,9 +56,9 @@ def graph_view(request, graph_id):
                               context_instance=RequestContext(request))
 
 
-@permission_required("graphs.change_graph", (Graph, "id", "graph_id"))
-def graph_edit(request, graph_id):
-    graph = get_object_or_404(Graph, id=graph_id)
+@permission_required("graphs.change_graph", (Graph, "slug", "graph_slug"))
+def graph_edit(request, graph_slug):
+    graph = get_object_or_404(Graph, slug=graph_slug)
     form = GraphForm(user=request.user, instance=graph)
     if request.POST:
         data = request.POST.copy()
@@ -66,7 +68,7 @@ def graph_edit(request, graph_id):
                 instance = form.cleaned_data["instance"]
                 graph = form.save(commit=False)
                 graph.save()
-            redirect_url = reverse("graph_view", args=[graph.id])
+            redirect_url = reverse("graph_view", args=[graph.slug])
             return redirect(redirect_url)
     return render_to_response('graphs_create.html',
                               {"form": form},
@@ -96,13 +98,13 @@ def graph_create(request):
                               context_instance=RequestContext(request))
 
 
-@permission_required("graphs.change_collaborators", (Graph, "id", "graph_id"))
-def graph_collaborators(request, graph_id):
+@permission_required("graphs.change_collaborators", (Graph, "slug", "graph_slug"))
+def graph_collaborators(request, graph_slug):
     # Only graph owner should be able to do this
-    graph = get_object_or_404(Graph, id=graph_id)
+    graph = get_object_or_404(Graph, slug=graph_slug)
     if request.user != graph.owner:
         return redirect('%s?next=%s' % (reverse("signin"), request.path))
-    users = User.objects.all()
+    users = User.objects.all().exclude(pk=settings.ANONYMOUS_USER_ID)
     all_collaborators = guardian.get_users_with_perms(graph)
     collaborators = list(all_collaborators.exclude(pk=request.user.id))
     if request.POST:
@@ -145,10 +147,11 @@ def graph_collaborators(request, graph_id):
                               context_instance=RequestContext(request))
 
 
-@permission_required("graphs.change_collaborators", (Graph, "id", "graph_id"))
-def change_permission(request, graph_id):
+@permission_required("graphs.change_collaborators",
+                     (Graph, "slug", "graph_slug"))
+def change_permission(request, graph_slug):
     if request.is_ajax():
-        graph = get_object_or_404(Graph, id=graph_id)
+        graph = get_object_or_404(Graph, slug=graph_slug)
         user_id = request.GET['user_id']
         object_str = request.GET['object_str']
         permission_str = request.GET['permission_str']

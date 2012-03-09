@@ -39,17 +39,26 @@ class Schema(models.Model):
 class BaseType(models.Model):
     name = models.CharField(_('name'), max_length=150)
     slug = AutoSlugField(populate_from=['name'], max_length=200,
-                         editable=False)
+                         editable=False, unique=True)
     plural_name = models.CharField(_('plural name'), max_length=175,
                                    null=True, blank=True)
     description = models.TextField(_('description'), null=True, blank=True)
     schema = models.ForeignKey(Schema)
     order = models.IntegerField(_('order'), null=True, blank=True)
     total = models.IntegerField(_("total objects"), default=0)
-    validation = models.TextField(_('validation'), blank=True, null=True)
+    validation = models.TextField(_('validation'), blank=True, null=True,
+                                  default="""
+// The properties list ordered by "Order"
+// and then by "Name" is provided and it
+// will be used. In case of error, set
+// error variable to string;
+properties;
+error = "";
+                                  """,
+                                  help_text=_("Code in Javascript to"
+                                              "validate all the properties"))
 
     class Meta:
-        unique = ("slug", )
         abstract = True
         ordering = ("order", "name")
 
@@ -119,7 +128,7 @@ class RelationshipType(BaseType):
 class BaseProperty(models.Model):
     key = models.CharField(_('key'), max_length=50)
     slug = AutoSlugField(populate_from=['key'], max_length=750,
-                         editable=False)
+                         editable=False, unique=True)
     default = models.CharField(_('default value'), max_length=255,
                                blank=True, null=True)
     value = models.CharField(_('value'), max_length=255, blank=True)
@@ -136,13 +145,23 @@ class BaseProperty(models.Model):
                                 max_length=1, choices=DATATYPE_CHOICES,
                                 default=u"u")
     required = models.BooleanField(_('is required?'), default=False)
-    display = models.BooleanField(_('is required?'), default=False)
+    display = models.BooleanField(_('use as label'), default=False)
     description = models.TextField(_('description'), blank=True, null=True)
-    validation = models.TextField(_('validation'), blank=True, null=True)
+    validation = models.TextField(_('validation'), blank=True, null=True,
+                                  default="""
+// The property value and name are provided
+// and modifications on the value will be used.
+// In case of error, set the error variable to
+// a string.
+name;
+value;
+error = "";
+                                  """,
+                                  help_text=_("Code in Javascript to"
+                                              "validate all the properties"))
     order = models.IntegerField(_('order'), blank=True, null=True)
 
     class Meta:
-        unique = ("slug", )
         abstract = True
         ordering = ("order", )
 

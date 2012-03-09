@@ -7,11 +7,11 @@
 {% endblock %}
 
 {% block menu_buttons %}
-<li><a href="{% url graph_view graph.id %}" class="link"><span>{% trans "Graph" %}</span></a></li>
-<li><a href="{% url nodes_list graph.id %}" class="link"><span>{% trans "Nodes" %}</span></a></li>
-<li><a href="{% url relationships_list graph.id %}" class="text"><span>{% trans "Relationships" %}</span></a></li>
-<li><a href="{% url schema_edit graph.id %}" class="link"><span>{% trans "Schema" %}</span></a></li>
-<li><a href="{% url graph_collaborators graph.id %}" class="link"><span>{% trans "Collaborators" %}</span></a></li>
+<li><a href="{% url graph_view graph.slug %}" class="link"><span>{% trans "Graph" %}</span></a></li>
+<li><a href="{% url nodes_list graph.slug %}" class="link"><span>{% trans "Nodes" %}</span></a></li>
+<li><a href="{% url relationships_list graph.slug %}" class="text"><span>{% trans "Relationships" %}</span></a></li>
+<li><a href="{% url schema_edit graph.slug %}" class="link"><span>{% trans "Schema" %}</span></a></li>
+<li><a href="{% url graph_collaborators graph.slug %}" class="link"><span>{% trans "Collaborators" %}</span></a></li>
 {% endblock %}
 
 {% block content_bottom_bar %}
@@ -24,7 +24,7 @@
         <a href="javascript:;" onclick="divId='lc_'+{{forloop.counter}};if(document.getElementById(divId).style.display == 'none'){ document.getElementById(divId).style.display = 'block'; }else{ document.getElementById(divId).style.display = 'none'; }">
             {% trans "Preview" %}</a>
         {% trans "or" %}
-        <a href="{% url relationships_list_full graph.id option.3 %}">
+        <a href="{% url relationships_list_full graph.slug option.3 %}">
             {% blocktrans with relationship_type=option.0 %}
             Show all
             {% endblocktrans %}</a>
@@ -33,8 +33,8 @@
 {% endblock %}
 
 {% block empty_for %}
-<a class="button" href="{% url schema_nodetype_create graph.id %}">{% trans "New Type" %}</a>
+<a class="button" href="{% url schema_nodetype_create graph.slug %}">{% trans "New Type" %}</a>
 <span class="buttonLinkOption">
-{% trans "or" %} <a href="{% url schema_relationshiptype_create graph.id %}">{% trans "Allowed Relationship" %}</a>.
+{% trans "or" %} <a href="{% url schema_relationshiptype_create graph.slug %}">{% trans "Allowed Relationship" %}</a>.
 {% trans "There are no types or no allowed relationships defined yet" %}.
 {% endblock %}
