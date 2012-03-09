@@ -66,8 +66,8 @@ error = "";
 class NodeType(BaseType):
     inheritance = models.ForeignKey('self', null=True, blank=True,
                                     verbose_name=_("inheritance"),
-                                    help_text=_("Choose the type which " \
-                                                "properties will be " \
+                                    help_text=_("Choose the type which "
+                                                "properties will be "
                                                 "inherited from"))
 
     def __unicode__(self):
@@ -89,23 +89,25 @@ class NodeType(BaseType):
 class RelationshipType(BaseType):
     inverse = models.CharField(_('inverse name'), max_length=150,
                                null=True, blank=True,
-                               help_text=_("For example, " \
-                                           "if name is \"writes\", inverse " \
+                               help_text=_("For example, "
+                                           "if name is \"writes\", inverse "
                                            "is \"written by\""))
     plural_inverse = models.CharField(_('plural inverse name'), max_length=175,
                                       null=True, blank=True)
     inheritance = models.ForeignKey('self', null=True, blank=True,
                                     verbose_name=_("inheritance"),
-                                    help_text=_("Choose the type which " \
-                                                "properties will be " \
+                                    help_text=_("Choose the type which "
+                                                "properties will be "
                                                 "inherited from"))
     source = models.ForeignKey(NodeType, related_name='outgoing_relationships',
+                               null=True, blank=True,
                                verbose_name=_("source"),
-                               help_text=_("Source type of the " \
+                               help_text=_("Source type of the "
                                            "allowed relationship"))
     target = models.ForeignKey(NodeType, related_name='incoming_relationships',
+                               null=True, blank=True,
                                verbose_name=_("target"),
-                               help_text=_("Target type of the " \
+                               help_text=_("Target type of the "
                                            "allowed relationship"))
     arity_source = models.IntegerField(_('Source arity'), default=0, blank=True,
                                 help_text=_("Leave blank for infinite arity,"
