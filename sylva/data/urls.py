@@ -18,6 +18,8 @@ urlpatterns = patterns('data.views',
         'node_relationships', name="node_relationships"),
     url(r'^(?P<graph_slug>\w+)/nodes/(?P<node_id>\d+)/edit/$',
         'nodes_edit', name="nodes_edit"),
+    url(r'^(?P<graph_slug>\w+)/nodes/(?P<node_id>\d+)/delete/$',
+        'nodes_delete', name="nodes_delete"),
 
     # list relationships
     url(r'^(?P<graph_slug>\w+)/relationships/$', 'relationships_list',

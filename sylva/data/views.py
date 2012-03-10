@@ -297,13 +297,57 @@ def nodes_edit(request, graph_slug, node_id):
         {"graph": graph,
          "nodetype": nodetype,
          "node_form": node_form,
+         "node": node,
          "outgoing_formsets": outgoing_formsets,
          "incoming_formsets": incoming_formsets,
          "mediafile_formset": mediafile_formset,
          "medialink_formset": medialink_formset,
-         "action": _("Edit")},
+         "action": _("Edit"),
+         "delete": True},
         context_instance=RequestContext(request))
 
+
+@permission_required("data.change_data", (Data, "graph__slug", "graph_slug"))
+def nodes_delete(request, graph_slug, node_id):
+    graph = get_object_or_404(Graph, slug=graph_slug)
+    node = graph.nodes.get(node_id)
+#    relationshiptype = get_object_or_404(RelationshipType,
+#                                         id=relationshiptype_id)
+#    count = len(graph.relationships.filter(label=relationshiptype.id,
+#                                           properties=False))
+#    redirect_url = reverse("schema_edit", args=[graph.slug])
+#    if count == 0:
+#        form = TypeDeleteConfirmForm()
+#        if request.POST:
+#            data = request.POST.copy()
+#            form = TypeDeleteConfirmForm(data=data)
+#            if form.is_valid():
+#                confirm = form.cleaned_data["confirm"]
+#                if confirm:
+#                    relationshiptype.delete()
+#                    return redirect(redirect_url)
+#    else:
+#        form = TypeDeleteForm(count=count)
+#        if request.POST:
+#            data = request.POST.copy()
+#            form = TypeDeleteForm(data=data, count=count)
+#            if form.is_valid():
+#                option = form.cleaned_data["option"]
+#                if option == ON_DELETE_CASCADE:
+#                    graph.relationships.delete(label=relationshiptype.id)
+#                relationshiptype.delete()
+#                return redirect(redirect_url)
+    return render_to_response('nodes_delete.html',
+                              {"graph": graph,
+                               "item_type_label": _("Node"),
+                               "item_type": "node",
+                               "item_type_id": None,  # relationshiptype_id,
+                               "item_type_name": None,  # relationshiptype.name,
+                               "item_type_count": None,  # count,
+                               "form": None,  # form,
+                               "type_id": None,  # relationshiptype_id
+                               },
+                              context_instance=RequestContext(request))
 
 @permission_required("data.view_data", (Data, "graph__slug", "graph_slug"))
 def relationships_list(request, graph_slug):

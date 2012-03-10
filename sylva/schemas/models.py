@@ -165,7 +165,7 @@ error = "";
 
     class Meta:
         abstract = True
-        ordering = ("order", )
+        ordering = ("order", "key")
 
     def __unicode__(self):
         return "%s: %s" % (self.key, self.value)
