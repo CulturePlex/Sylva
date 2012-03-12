@@ -47,7 +47,7 @@
             {% for relationship in relationship_name.list %}
                 <div class="form-row">
                 <a href="{% url schema_relationshiptype_edit graph.slug relationship.id %}">
-                    {% if relationship.arity < 1 %}∞{% else %}{{ relationship.arity }} × {% endif %} {{ relationship.target.name|capfirst }}
+                    {% if relationship.arity_target < 1 %}∞{% else %}{{ relationship.arity_target }} × {% endif %} {{ relationship.target.name|capfirst }}
                 </a>
                 {% if relationship.properties %}
                     {% for relationship_propery in relationship.properties.all %}
@@ -75,7 +75,7 @@
             {% for relationship in relationship_name.list %}
                 <div class="form-row">
                 <a href="{% url schema_relationshiptype_edit graph.slug relationship.id %}">
-                    {% if relationship.arity < 1 %}∞{% else %}{{ relationship.arity }} × {% endif %}
+                    {% if relationship.arity_source < 1 %}∞{% else %}{{ relationship.arity_source }} × {% endif %}
                     {{ relationship.source.name|capfirst }}
                 </a>
                 {% if relationship.relation.relationshipproperty_set.all %}

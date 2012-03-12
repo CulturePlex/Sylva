@@ -211,10 +211,11 @@ def nodes_edit(request, graph_slug, node_id):
                 ITEM_FIELD_NAME: graph_relationship.id,
             })
             initial.append(properties)
-        if relationship.arity > 0:
+        arity = relationship.arity_target
+        if arity > 0:
             RelationshipFormSet = formset_factory(RelationshipForm,
                                                   formset=TypeBaseFormSet,
-                                                  max_num=relationship.arity,
+                                                  max_num=arity,
                                                   extra=1)
         else:
             RelationshipFormSet = formset_factory(RelationshipForm,
@@ -251,10 +252,11 @@ def nodes_edit(request, graph_slug, node_id):
                 ITEM_FIELD_NAME: graph_relationship.id,
             })
             initial.append(properties)
-        if relationship.arity > 0:
+        arity = relationship.arity_source
+        if arity > 0:
             RelationshipFormSet = formset_factory(RelationshipForm,
                                                   formset=TypeBaseFormSet,
-                                                  max_num=relationship.arity,
+                                                  max_num=arity,
                                                   extra=1)
         else:
             RelationshipFormSet = formset_factory(RelationshipForm,
