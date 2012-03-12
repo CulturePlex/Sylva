@@ -54,6 +54,25 @@
         <div id="progress-bar">
           <strong>Please wait while your graph data is loaded...</strong>
         </div>
+        <hr/>
+        <p class="sylva-info">Or use the experimental CSV support providing 
+          nodes and edges in separate files.
+        </p>
+        <div>
+          <label for="csv-nodes">Node file</label>
+          <input type="file" id="csv-nodes" name="csv-nodes" />
+          <div id="csv-nodes-progress-bar" style="display:none">
+            <strong>Please wait while your nodes are loaded...</strong>
+          </div>
+        </div>
+        <div>
+          <label for="csv-edges">Edge file</label>
+          <input type="file" id="csv-edges" name="csv-edges" />
+          <div id="csv-edges-progress-bar" style="display:none">
+            <strong>Please wait while your edges are loaded...</strong>
+          </div>
+        </div>
+        <button onclick="Importer.doneWithFiles()">Load CSVs</button>
       </div>
       <hr/>
       <div id="validation-controls">
