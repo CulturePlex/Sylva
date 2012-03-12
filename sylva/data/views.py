@@ -25,8 +25,8 @@ def create_data(properties, data_list, add_edge_extras=False):
     for element in data_list:
         row = []
         if add_edge_extras:
-            row.append(element.source.id)
-            row.append(element.target.id)
+            row.append(element.source.display)
+            row.append(element.target.display)
         for p in properties:
             row.append(element.get(p, ""))
         row.append(element.id)
