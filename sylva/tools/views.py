@@ -18,24 +18,10 @@ def graph_import_tool(request, graph_slug):
     graph = get_object_or_404(Graph, slug=graph_slug)
     # Schema jsonification
     schema = graph.schema.export()
-    schema_json = {"nodeTypes": {}, "allowedEdges":[]}
-    for node_type in schema["node_types"]:
-        attributes = {}
-        for n in node_type.properties.all():
-            attributes[n.key] = n.required
-        schema_json["nodeTypes"][node_type.name] = attributes
-    for edge_type in schema["relationship_types"]:
-        edge_attributes = {}
-        for n in edge_type.properties.all():
-            edge_attributes[n.key] = n.required
-        schema_json["allowedEdges"].append({
-                "source": edge_type.source.name,
-                "label": edge_type.name,
-                "target": edge_type.target.name,
-                "properties": edge_attributes})
+
     return render_to_response('graph_import_tool.html', {
                                 "graph": graph,
-                                "sylva_schema": simplejson.dumps(schema_json),
+                                "sylva_schema": simplejson.dumps(schema),
                             },
                             context_instance=RequestContext(request))
 

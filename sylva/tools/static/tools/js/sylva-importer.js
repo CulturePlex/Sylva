@@ -239,7 +239,7 @@ var Importer = {
         .append(elementDiv);
       
       // Type attributes management
-      $.each(value, function(attribute, required){
+      $.each(value, function(attribute, att_properties){
         selectedAtttributeId = attribute + '_' + selectId;
         elementDiv = $('<div>').addClass('import-property-matcher');
         elementDiv
@@ -251,7 +251,7 @@ var Importer = {
             .attr('id', selectedAtttributeId));
         importController
           .append(elementDiv);
-        if (required) {
+        if (att_properties.required) {
           $('label[for='+selectedAtttributeId+']')
             .css('color', 'red');
         }
@@ -292,10 +292,10 @@ var Importer = {
 
         // Attributes
         Importer.matching.nodeAttributes[item] = {};
-        $.each(value, function(attribute, required){
+        $.each(value, function(attribute, att_properties){
           attSelector = '#' + attribute + '_' + item + '_matcher';
           selectedAttribute = $(attSelector).val();
-          if (required && selectedAttribute === ""){
+          if (att_properties.required && selectedAttribute === ""){
             alert("ERROR: " + item + " attribute is required: " + attribute);
             validates = false;
             return false;
@@ -361,7 +361,7 @@ var Importer = {
       importController.append(elementDiv);
 
       // Type attributes management
-      $.each(value.properties, function(attribute, required){
+      $.each(value.properties, function(attribute, att_properties){
         selectedAtttributeId = attribute + '_' + selectId;
         elementDiv = $('<div>').addClass('import-property-matcher');
         elementDiv
@@ -373,7 +373,7 @@ var Importer = {
             .attr('id', selectedAtttributeId));
         importController
           .append(elementDiv);
-        if (required) {
+        if (att_properties.required) {
           $('label[for='+selectedAtttributeId+']')
             .css('color', 'red');
         }
@@ -424,10 +424,10 @@ var Importer = {
         
         // Attributes
         var attributes = {};
-        $.each(value.properties, function(attribute, required){
+        $.each(value.properties, function(attribute, att_properties){
           attSelector = '#' + attribute + '_' + itemId;
           selectedAttribute = $(attSelector).val(); 
-          if (required && selectedAttribute === ""){
+          if (att_properties.required && selectedAttribute === ""){
             alert("ERROR: " + item + " attribute is required: " + attribute);
             validates = false;
             return false;

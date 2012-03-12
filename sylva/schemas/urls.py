@@ -39,4 +39,15 @@ urlpatterns = patterns('schemas.views',
     url(r'^(?P<graph_i>\w+)/allowed/(?P<relationshiptype_id>\d+)/delete/$',
         'schema_relationshiptype_delete',
         name="schema_relationshiptype_delete"),
+
+    # export schema
+    url(r'^(?P<graph_slug>\w+)/export/$',
+        'schema_export',
+        name="schema_export"),
+
+    # import schema
+    url(r'^(?P<graph_slug>\w+)/import/$',
+        'schema_import',
+        name="schema_import"),
+
 )

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.translation import gettext as _
-from django.db import models
+from django.db import models, transaction
 
 from base.fields import AutoSlugField
 
@@ -22,14 +22,51 @@ class Schema(models.Model):
             return _(u"Schema \"%s\"") % (self.id)
 
     def export(self):
-        schema_dict = {}
-        schema_dict["node_types"] = []
+        schema = {}
+        schema["node_types"] = []
         for node_type in self.nodetype_set.all():
-            schema_dict["node_types"].append(node_type)
-        schema_dict["relationship_types"] = []
+            schema["node_types"].append(node_type)
+        schema["relationship_types"] = []
         for r_type in self.relationshiptype_set.all():
-            schema_dict["relationship_types"].append(r_type)
-        return schema_dict
+            schema["relationship_types"].append(r_type)
+        schema_json = {"nodeTypes": {}, "allowedEdges":[]}
+        for node_type in schema["node_types"]:
+            attributes = {}
+            for n in node_type.properties.all():
+                attributes[n.key] = {'required': n.required}
+            schema_json["nodeTypes"][node_type.name] = attributes
+        for edge_type in schema["relationship_types"]:
+            edge_attributes = {}
+            for n in edge_type.properties.all():
+                edge_attributes[n.key] = {'required': n.required}
+            schema_json["allowedEdges"].append({
+                "source": edge_type.source.name,
+                "label": edge_type.name,
+                "target": edge_type.target.name,
+                "properties": edge_attributes})
+        return schema_json
+
+    def _import(self, data):
+        with transaction.commit_on_success():
+            for node_type, properties in data['nodeTypes'].iteritems():
+                n = NodeType(name=node_type, schema=self)
+                n.save()
+                for prop, values in properties.iteritems():
+                    np = NodeProperty(key=prop, node=n)
+                    for key, value in values.iteritems():
+                        setattr(np, key, value)
+                    np.save()
+            for edge_type in data['allowedEdges']:
+                source = NodeType.objects.get(schema=self, name=edge_type['source'])
+                target = NodeType.objects.get(schema=self, name=edge_type['target'])
+                rt = RelationshipType(source=source, target=target,
+                                schema=self, name=edge_type['label'])
+                rt.save()
+                for prop, values in edge_type['properties'].iteritems():
+                    rp = RelationshipProperty(key=prop, relationship=rt)
+                    for key, value in values.iteritems():
+                        setattr(rp, key, value)
+                    rp.save()
 
     @models.permalink
     def get_absolute_url(self):

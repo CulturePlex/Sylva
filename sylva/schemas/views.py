@@ -1,8 +1,11 @@
 # -*- coding: utf-8 -*-
+import simplejson
+
 from django.db import transaction
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
-from django.forms import ValidationError
+from django.forms import ValidationError, Form, FileField
+from django.http import HttpResponse
 from django.template import RequestContext
 from django.shortcuts import get_object_or_404, render_to_response, redirect
 from django.utils.translation import gettext as _
@@ -226,3 +229,35 @@ def schema_relationshiptype_delete(request, graph_slug,
                                "form": form,
                                "type_id": relationshiptype_id},
                               context_instance=RequestContext(request))
+
+
+@permission_required("schemas.edit_schema",
+                     (Schema, "graph__slug", "graph_slug"))
+def schema_export(request, graph_slug):
+    graph = get_object_or_404(Graph, slug=graph_slug)
+    schema = graph.schema.export()
+    response = HttpResponse(simplejson.dumps(schema), mimetype='application/json')
+    response['Content-Disposition'] = 'attachment; filename=%s_schema.json' % graph_slug
+    return response
+
+
+@permission_required("schemas.edit_schema",
+                     (Schema, "graph__slug", "graph_slug"))
+def schema_import(request, graph_slug):
+
+    class ImportSchemaForm(Form):
+        file = FileField()
+
+    graph = get_object_or_404(Graph, slug=graph_slug)
+    if request.POST:
+        form = ImportSchemaForm(request.POST, request.FILES)
+        # TODO Handle possible exceptions
+        data = request.FILES['file'].read()
+        schema_dict = simplejson.loads(data)
+        graph.schema._import(schema_dict)
+        return redirect(schema_edit, graph_slug)
+    return render_to_response('schemas_import.html',
+                            {"graph": graph,
+                                "form": ImportSchemaForm},
+                            context_instance=RequestContext(request))
+
