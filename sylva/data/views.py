@@ -62,8 +62,7 @@ def nodes_list_full(request, graph_slug, node_type_id):
                 graph.nodes.filter(label=type_element.id))
     data_preview.append([type_element.name,
         properties,
-        data,
-        type_element.id])
+        data])
     nodes = graph.nodes.filter(label=node_type_id)
     return render_to_response('nodes_list.html', {
                                 "graph": graph,
@@ -387,8 +386,7 @@ def relationships_list_full(request, graph_slug, relationship_type_id):
     columns.extend(properties)
     data_preview.append([type_element.name,
         columns,
-        data,
-        type_element.id])
+        data])
     return render_to_response('nodes_list.html',
                               {"graph": graph,
                                   "option_list": data_preview},
