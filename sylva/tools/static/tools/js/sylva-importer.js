@@ -25,6 +25,10 @@ var Importer = {
     $('#third-step').hide();
   },
 
+  doneWithFiles: function() {
+    $('body').trigger($.Event('fileLoaded'));
+  },
+
   validateSchemasStep: function() {
     $('body').bind('fileLoaded', function(){
       $('#second-step').show();

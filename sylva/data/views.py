@@ -25,8 +25,8 @@ def create_data(properties, data_list, add_edge_extras=False):
     for element in data_list:
         row = []
         if add_edge_extras:
-            row.append(element.source.id)
-            row.append(element.target.id)
+            row.append(element.source.display)
+            row.append(element.target.display)
         for p in properties:
             row.append(element.get(p, ""))
         row.append(element.id)
@@ -62,8 +62,7 @@ def nodes_list_full(request, graph_slug, node_type_id):
                 graph.nodes.filter(label=type_element.id))
     data_preview.append([type_element.name,
         properties,
-        data,
-        type_element.id])
+        data])
     nodes = graph.nodes.filter(label=node_type_id)
     return render_to_response('nodes_list.html', {
                                 "graph": graph,
@@ -389,8 +388,7 @@ def relationships_list_full(request, graph_slug, relationship_type_id):
     columns.extend(properties)
     data_preview.append([type_element.name,
         columns,
-        data,
-        type_element.id])
+        data])
     return render_to_response('nodes_list.html',
                               {"graph": graph,
                                   "option_list": data_preview},

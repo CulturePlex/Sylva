@@ -76,9 +76,9 @@ var GraphEditor = {
     this.setGraphNodesJSON(json);
     if (this.USES_DRAWER) {
       if (data.hasOwnProperty('position')){
-        this.drawer.addLocatedNode(nodeName, _properties['position']['x'], _properties['position']['y'])
+        this.drawer.addLocatedNode(nodeName, _properties['position']['x'], _properties['position']['y'], data.type, data.id)
       } else {
-        this.drawer.addNode(nodeName);
+        this.drawer.addNode(nodeName, data.type, data.id);
       }
     }
   },
@@ -194,7 +194,7 @@ var GraphEditor = {
   },
 
   edgeText: function(sourceLabel, targetLabel, typeLabel){
-    return sourceLabel + ' -> ' + targetLabel + ' (' + typeLabel + ')';
+    return sourceLabel + ' &rarr; ' + targetLabel + ' (' + typeLabel + ')';
   },
 
   loadGEXF: function(){
@@ -252,7 +252,109 @@ var GraphEditor = {
           reader.readAsText(f);
         }
       }
-    $('#files').change(handleFileSelect, false);
+    $('#files').bind('change', handleFileSelect);
+  },
+
+  loadCSVs: function(){
+    // Load nodes
+    function handleNodeFile(evt) {
+      $('#csv-nodes-progress-bar').show();
+
+      var f = evt.target.files[0];
+      var reader = new FileReader();
+
+      reader.onload = (function(nodeFile){
+        return function(e){
+          var titleRow;
+          var attributes;
+
+          var content = e.target.result;
+          var lines = content.split('\n');
+
+          $.each(lines, function(index, line){
+            // Ignoring blank lines
+            if (!!line) {
+              // TODO Text may be quoted 
+              var columns = line.split(',');
+
+              // First line contains the labels of each column
+              if (index === 0) {
+                titleRow = columns;
+              } else {
+                attributes = {};
+                $.each(columns, function(i, item) {
+                  attributes[titleRow[i]] = item;
+                });
+                
+                GraphEditor.addNode(columns[0], attributes);
+              }
+            }
+          });
+          $('#csv-nodes-progress-bar').hide();
+        };
+      })(f);
+
+      reader.readAsText(f);
+    }
+
+    function handleEdgeFile(evt) {
+      $('#csv-edges-progress-bar').show();
+
+      var f = evt.target.files[0];
+      var reader = new FileReader();
+
+      reader.onload = (function(edgeFile){
+        return function(e){
+          var titleRow;
+          var source, type, target;
+          var attributes;
+
+          var content = e.target.result;
+          var lines = content.split('\n');
+
+          $.each(lines, function(index, line){
+            // Ignoring blank lines
+            if (!!line) {
+              // TODO Text may be quoted 
+              var columns = line.split(',');
+
+              // First line contains the labels of each column
+              if (index === 0) {
+                titleRow = columns;
+              } else {
+                source = undefined;
+                type = undefined;
+                target = undefined;
+                attributes = {};
+                $.each(columns, function(i, item) {
+                  switch (titleRow[i]) {
+                    case "source":
+                      source = item;
+                      break;
+                    case "type":
+                      type = item;
+                      break;
+                    case "target":
+                      target = item;
+                      break;
+                    default:
+                      attributes[titleRow[i]] = item;
+                  }
+                });
+                
+                GraphEditor.addEdge(source, type, target, attributes);
+              }
+            }
+          });
+          $('#csv-edges-progress-bar').hide();
+        };
+      })(f);
+
+      reader.readAsText(f);
+    }
+
+    $('#csv-nodes').bind('change', handleNodeFile);
+    $('#csv-edges').bind('change', handleEdgeFile);
   },
   
   refresh: function(){
@@ -364,6 +466,7 @@ var GraphEditor = {
     this.USES_TYPES = (this.USES_TYPES != undefined) ? this.USES_TYPES : true;
 
     this.loadGEXF();
+    this.loadCSVs();
     GraphEditor.refresh();
     
     // Black magic to have the Processing drawer ready to call the drawInitialData method
@@ -387,9 +490,9 @@ var GraphEditor = {
     var self = this;
     $.each(this.getGraphNodesJSON(), function(index, item){
       if (item.hasOwnProperty('position')){
-        self.drawer.addLocatedNode(index, item['position']['x'], item['position']['y'])
+        self.drawer.addLocatedNode(index, item['position']['x'], item['position']['y'], item.type, item.id)
       } else {
-        self.drawer.addNode(index);
+        self.drawer.addNode(index, item.type, item.id);
       }
     });
     $.each(this.getGraphEdgesJSON(), function(index, item){
@@ -407,4 +510,3 @@ $(document).ready(function(){
   //Progress bar
   $('#progress-bar').hide();
 });
-
