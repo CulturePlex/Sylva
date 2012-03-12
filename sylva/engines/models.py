@@ -11,6 +11,10 @@ from django.db import models
 default_engine = settings.GRAPHDATABASES["default"]["ENGINE"]
 
 
+def get_upload_to(instance, filename):
+    return u"private/%s/%s" % (instance.owner.username, filename)
+
+
 class Instance(models.Model):
     name = models.CharField(_("name"), max_length=100)
     engine = models.CharField(_("engine"), max_length=50,
@@ -41,9 +45,9 @@ class Instance(models.Model):
                                       help_text=_("Type again to change"))
     query = models.TextField(_("query"), null=True, blank=True)
     fragment = models.TextField(_("fragment"), null=True, blank=True)
-    key_file = models.FileField(_("Key file"), upload_to=self._get_upload_to,
+    key_file = models.FileField(_("Key file"), upload_to=get_upload_to,
                                 null=True, blank=True,)
-    cert_file = models.FileField(_("Cert file"), upload_to=self._get_upload_to,
+    cert_file = models.FileField(_("Cert file"), upload_to=get_upload_to,
                                 null=True, blank=True,)
     owner = models.ForeignKey(User, verbose_name=_('owner'),
                               related_name="instances")
@@ -60,9 +64,6 @@ class Instance(models.Model):
     @models.permalink
     def get_absolute_url(self):
         return ('engines.views.edit', [str(self.id)])
-
-    def _get_upload_to(self, instance, filename):
-        return u"private/%s/%s" % (instance.owner.username, filename)
 
     def _get_connection_string(self):
         if self.scheme == u"file":
@@ -108,8 +109,8 @@ class Instance(models.Model):
             "password": self.password,
             "query": self.query,
             "fragment": self.fragment,
-            "key_file": self.key_cert,
-            "cert_file": self.cert_file,
+            "key_file": self.key_cert and self.key_cert.file,
+            "cert_file": self.cert_file and self.cert_file.file,
         }
         connection_string = self._get_connection_string()
         module = import_module(self.engine)
