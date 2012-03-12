@@ -47,15 +47,15 @@ class BaseType(models.Model):
     order = models.IntegerField(_('order'), null=True, blank=True)
     total = models.IntegerField(_("total objects"), default=0)
     validation = models.TextField(_('validation'), blank=True, null=True,
-                                  default="""
-// The properties list ordered by "Order"
-// and then by "Name" is provided and it
-// will be used. In case of error, set
-// error variable to string;
-properties;
-error = "";
-                                  """,
-                                  help_text=_("Code in Javascript to"
+#                                  default="""
+#// The properties list ordered by "Order"
+#// and then by "Name" is provided and it
+#// will be used. In case of error, set
+#// error variable to string;
+#properties;
+#error = "";
+#                                  """,
+                                  help_text=_("Code in Javascript to "
                                               "validate all the properties"))
 
     class Meta:
@@ -150,17 +150,17 @@ class BaseProperty(models.Model):
     display = models.BooleanField(_('use as label'), default=False)
     description = models.TextField(_('description'), blank=True, null=True)
     validation = models.TextField(_('validation'), blank=True, null=True,
-                                  default="""
-// The property value and name are provided
-// and modifications on the value will be used.
-// In case of error, set the error variable to
-// a string.
-name;
-value;
-error = "";
-                                  """,
+#                                  default="""
+#// The property value and name are provided
+#// and modifications on the value will be used.
+#// In case of error, set the error variable to
+#// a string.
+#name;
+#value;
+#error = "";
+#                                  """,
                                   help_text=_("Code in Javascript to"
-                                              "validate all the properties"))
+                                              "validate the property"))
     order = models.IntegerField(_('order'), blank=True, null=True)
 
     class Meta:
