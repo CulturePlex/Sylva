@@ -22,8 +22,15 @@
 {% endblock %}
 
 {% block content %}
-<canvas id="graphcanvas">{% trans "Your browser does not support graph visualization" %}</canvas>
-<!-- Start of DOM elements working as memory system and debugging -->        
+<div id="canvas-container">
+  <div id="canvas-info">
+    Click any node to interact
+  </div>
+  <div id="canvas-box">
+    <canvas id="graphcanvas">{% trans "Your browser does not support graph visualization" %}</canvas>
+  </div>  
+</div>
+  <!-- Start of DOM elements working as memory system and debugging -->        
 <div id="sec-debug">
   <div id="sec-node-list">
     <ul id="node-list"></ul>
@@ -41,6 +48,7 @@
 </div>
 <!-- End of DOM elements working as memory system and debugging -->        
 
+<br/>
 <div>
     <div class="not-available">
     {% blocktrans with graph.slug as graph_id %}
@@ -61,6 +69,24 @@
 var nodes = {{ nodes|safe }};
 var edges = {{ edges|safe }};
 
+function updateInfo(evt, nodeName, nodeId) {
+  
+  if (nodeId === undefined) {nodeId = nodeName};
+
+  var title = $('<h2>').text(nodeName);
+
+  var editLinkURL = "{% url nodes_edit graph.slug 0 %}";
+  editLinkURL = editLinkURL.replace('0/edit/', nodeId + '/edit/');
+  var editLink = $('<a>')
+    .attr('href', editLinkURL)
+      .text('Edit node');
+
+  $('#canvas-info')
+    .empty()
+      .append(title)
+        .append(editLink);
+}
+
 $(document).ready(function(){
   $('#sec-debug').hide(); // Comment this line to Debug the graph creation
   GraphEditor.PDE_URL = "{{ STATIC_PREFIX }}graphs/js/graphdrawer.pde";
@@ -68,6 +94,10 @@ $(document).ready(function(){
   GraphEditor.init();
   $('#id_graph_nodes').val(JSON.stringify(nodes));
   $('#id_graph_edges').val(JSON.stringify(edges));
+
+  // Attach the nodeSelect event from the canvas to update the
+  // node info box
+  $('body').bind('nodeSelected', updateInfo);
 
 });
 

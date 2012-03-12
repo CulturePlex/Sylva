@@ -34,10 +34,12 @@ def graph_view(request, graph_slug):
         for n in graph.nodes.iterator():
             if n.display not in nodes:
                 nodes[n.display] = n.properties
+                nodes[n.display].update({'id': n.id})
                 for r in n.relationships.all():
                     labels = RelationshipType.objects.filter(id=r.label)
                     if labels:
                         nodes[r.target.display] = r.target.properties
+                        nodes[r.target.display].update({'id': r.target.id})
                         edges.append({'source': n.display,
                                         'type': labels[0].name,
                                         'target': r.target.display,
