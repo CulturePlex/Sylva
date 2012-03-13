@@ -27,11 +27,13 @@
             <div class="flags-divider"></div>
             <div class="flags-block">
                 <span class="graph-visibility">
+                    <a title="{% trans "Visibility" %}" href="{% url graph_edit graph.slug %}">
                     {% if graph.public %}
-                        <a title="{% trans "Visibility" %}" href="">{% trans "Public" %}</a>
+                        {% trans "Public" %}</a>
                     {% else %}
-                        <a title="{% trans "Visibility" %}" href="">{% trans "Private" %}</a>
+                        {% trans "Private" %}
                     {% endif %}
+                    </a>
                 </span>
                 <span class="graph-collaborators">
                     {{ graph.get_collaborators|length }} <a title="{% trans "Collaborators" %}" href="{% url graph_collaborators graph.slug %}">{% trans "collaborators" %}</a>

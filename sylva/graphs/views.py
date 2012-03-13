@@ -72,8 +72,9 @@ def graph_edit(request, graph_slug):
                 graph.save()
             redirect_url = reverse("graph_view", args=[graph.slug])
             return redirect(redirect_url)
-    return render_to_response('graphs_create.html',
-                              {"form": form},
+    return render_to_response('graphs_edit.html',
+                              {"graph": graph,
+                               "form": form},
                               context_instance=RequestContext(request))
 
 

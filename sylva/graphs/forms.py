@@ -35,7 +35,7 @@ class GraphForm(ModelForm):
 
     class Meta:
         model = Graph
-        fields = ("name", "description", "relaxed")
+        fields = ("name", "description", "relaxed", "public")
 
 
 class AddCollaboratorForm(forms.Form):
