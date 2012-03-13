@@ -65,9 +65,13 @@ class Graph(models.Model, GraphMixin):
     # def get_absolute_url(self):
     #     return ('graphs.views.details', [str(self.id)])
 
-    def get_collaborators(self):
+    def get_collaborators(self, include_anonymous=False):
         all_collaborators = get_users_with_perms(self)
-        return list(all_collaborators.exclude(id=self.owner.id))
+        if include_anonymous:
+            return list(all_collaborators.exclude(id=self.owner.id))
+        else:
+            return list(all_collaborators.exclude(id__in=[self.owner.id,
+                                                  settings.ANONYMOUS_USER_ID]))
 
 
 @receiver(pre_save, sender=Graph)

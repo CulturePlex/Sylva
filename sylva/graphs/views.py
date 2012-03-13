@@ -109,7 +109,8 @@ def graph_collaborators(request, graph_slug):
         return redirect('%s?next=%s' % (reverse("signin"), request.path))
     users = User.objects.all().exclude(pk=settings.ANONYMOUS_USER_ID)
     all_collaborators = guardian.get_users_with_perms(graph)
-    collaborators = list(all_collaborators.exclude(pk=request.user.id))
+    collaborators = list(all_collaborators.exclude(id__in=[request.user.id,
+                                                   settings.ANONYMOUS_USER_ID]))
     if request.POST:
         data = request.POST.copy()
         form = AddCollaboratorForm(data=data, graph=graph,
