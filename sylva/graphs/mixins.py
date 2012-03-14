@@ -424,10 +424,13 @@ class BaseElement(object):
                 properties_values = self._properties.values()[:5]
                 for i in range(len(properties_values)):
                     if properties_values[i]:
-                        unicode_value = unicode(properties_values[i])
-                        properties_to_display.append(unicode_value)
+                        try:
+                            unicode_value = unicode(properties_values[i])
+                            properties_to_display.append(unicode_value)
+                        except UnicodeDecodeError:
+                            pass
             if properties_to_display:
-                return (u" %s " % separator).join(properties_to_display)
+                return separator.join(properties_to_display)
             else:
                 return u"%s" % self._id
     display = property(_get_display)
@@ -482,7 +485,17 @@ class Node(BaseElement):
         properties = self._properties
         for display in displays:
             if display.key in properties:
-                properties_to_display.append(properties[display.key])
+                if display.datatype == u"b":  # Boolean
+                    if properties[display.key]:
+                        properties_to_display.append(display.key)
+                    else:
+                        properties_to_display.append(u"¬%s" % display.key)
+                else:
+                    try:
+                        unicode_value = unicode(properties[display.key])
+                        properties_to_display.append(unicode_value)
+                    except UnicodeDecodeError:
+                        pass
         return properties_to_display
 
     def _get_property_keys(self):
