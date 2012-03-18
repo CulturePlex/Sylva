@@ -22,6 +22,17 @@ class Schema(models.Model):
             return _(u"Schema \"%s\"") % (self.id)
 
     def export(self):
+
+        def get_property_fields(n):
+            return {'required': n.required,
+                'slug': n.slug,
+                'default': n.default,
+                'value': n.value,
+                'datatype': n.datatype,
+                'display': n.display,
+                'description': n.description,
+                'validation': n.validation}
+
         schema = {}
         schema["node_types"] = []
         for node_type in self.nodetype_set.all():
@@ -33,13 +44,13 @@ class Schema(models.Model):
         for node_type in schema["node_types"]:
             attributes = {}
             for n in node_type.properties.all():
-                attributes[n.key] = {'required': n.required}
+                attributes[n.key] = get_property_fields(n)
             schema_json["nodeTypes"][node_type.name] = attributes
         for edge_type in schema["relationship_types"]:
             edge_attributes = {}
             for n in edge_type.properties.all():
-                edge_attributes[n.key] = {'required': n.required}
-            schema_json["allowedEdges"].append({
+                edge_attributes[n.key] = get_property_fields(n)
+                schema_json["allowedEdges"].append({
                 "source": edge_type.source.name,
                 "label": edge_type.name,
                 "target": edge_type.target.name,
