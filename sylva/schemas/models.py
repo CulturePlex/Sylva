@@ -50,7 +50,7 @@ class Schema(models.Model):
             edge_attributes = {}
             for n in edge_type.properties.all():
                 edge_attributes[n.key] = get_property_fields(n)
-                schema_json["allowedEdges"].append({
+            schema_json["allowedEdges"].append({
                 "source": edge_type.source.name,
                 "label": edge_type.name,
                 "target": edge_type.target.name,
