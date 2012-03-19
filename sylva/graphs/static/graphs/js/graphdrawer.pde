@@ -36,6 +36,7 @@ class Node{
   boolean finalNode;
   String name;
   int nodeType = 0;
+  int nodeId = 0;
   ArrayList<Relation> relations;
 
   Node(float x, float y, String n){
@@ -93,6 +94,10 @@ class Node{
   void setSelected(){
     _nodeSelected=true;
     selected=true;
+    // If jQuery is available trigger an event
+    if ($ !== undefined) {
+      $('body').trigger('nodeSelected', [name, nodeId])
+    }
   }
 
   void setUnselected(){
@@ -151,6 +156,10 @@ class Node{
       nodeTypeIndex = _nodeTypes.size() - 1;
     }
     nodeType = nodeTypeIndex;
+  }
+
+  void setId(int id){
+    nodeId = id;
   }
 
   String[] getRelationshipTypes(){
@@ -444,7 +453,7 @@ void unselectAll(){
   }
 }
 
-void addNode(String nodeName, String nodeType){
+void addNode(String nodeName, String nodeType, int nodeId){
   Node newNode;
   newNode = new Node(random(width), random(height), nodeName);
 
@@ -452,10 +461,14 @@ void addNode(String nodeName, String nodeType){
     newNode.setType(nodeType);
   }
 
+  if (nodeId) {
+    newNode.setId(nodeId);
+  }
+
   _nodeList.add(newNode);
 }
 
-void addLocatedNode(String nodeName, float xpos, float ypos, String nodeType){
+void addLocatedNode(String nodeName, float xpos, float ypos, String nodeType, int nodeId){
   Node newNode;
   float x = width*norm(xpos, -1400, 1400);
   float y = height*norm(ypos, -1000, 1400);
@@ -463,6 +476,10 @@ void addLocatedNode(String nodeName, float xpos, float ypos, String nodeType){
 
   if (nodeType) {
     newNode.setType(nodeType);
+  }
+
+  if (nodeId) {
+    newNode.setId(nodeId);
   }
 
   _nodeList.add(newNode);
