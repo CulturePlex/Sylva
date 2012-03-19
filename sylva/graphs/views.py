@@ -16,7 +16,7 @@ from guardian.decorators import permission_required
 from data.models import Data
 from graphs.forms import GraphForm, AddCollaboratorForm
 from graphs.models import Graph, PERMISSIONS
-from schemas.models import Schema, RelationshipType
+from schemas.models import Schema, RelationshipType, NodeType
 from settings import PREVIEW_NODES
 
 @permission_required("graphs.view_graph", (Graph, "slug", "graph_slug"))
@@ -34,7 +34,8 @@ def graph_view(request, graph_slug):
         for n in graph.nodes.iterator():
             if n.display not in nodes:
                 nodes[n.display] = n.properties
-                nodes[n.display].update({'id': n.id})
+                nodes[n.display].update({'id': n.id,
+                                    'type': NodeType.objects.get(id=n.label).name})
                 for r in n.relationships.all():
                     labels = RelationshipType.objects.filter(id=r.label)
                     if labels:
