@@ -8,7 +8,7 @@ boolean _showLabels = true;
 float SCALING_STEP = 0.1;
 float PANNING_STEP = 5;
 
-float MIN_SCALING = 0.1;
+float MIN_SCALING = 1.0;
 float MAX_SCALING = 4.5;
 
 float MIN_PANNING = -10000;
@@ -36,7 +36,6 @@ class Node{
   boolean finalNode;
   String name;
   int nodeType = 0;
-  int nodeId = 0;
   ArrayList<Relation> relations;
 
   Node(float x, float y, String n){
@@ -94,10 +93,6 @@ class Node{
   void setSelected(){
     _nodeSelected=true;
     selected=true;
-    // If jQuery is available trigger an event
-    if ($ !== undefined) {
-      $('body').trigger('nodeSelected', [name, nodeId])
-    }
   }
 
   void setUnselected(){
@@ -156,10 +151,6 @@ class Node{
       nodeTypeIndex = _nodeTypes.size() - 1;
     }
     nodeType = nodeTypeIndex;
-  }
-
-  void setId(int id){
-    nodeId = id;
   }
 
   String[] getRelationshipTypes(){
@@ -453,7 +444,7 @@ void unselectAll(){
   }
 }
 
-void addNode(String nodeName, String nodeType, int nodeId){
+void addNode(String nodeName, String nodeType){
   Node newNode;
   newNode = new Node(random(width), random(height), nodeName);
 
@@ -461,14 +452,10 @@ void addNode(String nodeName, String nodeType, int nodeId){
     newNode.setType(nodeType);
   }
 
-  if (nodeId) {
-    newNode.setId(nodeId);
-  }
-
   _nodeList.add(newNode);
 }
 
-void addLocatedNode(String nodeName, float xpos, float ypos, String nodeType, int nodeId){
+void addLocatedNode(String nodeName, float xpos, float ypos, String nodeType){
   Node newNode;
   float x = width*norm(xpos, -1400, 1400);
   float y = height*norm(ypos, -1000, 1400);
@@ -476,10 +463,6 @@ void addLocatedNode(String nodeName, float xpos, float ypos, String nodeType, in
 
   if (nodeType) {
     newNode.setType(nodeType);
-  }
-
-  if (nodeId) {
-    newNode.setId(nodeId);
   }
 
   _nodeList.add(newNode);
@@ -513,16 +496,20 @@ float Y_CORRECTOR = 5;
 
 void incScale(){
   _canvasScale += SCALING_STEP;
-  _canvasXPan -= X_CORRECTOR*PANNING_STEP;
-  _canvasYPan -= Y_CORRECTOR*PANNING_STEP;
   _canvasScale = min(_canvasScale, MAX_SCALING);
+  if (_canvasScale != MAX_SCALING) {
+    _canvasXPan -= X_CORRECTOR*PANNING_STEP;
+    _canvasYPan -= Y_CORRECTOR*PANNING_STEP;
+  }
 }
 
 void decScale(){
   _canvasScale -= SCALING_STEP;
-  _canvasXPan += X_CORRECTOR*PANNING_STEP;
-  _canvasYPan += Y_CORRECTOR*PANNING_STEP;
   _canvasScale = max(_canvasScale, MIN_SCALING);
+  if (_canvasScale != MIN_SCALING) {
+    _canvasXPan += X_CORRECTOR*PANNING_STEP;
+    _canvasYPan += Y_CORRECTOR*PANNING_STEP;
+  }
 }
 
 void setScale(float value){
