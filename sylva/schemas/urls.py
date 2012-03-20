@@ -9,44 +9,44 @@ admin.autodiscover()
 
 urlpatterns = patterns('schemas.views',
     # edit
-    url(r'^(?P<graph_slug>\w+)/$', 'schema_edit', name="schema_edit"),
+    url(r'^(?P<graph_slug>[\w-]+)/$', 'schema_edit', name="schema_edit"),
 
     # node type create
-    url(r'^(?P<graph_slug>\w+)/types/create/$', 'schema_nodetype_create',
+    url(r'^(?P<graph_slug>[\w-]+)/types/create/$', 'schema_nodetype_create',
         name="schema_nodetype_create"),
 
     # node type edit
-    url(r'^(?P<graph_slug>\w+)/types/(?P<nodetype_id>\d+)/edit/$',
+    url(r'^(?P<graph_slug>[\w-]+)/types/(?P<nodetype_id>\d+)/edit/$',
         'schema_nodetype_edit',
         name="schema_nodetype_edit"),
 
     # node type delete
-    url(r'^(?P<graph_slug>\w+)/types/(?P<nodetype_id>\d+)/delete/$',
+    url(r'^(?P<graph_slug>[\w-]+)/types/(?P<nodetype_id>\d+)/delete/$',
         'schema_nodetype_delete',
         name="schema_nodetype_delete"),
 
     # relationship type create
-    url(r'^(?P<graph_slug>\w+)/allowed/create/$',
+    url(r'^(?P<graph_slug>[\w-]+)/allowed/create/$',
         'schema_relationshiptype_create',
         name="schema_relationshiptype_create"),
 
     # relationship type edit
-    url(r'^(?P<graph_slug>\w+)/allowed/(?P<relationshiptype_id>\d+)/edit/$',
+    url(r'^(?P<graph_slug>[\w-]+)/allowed/(?P<relationshiptype_id>\d+)/edit/$',
         'schema_relationshiptype_edit',
         name="schema_relationshiptype_edit"),
 
     # relationship type delete
-    url(r'^(?P<graph_i>\w+)/allowed/(?P<relationshiptype_id>\d+)/delete/$',
+    url(r'^(?P<graph_i>[\w-]+)/allowed/(?P<relationshiptype_id>\d+)/delete/$',
         'schema_relationshiptype_delete',
         name="schema_relationshiptype_delete"),
 
     # export schema
-    url(r'^(?P<graph_slug>\w+)/export/$',
+    url(r'^(?P<graph_slug>[\w-]+)/export/$',
         'schema_export',
         name="schema_export"),
 
     # import schema
-    url(r'^(?P<graph_slug>\w+)/import/$',
+    url(r'^(?P<graph_slug>[\w-]+)/import/$',
         'schema_import',
         name="schema_import"),
 

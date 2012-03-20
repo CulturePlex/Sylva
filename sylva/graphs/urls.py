@@ -12,17 +12,17 @@ urlpatterns = patterns('graphs.views',
     url(r'^create/$', 'graph_create', name="graph_create"),
 
     # edit
-    url(r'^(?P<graph_slug>\w+)/edit/$', 'graph_edit', name="graph_edit"),
+    url(r'^(?P<graph_slug>[\w-]+)/edit/$', 'graph_edit', name="graph_edit"),
 
     # view
-    url(r'^(?P<graph_slug>\w+)/$', 'graph_view', name="graph_view"),
+    url(r'^(?P<graph_slug>[\w-]+)/$', 'graph_view', name="graph_view"),
 
     # collaborators edit
-    url(r'^(?P<graph_slug>\w+)/collaborators/$', 'graph_collaborators',
+    url(r'^(?P<graph_slug>[\w-]+)/collaborators/$', 'graph_collaborators',
         name="graph_collaborators"),
 
     # user permissions update
-    url(r'^(?P<graph_slug>\w+)/collaborators/change_permission/$',
+    url(r'^(?P<graph_slug>[\w-]+)/collaborators/change_permission/$',
         'change_permission',
         name="change_permission"),
 )
