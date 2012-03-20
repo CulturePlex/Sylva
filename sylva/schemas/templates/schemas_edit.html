@@ -91,7 +91,8 @@
                 </div>
             {% endfor %}
         </div>
-    {% empty %}
+    {% endfor %}
+    {% if not node_type.get_outgoing_relationships and not node_type.get_incoming_relationships %}
     <span class="indent">
     {% trans "New" %} 
     <a class="buttonLinkOption" href="{% url schema_relationshiptype_create graph.slug %}?target={{ node_type.id }}&inverse={{ relationship_name.grouper }}">
@@ -102,8 +103,7 @@
     </a>
     {% trans "allowed relationship" %}
     </span>
-
-    {% endfor %}
+    {% endif %}
     </fieldset>
     </div>
 {% endfor %}
