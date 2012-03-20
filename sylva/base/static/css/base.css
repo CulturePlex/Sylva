@@ -67,6 +67,10 @@ html {
     text-rendering: Legibility;
 }
 
+fieldset {
+    margin-bottom: 15px;
+}
+
 .clear {
     clear: both;
     display: block;
@@ -852,6 +856,27 @@ ul.errorlist {
     min-height: 55px;
     float: left;
     padding: 15px 2px 0px 2px;
+}
+
+/* Schemas */
+.indent10 {
+    margin-left: 10px;
+}
+
+.indent {
+    margin-left: 20px;
+}
+
+label a.indent {
+    font-size: 0.75em;
+    font-style: italic;
+    font-weight: normal;
+    margin-left: 5px;
+}
+
+div.indent label.relProps {
+    font-size: 0.9em;
+    font-weight: normal;
 }
 
 /* Menu buttons */

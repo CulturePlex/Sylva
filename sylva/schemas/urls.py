@@ -36,7 +36,7 @@ urlpatterns = patterns('schemas.views',
         name="schema_relationshiptype_edit"),
 
     # relationship type delete
-    url(r'^(?P<graph_i>[\w-]+)/allowed/(?P<relationshiptype_id>\d+)/delete/$',
+    url(r'^(?P<graph_slug>[\w-]+)/allowed/(?P<relationshiptype_id>\d+)/delete/$',
         'schema_relationshiptype_delete',
         name="schema_relationshiptype_delete"),
 

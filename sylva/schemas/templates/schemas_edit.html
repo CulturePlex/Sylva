@@ -32,7 +32,7 @@
     <fieldset class="module aligned wide">
     {% if node_type.name %}<h2><a href="{% url schema_nodetype_edit graph.slug node_type.id %}">{{ node_type.name|capfirst }}</a></h2>{% endif %}
     {% for node_property in node_type.properties.all %}
-         <div class="form-row">
+         <div class="form-row indent">
          <div>
             <label {% if node_property.required %}class="required"{% endif %}>⌂ {{ node_property.key|capfirst }}</label>
             [{{ node_property.get_datatype }}] <p class="help">{{ node_property.default }}</p>
@@ -41,59 +41,68 @@
     {% endfor %}
     {% regroup node_type.get_outgoing_relationships by name as outgoing_relationships %}
     {% for relationship_name in outgoing_relationships %}
-         <div class="form-row">
-         <div>
-            <label>→ {{ relationship_name.grouper|capfirst }}</label>
+         <div class="form-row indent">
+            <label>
+                → {{ relationship_name.grouper|capfirst }}
+                <a class="buttonLinkOption indent" href="{% url schema_relationshiptype_create graph.slug %}?source={{ node_type.id }}&name={{ relationship_name.grouper }}">
+                    ({% trans "Add another" %})
+                </a>
+            </label>
             {% for relationship in relationship_name.list %}
-                <div class="form-row">
+                <div class="form-row indent">
                 <a href="{% url schema_relationshiptype_edit graph.slug relationship.id %}">
                     {% if relationship.arity_target < 1 %}∞{% else %}{{ relationship.arity_target }} × {% endif %} {{ relationship.target.name|capfirst }}
                 </a>
                 {% if relationship.properties %}
                     {% for relationship_propery in relationship.properties.all %}
-                    <div>
-                        <label {% if relationship_propery.required %}class="required"{% endif %}>⌂ {{ relationship_propery.key|capfirst }}</label>
+                    <div class="form-row indent">
+                        <label class="relProps{% if relationship_propery.required %} required{% endif %}">⌂ {{ relationship_propery.key|capfirst }}</label>
                         [{{ relationship_propery.get_datatype }}] <p class="help">{{ relationship_propery.default }}</p>
                     </div>
                     {% endfor %}
-                </div>
                 {% endif %}
+                </div>
             {% endfor %}
-            <a class="buttonLinkOption" href="{% url schema_relationshiptype_create graph.slug %}?source={{ node_type.id }}&name={{ relationship_name.grouper }}">
-                {% trans "Add relationship" %}
-            </a>
-        </div>
         </div>
     {% endfor %}
     {% regroup node_type.get_incoming_relationships by inverse as incoming_relationships %}
     {% for relationship_name in incoming_relationships %}
-         <div class="form-row">
-         <div>
+         <div class="form-row indent">
             <label>←
                 {% if relationship_name.grouper %}{{ relationship_name.grouper|capfirst }}{% else %}{{ relationship_name.list.0.name|capfirst }}{% endif %}
+                <a class="buttonLinkOption indent" href="{% url schema_relationshiptype_create graph.slug %}?target={{ node_type.id }}&inverse={{ relationship_name.grouper }}&name={{ relationship_name.list.0.name }}">
+                    ({% trans "Add another" %})
+                </a>
             </label>
             {% for relationship in relationship_name.list %}
-                <div class="form-row">
+                <div class="form-row indent">
                 <a href="{% url schema_relationshiptype_edit graph.slug relationship.id %}">
                     {% if relationship.arity_source < 1 %}∞{% else %}{{ relationship.arity_source }} × {% endif %}
                     {{ relationship.source.name|capfirst }}
                 </a>
                 {% if relationship.relation.relationshipproperty_set.all %}
                     {% for relationship_propery in relationship.relation.relationshipproperty_set.all %}
-                    <div class="form-row">
-                    <div>
-                        <label {% if relationship_propery.required %}class="required"{% endif %}>⌂ {{ relationship_propery.key|capfirst }}</label>
+                    <div class="form-row indent">
+                        <label class="relProps{% if relationship_propery.required %} required{% endif %}">⌂ {{ relationship_propery.key|capfirst }}</label>
                         [{{ relationship_propery.get_datatype }}] <p class="help">{{ relationship_propery.default }}</p>
-                    </div>
                     </div>
                     {% endfor %}
                 {% endif %}
+                </div>
             {% endfor %}
-            <a class="buttonLinkOption" href="{% url schema_relationshiptype_create graph.slug %}?target={{ node_type.id }}&inverse={{ relationship_name.grouper }}&name={{ relationship_name.list.0.name }}">
-                {% trans "Add relationship" %}
-            </a>
         </div>
-        </div>
+    {% empty %}
+    <span class="indent">
+    {% trans "New" %} 
+    <a class="buttonLinkOption" href="{% url schema_relationshiptype_create graph.slug %}?target={{ node_type.id }}&inverse={{ relationship_name.grouper }}">
+        {% trans "incoming" %}
+    </a> {% trans "or" %}
+    <a class="buttonLinkOption" href="{% url schema_relationshiptype_create graph.slug %}?source={{ node_type.id }}&name={{ relationship_name.grouper }}">
+        {% trans "outgoing" %}
+    </a>
+    {% trans "allowed relationship" %}
+    </span>
+
     {% endfor %}
     </fieldset>
     </div>
