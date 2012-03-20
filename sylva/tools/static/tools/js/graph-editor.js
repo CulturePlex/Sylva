@@ -2,6 +2,20 @@ if ($ == undefined) {
   $ = django.jQuery;
 }
 
+// Thanks to Brian Huisman AKA GreyWyvern
+// http://www.greywyvern.com/?post=258
+String.prototype.splitCSV = function(sep) {
+  for (var foo = this.split(sep = sep || ","), x = foo.length - 1, tl; x >= 0; x--) {
+    if (foo[x].replace(/"\s+$/, '"').charAt(foo[x].length - 1) == '"') {
+      if ((tl = foo[x].replace(/^\s+"/, '"')).length > 1 && tl.charAt(0) == '"') {
+        foo[x] = foo[x].replace(/^\s*"|"\s*$/g, '').replace(/""/g, '"');
+      } else if (x) {
+        foo.splice(x - 1, 2, [foo[x - 1], foo[x]].join(sep));
+      } else foo = foo.shift().split(sep).concat(foo);
+    } else foo[x].replace(/""/g, '"');
+  } return foo;
+};
+
 var GraphEditor = {
   DEBUG: true,
 
@@ -274,8 +288,7 @@ var GraphEditor = {
           $.each(lines, function(index, line){
             // Ignoring blank lines
             if (!!line) {
-              // TODO Text may be quoted 
-              var columns = line.split(',');
+              var columns = line.splitCSV(',');
 
               // First line contains the labels of each column
               if (index === 0) {
@@ -315,8 +328,7 @@ var GraphEditor = {
           $.each(lines, function(index, line){
             // Ignoring blank lines
             if (!!line) {
-              // TODO Text may be quoted 
-              var columns = line.split(',');
+              var columns = line.splitCSV(',');
 
               // First line contains the labels of each column
               if (index === 0) {
