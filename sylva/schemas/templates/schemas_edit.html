@@ -111,7 +111,7 @@
 {% if node_types %}
     <a class="button" href="{% url schema_nodetype_create graph.slug %}">{% trans "New Type" %}</a>
 {% else %}
-    <a class="button" href="{% url schema_import graph.slug %}">{% trans "Import schema" %}</a>
+    <a class="button" href="{% url schema_import graph.slug %}">{% trans "Import Schema" %}</a>
 {% endif %}
 <span class="buttonLinkOption">
 {% if node_types %}
@@ -119,6 +119,8 @@
     {% trans "or" %}
     <a href="{% url schema_export graph.slug %}">{% trans "Export" %}</a>.
 {% else %}
+    {% trans "or" %}
+    <a href="{% url schema_nodetype_create graph.slug %}">{% trans "New Type" %}</a>.
     {% trans "There are no types defined yet" %}.
 {% endif %}
 </span>
