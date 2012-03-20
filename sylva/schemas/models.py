@@ -232,7 +232,7 @@ class NodeProperty(BaseProperty):
 
     class Meta:
         verbose_name_plural = _("Node properties")
-
+        ordering = ("order", "key")
 
 class RelationshipProperty(BaseProperty):
     relationship = models.ForeignKey(RelationshipType,
@@ -241,3 +241,4 @@ class RelationshipProperty(BaseProperty):
 
     class Meta:
         verbose_name_plural = _("Relationship properties")
+        ordering = ("order", "key")
