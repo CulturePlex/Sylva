@@ -233,6 +233,7 @@ class Relation{
   String type;
   Node source;
   Node target;
+  float posx, posy;
 
   Relation(Node sNode, String t, Node tNode){
     source=sNode;
@@ -258,12 +259,15 @@ class Relation{
   }
 
   void drawMe(){
+    posx = (source.getX()+target.getX())/2;
+    posy = (source.getY()+target.getY())/2;
     stroke(0);
     line(source.getX(), source.getY(), target.getX(), target.getY());
+    ellipse(posx, posy, 3, 3);
     if (_showLabels){
       noStroke();
       fill(0);
-      text(type, (source.getX()+target.getX())/2, (source.getY()+target.getY())/2);
+      text(type, posy);
     }
   }
 }
