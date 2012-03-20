@@ -49,6 +49,7 @@ class Instance(models.Model):
                                 null=True, blank=True,)
     cert_file = models.FileField(_("Cert file"), upload_to=get_upload_to,
                                 null=True, blank=True,)
+    options = models.TextField(_("options"), null=True, blank=True)
     owner = models.ForeignKey(User, verbose_name=_('owner'),
                               related_name="instances")
 
@@ -111,6 +112,7 @@ class Instance(models.Model):
             "fragment": self.fragment,
             "key_file": self.key_cert and self.key_cert.file,
             "cert_file": self.cert_file and self.cert_file.file,
+            "options": self.options,
         }
         connection_string = self._get_connection_string()
         module = import_module(self.engine)
