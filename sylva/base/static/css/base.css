@@ -561,21 +561,70 @@ form {
     font-weight: bold;
 }
 
+#content3 div.dynamic-form a.delete-rowupFiles {
+    background: url(../img/recycle-full.png) no-repeat left -2px;
+    height: 35px;
+    padding: 10px 0 0 30px;
+    font-weight: bold;
+    float: right;
+    position: relative;
+    width: 15px;
+    margin-top: -115px;
+}
+
+#content3 div.dynamic-form a.delete-rowupLinks {
+    background: url(../img/recycle-full.png) no-repeat left -2px;
+    height: 35px;
+    padding: 10px 0 0 30px;
+    font-weight: bold;
+    float: right;
+    position: relative;
+    width: 15px;
+    margin-top: -110px;
+}
+
+#content3 div.relationships a.delete-rowupProps {
+    background: url(../img/recycle-full.png) no-repeat left -2px;
+    height: 35px;
+    padding: 10px 0 0 30px;
+    font-weight: bold;
+    float: right;
+    position: relative;
+    width: 15px;
+    margin-top: -61px;
+}
+
+#content3 div.relationships a.delete-rowup {
+    background: url(../img/recycle-full.png) no-repeat left -2px;
+    height: 35px;
+    padding: 10px 0 0 30px;
+    font-weight: bold;
+    float: right;
+    position: relative;
+    width: 15px;
+    margin-top: -42px;
+}
+
 #content3 div.relationships a.delete-row {
     background: url(../img/recycle-full.png) no-repeat left -2px;
     height: 35px;
     padding: 10px 0 0 30px;
     font-weight: bold;
+    float: right;
+    position: relative;
+    width: 15px;
+    margin-top: 0px;
 }
 
 div.dynamic-form,div.initial {
-    margin-bottom: 15px;
+    margin-bottom: 0px;  /* 15px */
 }
 
 /* Formsets relationships */
 .relationships div.initial p {
     display: none;
     margin-left: 20px;
+    float: none;
 }
 
 .relationships div.initial p input[type="text"],
@@ -589,6 +638,10 @@ div.dynamic-form,div.initial {
     margin-left: inherit;
 }
 
+.relationships div.initial p:first-child label {
+    display: none;
+}
+
 .relationships div.initial p:first-child input[type="text"],
 .relationships div.initial p:first-child select,
 .relationships div.initial p:first-child textarea {
@@ -598,6 +651,7 @@ div.dynamic-form,div.initial {
 .relationships div.dynamic-form p {
     display: none;
     margin-left: 20px;
+    float: none;
 }
 
 .relationships div.dynamic-form p input[type="text"],
@@ -611,12 +665,21 @@ div.dynamic-form,div.initial {
     margin-left: inherit;
 }
 
+.relationships div.dynamic-form p:first-child label {
+    display: none;
+}
+
 .relationships div.dynamic-form p:first-child input[type="text"],
 .relationships div.dynamic-form p:first-child select,
 .relationships div.dynamic-form p:first-child textarea {
     width: 300px;
 }
 
+.floating {
+    float: right;
+    position: relative;
+/*    width: 15px;*/
+}
 
 /* End */
 div.initial p:last-child {
@@ -662,6 +725,10 @@ select {
     -webkit-box-shadow: 0 0 5px rgba(52,142,130,0.75);
     -moz-box-shadow: 0 0 5px rgba(52,142,130,0.75);
     padding: 6px 7px 4px 9px;
+}
+
+.inFormsets {
+    margin: 10px 0 15px 0;
 }
 
 .helptext {

@@ -73,46 +73,72 @@
         {% endif %}
     </select>
     {% if outgoing_formsets %}
-            <span class="all-relationships outgoing-relationships">
+        <span class="all-relationships outgoing-relationships">
             {% for prefix, outgoing_formset in outgoing_formsets.items %}
                 {{ outgoing_formset.management_form }}
+                <label>
+                → {{ outgoing_formset.itemtype.name }} ({{ outgoing_formset.itemtype.target.name }})
+                </label>
+                <span class="helptext">
+                    {% trans "Target of the relationship" %} 
+                    <a href="{% url nodes_create outgoing_formset.itemtype.schema.graph.slug outgoing_formset.itemtype.target.id %}">
+                        {% trans "Add" %} {{ outgoing_formset.itemtype.target.name }}
+                    </a>
+                </span>
                 {% for outgoing_form in outgoing_formset %}
+                    <span>
                     {% if forloop.last %}
                         <div id="{{ prefix }}">
                         {{ outgoing_form.as_p }}
                         </div>
                     {% else %}
+                        <a class="delete-row initial-form floating" href="javascript:void(0)">
+                            <!-- {% trans "Remove" %} {{ outgoing_formset.itemtype.name }} -->
+                        </a>
                         <div class="initial" id="{{ prefix }}-form-{{ forloop.counter0 }}">
                         {{ outgoing_form.as_p }}
-                        <a class="delete-row initial-form" href="javascript:void(0)">{% trans "Remove" %} {{ outgoing_formset.itemtype.name }}</a>
                         </div>
                     {% endif %}
+                    </span>
                 {% endfor %}
             {% endfor %}
-            </span>
-        {% endif %}
-        {% if incoming_formsets %}
-            <span class="all-relationships incoming-relationships">
+        </span>
+    {% endif %}
+    {% if incoming_formsets %}
+        <span class="all-relationships incoming-relationships">
             {% for prefix, incoming_formset in incoming_formsets.items %}
                 {{ incoming_formset.management_form }}
+                <label>
+                ← {{ incoming_formset.itemtype.name }} ({{ incoming_formset.itemtype.source.name }})
+                </label>
+                <span class="helptext">
+                    {% trans "Source of the relationship" %} 
+                    <a href="{% url nodes_create incoming_formset.itemtype.schema.graph.slug incoming_formset.itemtype.source.id %}">
+                        {% trans "Add" %} {{ incoming_formset.itemtype.source.name }}
+                    </a>
+                </span>
                 {% for incoming_form in incoming_formset %}
+                    <span>
                     {% if forloop.last %}
                         <div id="{{ prefix }}">
                         {{ incoming_form.as_p }}
                         </div>
                     {% else %}
-                        <div class="initial" id="{{ prefix }}-form-{{ forloop.counter0 }}">
-                        {{ incoming_form.as_p }}
-                        <a class="delete-row initial-form" href="javascript:void(0)">
+                        <a class="delete-row initial-form floating" href="javascript:void(0)">
+                            <!--
                             {% trans "Remove" %}
                             {% if incoming_formset.itemtype.inverse %}
                                 {{ incoming_formset.itemtype.inverse }}
                             {% else %}
                                 {{ incoming_formset.itemtype.name }}
                             {% endif %}
+                            -->
                         </a>
+                        <div class="initial" id="{{ prefix }}-form-{{ forloop.counter0 }}">
+                        {{ incoming_form.as_p }}
                         </div>
                     {% endif %}
+                    </span>
                 {% endfor %}
             {% endfor %}
             </span>
@@ -129,9 +155,9 @@
                 {{ mediafile_form.as_p }}
                 </div>
             {% else %}
+                <a class="delete-row initial-form" href="javascript:void(0)"><!--{% trans "Remove File" %}--></a>
                 <div class="initial" id="{{ mediafile_formset.prefix }}-form-{{ forloop.counter0 }}">
                 {{ mediafile_form.as_p }}
-                <a class="delete-row initial-form" href="javascript:void(0)">{% trans "Remove File" %}</a>
                 </div>
             {% endif %}
         {% endfor %}
@@ -161,11 +187,12 @@
         init_{{ prefix }} = function() {
             $("div#{{ prefix }}").formset({
                 prefix: "{{ prefix }}",
-                addCssClass: "button addButton",
-                addText: "{% trans "Add" %} {{ outgoing_formset.itemtype.name }}  ({{ outgoing_formset.itemtype.target.name }})",
+                addCssClass: "button addButton inFormsets",
+                addText: "{% trans "Add" %} {{ outgoing_formset.itemtype.name }} ({{ outgoing_formset.itemtype.target.name }})",
                 extraClasses: ["row1", "row2"],
                 added: function(row) {$("#{{prefix}} p:last label").hide();},
-                deleteText: "{% trans "Remove" %} {{ outgoing_formset.itemtype.name }}"
+                deleteCssClass: "delete-rowup{% if outgoing_formset.itemtype.properties.count %}Props{% endif %}",
+                deleteText: "&nbsp;"
             });
         };
         $("#{{ prefix }} p:last label").hide();
@@ -178,11 +205,12 @@
             var label = "{% if incoming_formset.itemtype.inverse %}{{ incoming_formset.itemtype.inverse }}{% else %}{{ incoming_formset.itemtype.name }}{% endif %}";
             $("div#{{ prefix }}").formset({
                 prefix: "{{ prefix }}",
-                addCssClass: "button addButton",
+                addCssClass: "button addButton inFormsets",
                 addText: "{% trans "Add" %} "+ label,  // +" ({{ incoming_formset.itemtype.source.name }})",
                 extraClasses: ["row1", "row2"],
                 added: function(row) {$("#{{prefix}} p:last label").hide();},
-                deleteText: "{% trans "Remove" %} "+ label
+                deleteCssClass: "delete-rowup{% if incoming_formset.itemtype.properties.count %}Props{% endif %}",
+                deleteText: "&nbsp;"
             });
         };
         $("#{{ prefix }} p:last label").hide();
@@ -193,42 +221,49 @@
         init{{ mediafile_formset.prefix }} = function() {
             $("div#{{ mediafile_formset.prefix }}").formset({
                 prefix: "{{ mediafile_formset.prefix }}",
-                addCssClass: "button addButton",
+                addCssClass: "button addButton inFormsets",
                 addText: "{% trans "Add File" %}",
                 extraClasses: ["row1", "row2"],
                 added: function(row) {$("#{{ mediafile_formset.prefix }} p:last label").hide();},
-                deleteText: "{% trans "Remove File" %}"
+                deleteCssClass: "delete-rowupFiles",
+                deleteText: "&nbsp;"
             });
         };
         $("#{{ mediafile_formset.prefix }} p:last label").hide();
         init{{ mediafile_formset.prefix }}();
+        // Links
         init{{ medialink_formset.prefix }} = function() {
             $("div#{{ medialink_formset.prefix }}").formset({
                 prefix: "{{ medialink_formset.prefix }}",
-                addCssClass: "button addButton",
+                addCssClass: "button addButton inFormsets",
                 addText: "{% trans "Add Link" %}",
                 extraClasses: ["row1", "row2"],
                 added: function(row) {$("#{{ medialink_formset.prefix }} p:last label").hide();},
-                deleteText: "{% trans "Remove Link" %}"
+                deleteCssClass: "delete-rowupLinks",
+                deleteText: "&nbsp;"
             });
         };
         $("#{{ medialink_formset.prefix }} p:last label").hide();
-        // Links
         init{{ medialink_formset.prefix }}();
-        $(".initial-form").click(function(e) {
-            console.log();
-            $(this).siblings("p:last").children("input[type='checkbox']").attr("checked", "checked")
-            $(this).parents("div.initial").hide();
+        // Enable the deletion of initial forms
+        $(".initial-form").live("click", function(e) {
+            // $(this).siblings("p:last").children("input[type='checkbox']").attr("checked", "checked");
+            // $(this).parents("div.initial").hide();
+            var $this = $(this);
+            $this.siblings("div.initial").find("input:checkbox[id $= -DELETE]").val("on").attr("checked", "checked");
+            $this.siblings("div.initial").hide();
+            $this.hide();
         });
         // For old browsers
         $(".initial-form").parents("div.initial").each(function(i, form) {
             $(form).children("p:last").hide();
         });
         // For the properties of the relationships
-        $(".toggleProperties").click(function (e) {
+        $(".toggleProperties").live("click", function (e) {
             $(this).parents("p").siblings("p").toggle();
-            var last = $(this).parents("p").siblings("p:last")
-            if (last.parent().hasClass("initial")) {
+            var last = $(this).parents("p").siblings("p:last");
+            console.log(last)
+            if (last.parent().hasClass("initial") || last.parent().hasClass("dynamic-form")) {
                 last.hide();
             }
         });

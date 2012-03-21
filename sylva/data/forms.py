@@ -168,7 +168,7 @@ class RelationshipForm(ItemForm):
                                         getattr(itemtype, direction).name)
                 choices = [(n.id, n.display) for n in itemtype.target.all()]
                 url_create = reverse("nodes_create",
-                                     args=[itemtype.schema.graph.id,
+                                     args=[itemtype.schema.graph.slug,
                                            itemtype.target.id])
             else:
                 direction = u"source"
@@ -176,23 +176,31 @@ class RelationshipForm(ItemForm):
                                         itemtype.inverse or itemtype.name)
                 choices = [(n.id, n.display) for n in itemtype.source.all()]
                 url_create = reverse("nodes_create",
-                                     args=[itemtype.schema.graph.id,
+                                     args=[itemtype.schema.graph.slug,
                                            itemtype.source.id])
+            # We swap the help_text just to the properties
+            #if itemtype.properties.count() == 0:
+            #    help_text = _("%s of the relationship. "
+            #                   "<a href=\"%s\">Add %s</a>. ") \
+            #                 % (direction.capitalize(),
+            #                    url_create,
+            #                    getattr(itemtype, direction).name)
+            #else:
+            #    help_text = _("%s of the relationship. "
+            #                   "<a href=\"%s\">Add %s</a>. "
+            #                   "<a href=\"javascript:void(0);\""
+            #                   "   class=\"toggleProperties\">"
+            #                   "Toggle properties</a>.") \
+            #                 % (direction.capitalize(),
+            #                    url_create,
+            #                    getattr(itemtype, direction).name)
             if itemtype.properties.count() == 0:
-                help_text = _("%s of the relationship. "
-                               "<a href=\"%s\">Add %s</a>. ") \
-                             % (direction.capitalize(),
-                                url_create,
-                                getattr(itemtype, direction).name)
+                help_text = None
             else:
-                help_text = _("%s of the relationship. "
-                               "<a href=\"%s\">Add %s</a>. "
-                               "<a href=\"javascript:void(0);\""
-                               "   class=\"toggleProperties\">"
-                               "Toggle properties</a>.") \
-                             % (direction.capitalize(),
-                                url_create,
-                                getattr(itemtype, direction).name)
+                help_text = _("<a href=\"javascript:void(0);\""
+                              " class=\"toggleProperties\">"
+                              "Toggle properties</a>.")
+
             field_attrs = {
                 "required": True,
                 "initial": "",
