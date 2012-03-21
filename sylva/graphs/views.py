@@ -33,18 +33,12 @@ def graph_view(request, graph_slug):
         edges = []
         for n in graph.nodes.iterator():
             if n.display not in nodes:
-                nodes[n.display] = n.properties
-                nodes[n.display].update({'id': n.id,
-                                    'type': NodeType.objects.get(id=n.label).name})
+                nodes[n.display] = n.to_json()
                 for r in n.relationships.all():
                     labels = RelationshipType.objects.filter(id=r.label)
                     if labels:
-                        nodes[r.target.display] = r.target.properties
-                        nodes[r.target.display].update({'id': r.target.id})
-                        edges.append({'source': n.display,
-                                        'type': labels[0].name,
-                                        'target': r.target.display,
-                                        'properties': r.properties})
+                        nodes[r.target.display] = r.target.to_json()
+                        edges.append(r.to_json())
                         if len(nodes) >= n_elements: break
             if len(nodes) >= n_elements: break
         return (nodes, edges)
@@ -176,3 +170,17 @@ def change_permission(request, graph_slug):
             raise ValueError("Unknown %s permission: %s" % (object_str,
                                                             permission_str))
     return HttpResponse(simplejson.dumps({}))
+
+
+@permission_required("graphs.view_graph", (Graph, "slug", "graph_slug"))
+def expand_node(request, graph_slug, node_id):
+    graph = get_object_or_404(Graph, slug=graph_slug)
+    node = graph.nodes.get(node_id)
+    edges = []
+    nodes = {}
+    for edge in node.relationships.all():
+        edges.append(edge.to_json())
+        nodes[edge.source.display] = edge.source.to_json()
+        nodes[edge.target.display] = edge.target.to_json()
+    node_neighbors = {"edges": edges, "nodes": nodes}
+    return HttpResponse(simplejson.dumps(node_neighbors))

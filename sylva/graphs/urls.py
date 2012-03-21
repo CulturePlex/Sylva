@@ -25,4 +25,9 @@ urlpatterns = patterns('graphs.views',
     url(r'^(?P<graph_slug>\w+)/collaborators/change_permission/$',
         'change_permission',
         name="change_permission"),
+
+    # expand node ajax request
+    url(r'^(?P<graph_slug>\w+)/nodes/(?P<node_id>\d+)/expand/$',
+        'expand_node',
+        name="expand_node"),
 )

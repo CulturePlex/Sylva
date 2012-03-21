@@ -73,18 +73,61 @@ function updateInfo(evt, nodeName, nodeId) {
   
   if (nodeId === undefined) {nodeId = nodeName};
 
+
+
+  var expandNode = function(){
+    var edgeId;
+    var edgeIds = $.map(edges, function(e) { return e.id; });
+
+    var expandNodeLinkURL = "{% url expand_node graph.slug 0 %}";
+    expandNodeLinkURL = expandNodeLinkURL.replace('0/expand/', nodeId + '/expand/');
+    
+    $.ajax({
+      url: expandNodeLinkURL,
+      success: function(result){
+        var parsedResult = JSON.parse(result);
+        var newNodes = parsedResult.nodes;
+        var newEdges = parsedResult.edges;
+
+        $.each(newNodes, function(i, node){
+          if (!nodes.hasOwnProperty(i)) {
+            GraphEditor.addNode(i, node);
+            nodes[i] = node;
+          }
+        });
+
+        $.each(newEdges, function(i, edge){
+          edgeId = edge.id;
+          if ($.inArray(edgeId, edgeIds) === -1) {
+            edges.push(edge);
+            GraphEditor.addEdge(edge.source, edge.type, edge.target, edge);
+          }
+        });
+
+      }
+    });
+  }
+
   var title = $('<h2>').text(nodeName);
 
   var editLinkURL = "{% url nodes_edit graph.slug 0 %}";
   editLinkURL = editLinkURL.replace('0/edit/', nodeId + '/edit/');
   var editLink = $('<a>')
     .attr('href', editLinkURL)
-      .text('Edit node');
+    .text('Edit node');
+
+  var expandNodeLink = $('<a>')
+    .text('Expand node')
+    .click(expandNode);
 
   $('#canvas-info')
     .empty()
-      .append(title)
-        .append(editLink);
+    .append(title)
+    .append(editLink)
+    .append($('<br>'))
+    .append(expandNodeLink);
+
+
 }
 
 $(document).ready(function(){
