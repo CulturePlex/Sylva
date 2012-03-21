@@ -108,6 +108,34 @@ function updateInfo(evt, nodeName, nodeId) {
     });
   }
 
+  var hideNode = function() {
+    var selectedNode;
+    var selectedNodeName;
+    var indexesToDelete = [];
+
+    $.each(nodes, function(i, node) {
+      if (node.id == nodeId) {
+        selectedNode = node;
+        selectedNodeName = i;
+        return false;
+      }
+    });
+
+    if (selectedNode === undefined) { return; }
+  
+    $.each(edges, function(i, edge) {
+      if (edge.source === selectedNodeName || edge.target === selectedNodeName) {
+        indexesToDelete.push(i);
+      }
+    });
+    $.each(indexesToDelete, function(i, index) {
+        edges.splice(index,1);
+        GraphEditor.deleteEdge(index);
+    });
+    GraphEditor.deleteNode(selectedNodeName);
+    delete nodes[selectedNodeName]; 
+  }
+
   var title = $('<h2>').text(nodeName);
 
   var editLinkURL = "{% url nodes_edit graph.slug 0 %}";
@@ -120,12 +148,18 @@ function updateInfo(evt, nodeName, nodeId) {
     .text('Expand node')
     .click(expandNode);
 
+  var hideNodeLink = $('<a>')
+    .text('Delete node')
+    .click(hideNode);
+
   $('#canvas-info')
     .empty()
     .append(title)
     .append(editLink)
     .append($('<br>'))
-    .append(expandNodeLink);
+    .append(expandNodeLink)
+    .append($('<br>'))
+    .append(hideNodeLink);
 
 
 }

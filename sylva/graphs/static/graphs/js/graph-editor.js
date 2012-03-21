@@ -84,7 +84,7 @@ var GraphEditor = {
   },
 
   deleteNode: function(name){
-    var nodeName = prompt("Enter node to be deleted");
+    var nodeName = (name !== undefined) ? name : prompt("Enter node to be deleted");
     if (!this.nodeExists(nodeName)){
       alert("ERROR: Unknown node: " + nodeName);
       return;
@@ -130,7 +130,7 @@ var GraphEditor = {
   },
 
   deleteEdge: function(number){
-    var edgeNumber= parseInt(prompt("Enter edge number to be deleted")) - 1;
+    var edgeNumber = (number !== undefined) ? number : parseInt(prompt("Enter edge number to be deleted")) - 1;
     var json = this.getGraphEdgesJSON();
     if (edgeNumber>json.length || edgeNumber<0) {
       alert("Invalid edge number: " + (edgeNumber+1));
