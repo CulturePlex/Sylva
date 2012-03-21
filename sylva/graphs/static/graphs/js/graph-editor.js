@@ -125,7 +125,8 @@ var GraphEditor = {
     json.push(newEdge);
     this.setGraphEdgesJSON(json);
     if (this.USES_DRAWER) {
-      this.drawer.addEdge(edgeSource, edgeType, edgeTarget);
+      var edgeId = (_properties.hasOwnProperty('id')) ? _properties.id : undefined;
+      this.drawer.addEdge(edgeSource, edgeType, edgeTarget, edgeId);
     }
   },
 
@@ -496,7 +497,7 @@ var GraphEditor = {
       }
     });
     $.each(this.getGraphEdgesJSON(), function(index, item){
-      self.drawer.addEdge(item.source, item.type, item.target);
+      self.drawer.addEdge(item.source, item.type, item.target, item.id);
     });
   }
 }

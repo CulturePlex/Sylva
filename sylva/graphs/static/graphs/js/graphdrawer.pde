@@ -230,9 +230,11 @@ class Node{
 }
 
 class Relation{
+  int RELATION_MARKER_SIZE = 3;
   String type;
   Node source;
   Node target;
+  int relationId = 0;
   float posx, posy;
 
   Relation(Node sNode, String t, Node tNode){
@@ -263,13 +265,32 @@ class Relation{
     posy = (source.getY()+target.getY())/2;
     stroke(0);
     line(source.getX(), source.getY(), target.getX(), target.getY());
-    ellipse(posx, posy, 3, 3);
+    ellipse(posx, posy, RELATION_MARKER_SIZE, RELATION_MARKER_SIZE);
     if (_showLabels){
-      noStroke();
-      fill(0);
-      text(type, posy);
+      text(type, posx, posy);
     }
   }
+
+  void setId(int id){
+    relationId = id;
+  }
+
+  boolean touchingMe(float x, float y){
+    float transformedPosX, transformedPosY;
+
+    transformedPosX = posx * _canvasScale + _canvasXPan;
+    transformedPosY = posy * _canvasScale + _canvasYPan;
+
+    return (dist(transformedPosX, transformedPosY, x, y) < RELATION_MARKER_SIZE * _canvasScale);
+  }
+
+  void setSelected(){
+    // If jQuery is available trigger an event
+    if ($ !== undefined) {
+      $('body').trigger('edgeSelected', [relationId])
+    }
+  }
+
 }
 
 
@@ -348,6 +369,13 @@ void mousePressed(){
       unselectAll();
       _nodeList.get(i).setSelected();
       break;
+    } else {
+      ArrayList<Relation> nodeRelations = _nodeList.get(i).getRelations();
+      for(int j=0;j<nodeRelations.size();j++){
+        if (nodeRelations.get(j).touchingMe(mouseX, mouseY)){
+          nodeRelations.get(j).setSelected();
+        }
+      }
     }
   }
 }
@@ -499,9 +527,13 @@ void deleteNode(String nodeName){
   _nodeList = tempList;
 }
 
-void addEdge(String source, String type, String target){
+void addEdge(String source, String type, String target, int edgeId){
   Relation newRelation = new Relation(getNode(source), type, getNode(target));
   getNode(source).addRelation(newRelation);
+
+  if (edgeId) {
+    newRelation.setId(edgeId);
+  }
 }
 
 void deleteEdge(String source, String type, String target){

@@ -164,6 +164,11 @@ function updateInfo(evt, nodeName, nodeId) {
 
 }
 
+
+function updateInfoRelationship(evt, relationshipId) {
+  console.log("Received event");
+}
+
 $(document).ready(function(){
   $('#sec-debug').hide(); // Comment this line to Debug the graph creation
   GraphEditor.PDE_URL = "{{ STATIC_PREFIX }}graphs/js/graphdrawer.pde";
@@ -175,6 +180,7 @@ $(document).ready(function(){
   // Attach the nodeSelect event from the canvas to update the
   // node info box
   $('body').bind('nodeSelected', updateInfo);
+  $('body').bind('edgeSelected', updateInfoRelationship);
 
 });
 
