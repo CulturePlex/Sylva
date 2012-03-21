@@ -543,11 +543,12 @@ class Relationship(BaseElement):
         if key:
             self.__delitem__(key)
         else:
+            if self.schema:
+                reltype = self.schema.relationshiptype_set.get(pk=self.label)
             self.gdb.delete_relationship(self.id)
             self.data.total_relationships -= 1
             self.data.save()
             if self.schema:
-                reltype = self.schema.relationshiptype_set.get(pk=self.label)
                 reltype.total -= 1
                 reltype.save()
             del self
