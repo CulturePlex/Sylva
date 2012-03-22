@@ -22,7 +22,7 @@
 {% endblock %}
 
 {% block content_title %}
-<h2>{% trans "Graphs" %} » {{ graph.name|truncatewords_html:5 }} » {% trans "Nodes" %} » {% trans "Delete" %} {{ item_type_label }}</h2>
+<h2>{% trans "Graphs" %} » {{ graph.name|truncatewords_html:5 }} » {% trans "Nodes" %} » {% trans "Delete" %} {{ item_type_name }}</h2>
 {% endblock %}
 
 {% block content %}
@@ -30,7 +30,7 @@
 <form action="." method="POST" id="itemType">
 {% csrf_token %}
     <div class="content-main">
-        <h2>{{ item_type_label }}: {{ item_type_name }}</h2>
+        <h2>{{ item_type_name }}: {{ item.display }}</h2>
         {{ form.as_p }}
         <input type="submit" value="{% trans "Continue" %}"/>
         <span class="buttonLinkOption">

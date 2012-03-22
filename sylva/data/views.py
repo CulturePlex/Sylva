@@ -14,6 +14,7 @@ from guardian.decorators import permission_required
 from data.models import Data, MediaNode
 from data.forms import (NodeForm, RelationshipForm, TypeBaseFormSet,
                         MediaFileFormSet, MediaLinkFormSet,
+                        ItemDeleteConfirmForm,
                         ITEM_FIELD_NAME)
 from graphs.models import Graph
 from schemas.models import NodeType, RelationshipType
@@ -312,6 +313,7 @@ def nodes_edit(request, graph_slug, node_id):
 def nodes_delete(request, graph_slug, node_id):
     graph = get_object_or_404(Graph, slug=graph_slug)
     node = graph.nodes.get(node_id)
+    nodetype = get_object_or_404(NodeType, id=node.label)
 #    relationshiptype = get_object_or_404(RelationshipType,
 #                                         id=relationshiptype_id)
 #    count = len(graph.relationships.filter(label=relationshiptype.id,
@@ -328,25 +330,27 @@ def nodes_delete(request, graph_slug, node_id):
 #                    relationshiptype.delete()
 #                    return redirect(redirect_url)
 #    else:
-#        form = TypeDeleteForm(count=count)
-#        if request.POST:
-#            data = request.POST.copy()
-#            form = TypeDeleteForm(data=data, count=count)
-#            if form.is_valid():
-#                option = form.cleaned_data["option"]
-#                if option == ON_DELETE_CASCADE:
-#                    graph.relationships.delete(label=relationshiptype.id)
-#                relationshiptype.delete()
-#                return redirect(redirect_url)
+    form = ItemDeleteConfirmForm()
+    if request.POST:
+        data = request.POST.copy()
+        form = ItemDeleteConfirmForm(data=data)
+        if form.is_valid():
+            confirm = form.cleaned_data["confirm"]
+            if confirm:
+                for relationship in node.relationships.all():
+                    relationship.delete()
+                node.delete()
+                redirect_url = reverse("nodes_list", args=[graph.slug])
+                return redirect(redirect_url)
     return render_to_response('nodes_delete.html',
                               {"graph": graph,
                                "item_type_label": _("Node"),
                                "item_type": "node",
-                               "item_type_id": None,  # relationshiptype_id,
-                               "item_type_name": None,  # relationshiptype.name,
+                               "item_type_id": nodetype.id,
+                               "item_type_name": nodetype.name,
                                "item_type_count": None,  # count,
-                               "form": None,  # form,
-                               "type_id": None,  # relationshiptype_id
+                               "form": form,  # form,
+                               "item": node,
                                },
                               context_instance=RequestContext(request))
 
