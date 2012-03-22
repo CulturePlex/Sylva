@@ -168,7 +168,6 @@ INSTALLED_APPS = (
     'userena.contrib.umessages',
     'guardian',
     'easy_thumbnails',
-    'sorl.thumbnail',
     'base',
     'data',
     'graphs',
@@ -244,13 +243,3 @@ OPTIONS = {
 
 # This setting controls the size of the graph preview in the graph screen
 PREVIEW_NODES = 15
-
-# DJANGO_ORM_CELERY SETTINGS
-BROKER_URL = "django://"
-
-# RABBITMQ/CELERY SETTINGS
-#BROKER_HOST = "localhost"
-#BROKER_PORT = 5672
-#BROKER_USER = "sylva"
-#BROKER_PASSWORD = "sylva"
-#BROKER_VHOST = "myvhost"
