@@ -15,13 +15,19 @@
             success: function(data){
                 var label;
                 var relationships = JSON.parse(data);
-                html = $('<span>');
-                $.each(relationships, function(index, item){
-                    label = item.node_display + '-' + item.label;
-                    html.append($('<a>')
-                        .attr('href', '#')
-                          .append(label))
-                            .append(' | ');
+                html = $('<div>');
+                html.addClass('relationships-box');
+                $.each(relationships, function(direction, rels){
+                    if (rels != false){
+                        html.append($('<span>').text(direction+': '));
+                    }
+                    $.each(rels, function(index, item){
+                        label = item.node_display + '-' + item.label;
+                        html.append($('<a>')
+                            .attr('href', '#')
+                              .append(label))
+                                .append(' | ');
+                    });
                 });
                 $('#'+elementId)
                   .replaceWith(html)
