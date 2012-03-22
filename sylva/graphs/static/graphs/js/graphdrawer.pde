@@ -265,7 +265,11 @@ class Relation{
     posy = (source.getY()+target.getY())/2;
     stroke(0);
     line(source.getX(), source.getY(), target.getX(), target.getY());
-    ellipse(posx, posy, RELATION_MARKER_SIZE, RELATION_MARKER_SIZE);
+    quad(posx-RELATION_MARKER_SIZE, posy,
+        posx, posy + RELATION_MARKER_SIZE,
+        posx + RELATION_MARKER_SIZE, posy,
+        posx, posy - RELATION_MARKER_SIZE);
+    //ellipse(posx, posy, RELATION_MARKER_SIZE, RELATION_MARKER_SIZE);
     if (_showLabels){
       text(type, posx, posy);
     }
