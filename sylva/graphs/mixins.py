@@ -446,11 +446,12 @@ class Node(BaseElement):
         if key:
             self.__delitem__(key)
         else:
+            label = self.label
             self.gdb.delete_node(self.id)
             self.data.total_nodes -= 1
             self.data.save()
             if self.schema:
-                nodetype = self.schema.nodetype_set.get(pk=self.label)
+                nodetype = self.schema.nodetype_set.get(pk=label)
                 nodetype.total -= 1
                 nodetype.save()
             del self
