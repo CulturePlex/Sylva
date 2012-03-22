@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from engines.gdb.backends import NodeDoesNotExist, RelationshipDoesNotExist
-from schemas.models import NodeType
+from schemas.models import NodeType, RelationshipType
 
 
 class LimitReachedException(Exception):
@@ -557,7 +557,7 @@ class Relationship(BaseElement):
         return {
             'id': self.id,
             'source': self.source.display,
-            'type': self.label,
+            'type': RelationshipType.objects.get(id=self.label).name,
             'target': self.target.display,
             'properties': self.properties.copy()
         }
