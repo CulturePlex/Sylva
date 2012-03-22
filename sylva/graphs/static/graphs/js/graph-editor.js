@@ -84,7 +84,7 @@ var GraphEditor = {
   },
 
   deleteNode: function(name){
-    var nodeName = prompt("Enter node to be deleted");
+    var nodeName = (name !== undefined) ? name : prompt("Enter node to be deleted");
     if (!this.nodeExists(nodeName)){
       alert("ERROR: Unknown node: " + nodeName);
       return;
@@ -125,12 +125,13 @@ var GraphEditor = {
     json.push(newEdge);
     this.setGraphEdgesJSON(json);
     if (this.USES_DRAWER) {
-      this.drawer.addEdge(edgeSource, edgeType, edgeTarget);
+      var edgeId = (_properties.hasOwnProperty('id')) ? _properties.id : undefined;
+      this.drawer.addEdge(edgeSource, edgeType, edgeTarget, edgeId);
     }
   },
 
   deleteEdge: function(number){
-    var edgeNumber= parseInt(prompt("Enter edge number to be deleted")) - 1;
+    var edgeNumber = (number !== undefined) ? number : parseInt(prompt("Enter edge number to be deleted")) - 1;
     var json = this.getGraphEdgesJSON();
     if (edgeNumber>json.length || edgeNumber<0) {
       alert("Invalid edge number: " + (edgeNumber+1));
@@ -496,7 +497,7 @@ var GraphEditor = {
       }
     });
     $.each(this.getGraphEdgesJSON(), function(index, item){
-      self.drawer.addEdge(item.source, item.type, item.target);
+      self.drawer.addEdge(item.source, item.type, item.target, item.id);
     });
   }
 }

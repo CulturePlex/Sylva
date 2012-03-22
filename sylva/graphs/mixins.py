@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from engines.gdb.backends import NodeDoesNotExist, RelationshipDoesNotExist
+from schemas.models import NodeType, RelationshipType
 
 
 class LimitReachedException(Exception):
@@ -454,6 +455,14 @@ class Node(BaseElement):
                 nodetype.save()
             del self
 
+    def to_json(self):
+        node_dict = self.properties.copy()
+        node_dict.update({
+            'id': self.id,
+            'type': NodeType.objects.get(id=self.label).name
+        })
+        return node_dict
+            
     def __getitem__(self, key):
         self._properties[key] = self.gdb.get_node_property(self.id, key)
         return self._properties[key]
@@ -534,14 +543,24 @@ class Relationship(BaseElement):
         if key:
             self.__delitem__(key)
         else:
+            if self.schema:
+                reltype = self.schema.relationshiptype_set.get(pk=self.label)
             self.gdb.delete_relationship(self.id)
             self.data.total_relationships -= 1
             self.data.save()
             if self.schema:
-                reltype = self.schema.relationshiptype_set.get(pk=self.label)
                 reltype.total -= 1
                 reltype.save()
             del self
+
+    def to_json(self):
+        return {
+            'id': self.id,
+            'source': self.source.display,
+            'type': RelationshipType.objects.get(id=self.label).name,
+            'target': self.target.display,
+            'properties': self.properties.copy()
+        }
 
     def __getitem__(self, key):
         value = self.gdb.get_relationship_property(self.id, key)

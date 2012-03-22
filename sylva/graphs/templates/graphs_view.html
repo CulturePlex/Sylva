@@ -73,18 +73,111 @@ function updateInfo(evt, nodeName, nodeId) {
   
   if (nodeId === undefined) {nodeId = nodeName};
 
+
+
+  var expandNode = function(){
+    var edgeId;
+    var edgeIds = $.map(edges, function(e) { return e.id; });
+
+    var expandNodeLinkURL = "{% url expand_node graph.slug 0 %}";
+    expandNodeLinkURL = expandNodeLinkURL.replace('0/expand/', nodeId + '/expand/');
+    
+    $.ajax({
+      url: expandNodeLinkURL,
+      success: function(result){
+        var parsedResult = JSON.parse(result);
+        var newNodes = parsedResult.nodes;
+        var newEdges = parsedResult.edges;
+
+        $.each(newNodes, function(i, node){
+          if (!nodes.hasOwnProperty(i)) {
+            GraphEditor.addNode(i, node);
+            nodes[i] = node;
+          }
+        });
+
+        $.each(newEdges, function(i, edge){
+          edgeId = edge.id;
+          if ($.inArray(edgeId, edgeIds) === -1) {
+            edges.push(edge);
+            GraphEditor.addEdge(edge.source, edge.type, edge.target, edge);
+          }
+        });
+
+      }
+    });
+  }
+
+  var hideNode = function() {
+    var selectedNode;
+    var selectedNodeName;
+    var indexesToDelete = [];
+
+    $.each(nodes, function(i, node) {
+      if (node.id == nodeId) {
+        selectedNode = node;
+        selectedNodeName = i;
+        return false;
+      }
+    });
+
+    if (selectedNode === undefined) { return; }
+  
+    $.each(edges, function(i, edge) {
+      if (edge.source === selectedNodeName || edge.target === selectedNodeName) {
+        indexesToDelete.push(i);
+      }
+    });
+    $.each(indexesToDelete, function(i, index) {
+        edges.splice(index,1);
+        GraphEditor.deleteEdge(index);
+    });
+    GraphEditor.deleteNode(selectedNodeName);
+    delete nodes[selectedNodeName]; 
+  }
+
   var title = $('<h2>').text(nodeName);
 
   var editLinkURL = "{% url nodes_edit graph.slug 0 %}";
   editLinkURL = editLinkURL.replace('0/edit/', nodeId + '/edit/');
   var editLink = $('<a>')
     .attr('href', editLinkURL)
-      .text('Edit node');
+    .text('Edit node');
+
+  var expandNodeLink = $('<a>')
+    .text('Expand node')
+    .click(expandNode);
+
+  var hideNodeLink = $('<a>')
+    .text('Delete node')
+    .click(hideNode);
 
   $('#canvas-info')
     .empty()
-      .append(title)
-        .append(editLink);
+    .append(title)
+    .append(editLink)
+    .append($('<br>'))
+    .append(expandNodeLink)
+    .append($('<br>'))
+    .append(hideNodeLink);
+
+
+}
+
+
+function updateInfoRelationship(evt, relationshipId) {
+  /*
+  var editLinkURL = "";
+  editLinkURL = editLinkURL.replace('0/edit/', relationshipId, '/edit/');
+  var editLink = $('<a>')
+    .attr('href', editLinkURL)
+    .text('Edit relationship');
+  */
+  var title = $('<h2>').text("Relationship: " + relationshipId);
+
+  $('#canvas-info')
+    .empty()
+    .append(title);
 }
 
 $(document).ready(function(){
@@ -98,6 +191,7 @@ $(document).ready(function(){
   // Attach the nodeSelect event from the canvas to update the
   // node info box
   $('body').bind('nodeSelected', updateInfo);
+  $('body').bind('edgeSelected', updateInfoRelationship);
 
 });
 

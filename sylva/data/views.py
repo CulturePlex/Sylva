@@ -403,17 +403,19 @@ def relationships_list_full(request, graph_slug, relationship_type_id):
 def node_relationships(request, graph_slug, node_id):
     graph = get_object_or_404(Graph, slug=graph_slug)
     node = graph.nodes.get(int(node_id))
-    result = []
+    incoming = []
     for r in node.relationships.incoming():
         label = get_object_or_404(RelationshipType, id=r.label)
-        result.append({"node_id": r.source.id,
+        incoming.append({"node_id": r.source.id,
                         "node_display": r.source.display,
                         "direction": "incoming",
                         "label": label.name})
+    outgoing = []
     for r in node.relationships.outgoing():
         label = get_object_or_404(RelationshipType, id=r.label)
-        result.append({"node_id": r.target.id,
+        outgoing.append({"node_id": r.target.id,
                         "node_display": r.target.display,
                         "direction": "outgoing",
                         "label": label.name})
+    result = {'incoming': incoming, 'outgoing': outgoing}
     return HttpResponse(simplejson.dumps(result))
