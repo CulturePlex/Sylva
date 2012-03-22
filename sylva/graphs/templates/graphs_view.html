@@ -166,7 +166,18 @@ function updateInfo(evt, nodeName, nodeId) {
 
 
 function updateInfoRelationship(evt, relationshipId) {
-  console.log("Received event");
+  /*
+  var editLinkURL = "";
+  editLinkURL = editLinkURL.replace('0/edit/', relationshipId, '/edit/');
+  var editLink = $('<a>')
+    .attr('href', editLinkURL)
+    .text('Edit relationship');
+  */
+  var title = $('<h2>').text("Relationship: " + relationshipId);
+
+  $('#canvas-info')
+    .empty()
+    .append(title);
 }
 
 $(document).ready(function(){
