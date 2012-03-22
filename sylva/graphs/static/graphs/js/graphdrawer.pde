@@ -456,7 +456,7 @@ void coulombRepulsion(float k, Node n1, Node n2){
   dy = n2.getY() - n1.getY();
   d = Math.sqrt(dx*dx + dy*dy);
   if (d>0){
-    repulsiveForce =  k / d;
+    repulsiveForce =  15*k / d;
     n2.setXSpeed(n2.getXSpeed() + repulsiveForce * dx / d);
     n2.setYSpeed(n2.getYSpeed() + repulsiveForce * dy / d);
     n1.setXSpeed(n1.getXSpeed() - repulsiveForce * dx / d);
