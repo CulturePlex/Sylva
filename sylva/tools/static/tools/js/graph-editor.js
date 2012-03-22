@@ -2,20 +2,6 @@ if ($ == undefined) {
   $ = django.jQuery;
 }
 
-// Thanks to Brian Huisman AKA GreyWyvern
-// http://www.greywyvern.com/?post=258
-String.prototype.splitCSV = function(sep) {
-  for (var foo = this.split(sep = sep || ","), x = foo.length - 1, tl; x >= 0; x--) {
-    if (foo[x].replace(/"\s+$/, '"').charAt(foo[x].length - 1) == '"') {
-      if ((tl = foo[x].replace(/^\s+"/, '"')).length > 1 && tl.charAt(0) == '"') {
-        foo[x] = foo[x].replace(/^\s*"|"\s*$/g, '').replace(/""/g, '"');
-      } else if (x) {
-        foo.splice(x - 1, 2, [foo[x - 1], foo[x]].join(sep));
-      } else foo = foo.shift().split(sep).concat(foo);
-    } else foo[x].replace(/""/g, '"');
-  } return foo;
-};
-
 var GraphEditor = {
   DEBUG: true,
 
@@ -90,15 +76,15 @@ var GraphEditor = {
     this.setGraphNodesJSON(json);
     if (this.USES_DRAWER) {
       if (data.hasOwnProperty('position')){
-        this.drawer.addLocatedNode(nodeName, _properties['position']['x'], _properties['position']['y'], data.type)
+        this.drawer.addLocatedNode(nodeName, _properties['position']['x'], _properties['position']['y'], data.type, data.id)
       } else {
-        this.drawer.addNode(nodeName, data.type);
+        this.drawer.addNode(nodeName, data.type, data.id);
       }
     }
   },
 
   deleteNode: function(name){
-    var nodeName = prompt("Enter node to be deleted");
+    var nodeName = (name !== undefined) ? name : prompt("Enter node to be deleted");
     if (!this.nodeExists(nodeName)){
       alert("ERROR: Unknown node: " + nodeName);
       return;
@@ -139,12 +125,13 @@ var GraphEditor = {
     json.push(newEdge);
     this.setGraphEdgesJSON(json);
     if (this.USES_DRAWER) {
-      this.drawer.addEdge(edgeSource, edgeType, edgeTarget);
+      var edgeId = (_properties.hasOwnProperty('id')) ? _properties.id : undefined;
+      this.drawer.addEdge(edgeSource, edgeType, edgeTarget, edgeId);
     }
   },
 
   deleteEdge: function(number){
-    var edgeNumber= parseInt(prompt("Enter edge number to be deleted")) - 1;
+    var edgeNumber = (number !== undefined) ? number : parseInt(prompt("Enter edge number to be deleted")) - 1;
     var json = this.getGraphEdgesJSON();
     if (edgeNumber>json.length || edgeNumber<0) {
       alert("Invalid edge number: " + (edgeNumber+1));
@@ -288,7 +275,8 @@ var GraphEditor = {
           $.each(lines, function(index, line){
             // Ignoring blank lines
             if (!!line) {
-              var columns = line.splitCSV(',');
+              // TODO Text may be quoted 
+              var columns = line.split(',');
 
               // First line contains the labels of each column
               if (index === 0) {
@@ -328,7 +316,8 @@ var GraphEditor = {
           $.each(lines, function(index, line){
             // Ignoring blank lines
             if (!!line) {
-              var columns = line.splitCSV(',');
+              // TODO Text may be quoted 
+              var columns = line.split(',');
 
               // First line contains the labels of each column
               if (index === 0) {
@@ -407,18 +396,25 @@ var GraphEditor = {
         });
       }
     });
-    var edgeTypes = {}
+    var edgeTypes = [];
+    var exists;
     $.each(this.getGraphEdgesJSON(), function(index, item){
-      var edgeLabel = nodes[item.source].type + "_" +
-          item[edgeTypeLabel] +
-          "_" + nodes[item.target].type;
-      if (!edgeTypes.hasOwnProperty(edgeLabel)){
-        edgeTypes[edgeLabel] = {
+      exists = false;
+      $.each(edgeTypes, function(i, edge){
+          if (nodes[item.source].type == edge.source &&
+              item[edgeTypeLabel] == edge.label &&
+              nodes[item.target].type == edge.target) {
+            exists = true;
+            return false;
+          }
+      });
+      if (!exists){
+        edgeTypes.push({
           source: nodes[item.source][nodeTypeLabel],
           label: item[edgeTypeLabel],
           target: nodes[item.target][nodeTypeLabel],
           properties: item.properties
-        };
+        });
       }
     });
     var schema = {
@@ -502,13 +498,13 @@ var GraphEditor = {
     var self = this;
     $.each(this.getGraphNodesJSON(), function(index, item){
       if (item.hasOwnProperty('position')){
-        self.drawer.addLocatedNode(index, item['position']['x'], item['position']['y'], item.type)
+        self.drawer.addLocatedNode(index, item['position']['x'], item['position']['y'], item.type, item.id)
       } else {
-        self.drawer.addNode(index, item.type);
+        self.drawer.addNode(index, item.type, item.id);
       }
     });
     $.each(this.getGraphEdgesJSON(), function(index, item){
-      self.drawer.addEdge(item.source, item.type, item.target);
+      self.drawer.addEdge(item.source, item.type, item.target, item.id);
     });
   }
 }
