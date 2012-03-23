@@ -27,7 +27,7 @@ urlpatterns = patterns('graphs.views',
         name="change_permission"),
 
     # expand node ajax request
-    url(r'^(?P<graph_slug>\w+)/nodes/(?P<node_id>\d+)/expand/$',
+    url(r'^(?P<graph_slug>[\w-]+)/nodes/(?P<node_id>\d+)/expand/$',
         'expand_node',
         name="expand_node"),
 )
