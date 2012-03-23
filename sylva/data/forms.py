@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from django import forms
+from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.forms.formsets import BaseFormSet, DELETION_FIELD_NAME
@@ -8,6 +9,7 @@ from django.template.defaultfilters import slugify
 from django.utils.translation import gettext as _
 
 from data.models import MediaNode, MediaFile, MediaLink
+from data.widgets import AutoCompleteNodeInput
 from schemas.models import RelationshipType
 
 ITEM_FIELD_NAME = "_ITEM_ID"
@@ -178,7 +180,9 @@ class RelationshipForm(ItemForm):
                 direction = u"target"
                 label = u"→ %s (%s)" % (itemtype.name,
                                         getattr(itemtype, direction).name)
-                choices = [(n.id, n.display) for n in itemtype.target.all()]
+                if not settings.AUTOCOMPLETE_NODES:
+                    choices = [(n.id, n.display)
+                               for n in itemtype.target.all()]
                 url_create = reverse("nodes_create",
                                      args=[itemtype.schema.graph.slug,
                                            itemtype.target.id])
@@ -186,7 +190,9 @@ class RelationshipForm(ItemForm):
                 direction = u"source"
                 label = u"← (%s) %s" % (getattr(itemtype, direction).name,
                                         itemtype.inverse or itemtype.name)
-                choices = [(n.id, n.display) for n in itemtype.source.all()]
+                if not settings.AUTOCOMPLETE_NODES:
+                    choices = [(n.id, n.display)
+                               for n in itemtype.source.all()]
                 url_create = reverse("nodes_create",
                                      args=[itemtype.schema.graph.slug,
                                            itemtype.source.id])
@@ -212,18 +218,32 @@ class RelationshipForm(ItemForm):
                 help_text = _("<a href=\"javascript:void(0);\""
                               " class=\"toggleProperties\">"
                               "Toggle properties</a>.")
-
-            field_attrs = {
-                "required": True,
-                "initial": "",
-                "label": label,
-                "help_text": help_text,
-                "choices": [(u"", u"---------")] + choices,
-                "widget": forms.Select(attrs={
-                    "class": "autocomplete"
-                }),
-            }
-            field = forms.ChoiceField(**field_attrs)
+            if settings.AUTOCOMPLETE_NODES:
+                if initial and itemtype.id in initial:
+                    node = itemtype.schema.graph.nodes.get(initial.get(itemtype.id))
+                    widget_class = u"autocomplete %s" % node.display
+                else:
+                    node = None
+                    widget_class = u"autocomplete"
+                field_attrs = {
+                    "required": True,
+                    "initial": "",
+                    "label": label,
+                    "help_text": help_text,
+                    "widget": forms.TextInput(attrs={
+                        "class": widget_class,
+                    }),
+                }
+                field = forms.CharField(**field_attrs)
+            else:
+                field_attrs = {
+                    "required": True,
+                    "initial": "",
+                    "label": label,
+                    "help_text": help_text,
+                    "choices": [(u"", u"---------")] + choices,
+                }
+                field = forms.ChoiceField(**field_attrs)
             self.fields[itemtype.id] = field
 
     def clean(self):

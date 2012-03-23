@@ -3,16 +3,20 @@
 {% load string_filters %}
 
 {% block extra_scripts %}
-    <script type="text/javascript" src="{{ STATIC_PREFIX }}js/chosen.jquery.min.js"></script>
     <script type="text/javascript" src="{{ STATIC_PREFIX }}js/jquery.formsets.1.2.min.js"></script>
+    <script type="text/javascript" src="{{ STATIC_PREFIX }}js/jquery.tokeninput.js"></script>
+    <link href="{{ STATIC_PREFIX }}css/token.input.css" type="text/css" media="all" rel="stylesheet" />
+    {{ node_form.media }}
+    {% for prefix, outgoing_formset in outgoing_formsets.items %}
+        {{ outgoing_formset.media }}
+    {% endfor %}
+    {% for prefix, incoming_formset in incoming_formsets.items %}
+        {{ incoming_formset.media }}
+    {% endfor %}
 {% endblock %}
 {% block extra_links %}
     <link rel="stylesheet" type="text/css" href="/static/css/chosen.css" />
 {% endblock %}
-
-{% comment %}
-{% block body_attrs %}onload="$('select.autocomplete').chosen();"{% endblock %}
-{% endcomment %}
 
 {% block navigation_buttons %}
 {{ block.super }}
@@ -190,7 +194,7 @@
                 addCssClass: "button addButton inFormsets",
                 addText: "{% trans "Add" %} {{ outgoing_formset.itemtype.name }} ({{ outgoing_formset.itemtype.target.name }})",
                 extraClasses: ["row1", "row2"],
-                added: function(row) {$("#{{prefix}} p:last label").hide();},
+                added: function(row) {$("#{{prefix}} p:last label").hide(); nodeAutocomplete(row.find("input.autocomplete"));},
                 deleteCssClass: "delete-rowup{% if outgoing_formset.itemtype.properties.count %}Props{% endif %}",
                 deleteText: "&nbsp;"
             });
@@ -208,7 +212,7 @@
                 addCssClass: "button addButton inFormsets",
                 addText: "{% trans "Add" %} "+ label,  // +" ({{ incoming_formset.itemtype.source.name }})",
                 extraClasses: ["row1", "row2"],
-                added: function(row) {$("#{{prefix}} p:last label").hide();},
+                added: function(row) {$("#{{prefix}} p:last label").hide(); nodeAutocomplete(row.find("input.autocomplete"));},
                 deleteCssClass: "delete-rowup{% if incoming_formset.itemtype.properties.count %}Props{% endif %}",
                 deleteText: "&nbsp;"
             });
@@ -267,6 +271,36 @@
                 last.hide();
             }
         });
+        // Enabling autocomplete for nodes
+        nodeAutocomplete = function(input) {
+            var params = {}, $input = $(input);
+            if ($input.attr("class").indexOf(" ") > 0) {
+                params = {
+                    queryParam: "display",
+                    minChars: 2,
+                    propertyToSearch: "display",
+                    tokenLimit: 1,
+                    preventDuplicates: true,
+                    tokenValue: "id",
+                    prePopulate: [{
+                        id: $input.val(),
+                        display: $input.attr("class").split(" ").slice(1).join(" ")
+                    }]
+                };
+            } else {
+                params = {
+                    queryParam: "display",
+                    minChars: 2,
+                    propertyToSearch: "display",
+                    tokenLimit: 1,
+                    preventDuplicates: true,
+                    tokenValue: "id"
+                };
+            }
+            $input.tokenInput("url", params);
+
+        }
+        $(".autocomplete").each(function(i, input) {nodeAutocomplete(input);});
         // Selecting the type of relationships to show
         $("#h2-relationships").change(function (e) {
             var val = $(this).val();
