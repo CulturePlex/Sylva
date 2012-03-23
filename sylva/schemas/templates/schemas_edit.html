@@ -66,6 +66,9 @@
         </div>
     {% endfor %}
     {% regroup node_type.get_incoming_relationships by inverse as incoming_relationships %}
+    {% if not relationships.0.relationship_name.grouper %}
+        {% regroup node_type.get_incoming_relationships by name as incoming_relationships %}
+    {% endif %}
     {% for relationship_name in incoming_relationships %}
          <div class="form-row indent">
             <label>←
