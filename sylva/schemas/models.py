@@ -189,7 +189,7 @@ class BaseProperty(models.Model):
         (u'b', _(u'Boolean')),
         (u'd', _(u'Date')),
         (u't', _(u'Time')),
-        (u'o', _(u'Options')),
+        (u'l', _(u'List')),
     )
     datatype = models.CharField(_('data type'),
                                 max_length=1, choices=DATATYPE_CHOICES,
@@ -207,7 +207,7 @@ class BaseProperty(models.Model):
 #value;
 #error = "";
 #                                  """,
-                                  help_text=_("Code in Javascript to"
+                                  help_text=_("Code in Javascript to "
                                               "validate the property"))
     order = models.IntegerField(_('order'), blank=True, null=True)
 

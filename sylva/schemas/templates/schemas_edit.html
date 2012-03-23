@@ -35,7 +35,8 @@
          <div class="form-row indent">
          <div>
             <label {% if node_property.required %}class="required"{% endif %}>⌂ {{ node_property.key|capfirst }}</label>
-            [{{ node_property.get_datatype }}] <p class="help">{{ node_property.default }}</p>
+            {% if node_property.datatype != "u" %}[{{ node_property.get_datatype }}]{% endif %}
+<!--            <p class="help">{{ node_property.default }}</p>-->
         </div>
         </div>
     {% endfor %}
@@ -54,10 +55,11 @@
                     {% if relationship.arity_target < 1 %}∞{% else %}{{ relationship.arity_target }} × {% endif %} {{ relationship.target.name|capfirst }}
                 </a>
                 {% if relationship.properties %}
-                    {% for relationship_propery in relationship.properties.all %}
+                    {% for relationship_property in relationship.properties.all %}
                     <div class="form-row indent">
-                        <label class="relProps{% if relationship_propery.required %} required{% endif %}">⌂ {{ relationship_propery.key|capfirst }}</label>
-                        [{{ relationship_propery.get_datatype }}] <p class="help">{{ relationship_propery.default }}</p>
+                        <label class="relProps{% if relationship_property.required %} required{% endif %}">⌂ {{ relationship_property.key|capfirst }}</label>
+                        {% if relationship_property.datatype != "u" %}[{{ relationship_property.get_datatype }}]{% endif %}
+<!--                        <p class="help">{{ relationship_property.default }}</p>-->
                     </div>
                     {% endfor %}
                 {% endif %}
@@ -84,10 +86,10 @@
                     {{ relationship.source.name|capfirst }}
                 </a>
                 {% if relationship.relation.relationshipproperty_set.all %}
-                    {% for relationship_propery in relationship.relation.relationshipproperty_set.all %}
+                    {% for relationship_property in relationship.relation.relationshipproperty_set.all %}
                     <div class="form-row indent">
-                        <label class="relProps{% if relationship_propery.required %} required{% endif %}">⌂ {{ relationship_propery.key|capfirst }}</label>
-                        [{{ relationship_propery.get_datatype }}] <p class="help">{{ relationship_propery.default }}</p>
+                        <label class="relProps{% if relationship_property.required %} required{% endif %}">⌂ {{ relationship_property.key|capfirst }}</label>
+                        [{{ relationship_property.get_datatype }}] <p class="help">{{ relationship_property.default }}</p>
                     </div>
                     {% endfor %}
                 {% endif %}
