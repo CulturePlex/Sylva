@@ -9,7 +9,6 @@ from django.template.defaultfilters import slugify
 from django.utils.translation import gettext as _
 
 from data.models import MediaNode, MediaFile, MediaLink
-from data.widgets import AutoCompleteNodeInput
 from schemas.models import RelationshipType
 
 ITEM_FIELD_NAME = "_ITEM_ID"
