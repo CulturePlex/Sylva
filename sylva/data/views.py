@@ -72,7 +72,7 @@ def nodes_list_full(request, graph_slug, node_type_id):
                               }, context_instance=RequestContext(request))
 
 
-@permission_required("data.change_data", (Data, "graph__slug", "graph_slug"))
+@permission_required("data.add_data", (Data, "graph__slug", "graph_slug"))
 def nodes_create(request, graph_slug, node_type_id):
     graph = get_object_or_404(Graph, slug=graph_slug)
     nodetype = get_object_or_404(NodeType, id=node_type_id)
@@ -309,7 +309,7 @@ def nodes_edit(request, graph_slug, node_id):
         context_instance=RequestContext(request))
 
 
-@permission_required("data.change_data", (Data, "graph__slug", "graph_slug"))
+@permission_required("data.delete_data", (Data, "graph__slug", "graph_slug"))
 def nodes_delete(request, graph_slug, node_id):
     graph = get_object_or_404(Graph, slug=graph_slug)
     node = graph.nodes.get(node_id)

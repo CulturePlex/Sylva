@@ -180,6 +180,10 @@ select#h2-relationships {
     box-shadow: none;
 }
 
+span.all-relationships label {
+    display: block;
+}
+
 #main header.global nav.contact ul li
 a {
     font-size: 11px;

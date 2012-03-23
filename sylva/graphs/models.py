@@ -27,6 +27,7 @@ PERMISSIONS = {
     'data': {
         'add_data': _("Add data"),
         'view_data': _("View data"),
+        'change_data': _("Change data"),
         'delete_data': _("Delete data"),
     },
 }

@@ -118,6 +118,9 @@ def graph_collaborators(request, graph_slug):
     else:
         form = AddCollaboratorForm(graph=graph, collaborators=collaborators)
     graph_permissions = guardian.get_perms_for_model(graph)
+    print request.user, guardian.get_perms(request.user, graph)
+    print request.user, guardian.get_perms(request.user, graph.data)
+    print request.user, guardian.get_perms(request.user, graph.schema)
     permissions_list = []
     permissions_table = []
     aux = (('graph', graph), ('schema', graph.schema), ('data', graph.data))

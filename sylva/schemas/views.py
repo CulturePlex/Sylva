@@ -20,7 +20,7 @@ from schemas.forms import (NodeTypeForm, NodePropertyFormSet,
 from schemas.models import NodeType, RelationshipType
 
 
-@permission_required("schemas.change_schema",
+@permission_required("schemas.view_schema",
                      (Schema, "graph__slug", "graph_slug"))
 def schema_edit(request, graph_slug):
     graph = get_object_or_404(Graph, slug=graph_slug)
@@ -73,13 +73,13 @@ def schema_nodetype_delete(request, graph_slug, nodetype_id):
                               context_instance=RequestContext(request))
 
 
-@permission_required("schemas.edit_schema",
+@permission_required("schemas.change_schema",
                      (Schema, "graph__slug", "graph_slug"))
 def schema_nodetype_create(request, graph_slug):
     return schema_nodetype_editcreate(request, graph_slug)
 
 
-@permission_required("schemas.edit_schema",
+@permission_required("schemas.change_schema",
                      (Schema, "graph__slug", "graph_slug"))
 def schema_nodetype_edit(request, graph_slug, nodetype_id):
     return schema_nodetype_editcreate(request, graph_slug, nodetype_id)
@@ -124,13 +124,13 @@ def schema_nodetype_editcreate(request, graph_slug, nodetype_id=None):
                               context_instance=RequestContext(request))
 
 
-@permission_required("schemas.edit_schema",
+@permission_required("schemas.change_schema",
                      (Schema, "graph__slug", "graph_slug"))
 def schema_relationshiptype_create(request, graph_slug):
     return schema_relationshiptype_editcreate(request, graph_slug)
 
 
-@permission_required("schemas.edit_schema",
+@permission_required("schemas.change_schema",
                      (Schema, "graph__slug", "graph_slug"))
 def schema_relationshiptype_edit(request, graph_slug, relationshiptype_id):
     return schema_relationshiptype_editcreate(request, graph_slug,
@@ -188,7 +188,7 @@ def schema_relationshiptype_editcreate(request, graph_slug,
                               context_instance=RequestContext(request))
 
 
-@permission_required("schemas.edit_schema",
+@permission_required("schemas.change_schema",
                      (Schema, "graph__slug", "graph_slug"))
 def schema_relationshiptype_delete(request, graph_slug,
                                    relationshiptype_id):
@@ -231,7 +231,7 @@ def schema_relationshiptype_delete(request, graph_slug,
                               context_instance=RequestContext(request))
 
 
-@permission_required("schemas.edit_schema",
+@permission_required("schemas.change_schema",
                      (Schema, "graph__slug", "graph_slug"))
 def schema_export(request, graph_slug):
     graph = get_object_or_404(Graph, slug=graph_slug)
@@ -241,7 +241,7 @@ def schema_export(request, graph_slug):
     return response
 
 
-@permission_required("schemas.edit_schema",
+@permission_required("schemas.change_schema",
                      (Schema, "graph__slug", "graph_slug"))
 def schema_import(request, graph_slug):
 
