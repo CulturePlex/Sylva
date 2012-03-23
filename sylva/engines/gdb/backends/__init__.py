@@ -120,6 +120,12 @@ class BaseGraphDatabase(object):
         If "label" is provided, relationships will be filtered.
         """
 
+    def delete_node_relationships(self, id):
+        """
+        Delete all the relationships of the node "id".
+        """
+        raise NotImplementedError("Method has to be implemented")
+
     def get_nodes_properties(self, ids):
         """
         Get a list of tuples for the nodes with "id" in the list "ids",

@@ -119,7 +119,12 @@ class NodesManager(BaseManager):
             label = options.get("label")
             eltos = self.gdb.get_nodes_by_label(label,
                                                 include_properties=False)
-            self.gdb.delete_nodes(eltos)
+            nodes_id = []
+            # We have first to remove the relationships
+            for node_id, props in eltos:
+                self.gdb.delete_node_relationships(node_id)
+                nodes_id.append(node_id)
+            self.gdb.delete_nodes(nodes_id)
         elif "id" in options:
             node_id = options.get("id")
             self.gdb.delete_nodes([node_id])

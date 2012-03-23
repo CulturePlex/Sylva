@@ -182,6 +182,11 @@ class BlueprintsGraphDatabase(BaseGraphDatabase):
                         for e in list(edges)
                         if str(label) == str(e.getLabel())]
 
+    def delete_node_relationships(self, id):
+        relationships = self.get_node_relationships(id)
+        for relationship in relationships:
+            self.delete_relationship(relationship)
+
     def get_nodes_properties(self, ids):
         result = {}
         for _id in ids:
