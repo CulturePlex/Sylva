@@ -265,7 +265,11 @@ class Relation{
     posy = (source.getY()+target.getY())/2;
     stroke(0);
     line(source.getX(), source.getY(), target.getX(), target.getY());
-    ellipse(posx, posy, RELATION_MARKER_SIZE, RELATION_MARKER_SIZE);
+    quad(posx-RELATION_MARKER_SIZE, posy,
+        posx, posy + RELATION_MARKER_SIZE,
+        posx + RELATION_MARKER_SIZE, posy,
+        posx, posy - RELATION_MARKER_SIZE);
+    //ellipse(posx, posy, RELATION_MARKER_SIZE, RELATION_MARKER_SIZE);
     if (_showLabels){
       text(type, posx, posy);
     }
@@ -452,7 +456,7 @@ void coulombRepulsion(float k, Node n1, Node n2){
   dy = n2.getY() - n1.getY();
   d = Math.sqrt(dx*dx + dy*dy);
   if (d>0){
-    repulsiveForce =  k / d;
+    repulsiveForce =  15*k / d;
     n2.setXSpeed(n2.getXSpeed() + repulsiveForce * dx / d);
     n2.setYSpeed(n2.getYSpeed() + repulsiveForce * dy / d);
     n1.setXSpeed(n1.getXSpeed() - repulsiveForce * dx / d);

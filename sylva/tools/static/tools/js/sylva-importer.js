@@ -127,7 +127,7 @@ var Importer = {
   addEdge: function(sourceName, edgeLabel, targetName, edgeData){
     var edgeType;
     $.each(Importer.matching.edgeTypes, function(index, item){
-      if (item.label === edgeLabel) {
+      if (item.label[0] === edgeLabel) {
         edgeType = index;
         return false;
       }
@@ -144,7 +144,7 @@ var Importer = {
     $.ajax({
       url: Importer.addRelationshipURL,
       data: {
-        type: Importer.matching.edgeTypes[edgeType].label,
+        type: Importer.matching.edgeTypes[edgeType].label[1],
         sourceId: Importer.nodes[sourceName]._id,
         targetId: Importer.nodes[targetName]._id,
         properties: JSON.stringify(properties)
@@ -399,7 +399,7 @@ var Importer = {
 
     $('#check-schema-btn').text('Validate relationship types matching');
     $('#check-schema-btn').click(function(){
-      var selectedValue, selectedLabel, selectedAttribute;
+      var selectedValue, selectedAttribute;
       var validates = true;
       Importer.matching["edgeTypes"] = [];
       Importer.matching["edgeAttributes"] = [];
@@ -412,13 +412,15 @@ var Importer = {
           validates = false;
           return false;
         } else {
-          selectedLabel = Importer.graphSchema.allowedEdges[item].source +
+          /*selectedLabel = Importer.graphSchema.allowedEdges[item].source +
                             Importer.graphSchema.allowedEdges[item].label +
                             Importer.graphSchema.allowedEdges[item].target;
+                            */
+          var graphItem = Importer.graphSchema.allowedEdges[selectedValue];
           Importer.matching.edgeTypes.push({
-            label: value.label,
-            source: value.source,
-            target: value.target
+            label: [graphItem.label, value.label],
+            source: [graphItem.source, value.source],
+            target: [graphItem.target, value.target]
           });
         }
         
