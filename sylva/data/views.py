@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import simplejson
+from json import dumps
 
 from django.core.urlresolvers import reverse
 from django.forms.formsets import formset_factory
@@ -51,6 +51,27 @@ def nodes_list(request, graph_slug):
                               {"graph": graph,
                                   "option_list": data_preview},
                               context_instance=RequestContext(request))
+
+
+@permission_required("data.view_data", (Data, "graph__slug", "graph_slug"))
+def nodes_lookup(request, graph_slug):
+    graph = get_object_or_404(Graph, slug=graph_slug)
+    data = request.GET.copy()
+    if (request.is_ajax() or settings.DEBUG) and data and "q" in data:
+        q = data["q"]
+        query = {
+            "property": q,
+            "lookup": "starts",
+        }
+        nodes = graph.nodes.query(query)
+        json_nodes = []
+        for node in nodes:
+            json_nodes.append({
+                "id": node.id,
+                "display": node.display
+            })
+        return HttpResponse(dumps(json_nodes),
+                            status=200, mimetype='application/json')
 
 
 @permission_required("data.view_data", (Data, "graph__slug", "graph_slug"))
@@ -418,4 +439,4 @@ def node_relationships(request, graph_slug, node_id):
                         "direction": "outgoing",
                         "label": label.name})
     result = {'incoming': incoming, 'outgoing': outgoing}
-    return HttpResponse(simplejson.dumps(result))
+    return HttpResponse(dumps(result))

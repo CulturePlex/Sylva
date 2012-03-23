@@ -297,7 +297,7 @@
                     tokenValue: "id"
                 };
             }
-            $input.tokenInput("url", params);
+            $input.tokenInput("{% url nodes_lookup graph.slug %}", params);
 
         }
         $(".autocomplete").each(function(i, input) {nodeAutocomplete(input);});

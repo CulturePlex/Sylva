@@ -8,8 +8,10 @@ from django.contrib import admin
 admin.autodiscover()
 
 urlpatterns = patterns('data.views',
-    # list nodes
+    # nodes
     url(r'^(?P<graph_slug>[\w-]+)/nodes/$', 'nodes_list', name="nodes_list"),
+    url(r'^(?P<graph_slug>[\w-]+)/nodes/lookup/$', 'nodes_lookup',
+        name="nodes_lookup"),
     url(r'^(?P<graph_slug>[\w-]+)/types/(?P<node_type_id>\d+)/create/$',
         'nodes_create', name="nodes_create"),
     url(r'^(?P<graph_slug>[\w-]+)/nodes/(?P<node_type_id>\d+)/$',
@@ -21,7 +23,7 @@ urlpatterns = patterns('data.views',
     url(r'^(?P<graph_slug>[\w-]+)/nodes/(?P<node_id>\d+)/delete/$',
         'nodes_delete', name="nodes_delete"),
 
-    # list relationships
+    # relationships
     url(r'^(?P<graph_slug>[\w-]+)/relationships/$', 'relationships_list',
         name="relationships_list"),
     url(r'^(?P<graph_slug>[\w-]+)/relationships/(?P<relationship_type_id>\d+)/$',

@@ -132,6 +132,14 @@ class NodesManager(BaseManager):
             eltos = self.gdb.get_all_nodes(include_properties=False)
             self.gdb.delete_nodes([node_id for node_id, props in eltos])
 
+    def query(self, lookups):
+        nodes = []
+        eltos = self.gdb.nodes_query(lookups)
+        for node_id, node_properties in eltos:
+            node = Node(node_id, self.graph, properties=node_properties)
+            nodes.append(node)
+        return nodes
+
     def _get(self, node_id):
         return Node(node_id, self.graph)
 
