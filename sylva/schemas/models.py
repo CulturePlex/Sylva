@@ -2,6 +2,7 @@
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.translation import gettext as _
 from django.db import models, transaction
+from django.template.defaultfilters import slugify
 
 from base.fields import AutoSlugField
 
@@ -184,12 +185,18 @@ class BaseProperty(models.Model):
     value = models.CharField(_('value'), max_length=255, blank=True)
     DATATYPE_CHOICES = (
         (u'u', _(u'Default')),
-        (u'n', _(u'Number')),
-        (u's', _(u'String')),
-        (u'b', _(u'Boolean')),
-        (u'd', _(u'Date')),
-        (u't', _(u'Time')),
-        (u'l', _(u'List')),
+        (_("Basic"), (
+            (u's', _(u'String')),
+            (u'b', _(u'Boolean')),
+            (u'n', _(u'Number')),
+        )),
+        (_("Advanced"), (
+            (u'x', _(u'Text')),
+            (u'd', _(u'Date')),
+            (u't', _(u'Time')),
+            (u'c', _(u'Choices')),
+            (u'f', _(u'Float')),
+        )),
     )
     datatype = models.CharField(_('data type'),
                                 max_length=1, choices=DATATYPE_CHOICES,
@@ -219,11 +226,30 @@ class BaseProperty(models.Model):
         return "%s: %s" % (self.key, self.value)
 
     def get_datatype_dict(self):
-        return dict([(v.lower(), u) for (u, v) in self.DATATYPE_CHOICES])
+        return {
+            "default": u"u",
+            "number": u"n",
+            "string": u"s",
+            "boolean": u"b",
+            "date": u"d",
+            "time": u"t",
+            "choice": u"c",
+            "text": u"x",
+            "float": u"f"
+        }
 
     def get_datatype(self):
         datatype_dict = dict(self.DATATYPE_CHOICES)
         return datatype_dict.get(self.datatype)
+
+    def get_choices(self):
+        choices = []
+        if self.default and "," in self.default:
+            choices = []
+            for choice in self.default.split(","):
+                key = u"%s-%s" % (self.id, slugify(choice.strip()))
+                choices.append((key, choice))
+        return choices
 
 
 class NodeProperty(BaseProperty):

@@ -3,6 +3,7 @@ from django import forms
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
+from django.forms.extras import widgets
 from django.forms.formsets import BaseFormSet, DELETION_FIELD_NAME
 from django.forms.models import inlineformset_factory
 from django.template.defaultfilters import slugify
@@ -27,6 +28,16 @@ class ItemDeleteConfirmForm(forms.Form):
 
 
 class ItemForm(forms.Form):
+
+    class Media:
+        js = (
+            "js/jqueryui.1.8.18.min.js",
+            "js/jqueryui.timepicker.js",
+            "js/datatypes.js"
+        )
+        css = {
+            "all": ("css/jqueryui.1.8.18.css", )
+        }
 
     def __init__(self, itemtype, instance=None, *args, **kwargs):
         super(ItemForm, self).__init__(label_suffix="", *args, **kwargs)
@@ -68,11 +79,25 @@ class ItemForm(forms.Form):
                 "help_text": item_property.description,
             }
             if item_property.datatype == datatype_dict["date"]:
-                field = forms.DateTimeField(**field_attrs)
+                widget = forms.TextInput(attrs={"class": "date"})
+                field_attrs["widget"] = widget
+                field = forms.DateField(**field_attrs)
+            if item_property.datatype == datatype_dict["time"]:
+                widget = forms.TextInput(attrs={"class": "time"})
+                field_attrs["widget"] = widget
+                field = forms.TimeField(**field_attrs)
             elif item_property.datatype == datatype_dict["boolean"]:
                 field = forms.BooleanField(**field_attrs)
             elif item_property.datatype == datatype_dict["number"]:
-                field = forms.FloatField(**field_attrs)
+                field = forms.IntegerField(**field_attrs)
+            elif item_property.datatype == datatype_dict["float"]:
+                field = forms.IntegerField(**field_attrs)
+            elif item_property.datatype == datatype_dict["choice"]:
+                field_attrs["choices"] = item_property.get_choices()
+                field = forms.ChoiceField(**field_attrs)
+            elif item_property.datatype == datatype_dict["text"]:
+                field_attrs["widget"] = widget=forms.Textarea
+                field = forms.CharField(**field_attrs)
             else:
                 field = forms.CharField(**field_attrs)
             self.fields[item_property.key] = field
@@ -107,7 +132,7 @@ class ItemForm(forms.Form):
                     value = getattr(self, 'clean_%s' % name)()
                     self.cleaned_data[name] = value
             except UnicodeError, e:
-                # Here it is the difference: we need to sluggify the field name
+                # Here it is the difference: we need to slugify the field name
                 slug_name = slugify(name)
                 if hasattr(self, 'clean_%s' % slug_name):
                     value = getattr(self, 'clean_%s' % slug_name)()
@@ -132,6 +157,11 @@ class ItemForm(forms.Form):
                 if not field_value.strip():
                     self._errors[field_key] = self.error_class([msg])
                     del cleaned_data[field_key]
+        # Extra check for choices fields
+        choices_properties = self.itemtype.properties.filter(datatype="c")
+        for choice_property in choices_properties:
+            choice_dict = dict(choice_property.get_choices())
+            cleaned_data["Opciones"] = choice_dict[cleaned_data["Opciones"]]
         return cleaned_data
 
     def save(self, commit=True, *args, **kwargs):
