@@ -94,6 +94,10 @@ class ItemForm(forms.Form):
                 field = forms.IntegerField(**field_attrs)
             elif item_property.datatype == datatype_dict["choice"]:
                 field_attrs["choices"] = item_property.get_choices()
+                field_attrs["initial"] = slugify(field_attrs["initial"] or "")
+                if item_property.key in initial:
+                     slug_value = slugify(initial[item_property.key])
+                     initial[item_property.key] = slug_value
                 field = forms.ChoiceField(**field_attrs)
             elif item_property.datatype == datatype_dict["text"]:
                 field_attrs["widget"] = widget=forms.Textarea
@@ -161,7 +165,8 @@ class ItemForm(forms.Form):
         choices_properties = self.itemtype.properties.filter(datatype="c")
         for choice_property in choices_properties:
             choice_dict = dict(choice_property.get_choices())
-            cleaned_data["Opciones"] = choice_dict[cleaned_data["Opciones"]]
+            key = choice_property.key
+            cleaned_data[key] = choice_dict[cleaned_data[key]]
         return cleaned_data
 
     def save(self, commit=True, *args, **kwargs):

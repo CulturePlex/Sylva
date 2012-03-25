@@ -35,7 +35,7 @@
          <div class="form-row indent">
          <div>
             <label {% if node_property.required %}class="required"{% endif %}>⌂ {{ node_property.key|capfirst }}</label>
-            {% if node_property.datatype != "u" %}[{{ node_property.get_datatype }}]{% endif %}
+            {% if node_property.datatype != "u" %}[{{ node_property.get_datatype_display }}]{% endif %}
 <!--            <p class="help">{{ node_property.default }}</p>-->
         </div>
         </div>
@@ -58,7 +58,7 @@
                     {% for relationship_property in relationship.properties.all %}
                     <div class="form-row indent">
                         <label class="relProps{% if relationship_property.required %} required{% endif %}">⌂ {{ relationship_property.key|capfirst }}</label>
-                        {% if relationship_property.datatype != "u" %}[{{ relationship_property.get_datatype }}]{% endif %}
+                        {% if relationship_property.datatype != "u" %}[{{ relationship_property.get_datatype_display }}]{% endif %}
 <!--                        <p class="help">{{ relationship_property.default }}</p>-->
                     </div>
                     {% endfor %}

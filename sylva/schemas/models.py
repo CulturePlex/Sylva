@@ -245,10 +245,11 @@ class BaseProperty(models.Model):
     def get_choices(self):
         choices = []
         if self.default and "," in self.default:
-            choices = []
+            choices = [(u"", u"---------")]
             for choice in self.default.split(","):
-                key = u"%s-%s" % (self.id, slugify(choice.strip()))
-                choices.append((key, choice))
+                choice_strip = choice.strip()
+                key = u"%s" % slugify(choice_strip)
+                choices.append((key, choice_strip))
         return choices
 
 
