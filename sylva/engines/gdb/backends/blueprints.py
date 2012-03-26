@@ -4,6 +4,9 @@ from engines.gdb.backends import (BaseGraphDatabase,
                                 NodeDoesNotExist,
                                 RelationshipDoesNotExist)
 
+VERTEX = "vertex"
+EDGE = "edge"
+
 
 class BlueprintsGraphDatabase(BaseGraphDatabase):
 
@@ -65,35 +68,69 @@ class BlueprintsGraphDatabase(BaseGraphDatabase):
         self.__check_property(element, key)
         return element.getProperty(key)
 
-    def __set_element_property(self, element, key, value):
+    def __set_element_property(self, element, key, value, element_type=None):
         self.__validate_property(key)
+        if value:
+            if element_type == VERTEX:
+                self.node_index.put(key, value, element)
+            elif element_type == EDGE:
+                self.relationship_index.put(key, value, element)
         element.setProperty(key, value)
 
-    def __delete_element_property(self, element, key):
+    def __delete_element_property(self, element, key, element_type=None):
         self.__validate_property(key)
         self.__check_property(element, key)
+        value = element.getProperty(key)
         element.removeProperty(key)
+        if value:
+            if element_type == VERTEX:
+                self.node_index.remove(key, value, element)
+            elif element_type == EDGE:
+                self.relationship_index.remove(key, value, element)
 
     def __get_element_properties(self, element):
         return self.__get_public_properties(element)
 
-    def __set_element_properties(self, element, properties):
+    def __set_element_properties(self, element, properties, element_type=None):
         for key in properties:
             self.__validate_property(key)
         for key in self.__get_public_keys(element):
+            value = element.getProperty(key)
             element.removeProperty(key)
+            if value:
+                if element_type == VERTEX:
+                    self.node_index.remove(key, value, element)
+                elif element_type == EDGE:
+                    self.relationship_index.remove(key, value, element)
         for key, value in properties.iteritems():
             element.setProperty(key, value)
+            if value:
+                if element_type == VERTEX:
+                    self.node_index.put(key, value, element)
+                elif element_type == EDGE:
+                    self.relationship_index.put(key, value, element)
 
-    def __update_element_properties(self, element, properties):
+    def __update_element_properties(self, element, properties,
+                                    element_type=None):
         for key in properties:
             self.__validate_property(key)
         for key, value in properties.iteritems():
             element.setProperty(key, value)
+            if value:
+                if element_type == VERTEX:
+                    self.node_index.put(key, value, element)
+                elif element_type == EDGE:
+                    self.relationship_index.put(key, value, element)
 
-    def __delete_element_properties(self, element):
+    def __delete_element_properties(self, element, element_type=None):
         for key in self.__get_public_keys(element):
+            value = element.getProperty(key)
             element.removeProperty(key)
+            if value:
+                if element_type == VERTEX:
+                    self.node_index.remove(key, value, element)
+                elif element_type == EDGE:
+                    self.relationship_index.remove(key, value, element)
 
     def create_node(self, label, properties=None):
         #Label must be a string
@@ -106,6 +143,9 @@ class BlueprintsGraphDatabase(BaseGraphDatabase):
                 self.__validate_property(key)
             for key, value in properties.iteritems():
                 vertex.setProperty(key, value)
+                # We don't index null values
+                if value:
+                    self.node_index.put(key, value, vertex)
         #_id and _label is a mandatory internal properties
         if not "_id" in vertex.getPropertyKeys():
             vertex.setProperty("_id", vertex.getId())
@@ -133,11 +173,11 @@ class BlueprintsGraphDatabase(BaseGraphDatabase):
 
     def set_node_property(self, id, key, value):
         vertex = self.__get_vertex(id)
-        self.__set_element_property(vertex, key, value)
+        self.__set_element_property(vertex, key, value, element_type=VERTEX)
 
     def delete_node_property(self, id, key):
         vertex = self.__get_vertex(id)
-        self.__delete_element_property(vertex, key)
+        self.__delete_element_property(vertex, key, element_type=VERTEX)
 
     def get_node_properties(self, id):
         vertex = self.__get_vertex(id)
@@ -145,15 +185,16 @@ class BlueprintsGraphDatabase(BaseGraphDatabase):
 
     def set_node_properties(self, id, properties):
         vertex = self.__get_vertex(id)
-        self.__set_element_properties(vertex, properties)
+        self.__set_element_properties(vertex, properties, element_type=VERTEX)
 
     def update_node_properties(self, id, properties):
         vertex = self.__get_vertex(id)
-        self.__update_element_properties(vertex, properties)
+        self.__update_element_properties(vertex, properties,
+                                         element_type=VERTEX)
 
     def delete_node_properties(self, id):
         vertex = self.__get_vertex(id)
-        self.__delete_element_properties(vertex)
+        self.__delete_element_properties(vertex, element_type=VERTEX)
 
     def get_node_relationships(self, id, incoming=False, outgoing=False,
                                include_properties=False, label=None):
@@ -214,7 +255,7 @@ class BlueprintsGraphDatabase(BaseGraphDatabase):
         return self.__yield_nodes(self.node_index.get("label", unicode(label)),
                                   include_properties)
 
-    def get_filtered_nodes(self, **lookups):
+    def get_filtered_nodes(self, label=None, include_properties=None, *lookups):
         """
         Get an iterator for filtered nodes using the parameters expressed in
         the dictionary lookups.
@@ -236,6 +277,9 @@ class BlueprintsGraphDatabase(BaseGraphDatabase):
                 self.__validate_property(key)
             for key, value in properties.iteritems():
                 edge.setProperty(key, value)
+                # We don't index null values
+                if value:
+                    self.relationship_index.put(key, value, edge)
         #_id and _label is a mandatory internal property
         if not "_id" in edge.getPropertyKeys():
             edge.setProperty("_id", edge.getId())
@@ -263,11 +307,11 @@ class BlueprintsGraphDatabase(BaseGraphDatabase):
 
     def set_relationship_property(self, id, key, value):
         edge = self.__get_edge(id)
-        self.__set_element_property(edge, key, value)
+        self.__set_element_property(edge, key, value, element_type=EDGE)
 
     def delete_relationship_property(self, id, key):
         edge = self.__get_edge(id)
-        self.__delete_element_property(edge, key)
+        self.__delete_element_property(edge, key, element_type=EDGE)
 
     def get_relationship_properties(self, id):
         edge = self.__get_edge(id)
@@ -275,15 +319,15 @@ class BlueprintsGraphDatabase(BaseGraphDatabase):
 
     def set_relationship_properties(self, id, properties):
         edge = self.__get_edge(id)
-        self.__set_element_properties(edge, properties)
+        self.__set_element_properties(edge, properties, element_type=EDGE)
 
     def update_relationship_properties(self, id, properties):
         edge = self.__get_edge(id)
-        self.__update_element_properties(edge, properties)
+        self.__update_element_properties(edge, properties, element_type=EDGE)
 
     def delete_relationship_properties(self, id):
         edge = self.__get_edge(id)
-        self.__delete_element_properties(edge)
+        self.__delete_element_properties(edge, element_type=EDGE)
 
     def get_relationship_source(self, id, include_properties=False):
         edge = self.__get_edge(id)
@@ -340,15 +384,6 @@ class BlueprintsGraphDatabase(BaseGraphDatabase):
         return self.__yield_relationships(
                 self.relationship_index.get("label", unicode(label)),
                                             include_properties)
-
-    def get_filtered_relationships(self, **lookups):
-        """
-        Get an iterator for filtered relationship using the parameters
-        expressed in the dictionary lookups.
-        The most usual lookups from Django should be implemented.
-        More info: https://docs.djangoproject.com/en/dev/ref/models/querysets/#field-lookups
-        """
-        raise NotImplementedError("Method has to be implemented")
 
     # Quering
 

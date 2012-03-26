@@ -91,14 +91,20 @@ class NodesManager(BaseManager):
         eltos = self.gdb.get_all_nodes(include_properties=True)
         return self._create_node_list(eltos)
 
-    def filter(self, **options):
+    def filter(self, *lookups, **options):
         if "label" in options:
             label = options.get("label")
-            eltos = self.gdb.get_nodes_by_label(label,
-                                                include_properties=True)
+            if not lookups:
+                eltos = self.gdb.get_nodes_by_label(label,
+                                                    include_properties=True)
+            else:
+                eltos = self.gdb.get_filtered_nodes(lookups, label=label,
+                                                    include_properties=True)
             return self._create_node_list(eltos)
         else:
-            return []
+            eltos = self.gdb.get_filtered_nodes(lookups,
+                                                include_properties=True)
+
 
     def iterator(self):
         eltos = self.gdb.get_all_nodes(include_properties=True)
@@ -131,14 +137,6 @@ class NodesManager(BaseManager):
         else:
             eltos = self.gdb.get_all_nodes(include_properties=False)
             self.gdb.delete_nodes([node_id for node_id, props in eltos])
-
-    def query(self, lookups):
-        nodes = []
-        eltos = self.gdb.nodes_query(lookups)
-        for node_id, node_properties in eltos:
-            node = Node(node_id, self.graph, properties=node_properties)
-            nodes.append(node)
-        return nodes
 
     def _get(self, node_id):
         return Node(node_id, self.graph)
@@ -440,7 +438,9 @@ class BaseElement(object):
                     if properties_values[i]:
                         try:
                             unicode_value = unicode(properties_values[i])
-                            properties_to_display.append(unicode_value)
+                            value_strip = unicode_value.strip()
+                            if len(value_strip) > 0:
+                                properties_to_display.append(value_strip)
                         except UnicodeDecodeError:
                             pass
             if properties_to_display:
@@ -516,7 +516,9 @@ class Node(BaseElement):
                 else:
                     try:
                         unicode_value = unicode(properties[display.key])
-                        properties_to_display.append(unicode_value)
+                        value_strip = unicode_value.strip()
+                        if len(value_strip) > 0:
+                            properties_to_display.append(value_strip)
                     except UnicodeDecodeError:
                         pass
         return properties_to_display

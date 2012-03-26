@@ -276,7 +276,7 @@
             var params = {}, $input = $(input);
             if ($input.attr("class").indexOf(" ") > 0) {
                 params = {
-                    queryParam: "display",
+                    queryParam: $input.attr("data-type"),
                     minChars: 2,
                     propertyToSearch: "display",
                     tokenLimit: 1,
@@ -289,7 +289,7 @@
                 };
             } else {
                 params = {
-                    queryParam: "display",
+                    queryParam: $input.attr("data-type"),
                     minChars: 2,
                     propertyToSearch: "display",
                     tokenLimit: 1,
@@ -298,7 +298,6 @@
                 };
             }
             $input.tokenInput("{% url nodes_lookup graph.slug %}", params);
-
         }
         $(".autocomplete").each(function(i, input) {nodeAutocomplete(input);});
         // Selecting the type of relationships to show

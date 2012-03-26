@@ -149,7 +149,7 @@ class BaseGraphDatabase(object):
         """
         raise NotImplementedError("Method has to be implemented")
 
-    def get_filtered_nodes(self, **lookups):
+    def get_filtered_nodes(self, lookups, label=None, include_properties=None):
         """
         Get an iterator for filtered nodes using the parameters expressed in
         the dictionary lookups.
@@ -299,6 +299,20 @@ class BaseGraphDatabase(object):
         raise NotImplementedError("Method has to be implemented")
 
     # Quering
+
+    def nodes_query(self, *args, **kwargs):
+        # TODO: Define the requirements of the queries.
+        """
+        XXX
+        """
+        raise NotImplementedError("Method has to be implemented")
+
+    def relationships_query(self, *args, **kwargs):
+        # TODO: Define the requirements of the queries.
+        """
+        XXX
+        """
+        raise NotImplementedError("Method has to be implemented")
 
     def query(self, *args, **kwargs):
         # TODO: Define the requirements of the queries.

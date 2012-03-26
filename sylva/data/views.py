@@ -2,7 +2,9 @@
 from json import dumps
 
 from django.core.urlresolvers import reverse
+from django.conf import settings
 from django.forms.formsets import formset_factory
+from django.http import Http404
 from django.shortcuts import (render_to_response, get_object_or_404,
                              redirect, HttpResponse)
 from django.template import RequestContext
@@ -57,13 +59,22 @@ def nodes_list(request, graph_slug):
 def nodes_lookup(request, graph_slug):
     graph = get_object_or_404(Graph, slug=graph_slug)
     data = request.GET.copy()
-    if (request.is_ajax() or settings.DEBUG) and data and "q" in data:
-        q = data["q"]
-        query = {
-            "property": q,
-            "lookup": "starts",
-        }
-        nodes = graph.nodes.query(query)
+    if (request.is_ajax() or settings.DEBUG) and data:
+        node_type_id = data.keys()[0]
+        node_type = get_object_or_404(NodeType, id=node_type_id)
+        q = data[node_type_id]
+        query_list = []
+        properties = node_type.properties.filter(display=True)
+        if not properties:
+            properties = node_type.properties.all()[:2]
+        for prop in properties:
+            query = {
+                "property": prop.key,
+                "match": q,
+                "lookup": "contains",
+            }
+            query_list.append(query)
+        nodes = graph.nodes.filter(label=node_type.id, *query_list)
         json_nodes = []
         for node in nodes:
             json_nodes.append({
@@ -72,6 +83,7 @@ def nodes_lookup(request, graph_slug):
             })
         return HttpResponse(dumps(json_nodes),
                             status=200, mimetype='application/json')
+    raise Http404(_("Mismatch criteria for matching the search."))
 
 
 @permission_required("data.view_data", (Data, "graph__slug", "graph_slug"))

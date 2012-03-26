@@ -95,7 +95,7 @@ class ItemForm(forms.Form):
             elif item_property.datatype == datatype_dict["choice"]:
                 field_attrs["choices"] = item_property.get_choices()
                 field_attrs["initial"] = slugify(field_attrs["initial"] or "")
-                if item_property.key in initial:
+                if initial and item_property.key in initial:
                      slug_value = slugify(initial[item_property.key])
                      initial[item_property.key] = slug_value
                 field = forms.ChoiceField(**field_attrs)
@@ -266,6 +266,7 @@ class RelationshipForm(ItemForm):
                     "help_text": help_text,
                     "widget": forms.TextInput(attrs={
                         "class": widget_class,
+                        "data-type": itemtype.id,
                     }),
                 }
                 field = forms.CharField(**field_attrs)
