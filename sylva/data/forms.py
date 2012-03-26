@@ -266,7 +266,7 @@ class RelationshipForm(ItemForm):
                     "help_text": help_text,
                     "widget": forms.TextInput(attrs={
                         "class": widget_class,
-                        "data-type": itemtype.id,
+                        "data-type": getattr(itemtype, direction).id,
                     }),
                 }
                 field = forms.CharField(**field_attrs)
