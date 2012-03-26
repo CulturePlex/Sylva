@@ -16,19 +16,19 @@ from graphs.mixins import GraphMixin
 
 PERMISSIONS = {
     'graph': {
-        'change_graph': _("Change graph"),
-        'view_graph': _("View graph"),
-#        'change_collaborators': _("Change collaborators"),
+        'change_graph': _("Change"),
+        'view_graph': _("View"),
+        'change_collaborators': _("Collaborators"),
     },
     'schema': {
-        'change_schema': _("Change schema"),
-        'view_schema': _("View schema"),
+        'change_schema': _("Change"),
+        'view_schema': _("View"),
     },
     'data': {
-        'add_data': _("Add data"),
-        'view_data': _("View data"),
-        'change_data': _("Change data"),
-        'delete_data': _("Delete data"),
+        'add_data': _("Add"),
+        'view_data': _("View"),
+        'change_data': _("Change"),
+        'delete_data': _("Delete"),
     },
 }
 
@@ -56,6 +56,7 @@ class Graph(models.Model, GraphMixin):
         ordering = ("order", )
         permissions = (
             ('view_graph', _('View graph')),
+            ('change_collaborators', _("Change collaborators")),
         )
 
     def __unicode__(self):

@@ -17,7 +17,6 @@ from data.models import Data
 from graphs.forms import GraphForm, AddCollaboratorForm
 from graphs.models import Graph, PERMISSIONS
 from schemas.models import Schema, RelationshipType, NodeType
-from settings import PREVIEW_NODES
 
 @permission_required("graphs.view_graph", (Graph, "slug", "graph_slug"))
 def graph_view(request, graph_slug):
@@ -45,7 +44,7 @@ def graph_view(request, graph_slug):
         
 
     graph = get_object_or_404(Graph, slug=graph_slug)
-    nodes, edges = jsonify_graph(graph, PREVIEW_NODES)
+    nodes, edges = jsonify_graph(graph, settings.PREVIEW_NODES)
     return render_to_response('graphs_view.html',
                               {"graph": graph,
                                 "nodes": simplejson.dumps(nodes),
@@ -118,9 +117,6 @@ def graph_collaborators(request, graph_slug):
     else:
         form = AddCollaboratorForm(graph=graph, collaborators=collaborators)
     graph_permissions = guardian.get_perms_for_model(graph)
-    print request.user, guardian.get_perms(request.user, graph)
-    print request.user, guardian.get_perms(request.user, graph.data)
-    print request.user, guardian.get_perms(request.user, graph.schema)
     permissions_list = []
     permissions_table = []
     aux = (('graph', graph), ('schema', graph.schema), ('data', graph.data))
