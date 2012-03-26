@@ -128,7 +128,8 @@ class NodesManager(BaseManager):
             nodes_id = []
             # We have first to remove the relationships
             for node_id, props in eltos:
-                self.gdb.delete_node_relationships(node_id)
+                for relationship in self.get(node_id).relationships.all():
+                    relationship.delete()
                 nodes_id.append(node_id)
             self.gdb.delete_nodes(nodes_id)
         elif "id" in options:
