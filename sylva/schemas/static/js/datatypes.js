@@ -8,7 +8,10 @@
             yearRange: "-3000:3000"
         };
         $('.date').datepicker(options);
-        $('.time').timepicker({});
+        $('.time').timepicker({
+            timeOnly: true,
+            showSecond: true,
+        });
 //        var type = $('<input type="date" />').attr('type');
 //        if (type == 'text') { // No HTML5 support
 //            var options = {
