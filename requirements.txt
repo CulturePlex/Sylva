@@ -9,8 +9,10 @@ easy-thumbnails==1.0-alpha-21
 httplib2==0.7.4
 ipdb==0.6.1
 ipython==0.11
-lucene-querybuilder==0.1.5
-neo4jrestclient==1.6.1
+# lucene-querybuilder==0.1.5
+# In the mean time, we use our version
+git+https://github.com/versae/lucene-querybuilder
+neo4jrestclient==1.6.2
 pyblueprints==0.5.1
 pycrypto==2.4.1
 python-dateutil==1.5
