@@ -33,7 +33,8 @@ def signup_redirect(request, *args, **kwargs):
 def dashboard(request):
     graphs = request.user.graphs.all()
     permissions = [("graphs.%s" % p) for p, v in Graph._meta.permissions]
-    all_collaborations = get_objects_for_user(request.user, permissions)
+    all_collaborations = get_objects_for_user(request.user, permissions,
+                                              any_perm=True)
     collaborations = all_collaborations.exclude(pk__in=graphs)
     return render_to_response('dashboard.html',
                               {"graphs": graphs,
