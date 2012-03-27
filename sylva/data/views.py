@@ -133,7 +133,7 @@ def nodes_create(request, graph_slug, node_type_id):
                                                   formset=TypeBaseFormSet,
                                                   can_delete=True,
                                                   extra=1)
-        relationship_slug = "%s%s" % (relationship.name, relationship.id)
+        relationship_slug = "o_%s%s" % (relationship.name, relationship.id)
         formset_prefix = slugify(relationship_slug).replace("-", "_")
         outgoing_formset = RelationshipFormSet(itemtype=relationship,
                                                    instance=nodetype,
@@ -153,7 +153,7 @@ def nodes_create(request, graph_slug, node_type_id):
                                                   formset=TypeBaseFormSet,
                                                   can_delete=True,
                                                   extra=1)
-        relationship_slug = "%s%s" % (relationship.name, relationship.id)
+        relationship_slug = "i_%s%s" % (relationship.name, relationship.id)
         formset_prefix = slugify(relationship_slug).replace("-", "_")
         incoming_formset = RelationshipFormSet(itemtype=relationship,
                                                    instance=nodetype,
@@ -255,7 +255,7 @@ def nodes_edit(request, graph_slug, node_id):
                                                   formset=TypeBaseFormSet,
                                                   can_delete=True,
                                                   extra=1)
-        relationship_slug = "%s%s" % (relationship.name, relationship.id)
+        relationship_slug = "o_%s%s" % (relationship.name, relationship.id)
         formset_prefix = slugify(relationship_slug).replace("-", "_")
         outgoing_formset = RelationshipFormSet(itemtype=relationship,
                                                    instance=nodetype,
@@ -296,7 +296,7 @@ def nodes_edit(request, graph_slug, node_id):
                                                   formset=TypeBaseFormSet,
                                                   can_delete=True,
                                                   extra=1)
-        relationship_slug = "%s%s" % (relationship.name, relationship.id)
+        relationship_slug = "i_%s%s" % (relationship.name, relationship.id)
         formset_prefix = slugify(relationship_slug).replace("-", "_")
         incoming_formset = RelationshipFormSet(itemtype=relationship,
                                                    instance=nodetype,
