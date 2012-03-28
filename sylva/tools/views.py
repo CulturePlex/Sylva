@@ -58,7 +58,7 @@ def graph_export_tool(request, graph_slug):
     converter = GEXFConverter(graph)
     response = HttpResponse(converter.stream_export(), mimetype='application/xml')
     response['Content-Disposition'] = \
-            'attachment; filename=%s.gexf' % graph.name
+            'attachment; filename=%s.gexf' % graph_name
     return response
 
 
