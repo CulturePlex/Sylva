@@ -75,10 +75,13 @@
         {% if outgoing_formsets %}
         <option value="outgoing">{% trans "Outgoing" %}</option>
         {% endif %}
+        {% for p in prefixes %}
+            <option value="{{ p.key }}">{{ p.value }}</option>
+        {% endfor %}
     </select>
     {% if outgoing_formsets %}
-        <span class="all-relationships outgoing-relationships">
             {% for prefix, outgoing_formset in outgoing_formsets.items %}
+            <span class="all-relationships outgoing-relationships {{ prefix }}-relationships">
                 {{ outgoing_formset.management_form }}
                 <label>
                 → {{ outgoing_formset.itemtype.name }} ({{ outgoing_formset.itemtype.target.name }})
@@ -105,12 +108,12 @@
                     {% endif %}
                     </span>
                 {% endfor %}
+            </span>
             {% endfor %}
-        </span>
     {% endif %}
     {% if incoming_formsets %}
-        <span class="all-relationships incoming-relationships">
             {% for prefix, incoming_formset in incoming_formsets.items %}
+            <span class="all-relationships incoming-relationships {{ prefix }}-relationships">
                 {{ incoming_formset.management_form }}
                 <label>
                 ← {{ incoming_formset.itemtype.name }} ({{ incoming_formset.itemtype.source.name }})
@@ -144,8 +147,8 @@
                     {% endif %}
                     </span>
                 {% endfor %}
-            {% endfor %}
             </span>
+            {% endfor %}
         {% endif %}
     </div>
     {% endif %}
@@ -274,30 +277,32 @@
         // Enabling autocomplete for nodes
         nodeAutocomplete = function(input) {
             var params = {}, $input = $(input);
-            if ($input.attr("class").indexOf(" ") > 0) {
-                params = {
-                    queryParam: $input.attr("data-type"),
-                    minChars: 2,
-                    propertyToSearch: "display",
-                    tokenLimit: 1,
-                    preventDuplicates: true,
-                    tokenValue: "id",
-                    prePopulate: [{
-                        id: $input.val(),
-                        display: $input.attr("class").split(" ").slice(1).join(" ")
-                    }]
-                };
-            } else {
-                params = {
-                    queryParam: $input.attr("data-type"),
-                    minChars: 2,
-                    propertyToSearch: "display",
-                    tokenLimit: 1,
-                    preventDuplicates: true,
-                    tokenValue: "id"
-                };
+            if ($input) {
+                if ($input.attr("class").indexOf(" ") > 0) {
+                    params = {
+                        queryParam: $input.attr("data-type"),
+                        minChars: 2,
+                        propertyToSearch: "display",
+                        tokenLimit: 1,
+                        preventDuplicates: true,
+                        tokenValue: "id",
+                        prePopulate: [{
+                            id: $input.val(),
+                            display: $input.attr("class").split(" ").slice(1).join(" ")
+                        }]
+                    };
+                } else {
+                    params = {
+                        queryParam: $input.attr("data-type"),
+                        minChars: 2,
+                        propertyToSearch: "display",
+                        tokenLimit: 1,
+                        preventDuplicates: true,
+                        tokenValue: "id"
+                    };
+                }
+                $input.tokenInput("{% url nodes_lookup graph.slug %}", params);
             }
-            $input.tokenInput("{% url nodes_lookup graph.slug %}", params);
         }
         $(".autocomplete").each(function(i, input) {nodeAutocomplete(input);});
         // Selecting the type of relationships to show

@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
+from django.db import models, transaction
+from django.db.models import F
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.translation import gettext as _
-from django.db import models, transaction
 from django.template.defaultfilters import slugify
 
 from base.fields import AutoSlugField
@@ -122,11 +123,22 @@ class NodeType(BaseType):
     def __unicode__(self):
         return "%s" % (self.name)
 
-    def get_incoming_relationships(self):
-        return RelationshipType.objects.filter(target=self)
+    def get_incoming_relationships(self, reflexive=False):
+        relationship_types = RelationshipType.objects.filter(target=self)
+        if reflexive:
+            return relationship_types
+        else:
+            return relationship_types.exclude(source=F("target"))
 
-    def get_outgoing_relationships(self):
-        return RelationshipType.objects.filter(source=self)
+    def get_outgoing_relationships(self, reflexive=False):
+        relationship_types = RelationshipType.objects.filter(source=self)
+        if reflexive:
+            return relationship_types
+        else:
+            return relationship_types.exclude(target=F("source"))
+
+    def get_reflexive_relationships(self):
+        return RelationshipType.objects.filter(source=self, target=self)
 
     def all(self):
         if self.id:
@@ -164,6 +176,9 @@ class RelationshipType(BaseType):
     arity_target = models.IntegerField(_('Target arity'), default=0, blank=True,
                                 help_text=_("Leave blank for infinite arity,"
                                             "or type with format min:max."))
+
+    class Meta:
+        ordering = ("order", "inverse", "name")
 
     def save(self, *args, **kwargs):
         if not self.arity_source or self.arity_source < 1:

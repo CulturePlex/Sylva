@@ -121,6 +121,7 @@ def nodes_create(request, graph_slug, node_type_id):
         medialink_formset = MediaLinkFormSet(prefix="__links")
     node_form = NodeForm(itemtype=nodetype, data=data)
     outgoing_formsets = {}
+    prefixes = []
     for relationship in nodetype.outgoing_relationships.all():
         arity = relationship.arity_target
         if arity > 0:
@@ -135,6 +136,9 @@ def nodes_create(request, graph_slug, node_type_id):
                                                   extra=1)
         relationship_slug = "o_%s%s" % (relationship.name, relationship.id)
         formset_prefix = slugify(relationship_slug).replace("-", "_")
+        prefixes.append({"key": formset_prefix,
+                         "value": u"→ %s (%s)" % (relationship.name,
+                                                  relationship.target.name)})
         outgoing_formset = RelationshipFormSet(itemtype=relationship,
                                                    instance=nodetype,
                                                    prefix=formset_prefix,
@@ -155,6 +159,9 @@ def nodes_create(request, graph_slug, node_type_id):
                                                   extra=1)
         relationship_slug = "i_%s%s" % (relationship.name, relationship.id)
         formset_prefix = slugify(relationship_slug).replace("-", "_")
+        prefixes.append({"key": formset_prefix,
+                         "value": u"← %s (%s)" % (relationship.name,
+                                                  relationship.source.name)})
         incoming_formset = RelationshipFormSet(itemtype=relationship,
                                                    instance=nodetype,
                                                    prefix=formset_prefix,
@@ -188,6 +195,7 @@ def nodes_create(request, graph_slug, node_type_id):
         {"graph": graph,
          "nodetype": nodetype,
          "node_form": node_form,
+         "prefixes": prefixes,
          "outgoing_formsets": outgoing_formsets,
          "incoming_formsets": incoming_formsets,
          "mediafile_formset": mediafile_formset,
@@ -232,8 +240,9 @@ def nodes_edit(request, graph_slug, node_id):
 #            ITEM_FIELD_NAME: relationship.id,
 #        })
 #        initial.append(properties)
+    prefixes = []
     outgoing_formsets = {}
-    allowed_outgoing_relationships = nodetype.outgoing_relationships.all()
+    allowed_outgoing_relationships = nodetype.get_outgoing_relationships(reflexive=True)
     for relationship in allowed_outgoing_relationships:
         initial = []
         graph_relationships = node.relationships.filter(label=relationship.id)
@@ -257,6 +266,9 @@ def nodes_edit(request, graph_slug, node_id):
                                                   extra=1)
         relationship_slug = "o_%s%s" % (relationship.name, relationship.id)
         formset_prefix = slugify(relationship_slug).replace("-", "_")
+        prefixes.append({"key": formset_prefix,
+                         "value": u"→ %s (%s)" % (relationship.name,
+                                                  relationship.target.name)})
         outgoing_formset = RelationshipFormSet(itemtype=relationship,
                                                    instance=nodetype,
                                                    prefix=formset_prefix,
@@ -274,7 +286,7 @@ def nodes_edit(request, graph_slug, node_id):
 #        })
 #        initial.append(properties)
     incoming_formsets = {}
-    allowed_incoming_relationships = nodetype.incoming_relationships.all()
+    allowed_incoming_relationships = nodetype.get_incoming_relationships()
     for relationship in allowed_incoming_relationships:
         initial = []
         graph_relationships = node.relationships.filter(label=relationship.id)
@@ -298,6 +310,9 @@ def nodes_edit(request, graph_slug, node_id):
                                                   extra=1)
         relationship_slug = "i_%s%s" % (relationship.name, relationship.id)
         formset_prefix = slugify(relationship_slug).replace("-", "_")
+        prefixes.append({"key": formset_prefix,
+                         "value": u"← %s (%s)" % (relationship.name,
+                                                  relationship.source.name)})
         incoming_formset = RelationshipFormSet(itemtype=relationship,
                                                    instance=nodetype,
                                                    prefix=formset_prefix,
@@ -333,6 +348,7 @@ def nodes_edit(request, graph_slug, node_id):
          "nodetype": nodetype,
          "node_form": node_form,
          "node": node,
+         "prefixes": prefixes,
          "outgoing_formsets": outgoing_formsets,
          "incoming_formsets": incoming_formsets,
          "mediafile_formset": mediafile_formset,

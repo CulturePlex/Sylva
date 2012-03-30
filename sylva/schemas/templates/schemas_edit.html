@@ -40,6 +40,33 @@
         </div>
         </div>
     {% endfor %}
+    {% regroup node_type.get_reflexive_relationships by name as reflexive_relationships %}
+    {% for relationship_name in reflexive_relationships %}
+         <div class="form-row indent">
+            <label>
+                ↔ {{ relationship_name.grouper|capfirst }}
+                <a class="buttonLinkOption indent" href="{% url schema_relationshiptype_create graph.slug %}?source={{ node_type.id }}&name={{ relationship_name.grouper }}">
+                    ({% trans "Add another" %})
+                </a>
+            </label>
+            {% for relationship in relationship_name.list %}
+                <div class="form-row indent">
+                <a href="{% url schema_relationshiptype_edit graph.slug relationship.id %}">
+                    {% if relationship.arity_target < 1 %}∞{% else %}{{ relationship.arity_target }} × {% endif %} {{ relationship.target.name|capfirst }}
+                </a>
+                {% if relationship.properties %}
+                    {% for relationship_property in relationship.properties.all %}
+                    <div class="form-row indent">
+                        <label class="relProps{% if relationship_property.required %} required{% endif %}">⌂ {{ relationship_property.key|capfirst }}</label>
+                        {% if relationship_property.datatype != "u" %}[{{ relationship_property.get_datatype_display }}]{% endif %}
+<!--                        <p class="help">{{ relationship_property.default }}</p>-->
+                    </div>
+                    {% endfor %}
+                {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+    {% endfor %}
     {% regroup node_type.get_outgoing_relationships by name as outgoing_relationships %}
     {% for relationship_name in outgoing_relationships %}
          <div class="form-row indent">

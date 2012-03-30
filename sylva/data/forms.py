@@ -13,6 +13,7 @@ from data.models import MediaNode, MediaFile, MediaLink
 from schemas.models import RelationshipType
 
 ITEM_FIELD_NAME = "_ITEM_ID"
+NULL_OPTION = u"---------"
 
 
 class ItemDeleteConfirmForm(forms.Form):
@@ -166,7 +167,12 @@ class ItemForm(forms.Form):
         for choice_property in choices_properties:
             choice_dict = dict(choice_property.get_choices())
             key = choice_property.key
-            cleaned_data[key] = choice_dict[cleaned_data[key]]
+            value = choice_dict[cleaned_data[key]].strip()
+            if value == NULL_OPTION:
+                # cleaned_data[key] = None
+                cleaned_data.pop(key)
+            else:
+                cleaned_data[key] = value
         return cleaned_data
 
     def save(self, commit=True, *args, **kwargs):
@@ -276,7 +282,7 @@ class RelationshipForm(ItemForm):
                     "initial": "",
                     "label": label,
                     "help_text": help_text,
-                    "choices": [(u"", u"---------")] + choices,
+                    "choices": [(u"", NULL_OPTION)] + choices,
                 }
                 field = forms.ChoiceField(**field_attrs)
             self.fields[itemtype.id] = field
@@ -300,6 +306,10 @@ class RelationshipForm(ItemForm):
             itemtype_attr = getattr(self.itemtype, direction)
             msg = _("The %s must be %s") % (direction, itemtype_attr.name)
             self._errors[self.itemtype.id] = self.error_class([msg])
+        # If there is no data, there is no relationship to add
+        if (self.itemtype.id in self._errors
+            and not (self.initial or cleaned_data)):
+            self._errors.pop(self.itemtype.id)
         return cleaned_data
 
     def save(self, related_node=None, commit=True, *args, **kwargs):
