@@ -9,6 +9,7 @@ from django.shortcuts import (render_to_response, get_object_or_404,
                              redirect, HttpResponse)
 from django.template import RequestContext
 from django.template.defaultfilters import slugify
+from django.utils.datastructures import SortedDict
 from django.utils.translation import gettext as _
 
 from guardian.decorators import permission_required
@@ -120,7 +121,7 @@ def nodes_create(request, graph_slug, node_type_id):
         mediafile_formset = MediaFileFormSet(prefix="__files")
         medialink_formset = MediaLinkFormSet(prefix="__links")
     node_form = NodeForm(itemtype=nodetype, data=data)
-    outgoing_formsets = {}
+    outgoing_formsets = SortedDict()
     prefixes = []
     for relationship in nodetype.outgoing_relationships.all():
         arity = relationship.arity_target
@@ -144,7 +145,7 @@ def nodes_create(request, graph_slug, node_type_id):
                                                    prefix=formset_prefix,
                                                    data=data)
         outgoing_formsets[formset_prefix] = outgoing_formset
-    incoming_formsets = {}
+    incoming_formsets = SortedDict()
     for relationship in nodetype.incoming_relationships.all():
         arity = relationship.arity_source
         if arity > 0:
@@ -241,8 +242,8 @@ def nodes_edit(request, graph_slug, node_id):
 #        })
 #        initial.append(properties)
     prefixes = []
-    outgoing_formsets = {}
-    allowed_outgoing_relationships = nodetype.get_outgoing_relationships(reflexive=True)
+    outgoing_formsets = SortedDict()
+    allowed_outgoing_relationships = nodetype.outgoing_relationships.all()
     for relationship in allowed_outgoing_relationships:
         initial = []
         graph_relationships = node.relationships.filter(label=relationship.id)
@@ -264,7 +265,8 @@ def nodes_edit(request, graph_slug, node_id):
                                                   formset=TypeBaseFormSet,
                                                   can_delete=True,
                                                   extra=1)
-        relationship_slug = "o_%s%s" % (relationship.name, relationship.id)
+        relationship_slug = "o_%s%s_%s" % (relationship.name, relationship.id,
+                                           relationship.target.id)
         formset_prefix = slugify(relationship_slug).replace("-", "_")
         prefixes.append({"key": formset_prefix,
                          "value": u"→ %s (%s)" % (relationship.name,
@@ -285,7 +287,7 @@ def nodes_edit(request, graph_slug, node_id):
 #            ITEM_FIELD_NAME: relationship.id,
 #        })
 #        initial.append(properties)
-    incoming_formsets = {}
+    incoming_formsets = SortedDict()
     allowed_incoming_relationships = nodetype.get_incoming_relationships()
     for relationship in allowed_incoming_relationships:
         initial = []
@@ -308,7 +310,8 @@ def nodes_edit(request, graph_slug, node_id):
                                                   formset=TypeBaseFormSet,
                                                   can_delete=True,
                                                   extra=1)
-        relationship_slug = "i_%s%s" % (relationship.name, relationship.id)
+        relationship_slug = "i_%s%s_%s" % (relationship.name, relationship.id,
+                                           relationship.source.id)
         formset_prefix = slugify(relationship_slug).replace("-", "_")
         prefixes.append({"key": formset_prefix,
                          "value": u"← %s (%s)" % (relationship.name,

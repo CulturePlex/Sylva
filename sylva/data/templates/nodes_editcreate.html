@@ -269,7 +269,6 @@
         $(".toggleProperties").live("click", function (e) {
             $(this).parents("p").siblings("p").toggle();
             var last = $(this).parents("p").siblings("p:last");
-            console.log(last)
             if (last.parent().hasClass("initial") || last.parent().hasClass("dynamic-form")) {
                 last.hide();
             }
@@ -277,7 +276,7 @@
         // Enabling autocomplete for nodes
         nodeAutocomplete = function(input) {
             var params = {}, $input = $(input);
-            if ($input) {
+            if ($input.attr("class")) {
                 if ($input.attr("class").indexOf(" ") > 0) {
                     params = {
                         queryParam: $input.attr("data-type"),

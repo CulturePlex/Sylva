@@ -120,6 +120,11 @@ class NodeType(BaseType):
                                                 "properties will be "
                                                 "inherited from"))
 
+    def save(self, *args, **kwargs):
+        if self.name:
+            self.name = self.name.strip()
+        super(NodeType, self).save(*args, **kwargs)
+
     def __unicode__(self):
         return "%s" % (self.name)
 
@@ -181,6 +186,10 @@ class RelationshipType(BaseType):
         ordering = ("order", "inverse", "name")
 
     def save(self, *args, **kwargs):
+        if self.name:
+            self.name = self.name.strip()
+        if self.inverse:
+            self.inverse = self.inverse.strip()
         if not self.arity_source or self.arity_source < 1:
             self.arity_source = 0
         if not self.arity_target or self.arity_target < 1:
@@ -236,6 +245,11 @@ class BaseProperty(models.Model):
     class Meta:
         abstract = True
         ordering = ("order", "key")
+
+    def save(self, *args, **kwargs):
+        if self.key:
+            self.key = self.key.strip()
+        super(BaseProperty, self).save(*args, **kwargs)
 
     def __unicode__(self):
         return "%s: %s" % (self.key, self.value)

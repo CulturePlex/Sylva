@@ -313,7 +313,9 @@ class RelationshipForm(ItemForm):
         return cleaned_data
 
     def save(self, related_node=None, commit=True, *args, **kwargs):
-        properties = self.cleaned_data
+        properties = None
+        if hasattr(self, "cleaned_data"):
+            properties = self.cleaned_data
         if (properties
             and any([bool(unicode(v).strip()) for v in properties.values()])):
             node_id = properties.pop(self.itemtype.id)
