@@ -23,6 +23,65 @@ class GraphDatabase(BlueprintsGraphDatabase):
             raise GraphDatabaseConnectionError(self.url) 
         self.setup_indexes()
 
+    def _clean_count(self, count):
+        if isinstance(count, (tuple, list)):
+            return len(count)
+        else:
+            return count
+
+    def _get_count(self, index, label=None):
+        gremlin = self.gdb.neograph.extensions.GremlinPlugin.execute_script
+        if label:
+            script = """g.idx("%s")[[label:"%s"]].count()""" % (index.name,
+                                                                label)
+        else:
+            script = """g.idx("%s")[[graph:"%s"]].count()""" % (index.name,
+                                                                self.graph_id)
+        count = gremlin(script=script)
+        return self._clean_count(count)
+
+    def get_nodes_count(self, label=None):
+        """
+        Get the number of total nodes.
+        If "label" is provided, the number is calculated according the
+        the label of the element.
+        """
+        index = self.node_index.neoindex
+        return self._get_count(index, label=label)
+
+    def get_relationships_count(self, label=None):
+        """
+        Get the number of total relationships.
+        If "label" is provided, the number is calculated according the
+        the label of the element.
+        """
+        index = self.relationship_index.neoindex
+        return self._get_count(index, label=label)
+
+    def get_node_relationships_count(self, id, incoming=False, outgoing=False,
+                                     label=None):
+        """
+        Get the number of all relationships of a node.
+        If "incoming" is True, it only counts the ids for incoming ones.
+        If "outgoing" is True, it only counts the ids for outgoing ones.
+        If "label" is provided, relationships will be filtered.
+        """
+        index = self.node_index.neoindex
+        gremlin = self.gdb.neograph.extensions.GremlinPlugin.execute_script
+        script = """g.idx("%s")[[id:"%s"]]""" % (index.name, id)
+        if incoming:
+            script = u"%s.inE" % script
+        elif outgoing:
+            script = u"%s.outE" % script
+        else:
+            # Same effect that incoming=True, outgoing=True
+            script = u"%s.bothE" % script
+        if label:
+            script = u"%s.filter{it.label==""}" % label
+        script = u"%s.count()" % script
+        count = gremlin(script=script)
+        return self._clean_count(count)
+
     def get_filtered_nodes(self, lookups, label=None, include_properties=None):
         """
         Get an iterator for filtered nodes using the parameters expressed in

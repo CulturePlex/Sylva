@@ -119,6 +119,17 @@ class BaseGraphDatabase(object):
         tuple is a dictionary containing the properties.
         If "label" is provided, relationships will be filtered.
         """
+        raise NotImplementedError("Method has to be implemented")
+
+    def get_node_relationships_count(self, id, incoming=False, outgoing=False,
+                                     label=None):
+        """
+        Get the number of all relationships of a node.
+        If "incoming" is True, it only counts the ids for incoming ones.
+        If "outgoing" is True, it only counts the ids for outgoing ones.
+        If "label" is provided, relationships will be filtered.
+        """
+        raise NotImplementedError("Method has to be implemented")
 
     def delete_node_relationships(self, id):
         """
@@ -137,6 +148,14 @@ class BaseGraphDatabase(object):
     def delete_nodes(self, ids):
         """
         Delete all the nodes whose "id" is on the list "ids".
+        """
+        raise NotImplementedError("Method has to be implemented")
+
+    def get_nodes_count(self, label=None):
+        """
+        Get the number of total nodes.
+        If "label" is provided, the number is calculated according the
+        the label of the element.
         """
         raise NotImplementedError("Method has to be implemented")
 
@@ -277,6 +296,14 @@ class BaseGraphDatabase(object):
     def delete_relationships(self, ids):
         """
         Delete all the relationships which "id" is on the list "ids".
+        """
+        raise NotImplementedError("Method has to be implemented")
+
+    def get_relationship_count(self, label=None):
+        """
+        Get the number of total relationships.
+        If "label" is provided, the number is calculated according the
+        the label of the element.
         """
         raise NotImplementedError("Method has to be implemented")
 

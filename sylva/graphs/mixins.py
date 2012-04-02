@@ -105,7 +105,6 @@ class NodesManager(BaseManager):
             eltos = self.gdb.get_filtered_nodes(lookups,
                                                 include_properties=True)
 
-
     def iterator(self):
         eltos = self.gdb.get_all_nodes(include_properties=True)
         for node_id, node_properties in eltos:
@@ -138,6 +137,9 @@ class NodesManager(BaseManager):
         else:
             eltos = self.gdb.get_all_nodes(include_properties=False)
             self.gdb.delete_nodes([node_id for node_id, props in eltos])
+
+    def count(self, label=None):
+        return self.gdb.get_nodes_count(label=label)
 
     def _get(self, node_id):
         return Node(node_id, self.graph)
@@ -221,6 +223,9 @@ class RelationshipsManager(BaseManager):
         else:
             eltos = self.gdb.get_all_relationships(include_properties=False)
             self.gdb.delete_relationships(eltos)
+
+    def count(self, label=None):
+        return self.gdb.get_relationships_count(label=label)
 
     def _get(self, node_id):
         return Relationship(node_id, self.graph)
@@ -325,6 +330,9 @@ class NodeRelationshipsManager(BaseManager):
                                         properties=relationship_properties)
             relationships.append(relationship)
         return relationships
+
+    def count(self, label=None):
+        return self.gdb.get_nodes_relationships_count(label=label)
 
     def _get(self):
         return Relationship(self.node_id, self.graph)
