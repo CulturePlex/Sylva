@@ -238,6 +238,18 @@ a.text {
     -webkit-border-radius: none;
 }
 
+#main header.global select#nodeTypeNavigation {
+    display: inline;
+/*    height: 20px;*/
+    padding: 0px;
+    margin: 0px;
+    top: 7px;
+    position: relative;
+    float: right;
+    max-width: 300px;
+    width: auto;
+}
+
 #main header.global nav.main ul li
 a {
     border-radius: 4px;
@@ -988,13 +1000,22 @@ a {
     -webkit-box-shadow: 0 1px 1px rgba(0, 0, 0, 0.9);
     -moz-box-shadow: 0 1px 1px rgba(0, 0, 0, 0.9);
     display: block;
-    margin-top: 1px;
+    margin-top: 4px;
     font-size: 12px;
     font-weight: 700;
     color: #262626;
     text-decoration: none;
     padding: 5px 5px 5px 5px;
     background-color: white;
+}
+
+nav.menu ul li .inline {
+    display: inline-block;
+}
+
+nav.menu ul li a.link {
+    padding-left:3px;
+    padding-right:3px;
 }
 
 nav.menu ul li

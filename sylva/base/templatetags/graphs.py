@@ -10,4 +10,6 @@ def graph_info(context, graph):
 
 @register.inclusion_tag('toolbar.html', takes_context=True)
 def toolbar(context, on):
-    return {'on': on, 'graph': context["graph"]}
+    return {'on': on,
+            'graph': context["graph"],
+            'node_type': context.get("node_type", None)}

@@ -23,11 +23,8 @@
     <!--[if lt IE 7]>
     <link rel="stylesheet" type="text/css" href="{{ STATIC_PREFIX }}css/iefixes.css" />
     <![endif]-->
-    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
-<!--    <script type="text/javascript" src="{{ STATIC_PREFIX }}js/jquery.simplemodal.1.4.1.min.js"></script>-->
     {% block extra_metas %}{% endblock %}
     {% block extra_links %}{% endblock %}
-    {% block extra_scripts %}{% endblock %}
 </head>
 
 <body {% block body_attrs %}{% endblock %}>
@@ -99,6 +96,10 @@
 
 {% endblock %}
 </body>
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+<script type="text/javascript" src="{{ STATIC_PREFIX }}js/dashboard.toolbar.js"></script>
+<!--    <script type="text/javascript" src="{{ STATIC_PREFIX }}js/jquery.simplemodal.1.4.1.min.js"></script>-->
+{% block extra_scripts %}{% endblock %}
 <!--
 <script src="http://www.google-analytics.com/urchin.js" type="text/javascript"></script>
 <script type="text/javascript">

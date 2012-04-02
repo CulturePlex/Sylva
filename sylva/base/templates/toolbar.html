@@ -2,9 +2,22 @@
 <li><a href="{% url graph_view graph.slug %}" class="{% if on == "graph" %}text{% else %}link{% endif %}">
     <span>{% trans "Graph" %}</span>
 </a></li>
-<li><a href="{% url nodes_list graph.slug %}" class="{% if on == "nodes" %}text{% else %}link{% endif %}">
-    <span>{% trans "Nodes" %}</span>
-</a></li>
+<li>
+<!--    href="{% url nodes_list graph.slug %}"-->
+    <a href="{% url nodes_list graph.slug %}" class="inline {% if on == "nodes" %}text{% else %}link{% endif %}">
+        <span>{% trans "Nodes" %}</span>
+    </a>
+    <span class="inline">
+<!--        <label for="nodeTypeNavigation">{% trans "Nodes" %}: </label>-->
+        <select id="nodeTypeNavigation">
+        <option value="{% url nodes_list graph.slug %}">{% trans "All" %}</option>
+        {% for type in graph.schema.nodetype_set.all %}
+            <option value="{% url nodes_list_full graph.slug type.id %}"
+                    {% if type == node_type %}selected="selected"{% endif %}>{{ type.name }}</option>
+        {% endfor %}
+        </select>
+    </span>
+</li>
 <!--<li><a href="{% url relationships_list graph.slug %}" class="{% if on == "relationships" %}text{% else %}link{% endif %}">-->
 <!--    <span>{% trans "Relationships" %}</span>-->
 <!--</a></li>-->
