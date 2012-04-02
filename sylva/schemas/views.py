@@ -4,7 +4,7 @@ import simplejson
 from django.db import transaction
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
-from django.forms import ValidationError, Form, FileField
+from django.forms import ValidationError
 from django.http import HttpResponse
 from django.template import RequestContext
 from django.shortcuts import get_object_or_404, render_to_response, redirect
@@ -16,7 +16,8 @@ from graphs.models import Graph, Schema
 from schemas.forms import (NodeTypeForm, NodePropertyFormSet,
                            RelationshipTypeForm, RelationshipTypeFormSet,
                            TypeDeleteForm, TypeDeleteConfirmForm,
-                           ON_DELETE_NOTHING, ON_DELETE_CASCADE)
+                           ON_DELETE_NOTHING, ON_DELETE_CASCADE,
+                           SchemaImportForm)
 from schemas.models import NodeType, RelationshipType
 
 
@@ -244,20 +245,17 @@ def schema_export(request, graph_slug):
 @permission_required("schemas.change_schema",
                      (Schema, "graph__slug", "graph_slug"))
 def schema_import(request, graph_slug):
-
-    class ImportSchemaForm(Form):
-        file = FileField()
-
+    form = SchemaImportForm()
     graph = get_object_or_404(Graph, slug=graph_slug)
     if request.POST:
-        form = ImportSchemaForm(request.POST, request.FILES)
+        form = SchemaImportForm(request.POST, request.FILES)
         # TODO Handle possible exceptions
         data = request.FILES['file'].read()
         schema_dict = simplejson.loads(data)
         graph.schema._import(schema_dict)
         return redirect(schema_edit, graph_slug)
     return render_to_response('schemas_import.html',
-                            {"graph": graph,
-                                "form": ImportSchemaForm},
-                            context_instance=RequestContext(request))
+                              {"graph": graph,
+                               "form":  form},
+                              context_instance=RequestContext(request))
 

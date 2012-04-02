@@ -87,3 +87,7 @@ class RelationshipTypeForm(forms.ModelForm):
 RelationshipTypeFormSet = inlineformset_factory(RelationshipType,
                                                 RelationshipProperty,
                                                 extra=1, can_delete=True)
+
+
+class SchemaImportForm(forms.Form):
+    file = forms.FileField(help_text=_("Chose a JSON file previously exported"))

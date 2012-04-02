@@ -1,9 +1,23 @@
 {% extends "schemas_edit.html" %}
-{% load i18n %}
+{% load i18n graphs %}
+
+{% block navigation_buttons %}
+{{ block.super }}
+{% endblock %}
+
+{% block title %}
+{{ graph.name }}
+{% endblock %}
+
+{% block menu_buttons %}
+{% toolbar on="schema" %}
+{% endblock %}
+
+{% block content_title %}
+<h2>{% trans "Graphs" %} » {{ graph.name|truncatewords_html:5 }} » {% trans "Schema" %} » {% trans "Import" %}</h2>
+{% endblock %}
 
 {% block content %}
-<h2>{% trans "Schema Import Tool" %}</h2>
-
 <form method="POST"  enctype="multipart/form-data" action="{% url schema_import graph.slug %}">
     {% csrf_token %}
     {{ form.as_p }}

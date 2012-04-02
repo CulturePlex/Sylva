@@ -38,11 +38,7 @@
 {% endblock %}
 
 {% block menu_buttons %}
-<li><a href="{% url graph_view graph.slug %}" class="link"><span>{% trans "Graph" %}</span></a></li>
-<li><a href="{% url nodes_list graph.slug %}" class="link"><span>{% trans "Nodes" %}</span></a></li>
-<li><a href="{% url relationships_list graph.slug %}" class="link"><span>{% trans "Relationships" %}</span></a></li>
-<li><a href="{% url schema_edit graph.slug %}" class="link"><span>{% trans "Schema" %}</span></a></li>
-<li><a href="{% url graph_collaborators graph.slug %}" class="link"><span>{% trans "Collaborators" %}</span></a></li>
+{% toolbar on="graph" %}
 {% endblock %}
 
 {% block content_title %}
