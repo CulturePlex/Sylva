@@ -70,8 +70,10 @@ class Schema(models.Model):
                         setattr(np, key, value)
                     np.save()
             for edge_type in data['allowedEdges']:
-                source = NodeType.objects.get(schema=self, name=edge_type['source'])
-                target = NodeType.objects.get(schema=self, name=edge_type['target'])
+                source = NodeType.objects.get(schema=self,
+                                              name=edge_type['source'].strip())
+                target = NodeType.objects.get(schema=self,
+                                              name=edge_type['target'].strip())
                 rt = RelationshipType(source=source, target=target,
                                 schema=self, name=edge_type['label'])
                 rt.save()
