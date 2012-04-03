@@ -13,7 +13,8 @@
     <script src="{{ STATIC_PREFIX }}tools/js/graph-editor.js"></script>
     <script src="{{ STATIC_PREFIX }}tools/js/sylva-importer.js"></script>
     <script type="text/javascript">
-        var sylvaSchema = JSON.parse('{{ sylva_schema|safe }}');
+        // var sylvaSchema = JSON.parse('{{ sylva_schema|safe }}');
+        var sylvaSchema = {{ sylva_schema|safe }};
         Importer.addNodeURL = "{% url ajax_node_create graph.slug %}";
         Importer.addRelationshipURL = "{% url ajax_relationship_create graph.slug %}";
         jQuery(document).ready(function(){
@@ -42,7 +43,7 @@
 {% endblock %}
 
 {% block content_title %}
-<h2>{% trans "Graphs" %} » {{ graph.name|truncatewords_html:8 }} » {% trans "Import tool" %}</h2>
+<h2>{% trans "Graphs" %} » {{ graph.name|truncatewords_html:8 }} » {% trans "Import" %}</h2>
 {% endblock %}
 
 {% block content %}
