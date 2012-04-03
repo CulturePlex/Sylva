@@ -297,6 +297,7 @@ class Relation{
   void drawMe(){
     int reverse = 1;
     int thickness = 15;
+    int textOffset = 7;
     float xDiff, yDiff, xThickness, yThickness;
     posx = (source.getX()+target.getX())/2;
     if (source.getX() > target.getX()) { reverse = -1; }
@@ -315,7 +316,7 @@ class Relation{
         posx + RELATION_MARKER_SIZE, posy,
         posx, posy - RELATION_MARKER_SIZE);
     if (_showLabels){
-      text(type, posx, posy);
+      text(type, posx, posy- textOffset);
     }
   }
 
