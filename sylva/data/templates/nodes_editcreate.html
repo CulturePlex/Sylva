@@ -3,13 +3,6 @@
 {% load string_filters %}
 
 {% block extra_links %}
-    {{ node_form.media }}
-    {% for prefix, outgoing_formset in outgoing_formsets.items %}
-        {{ outgoing_formset.media }}
-    {% endfor %}
-    {% for prefix, incoming_formset in incoming_formsets.items %}
-        {{ incoming_formset.media }}
-    {% endfor %}
     <link href="{{ STATIC_PREFIX }}css/token.input.css" type="text/css" rel="stylesheet" />
 {% endblock %}
 
@@ -178,6 +171,13 @@
 </div>
 {% endblock %}
 {% block extra_scripts %}
+    {{ node_form.media }}
+    {% for prefix, outgoing_formset in outgoing_formsets.items %}
+        {{ outgoing_formset.media }}
+    {% endfor %}
+    {% for prefix, incoming_formset in incoming_formsets.items %}
+        {{ incoming_formset.media }}
+    {% endfor %}
 <script type="text/javascript" src="{{ STATIC_PREFIX }}js/jquery.formsets.1.2.min.js"></script>
 <script type="text/javascript" src="{{ STATIC_PREFIX }}js/jquery.tokeninput.js"></script>
 <script type="text/javascript">
