@@ -303,7 +303,6 @@ class Relation{
     posy = (source.getY()+target.getY())/2 + reverse*MULTI_PADDING*(multiLevel+1);
     stroke(#999999);
     fill(#999999);
-    stroke(0);
     beginShape(LINES);
     vertex(source.getX(), source.getY());
     vertex(posx, posy);
