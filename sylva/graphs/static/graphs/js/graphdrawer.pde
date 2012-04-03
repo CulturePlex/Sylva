@@ -65,7 +65,7 @@ class Node{
       }
       radius = _nodeRadius;
       stroke(#999999);
-      fill(COLORS[nodeType]);
+      fill(COLORS[43+(nodeType % 28)]);
       if (selected){
         ellipse(posx, posy, radius*2*selectedExpansion, radius*2*selectedExpansion);
       } else {
@@ -296,7 +296,7 @@ class Relation{
     posx = (source.getX()+target.getX())/2;
     posy = (source.getY()+target.getY())/2;
     posy = (source.getY()+target.getY())/2 + MULTI_PADDING*multiLevel;
-    stroke(0);
+    stroke(#999999);
     line(source.getX(), source.getY(), target.getX(), target.getY());
     quad(posx-RELATION_MARKER_SIZE, posy,
         posx, posy + RELATION_MARKER_SIZE,
