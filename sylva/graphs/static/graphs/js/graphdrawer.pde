@@ -14,7 +14,7 @@ float MAX_SCALING = 4.5;
 float MIN_PANNING = -10000;
 float MAX_PANNING = 10000;
 
-int MULTI_PADDING = 10;
+int MULTI_PADDING = 15;
 
 // Pause button position
 int PAUSE_X_PADDING = 30;
@@ -297,7 +297,7 @@ class Relation{
   void drawMe(){
     int reverse = 1;
     int thickness = 15;
-    int textOffset = 7;
+    int textOffset = 3;
     float xDiff, yDiff, xThickness, yThickness;
     posx = (source.getX()+target.getX())/2;
     if (source.getX() > target.getX()) { reverse = -1; }
