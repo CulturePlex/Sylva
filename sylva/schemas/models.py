@@ -147,6 +147,12 @@ class NodeType(BaseType):
     def get_reflexive_relationships(self):
         return RelationshipType.objects.filter(source=self, target=self)
 
+    def count(self):
+        if self.id:
+            return self.schema.graph.nodes.count(label=self.id)
+        else:
+            return 0
+
     def all(self):
         if self.id:
             return self.schema.graph.nodes.filter(label=self.id)

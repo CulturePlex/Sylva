@@ -99,7 +99,6 @@ def nodes_list_full(request, graph_slug, node_type_id):
         properties,
         data])
     nodes = graph.nodes.filter(label=node_type_id)
-    print type_element.id
     return render_to_response('nodes_list.html', {
                                 "graph": graph,
                                 "option_list": data_preview,
