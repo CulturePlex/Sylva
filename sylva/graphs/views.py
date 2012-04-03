@@ -30,14 +30,17 @@ def graph_view(request, graph_slug):
         """
         nodes = {}
         edges = []
+        added_edges = []
         for n in graph.nodes.iterator():
             if n.display not in nodes:
                 nodes[n.display] = n.to_json()
                 for r in n.relationships.all():
-                    labels = RelationshipType.objects.filter(id=r.label)
-                    if labels:
+                    #labels = RelationshipType.objects.filter(id=r.label)
+                    #if labels:
+                    if r.id not in added_edges:
                         nodes[r.target.display] = r.target.to_json()
                         edges.append(r.to_json())
+                        added_edges.append(r.id)
                         if len(nodes) >= n_elements: break
             if len(nodes) >= n_elements: break
         return (nodes, edges)
