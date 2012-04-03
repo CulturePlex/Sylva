@@ -123,8 +123,10 @@ class NodeType(BaseType):
                                                 "inherited from"))
 
     def save(self, *args, **kwargs):
-        if self.name:
-            self.name = self.name.strip()
+        for field in ("name", "plural_name", "description"):
+            value = getattr(self, field, None)
+            if value:
+                setattr(self, field, value.strip())
         super(NodeType, self).save(*args, **kwargs)
 
     def __unicode__(self):
@@ -194,10 +196,11 @@ class RelationshipType(BaseType):
         ordering = ("order", "inverse", "name")
 
     def save(self, *args, **kwargs):
-        if self.name:
-            self.name = self.name.strip()
-        if self.inverse:
-            self.inverse = self.inverse.strip()
+        for field in ("name", "plural_name", "inverse", "plural_inverse",
+                      "description"):
+            value = getattr(self, field, None)
+            if value:
+                setattr(self, field, value.strip())
         if not self.arity_source or self.arity_source < 1:
             self.arity_source = 0
         if not self.arity_target or self.arity_target < 1:
