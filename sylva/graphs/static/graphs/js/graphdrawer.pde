@@ -293,16 +293,26 @@ class Relation{
   }
 
   void drawMe(){
+    int reverse = 1;
+    int thickness = 15;
+    float xDiff, yDiff, xThickness, yThickness;
     posx = (source.getX()+target.getX())/2;
-    posy = (source.getY()+target.getY())/2;
-    posy = (source.getY()+target.getY())/2 + MULTI_PADDING*multiLevel;
+    if (source.getX() > target.getX()) { reverse = -1; }
+    posy = (source.getY()+target.getY())/2 + reverse*MULTI_PADDING*(multiLevel+1);
     stroke(#999999);
-    line(source.getX(), source.getY(), target.getX(), target.getY());
+    fill(#999999);
+    stroke(0);
+    beginShape(LINES);
+    vertex(source.getX(), source.getY());
+    vertex(posx, posy);
+    vertex(posx, posy);
+    vertex(target.getX(), target.getY());
+    endShape();
+    fill(0);
     quad(posx-RELATION_MARKER_SIZE, posy,
         posx, posy + RELATION_MARKER_SIZE,
         posx + RELATION_MARKER_SIZE, posy,
         posx, posy - RELATION_MARKER_SIZE);
-    //ellipse(posx, posy, RELATION_MARKER_SIZE, RELATION_MARKER_SIZE);
     if (_showLabels){
       text(type, posx, posy);
     }
