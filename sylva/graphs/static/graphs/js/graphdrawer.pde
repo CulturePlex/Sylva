@@ -56,11 +56,13 @@ class Node{
     yspeed = 0;
   }
 
-  void drawMe(){
+  void drawMe(boolean drawRelations){
     if (visible){
-      for(int i=0;i<relations.size();i++){
-        if (relations.get(i).getNode().isVisible()){
-          relations.get(i).drawMe();
+      if (drawRelations){
+        for(int i=0;i<relations.size();i++){
+          if (relations.get(i).getNode().isVisible()){
+            relations.get(i).drawMe();
+          }
         }
       }
       radius = _nodeRadius;
@@ -424,8 +426,12 @@ void draw(){
   _nodeRadius = max(height/(objectScale*_nodeList.size()), 5);
 
   for(int i=0;i<_nodeList.size();i++){
-    _nodeList.get(i).drawMe();
+    _nodeList.get(i).drawMe(true);
   }
+  for(int i=0;i<_nodeList.size();i++){
+    _nodeList.get(i).drawMe(false);
+  }
+
 
 }
 
