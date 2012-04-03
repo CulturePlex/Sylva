@@ -16,6 +16,11 @@ float MAX_PANNING = 10000;
 
 int MULTI_PADDING = 10;
 
+// Pause button position
+int PAUSE_X_PADDING = 30;
+int PAUSE_Y_PADDING = 10;
+
+
 // Taken from http://www.hitmill.com/html/pastels2.html
 color[] COLORS = {#F70000, #B9264F, #990099, #74138C, #0000CE, #1F88A7, #4A9586, #FF2626,
 #D73E68, #B300B3, #8D18AB, #5B5BFF, #25A0C5, #5EAE9E, #FF5353,
@@ -333,6 +338,9 @@ class Relation{
 float _nodeRadius;
 boolean _nodeSelected;
 
+// Stops the layout algorithm
+boolean _paused;
+
 float _canvasScale = 1.0;
 float _canvasXPan = 0.0;
 float _canvasYPan = 0.0;
@@ -360,6 +368,15 @@ void draw_background(gridSpacing) {
   }
 }
 
+void drawControls(){
+  int posx = width-PAUSE_X_PADDING;
+  int posy = height-PAUSE_Y_PADDING;
+  fill(135, 171, 216);
+  rect(posx, posy, width, height);
+  fill(0);
+  text("Pause", posx + PAUSE_X_PADDING/2, posy + PAUSE_Y_PADDING/1.1);
+}
+
 void setup() {
   float drawableWidth, drawableHeight;
   Node newNode;
@@ -379,6 +396,7 @@ void setup() {
 
 void draw(){
   draw_background(GRID_SPACING);
+  drawControls();
 
   if (keyPressed || mouseScroll){
     if (mouseScroll == 1) {mouseScroll=0;incScale();}
@@ -386,7 +404,9 @@ void draw(){
   }
 
   // Layout algorithm
-  spring();
+  if (!_paused){
+    spring();
+  }
 
   translate(_canvasXPan, _canvasYPan);
   scale(_canvasScale, _canvasScale);
@@ -400,6 +420,7 @@ void draw(){
 }
 
 void mousePressed(){
+  checkControls(mouseX, mouseY);
   for(int i=0;i<_nodeList.size();i++){
     if (_nodeList.get(i).touchingMe(mouseX, mouseY)){
       unselectAll();
@@ -630,7 +651,17 @@ void toggleLabels(){
   _showLabels = !_showLabels;
 }
 
+void togglePause(){
+  _paused = !_paused;
+}
 
+void checkControls(float mousex, float mousey){
+  int posx = width-PAUSE_X_PADDING;
+  int posy = height-PAUSE_Y_PADDING;
+  if (mousex > posx && mousey > posy){
+    togglePause();
+  }
+}
 
 
 void test(){
