@@ -67,12 +67,12 @@
 {% block content_bottom_bar %}
     {% if option.3 or node_type %}
         {% if node_type %}
-        <a class="button addButton" href="{% url nodes_create graph.slug node_type.id %}">
+        <a class="button" href="{% url nodes_create graph.slug node_type.id %}">
         {% else %}
-        <a class="button addButton" href="{% url nodes_create graph.slug option.3 %}">
+        <a class="button" href="{% url nodes_create graph.slug option.3 %}">
         {% endif %}
             {% blocktrans with node_type=option.0 %}
-                Add {{ node_type }}
+                New {{ node_type }}
             {% endblocktrans %}</a>
         <span class="buttonLinkOption">
         {% if not node_type %}

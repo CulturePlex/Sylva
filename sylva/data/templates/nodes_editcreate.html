@@ -2,10 +2,7 @@
 {% load i18n graphs %}
 {% load string_filters %}
 
-{% block extra_scripts %}
-    <script type="text/javascript" src="{{ STATIC_PREFIX }}js/jquery.formsets.1.2.min.js"></script>
-    <script type="text/javascript" src="{{ STATIC_PREFIX }}js/jquery.tokeninput.js"></script>
-    <link href="{{ STATIC_PREFIX }}css/token.input.css" type="text/css" media="all" rel="stylesheet" />
+{% block extra_links %}
     {{ node_form.media }}
     {% for prefix, outgoing_formset in outgoing_formsets.items %}
         {{ outgoing_formset.media }}
@@ -13,9 +10,7 @@
     {% for prefix, incoming_formset in incoming_formsets.items %}
         {{ incoming_formset.media }}
     {% endfor %}
-{% endblock %}
-{% block extra_links %}
-    <link rel="stylesheet" type="text/css" href="/static/css/chosen.css" />
+    <link href="{{ STATIC_PREFIX }}css/token.input.css" type="text/css" rel="stylesheet" />
 {% endblock %}
 
 {% block navigation_buttons %}
@@ -181,8 +176,10 @@
     </div>
 </form>
 </div>
-
-
+{% endblock %}
+{% block extra_scripts %}
+<script type="text/javascript" src="{{ STATIC_PREFIX }}js/jquery.formsets.1.2.min.js"></script>
+<script type="text/javascript" src="{{ STATIC_PREFIX }}js/jquery.tokeninput.js"></script>
 <script type="text/javascript">
     (function($) {
         // Outgoing
@@ -190,7 +187,7 @@
         init_{{ prefix }} = function() {
             $("div#{{ prefix }}").formset({
                 prefix: "{{ prefix }}",
-                addCssClass: "button addButton inFormsets",
+                addCssClass: "addButton inFormsets",
                 addText: "{% trans "Add" %} {{ outgoing_formset.itemtype.name }} ({{ outgoing_formset.itemtype.target.name }})",
                 extraClasses: ["row1", "row2"],
                 added: function(row) {$("#{{prefix}} p:last label").hide(); nodeAutocomplete(row.find("input.autocomplete"));},
@@ -208,7 +205,7 @@
             var label = "{% if incoming_formset.itemtype.inverse %}{{ incoming_formset.itemtype.inverse }}{% else %}{{ incoming_formset.itemtype.name }}{% endif %}";
             $("div#{{ prefix }}").formset({
                 prefix: "{{ prefix }}",
-                addCssClass: "button addButton inFormsets",
+                addCssClass: "addButton inFormsets",
                 addText: "{% trans "Add" %} "+ label,  // +" ({{ incoming_formset.itemtype.source.name }})",
                 extraClasses: ["row1", "row2"],
                 added: function(row) {$("#{{prefix}} p:last label").hide(); nodeAutocomplete(row.find("input.autocomplete"));},
@@ -224,7 +221,7 @@
         init{{ mediafile_formset.prefix }} = function() {
             $("div#{{ mediafile_formset.prefix }}").formset({
                 prefix: "{{ mediafile_formset.prefix }}",
-                addCssClass: "button addButton inFormsets",
+                addCssClass: "addButton inFormsets",
                 addText: "{% trans "Add File" %}",
                 extraClasses: ["row1", "row2"],
                 added: function(row) {$("#{{ mediafile_formset.prefix }} p:last label").hide();},
@@ -238,7 +235,7 @@
         init{{ medialink_formset.prefix }} = function() {
             $("div#{{ medialink_formset.prefix }}").formset({
                 prefix: "{{ medialink_formset.prefix }}",
-                addCssClass: "button addButton inFormsets",
+                addCssClass: "addButton inFormsets",
                 addText: "{% trans "Add Link" %}",
                 extraClasses: ["row1", "row2"],
                 added: function(row) {$("#{{ medialink_formset.prefix }} p:last label").hide();},

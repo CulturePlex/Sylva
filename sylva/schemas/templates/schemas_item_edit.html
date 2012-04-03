@@ -1,10 +1,6 @@
 {% extends "base.html" %}
 {% load i18n graphs %}
 
-{% block extra_scripts %}
-    <script type="text/javascript" src="{{ STATIC_PREFIX }}js/jquery.formsets.1.2.min.js"></script>
-{% endblock %}
-
 {% block navigation_buttons %}
 {{ block.super }}
 {% endblock %}
@@ -149,7 +145,10 @@
 <!--    </div>-->
 </form>
 </div>
+{% endblock %}
 
+{% block extra_scripts %}
+<script type="text/javascript" src="{{ STATIC_PREFIX }}js/jquery.formsets.1.2.min.js"></script>
 <script type="text/javascript">
     (function($) {
         rowAdded = function(row) {
@@ -166,7 +165,7 @@
         init = function() {
             $("#itemType tbody tr.formset").formset({
                 prefix: "properties",
-                addCssClass: "button addButton",
+                addCssClass: "addButton",
                 addText: "{% trans "Add Property" %}",
                 deleteText: "{% trans "Remove" %}",
                 extraClasses: ["row1", "row2"],

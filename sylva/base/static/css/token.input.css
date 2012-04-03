@@ -56,10 +56,17 @@ li.token-input-input-token input {
     box-shadow: none;
 }
 
-li.token-input-token p {
-    float: left;
-    padding: 0;
+ul.token-input-list li.token-input-token p {
     margin: 0;
+    position: relative;
+    float: left;
+    padding: 3px;
+    width: initial;
+    height: 9px;
+    font-size: 1.15em;
+    font-weight: normal;
+    font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+    vertical-align: middle;
 }
 
 li.token-input-token span {
@@ -68,9 +75,24 @@ li.token-input-token span {
     cursor: pointer;
 }
 
+li.token-input-token span.token-input-delete-token {
+    position: relative;
+    float: right;
+    top: 3px;
+    right: 3px;
+}
+
+
 li.token-input-selected-token {
-    background-color: #08844e;
     color: #fff;
+    font-size: 105%;
+    font-weight: 700;
+    color: #348E82;
+    text-decoration: none;
+    width: auto;
+    margin: auto;
+    background-color: #D6E7DF;
+    cursor: pointer;
 }
 
 li.token-input-selected-token span {

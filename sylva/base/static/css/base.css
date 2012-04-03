@@ -537,6 +537,17 @@ p.forgot-password {
     vertical-align: middle;
 }
 
+.addButton {
+    font-size: 105%;
+    font-weight: 700;
+    text-decoration: none;
+    width: auto;
+    display: inline-block;
+    cursor: pointer;
+    background: transparent url(../img/add-item_16.png) no-repeat left center;
+    padding-left: 18px;
+}
+
 input[type="checkbox"],input[type="radio"] {
     display: initial;
     width: auto;
