@@ -98,13 +98,17 @@ class GraphDatabase(BlueprintsGraphDatabase):
             match = lookup["match"].replace(u"/", u"\\/")
             prop = lookup["property"].replace(u"`", u"\\`")
             if lookup["lookup"] == "contains":
-                where = u"n.`%s` =~ /(?i).*%s.*/" % (prop, match)
+                where = u"(n.`%s` AND n.`%s` =~ /(?i).*%s.*/)" % (prop, prop,
+                                                                  match)
             elif lookup["lookup"] == "starts":
-                where = u"n.`%s` =~ /(?i).*%s.*/" % (prop, match)
+                where = u"(n.`%s` AND n.`%s` =~ /(?i)%s.*/)" % (prop, prop,
+                                                                  match)
             elif lookup["lookup"] == "ends":
-                where = u"n.`%s` =~ /(?i).*%s.*/" % (prop, match)
+                where = u"(n.`%s` AND n.`%s` =~ /(?i).*%s/)" % (prop, prop,
+                                                                  match)
             elif lookup["lookup"] == "exact":
-                where = u"n.`%s` =~ /(?i).*%s.*/" % (prop, match)
+                where = u"(n.`%s` AND n.`%s` =~ /(?i)%s/)" % (prop, prop,
+                                                                  match)
             if where:
                 wheres.append(where)
         script = u" %s %s return n" % (script, " OR ".join(wheres))
