@@ -13,7 +13,7 @@
         <option value="{% url nodes_list graph.slug %}">{% trans "All" %}</option>
         {% for type in graph.schema.nodetype_set.all %}
             <option value="{% url nodes_list_full graph.slug type.id %}"
-                    {% if type == node_type %}selected="selected"{% endif %}>{{ type.name }}</option>
+                    {% if type == node_type %}selected="selected"{% endif %}>{{ type.name }} # {{ type.count }}</option>
         {% endfor %}
         </select>
     </span>

@@ -70,11 +70,11 @@ class BlueprintsGraphDatabase(BaseGraphDatabase):
 
     def __set_element_property(self, element, key, value, element_type=None):
         self.__validate_property(key)
-        if value:
-            if element_type == VERTEX:
-                self.node_index.put(key, value, element)
-            elif element_type == EDGE:
-                self.relationship_index.put(key, value, element)
+        # if value:
+        #     if element_type == VERTEX:
+        #         self.node_index.put(key, value, element)
+        #     elif element_type == EDGE:
+        #         self.relationship_index.put(key, value, element)
         element.setProperty(key, value)
 
     def __delete_element_property(self, element, key, element_type=None):
@@ -104,11 +104,11 @@ class BlueprintsGraphDatabase(BaseGraphDatabase):
                     self.relationship_index.remove(key, value, element)
         for key, value in properties.iteritems():
             element.setProperty(key, value)
-            if value:
-                if element_type == VERTEX:
-                    self.node_index.put(key, value, element)
-                elif element_type == EDGE:
-                    self.relationship_index.put(key, value, element)
+            # if value:
+            #     if element_type == VERTEX:
+            #         self.node_index.put(key, value, element)
+            #     elif element_type == EDGE:
+            #         self.relationship_index.put(key, value, element)
 
     def __update_element_properties(self, element, properties,
                                     element_type=None):
@@ -116,11 +116,11 @@ class BlueprintsGraphDatabase(BaseGraphDatabase):
             self.__validate_property(key)
         for key, value in properties.iteritems():
             element.setProperty(key, value)
-            if value:
-                if element_type == VERTEX:
-                    self.node_index.put(key, value, element)
-                elif element_type == EDGE:
-                    self.relationship_index.put(key, value, element)
+            # if value:
+            #     if element_type == VERTEX:
+            #         self.node_index.put(key, value, element)
+            #     elif element_type == EDGE:
+            #         self.relationship_index.put(key, value, element)
 
     def __delete_element_properties(self, element, element_type=None):
         for key in self.__get_public_keys(element):
@@ -141,11 +141,11 @@ class BlueprintsGraphDatabase(BaseGraphDatabase):
             #Properties starting with _ are not allowed
             for key in properties.keys():
                 self.__validate_property(key)
-            for key, value in properties.iteritems():
-                vertex.setProperty(key, value)
-                # We don't index null values
-                if value:
-                    self.node_index.put(key, value, vertex)
+            # for key, value in properties.iteritems():
+            #     vertex.setProperty(key, value)
+            #     # We don't index null values
+            #     if value:
+            #         self.node_index.put(key, value, vertex)
         #_id and _label is a mandatory internal properties
         if not "_id" in vertex.getPropertyKeys():
             vertex.setProperty("_id", vertex.getId())
@@ -275,11 +275,11 @@ class BlueprintsGraphDatabase(BaseGraphDatabase):
             #Properties starting with _ are not allowed
             for key in properties.keys():
                 self.__validate_property(key)
-            for key, value in properties.iteritems():
-                edge.setProperty(key, value)
-                # We don't index null values
-                if value:
-                    self.relationship_index.put(key, value, edge)
+            # for key, value in properties.iteritems():
+            #     edge.setProperty(key, value)
+            #     # We don't index null values
+            #     if value:
+            #         self.relationship_index.put(key, value, edge)
         #_id and _label is a mandatory internal property
         if not "_id" in edge.getPropertyKeys():
             edge.setProperty("_id", edge.getId())

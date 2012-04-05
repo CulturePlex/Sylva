@@ -83,12 +83,50 @@ class GraphDatabase(BlueprintsGraphDatabase):
         return self._clean_count(count)
 
     def get_filtered_nodes(self, lookups, label=None, include_properties=None):
-        """
-        Get an iterator for filtered nodes using the parameters expressed in
-        the dictionary lookups.
-        The most usual lookups from Django should be implemented.
-        More info: https://docs.djangoproject.com/en/dev/ref/models/querysets/#field-lookups
-        """
+        # Using Cypher
+        index = self.node_index.neoindex
+        cypher = self.gdb.neograph.extensions.CypherPlugin.execute_query
+        if label:
+            script = """start n=node:`%s`(label="%s") where""" \
+                     % (index.name, label)
+        else:
+            script = """start n=node:`%s`("label:*") where""" \
+                     % index.name
+        wheres = []
+        for lookup in lookups:
+            where = None
+            match = lookup["match"].replace(u"/", u"\\/")
+            prop = lookup["property"].replace(u"`", u"\\`")
+            if lookup["lookup"] == "contains":
+                where = u"n.`%s` =~ /(?i).*%s.*/" % (prop, match)
+            elif lookup["lookup"] == "starts":
+                where = u"n.`%s` =~ /(?i).*%s.*/" % (prop, match)
+            elif lookup["lookup"] == "ends":
+                where = u"n.`%s` =~ /(?i).*%s.*/" % (prop, match)
+            elif lookup["lookup"] == "exact":
+                where = u"n.`%s` =~ /(?i).*%s.*/" % (prop, match)
+            if where:
+                wheres.append(where)
+        script = u" %s %s return n" % (script, " OR ".join(wheres))
+        result = None
+        try:
+            result = cypher(query=script)
+        except:
+            pass
+        if result and "data" in result and len(result["data"]) > 0:
+            if include_properties:
+                for element in result["data"]:
+                    properties = element[0]["data"]
+                    node_id = properties.pop("_id")
+                    properties.pop("_label")
+                    yield (node_id, properties)
+            else:
+                for element in result["data"]:
+                    node_id = element[0]["data"].pop("_id")
+                    yield (node_id, None)
+
+    def _get_filtered_nodes(self, lookups, label=None, include_properties=None):
+        # Working on indices
         idx = self.node_index.neoindex
         q = Q(r"graph", r"%s" % self.graph_id)
         if label:

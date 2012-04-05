@@ -149,5 +149,7 @@ div.token-input-dropdown ul li em {
 }
 
 div.token-input-dropdown ul li.token-input-selected-dropdown-item {
-    background-color: #d0efa0;
+    background-color: #D6E7DF;
+    font-weight: bold;
+    color: #348E82;
 }
