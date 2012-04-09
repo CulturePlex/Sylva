@@ -297,6 +297,61 @@ ul {
     padding: 11px 0 0 0;
 }
 
+
+
+
+ul#box-nav li
+a.text {
+    border: none;
+    background: none;
+    color: #348E82;
+    border-radius: none;
+    box-shadow: none;
+    -moz-border-radius: none;
+    -webkit-border-radius: none;
+}
+
+ul#box-nav li
+a {
+    border-radius: 4px;
+    -moz-border-radius: 4px;
+    -webkit-border-radius: 4px;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.9);
+    -webkit-box-shadow: 0 1px 1px rgba(0, 0, 0, 0.9);
+    -moz-box-shadow: 0 1px 1px rgba(0, 0, 0, 0.9);
+    display: block;
+    margin-top: 1px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #262626;
+    text-decoration: none;
+    padding: 5px 5px 5px 5px;
+    background-color: white;
+}
+
+ul#box-nav li a:hover {
+    box-shadow: 0 0 5px rgba(52,142,130,0.75);
+    -webkit-box-shadow: 0 0 5px rgba(52,142,130,0.75);
+    -moz-box-shadow: 0 0 5px rgba(52,142,130,0.75);
+}
+
+ul#box-nav {
+    padding: 11px 0 0 0;
+    top: -50px;
+    right: -15px;
+    position: relative;
+    float: right;
+}
+
+ul#box-nav
+li {
+    float: left;
+    list-style: none;
+    margin-left: 10px;
+}
+
+
+
 #main header.global nav ul
 li {
     float: left;
