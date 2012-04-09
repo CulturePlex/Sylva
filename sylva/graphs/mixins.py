@@ -447,6 +447,7 @@ class BaseElement(object):
                     if properties_values[i]:
                         try:
                             unicode_value = unicode(properties_values[i])
+
                             value_strip = unicode_value.strip()
                             if len(value_strip) > 0:
                                 properties_to_display.append(value_strip)
@@ -478,11 +479,14 @@ class Node(BaseElement):
                 nodetype.save()
             del self
 
+    def _label_display(self):
+        return NodeType.objects.get(id=self.label).name
+
     def to_json(self):
         node_dict = self.properties.copy()
         node_dict.update({
             'id': self.id,
-            'type': NodeType.objects.get(id=self.label).name
+            'type': self.label_display
         })
         return node_dict
             
@@ -557,6 +561,7 @@ class Node(BaseElement):
         self._properties = {}
 
     properties = property(_get_properties, _set_properties, _del_properties)
+    label_display = property(_label_display)
 
 
 class Relationship(BaseElement):
@@ -578,11 +583,14 @@ class Relationship(BaseElement):
                 reltype.save()
             del self
 
+    def _label_display(self):
+        return RelationshipType.objects.get(id=self.label).name
+
     def to_json(self):
         return {
             'id': self.id,
             'source': self.source.display,
-            'type': RelationshipType.objects.get(id=self.label).name,
+            'type': self.label_display,
             'target': self.target.display,
             'properties': self.properties.copy()
         }
@@ -648,3 +656,4 @@ class Relationship(BaseElement):
         self._properties = {}
 
     properties = property(_get_properties, _set_properties, _del_properties)
+    label_display = property(_label_display)
