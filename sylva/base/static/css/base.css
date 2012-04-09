@@ -1140,16 +1140,16 @@ div#datalist {
     margin: 10px;
 }
 
-table#content_table {
+table.content-table {
     width: 100%;
 }
 
-#content_table table, th {
+.content-table table, th {
 /*    border: 1px solid #348E82;*/
     padding: 5px 20px 5px 20px;
     background-color: #D6E7DF;
 }
-#content_table table, th select {
+.content-table table, th select {
     color: #555;
     display: inline;
     width: 20px;
@@ -1164,29 +1164,16 @@ table#content_table {
 /*    padding: 3px 0 0;*/
 }
 
-#content_table td {
+.content-table td {
 /*    border: 1px solid #348E82;*/
     padding: 5px;
     text-align: center;
 /*    padding-bottom: 3px;*/
 }
 
-#permissions_table {
-    text-align: center;
-    border-style: solid;
-    border-width: 2px;
-}
-
 #permissions_table th {
-    font-size: small;
-    padding: 1px;
-    vertical-align: center;
-}
-
-#permissions_table td {
-    border-width: 1px;
-    border-style: solid;
-    padding: 2px;
+    border-right: 1px solid white;
+    text-align: center;
 }
 
 #canvas-info {
