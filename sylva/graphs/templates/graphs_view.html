@@ -102,6 +102,7 @@ function updateInfo(evt, nodeName, nodeId) {
 
       }
     });
+    return false;
   }
 
   var hideNode = function() {
@@ -117,7 +118,7 @@ function updateInfo(evt, nodeName, nodeId) {
       }
     });
 
-    if (selectedNode === undefined) { return; }
+    if (selectedNode === undefined) { return false; }
   
     $.each(edges, function(i, edge) {
       if (edge.source === selectedNodeName || edge.target === selectedNodeName) {
@@ -129,7 +130,8 @@ function updateInfo(evt, nodeName, nodeId) {
         GraphEditor.deleteEdge(index);
     });
     GraphEditor.deleteNode(selectedNodeName);
-    delete nodes[selectedNodeName]; 
+    delete nodes[selectedNodeName];
+    return false;
   }
 
   var title = $('<h2>').text(nodeName);
@@ -141,10 +143,12 @@ function updateInfo(evt, nodeName, nodeId) {
     .text('Edit node');
 
   var expandNodeLink = $('<a>')
+    .attr('href', "#")
     .text('Expand node')
     .click(expandNode);
 
   var hideNodeLink = $('<a>')
+    .attr('href', "#")
     .text('Hide node')
     .click(hideNode);
 
