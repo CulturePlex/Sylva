@@ -1,6 +1,10 @@
 {% load i18n %}
     <div class="graph-item">
+        {% if show_edit %}
+        <span class="graph-title"><a title="{% trans "Edit properties" %}" href="{% url graph_edit graph.slug %}?remove=true">{{ graph.name|truncatewords_html:7 }}</a></span>
+        {% else %}
         <span class="graph-title"><a href="{% url graph_view graph.slug %}">{{ graph.name|truncatewords_html:7 }}</a></span>
+        {% endif %}
         {% if graph.description %}
         <q class="graph-description">{{ graph.description|truncatewords_html:40 }}</q>
         {% endif %}

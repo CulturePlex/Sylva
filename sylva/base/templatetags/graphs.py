@@ -5,8 +5,10 @@ from django.db.models import Count
 register = Library()
 
 @register.inclusion_tag('graphs_info.html', takes_context=True)
-def graph_info(context, graph):
-    return {'graph': graph, 'user': context["user"]}
+def graph_info(context, graph, show_edit=None):
+    return {'graph': graph,
+            'show_edit': bool(show_edit),
+            'user': context["user"]}
 
 @register.inclusion_tag('toolbar.html', takes_context=True)
 def toolbar(context, on):

@@ -23,7 +23,11 @@
 {% csrf_token %}
 {{ form.as_p }}
 <input type="submit" name="addGraph" value="{% trans "Save" %}" id="createGraph" />
-<span class="buttonLinkOption">{% trans "or" %} <a href="{% url graph_view graph.slug %}">{% trans "Cancel" %}</a>.</span>
+<span class="buttonLinkOption">
+    {% if remove %}
+    <a href="{% url graph_delete graph.slug %}">{% trans "Delete" %}</a>
+    {% endif %}
+    {% trans "or" %} <a href="{% url graph_view graph.slug %}">{% trans "Cancel" %}</a>.</span>
 </form>
 
 {% endblock %}

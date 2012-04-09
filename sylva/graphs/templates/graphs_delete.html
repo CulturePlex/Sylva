@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% load i18n graphs %}
+
+{% block title %}
+{{ graph.name }}
+{% endblock %}
+
+{% block menu_buttons %}
+{% toolbar on="graph" %}
+{% endblock %}
+
+
+{% block content_title %}
+<h2>{% trans "Graphs" %} » {{ graph.name|truncatewords_html:8 }}  » {% trans "Delete" %}</h2>
+{% endblock %}
+
+{% block navigation_buttons %}
+{{ block.super }}
+{% endblock %}
+
+{% block content %}
+<form method="post" action="." id="graphsDelete" name="graphs_delete">
+{% csrf_token %}
+{% url tool_export graph.slug as data_export %}
+{% url schema_export graph.slug as schema_export %}
+{{ form.as_p }}
+<div>
+{% blocktrans %}
+Before deleting your graph, remember you can also export the <a href="{{ data_export }}">data</a> and the <a href="{{ schema_export }}">schema</a>, just in case.
+{% endblocktrans %}
+</div>
+<br/>
+<input type="submit" value="{% trans "Delete" %}" />
+<span class="buttonLinkOption">
+    {% trans "or" %} <a href="{% url graph_view graph.slug %}">{% trans "Cancel" %}</a>.</span>
+</form>
+
+{% endblock %}

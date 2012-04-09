@@ -14,7 +14,7 @@ from guardian import shortcuts as guardian
 from guardian.decorators import permission_required
 
 from data.models import Data
-from graphs.forms import GraphForm, AddCollaboratorForm
+from graphs.forms import GraphForm, GraphDeleteConfirmForm, AddCollaboratorForm
 from graphs.models import Graph, PERMISSIONS
 from schemas.models import Schema, RelationshipType, NodeType
 
@@ -69,8 +69,35 @@ def graph_edit(request, graph_slug):
                 graph.save()
             redirect_url = reverse("graph_view", args=[graph.slug])
             return redirect(redirect_url)
+    remove = bool(request.GET.get("remove", False))
     return render_to_response('graphs_edit.html',
                               {"graph": graph,
+                               "remove": remove,
+                               "form": form},
+                              context_instance=RequestContext(request))
+
+
+@permission_required("graphs.change_graph", (Graph, "slug", "graph_slug"))
+def graph_delete(request, graph_slug):
+    graph = get_object_or_404(Graph, slug=graph_slug)
+    form = GraphDeleteConfirmForm()
+    if request.POST:
+        data = request.POST.copy()
+        form = GraphDeleteConfirmForm(data=data)
+        if form.is_valid():
+            confirm = bool(int(form.cleaned_data["confirm"]))
+            if confirm:
+                graph.relationships.delete()
+                graph.nodes.delete()
+                graph.delete()
+                redirect_url = reverse("dashboard")
+            else:
+                redirect_url = reverse("graph_view", args=[graph.slug])
+            return redirect(redirect_url)
+    remove = bool(request.GET.get("remove", False))
+    return render_to_response('graphs_delete.html',
+                              {"graph": graph,
+                               "remove": remove,
                                "form": form},
                               context_instance=RequestContext(request))
 

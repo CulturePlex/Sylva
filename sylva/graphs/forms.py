@@ -38,6 +38,18 @@ class GraphForm(ModelForm):
         fields = ("name", "description", "relaxed", "public")
 
 
+class GraphDeleteConfirmForm(forms.Form):
+    CHOICES = (
+        (1, _("Yes")),
+        (0, _("No")),
+    )
+    confirm = forms.ChoiceField(label=_("Are you sure you want to delete " \
+                                        "this whole graph?"),
+                                help_text=_("This can take a few minutes"),
+                                choices=CHOICES, required=True,
+                                widget=forms.RadioSelect())
+
+
 class AddCollaboratorForm(forms.Form):
     new_collaborator = forms.ChoiceField(choices=User.objects.none(),
                         widget=forms.Select(attrs={'class': 'chzn-select'}))

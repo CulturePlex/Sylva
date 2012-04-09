@@ -54,7 +54,7 @@
     {% endblocktrans %}
     </div>
 </div>
-{% graph_info graph %}
+{% graph_info graph "show_edit" %}
 {% endblock %}
 
 {% block extra_scripts %}
@@ -142,10 +142,12 @@ function updateInfo(evt, nodeName, nodeId) {
 
   var expandNodeLink = $('<a>')
     .text('Expand node')
+    .attr('href', 'javascript:void(0);')
     .click(expandNode);
 
   var hideNodeLink = $('<a>')
     .text('Hide node')
+    .attr('href', 'javascript:void(0);')
     .click(hideNode);
 
   $('#canvas-info')

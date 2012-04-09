@@ -47,7 +47,7 @@ def schema_nodetype_delete(request, graph_slug, nodetype_id):
             data = request.POST.copy()
             form = TypeDeleteConfirmForm(data=data)
             if form.is_valid():
-                confirm = form.cleaned_data["confirm"]
+                confirm = bool(int(form.cleaned_data["confirm"]))
                 if confirm:
                     nodetype.delete()
                     return redirect(redirect_url)
@@ -205,7 +205,7 @@ def schema_relationshiptype_delete(request, graph_slug,
             data = request.POST.copy()
             form = TypeDeleteConfirmForm(data=data)
             if form.is_valid():
-                confirm = form.cleaned_data["confirm"]
+                confirm = bool(int(form.cleaned_data["confirm"]))
                 if confirm:
                     relationshiptype.delete()
                     return redirect(redirect_url)
