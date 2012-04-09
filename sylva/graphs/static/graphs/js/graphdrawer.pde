@@ -20,6 +20,9 @@ int MULTI_PADDING = 15;
 int PAUSE_X_PADDING = 30;
 int PAUSE_Y_PADDING = 10;
 
+int COLORS_OFFSET = 43;
+int COLORS_SUBSET_SIZE = 28;
+
 
 // Taken from http://www.hitmill.com/html/pastels2.html
 color[] COLORS = {#F70000, #B9264F, #990099, #74138C, #0000CE, #1F88A7, #4A9586, #FF2626,
@@ -67,7 +70,7 @@ class Node{
       }
       radius = _nodeRadius;
       stroke(#999999);
-      fill(COLORS[43+(nodeType % 28)]);
+      fill(COLORS[COLORS_OFFSET+(nodeType % COLORS_SUBSET_SIZE)]);
       if (selected){
         ellipse(posx, posy, radius*2*selectedExpansion, radius*2*selectedExpansion);
       } else {
@@ -677,6 +680,15 @@ void checkControls(float mousex, float mousey){
   if (mousex > posx && mousey > posy){
     togglePause();
   }
+}
+
+HashMap getNodeTypeColors(){
+  HashMap hm = new HashMap();
+  color[] typeColors = subset(COLORS, COLORS_OFFSET, COLORS_SUBSET_SIZE);
+  for(int i=0;i<_nodeTypes.size();i++){
+    hm.put(_nodeTypes.get(i), hex(typeColors[i], 6));
+  }
+  return hm;
 }
 
 
