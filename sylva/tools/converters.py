@@ -128,7 +128,6 @@ class GEXFConverter(BaseConverter):
         attribute_counter = 0
         edges = ''
         for edge in self.graph.relationships.iterator():
-            import ipdb;ipdb.set_trace()
             edge_text = """
                 <edge id="%s" source="%s" target="%s" label="%s">
                 <attvalues>""" % (edge.id, 
