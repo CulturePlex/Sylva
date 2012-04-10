@@ -42,8 +42,8 @@ class GEXFConverter(BaseConverter):
         nodes = ''
         for node in self.graph.nodes.all():
             nodes += """
-                <node id="%s" label="%s">
-                <attvalues>""" % (node.id, node.label)
+                <node id="%s" label="%s" type="%s">
+                <attvalues>""" % (node.id, node.display, node.label_display)
             for key, value in node.properties.iteritems():
                 if key not in node_attributes:
                     node_attributes[key] = attribute_counter
@@ -62,7 +62,7 @@ class GEXFConverter(BaseConverter):
                 <attvalues>""" % (edge.id, 
                         edge.source.id,
                         edge.target.id,
-                        edge.label)
+                        edge.label_display)
             for key, value in edge.properties.iteritems():
                 if key not in edge_attributes:
                     edge_attributes[key] = attribute_counter
@@ -109,8 +109,8 @@ class GEXFConverter(BaseConverter):
         edge_attributes = {}
         for node in self.graph.nodes.iterator():
             node_text = """
-                <node id="%s" label="%s">
-                <attvalues>""" % (node.id, node.label)
+                <node id="%s" label="%s" type="%s">
+                <attvalues>""" % (node.id, node.display, node.label_display)
             for key, value in node.properties.iteritems():
                 if key not in node_attributes:
                     node_attributes[key] = attribute_counter
@@ -128,17 +128,18 @@ class GEXFConverter(BaseConverter):
         attribute_counter = 0
         edges = ''
         for edge in self.graph.relationships.iterator():
+            import ipdb;ipdb.set_trace()
             edge_text = """
                 <edge id="%s" source="%s" target="%s" label="%s">
                 <attvalues>""" % (edge.id, 
                         edge.source.id,
                         edge.target.id,
-                        edge.label)
+                        edge.label_display)
             for key, value in edge.properties.iteritems():
                 if key not in edge_attributes:
                     edge_attributes[key] = attribute_counter
                     attribute_counter += 1
-                edge_text = """
+                edge_text += """
                     <attvalue for="%s" value="%s"/>""" % (edge_attributes[key],
                             self.encode_html(value))
             edge_text += """

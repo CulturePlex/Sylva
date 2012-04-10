@@ -21,6 +21,8 @@
 <div id="canvas-container">
   <div id="canvas-info">
     Click any node to interact
+    <div id="node-type-legend">
+    </div>
   </div>
   <div id="canvas-box">
     <canvas id="graphcanvas">{% trans "Your browser does not support graph visualization" %}</canvas>
@@ -64,6 +66,7 @@
 
 var nodes = {{ nodes|safe }};
 var edges = {{ edges|safe }};
+var nodeTypesLegend = {};
 
 function updateInfo(evt, nodeName, nodeId) {
   
@@ -102,6 +105,7 @@ function updateInfo(evt, nodeName, nodeId) {
 
       }
     });
+    return false;
   }
 
   var hideNode = function() {
@@ -117,7 +121,7 @@ function updateInfo(evt, nodeName, nodeId) {
       }
     });
 
-    if (selectedNode === undefined) { return; }
+    if (selectedNode === undefined) { return false; }
   
     $.each(edges, function(i, edge) {
       if (edge.source === selectedNodeName || edge.target === selectedNodeName) {
@@ -129,7 +133,8 @@ function updateInfo(evt, nodeName, nodeId) {
         GraphEditor.deleteEdge(index);
     });
     GraphEditor.deleteNode(selectedNodeName);
-    delete nodes[selectedNodeName]; 
+    delete nodes[selectedNodeName];
+    return false;
   }
 
   var title = $('<h2>').text(nodeName);
@@ -141,11 +146,13 @@ function updateInfo(evt, nodeName, nodeId) {
     .text('Edit node');
 
   var expandNodeLink = $('<a>')
+    .attr('href', "#")
     .text('Expand node')
     .attr('href', 'javascript:void(0);')
     .click(expandNode);
 
   var hideNodeLink = $('<a>')
+    .attr('href', "#")
     .text('Hide node')
     .attr('href', 'javascript:void(0);')
     .click(hideNode);
@@ -190,6 +197,29 @@ $(document).ready(function(){
   // node info box
   $('body').bind('nodeSelected', updateInfo);
   $('body').bind('edgeSelected', updateInfoRelationship);
+
+  // Type legend extraction from Processing
+  function loadNodeTypes() {
+    var element;
+    var p = Processing.getInstanceById('graphcanvas');
+    var colors = p.getNodeTypeColors();
+    var iterator = colors.entrySet().iterator();
+    while (iterator.hasNext()) {
+      element = iterator.next();
+      nodeTypesLegend[element.getKey()] = '#' + element.getValue();
+    }
+    // Create legend in canvas
+    var list = $('#node-type-legend').append($('<ul>'));
+    $.each(nodeTypesLegend, function(type, color){
+      list
+        .append($('<li>')
+          .css('background-color', color)
+          .text(type)
+        );
+    });
+  }
+
+  setTimeout(loadNodeTypes, 200);
 
 });
 
