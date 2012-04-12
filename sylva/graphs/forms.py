@@ -52,8 +52,9 @@ class GraphDeleteConfirmForm(forms.Form):
 
 class AddCollaboratorForm(forms.Form):
     new_collaborator = forms.ChoiceField(choices=User.objects.none(),
-                        widget=forms.Select(attrs={'class': 'chzn-select'}))
-                            
+                        widget=forms.Select(attrs={'class': 'chzn-select'}),
+                        label=_("Collaborator"))
+
     def __init__(self, *args, **kwargs):
         anonymous_name = _("Any User")
         graph = kwargs.pop("graph", None)

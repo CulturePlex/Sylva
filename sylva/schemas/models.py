@@ -85,7 +85,7 @@ class Schema(models.Model):
 
     @models.permalink
     def get_absolute_url(self):
-        return ('schemas.views.edit', [str(self.id)])
+        return ('schema_edit', [self.graph.slug])
 
 
 class BaseType(models.Model):
@@ -113,6 +113,10 @@ class BaseType(models.Model):
     class Meta:
         abstract = True
         ordering = ("order", "name")
+
+    @models.permalink
+    def get_absolute_url(self):
+         return ('nodes_list_full', [self.schema.graph.slug, self.id])
 
 
 class NodeType(BaseType):

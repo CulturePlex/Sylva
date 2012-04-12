@@ -14,7 +14,8 @@
 {% endblock %}
 
 {% block content_title %}
-<h2>{% trans "Graphs" %} » {{ graph.name|truncatewords_html:8 }}</h2>
+{% breadcrumb graph %}
+<!--<h2>{% trans "Graphs" %} » {{ graph.name|truncatewords_html:8 }}</h2>-->
 {% endblock %}
 
 {% block content %}

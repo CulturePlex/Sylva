@@ -14,13 +14,19 @@
 {% endblock %}
 
 {% block content_title %}
-<h2>{% trans "Graphs" %} » {{ graph.name|truncatewords_html:5 }} » {% trans "Schema" %} » {% trans "Import" %}</h2>
+{% trans "Import" as label %}
+{% breadcrumb graph graph.schema label %}
+<!--<h2>{% trans "Graphs" %} » {{ graph.name|truncatewords_html:5 }} » {% trans "Schema" %} » {% trans "Import" %}</h2>-->
 {% endblock %}
 
 {% block content %}
+<h2>{% trans "Import a Schema" %}</h2>
 <form method="POST"  enctype="multipart/form-data" action="{% url schema_import graph.slug %}">
     {% csrf_token %}
     {{ form.as_p }}
     <input type="submit" />
+    <span class="buttonLinkOption">
+        {% trans "or" %} <a href="{{ graph.schema.get_absolute_url }}">{% trans "Cancel" %}</a>.</span>
+    </form>
 </form>
 {% endblock %}

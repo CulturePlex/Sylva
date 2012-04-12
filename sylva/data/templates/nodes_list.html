@@ -1,9 +1,9 @@
 {% extends "results_list.html" %}
-
-{% load i18n %}
+{% load i18n graphs %}
 
 {% block content_title %}
-<h2>{% trans "Graphs" %} » {{ graph.name|truncatewords_html:5 }} » {% trans "Nodes" %}</h2>
+{% breadcrumb graph graph.data %}
+<!--<h2>{% trans "Graphs" %} » {{ graph.name|truncatewords_html:5 }} » {% trans "Nodes" %}</h2>-->
 {% endblock %}
 
 {% block extra_scripts %}

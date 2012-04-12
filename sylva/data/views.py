@@ -202,7 +202,7 @@ def nodes_create(request, graph_slug, node_type_id):
          "incoming_formsets": incoming_formsets,
          "mediafile_formset": mediafile_formset,
          "medialink_formset": medialink_formset,
-         "action": _("New")},
+         "action": u"%s %s" % (_("New"), nodetype.name)},
         context_instance=RequestContext(request))
 
 
@@ -402,8 +402,10 @@ def nodes_delete(request, graph_slug, node_id):
                                "item_type_id": nodetype.id,
                                "item_type_name": nodetype.name,
                                "item_type_count": None,  # count,
+                               "item_type_object": nodetype,
                                "form": form,  # form,
                                "item": node,
+                               "action": _("Delete")
                                },
                               context_instance=RequestContext(request))
 

@@ -2,7 +2,8 @@
 {% load i18n graphs %}
 
 {% block content_title %}
-<h2>{% trans "Graphs" %} » {{ graph.name|truncatewords_html:5 }} » {% trans "Relationships" %}</h2>
+{% breadcrumb graph graph.data %}
+<!--<h2>{% trans "Graphs" %} » {{ graph.name|truncatewords_html:5 }} » {% trans "Relationships" %}</h2>-->
 {% endblock %}
 
 {% block menu_buttons %}

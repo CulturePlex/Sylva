@@ -1,0 +1,13 @@
+{% load i18n %}
+<h2>
+{% for link, text in links %}
+    {% if link %}
+        <a href="{{ link }}">{{ text }}</a>
+    {% else %}
+        {{ text|truncatewords_html:5 }}
+    {% endif %}
+    {% if not forloop.last %}
+    »
+    {% endif %}
+{% endfor %}
+</h2>

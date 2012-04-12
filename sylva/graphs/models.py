@@ -62,10 +62,9 @@ class Graph(models.Model, GraphMixin):
     def __unicode__(self):
         return self.name
 
-    # TODO: Decide if a graph details view is required
-    # @models.permalink
-    # def get_absolute_url(self):
-    #     return ('graphs.views.details', [str(self.id)])
+    @models.permalink
+    def get_absolute_url(self):
+         return ('graph_view', [self.slug])
 
     def get_collaborators(self, include_anonymous=False):
         all_collaborators = get_users_with_perms(self)

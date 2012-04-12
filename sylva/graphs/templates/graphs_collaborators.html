@@ -28,7 +28,7 @@
     }
 </script>
 {% endblock %}
-   
+
 {% block body_attrs %}
 onload="$('.chzn-select').chosen();"
 {% endblock %}
@@ -38,24 +38,26 @@ onload="$('.chzn-select').chosen();"
 {% endblock %}
 
 {% block content_title %}
-<h2>{% trans "Graphs" %} » {{ graph.name|truncatewords_html:8 }} » {% trans "Collaborators" %}</h2>
+{% trans "Collaborators" as collaborators %}
+{% breadcrumb graph graph.data collaborators %}
+<!--<h2>{% trans "Graphs" %} » {{ graph.name|truncatewords_html:8 }} » {% trans "Collaborators" %}</h2>-->
 {% endblock %}
 
 {% block content %}
 <div id="content2">
     <div class="content2-first">
-        <p>Graph owner: <a href="#">{{ graph.owner }}</a></p>
-        <hr/>
+        <h2>{% trans "Owner" %}: <a href="#">{{ graph.owner }}</a></h2>
         <form action="." method="POST">
             {% csrf_token %}
             {{ form.as_p }}
             <input type="submit" value="Add collaborator"/>
         </form>
     </div>
+    {% if permissions_table %}
     <div class="content-divider"></div>
     <div class="content2-second">
            <div id="permissions">
-               <p>{% trans "Permissions" %}</p>
+<!--               <p>{% trans "Permissions" %}</p>-->
                <table id="permissions_table" class="content-table">
                    <tr>
                        <th>{% trans "User" %}</th>
@@ -85,5 +87,6 @@ onload="$('.chzn-select').chosen();"
                 </table>
             </div>
     </div>
+    {% endif %}
 </div>
 {% endblock %}

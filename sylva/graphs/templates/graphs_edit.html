@@ -11,7 +11,9 @@
 
 
 {% block content_title %}
-<h2>{% trans "Graphs" %} » {{ graph.name|truncatewords_html:8 }}  » {% trans "Edit" %}</h2>
+{% trans "Edit" as edit %}
+{% breadcrumb graph edit %}
+<!--<h2>{% trans "Graphs" %} » {{ graph.name|truncatewords_html:8 }}  » {% trans "Edit" %}</h2>-->
 {% endblock %}
 
 {% block navigation_buttons %}

@@ -69,6 +69,7 @@ def schema_nodetype_delete(request, graph_slug, nodetype_id):
                                "item_type_id": nodetype_id,
                                "item_type_name": nodetype.name,
                                "item_type_count": count,
+                               "item_type_object": nodetype,
                                "form": form,
                                "type_id": nodetype_id},
                               context_instance=RequestContext(request))
@@ -121,6 +122,7 @@ def schema_nodetype_editcreate(request, graph_slug, nodetype_id=None):
                                                   "arity_target",
                                                   "validation",
                                                   "inheritance"],
+                               "item_type_object": empty_nodetype,
                                "formset": formset},
                               context_instance=RequestContext(request))
 
@@ -227,6 +229,7 @@ def schema_relationshiptype_delete(request, graph_slug,
                                "item_type_id": relationshiptype_id,
                                "item_type_name": relationshiptype.name,
                                "item_type_count": count,
+                               "item_type_object": relationshiptype,
                                "form": form,
                                "type_id": relationshiptype_id},
                               context_instance=RequestContext(request))

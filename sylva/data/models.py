@@ -43,7 +43,7 @@ class Data(models.Model, DataMixin):
 
     @models.permalink
     def get_absolute_url(self):
-        return ('data.views.edit', [str(self.id)])
+        return ('nodes_list', [self.graph.slug])
 
 
 class MediaNode(models.Model):

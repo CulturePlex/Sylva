@@ -18,7 +18,9 @@
 {% endblock %}
 
 {% block content_title %}
-<h2>{% trans "Graphs" %} » {{ graph.name|truncatewords_html:5 }} » {% trans "Schema" %} » {% trans "Delete" %} {{ item_type_label }}</h2>
+{% trans "Delete" as label %}
+{% breadcrumb graph graph.schema item_type_object label %}
+<!--<h2>{% trans "Graphs" %} » {{ graph.name|truncatewords_html:5 }} » {% trans "Schema" %} » {% trans "Delete" %} {{ item_type_label }}</h2>-->
 {% endblock %}
 
 {% block content %}

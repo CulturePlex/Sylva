@@ -19,7 +19,8 @@
 {% endblock %}
 
 {% block content_title %}
-<h2>{% trans "Graphs" %} » {{ graph.name|truncatewords_html:5 }} » {% trans "Nodes" %} » {{ action }} {{ nodetype.name }}</h2>
+{% breadcrumb graph graph.data nodetype action %}
+<!--<h2>{% trans "Graphs" %} » {{ graph.name|truncatewords_html:5 }} » {% trans "Nodes" %} » {{ action }} {{ nodetype.name }}</h2>-->
 {% endblock %}
 
 {% block content %}

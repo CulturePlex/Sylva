@@ -43,7 +43,9 @@
 {% endblock %}
 
 {% block content_title %}
-<h2>{% trans "Graphs" %} » {{ graph.name|truncatewords_html:8 }} » {% trans "Import" %}</h2>
+{% trans "Import" as label %}
+{% breadcrumb graph label %}
+<!--<h2>{% trans "Graphs" %} » {{ graph.name|truncatewords_html:8 }} » {% trans "Import" %}</h2>-->
 {% endblock %}
 
 {% block content %}
