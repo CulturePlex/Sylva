@@ -228,6 +228,8 @@ var GraphEditor = {
                     "y":$(this).find('viz\\:position').attr('y')
                 }
                 
+                // type
+                attributes["type"] = $(this).attr('type'); 
                 GraphEditor.addNode($(this).attr('label'), attributes);
               });
 

@@ -58,7 +58,7 @@ class GEXFConverter(BaseConverter):
         edges = ''
         for edge in self.graph.relationships.all():
             edges += """
-                <edge id="%s" source="%s" target="%s" label="%s">
+                <edge id="%s" source="%s" target="%s" type="%s">
                 <attvalues>""" % (edge.id, 
                         edge.source.id,
                         edge.target.id,
