@@ -18,12 +18,14 @@
 <div id="content2">
     <div class="content2-first">
     {% for result in results %}
-        <h2>{{ result.key }}</h2>
-        <ol class="searchResults">
-        {% for item in result.list %}
-            <li><a href="{% url nodes_edit graph.slug item.id %}">{{ item.display|truncatewords:5 }}</a></li>
-        {% endfor %}
-        </ol>
+        {% if result.list %}
+            <h2>{{ result.key }}</h2>
+            <ol class="searchResults">
+            {% for item in result.list %}
+                <li><a href="{% url nodes_edit graph.slug item.id %}">{{ item.display|truncatewords:5 }}</a></li>
+            {% endfor %}
+            </ol>
+        {% endif %}
     {% endfor %}
     </div>
 </div>
