@@ -1,8 +1,11 @@
 # -*- coding: utf-8 -*-
+from os import path
+
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.db.models.signals import pre_delete, post_save
 from django.dispatch import receiver
+from django.template.defaultfilters import slugify
 from django.utils.translation import gettext as _
 
 from engines.models import Instance
@@ -54,11 +57,21 @@ class MediaNode(models.Model):
         return u'%s' % (self.node_id)
 
 
+def node_files(instance, filename):
+    if u"." in filename:
+        filename_split = filename.rsplit(u".", 1)
+        slug_filename = u"%s.%s" % (slugify(filename_split[0]),
+                                    filename_split[1])
+        return path.join(u"nodes", slug_filename)
+    else:
+        return path.join("nodes", filename)
+
+
 class MediaFile(models.Model):
     media_node = models.ForeignKey(MediaNode, verbose_name=_("media node"),
                                    related_name="files")
     media_label = models.CharField(_("label"), max_length=150)
-    media_file = models.FileField(_("file"), upload_to='nodes')
+    media_file = models.FileField(_("file"), upload_to=node_files)
 
     def __unicode__(self):
         return _(u'%s (%s for %s)') % (self.media_label,
