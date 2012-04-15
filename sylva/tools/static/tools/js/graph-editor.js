@@ -218,8 +218,15 @@ var GraphEditor = {
                 
                 // Node custom attributes
                 var attributes = {};
+                var attributeName = null;
                 $(this).find('attvalue').each(function(index){
-                    attributes[$(this).attr('for').toLowerCase()] = $(this).attr('value');
+                    var attributeIndex = $(gexfContent).find('attributes').filter('.node');
+                    if (attributeIndex.length > 0) {
+                      attributeName = attributeIndex.find('[id=' + $(this).attr('for') + ']').attr('title');
+                    } else {
+                      attributeName = $(this).attr('for').toLowerCase();
+                    }
+                    attributes[attributeName] = $(this).attr('value');
                 });
 
                 // Node position
@@ -238,8 +245,15 @@ var GraphEditor = {
 
                 //  Edge custom attributes
                 var attributes = {};
+                var attributeName = null;
                 $(this).find('attvalue').each(function(index){
-                    attributes[$(this).attr('for').toLowerCase()] = $(this).attr('value');
+                    var attributeIndex = $(gexfContent).find('attributes').filter('.edge');
+                    if (attributeIndex.length > 0) {
+                      attributeName = attributeIndex.find('[id=' + $(this).attr('for') + ']').attr('title');
+                    } else {
+                      attributeName = $(this).attr('for').toLowerCase();
+                    }
+                    attributes[attributeName] = $(this).attr('value');
                 });
                 var sourceId = $(this).attr('source');
                 var targetId = $(this).attr('target');
