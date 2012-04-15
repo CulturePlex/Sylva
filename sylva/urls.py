@@ -37,6 +37,9 @@ urlpatterns = patterns('',
     # schemas
     url(r'^schemas/', include('schemas.urls')),
 
+    # search
+    url(r'^search/', include('search.urls')),
+
     # tools
     url(r'^tools/', include('tools.urls')),
 

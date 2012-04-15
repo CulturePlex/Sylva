@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% load i18n graphs %}
+
+{% block title %}
+{% trans "Search" %}
+{% endblock %}
+
+{% block menu_buttons %}
+{% toolbar on="search" %}
+{% endblock %}
+
+{% block content_title %}
+{% trans "Search" as label %}
+{% breadcrumb graph label %}
+{% endblock %}
+
+{% block content %}
+<form method="post" action="." id="graphsCreate" name="graphs_create">
+{% csrf_token %}
+{{ form.as_p }}
+<input type="submit" name="addGraph" value="{% trans "Create new graph" %}" id="createGraph" />
+<span class="buttonLinkOption">{% trans "or" %} <a href="{% url dashboard %}">{% trans "Cancel" %}</a>.</span>
+</form>
+
+{% for result in results %}
+    <h2>{{ result.key }}</h2>
+    {% for item in result.list %}
+        {{ item.display|truncatewords:5 }}
+    {% endfor %}
+{% endfor %}
+
+{% endblock %}

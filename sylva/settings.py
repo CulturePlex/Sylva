@@ -175,6 +175,7 @@ INSTALLED_APPS = (
     'engines',
     'accounts',
     'tools',
+    'search',
     'south',
 )
 
@@ -236,11 +237,13 @@ ACCOUNT_FREE = {
 ALLOWS_INSTANCES = False
 ALLOWS_INHERITANCE = False
 AUTOCOMPLETE_NODES = True
+ENABLE_SEARCH = False
 OPTIONS = {
     "ACCOUNT_FREE": ACCOUNT_FREE,
     "ALLOWS_INSTANCES": ALLOWS_INSTANCES,
     "ALLOWS_INHERITANCE": ALLOWS_INHERITANCE,
     "AUTOCOMPLETE_NODES": AUTOCOMPLETE_NODES,
+    "ENABLE_SEARCH": ENABLE_SEARCH,
 }
 
 # This setting controls the size of the graph preview in the graph screen
