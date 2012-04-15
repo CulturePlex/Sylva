@@ -27,8 +27,7 @@
 <li><a href="{% url graph_collaborators graph.slug %}" class="{% if on == "collaborators" %}text{% else %}link{% endif %}">
     <span>{% trans "Collaborators" %}</span>
 </a></li>
-{% if OPTIONS.ENABLE_SEARCH %}
-<li><form action="{% url graph_search graph.slug %}" method="GET">
-    <input type="text" name="q" id="q" value=""  class="{% if on == "schema" %}text{% else %}link{% endif %}">
+<li><form action="{% url graph_search graph.slug %}" method="GET" id="searchBox">
+<!--    <input type="text" name="q" id="q" value=""  class="{% if on == "schema" %}text{% else %}link{% endif %}">-->
+{{ search_form.as_p }}
 </form></li>
-{% endif %}

@@ -3,6 +3,7 @@ from django.template import Library
 from django.utils.translation import gettext as _
 
 from data.models import Data
+from search.forms import SearchForm
 from schemas.models import Schema
 
 
@@ -16,9 +17,15 @@ def graph_info(context, graph, show_edit=None):
 
 @register.inclusion_tag('toolbar.html', takes_context=True)
 def toolbar(context, on):
+    request = context.get("request", None)
+    if request:
+        search_form = SearchForm(data=request.GET)
+    else:
+        search_form = SearchForm()
     return {'on': on,
             'graph': context["graph"],
-            'node_type': context.get("node_type", None)}
+            'node_type': context.get("node_type", None),
+            'search_form': search_form}
 
 @register.inclusion_tag('breadcrumb.html', takes_context=True)
 def breadcrumb(context, *links):

@@ -11,22 +11,20 @@
 
 {% block content_title %}
 {% trans "Search" as label %}
-{% breadcrumb graph label %}
+{% breadcrumb graph label request.GET.q|truncatewords:"4" %}
 {% endblock %}
 
 {% block content %}
-<form method="post" action="." id="graphsCreate" name="graphs_create">
-{% csrf_token %}
-{{ form.as_p }}
-<input type="submit" name="addGraph" value="{% trans "Create new graph" %}" id="createGraph" />
-<span class="buttonLinkOption">{% trans "or" %} <a href="{% url dashboard %}">{% trans "Cancel" %}</a>.</span>
-</form>
-
-{% for result in results %}
-    <h2>{{ result.key }}</h2>
-    {% for item in result.list %}
-        {{ item.display|truncatewords:5 }}
+<div id="content2">
+    <div class="content2-first">
+    {% for result in results %}
+        <h2>{{ result.key }}</h2>
+        <ol class="searchResults">
+        {% for item in result.list %}
+            <li><a href="{% url nodes_edit graph.slug item.id %}">{{ item.display|truncatewords:5 }}</a></li>
+        {% endfor %}
+        </ol>
     {% endfor %}
-{% endfor %}
-
+    </div>
+</div>
 {% endblock %}

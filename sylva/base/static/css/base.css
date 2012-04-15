@@ -1244,3 +1244,48 @@ div.relationships-box {
   overflow: auto;
   max-height: 30px;
 }
+
+#searchBox p label {
+    display: none;
+}
+
+#searchBox p input[type="text"] {
+    width: 0px;
+    height: 15px;
+    font: inherit;
+    margin-top: 3px;
+    background: url(../img/search_24.png) no-repeat right 50%;
+    padding-right: 17px;
+    border-radius: 4px;
+    -moz-border-radius: 4px;
+    -webkit-border-radius: 4px;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.9);
+    -webkit-box-shadow: 0 1px 1px rgba(0, 0, 0, 0.9);
+    -moz-box-shadow: 0 1px 1px rgba(0, 0, 0, 0.9);
+    display: block;
+    font-size: 12px;
+    font-weight: 700;
+    color: #262626;
+    text-decoration: none;
+    background-color: white;
+
+}
+
+#searchBox p input[type="text"]:focus {
+    width: 120px;
+}
+
+#searchBox p input[type="text"]:hover {
+    box-shadow: 0 0 5px rgba(52,142,130,0.75);
+    -webkit-box-shadow: 0 0 5px rgba(52,142,130,0.75);
+    -moz-box-shadow: 0 0 5px rgba(52,142,130,0.75);
+}
+
+ol.searchResults {
+    list-style-type: lower-hexadecimal;
+}
+
+.searchResults li {
+    padding-left: 20px;
+    padding-bottom: 5px;
+}
