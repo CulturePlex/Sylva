@@ -1250,7 +1250,7 @@ div.relationships-box {
 }
 
 #searchBox p input[type="text"] {
-    width: 0px;
+    width: 1px;
     height: 15px;
     font: inherit;
     margin-top: 3px;
@@ -1265,7 +1265,7 @@ div.relationships-box {
     display: block;
     font-size: 12px;
     font-weight: 700;
-    color: #262626;
+    color: white;
     text-decoration: none;
     background-color: white;
 
@@ -1277,6 +1277,7 @@ div.relationships-box {
 
 #searchBox p input[type="text"]:focus {
     width: 120px;
+    color: #262626;
 }
 
 #searchBox p input[type="text"]:hover {

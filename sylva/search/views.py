@@ -23,8 +23,7 @@ from graphs.models import Graph
 from schemas.models import NodeType, RelationshipType
 
 
-@permission_required("data.view_data", (Data, "graph__slug", "graph_slug"))
-def graph_search(request, graph_slug, node_type_id=None,
+def search(request, graph_slug, node_type_id=None,
                  relationship_type_id=None):
     graph = get_object_or_404(Graph, slug=graph_slug)
     data = request.GET.copy()
@@ -33,7 +32,8 @@ def graph_search(request, graph_slug, node_type_id=None,
         q = data.get("q", "")
         display = bool(data.get("display", True))
         if node_type_id:
-            node_types = NodeType.objects.filter(id=node_type_id)
+            node_types = NodeType.objects.filter(id=node_type_id,
+                                                 schema__graph=graph)
         else:
             node_types = graph.schema.nodetype_set.all()
         for node_type in node_types:
@@ -57,12 +57,6 @@ def graph_search(request, graph_slug, node_type_id=None,
             nodes = graph.nodes.filter(label=node_type.id, *query_list)
             result["list"] = nodes
             results.append(result)
-        json_nodes = []
-        for node in nodes:
-            json_nodes.append({
-                "id": node.id,
-                "display": node.display
-            })
     return render_to_response('search_results.html', {
                                 "graph": graph,
                                 "results": results,
@@ -70,12 +64,17 @@ def graph_search(request, graph_slug, node_type_id=None,
 
 
 @permission_required("data.view_data", (Data, "graph__slug", "graph_slug"))
+def graph_search(request, graph_slug):
+    return search(request, graph_slug)
+
+
+@permission_required("data.view_data", (Data, "graph__slug", "graph_slug"))
 def graph_nodetype_search(request, graph_slug, node_type_id=None):
-    return graph_search(request, graph_slug, node_type_id=node_type_id)
+    return search(request, graph_slug, node_type_id=node_type_id)
 
 
 @permission_required("data.view_data", (Data, "graph__slug", "graph_slug"))
 def graph_relationshiptype_search(request, graph_slug,
                                   relationship_type_id=None):
-    return graph_search(request, graph_slug,
-                        relationship_type_id=relationship_type_id)
+    return search(request, graph_slug,
+                   relationship_type_id=relationship_type_id)

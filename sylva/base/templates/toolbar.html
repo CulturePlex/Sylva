@@ -28,6 +28,5 @@
     <span>{% trans "Collaborators" %}</span>
 </a></li>
 <li><form action="{% url graph_search graph.slug %}" method="GET" id="searchBox">
-<!--    <input type="text" name="q" id="q" value=""  class="{% if on == "schema" %}text{% else %}link{% endif %}">-->
-{{ search_form.as_p }}
+    {{ search_form.as_p }}
 </form></li>

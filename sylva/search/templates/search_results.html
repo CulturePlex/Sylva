@@ -22,7 +22,9 @@
             <h2>{{ result.key }}</h2>
             <ol class="searchResults">
             {% for item in result.list %}
-                <li><a href="{% url nodes_edit graph.slug item.id %}">{{ item.display|truncatewords:5 }}</a></li>
+                {% with item.display as display %}
+                <li><a title="{{ display }}" href="{% url nodes_edit graph.slug item.id %}">{{ display|truncatewords:5 }}</a></li>
+                {% endwith %}
             {% endfor %}
             </ol>
         {% endif %}
