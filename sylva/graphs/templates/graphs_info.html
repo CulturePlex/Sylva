@@ -46,10 +46,11 @@
                     {% trans "No queries yet" %}
                 </span>
                 <span class="graph-instance">
+                    {{ graph.total_storage|filesizeformat }}
                     {% if graph.data.instance %}
-                        {% trans "On" %}  <a title="{{ graph.data.instance }}" href="">{{ graph.data.instance.name|truncatewords_html:3 }}</a>
+                        {% trans "on" %}  <a title="{{ graph.data.instance }}" href="">{{ graph.data.instance.name|truncatewords_html:3 }}</a>
                     {% else %}
-                        {% trans "On default instance" %} <!-- <a href="">{% trans "instance" %}</a>. -->
+                        <abbr title="{% trans "Default storage instance" %}">{% trans "on default" %}</abbr> <!-- <a href="">{% trans "instance" %}</a>. -->
                     {% endif %}
                 </span>
             </div>

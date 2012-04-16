@@ -27,7 +27,7 @@
                 <td>
                     <span>{{ type.name }}</span>
                 </td><td>
-                    <span>{{ type.count }}</span>
+                    <span alt="{% trans "Count" %}" title="{% trans "Count" %}">{{ type.count }}</span>
                 </td><td class="dataActions">
                     <a class="dataOption list" href="{% url nodes_list_full graph.slug type.id %}" title="{% trans "List" %}" alt="{% trans "List" %}">
                         &nbsp;

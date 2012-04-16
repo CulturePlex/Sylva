@@ -71,6 +71,11 @@ fieldset {
     margin-bottom: 15px;
 }
 
+abbr {
+    border-bottom: .1em dotted;
+    cursor: help;
+}
+
 .clear {
     clear: both;
     display: block;
@@ -914,6 +919,7 @@ ul.errorlist {
     height: 16px;
     display: block;
     margin-left: 10px;
+    font-style: italic;
 }
 
 .graph-relationships {
