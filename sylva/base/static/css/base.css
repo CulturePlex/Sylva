@@ -1271,6 +1271,10 @@ div.relationships-box {
 
 }
 
+#searchBox p {
+    padding-bottom: 0px;
+}
+
 #searchBox p input[type="text"]:focus {
     width: 120px;
 }
