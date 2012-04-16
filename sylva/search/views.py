@@ -31,7 +31,7 @@ def graph_search(request, graph_slug, node_type_id=None,
     results = []
     if data:
         q = data.get("q", "")
-        display = data.get("display", None)
+        display = bool(data.get("display", True))
         if node_type_id:
             node_types = NodeType.objects.filter(id=node_type_id)
         else:
