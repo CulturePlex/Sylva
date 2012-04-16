@@ -1268,7 +1268,6 @@ div.relationships-box {
     color: white;
     text-decoration: none;
     background-color: white;
-
 }
 
 #searchBox p {
@@ -1293,4 +1292,64 @@ ol.searchResults {
 .searchResults li {
     padding-left: 20px;
     padding-bottom: 5px;
+}
+
+#dataBrowse {
+    display: none;
+    z-index: 1000;
+/*    float: left;*/
+    position: absolute;
+/*    width: 180px;*/
+    right: 101px;
+    font: inherit;
+    margin-top: 3px;
+/*    padding-right: 17px;*/
+    border-radius: 4px;
+    -moz-border-radius: 4px;
+    -webkit-border-radius: 4px;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.9);
+    -webkit-box-shadow: 0 1px 1px rgba(0, 0, 0, 0.9);
+    -moz-box-shadow: 0 1px 1px rgba(0, 0, 0, 0.9);
+    font-size: 12px;
+    font-weight: 700;
+    text-decoration: none;
+    background-color: white;
+    overflow: auto;
+    max-height: 250px;
+}
+
+#dataBrowse table {
+    margin-top: 5px;
+}
+
+#dataBrowse table td {
+    padding: 0px 5px 5px 5px;
+    vertical-align: middle;
+}
+
+#dataBrowse table td.dataActions {
+    width: 40px;
+}
+
+#dataBrowse table tr:hover {
+    background-color: #D6E7DF;
+}
+
+#dataBrowse .dataOption {
+    display: inline;
+    border: none;
+    box-shadow: none;
+    border-radius: 0px;
+    padding: 0px;
+    margin: 0px;
+    padding-left: 15px;
+    width: 0px;
+}
+
+#dataBrowse .new {
+    background: url(../img/new_14.png) no-repeat left 50%;
+}
+
+#dataBrowse .list {
+    background: url(../img/list_14.png) no-repeat left 50%;
 }
