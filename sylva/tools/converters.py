@@ -110,7 +110,9 @@ class GEXFConverter(BaseConverter):
         for node in self.graph.nodes.iterator():
             node_text = """
                 <node id="%s" label="%s" type="%s">
-                <attvalues>""" % (node.id, node.display, node.label_display)
+                <attvalues>""" % (node.id,
+                                self.encode_html(node.display),
+                                self.encode_html(node.label_display))
             for key, value in node.properties.iteritems():
                 if key not in node_attributes:
                     node_attributes[key] = attribute_counter
