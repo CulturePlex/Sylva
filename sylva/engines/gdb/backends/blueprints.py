@@ -141,11 +141,12 @@ class BlueprintsGraphDatabase(BaseGraphDatabase):
             #Properties starting with _ are not allowed
             for key in properties.keys():
                 self.__validate_property(key)
-            # for key, value in properties.iteritems():
-            #     vertex.setProperty(key, value)
-            #     # We don't index null values
-            #     if value:
-            #         self.node_index.put(key, value, vertex)
+            for key, value in properties.iteritems():
+                vertex.setProperty(key, value)
+                # -- Not needed indexing properties anymore
+                # We don't index null values
+                # if value:
+                #    self.node_index.put(key, value, vertex)
         #_id and _label is a mandatory internal properties
         if not "_id" in vertex.getPropertyKeys():
             vertex.setProperty("_id", vertex.getId())
@@ -275,8 +276,9 @@ class BlueprintsGraphDatabase(BaseGraphDatabase):
             #Properties starting with _ are not allowed
             for key in properties.keys():
                 self.__validate_property(key)
-            # for key, value in properties.iteritems():
-            #     edge.setProperty(key, value)
+            for key, value in properties.iteritems():
+                edge.setProperty(key, value)
+            # -- Not needed to index all properties anymore
             #     # We don't index null values
             #     if value:
             #         self.relationship_index.put(key, value, edge)
