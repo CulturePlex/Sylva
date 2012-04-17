@@ -46,7 +46,7 @@
                     {% trans "No queries yet" %}
                 </span>
                 <span class="graph-instance">
-                    {{ graph.total_storage|filesizeformat }}
+                    {{ graph.data.total_storage|filesizeformat }}
                     {% if graph.data.instance %}
                         {% trans "on" %}  <a title="{{ graph.data.instance }}" href="">{{ graph.data.instance.name|truncatewords_html:3 }}</a>
                     {% else %}
