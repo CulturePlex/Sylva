@@ -155,8 +155,9 @@ class GEXFConverter(BaseConverter):
         node_attributes_xml = ''
         for key, value in node_attributes.iteritems():
             node_attributes_xml += """
-                <attribute id="%s" title="%s" type="string"/>""" % (value,
-                        key)
+                <attribute id="%s" title="%s" type="string"/>""" % \
+                            (self.encode_html(value),
+                            self.encode_html(key))
         yield """
         <attributes class="node">
             %s
@@ -167,8 +168,9 @@ class GEXFConverter(BaseConverter):
         edge_attributes_xml = ''
         for key, value in edge_attributes.iteritems():
             edge_attributes_xml += """
-                <attribute id="%s" title="%s" type="string"/>""" % (value,
-                        key)
+                <attribute id="%s" title="%s" type="string"/>""" % \
+                            (self.encode_html(value),
+                            self.encode_html(key))
         yield """
         <attributes class="edge">
             %s
