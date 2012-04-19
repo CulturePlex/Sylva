@@ -5,6 +5,13 @@ GraphEditor.progressBar.hide = function() {
   GraphEditor.refresh();
 }
 
+function slugify(text) {
+    text = text.replace(/[^-a-zA-Z0-9,&\s]+/ig, '');
+    //text = text.replace(/-/gi, "_");
+    text = text.replace(/\s/gi, "-");
+    return text;
+}
+
 var Importer = {
   counter: 0,
   addNodeURL: undefined,
@@ -133,33 +140,35 @@ var Importer = {
       }
     });
 
-    var properties = {};
+    if (edgeType !== undefined) {
+        var properties = {};
 
-    $.each(Importer.matching.edgeAttributes[edgeType], function(index, value){
-      if (value != ""){
-        properties[index] = edgeData[value];
-      }
-    });
+        $.each(Importer.matching.edgeAttributes[edgeType], function(index, value){
+          if (value != ""){
+            properties[index] = edgeData[value];
+          }
+        });
 
-    $.ajax({
-      url: Importer.addRelationshipURL,
-      data: {
-        type: Importer.matching.edgeTypes[edgeType].label[1],
-        sourceId: Importer.nodes[sourceName]._id,
-        targetId: Importer.nodes[targetName]._id,
-        properties: JSON.stringify(properties)
-      },
-      success: function(response){
-        response = JSON.parse(response);
-        Importer.counter++;
-        var relationshipText = GraphEditor.edgeText(sourceName, edgeLabel, targetName);
-        $(Importer.progressTextId).text('Relationship ' + relationshipText + ' created.');
-        $(Importer.progressBarId).attr('value', Importer.counter);
-        if (Importer.counterMax === Importer.counter){
-          $('body').trigger($.Event('importFinished'));
-        }
-      }
-    });
+        $.ajax({
+          url: Importer.addRelationshipURL,
+          data: {
+            type: Importer.matching.edgeTypes[edgeType].label[1],
+            sourceId: Importer.nodes[sourceName]._id,
+            targetId: Importer.nodes[targetName]._id,
+            properties: JSON.stringify(properties)
+          },
+          success: function(response){
+            response = JSON.parse(response);
+            Importer.counter++;
+            var relationshipText = GraphEditor.edgeText(sourceName, edgeLabel, targetName);
+            $(Importer.progressTextId).text('Relationship ' + relationshipText + ' created.');
+            $(Importer.progressBarId).attr('value', Importer.counter);
+            if (Importer.counterMax === Importer.counter){
+              $('body').trigger($.Event('importFinished'));
+            }
+          }
+        });
+    }
   },
 
   addData: function(_nodes, _edges, _progressBarId, _progressTextId){
@@ -224,7 +233,7 @@ var Importer = {
 
     // Draw nodeType matching selectors
     $.each(sylvaSchema.nodeTypes, function(item, value){
-      selectId = item + '_matcher';
+      selectId = slugify(item) + '_matcher';
       elementDiv = $('<div>').addClass('import-type-matcher');
       elementDiv
         .append($('<label>')
@@ -240,7 +249,7 @@ var Importer = {
       
       // Type attributes management
       $.each(value, function(attribute, att_properties){
-        selectedAtttributeId = attribute + '_' + selectId;
+        selectedAtttributeId = slugify(attribute) + '_' + selectId;
         elementDiv = $('<div>').addClass('import-property-matcher');
         elementDiv
           .append($('<label>')
@@ -281,7 +290,7 @@ var Importer = {
       Importer.matching["nodeTypes"] = {};
       Importer.matching["nodeAttributes"] = {};
       $.each(sylvaSchema.nodeTypes, function(item, value){
-        selectedValue = $('#'+item+'_matcher').val();
+        selectedValue = $('#'+slugify(item)+'_matcher').val();
         if (selectedValue === ""){
           alert("ERROR: NodeType does not match: " + item);
           validates = false;
@@ -293,12 +302,14 @@ var Importer = {
         // Attributes
         Importer.matching.nodeAttributes[item] = {};
         $.each(value, function(attribute, att_properties){
-          attSelector = '#' + attribute + '_' + item + '_matcher';
+          attSelector = '#' + slugify(attribute) + '_' + slugify(item) + '_matcher';
           selectedAttribute = $(attSelector).val();
           if (att_properties.required && selectedAttribute === ""){
-            alert("ERROR: " + item + " attribute is required: " + attribute);
-            validates = false;
-            return false;
+            // Do we need to fill all the types?
+            // alert("ERROR: " + item + " attribute is required: " + attribute);
+            // validates = false;
+            // return false;
+            return true;
           } else {
             Importer.matching.nodeAttributes[item][attribute] = selectedAttribute;
           }
@@ -313,8 +324,8 @@ var Importer = {
   },
 
   validateRelationships: function(importController){
-
     Importer.matching.edgeAttributeWidgets = {};
+    Importer.matching.edgeSlugs = {};
 
     var edgeText;
     importController.empty();
@@ -322,6 +333,8 @@ var Importer = {
     var relationshipMatcher = $('<select>').append($('<option>'));
     $.each(Importer.graphSchema.allowedEdges, function(item, value){
       edgeText = GraphEditor.edgeText(value.source, value.target, value.label);
+      var slug = value.source + '_' + value.label + '_' + value.target;
+      Importer.matching.edgeSlugs[slug] = item;
       relationshipMatcher
         .append($('<option>')
           .attr('value', item)
@@ -362,7 +375,7 @@ var Importer = {
 
       // Type attributes management
       $.each(value.properties, function(attribute, att_properties){
-        selectedAtttributeId = attribute + '_' + selectId;
+        selectedAtttributeId = slugify(attribute) + '_' + selectId;
         elementDiv = $('<div>').addClass('import-property-matcher');
         elementDiv
           .append($('<label>')
@@ -387,14 +400,15 @@ var Importer = {
       }); 
 
       // Autoselect value if matches the label
-      var oldVal = $('#'+selectId).val();
-      $('#'+selectId).val(item);
-      var newVal = $('#'+selectId).val();
-      if (newVal !== oldVal){
-        $('#'+selectId).trigger('change');
+      if (Importer.matching.edgeSlugs.hasOwnProperty(item)) {
+         var oldVal = $('#'+selectId).val();
+          $('#'+selectId).val(Importer.matching.edgeSlugs[item]);
+          var newVal = $('#'+selectId).val();
+          if (newVal !== oldVal){
+            $('#'+selectId).trigger('change');
+          }
       }
-
-
+     
     });
 
     $('#check-schema-btn').text('Validate relationship types matching');
@@ -408,9 +422,11 @@ var Importer = {
         var itemId = item.split(" ").join("")+'_matcher';
         selectedValue = $('#'+itemId).val()
         if (selectedValue === ""){
-          alert("ERROR: RelationshipType does not match: " + item);
-          validates = false;
-          return false;
+          // Do we need to fill all the types?
+          // alert("ERROR: RelationshipType does not match: " + item);
+          // validates = false;
+          // return false;
+          return true;
         } else {
           /*selectedLabel = Importer.graphSchema.allowedEdges[item].source +
                             Importer.graphSchema.allowedEdges[item].label +
@@ -427,7 +443,7 @@ var Importer = {
         // Attributes
         var attributes = {};
         $.each(value.properties, function(attribute, att_properties){
-          attSelector = '#' + attribute + '_' + itemId;
+          attSelector = '#' + slugify(attribute) + '_' + itemId;
           selectedAttribute = $(attSelector).val(); 
           if (att_properties.required && selectedAttribute === ""){
             alert("ERROR: " + item + " attribute is required: " + attribute);
