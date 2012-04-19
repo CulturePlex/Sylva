@@ -218,15 +218,17 @@ $(document).ready(function(){
       marginTop: "5px"
     });
     $.each(nodeTypesLegend, function(type, color){
-      list
-        .append($('<li>')
-          .css({
-            backgroundColor: color,
-            minHeight: "20px",
-            paddingLeft: "3px"
-          })
-          .text(type)
-        );
+      if (type !== "notype"){
+        list
+          .append($('<li>')
+            .css({
+              backgroundColor: color,
+              minHeight: "20px",
+              paddingLeft: "3px"
+            })
+            .text(type)
+          );
+      }
     });
   }
 
