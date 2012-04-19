@@ -451,7 +451,7 @@ var GraphEditor = {
     // NodeType list
     $.each(schema.nodeTypes, function(index, value){
       // NodeType attributes
-      elementAttributes = $('<ul>');
+      elementAttributes = $('<ul>').addClass('inner');;
       $.each(value, function(index2, value2){
         elementAttributes.append(
           $('<li>').append(index2));
