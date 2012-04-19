@@ -237,7 +237,8 @@ var GraphEditor = {
                 
                 // type
                 attributes["type"] = $(this).attr('type'); 
-                GraphEditor.addNode($(this).attr('label'), attributes);
+                attributes["_label"] = $(this).attr('label');
+                GraphEditor.addNode($(this).attr('id'), attributes);
               });
 
               // EDGES
@@ -257,8 +258,8 @@ var GraphEditor = {
                 });
                 var sourceId = $(this).attr('source');
                 var targetId = $(this).attr('target');
-                var source = $(gexfContent).find('node#'+sourceId).attr('label');
-                var target = $(gexfContent).find('node#'+targetId).attr('label');
+                var source = $(gexfContent).find('node#'+sourceId).attr('id');
+                var target = $(gexfContent).find('node#'+targetId).attr('id');
                 var type = $(this).attr('label');
                 GraphEditor.addEdge(source, type, target, attributes);
               });
@@ -450,7 +451,7 @@ var GraphEditor = {
     // NodeType list
     $.each(schema.nodeTypes, function(index, value){
       // NodeType attributes
-      elementAttributes = $('<ul>');
+      elementAttributes = $('<ul>').addClass('inner');;
       $.each(value, function(index2, value2){
         elementAttributes.append(
           $('<li>').append(index2));

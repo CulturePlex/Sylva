@@ -1363,3 +1363,7 @@ ol.searchResults {
 #dataBrowse .list {
     background: url(../img/list_14.png) no-repeat left 50%;
 }
+
+ul.inner {
+    margin-left: 10px;
+}
