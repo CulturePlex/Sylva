@@ -161,7 +161,7 @@ var Importer = {
             response = JSON.parse(response);
             Importer.counter++;
             var relationshipText = GraphEditor.edgeText(sourceName, edgeLabel, targetName);
-            $(Importer.progressTextId).text('Relationship ' + relationshipText + ' created.');
+            $(Importer.progressTextId).html('Relationship ' + relationshipText + ' created.');
             $(Importer.progressBarId).attr('value', Importer.counter);
             if (Importer.counterMax === Importer.counter){
               $('body').trigger($.Event('importFinished'));
