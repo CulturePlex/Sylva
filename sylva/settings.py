@@ -225,6 +225,7 @@ USERENA_MUGSHOT_DEFAULT = "mm"
 USERENA_MUGSHOT_SIZE = 100
 
 # Sylva settings
+GOOGLE_ANALYTICS_CODE = "UA-1613313-12"
 ACCOUNT_FREE = {
     "name": "Free account",
     "type": 1,  # Free
