@@ -79,7 +79,7 @@
       {% else %}
       <li><a href="{% url userena.views.signin %}" class="link login" id="loginFormButton"><span>{% trans "Sign in" %}</span></a></li>
       {% endif %}
-      <li><a href="" class="link plans"><span>{% trans "Plans" %}</span></a></li>
+<!--      <li><a href="" class="link plans"><span>{% trans "Plans" %}</span></a></li>-->
     </ul>
     {% if user_is_signedin %}
     <a href="{% url userena.views.profile_edit request.user %}">{{ request.user }}</a>
