@@ -55,17 +55,17 @@
     <nav class="contact">
     <ul>
       <li>
-          <h2>Contact us</h2>
-          <a href="mailto:admin@cultureplex.ca" rel="">admin@cultureplex.ca</a>
+          <h2>{% trans "Contact us" %}</h2>
+          <a href="mailto:apps@cultureplex.ca" rel="">apps@cultureplex.ca</a>
         </li>
-        <li>
-          <h2>Follow us</h2>
-          <a href="http://www.twitter.com/sylvaproject" rel="external" target="blank">@sylvaproject</a>
-        </li>
-        <li>
-          <h2>Read our blog</h2>
-          <a href="http://sylva.blogs.cultureplex.ca/" rel="external" target="blank">sylva.blogs.cultureplex.ca</a>
-        </li>
+<!--        <li>-->
+<!--          <h2>Follow us</h2>-->
+<!--          <a href="http://www.twitter.com/sylvaproject" rel="external" target="blank">@sylvaproject</a>-->
+<!--        </li>-->
+<!--        <li>-->
+<!--          <h2>Read our blog</h2>-->
+<!--          <a href="http://sylva.blogs.cultureplex.ca/" rel="external" target="blank">sylva.blogs.cultureplex.ca</a>-->
+<!--        </li>-->
       </ul>
     </nav>
 {% endblock %}
@@ -107,26 +107,61 @@
   <div id="homepage">
 
     <div class="text-replacement" style="margin-left: 0px; opacity: 1; ">
-        <p class="slogan">{% trans "A Relaxed-Schema Graph Database Management System" %}.</p>
-        <div id="container">
-        <div id="slideshow"> 
-<!--            <img src="{{ STATIC_PREFIX }}img/new-ribbon.png" width="112" height="112" alt="New Ribbon" id="ribbon"> -->
-            <div id="slides"> 
-                <div class="slides_container"> 
-                    <a href="http://www.flickr.com/photos/jliba/4665625073/" title="145.365 - Happy Bokeh Thursday! | Flickr - Photo Sharing!" target="_blank"><img src="{{ STATIC_PREFIX }}img/slide-1.jpg" width="570" height="270" alt="Slide 1"></a> 
-                    <a href="http://www.flickr.com/photos/stephangeyer/3020487807/" title="Taxi | Flickr - Photo Sharing!" target="_blank"><img src="{{ STATIC_PREFIX }}img/slide-2.jpg" width="570" height="270" alt="Slide 2"></a> 
-                    <a href="http://www.flickr.com/photos/childofwar/2984345060/" title="Happy Bokeh raining Day | Flickr - Photo Sharing!" target="_blank"><img src="{{ STATIC_PREFIX }}img/slide-3.jpg" width="570" height="270" alt="Slide 3"></a> 
-                    <a href="http://www.flickr.com/photos/b-tal/117037943/" title="We Eat Light | Flickr - Photo Sharing!" target="_blank"><img src="{{ STATIC_PREFIX }}img/slide-4.jpg" width="570" height="270" alt="Slide 4"></a> 
-                    <a href="http://www.flickr.com/photos/bu7amd/3447416780/" title="“I must go down to the sea again, to the lonely sea and the sky; and all I ask is a tall ship and a star to steer her by.” | Flickr - Photo Sharing!" target="_blank"><img src="{{ STATIC_PREFIX }}img/slide-5.jpg" width="570" height="270" alt="Slide 5"></a> 
-                    <a href="http://www.flickr.com/photos/streetpreacher/2078765853/" title="twelve.inch | Flickr - Photo Sharing!" target="_blank"><img src="{{ STATIC_PREFIX }}img/slide-6.jpg" width="570" height="270" alt="Slide 6"></a> 
-                    <a href="http://www.flickr.com/photos/aftab/3152515428/" title="Save my love for loneliness | Flickr - Photo Sharing!" target="_blank"><img src="{{ STATIC_PREFIX }}img/slide-7.jpg" width="570" height="270" alt="Slide 7"></a> 
-                </div> 
-                <a href="#" class="prev"><img src="{{ STATIC_PREFIX }}img/arrow-prev.png" width="24" height="43" alt="Arrow Prev"></a> 
-                <a href="#" class="next"><img src="{{ STATIC_PREFIX }}img/arrow-next.png" width="24" height="43" alt="Arrow Next"></a> 
-            </div> 
-            <img src="{{ STATIC_PREFIX }}img/example-frame.png" width="739" height="341" alt="Example Frame" id="frame"> 
-        </div> 
+
+    <p class="slogan">{% trans "A Relaxed-Schema Graph Database Management System" %}.</p>
+    <div id="content2">
+        <div class="content2-block">
+            <div class="description">
+            {% blocktrans %}
+            Sylva [from the Old Spanish "silva", a Rennaisance type of book to organize knowledge] is a free, easy-to-use, flexible, and scalable database management system that helps you collect, collaborate, visualize and query large data sets.
+            <br/><br/>
+            No programming knowledge is required to use Sylva!
+            <br/><br/>
+            The data sets are stored according to the schemas (graphs) created by the user, and can be visualized as networks and as lists.
+            Researchers have absolute freedom to grant different permits to collaborators and to import and export their schemas and data sets.
+            <br/><br/>
+            Start using Sylva as soon as it becomes available!
+            {% endblocktrans %}
+            <form action="https://docs.google.com/spreadsheet/formResponse?formkey=dFNETEZyMWFGQzh2OERiU21YdHNLdGc6MQ&amp;embedded=true&amp;ifq" method="POST" id="ss-form" class="staytuned">
+            <input type="text" name="entry.0.single" value="" class="ss-q-short" id="entry_0" placeholder="{% trans "Leave us your e-mail to" %}">
+            <input type="submit" name="submit" class="btn okbutton" value="{% trans "Stay tuned!" %}">
+            <input type="hidden" name="pageNumber" value="0">
+            <input type="hidden" name="backupCache" value="">
+            <label class="helptext" for="entry_0">{% trans "Your e-mail won't be used for any other porpuse" %}</label>
+            </form>
+             </div>
         </div>
+        <div class="content2-block">
+            <div id="container">
+                <div id="slideshow"> 
+        <!--            <img src="{{ STATIC_PREFIX }}img/new-ribbon.png" width="112" height="112" alt="New Ribbon" id="ribbon"> -->
+                    <div id="slides"> 
+                        <div class="slides_container"> 
+                            <img src="{{ STATIC_PREFIX }}img/slide-1.jpg" width="570" height="270"
+                                 alt="{% trans "Create graphs any time" %}" title="{% trans "Create graphs any time" %}">
+                            <img src="{{ STATIC_PREFIX }}img/slide-2.jpg" width="570" height="270"
+                                 alt="{% trans "Visualize and browse your data" %}" title="{% trans "Visualize and browse your data" %}">
+                            <img src="{{ STATIC_PREFIX }}img/slide-3.jpg" width="570" height="270"
+                                 alt="{% trans "Select the type for your data" %}" title="{% trans "Select the type for your data" %}">
+                            <img src="{{ STATIC_PREFIX }}img/slide-4.jpg" width="570" height="270"
+                                 alt="{% trans "Show statistics for your storage" %}" title="{% trans "Show statistics for your storage" %}">
+                            <img src="{{ STATIC_PREFIX }}img/slide-5.jpg" width="570" height="270"
+                                 alt="{% trans "List your data in regular tables" %}" title="{% trans "List your data in regular tables" %}">
+                            <img src="{{ STATIC_PREFIX }}img/slide-6.jpg" width="570" height="270"
+                                 alt="{% trans "Automatic forms and media from your schema" %}" title="{% trans "Automatic forms and media from your schema" %}">
+                            <img src="{{ STATIC_PREFIX }}img/slide-7.jpg" width="570" height="270"
+                                 alt="{% trans "Advanced definition for your schema" %}" title="{% trans "Advanced definition for your schema" %}">
+                            <img src="{{ STATIC_PREFIX }}img/slide-8.jpg" width="570" height="270"
+                                 alt="{% trans "Manage as collaborators as you want" %}" title="{% trans "Manage as collaborators as you want" %}">
+                        </div> 
+                        <a href="#" class="prev"><img src="{{ STATIC_PREFIX }}img/arrow-prev.png" width="24" height="43" alt="Arrow Prev"></a> 
+                        <a href="#" class="next"><img src="{{ STATIC_PREFIX }}img/arrow-next.png" width="24" height="43" alt="Arrow Next"></a> 
+                    </div> 
+                    <img src="{{ STATIC_PREFIX }}img/example-frame.png" width="739" height="341" alt="Example Frame" id="frame"> 
+                </div>
+            </div>
+        </div>
+    </div>
     </div>
 
     <div id="body-divider"></div><!-- the division between the light green content section, and the dark -->
@@ -135,19 +170,19 @@
               <!-- content blocks (three side by side), can remove if needed, this was just an example -->
               <div class="content3-block">
                 <h2 class="model">{% trans "Model" %}</h3>
-                <p>{% blocktrans %}Create an schema of your data and change it all the times you need. Absolute flexibility for editing the schema again and again. Even you can decide what happends with the referencail integrity and cascade deletions.{% endblocktrans %}</p>
+                <p>{% blocktrans %}Create a schema of your data and change it as many times as you need. Absolute flexibility for editing the schema again and again. Even you You be the one to decide what happens with the referential integrity and cascade deletions.{% endblocktrans %}</p>
               </div>
               <div class="content-divider"></div>
               <div class="content3-block">
                 <h2 class="collect">{% trans "Collect" %}</h2>
-                <p>{% blocktrans %}As many people as you want can work simultaneously collecting the data. From any place in the world, just having a browser and an Internet connection available.{% endblocktrans %}</p>
-                <p>{% blocktrans %}The data belongs to you, so you can export them whenever you need to the most common formats: GML, GEXF, CSV, etc.{% endblocktrans %}</p>
+                <p>{% blocktrans %}With access to a browser and Internet connection you can have as many people as you want from just as many countries collecting the data simultaneously.{% endblocktrans %}</p>
+                <p>{% blocktrans %}And since it is <strong>your</strong> data, you can export it whenever you need to, in the most common formats: GML, GEXF, CSV, etc.{% endblocktrans %}</p>
               </div>
               <div class="content-divider"></div>
                 <div class="content3-block">
-                <h2 class="query">{% trans "Query" %}</h4>
-                <p>{% blocktrans %}Research on your connected data discovering new information through the powerfull system of quering.{% endblocktrans %}</p>
-                <p>{% blocktrans %}Setup an expermient, save it and share it with others.{% endblocktrans %}</p>
+                <h2 class="query" style="color: grey; font-style:italic;">{% trans "Query" %}</h4>
+                <p style="color: grey; font-style:italic;">{% blocktrans %}Research on your connected data discovering new information through the powerfull system of quering.{% endblocktrans %}</p>
+                <p style="color: grey; font-style:italic;">{% blocktrans %}Setup an expermient, save it and share it with others.{% endblocktrans %}</p>
               <!-- end content blocks -->
               </div>
               <div class="clearfloats"></div>

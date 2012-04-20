@@ -1367,3 +1367,35 @@ ol.searchResults {
 ul.inner {
     margin-left: 10px;
 }
+
+
+/*
+    Description
+*/
+#content2 div.description {
+    text-align: left;
+    font-size: 13px;
+    font-family: Georgia;
+    font-style: italic;
+    text-shadow:0 1px 1px rgba(175,203,188,0.8);
+    margin-top: 30px;
+    width: 415px;
+    display: inline-block;
+    float: left;
+}
+
+#content2 form.staytuned {
+    display: inline;
+}
+
+#content2 form.staytuned input {
+    display: inline;
+}
+
+#content2 form.staytuned input[type="text"] {
+    width: 275px;
+}
+
+#content2 form.staytuned .helptext {
+    font-size: 10px;
+}
