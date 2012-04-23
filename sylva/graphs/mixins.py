@@ -366,6 +366,7 @@ class BaseElement(object):
         self.gdb = graph.data.get_gdb()
         self.schema = (not graph.relaxed) and graph.schema
         self.data = graph.data
+        self._label = None
         if initial:
             self._properties = initial
         elif not properties:
@@ -481,6 +482,9 @@ class Node(BaseElement):
                 nodetype.save()
             del self
 
+    def get_type(self):
+        return NodeType.objects.get(id=self.label)
+
     def _label_display(self):
         return NodeType.objects.get(id=self.label).name
 
@@ -506,7 +510,9 @@ class Node(BaseElement):
         del self._properties[key]
 
     def _get_label(self):
-        return self.gdb.get_node_label(self.id)
+        if not self._label:
+            self._label = self.gdb.get_node_label(self.id)
+        return self._label
     label = property(_get_label)
 
     def _relationships(self):
@@ -586,6 +592,9 @@ class Relationship(BaseElement):
                 reltype.save()
             del self
 
+    def get_type(self):
+        return RelationshipType.objects.get(id=self.label)
+
     def _label_display(self):
         return RelationshipType.objects.get(id=self.label).name
 
@@ -631,7 +640,9 @@ class Relationship(BaseElement):
     target = property(_get_target, _set_target)
 
     def _get_label(self):
-        return self.gdb.get_relationship_label(self.id)
+        if not self._label:
+            self._label = self.gdb.get_relationship_label(self.id)
+        return self._label
     label = property(_get_label)
 
     def _get_property_keys(self):
