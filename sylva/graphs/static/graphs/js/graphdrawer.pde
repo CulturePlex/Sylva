@@ -604,11 +604,16 @@ void deleteNode(String nodeName){
 }
 
 void addEdge(String source, String type, String target, int edgeId){
-  Relation newRelation = new Relation(getNode(source), type, getNode(target));
-  getNode(source).addRelation(newRelation);
+  Node sourceNode = getNode(source);
+  Node targetNode = getNode(target);
 
-  if (edgeId) {
-    newRelation.setId(edgeId);
+  if (sourceNode != null && targetNode != null) {
+    Relation newRelation = new Relation(sourceNode, type, targetNode);
+    sourceNode.addRelation(newRelation);
+
+    if (edgeId) {
+      newRelation.setId(edgeId);
+    }
   }
 }
 
