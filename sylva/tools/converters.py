@@ -113,7 +113,10 @@ class GEXFConverter(BaseConverter):
                 <attvalues>""" % (node.id,
                                 self.encode_html(node.display),
                                 self.encode_html(node.label_display))
-            node_properties = {'schema:type': self.encode_html(node.label_display)}
+            node_properties = {
+                'schema:type': self.encode_html(node.label_display),
+                'sylva:id': node.id
+            }
             node_properties.update(node.properties)
             for key, value in node_properties.iteritems():
                 if key not in node_attributes:
@@ -138,7 +141,10 @@ class GEXFConverter(BaseConverter):
                         edge.source.id,
                         edge.target.id,
                         self.encode_html(edge.label_display))
-            edge_properties = {'schema:type': self.encode_html(edge.label_display)}
+            edge_properties = {
+                'schema:type': self.encode_html(edge.label_display),
+                'sylva:id': edge.id
+            }
             edge_properties.update(edge.properties)
             for key, value in edge_properties.iteritems():
                 if key not in edge_attributes:
