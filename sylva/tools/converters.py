@@ -105,7 +105,7 @@ class GEXFConverter(BaseConverter):
         # Node attributes
         node_attributes_xml = u"""
             <attribute id="schema:type" title="schema:type" type="string"/>"
-            <attribute id="sylva:id" title="sylva:id" type="string"/>""" 
+            <attribute id="schema:type:id" title="schema:type:id" type="string"/>""" 
         for node_type in self.graph.schema.nodetype_set.all():
                 for property_name in node_type.properties.all():
                     print property_name.key
@@ -124,13 +124,13 @@ class GEXFConverter(BaseConverter):
         # Edge attributes
         edge_attributes_xml = u"""
             <attribute id="schema:type" title="schema:type" type="string"/>"
-            <attribute id="sylva:id" title="sylva:id" type="string"/>""" 
+            <attribute id="schema:type:id" title="schema:type:id" type="string"/>""" 
         for relationship_type in self.graph.schema.relationshiptype_set.all():
                 for property_name in relationship_type.properties.all():
                     namespace_name = u"%s:%s" % (self.encode_html(node_type),
                                             self.encode_html(property_name.key))
                     edge_attributes_xml += u"""
-                    <attribute id=%s" title="%s" type="string"/>""" % \
+                    <attribute id="%s" title="%s" type="string"/>""" % \
                                     (namespace_name, namespace_name)
         yield u"""
         <attributes class="edge">
@@ -151,7 +151,7 @@ class GEXFConverter(BaseConverter):
                                 self.encode_html(node.label_display))
             node_properties = {
                 'schema:type': self.encode_html(node.label_display),
-                'sylva:id': node.id
+                'schema:type:id': node.id
             }
             for key, value in node_properties.iteritems():
                 node_text += u"""
@@ -181,7 +181,7 @@ class GEXFConverter(BaseConverter):
                         self.encode_html(edge.label_display))
             edge_properties = {
                 'schema:type': self.encode_html(edge.label_display),
-                'sylva:id': edge.id
+                'schema:type:id': edge.id
             }
 
             for key, value in edge_properties.iteritems():
