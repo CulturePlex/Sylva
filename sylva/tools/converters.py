@@ -160,7 +160,7 @@ class GEXFConverter(BaseConverter):
             for key, value in node.properties.iteritems():
                 node_text += """
                     <attvalue for="%s:%s" value="%s"/>""" % \
-                            (node.label_display,
+                            (self.encode(node.label_display),
                             self.encode_html(key),
                             self.encode_html(value))
             node_text += """
@@ -191,7 +191,7 @@ class GEXFConverter(BaseConverter):
             for key, value in edge.properties.iteritems():
                 edge_text += """
                     <attvalue for="%s:%s" value="%s"/>""" % \
-                            (edge.label_display,
+                            (self.encode(edge.label_display),
                             self.encode_html(key),
                             self.encode_html(value))
             edge_text += """
