@@ -108,7 +108,6 @@ class GEXFConverter(BaseConverter):
             <attribute id="schema:type:id" title="schema:type:id" type="string"/>""" 
         for node_type in self.graph.schema.nodetype_set.all():
                 for property_name in node_type.properties.all():
-                    print property_name.key
                     namespace_name = u"%s:%s" % (self.encode_html(node_type),
                                             self.encode_html(property_name.key))
 
