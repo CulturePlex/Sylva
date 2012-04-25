@@ -102,9 +102,44 @@ class GEXFConverter(BaseConverter):
     def stream_export(self):
         yield self.header
 
+        # Node attributes
+        node_attributes_xml = """
+            <attribute id="schema:type" title="schema:type" type="string"/>"
+            <attribute id="sylva:id" title="sylva:id" type="string"/>""" 
+        for node_type in self.graph.schema.nodetype_set.all():
+                for property_name in node_type.properties.all():
+                    namespace_name = "%s:%s" % (self.encode_html(node_type),
+                                            self.encode_html(property_name.key))
+
+                    node_attributes_xml += """
+                    <attribute id="%s" title="%s" type="string"/>""" % \
+                                    (namespace_name, namespace_name)
+        yield """
+        <attributes class="node">
+            %s
+        </attributes>
+        """ % (node_attributes_xml)
+
+        # Edge attributes
+        edge_attributes_xml = """
+            <attribute id="schema:type" title="schema:type" type="string"/>"
+            <attribute id="sylva:id" title="sylva:id" type="string"/>""" 
+        for relationship_type in self.graph.schema.relationshiptype_set.all():
+                for property_name in relationship_type.properties.all():
+                    namespace_name = "%s:%s" % (self.encode_html(node_type),
+                                            self.encode_html(property_name.key))
+                    edge_attributes_xml += """
+                    <attribute id=%s" title="%s" type="string"/>""" % \
+                                    (namespace_name, namespace_name)
+        yield """
+        <attributes class="edge">
+            %s
+        </attributes>
+        """ % (edge_attributes_xml)
+
+
         # Nodes
         yield '<nodes>'
-        attribute_counter = 0
         node_attributes = {}
         edge_attributes = {}
         for node in self.graph.nodes.iterator():
@@ -117,13 +152,16 @@ class GEXFConverter(BaseConverter):
                 'schema:type': self.encode_html(node.label_display),
                 'sylva:id': node.id
             }
-            node_properties.update(node.properties)
             for key, value in node_properties.iteritems():
-                if key not in node_attributes:
-                    node_attributes[key] = attribute_counter
-                    attribute_counter += 1
                 node_text += """
-                    <attvalue for="%s" value="%s"/>""" % (node_attributes[key],
+                    <attvalue for="%s" value="%s"/>""" % \
+                            (self.encode_html(key),
+                            self.encode_html(value))
+            for key, value in node.properties.iteritems():
+                node_text += """
+                    <attvalue for="%s:%s" value="%s"/>""" % \
+                            (node.label_display,
+                            self.encode_html(key),
                             self.encode_html(value))
             node_text += """
                 </attvalues>
@@ -132,7 +170,6 @@ class GEXFConverter(BaseConverter):
         yield '</nodes><edges>'
 
         # Edges
-        attribute_counter = 0
         edges = ''
         for edge in self.graph.relationships.iterator():
             edge_text = """
@@ -145,13 +182,17 @@ class GEXFConverter(BaseConverter):
                 'schema:type': self.encode_html(edge.label_display),
                 'sylva:id': edge.id
             }
-            edge_properties.update(edge.properties)
+
             for key, value in edge_properties.iteritems():
-                if key not in edge_attributes:
-                    edge_attributes[key] = attribute_counter
-                    attribute_counter += 1
                 edge_text += """
-                    <attvalue for="%s" value="%s"/>""" % (edge_attributes[key],
+                    <attvalue for="%s" value="%s"/>""" % \
+                            (self.encode_html(key),
+                            self.encode_html(value))
+            for key, value in edge.properties.iteritems():
+                edge_text += """
+                    <attvalue for="%s:%s" value="%s"/>""" % \
+                            (edge.label_display,
+                            self.encode_html(key),
                             self.encode_html(value))
             edge_text += """
                 </attvalues>
@@ -160,33 +201,6 @@ class GEXFConverter(BaseConverter):
         yield """
         </edges>
         """
-
-        # Node attributes
-        node_attributes_xml = ''
-        for key, value in node_attributes.iteritems():
-            node_attributes_xml += """
-                <attribute id="%s" title="%s" type="string"/>""" % \
-                            (self.encode_html(value),
-                            self.encode_html(key))
-        yield """
-        <attributes class="node">
-            %s
-        </attributes>
-        """ % (node_attributes_xml)
-
-        # Edge attributes
-        edge_attributes_xml = ''
-        for key, value in edge_attributes.iteritems():
-            edge_attributes_xml += """
-                <attribute id="%s" title="%s" type="string"/>""" % \
-                            (self.encode_html(value),
-                            self.encode_html(key))
-        yield """
-        <attributes class="edge">
-            %s
-        </attributes>
-        """ % (edge_attributes_xml)
-
 
         yield """
     </graph> 
