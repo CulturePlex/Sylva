@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+import simplejson as json
+
 from django.db import models, transaction
 from django.db.models import F
 from django.core.exceptions import ObjectDoesNotExist
@@ -58,6 +60,67 @@ class Schema(models.Model):
                 "target": edge_type.target.name,
                 "properties": edge_attributes})
         return schema_json
+
+    def get_schema_diagram(self):
+
+        def get_property_fields(n):
+            return {'required': n.required,
+                'slug': n.slug,
+                'default': n.default,
+                'value': n.value,
+                'datatype': n.datatype,
+                'display': n.display,
+                'description': n.description,
+                'validation': n.validation}
+
+        schema = {}
+        schema["node_types"] = []
+        for node_type in self.nodetype_set.all():
+            schema["node_types"].append(node_type)
+        schema["relationship_types"] = []
+        for r_type in self.relationshiptype_set.all():
+            schema["relationship_types"].append(r_type)
+        schema_json = {"nodeTypes": {}, "allowedEdges":[]}
+        for node_type in schema["node_types"]:
+            attributes = {}
+            for n in node_type.properties.all():
+                attributes[n.key] = get_property_fields(n)
+            schema_json["nodeTypes"][node_type.name] = attributes
+        for edge_type in schema["relationship_types"]:
+            edge_attributes = {}
+            for n in edge_type.properties.all():
+                edge_attributes[n.key] = get_property_fields(n)
+            schema_json["allowedEdges"].append({
+                "source": edge_type.source.name,
+                "label": edge_type.name,
+                "target": edge_type.target.name,
+                "properties": edge_attributes})
+
+        schema = {}
+        for node_type in self.nodetype_set.all():
+            fields = []
+            relations = []
+            for node_property in node_type.properties.all():
+                field = {
+                    "label": node_property.key,
+                    "type": node_property.get_datatype(),
+                    "name": node_property.slug,
+                    "primary": False,
+                    "blank": False,
+                }
+                fields.append(field)
+            schema[node_type.slug] = {
+                "name": node_type.name,
+                "collapse": False,
+                "primary": None,
+                "is_auto": False,
+                "fields": fields,
+                "relations": relations,
+            }
+
+        slug = self.graph.slug
+        diagram = {slug: schema}
+        return json.dumps(diagram, indent=4)
 
     def _import(self, data):
         with transaction.commit_on_success():

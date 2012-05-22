@@ -1,5 +1,6 @@
 {% extends "base.html" %}
-{% load i18n graphs %}
+{% load i18n graphs static %}
+{% get_static_prefix as STATIC_PREFIX %}
 
 {% block navigation_buttons %}
 {{ block.super }}
@@ -19,14 +20,14 @@
 {% endblock %}
 
 {% block content %}
-
-<div id="content-main">
+<div id="content2">
+<div class="content2-first max600">
 {% for node_type in node_types %}
     <!--
     <h3>{{ node_type.name|capfirst }}</h3>
     -->
     <div>
-    <fieldset class="module aligned wide">
+    <fieldset class="module aligned wide" id="#{{ node_type.id }}">
     {% if node_type.name %}<h2><a href="{% url schema_nodetype_edit graph.slug node_type.id %}">{{ node_type.name|capfirst }}</a></h2>{% endif %}
     {% for node_property in node_type.properties.all %}
          <div class="form-row indent">
@@ -137,6 +138,15 @@
     </div>
 {% endfor %}
 </div>
+<div class="content-divider"></div>
+    <div class="content2-second diagram">
+    <h2>{% trans "Diagram" %}</h2>
+    <div id="diagramContainer">
+        <div id="diagram"></div>
+    </div>
+    </div>
+</div>
+
 {% if node_types %}
     <a class="button" href="{% url schema_nodetype_create graph.slug %}">{% trans "New Type" %}</a>
 {% else %}
@@ -153,4 +163,20 @@
     {% trans "There are no types defined yet" %}.
 {% endif %}
 </span>
+{% endblock %}
+
+{% block extra_links %}
+<link rel="stylesheet" type="text/css" href="{{ STATIC_PREFIX }}css/schemas.diagram.css" />
+{% endblock %}
+{% block extra_scripts %}
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.13/jquery-ui.min.js"></script>
+<script type="text/javascript" src="{{ STATIC_PREFIX }}/js/jquery.jsplumb.1.3.8.min.js"></script>
+<script type="text/javascript" src="{{ STATIC_PREFIX }}/js/schemas.diagram.js"></script>
+<script type="text/javascript">
+if (!diagram) {
+    var diagram = {};
+}
+
+diagram.Models = {% autoescape off %}{{ graph.schema.get_schema_diagram }}{% endautoescape %};
+</script>
 {% endblock %}

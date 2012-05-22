@@ -90,6 +90,11 @@ abbr {
     display: none;
 }
 
+.max600 {
+    overflow: auto;
+    max-height: 600px;
+}
+
 a.disabled,a.disabled:hover {
     cursor: default;
     color: #B0B0B0;
