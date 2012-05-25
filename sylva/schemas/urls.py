@@ -41,6 +41,11 @@ urlpatterns = patterns('schemas.views',
         name="schema_relationshiptype_delete"),
 
     # export schema
+    url(r'^(?P<graph_slug>[\w-]+)/diagram/$',
+        'schema_diagram_positions',
+        name="schama_diagram_positions"),
+
+    # export schema
     url(r'^(?P<graph_slug>[\w-]+)/export/$',
         'schema_export',
         name="schema_export"),

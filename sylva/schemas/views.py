@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import simplejson
+import json
 
 from django.db import transaction
 from django.core.urlresolvers import reverse
@@ -240,7 +240,7 @@ def schema_relationshiptype_delete(request, graph_slug,
 def schema_export(request, graph_slug):
     graph = get_object_or_404(Graph, slug=graph_slug)
     schema = graph.schema.export()
-    response = HttpResponse(simplejson.dumps(schema), mimetype='application/json')
+    response = HttpResponse(json.dumps(schema), mimetype='application/json')
     response['Content-Disposition'] = 'attachment; filename=%s_schema.json' % graph_slug
     return response
 
@@ -254,7 +254,7 @@ def schema_import(request, graph_slug):
         form = SchemaImportForm(request.POST, request.FILES)
         # TODO Handle possible exceptions
         data = request.FILES['file'].read()
-        schema_dict = simplejson.loads(data)
+        schema_dict = json.loads(data)
         graph.schema._import(schema_dict)
         return redirect(schema_edit, graph_slug)
     return render_to_response('schemas_import.html',
@@ -262,3 +262,14 @@ def schema_import(request, graph_slug):
                                "form":  form},
                               context_instance=RequestContext(request))
 
+@permission_required("schemas.view_schema",
+                     (Schema, "graph__slug", "graph_slug"))
+def schema_diagram_positions(request, graph_slug):
+    status = 200  # OK
+    data = request.POST.copy()
+    if request.is_ajax() and data and "diagram_positions" in data:
+        graph = get_object_or_404(Graph, slug=graph_slug)
+        graph.schema.set_option("diagram_positions", data["diagram_positions"])
+        graph.schema.save()
+        status = 204  # No Content
+    return HttpResponse(status=status)

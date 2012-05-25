@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import simplejson as json
+import json
 
 from django.db import models, transaction
 from django.db.models import F
@@ -145,6 +145,28 @@ class Schema(models.Model):
                     for key, value in values.iteritems():
                         setattr(rp, key, value)
                     rp.save()
+
+    def get_options(self):
+        options = json.loads(self.options or "{}")
+        return options
+
+    def set_options(self, dic):
+        if isinstance(dic, dict):
+            self.options = json.dumps(dic)
+
+    def update_options(self, dic):
+        options = self.get_options()
+        options.update(dic)
+        self.options = json.dumps(options)
+
+    def get_option(self, key=None):
+        return self.get_options()[key]
+
+    def set_option(self, key, value):
+        if key and value:
+            options = self.get_options()
+            options[key] = value
+            self.options = json.dumps(options)
 
     @models.permalink
     def get_absolute_url(self):
