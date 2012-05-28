@@ -1,6 +1,6 @@
 Sylva
 ==========
-Sylva_ is an Annotated and Free Lexicon.
+Sylva_ is a Relaxed-Schema Graph Database Management System.
 
 Installation:
 -------------
