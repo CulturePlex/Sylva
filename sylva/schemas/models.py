@@ -2,7 +2,8 @@
 import json
 
 from django.db import models, transaction
-from django.db.models import F
+from django.db.models import F, Q
+from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.translation import gettext as _
 from django.template.defaultfilters import slugify
@@ -62,40 +63,6 @@ class Schema(models.Model):
         return schema_json
 
     def get_schema_diagram(self):
-
-        def get_property_fields(n):
-            return {'required': n.required,
-                'slug': n.slug,
-                'default': n.default,
-                'value': n.value,
-                'datatype': n.datatype,
-                'display': n.display,
-                'description': n.description,
-                'validation': n.validation}
-
-        schema = {}
-        schema["node_types"] = []
-        for node_type in self.nodetype_set.all():
-            schema["node_types"].append(node_type)
-        schema["relationship_types"] = []
-        for r_type in self.relationshiptype_set.all():
-            schema["relationship_types"].append(r_type)
-        schema_json = {"nodeTypes": {}, "allowedEdges":[]}
-        for node_type in schema["node_types"]:
-            attributes = {}
-            for n in node_type.properties.all():
-                attributes[n.key] = get_property_fields(n)
-            schema_json["nodeTypes"][node_type.name] = attributes
-        for edge_type in schema["relationship_types"]:
-            edge_attributes = {}
-            for n in edge_type.properties.all():
-                edge_attributes[n.key] = get_property_fields(n)
-            schema_json["allowedEdges"].append({
-                "source": edge_type.source.name,
-                "label": edge_type.name,
-                "target": edge_type.target.name,
-                "properties": edge_attributes})
-
         schema = {}
         for node_type in self.nodetype_set.all():
             fields = []
@@ -109,6 +76,23 @@ class Schema(models.Model):
                     "blank": False,
                 }
                 fields.append(field)
+            for rel_type in node_type.get_all_relationships():
+                rel_fields = []
+                for rel_property in rel_type.properties.all():
+                    field = {
+                        "label": rel_property.key,
+                        "type": rel_property.get_datatype(),
+                        "name": rel_property.slug,
+                    }
+                    rel_fields.append(field)
+                relation = {
+                    "label": rel_type.name,
+                    "name": rel_type.slug,
+                    "source": rel_type.source.slug,
+                    "target": rel_type.target.slug,
+                    "fields": rel_fields,
+                }
+                relations.append(relation)
             schema[node_type.slug] = {
                 "name": node_type.name,
                 "collapse": False,
@@ -117,10 +101,12 @@ class Schema(models.Model):
                 "fields": fields,
                 "relations": relations,
             }
-
         slug = self.graph.slug
         diagram = {slug: schema}
-        return json.dumps(diagram, indent=4)
+        if settings.DEBUG:
+            return json.dumps(diagram, indent=4)
+        else:
+            return json.dumps(diagram)
 
     def _import(self, data):
         with transaction.commit_on_success():
@@ -237,6 +223,9 @@ class NodeType(BaseType):
 
     def get_reflexive_relationships(self):
         return RelationshipType.objects.filter(source=self, target=self)
+
+    def get_all_relationships(self):
+        return RelationshipType.objects.filter(Q(source=self) | Q(target=self))
 
     def count(self):
         if self.id:
