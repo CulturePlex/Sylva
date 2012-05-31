@@ -20,7 +20,8 @@
 {% endblock %}
 
 {% block content %}
-<div id="content2">
+{% if node_types %}
+<div>
 <div class="content2-first max600">
 {% for node_type in node_types %}
     <!--
@@ -138,18 +139,16 @@
     </div>
 {% endfor %}
 </div>
-<div class="content-divider"></div>
+    <div class="content-divider"></div>
     <div class="content2-second diagram">
-    <h2>{% trans "Diagram" %}</h2>
-    <div id="diagramContainer">
-        <div id="diagram"></div>
+        <h2>{% trans "Diagram" %}</h2>
+        <div id="diagramContainer">
+            <div id="diagram"></div>
+        </div>
+        <input type="hidden" id="id_diagram_positions" name="diagram_positions" value="{{ graph.schema.get_options.diagram_positions }}"/>
+        <input type="hidden" id="id_diagram_positions_url" name="diagram_positions" value="{% url schama_diagram_positions graph.slug %}"/>
     </div>
-    </div>
-    <input type="hidden" id="id_diagram_positions" name="diagram_positions" value="{{ graph.schema.get_options.diagram_positions }}"/>
-    <input type="hidden" id="id_diagram_positions_url" name="diagram_positions" value="{% url schama_diagram_positions graph.slug %}"/>
 </div>
-
-{% if node_types %}
     <a class="button" href="{% url schema_nodetype_create graph.slug %}">{% trans "New Type" %}</a>
 {% else %}
     <a class="button" href="{% url schema_import graph.slug %}">{% trans "Import Schema" %}</a>
