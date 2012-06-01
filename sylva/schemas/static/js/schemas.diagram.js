@@ -4,6 +4,7 @@ if (!diagram) {
 }
 diagram.Container = "diagram";
 diagram.CurrentModels = [];
+diagram.CurrentRelations = [];
 
 (function($) {
     /**
@@ -46,17 +47,16 @@ diagram.CurrentModels = [];
                 lineWidth: 4,
                 strokeStyle: '#70A249'
             },
-            makeOverlays: function() {
-                return [
-                    new jsPlumb.Overlays.PlainArrow({
-                        foldback: 0,
-                        fillStyle: '#96D25C',
-                        strokeStyle: '#70A249',
-                        location: 0.99,
-                        width: 10,
-                        length: 10})
-                ];
-            }
+            overlays: [
+                ["PlainArrow", {
+                    foldback: 0,
+                    fillStyle: '#96D25C',
+                    strokeStyle: '#70A249',
+                    location: 0.99,
+                    width: 10,
+                    length: 10}
+                ]
+            ]
         };
         diagram.Defaults["many"] = {
             label: null,
@@ -76,24 +76,23 @@ diagram.CurrentModels = [];
                 lineWidth: 4,
                 strokeStyle: '#C55454'
             },
-            makeOverlays: function() {
-                return [
-                    new jsPlumb.Overlays.PlainArrow({
-                        foldback: 0,
-                        fillStyle: '#DB9292',
-                        strokeStyle: '#C55454',
-                        location: 0.75,
-                        width: 10,
-                        length: 10}),
-                    new jsPlumb.Overlays.PlainArrow({
-                        foldback: 0,
-                        fillStyle: '#DB9292',
-                        strokeStyle: '#C55454',
-                        location: 0.25,
-                        width: 10,
-                        length: 10})
-                ];
-            }
+            overlays: [
+                ["PlainArrow", {
+                    foldback: 0,
+                    fillStyle: '#DB9292',
+                    strokeStyle: '#C55454',
+                    location: 0.75,
+                    width: 10,
+                    length: 10}
+                ], ["PlainArrow", {
+                    foldback: 0,
+                    fillStyle: '#DB9292',
+                    strokeStyle: '#C55454',
+                    location: 0.25,
+                    width: 10,
+                    length: 10}
+                ]
+            ]
         }
 
         jsPlumb.Defaults.DragOptions = {cursor: 'pointer', zIndex: 2000};
@@ -190,7 +189,7 @@ diagram.CurrentModels = [];
             }
             divBox.prepend(divTitle);
             root.append(divBox);
-            divBox.draggable({
+            jsPlumb.draggable("diagramBox_"+ modelName, {
                 handle: ".title",
                 grid: [10, 10],
                 stop: function (event, ui) {
@@ -245,7 +244,7 @@ diagram.CurrentModels = [];
                 } else {
                     diagram.addBox(graphName, modelName);
                 }
-                diagram.updateRelations();
+                diagram.addRelations(graphName, modelName);
             }
         };
 
@@ -320,46 +319,63 @@ diagram.CurrentModels = [];
         }
 
         /**
+         * Iterate for outgoing relations from modelName to the CurrentModels
+         * - graphName.
+         * - modelName.
+         */
+        diagram.addRelations = function(graphName, modelName) {
+            var sourceId, targetId, model, lengthRelations, relationIndex, relation;
+            model = diagram.Models[graphName][modelName];
+            lengthRelations = model.relations.length;
+            for(var relationIndex = 0; relationIndex < lengthRelations; relationIndex++) {
+                relation = model.relations[relationIndex];
+                if ((diagram.CurrentModels.indexOf(graphName +"."+ relation.source) >= 0)
+                    && (diagram.CurrentModels.indexOf(graphName +"."+ relation.target) >= 0)) {
+                    sourceId = "diagramBox_"+ relation.source;
+                    targetId = "diagramBox_"+ relation.target;
+                    diagram.addRelation(sourceId, targetId, relation.label);
+                }
+            }
+        }
+
+        /**
          * Create a relation between a element with id sourceId and targetId
          * - sourceId.
-         * - sourceFieldName
          * - targetId.
-         * - targetFieldName
          * - label.
-         * - labelStyle.
-         * - paintStyle.
-         * - backgroundPaintStyle.
-         * - overlays.
+         * - relStyle.
          */
-        diagram.addRelation = function(sourceId, sourceField, targetId, targetField, label, labelStyle, paintStyle, backgroundPaintStyle, overlays) {
-            var mediumHeight;
-            mediumHeight = sourceField.css("height");
-            mediumHeight = parseInt(mediumHeight.substr(0, mediumHeight.length - 2)) / 2;
+        diagram.addRelation = function(sourceId, targetId, label, relStyle) {
+            // var mediumHeight;
+            // mediumHeight = sourceField.css("height");
+            // mediumHeight = parseInt(mediumHeight.substr(0, mediumHeight.length - 2)) / 2;
+            if (!relStyle || (relStyle !== "foreign" && relStyle !== "many")) {
+                relStyle = "foreign"
+            }
             jsPlumb.connect({
                 scope: "diagramBox",
                 label: label,
-                labelStyle: labelStyle,
+                labelStyle: diagram.Defaults[relStyle].labelStyle,
                 source: sourceId,
                 target: targetId,
-                endpoints: [
-                    new jsPlumb.Endpoints.Dot({radius: 0}),
-                    new jsPlumb.Endpoints.Dot({radius: 0})
-                ],
-                paintStyle: paintStyle,
-                backgroundPaintStyle: backgroundPaintStyle,
-                overlays: overlays,
-                anchors: [
-                    jsPlumb.makeDynamicAnchor([
-                        jsPlumb.makeAnchor(1, 0, 1, 0, 0, sourceField.position().top + mediumHeight + 4),
-                        jsPlumb.makeAnchor(0, 0, -1, 0, 0, sourceField.position().top + mediumHeight + 4)
-                    ]),
-                    jsPlumb.makeDynamicAnchor([
-                        jsPlumb.makeAnchor(0, 0, -1, 0, 0, targetField.position().top + mediumHeight + 4),
-                        jsPlumb.makeAnchor(1, 0, 1, 0, 0, targetField.position().top + mediumHeight + 4)
-                    ])
-                ]
+                detachable:false,
+                paintStyle: diagram.Defaults[relStyle].paintStyle,
+                backgroundPaintStyle: diagram.Defaults[relStyle].backgroundPaintStyle,
+                overlays: diagram.Defaults[relStyle].overlays,
+                // anchors: [
+                //     jsPlumb.makeDynamicAnchor([
+                //         jsPlumb.makeAnchor(1, 0, 1, 0, 0, sourceField.position().top + mediumHeight + 4),
+                //         jsPlumb.makeAnchor(0, 0, -1, 0, 0, sourceField.position().top + mediumHeight + 4)
+                //     ]),
+                //     jsPlumb.makeDynamicAnchor([
+                //         jsPlumb.makeAnchor(0, 0, -1, 0, 0, targetField.position().top + mediumHeight + 4),
+                //         jsPlumb.makeAnchor(1, 0, 1, 0, 0, targetField.position().top + mediumHeight + 4)
+                //     ]),
+                // ]
+                endpoint: "Blank",
+                anchor:"AutoDefault"
             });
-            diagram.CurrentRelations.push(sourceField.attr("id") +"~"+ targetField.attr("id"));
+            diagram.CurrentRelations.push(sourceId +"~"+ sourceId);
         }
 
        /**
@@ -413,7 +429,7 @@ diagram.CurrentModels = [];
                 position = positions[i]
                 // Show just selected models
                 // if (!(appModel in diagram.CurrentModels)) {
-                //     $("#qbeModelItem_"+ modelName).toggleClass("selected");
+                //     $("#diagramModelItem_"+ modelName).toggleClass("selected");
                 //     diagram.addModule(graphName, modelName);
                 // }
                 $("#diagramBox_"+ position.modelName).css({
@@ -427,6 +443,7 @@ diagram.CurrentModels = [];
                     $("#diagramFields_"+ position.modelName).toggleClass("hidden");
                 }
             }
+            jsPlumb.repaintEverything();
         }
         diagram.loadModels();
     };
