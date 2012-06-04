@@ -28,7 +28,7 @@
     <h3>{{ node_type.name|capfirst }}</h3>
     -->
     <div>
-    <fieldset class="module aligned wide" id="model_{{ node_type.slug }}">
+    <fieldset class="module aligned wide model" id="model_{{ node_type.slug }}">
     {% if node_type.name %}<h2><a href="{% url schema_nodetype_edit graph.slug node_type.id %}">{{ node_type.name|capfirst }}</a></h2>{% endif %}
     {% for node_property in node_type.properties.all %}
          <div class="form-row indent">
@@ -171,7 +171,7 @@
 {% endblock %}
 {% block extra_scripts %}
 <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.13/jquery-ui.min.js"></script>
-<script type="text/javascript" src="{{ STATIC_PREFIX }}js/jquery.jsplumb.1.3.8.min.js"></script>
+<script type="text/javascript" src="{{ STATIC_PREFIX }}js/jquery.jsplumb.1.3.9.min.js"></script>
 <script type="text/javascript" src="{{ STATIC_PREFIX }}js/jquery.scrollto.min.js"></script>
 <script type="text/javascript" src="{{ STATIC_PREFIX }}js/schemas.diagram.js"></script>
 <script type="text/javascript">

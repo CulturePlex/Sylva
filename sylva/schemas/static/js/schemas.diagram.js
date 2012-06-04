@@ -4,7 +4,7 @@ if (!diagram) {
 }
 diagram.Container = "diagram";
 diagram.CurrentModels = [];
-diagram.CurrentRelations = [];
+diagram.CurrentRelations = {};
 
 (function($) {
     /**
@@ -36,38 +36,33 @@ diagram.CurrentRelations = [];
 
     init = function() {
         diagram.Defaults = {};
-        diagram.Defaults["foreign"] = {
+        diagram.Defaults["single"] = {
             label: null,
-            labelStyle: null,
             paintStyle: {
-                strokeStyle: '#96D25C',
+                strokeStyle: '#AEAA78',
                 lineWidth: 2
             },
             backgroundPaintStyle: {
                 lineWidth: 4,
-                strokeStyle: '#70A249'
+                strokeStyle: '#AEAA78'
             },
-            overlays: [
-                ["PlainArrow", {
-                    foldback: 0,
-                    fillStyle: '#96D25C',
-                    strokeStyle: '#70A249',
-                    location: 0.99,
-                    width: 10,
-                    length: 10}
-                ]
-            ]
+            overlays: function(labelOptions) {
+                return [
+                    ["Label", labelOptions],
+                    ["PlainArrow", {
+                        foldback: 0,
+                        fillStyle: '#348E82',
+                        strokeStyle: '#348E82',
+                        location: 0.99,
+                        width: 10,
+                        length: 10}
+                    ]
+                ];
+            }
         };
-        diagram.Defaults["many"] = {
+        diagram.Defaults["double"] = {
             label: null,
-            labelStyle: {
-                fillStyle: "white",
-                padding: 0.25,
-                font: "12px sans-serif", 
-                color: "#C55454",
-                borderStyle: "#C55454", 
-                borderWidth: 3
-            },
+            cssClass: "connection",
             paintStyle: {
                 strokeStyle: '#DB9292',
                 lineWidth: 2
@@ -76,23 +71,26 @@ diagram.CurrentRelations = [];
                 lineWidth: 4,
                 strokeStyle: '#C55454'
             },
-            overlays: [
-                ["PlainArrow", {
-                    foldback: 0,
-                    fillStyle: '#DB9292',
-                    strokeStyle: '#C55454',
-                    location: 0.75,
-                    width: 10,
-                    length: 10}
-                ], ["PlainArrow", {
-                    foldback: 0,
-                    fillStyle: '#DB9292',
-                    strokeStyle: '#C55454',
-                    location: 0.25,
-                    width: 10,
-                    length: 10}
-                ]
-            ]
+            overlays: function(labelOptions) {
+                return [
+                    ["Label", labelOptions],
+                    ["PlainArrow", {
+                        foldback: 0,
+                        fillStyle: '#DB9292',
+                        strokeStyle: '#C55454',
+                        location: 0.75,
+                        width: 10,
+                        length: 10}
+                    ], ["PlainArrow", {
+                        foldback: 0,
+                        fillStyle: '#DB9292',
+                        strokeStyle: '#C55454',
+                        location: 0.25,
+                        width: 10,
+                        length: 10}
+                    ]
+                ];
+            }
         }
 
         jsPlumb.Defaults.DragOptions = {cursor: 'pointer', zIndex: 2000};
@@ -132,6 +130,7 @@ diagram.CurrentRelations = [];
                 anchorDelete.toggleClass("inline-morelink");
                 anchorDelete.toggleClass("inline-deletelink");
                 diagram.saveBoxPositions();
+                jsPlumb.repaintEverything();
             });
             divTitle.append(anchorDelete);
             divFields = $("<DIV>");
@@ -146,11 +145,11 @@ diagram.CurrentRelations = [];
                 diagram.setLabel(divField, field.label, field.primary);
                 divField.attr("id", "diagramBoxField_"+ graphName +"."+ modelName +"."+ fieldName);
                 if (field.type == "ForeignKey") {
-                    divField.addClass("foreign");
+                    divField.addClass("single");
                     divField.click(diagram.addRelated);
                     divBox.prepend(divField);
                 } else if (field.type == "ManyToManyField") {
-                    divField.addClass("many");
+                    divField.addClass("double");
                     divField.click(diagram.addRelated);
                     if (!divManies) {
                         divManies = $("<DIV>");
@@ -225,6 +224,7 @@ diagram.CurrentRelations = [];
                 div.attr("title", label);
                 div.attr("alt", label);
             }
+            return div;
         };
 
         /**
@@ -262,62 +262,6 @@ diagram.CurrentRelations = [];
             }
         };
 
-        /*
-         * Update relations among models
-         */
-        diagram.updateRelations = function () {
-            var label, labelStyle, paintStyle, backgroundPaintStyle, makeOverlay;
-            var relations, relation, mediumHeight, connections;
-            var sourceAppModel, sourceModelName, sourceAppName, sourceModel, sourceFieldName, sourceId, sourceField, sourceSplits, divSource;
-            var targetModel, targetAppName, targetModelName, targetFieldName, targetId, targetField, divTarget;
-            for(var i=0; i<diagram.CurrentModels.length; i++) {
-                sourceAppModel = diagram.CurrentModels[i];
-                sourceSplits = sourceAppModel.split(".");
-                sourceAppName = sourceSplits[0];
-                sourceModelName = sourceSplits[1];
-                sourceModel = diagram.Models[sourceAppName][sourceModelName];
-                relations = sourceModel.relations;
-                for(var j=0; j<relations.length; j++) {
-                    relation = relations[j];
-                    sourceFieldName = relation.source;
-                    label = diagram.Defaults["foreign"].label;
-                    labelStyle = diagram.Defaults["foreign"].labelStyle;
-                    paintStyle = diagram.Defaults["foreign"].paintStyle;
-                    makeOverlays = diagram.Defaults["foreign"].makeOverlays;
-                    backgroundPaintStyle = diagram.Defaults["foreign"].backgroundPaintStyle;
-                    if (relation.target.through) {
-                        if (diagram.Models[relation.target.through.name][relation.target.through.model].is_auto) {
-                            targetModel = relation.target;
-                            label = relation.target.through.model;
-                            labelStyle = diagram.Defaults["many"].labelStyle;
-                            paintStyle = diagram.Defaults["many"].paintStyle;
-                            makeOverlays = diagram.Defaults["many"].makeOverlays;
-                            backgroundPaintStyle = diagram.Defaults["many"].backgroundPaintStyle;
-                        } else {
-                            targetModel = relation.target.through;
-                        }
-                    } else {
-                        targetModel = relation.target;
-                    }
-                    targetAppName = targetModel.name;
-                    targetModelName = targetModel.model;
-                    targetFieldName = targetModel.field;
-                    sourceField = $("#diagramBoxField_"+ sourceAppName +"\\."+ sourceModelName +"\\."+ sourceFieldName);
-                    targetField = $("#diagramBoxField_"+ targetAppName +"\\."+ targetModelName +"\\."+ targetFieldName);
-                    if (sourceField.length && targetField.length
-                        && !diagram.hasConnection(sourceField, targetField)) {
-                        sourceId = "diagramBox_"+ sourceModelName;
-                        targetId = "diagramBox_"+ targetModelName;
-                        divSource = document.getElementById(sourceId);
-                        divTarget = document.getElementById(targetId);
-                        if (divSource && divTarget) {
-                            diagram.addRelation(sourceId, sourceField, targetId, targetField, label, labelStyle, paintStyle, backgroundPaintStyle, makeOverlays());
-                        }
-                    }
-                }
-            }
-        }
-
         /**
          * Iterate for outgoing relations from modelName to the CurrentModels
          * - graphName.
@@ -346,36 +290,37 @@ diagram.CurrentRelations = [];
          * - relStyle.
          */
         diagram.addRelation = function(sourceId, targetId, label, relStyle) {
+            var connection, connectionKey, currentLabel;
             // var mediumHeight;
             // mediumHeight = sourceField.css("height");
             // mediumHeight = parseInt(mediumHeight.substr(0, mediumHeight.length - 2)) / 2;
-            if (!relStyle || (relStyle !== "foreign" && relStyle !== "many")) {
-                relStyle = "foreign"
+            connectionKey = sourceId +"~"+ targetId
+            if (!(connectionKey in diagram.CurrentRelations)) {
+                if (!relStyle || (relStyle !== "single" && relStyle !== "double")) {
+                    relStyle = "single"
+                }
+                connection = jsPlumb.connect({
+                    scope: "diagramBox",
+                    source: sourceId,
+                    target: targetId,
+                    detachable:false,
+                    connector:"Flowchart",
+                    paintStyle: diagram.Defaults[relStyle].paintStyle,
+                    backgroundPaintStyle: diagram.Defaults[relStyle].backgroundPaintStyle,
+                    overlays: diagram.Defaults[relStyle].overlays({
+                        label: label,
+                        cssClass: "connection",
+                        id: connectionKey
+                    }),
+                    endpoint: "Blank",
+                    anchor:"Continuous"
+                });
+                diagram.CurrentRelations[connectionKey] = connection;
+            } else {
+                connection = diagram.CurrentRelations[connectionKey].getOverlay(connectionKey);
+                currentLabel = connection.getLabel();
+                connection.setLabel(currentLabel + "<br/>"+ label);
             }
-            jsPlumb.connect({
-                scope: "diagramBox",
-                label: label,
-                labelStyle: diagram.Defaults[relStyle].labelStyle,
-                source: sourceId,
-                target: targetId,
-                detachable:false,
-                paintStyle: diagram.Defaults[relStyle].paintStyle,
-                backgroundPaintStyle: diagram.Defaults[relStyle].backgroundPaintStyle,
-                overlays: diagram.Defaults[relStyle].overlays,
-                // anchors: [
-                //     jsPlumb.makeDynamicAnchor([
-                //         jsPlumb.makeAnchor(1, 0, 1, 0, 0, sourceField.position().top + mediumHeight + 4),
-                //         jsPlumb.makeAnchor(0, 0, -1, 0, 0, sourceField.position().top + mediumHeight + 4)
-                //     ]),
-                //     jsPlumb.makeDynamicAnchor([
-                //         jsPlumb.makeAnchor(0, 0, -1, 0, 0, targetField.position().top + mediumHeight + 4),
-                //         jsPlumb.makeAnchor(1, 0, 1, 0, 0, targetField.position().top + mediumHeight + 4)
-                //     ]),
-                // ]
-                endpoint: "Blank",
-                anchor:"AutoDefault"
-            });
-            diagram.CurrentRelations.push(sourceId +"~"+ sourceId);
         }
 
        /**
