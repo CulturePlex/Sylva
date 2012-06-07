@@ -20,7 +20,7 @@ class GraphDatabase(BlueprintsGraphDatabase):
         try:
             self.gdb = Neo4jGraphDatabase(self.url)
         except Neo4jDatabaseConnectionError:
-            raise GraphDatabaseConnectionError(self.url) 
+            raise GraphDatabaseConnectionError(self.url)
         self.setup_indexes()
 
     def _clean_count(self, count):
@@ -98,20 +98,20 @@ class GraphDatabase(BlueprintsGraphDatabase):
             match = lookup["match"].replace(u"/", u"\\/")
             prop = lookup["property"].replace(u"`", u"\\`")
             if lookup["lookup"] == "contains":
-                where = u"(n.`%s` AND n.`%s` =~ /(?i).*%s.*/)" % (prop, prop,
-                                                                  match)
+                where = u"(has(n.`%s`) and n.`%s` =~ /(?i).*%s.*/)" \
+                        % (prop, prop, match)
             elif lookup["lookup"] == "starts":
-                where = u"(n.`%s` AND n.`%s` =~ /(?i)%s.*/)" % (prop, prop,
-                                                                  match)
+                where = u"(has(n.`%s`) and n.`%s` =~ /(?i)%s.*/)" \
+                        % (prop, prop, match)
             elif lookup["lookup"] == "ends":
-                where = u"(n.`%s` AND n.`%s` =~ /(?i).*%s/)" % (prop, prop,
-                                                                  match)
+                where = u"(has(n.`%s`) and n.`%s` =~ /(?i).*%s/)" \
+                        % (prop, prop, match)
             elif lookup["lookup"] == "exact":
-                where = u"(n.`%s` AND n.`%s` =~ /(?i)%s/)" % (prop, prop,
-                                                                  match)
+                where = u"(has(n.`%s`) and n.`%s` =~ /(?i)%s/)" \
+                        % (prop, prop, match)
             if where:
                 wheres.append(where)
-        script = u" %s %s return n" % (script, " OR ".join(wheres))
+        script = u"%s %s return n" % (script, " or ".join(wheres))
         result = None
         try:
             result = cypher(query=script)
