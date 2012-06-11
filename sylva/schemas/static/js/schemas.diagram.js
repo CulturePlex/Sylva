@@ -123,6 +123,7 @@ diagram.CurrentRelations = {};
             anchorDelete = $("<A>");
             anchorDelete.html("x");
             anchorDelete.attr("href", "javascript:void(0);");
+            anchorDelete.attr("id", "inlineDeleteLink_"+ modelName);
             anchorDelete.addClass("inline-deletelink");
             anchorDelete.click(function () {
                 $("#diagramModelAnchor_"+ graphName +"\\\."+ modelName).click();
@@ -276,7 +277,12 @@ diagram.CurrentRelations = {};
                 if ((diagram.CurrentModels.indexOf(graphName +"."+ relation.source) >= 0)
                     && (diagram.CurrentModels.indexOf(graphName +"."+ relation.target) >= 0)) {
                     sourceId = "diagramBox_"+ relation.source;
-                    targetId = "diagramBox_"+ relation.target;
+                    if (relation.source === relation.target) {
+                        // Reflexive relationships
+                        targetId = "inlineDeleteLink_"+ relation.target;
+                    } else {
+                        targetId = "diagramBox_"+ relation.target;
+                    }
                     diagram.addRelation(sourceId, targetId, relation.label);
                 }
             }
@@ -294,7 +300,7 @@ diagram.CurrentRelations = {};
             // var mediumHeight;
             // mediumHeight = sourceField.css("height");
             // mediumHeight = parseInt(mediumHeight.substr(0, mediumHeight.length - 2)) / 2;
-            connectionKey = sourceId +"~"+ targetId
+            connectionKey = sourceId +"~"+ targetId;
             if (!(connectionKey in diagram.CurrentRelations)) {
                 if (!relStyle || (relStyle !== "single" && relStyle !== "double")) {
                     relStyle = "single"

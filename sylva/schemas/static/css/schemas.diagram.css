@@ -163,4 +163,5 @@ div.diagram .connection:hover {
    -webkit-box-shadow: 2px 2px 5px #aaa;
    -moz-box-shadow: 2px 2px 5px #aaa;
     max-width: inherit;
+    z-index: 100;
 }
