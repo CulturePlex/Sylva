@@ -27,11 +27,16 @@
     <div id="node-type-legend">
     </div>
   </div>
+<select name="display-type" id="display-type" style="width: 200px;">
+  <option value="0" selected="selected">Processing</option>
+  <option value="1">Sigma</option>
+</select>
   <div id="canvas-box">
     <canvas id="graphcanvas">{% trans "Your browser does not support graph visualization" %}</canvas>
-  </div>  
+  </div>
 </div>
-  <!-- Start of DOM elements working as memory system and debugging -->        
+
+  <!-- Start of DOM elements working as memory system and debugging -->
 <div id="sec-debug">
   <div id="sec-node-list">
     <ul id="node-list"></ul>
@@ -47,14 +52,14 @@
   <h3>Graph Schema Debug</h3>
   <textarea id="id_graph_schema" rows="10" cols="80" name="graph_schema">{}</textarea>
 </div>
-<!-- End of DOM elements working as memory system and debugging -->        
+<!-- End of DOM elements working as memory system and debugging -->
 
 <br/>
 <div>
     <div class="not-available">
     {% blocktrans with graph.slug as graph_id %}
     You can also try to
-    <a title="Download as .gexf" href="/tools/{{ graph_id }}/export/">download</a> 
+    <a title="Download as .gexf" href="/tools/{{ graph_id }}/export/">download</a>
     as a <a href="http://gephi.org/" title="Gephi, The Open Graph Visualization Platform">Gephi</a> file.
     {% endblocktrans %}
     </div>
@@ -72,7 +77,7 @@ var edges = {{ edges|safe }};
 var nodeTypesLegend = {};
 
 function updateInfo(evt, nodeName, nodeId) {
-  
+
   if (nodeId === undefined) {nodeId = nodeName};
 
 
@@ -83,7 +88,7 @@ function updateInfo(evt, nodeName, nodeId) {
 
     var expandNodeLinkURL = "{% url expand_node graph.slug 0 %}";
     expandNodeLinkURL = expandNodeLinkURL.replace('0/expand/', nodeId + '/expand/');
-    
+
     $.ajax({
       url: expandNodeLinkURL,
       success: function(result){
@@ -125,7 +130,7 @@ function updateInfo(evt, nodeName, nodeId) {
     });
 
     if (selectedNode === undefined) { return false; }
-  
+
     $.each(edges, function(i, edge) {
       if (edge.source === selectedNodeName || edge.target === selectedNodeName) {
         indexesToDelete.push(i);

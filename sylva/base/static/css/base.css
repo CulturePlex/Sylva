@@ -478,7 +478,7 @@ a {
 }
 
 .content3-block p {
-    width:365px; 
+    width:365px;
     float:left;
     text-align:left;
 }
@@ -511,7 +511,7 @@ a {
 }
 
 .content2-block p {
-    width:365px; 
+    width:365px;
     float:left;
     text-align:left;
 }
@@ -522,7 +522,7 @@ a {
     width: 1px;
     min-height: 400px;
     float: left;
-    padding: 0px 10px 0px 10px; 
+    padding: 0px 10px 0px 10px;
 }
 
 #content2 .content-divider {
@@ -1010,7 +1010,7 @@ ul.errorlist {
 }
 
 .flags-block p {
-    width: 100%; 
+    width: 100%;
     float:left;
     text-align:left;
 }
@@ -1249,7 +1249,7 @@ table.content-table {
 
 #canvas-info {
   width: 180px;
-  height: 300px;
+  height: 325px;
   float: left;
   margin-right: 4px;
   padding: 3px;
