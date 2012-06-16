@@ -13,10 +13,10 @@
     <meta name="distribution" content="global">
     <meta name="rating" content="general">
     <meta name="robots" content="ALL">
-    <meta name="copyright" content="Copyright {{ CURRENT_DATE|date:"Y" }} CulturePlex Lab."> 
-    <meta name="description" content="A Relaxed-Schema Graph Database Management System"> 
+    <meta name="copyright" content="Copyright {{ CURRENT_DATE|date:"Y" }} CulturePlex Lab.">
+    <meta name="description" content="A Relaxed-Schema Graph Database Management System">
     <meta name="keywords" content="graph, database, graph database, system, sylva, sylva project, schema-less, relaxed schema, management, database management system, DBMS">
-    <link rel="icon" href="{{ STATIC_PREFIX }}img/favicon.ico"> 
+    <link rel="icon" href="{{ STATIC_PREFIX }}img/favicon.ico">
     <link rel="stylesheet" type="text/css" href="{{ STATIC_PREFIX }}css/base.css" />
     <!--[if lt IE 7]>
     <link rel="stylesheet" type="text/css" href="{{ STATIC_PREFIX }}css/iefixes.css" />
@@ -97,6 +97,10 @@
 <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
 <script type="text/javascript" src="{{ STATIC_PREFIX }}js/dashboard.toolbar.js"></script>
 <!--    <script type="text/javascript" src="{{ STATIC_PREFIX }}js/jquery.simplemodal.1.4.1.min.js"></script>-->
+<script type="text/javascript">
+  // global namespace
+  var sylv = {};
+</script>
 {% block extra_scripts %}{% endblock %}
 <script type="text/javascript">
   var _gaq = _gaq || [];

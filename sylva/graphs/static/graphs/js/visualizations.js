@@ -1,0 +1,3 @@
+$(function() {
+    sylv.Processing.init();
+});
