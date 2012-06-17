@@ -1,3 +1,7 @@
+// JSHint options
+
+/*global window:true, document:true, setTimeout:true, console:true, jQuery:true, sylv:true, prompt:true, alert:true, FileReader:true, Processing:true */
+
 ;(function($, window, document, undefined) {
 
   var GraphEditor = {
@@ -35,7 +39,7 @@
     addNodeToList: function(name){
       var nodeList = document.getElementById("node-list");
       var node = this.getGraphNodesJSON()[name];
-      if (node.type != undefined){
+      if (node.type !== undefined){
         name += ' (type: ' + node.type  + ')';
       }
       this.addElementToList(name, nodeList, "item");
@@ -68,13 +72,13 @@
       }
       var data = _properties !== undefined ? _properties : {};
       if (this.USES_TYPES) {
-        data["type"] = data.hasOwnProperty('type') ? data["type"] : prompt("Enter new node type");
+        data.type = data.hasOwnProperty('type') ? data.type : prompt("Enter new node type");
       }
       json[nodeName] = data;
       this.setGraphNodesJSON(json);
       if (this.USES_DRAWER) {
         if (data.hasOwnProperty('position')){
-          this.drawer.addLocatedNode(nodeName, _properties['position']['x'], _properties['position']['y'], data.type, data.id)
+          this.drawer.addLocatedNode(nodeName, _properties.position.x, _properties.position.y, data.type, data.id);
         } else {
           this.drawer.addNode(nodeName, data.type, data.id);
         }
@@ -113,7 +117,7 @@
         alert("ERROR: Unknown node: " + edgeTarget);
         return;
       }
-      if (edgeType == "") {
+      if (edgeType === "") {
         alert("Relationship type is mandatory");
         return;
       }
@@ -129,7 +133,7 @@
     },
 
     deleteEdge: function(number){
-      var edgeNumber = (number !== undefined) ? number : parseInt(prompt("Enter edge number to be deleted")) - 1;
+      var edgeNumber = (number !== undefined) ? number : parseInt(prompt("Enter edge number to be deleted"), 10) - 1;
       var json = this.getGraphEdgesJSON();
       if (edgeNumber>json.length || edgeNumber<0) {
         alert("Invalid edge number: " + (edgeNumber+1));
@@ -141,9 +145,9 @@
           newList.push(value);
         } else {
           if (GraphEditor.USES_DRAWER) {
-            GraphEditor.drawer.deleteEdge(value["source"],
-                                        value["type"],
-                                        value["target"]);
+            GraphEditor.drawer.deleteEdge(value.source,
+                                          value.type,
+                                          value.target);
           }
         }
       });
@@ -201,11 +205,12 @@
           GraphEditor.progressBar.show();
           var files = evt.target.files; // FileList object
 
-          for (var i = 0, f; f = files[i]; i++) {
+          for (var f in files) {
 
             var reader = new FileReader();
 
             // Closure to capture the file information.
+            // TODO: refactor
             reader.onload = (function(theFile) {
               return function(e) {
                 var gexfContent = e.target.result;
@@ -221,10 +226,10 @@
                   });
 
                   // Node position
-                  attributes["position"] =  {
+                  attributes.position =  {
                       "x":$(this).find('viz\\:position').attr('x'),
                       "y":$(this).find('viz\\:position').attr('y')
-                  }
+                  };
 
                   GraphEditor.addNode($(this).attr('label'), attributes);
                 });
@@ -371,6 +376,7 @@
     },
 
     loadSchema: function(nodeTypeLabel, edgeTypeLabel){
+      // TODO: refactor
       var nodeTypeLabel = (nodeTypeLabel === undefined) ? "type" : nodeTypeLabel;
       var edgeTypeLabel = (edgeTypeLabel === undefined) ? "type" : edgeTypeLabel;
       // Introspect graph schema
@@ -394,7 +400,7 @@
           });
         }
       });
-      var edgeTypes = {}
+      var edgeTypes = {};
       $.each(this.getGraphEdgesJSON(), function(index, item){
         var edgeLabel = nodes[item.source].type + "_" +
             item[edgeTypeLabel] +
@@ -411,7 +417,7 @@
       var schema = {
         nodeTypes: nodeTypes,
         allowedEdges: edgeTypes
-      }
+      };
       this.schema = schema;
       this.schemaToList('graph-schema-nodes',
                         'graph-schema-edges',
@@ -461,8 +467,8 @@
 
     init: function(){
       // Default parameters
-      this.USES_DRAWER = (this.USES_DRAWER != undefined) ? this.USES_DRAWER : true;
-      this.USES_TYPES = (this.USES_TYPES != undefined) ? this.USES_TYPES : true;
+      this.USES_DRAWER = (this.USES_DRAWER !== undefined) ? this.USES_DRAWER : true;
+      this.USES_TYPES = (this.USES_TYPES !== undefined) ? this.USES_TYPES : true;
 
       this.loadGEXF();
       this.loadCSVs();
@@ -478,7 +484,7 @@
             GraphEditor.drawer = new Processing(document.getElementById('graphcanvas'), block);
             GraphEditor.drawInitialData();
           },
-          error: function(){console.log("error")}
+          error: function(){console.log("error");}
           }
         );
       }
@@ -489,7 +495,7 @@
       var self = this;
       $.each(this.getGraphNodesJSON(), function(index, item){
         if (item.hasOwnProperty('position')){
-          self.drawer.addLocatedNode(index, item['position']['x'], item['position']['y'], item.type, item.id)
+          self.drawer.addLocatedNode(index, item.position.x, item.position.y, item.type, item.id);
         } else {
           self.drawer.addNode(index, item.type, item.id);
         }

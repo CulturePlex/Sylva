@@ -1,9 +1,13 @@
+// JSHint options
+
+/*global window:true, document:true, setTimeout:true, console:true, jQuery:true, sylv:true, prompt:true, alert:true, FileReader:true, Processing:true */
+
 ;(function(GraphEditor, nodes, edges, nodeTypesLegend, $, window, document, undefined) {
 
   function updateInfo(evt, nodeName, nodeId) {
     if (nodeId === undefined) {
-      nodeId = nodeName
-    };
+      nodeId = nodeName;
+    }
 
     var expandNode = function(){
       var edgeId;
@@ -37,7 +41,7 @@
         }
       });
       return false;
-    }
+    };
 
     var hideNode = function() {
       var selectedNode;
@@ -66,7 +70,7 @@
       GraphEditor.deleteNode(selectedNodeName);
       delete nodes[selectedNodeName];
       return false;
-    }
+    };
 
     var title = $('<h2>').text(nodeName);
 
@@ -79,13 +83,13 @@
     var expandNodeLink = $('<a>')
       .attr('href', "#")
       .text('Expand node')
-      .attr('href', 'javascript:void(0);')
+      .attr('href', 'javascript:void(0);') // TODO: refactor
       .click(expandNode);
 
     var hideNodeLink = $('<a>')
       .attr('href', "#")
       .text('Hide node')
-      .attr('href', 'javascript:void(0);')
+      .attr('href', 'javascript:void(0);') // TODO: refactor
       .click(hideNode);
 
     $('#element-info')
@@ -172,6 +176,6 @@
     updateInfo: updateInfo,
     updateInfoRelationship: updateInfoRelationship,
     init: init
-  }
+  };
 
 })(sylv.GraphEditor, sylv.nodes, sylv.edges, sylv.nodeTypesLegend, jQuery, window, document);
