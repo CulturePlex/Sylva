@@ -149,6 +149,7 @@
         nodeTypesLegend[element.getKey()] = '#' + element.getValue();
       }
       // Create legend in canvas
+      $('#node-type-legend').empty();
       var list = $('#node-type-legend').append($('<ul>'));
       list.css({
         listStyleType: 'none',
