@@ -2,7 +2,7 @@
 
 /*global window:true, document:true, setTimeout:true, console:true, jQuery:true, sylv:true, prompt:true, alert:true, FileReader:true, Processing:true */
 
-;(function(GraphEditor, nodes, edges, nodeTypesLegend, $, window, document, undefined) {
+;(function(GraphEditor, nodes, edges, nodeTypesLegend, sylv, $, window, document, undefined) {
 
   function updateInfo(evt, nodeName, nodeId) {
     if (nodeId === undefined) {
@@ -179,4 +179,4 @@
     init: init
   };
 
-})(sylv.GraphEditor, sylv.nodes, sylv.edges, sylv.nodeTypesLegend, jQuery, window, document);
+})(sylv.GraphEditor, sylv.nodes, sylv.edges, sylv.nodeTypesLegend, sylv, jQuery, window, document);

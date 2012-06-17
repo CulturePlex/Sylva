@@ -1256,6 +1256,19 @@ table.content-table {
   border: 3px solid #D8E8DE;
 }
 
+#visualization-type {
+    width: 200px;
+    border: 3px solid #D8E8DE;
+}
+
+#graph-container {
+    display: block;
+    float: right;
+    width: 947px;
+    height: 295px;
+    border: 3px solid #D8E8DE;
+}
+
 div.relationships-box {
   overflow: auto;
   max-height: 30px;

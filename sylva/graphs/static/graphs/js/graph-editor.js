@@ -2,7 +2,7 @@
 
 /*global window:true, document:true, setTimeout:true, console:true, jQuery:true, sylv:true, prompt:true, alert:true, FileReader:true, Processing:true */
 
-;(function($, window, document, undefined) {
+;(function(sylv, $, window, document, undefined) {
 
   var GraphEditor = {
     DEBUG: true,
@@ -508,4 +508,4 @@
 
   window.sylv.GraphEditor = GraphEditor;
 
-})(jQuery, window, document);
+})(sylv, jQuery, window, document);
