@@ -27,11 +27,17 @@
     <div id="node-type-legend">
     </div>
   </div>
+<select name="visualization-type" id="visualization-type">
+  <option data-type="processing" selected="selected">Processing</option>
+  <option data-type="sigma">Sigma</option>
+</select>
+  <div id="graph-container" style="display:none;"></div>
   <div id="canvas-box">
     <canvas id="graphcanvas">{% trans "Your browser does not support graph visualization" %}</canvas>
-  </div>  
+  </div>
 </div>
-  <!-- Start of DOM elements working as memory system and debugging -->        
+
+  <!-- Start of DOM elements working as memory system and debugging -->
 <div id="sec-debug">
   <div id="sec-node-list">
     <ul id="node-list"></ul>
@@ -47,15 +53,15 @@
   <h3>Graph Schema Debug</h3>
   <textarea id="id_graph_schema" rows="10" cols="80" name="graph_schema">{}</textarea>
 </div>
-<!-- End of DOM elements working as memory system and debugging -->        
+<!-- End of DOM elements working as memory system and debugging -->
 
 <br/>
 <div>
     <div class="not-available">
     {% blocktrans with graph.slug as graph_id %}
-    You can also try to
-    <a title="Download as .gexf" href="/tools/{{ graph_id }}/export/">download</a> 
-    as a <a href="http://gephi.org/" title="Gephi, The Open Graph Visualization Platform">Gephi</a> file.
+    <div class="download-message">
+      You can also try to <a title="Download as .gexf" href="/tools/{{ graph_id }}/export/">download</a> as a <a href="http://gephi.org/" title="Gephi, The Open Graph Visualization Platform">Gephi</a> file.
+    </div>
     {% endblocktrans %}
     </div>
 </div>
@@ -63,178 +69,20 @@
 {% endblock %}
 
 {% block extra_scripts %}
-<script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/processing-1.3.6.min.js"></script>
-<script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/graph-editor.js"></script>
 <script type="text/javascript">
-
-var nodes = {{ nodes|safe }};
-var edges = {{ edges|safe }};
-var nodeTypesLegend = {};
-
-function updateInfo(evt, nodeName, nodeId) {
-  
-  if (nodeId === undefined) {nodeId = nodeName};
-
-
-
-  var expandNode = function(){
-    var edgeId;
-    var edgeIds = $.map(edges, function(e) { return e.id; });
-
-    var expandNodeLinkURL = "{% url expand_node graph.slug 0 %}";
-    expandNodeLinkURL = expandNodeLinkURL.replace('0/expand/', nodeId + '/expand/');
-    
-    $.ajax({
-      url: expandNodeLinkURL,
-      success: function(result){
-        var parsedResult = JSON.parse(result);
-        var newNodes = parsedResult.nodes;
-        var newEdges = parsedResult.edges;
-
-        $.each(newNodes, function(i, node){
-          if (!nodes.hasOwnProperty(i)) {
-            GraphEditor.addNode(i, node);
-            nodes[i] = node;
-          }
-        });
-
-        $.each(newEdges, function(i, edge){
-          edgeId = edge.id;
-          if ($.inArray(edgeId, edgeIds) === -1) {
-            edges.push(edge);
-            GraphEditor.addEdge(edge.source, edge.type, edge.target, edge);
-          }
-        });
-
-      }
-    });
-    return false;
-  }
-
-  var hideNode = function() {
-    var selectedNode;
-    var selectedNodeName;
-    var indexesToDelete = [];
-
-    $.each(nodes, function(i, node) {
-      if (node.id == nodeId) {
-        selectedNode = node;
-        selectedNodeName = i;
-        return false;
-      }
-    });
-
-    if (selectedNode === undefined) { return false; }
-  
-    $.each(edges, function(i, edge) {
-      if (edge.source === selectedNodeName || edge.target === selectedNodeName) {
-        indexesToDelete.push(i);
-      }
-    });
-    $.each(indexesToDelete, function(i, index) {
-        edges.splice(index,1);
-        GraphEditor.deleteEdge(index);
-    });
-    GraphEditor.deleteNode(selectedNodeName);
-    delete nodes[selectedNodeName];
-    return false;
-  }
-
-  var title = $('<h2>').text(nodeName);
-
-  var editLinkURL = "{% url nodes_edit graph.slug 0 %}";
-  editLinkURL = editLinkURL.replace('0/edit/', nodeId + '/edit/');
-  var editLink = $('<a>')
-    .attr('href', editLinkURL)
-    .text('Edit node');
-
-  var expandNodeLink = $('<a>')
-    .attr('href', "#")
-    .text('Expand node')
-    .attr('href', 'javascript:void(0);')
-    .click(expandNode);
-
-  var hideNodeLink = $('<a>')
-    .attr('href', "#")
-    .text('Hide node')
-    .attr('href', 'javascript:void(0);')
-    .click(hideNode);
-
-  $('#element-info')
-    .empty()
-    .append(title)
-    .append(editLink)
-    .append($('<br>'))
-    .append(expandNodeLink)
-    .append($('<br>'))
-    .append(hideNodeLink);
-
-
-}
-
-
-function updateInfoRelationship(evt, relationshipId) {
-  /*
-  var editLinkURL = "";
-  editLinkURL = editLinkURL.replace('0/edit/', relationshipId, '/edit/');
-  var editLink = $('<a>')
-    .attr('href', editLinkURL)
-    .text('Edit relationship');
-  */
-  var title = $('<h2>').text("Relationship: " + relationshipId);
-
-  $('#canvas-info')
-    .empty()
-    .append(title);
-}
-
-$(document).ready(function(){
-  $('#sec-debug').hide(); // Comment this line to Debug the graph creation
-  GraphEditor.PDE_URL = "{{ STATIC_PREFIX }}graphs/js/graphdrawer.pde";
-  GraphEditor.USES_DRAWER = true;
-  GraphEditor.init();
-  $('#id_graph_nodes').val(JSON.stringify(nodes));
-  $('#id_graph_edges').val(JSON.stringify(edges));
-
-  // Attach the nodeSelect event from the canvas to update the
-  // node info box
-  $('body').bind('nodeSelected', updateInfo);
-  $('body').bind('edgeSelected', updateInfoRelationship);
-
-  // Type legend extraction from Processing
-  function loadNodeTypes() {
-    var element;
-    var p = Processing.getInstanceById('graphcanvas');
-    var colors = p.getNodeTypeColors();
-    var iterator = colors.entrySet().iterator();
-    while (iterator.hasNext()) {
-      element = iterator.next();
-      nodeTypesLegend[element.getKey()] = '#' + element.getValue();
-    }
-    // Create legend in canvas
-    var list = $('#node-type-legend').append($('<ul>'));
-    list.css({
-      listStyleType: 'none',
-      marginTop: "5px"
-    });
-    $.each(nodeTypesLegend, function(type, color){
-      if (type !== "notype"){
-        list
-          .append($('<li>')
-            .css({
-              backgroundColor: color,
-              minHeight: "20px",
-              paddingLeft: "3px"
-            })
-            .text(type)
-          );
-      }
-    });
-  }
-
-  setTimeout(loadNodeTypes, 200);
-
-});
-
+  sylv.nodes = {{ nodes|safe }};
+  sylv.edges = {{ edges|safe }};
+  sylv.nodeTypesLegend = {};
+  sylv.PDE_URL = "{{ STATIC_PREFIX }}graphs/js/graphdrawer.pde";
+  sylv.expandNodeLinkURL = "{% url expand_node graph.slug 0 %}";
+  sylv.editLinkURL = "{% url nodes_edit graph.slug 0 %}";
 </script>
+<script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/processing-1.3.6.min.js"></script>
+<script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/sigma/sigma-0.1.min.js"></script>
+<script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/sigma/sigma.parseGexf.js"></script>
+<script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/graph-editor.js"></script>
+<script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/processing-visualization.js"></script>
+<script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/sigma-visualization.js"></script>
+<script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/visualizations.js"></script>
+
 {% endblock %}
