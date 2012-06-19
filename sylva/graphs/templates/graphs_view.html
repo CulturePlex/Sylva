@@ -72,6 +72,7 @@
 <script type="text/javascript">
   sylv.nodes = {{ nodes|safe }};
   sylv.edges = {{ edges|safe }};
+  sylv.colors = {};
   sylv.nodeTypesLegend = {};
   sylv.PDE_URL = "{{ STATIC_PREFIX }}graphs/js/graphdrawer.pde";
   sylv.expandNodeLinkURL = "{% url expand_node graph.slug 0 %}";

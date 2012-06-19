@@ -9,13 +9,12 @@
 ;(function(sylv, $, window, document, undefined) {
 
   var visualizations = {
-    'processing': function() {
+    processing: function() {
       $('#graph-container').hide();
       $('#canvas-box').show();
       sylv.Processing.init();
     },
-    'sigma': function() {
-      $('#node-type-legend').empty();
+    sigma: function() {
       $('#canvas-box').hide();
       $('#graph-container').empty().show();
       sylv.Sigma.init();

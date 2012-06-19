@@ -147,6 +147,8 @@
       while (iterator.hasNext()) {
         element = iterator.next();
         nodeTypesLegend[element.getKey()] = '#' + element.getValue();
+        // Save nodes colors
+        sylv.colors[element.getKey()] = nodeTypesLegend[element.getKey()];
       }
       // Create legend in canvas
       $('#node-type-legend').empty();
