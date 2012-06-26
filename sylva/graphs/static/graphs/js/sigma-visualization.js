@@ -83,7 +83,7 @@
       });
 
       // Activate the FishEye.
-      sigInst.activateFishEye().draw();
+      // sigInst.activateFishEye().draw();
 
       // Start the ForceAtlas2 algorithm.
       sigInst.startForceAtlas2();
