@@ -9,15 +9,16 @@
 ;(function(sylv, $, window, document, undefined) {
 
   var visualizations = {
-    'processing': function() {
+    processing: function() {
+      $('.pause').hide();
       $('#graph-container').hide();
       $('#canvas-box').show();
       sylv.Processing.init();
     },
-    'sigma': function() {
-      $('#node-type-legend').empty();
+    sigma: function() {
       $('#canvas-box').hide();
       $('#graph-container').empty().show();
+      $('.pause').show();
       sylv.Sigma.init();
     }
   };

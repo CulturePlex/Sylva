@@ -28,10 +28,11 @@
     </div>
   </div>
 <select name="visualization-type" id="visualization-type">
-  <option data-type="processing" selected="selected">Processing</option>
-  <option data-type="sigma">Sigma</option>
+  <option data-type="processing" selected="selected">Whole view</option>
+  <option data-type="sigma">Advanced view</option>
 </select>
   <div id="graph-container" style="display:none;"></div>
+  <span id="sigma-pause" class="pause" style="display:none;" data-state="running">{% trans "Pause" %}</span>
   <div id="canvas-box">
     <canvas id="graphcanvas">{% trans "Your browser does not support graph visualization" %}</canvas>
   </div>
@@ -72,14 +73,17 @@
 <script type="text/javascript">
   sylv.nodes = {{ nodes|safe }};
   sylv.edges = {{ edges|safe }};
+  sylv.colors = {};
   sylv.nodeTypesLegend = {};
   sylv.PDE_URL = "{{ STATIC_PREFIX }}graphs/js/graphdrawer.pde";
   sylv.expandNodeLinkURL = "{% url expand_node graph.slug 0 %}";
   sylv.editLinkURL = "{% url nodes_edit graph.slug 0 %}";
 </script>
 <script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/processing-1.3.6.min.js"></script>
-<script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/sigma/sigma-0.1.min.js"></script>
-<script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/sigma/sigma.parseGexf.js"></script>
+<script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/sigma/sigma-0.1.js"></script>
+<script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/sigma/plugins/sigma.fisheye.js"></script>
+<script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/sigma/plugins/sigma.forceatlas2.js"></script>
+<script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/sigma/plugins/sigma.parseGexf.js"></script>
 <script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/graph-editor.js"></script>
 <script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/processing-visualization.js"></script>
 <script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/sigma-visualization.js"></script>
