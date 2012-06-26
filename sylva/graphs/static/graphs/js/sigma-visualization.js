@@ -46,10 +46,48 @@
         sigInst.addEdge(edges[v].id, edges[v].source, edges[v].target);
       }
 
+      // Hide/show nodes and edges.
+      sigInst.bind('overnodes', function(event) {
+        var nodes = event.content;
+        var neighbors = {};
+        sigInst.iterEdges(function(e) {
+          if (nodes.indexOf(e.source) >= 0 || nodes.indexOf(e.target) >= 0) {
+            neighbors[e.source] = true;
+            neighbors[e.target] = true;
+          }
+        }).iterNodes(function(n) {
+          if (!neighbors[n.id]) {
+            n.hidden = true;
+          } else {
+            n.hidden = false;
+          }
+        }).draw();
+      }).bind('outnodes', function(event) {
+        sigInst.iterEdges(function(e) {
+          e.hidden = false;
+        }).iterNodes(function(n) {
+          n.hidden = false;
+        }).draw();
+      });
 
+      // Bind pause.
+      var running = true;
+      $('#sigma-pause').on('click', function() {
+        if (running === true) {
+          running = false;
+          sigInst.stopForceAtlas2();
+        } else {
+          running = true;
+          sigInst.startForceAtlas2();
+        }
+      });
 
-      // Draw the graph
-      sigInst.draw();
+      // Activate the FishEye.
+      sigInst.activateFishEye().draw();
+
+      // Start the ForceAtlas2 algorithm.
+      sigInst.startForceAtlas2();
+
     }
   };
 

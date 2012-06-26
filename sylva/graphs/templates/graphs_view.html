@@ -28,10 +28,11 @@
     </div>
   </div>
 <select name="visualization-type" id="visualization-type">
-  <option data-type="processing" selected="selected">Processing</option>
-  <option data-type="sigma">Sigma</option>
+  <option data-type="processing" selected="selected">Whole view</option>
+  <option data-type="sigma">Advanced view</option>
 </select>
   <div id="graph-container" style="display:none;"></div>
+  <span id="sigma-pause" class="pause" style="display:none;" data-state="running">{% trans "Pause" %}</span>
   <div id="canvas-box">
     <canvas id="graphcanvas">{% trans "Your browser does not support graph visualization" %}</canvas>
   </div>

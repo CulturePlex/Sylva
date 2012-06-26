@@ -10,6 +10,7 @@
 
   var visualizations = {
     processing: function() {
+      $('.pause').hide();
       $('#graph-container').hide();
       $('#canvas-box').show();
       sylv.Processing.init();
@@ -17,6 +18,7 @@
     sigma: function() {
       $('#canvas-box').hide();
       $('#graph-container').empty().show();
+      $('.pause').show();
       sylv.Sigma.init();
     }
   };
