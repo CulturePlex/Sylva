@@ -46,23 +46,31 @@
         sigInst.addEdge(edges[v].id, edges[v].source, edges[v].target);
       }
 
-      // Hide/show nodes and edges.
+      // Hide nodes and edges.
       sigInst.bind('overnodes', function(event) {
         var nodes = event.content;
         var neighbors = {};
+        var isOrphan = true;
         sigInst.iterEdges(function(e) {
           if (nodes.indexOf(e.source) >= 0 || nodes.indexOf(e.target) >= 0) {
             neighbors[e.source] = true;
             neighbors[e.target] = true;
+            isOrphan = false;
           }
-        }).iterNodes(function(n) {
+        });
+        if (isOrphan) {
+          neighbors[nodes[0]] = true;
+        }
+        sigInst.iterNodes(function(n) {
           if (!neighbors[n.id]) {
             n.hidden = true;
-          } else {
-            n.hidden = false;
           }
-        }).draw();
-      }).bind('outnodes', function(event) {
+        });
+        sigInst.draw();
+      });
+
+      // Show nodes and edges.
+      sigInst.bind('outnodes', function(event) {
         sigInst.iterEdges(function(e) {
           e.hidden = false;
         }).iterNodes(function(n) {
