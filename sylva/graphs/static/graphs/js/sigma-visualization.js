@@ -51,7 +51,7 @@
       // Show node info and hide the rest of nodes and edges.
       sigInst.bind('overnodes', function(event) {
         var nodes = event.content;
-        var nodeId = nodes[0];
+        var nodePK = nodes[0];  // node primary key
         var neighbors = {};
         var isOrphan = true;
 
@@ -66,18 +66,18 @@
           return str.join('');
         };
 
-        // Show node info.
+        // Show node popup info.
         sigInst.iterNodes(function(node) {
           $tooltip =
             $('<div class="node-info"></div>')
-              .append('<ul>' + attributesToString(sylv_nodes[nodeId]) + '</ul>')
+              .append('<ul>' + attributesToString(sylv_nodes[nodePK]) + '</ul>')
               .addClass('node-info')
               .css({
                 'left': node.displayX+212,
                 'top': node.displayY+61
               });
           $('#graph-container').append($tooltip);
-        }, [nodeId]);
+        }, [nodePK]);
 
         // Hide edges and nodes.
         sigInst.iterEdges(function(e) {
@@ -89,7 +89,7 @@
         });
 
         if (isOrphan) {
-          neighbors[nodes[0]] = true;
+          neighbors[nodePK] = true;
         }
 
         sigInst.iterNodes(function(n) {
@@ -100,9 +100,17 @@
 
         // draw graph.
         sigInst.draw();
+
+        // Update node legend.
+        var nodeEditURL = sylv.editLinkURL.replace(/nodes\/0\/edit/,
+                                                   'nodes/' + sylv_nodes[nodePK].id + '/edit');
+        $('#element-info').html(
+            '<h2>' + nodePK + '</h2>' +
+            '<a href="' + nodeEditURL + '">Edit node</a>'
+        );
       });
 
-      // Hide node info and show the rest of nodes and edges.
+      // Hide node popup info and show the rest of nodes and edges.
       sigInst.bind('outnodes', function(event) {
         // Hide node info.
         $tooltip.remove();
