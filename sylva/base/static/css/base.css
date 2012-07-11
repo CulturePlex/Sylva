@@ -1270,6 +1270,18 @@ table.content-table {
     border: 3px solid #D8E8DE;
 }
 
+.node-info {
+    background: white;
+    color: black;
+    display: inline-block;
+    position: absolute;
+    padding: 3px;
+    border-radius: 3px;
+    -webkit-box-shadow: 0 0 4px;
+    box-shadow: 0 0 4px;
+    font-size: 13px;
+}
+
 .pause {
     position: absolute;
     left: 1138px;

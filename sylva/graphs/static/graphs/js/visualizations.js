@@ -11,13 +11,16 @@
   var visualizations = {
     processing: function() {
       $('.pause').hide();
-      $('#graph-container').hide();
+      $('#graph-container').hide().empty();
       $('#canvas-box').show();
       sylv.Processing.init();
     },
     sigma: function() {
-      $('#canvas-box').hide();
-      $('#graph-container').empty().show();
+      $('#canvas-box')
+        .hide()
+        .empty()
+        .append('<canvas id="graphcanvas">Your browser does not support graph visualization</canvas>');
+      $('#graph-container').show();
       $('.pause').show();
       sylv.Sigma.init();
     }
