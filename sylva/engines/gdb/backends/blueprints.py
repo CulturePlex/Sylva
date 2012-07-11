@@ -367,7 +367,10 @@ class BlueprintsGraphDatabase(BaseGraphDatabase):
 
     def delete_relationships(self, ids):
         for _id in ids:
-            edge = self.gdb.getEdge(_id)
+            if isinstance(_id, (list, tuple)):
+                edge = self.gdb.getEdge(_id[0])
+            else:
+                edge = self.gdb.getEdge(_id)
             self.gdb.removeEdge(edge)
 
     def __yield_relationships(self, relationships, include_properties=False):
