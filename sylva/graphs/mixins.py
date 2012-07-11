@@ -596,7 +596,10 @@ class Relationship(BaseElement):
         return RelationshipType.objects.get(id=self.label)
 
     def _label_display(self):
-        return RelationshipType.objects.get(id=self.label).name
+        try:
+            return RelationshipType.objects.get(id=self.label).name
+        except RelationshipType.DoesNotExist:
+            return ""
 
     def to_json(self):
         return {
