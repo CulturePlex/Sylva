@@ -51,6 +51,9 @@
 <li><a href="{% url schema_edit graph.slug %}" class="{% if on == "schema" %}text{% else %}link{% endif %}">
     <span>{% trans "Schema" %}</span>
 </a></li>
+<li><a href="{% url operator_query graph.slug %}" class="{% if on == "operators" %}text{% else %}link{% endif %}">
+    <span>{% trans "Operators" %}</span>
+</a></li>
 <li><a href="{% url graph_collaborators graph.slug %}" class="{% if on == "collaborators" %}text{% else %}link{% endif %}">
     <span>{% trans "Collaborators" %}</span>
 </a></li>

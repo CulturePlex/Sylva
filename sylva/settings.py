@@ -176,6 +176,7 @@ INSTALLED_APPS = (
     'accounts',
     'tools',
     'search',
+    'operators',
     'south',
 )
 

@@ -32,7 +32,7 @@ urlpatterns = patterns('',
     url(r'^graphs/', include('graphs.urls')),
 
     # operators
-    # url(r'^operators/', include('operators.urls')),
+    url(r'^operators/', include('operators.urls')),
 
     # schemas
     url(r'^schemas/', include('schemas.urls')),
@@ -53,7 +53,7 @@ if settings.DEBUG:
 
         # static server
         url(r'^static/(?P<path>.*)$', 'django.views.static.serve',
-            {'document_root': settings.STATIC_ROOT}),
+            {'document_root': settings.STATIC_ROOT, 'indexing': True}),
 
         # static media server
         url(r'^media/(?P<path>.*)$', 'django.views.static.serve',
