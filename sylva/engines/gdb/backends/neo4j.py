@@ -104,7 +104,7 @@ class GraphDatabase(BlueprintsGraphDatabase):
                 where = u"( n.`%s`? =~ /(?i)%s.*/ )" \
                         % (prop, match)
             elif lookup["lookup"] == "ends":
-                where = u"( and n.`%s`? =~ /(?i).*%s/ )" \
+                where = u"( n.`%s`? =~ /(?i).*%s/ )" \
                         % (prop, match)
             elif lookup["lookup"] == "exact":
                 where = u"( n.`%s`? =~ /(?i)%s/ )" \
