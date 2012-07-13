@@ -43,7 +43,7 @@ class GEXFConverter(BaseConverter):
         for node in self.graph.nodes.all():
             nodes += u"""
                 <node id="%s" label="%s" type="%s">
-                <attvalues>""" % (node.id, node.display, node.label_display)
+                <attvalues>""" % (node.id, node.display, node.label)
             for key, value in node.properties.iteritems():
                 if key not in node_attributes:
                     node_attributes[key] = attribute_counter
@@ -62,7 +62,7 @@ class GEXFConverter(BaseConverter):
                 <attvalues>""" % (edge.id, 
                         edge.source.id,
                         edge.target.id,
-                        edge.label_display)
+                        edge.label)
             for key, value in edge.properties.iteritems():
                 if key not in edge_attributes:
                     edge_attributes[key] = attribute_counter
@@ -101,19 +101,18 @@ class GEXFConverter(BaseConverter):
 
     def stream_export(self):
         yield self.header
-
         # Node attributes
         node_attributes_xml = u"""
-            <attribute id="schema:type" title="schema:type" type="string"/>"
-            <attribute id="schema:type:id" title="schema:type:id" type="string"/>""" 
+            <attribute id="NodeType" title="[Schema] Type" type="string"/>"
+            <attribute id="NodeTypeId" title="[Schema] Type Id" type="string"/>""" 
         for node_type in self.graph.schema.nodetype_set.all():
                 for property_name in node_type.properties.all():
-                    namespace_name = u"%s:%s" % (self.encode_html(node_type),
+                    namespace_name = u"(%s) %s" % (self.encode_html(node_type.name),
                                             self.encode_html(property_name.key))
 
                     node_attributes_xml += u"""
                     <attribute id="%s" title="%s" type="string"/>""" % \
-                                    (namespace_name, namespace_name)
+                                    (node_type.id, namespace_name)
         yield u"""
         <attributes class="node">
             %s
@@ -122,15 +121,15 @@ class GEXFConverter(BaseConverter):
 
         # Edge attributes
         edge_attributes_xml = u"""
-            <attribute id="schema:type" title="schema:type" type="string"/>"
-            <attribute id="schema:type:id" title="schema:type:id" type="string"/>""" 
+            <attribute id="RelationshipType" title="[Schema] Allowed Relationship" type="string"/>"
+            <attribute id="RelationshipTypeId" title="[Schema] Allowed Relationship Id" type="string"/>""" 
         for relationship_type in self.graph.schema.relationshiptype_set.all():
                 for property_name in relationship_type.properties.all():
-                    namespace_name = u"%s:%s" % (self.encode_html(relationship_type),
+                    namespace_name = u"(%s) %s" % (self.encode_html(relationship_type.name),
                                             self.encode_html(property_name.key))
                     edge_attributes_xml += u"""
                     <attribute id="%s" title="%s" type="string"/>""" % \
-                                    (namespace_name, namespace_name)
+                                    (relationship_type.id, namespace_name)
         yield u"""
         <attributes class="edge">
             %s
@@ -149,8 +148,8 @@ class GEXFConverter(BaseConverter):
                                 self.encode_html(node.display),
                                 self.encode_html(node.label_display))
             node_properties = {
-                'schema:type': self.encode_html(node.label_display),
-                'schema:type:id': node.id
+                'NodeType': self.encode_html(node.label_display),
+                'NodeTypeId': node.label
             }
             for key, value in node_properties.iteritems():
                 node_text += u"""
@@ -159,9 +158,8 @@ class GEXFConverter(BaseConverter):
                             self.encode_html(value))
             for key, value in node.properties.iteritems():
                 node_text += u"""
-                    <attvalue for="%s:%s" value="%s"/>""" % \
-                            (self.encode_html(node.label_display),
-                            self.encode_html(key),
+                    <attvalue for="%s" value="%s"/>""" % \
+                            (self.encode_html(node.label),
                             self.encode_html(value))
             node_text += u"""
                 </attvalues>
@@ -179,8 +177,8 @@ class GEXFConverter(BaseConverter):
                         edge.target.id,
                         self.encode_html(edge.label_display))
             edge_properties = {
-                'schema:type': self.encode_html(edge.label_display),
-                'schema:type:id': edge.id
+                'RelationshipType': self.encode_html(edge.label_display),
+                'RelationshipTypeId': edge.label
             }
 
             for key, value in edge_properties.iteritems():
@@ -190,9 +188,8 @@ class GEXFConverter(BaseConverter):
                             self.encode_html(value))
             for key, value in edge.properties.iteritems():
                 edge_text += u"""
-                    <attvalue for="%s:%s" value="%s"/>""" % \
-                            (self.encode_html(edge.label_display),
-                            self.encode_html(key),
+                    <attvalue for="%s" value="%s"/>""" % \
+                            (self.encode_html(edge.label),
                             self.encode_html(value))
             edge_text += u"""
                 </attvalues>
