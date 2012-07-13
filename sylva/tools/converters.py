@@ -126,7 +126,7 @@ class GEXFConverter(BaseConverter):
             <attribute id="schema:type:id" title="schema:type:id" type="string"/>""" 
         for relationship_type in self.graph.schema.relationshiptype_set.all():
                 for property_name in relationship_type.properties.all():
-                    namespace_name = u"%s:%s" % (self.encode_html(node_type),
+                    namespace_name = u"%s:%s" % (self.encode_html(relationship_type),
                                             self.encode_html(property_name.key))
                     edge_attributes_xml += u"""
                     <attribute id="%s" title="%s" type="string"/>""" % \
