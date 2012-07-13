@@ -34,7 +34,7 @@ def schema_edit(request, graph_slug):
                               context_instance=RequestContext(request))
 
 
-@permission_required("schemas.delete_schema",
+@permission_required("schemas.change_schema",
                      (Schema, "graph__slug", "graph_slug"))
 def schema_nodetype_delete(request, graph_slug, nodetype_id):
     graph = get_object_or_404(Graph, slug=graph_slug)
