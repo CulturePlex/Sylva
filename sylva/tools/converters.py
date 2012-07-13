@@ -1,6 +1,8 @@
 import datetime
 import simplejson
 
+from django.template.defaultfilters import force_escape as escape
+
 
 class BaseConverter(object):
 
@@ -17,10 +19,10 @@ class BaseConverter(object):
 
 
     def encode_html(self, value):
-        if isinstance(value, basestring):
-            for replacement in self.html_codes:
-                value = value.replace(replacement[0], replacement[1])
-        return value
+#        if isinstance(value, basestring):
+#            for replacement in self.html_codes:
+#                value = value.replace(replacement[0], replacement[1])
+        return escape(value)
 
 class GEXFConverter(BaseConverter):
     " Converts a Sylva neo4j graph to GEXF 1.2"
