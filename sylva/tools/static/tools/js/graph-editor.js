@@ -62,7 +62,7 @@ var GraphEditor = {
   addNode: function(_name, _properties){
     // Only prompts if the parameter is not sent
     var nodeName = _name !== undefined ? _name : prompt("Enter new node name");
-    
+
     var json = this.getGraphNodesJSON();
     if (this.nodeExists(nodeName)){
       alert("ERROR: That node already exists");
@@ -106,7 +106,7 @@ var GraphEditor = {
     var edgeSource = _source !== undefined ? _source : prompt("Enter source node");
     var edgeType = _type !== undefined ? _type: prompt("Enter relationship type");
     var edgeTarget = _target !== undefined ? _target: prompt("Enter target node");
-    
+
     if (!this.nodeExists(edgeSource)){
       alert("ERROR: Unknown node: " + edgeSource);
       return;
@@ -199,77 +199,70 @@ var GraphEditor = {
   },
 
   loadGEXF: function(){
-        function handleFileSelect(evt) {
-        GraphEditor.progressBar.show();
-        var files = evt.target.files; // FileList object
-    
-        for (var i = 0, f; f = files[i]; i++) {
-    
-          var reader = new FileReader();
-    
-          // Closure to capture the file information.
-          reader.onload = (function(theFile) {
-            return function(e) {
-              var gexfContent = e.target.result;
-              // GEXF IMPORTATION FUNCTION
+    function handleFileSelect(evt) {
+      GraphEditor.progressBar.show();
 
-              // NODES
-              $(gexfContent).find('node').each(function(index, item){
-                
-                // Node custom attributes
-                var attributes = {};
-                var attributeName = null;
-                $(this).find('attvalue').each(function(index){
-                    var attributeIndex = $(gexfContent).find('attributes').filter('.node');
-                    if (attributeIndex.length > 0) {
-                      attributeName = attributeIndex.find('[id=' + $(this).attr('for') + ']').attr('title');
-                    } else {
-                      attributeName = $(this).attr('for').toLowerCase();
-                    }
-                    attributes[attributeName] = $(this).attr('value');
-                });
+      var files = evt.target.files; // FileList object
+      var reader = new FileReader();
 
-                // Node position
-                attributes["position"] =  {
-                    "x":$(this).find('viz\\:position').attr('x'),
-                    "y":$(this).find('viz\\:position').attr('y')
-                }
-                
-                // type
-                attributes["type"] = $(this).attr('type'); 
-                attributes["_label"] = $(this).attr('label');
-                GraphEditor.addNode($(this).attr('id'), attributes);
-              });
+      reader.onload = function(e) {
+        var gexfContent = e.target.result;
 
-              // EDGES
-              $(gexfContent).find('edge').each(function(){
+        // NODES
+        $(gexfContent).find('node').each(function(index, item){
 
-                //  Edge custom attributes
-                var attributes = {};
-                var attributeName = null;
-                $(this).find('attvalue').each(function(index){
-                    var attributeIndex = $(gexfContent).find('attributes').filter('.edge');
-                    if (attributeIndex.length > 0) {
-                      attributeName = attributeIndex.find('[id=' + $(this).attr('for') + ']').attr('title');
-                    } else {
-                      attributeName = $(this).attr('for').toLowerCase();
-                    }
-                    attributes[attributeName] = $(this).attr('value');
-                });
-                var sourceId = $(this).attr('source');
-                var targetId = $(this).attr('target');
-                var source = $(gexfContent).find('node#'+sourceId).attr('id');
-                var target = $(gexfContent).find('node#'+targetId).attr('id');
-                var type = $(this).attr('label');
-                GraphEditor.addEdge(source, type, target, attributes);
-              });
-              GraphEditor.progressBar.hide();
-            };
-          })(f);
-    
-          reader.readAsText(f);
-        }
-      }
+          // Node custom attributes
+          var attributes = {};
+          var attributeName = null;
+          $(this).find('attvalue').each(function(index){
+              var attributeIndex = $(gexfContent).find('attributes').filter('.node');
+              if (attributeIndex.length > 0) {
+                attributeName = attributeIndex.find('id=' + $(this).attr('for')).attr('title');
+              } else {
+                attributeName = $(this).attr('for').toLowerCase();
+              }
+              attributes[attributeName] = $(this).attr('value');
+          });
+
+          // Node position
+          attributes["position"] =  {
+              "x":$(this).find('viz\\:position').attr('x'),
+              "y":$(this).find('viz\\:position').attr('y')
+          }
+
+          // type
+          attributes["type"] = $(this).attr('type');
+          attributes["_label"] = $(this).attr('label');
+          GraphEditor.addNode($(this).attr('id'), attributes);
+        });
+
+        // EDGES
+        $(gexfContent).find('edge').each(function(){
+
+          //  Edge custom attributes
+          var attributes = {};
+          var attributeName = null;
+          $(this).find('attvalue').each(function(index){
+              var attributeIndex = $(gexfContent).find('attributes').filter('.edge');
+              if (attributeIndex.length > 0) {
+                attributeName = attributeIndex.find('id=' + $(this).attr('for')).attr('title');
+              } else {
+                attributeName = $(this).attr('for').toLowerCase();
+              }
+              attributes[attributeName] = $(this).attr('value');
+          });
+          var sourceId = $(this).attr('source');
+          var targetId = $(this).attr('target');
+          var source = $(gexfContent).find('node#'+sourceId).attr('id');
+          var target = $(gexfContent).find('node#'+targetId).attr('id');
+          var type = $(this).attr('label');
+          GraphEditor.addEdge(source, type, target, attributes);
+        });
+        GraphEditor.progressBar.hide();
+      };
+
+      reader.readAsText(files[0]);
+    }
     $('#files').bind('change', handleFileSelect);
   },
 
@@ -292,7 +285,7 @@ var GraphEditor = {
           $.each(lines, function(index, line){
             // Ignoring blank lines
             if (!!line) {
-              // TODO Text may be quoted 
+              // TODO Text may be quoted
               var columns = line.split(',');
 
               // First line contains the labels of each column
@@ -303,7 +296,7 @@ var GraphEditor = {
                 $.each(columns, function(i, item) {
                   attributes[titleRow[i]] = item;
                 });
-                
+
                 GraphEditor.addNode(columns[0], attributes);
               }
             }
@@ -333,7 +326,7 @@ var GraphEditor = {
           $.each(lines, function(index, line){
             // Ignoring blank lines
             if (!!line) {
-              // TODO Text may be quoted 
+              // TODO Text may be quoted
               var columns = line.split(',');
 
               // First line contains the labels of each column
@@ -359,7 +352,7 @@ var GraphEditor = {
                       attributes[titleRow[i]] = item;
                   }
                 });
-                
+
                 GraphEditor.addEdge(source, type, target, attributes);
               }
             }
@@ -374,7 +367,7 @@ var GraphEditor = {
     $('#csv-nodes').bind('change', handleNodeFile);
     $('#csv-edges').bind('change', handleEdgeFile);
   },
-  
+
   refresh: function(){
     //Clear everything
     this.clearLists();
@@ -493,7 +486,7 @@ var GraphEditor = {
     this.loadGEXF();
     this.loadCSVs();
     GraphEditor.refresh();
-    
+
     // Black magic to have the Processing drawer ready to call the drawInitialData method
     // The ajax petition is a straightforward copy from the Processing original code in
     // its init method
@@ -510,7 +503,7 @@ var GraphEditor = {
     }
     GraphEditor.refresh();
   },
-  
+
   drawInitialData: function(){
     var self = this;
     $.each(this.getGraphNodesJSON(), function(index, item){
