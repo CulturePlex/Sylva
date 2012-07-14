@@ -213,6 +213,9 @@ def nodes_edit(request, graph_slug, node_id):
     nodetype = get_object_or_404(NodeType, id=node.label)
     try:
         media_node = MediaNode.objects.get(node_id=node.id, data=graph.data)
+    except MediaNode.MultipleObjectsReturned:
+        media_nodes = MediaNode.objects.filter(node_id=node.id, data=graph.data)
+        media_node = media_nodes.latest("id")
     except MediaNode.DoesNotExist:
         media_node = MediaNode()
     if request.POST:
