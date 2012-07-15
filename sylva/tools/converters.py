@@ -3,6 +3,8 @@ import simplejson
 
 from django.template.defaultfilters import force_escape as escape
 
+from schemas.models import NodeType, RelationshipType
+
 
 class BaseConverter(object):
 
@@ -102,6 +104,7 @@ class GEXFConverter(BaseConverter):
         return gephi_format
 
     def stream_export(self):
+        schema = self.graph.schema
         yield self.header
         # Node attributes
         node_attributes_xml = u"""
@@ -113,8 +116,8 @@ class GEXFConverter(BaseConverter):
                                             self.encode_html(property_name.key))
 
                     node_attributes_xml += u"""
-                    <attribute id="%s" title="%s" type="string"/>""" % \
-                                    (node_type.id, namespace_name)
+                    <attribute id="n%s" title="%s" type="string"/>""" % \
+                                    (property_name.id, namespace_name)
         yield u"""
         <attributes class="node">
             %s
@@ -130,8 +133,8 @@ class GEXFConverter(BaseConverter):
                     namespace_name = u"(%s) %s" % (self.encode_html(relationship_type.name),
                                             self.encode_html(property_name.key))
                     edge_attributes_xml += u"""
-                    <attribute id="%s" title="%s" type="string"/>""" % \
-                                    (relationship_type.id, namespace_name)
+                    <attribute id="r%s" title="%s" type="string"/>""" % \
+                                    (property_name.id, namespace_name)
         yield u"""
         <attributes class="edge">
             %s
@@ -158,11 +161,22 @@ class GEXFConverter(BaseConverter):
                     <attvalue for="%s" value="%s"/>""" % \
                             (self.encode_html(key),
                             self.encode_html(value))
+            try:
+                nodetype = schema.nodetype_set.get(id=node.label)
+                nodetype_dict = nodetype.properties.all().values("id", "key")
+                nodetype_properties = dict([(d["key"], d["id"])
+                                            for d in nodetype_dict])
+            except:
+                nodetype_properties = {}
             for key, value in node.properties.iteritems():
+                if key in nodetype_properties:
+                    att_for = self.encode_html(nodetype_properties[key])
+                else:
+                    att_for = self.encode_html(key)
                 node_text += u"""
-                    <attvalue for="%s" value="%s"/>""" % \
-                            (self.encode_html(node.label),
-                            self.encode_html(value))
+                    <attvalue for="n%s" value="%s"/>""" % \
+                            (att_for,
+                             self.encode_html(value))
             node_text += u"""
                 </attvalues>
                 </node>"""
@@ -182,17 +196,26 @@ class GEXFConverter(BaseConverter):
                 'RelationshipType': self.encode_html(edge.label_display),
                 'RelationshipTypeId': edge.label
             }
-
             for key, value in edge_properties.iteritems():
                 edge_text += u"""
                     <attvalue for="%s" value="%s"/>""" % \
                             (self.encode_html(key),
                             self.encode_html(value))
+            try:
+                reltype = schema.relationshiptype_set.get(id=node.label)
+                reltype_dict = reltype.properties.all().values("id", "key")
+                reltype_properties = dict([(d["key"], d["id"])
+                                            for d in reltype_dict])
+            except:
+                reltype_properties = {}
             for key, value in edge.properties.iteritems():
+                if key in reltype_properties:
+                    att_for = self.encode_html(reltype_properties[key])
+                else:
+                    att_for = self.encode_html(key)
                 edge_text += u"""
-                    <attvalue for="%s" value="%s"/>""" % \
-                            (self.encode_html(edge.label),
-                            self.encode_html(value))
+                    <attvalue for="r%s" value="%s"/>""" % \
+                            (att_for, self.encode_html(value))
             edge_text += u"""
                 </attvalues>
                 </edge>"""
