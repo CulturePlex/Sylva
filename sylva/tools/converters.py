@@ -170,11 +170,11 @@ class GEXFConverter(BaseConverter):
                 nodetype_properties = {}
             for key, value in node.properties.iteritems():
                 if key in nodetype_properties:
-                    att_for = self.encode_html(nodetype_properties[key])
+                    att_for = u"n%s" % self.encode_html(nodetype_properties[key])
                 else:
                     att_for = self.encode_html(key)
                 node_text += u"""
-                    <attvalue for="n%s" value="%s"/>""" % \
+                    <attvalue for="%s" value="%s"/>""" % \
                             (att_for,
                              self.encode_html(value))
             node_text += u"""
@@ -202,7 +202,7 @@ class GEXFConverter(BaseConverter):
                             (self.encode_html(key),
                             self.encode_html(value))
             try:
-                reltype = schema.relationshiptype_set.get(id=node.label)
+                reltype = schema.relationshiptype_set.get(id=edge.label)
                 reltype_dict = reltype.properties.all().values("id", "key")
                 reltype_properties = dict([(d["key"], d["id"])
                                             for d in reltype_dict])
@@ -210,11 +210,11 @@ class GEXFConverter(BaseConverter):
                 reltype_properties = {}
             for key, value in edge.properties.iteritems():
                 if key in reltype_properties:
-                    att_for = self.encode_html(reltype_properties[key])
+                    att_for = u"r%s" % self.encode_html(reltype_properties[key])
                 else:
                     att_for = self.encode_html(key)
                 edge_text += u"""
-                    <attvalue for="r%s" value="%s"/>""" % \
+                    <attvalue for="%s" value="%s"/>""" % \
                             (att_for, self.encode_html(value))
             edge_text += u"""
                 </attvalues>
