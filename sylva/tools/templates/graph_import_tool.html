@@ -13,7 +13,6 @@
     <script src="{{ STATIC_PREFIX }}tools/js/graph-editor.js"></script>
     <script src="{{ STATIC_PREFIX }}tools/js/sylva-importer.js"></script>
     <script type="text/javascript">
-        // var sylvaSchema = JSON.parse('{{ sylva_schema|safe }}');
         var sylvaSchema = {{ sylva_schema|safe }};
         Importer.addNodeURL = "{% url ajax_node_create graph.slug %}";
         Importer.addRelationshipURL = "{% url ajax_relationship_create graph.slug %}";
@@ -27,7 +26,7 @@
 
           // Second step
           Importer.validateSchemasStep();
-          
+
           // Node Types matching validation
           Importer.nodeTypesMatchingStep();
 
@@ -53,7 +52,7 @@
     <div class="content2-first">
       <div id="first-step">
         <p class="sylva-info">This tool allows to import data from a Gephi (GEXF)
-          file into Sylva. Load the file with the widget below this text to get 
+          file into Sylva. Load the file with the widget below this text to get
           started.
         </p>
         <label for="gexf-file">Import GEXF</label>
@@ -62,7 +61,7 @@
           <strong>Please wait while your graph data is loaded...</strong>
         </div>
         <hr/>
-        <p class="sylva-info">Or use the experimental CSV support providing 
+        <p class="sylva-info">Or use the experimental CSV support providing
           nodes and edges in separate files.
         </p>
         <div>
