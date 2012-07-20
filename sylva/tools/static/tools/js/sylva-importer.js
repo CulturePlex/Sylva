@@ -274,7 +274,7 @@ var Importer = {
       // set default value for node attributes' form select
       for (var i = 0, l = $selects.length; i < l; i++) {
         var selectVal = $('label[for=' + $selects[i].id + ']').first().text().split(':');
-        $selects[i].value = ('(' + selectVal[0] + ') ' + selectVal[1]);
+        $selects[i].value = '(' + selectVal[0] + ') ' + selectVal[1];
       }
 
     });
@@ -353,7 +353,7 @@ var Importer = {
     var elementDiv;
 
     // Draw allowedEdges matching selectors
-    $.each(sylvaSchema.allowedEdges, function(i, value){
+    $.each(sylvaSchema.allowedEdges, function(index, value){
       var item = value.source + '_' + value.label + '_' + value.target;
       selectId = item.split(" ").join("") + '_matcher';
       edgeText = GraphEditor.edgeText(value.source, value.target, value.label);
@@ -366,6 +366,7 @@ var Importer = {
       elementDiv
         .append(relationshipMatcher.clone()
           .attr('id', selectId)
+          .val(Importer.matching.edgeSlugs[item])
         );
       importController.append(elementDiv);
 
@@ -388,21 +389,17 @@ var Importer = {
         }
       });
 
-      // Bind change event to reload attributes selector
-      $('#'+selectId).change(function(evt){
-        var query = 'select[id$=_' + evt.target.id + ']';
-        var widget = Importer.matching.edgeAttributeWidgets[evt.target.value];
-        $(query).html(widget.html());
-      });
+      var query = 'select[id$=_' + selectId + ']';    // id with ending "_{selectId}"
+      var widget = Importer.matching.edgeAttributeWidgets[index];
+      var $selects = $(query);
+      if (widget && $selects.length > 0) {
+        $selects = $(query).html(widget.html());  // append <option> elements to each <select>
+      };
 
-      // Autoselect value if matches the label
-      if (Importer.matching.edgeSlugs.hasOwnProperty(item)) {
-         var oldVal = $('#'+selectId).val();
-          $('#'+selectId).val(Importer.matching.edgeSlugs[item]);
-          var newVal = $('#'+selectId).val();
-          if (newVal !== oldVal){
-            $('#'+selectId).trigger('change');
-          }
+      // set default value for edge attributes' form select
+      for (var i = 0, l = $selects.length; i < l; i++) {
+        var $select = $selects.eq(i);
+        $select.val($select.children(':nth-child(4)').text());
       }
 
     });
@@ -413,7 +410,7 @@ var Importer = {
       var validates = true;
       Importer.matching["edgeTypes"] = [];
       Importer.matching["edgeAttributes"] = [];
-      $.each(sylvaSchema.allowedEdges, function(i, value){
+      $.each(sylvaSchema.allowedEdges, function(index, value){
         var item = value.source + '_' + value.label + '_' + value.target;
         var itemId = item.split(" ").join("")+'_matcher';
         selectedValue = $('#'+itemId).val()
