@@ -3,6 +3,8 @@ from django.conf import settings
 from django.conf.urls.defaults import patterns, include, url
 from django.contrib import admin
 
+from accounts.forms import UserProfileEditForm
+
 # from django.contrib import admin
 # from admin import admin_site
 admin.autodiscover()
@@ -12,6 +14,8 @@ urlpatterns = patterns('',
     url(r'^', include('base.urls')),
 
     # accounts
+    url(r'^accounts/(?P<username>[\w-]+)/edit/', "userena.views.profile_edit",
+        {'edit_profile_form': UserProfileEditForm}),
     url(r'^accounts/signin/', "base.views.signin_redirect", name="signin"),
     url(r'^accounts/signup/', "base.views.signup_redirect", name="signup"),
     url(r'^accounts/', include('userena.urls')),
