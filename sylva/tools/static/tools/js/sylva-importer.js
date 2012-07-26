@@ -396,10 +396,14 @@ var Importer = {
         $selects = $(query).html(widget.html());  // append <option> elements to each <select>
       };
 
+      var edgeType = $('label[for="' + selectId + '"]').text().split(' ').pop();
+
       // set default value for edge attributes' form select
       for (var i = 0, l = $selects.length; i < l; i++) {
         var $select = $selects.eq(i);
-        $select.val($select.children(':nth-child(4)').text());
+        var edgeProperty = $select.prev().text().split(':').pop();
+        var optionValue = edgeType + ' ' + edgeProperty;
+        $select.val($select.children('option[value="' + optionValue + '"]').text());
       }
 
     });
