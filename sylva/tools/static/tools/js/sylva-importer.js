@@ -202,12 +202,12 @@ var Importer = {
   },
 
   validateNodes: function(importController){
-
     Importer.matching.nodeAttributeWidgets = {};
-
     importController.empty();
+
     var nodeAttributes;
     var nodeMatcher = $('<select>').append($('<option>'));
+
     $.each(Importer.graphSchema.nodeTypes, function(item, value){
       nodeMatcher
         .append($('<option>')
@@ -226,15 +226,12 @@ var Importer = {
 
     });
 
-    var selectId;
-    var selectedAtttributeId;
-    var elementDiv;
-
 
     // Draw nodeType matching selectors
-    $.each(sylvaSchema.nodeTypes, function(item, value){
-      selectId = slugify(item) + '_matcher';
-      elementDiv = $('<div>').addClass('import-type-matcher');
+    $.each(Importer.graphSchema.nodeTypes, function(item) {
+      var value = sylvaSchema.nodeTypes[item];
+      var selectId = slugify(item) + '_matcher';
+      var elementDiv = $('<div>').addClass('import-type-matcher');
       elementDiv
         .append($('<label>')
           .attr('for', selectId)
@@ -250,7 +247,7 @@ var Importer = {
 
       // Type attributes management
       $.each(value, function(attribute, att_properties){
-        selectedAtttributeId = slugify(attribute) + '_' + selectId;
+        var selectedAtttributeId = slugify(attribute) + '_' + selectId;
         elementDiv = $('<div>').addClass('import-property-matcher');
         elementDiv
           .append($('<label>')
@@ -285,7 +282,8 @@ var Importer = {
       var validates = true;
       Importer.matching["nodeTypes"] = {};
       Importer.matching["nodeAttributes"] = {};
-      $.each(sylvaSchema.nodeTypes, function(item, value){
+      $.each(Importer.graphSchema.nodeTypes, function(item) {
+        var value = sylvaSchema.nodeTypes[item];
         selectedValue = $('#'+slugify(item)+'_matcher').val();
         if (selectedValue === ""){
           alert("ERROR: NodeType does not match: " + item);
@@ -322,13 +320,13 @@ var Importer = {
   validateRelationships: function(importController){
     Importer.matching.edgeAttributeWidgets = {};
     Importer.matching.edgeSlugs = {};
-
-    var edgeText;
     importController.empty();
+
     var edgeAttributes;
     var relationshipMatcher = $('<select>').append($('<option>'));
+
     $.each(Importer.graphSchema.allowedEdges, function(item, value){
-      edgeText = GraphEditor.edgeText(value.source, value.target, value.label);
+      var edgeText = GraphEditor.edgeText(value.source, value.target, value.label);
       var slug = value.source + '_' + value.label + '_' + value.target;
       Importer.matching.edgeSlugs[slug] = item;
       relationshipMatcher
@@ -348,16 +346,13 @@ var Importer = {
 
     });
 
-
-    var selectId;
-    var elementDiv;
-
     // Draw allowedEdges matching selectors
-    $.each(sylvaSchema.allowedEdges, function(index, value){
+    $.each(Importer.graphSchema.allowedEdges, function(index) {
+      var value = sylvaSchema.allowedEdges[index];
       var item = value.source + '_' + value.label + '_' + value.target;
-      selectId = item.split(" ").join("") + '_matcher';
-      edgeText = GraphEditor.edgeText(value.source, value.target, value.label);
-      elementDiv = $('<div>').addClass('import-type-matcher');
+      var selectId = item.split(" ").join("") + '_matcher';
+      var edgeText = GraphEditor.edgeText(value.source, value.target, value.label);
+      var elementDiv = $('<div>').addClass('import-type-matcher');
       elementDiv
         .append($('<label>')
           .attr('for', selectId)
@@ -414,7 +409,8 @@ var Importer = {
       var validates = true;
       Importer.matching["edgeTypes"] = [];
       Importer.matching["edgeAttributes"] = [];
-      $.each(sylvaSchema.allowedEdges, function(index, value){
+      $.each(Importer.graphSchema.allowedEdges, function(index) {
+        var value = sylvaSchema.allowedEdges[index];
         var item = value.source + '_' + value.label + '_' + value.target;
         var itemId = item.split(" ").join("")+'_matcher';
         selectedValue = $('#'+itemId).val()
