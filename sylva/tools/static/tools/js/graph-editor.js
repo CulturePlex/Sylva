@@ -198,7 +198,75 @@ var GraphEditor = {
     return sourceLabel + ' &rarr; ' + targetLabel + ' (' + typeLabel + ')';
   },
 
-  loadGEXF: function(){
+  // loadGEXF: function(){
+  //   function handleFileSelect(evt) {
+  //     GraphEditor.progressBar.show();
+
+  //     var files = evt.target.files; // FileList object
+  //     var reader = new FileReader();
+
+  //     reader.onload = function(e) {
+  //       var gexfContent = e.target.result;
+
+  //       // NODES
+  //       $(gexfContent).find('node').each(function(index, item){
+
+  //         // Node custom attributes
+  //         var attributes = {};
+  //         var attributeName = null;
+  //         $(this).find('attvalue').each(function(index){
+  //             var attributeIndex = $(gexfContent).find('attributes').filter('.node');
+  //             if (attributeIndex.length > 0) {
+  //               attributeName = attributeIndex.find('#' + $(this).attr('for')).attr('title');
+  //             } else {
+  //               attributeName = $(this).attr('for').toLowerCase();
+  //             }
+  //             attributes[attributeName] = $(this).attr('value');
+  //         });
+
+  //         // Node position
+  //         attributes["position"] =  {
+  //             "x":$(this).find('viz\\:position').attr('x'),
+  //             "y":$(this).find('viz\\:position').attr('y')
+  //         }
+
+  //         // type
+  //         attributes["type"] = $(this).attr('type');
+  //         attributes["_label"] = $(this).attr('label');
+  //         GraphEditor.addNode($(this).attr('id'), attributes);
+  //       });
+
+  //       // EDGES
+  //       $(gexfContent).find('edge').each(function(){
+
+  //         //  Edge custom attributes
+  //         var attributes = {};
+  //         var attributeName = null;
+  //         $(this).find('attvalue').each(function(index){
+  //             var attributeIndex = $(gexfContent).find('attributes').filter('.edge');
+  //             if (attributeIndex.length > 0) {
+  //               attributeName = attributeIndex.find('#' + $(this).attr('for')).attr('title');
+  //             } else {
+  //               attributeName = $(this).attr('for').toLowerCase();
+  //             }
+  //             attributes[attributeName] = $(this).attr('value');
+  //         });
+  //         var sourceId = $(this).attr('source');
+  //         var targetId = $(this).attr('target');
+  //         var source = $(gexfContent).find('node#'+sourceId).attr('id');
+  //         var target = $(gexfContent).find('node#'+targetId).attr('id');
+  //         var type = $(this).attr('label');
+  //         GraphEditor.addEdge(source, type, target, attributes);
+  //       });
+  //       GraphEditor.progressBar.hide();
+  //     };
+
+  //     reader.readAsText(files[0]);
+  //   }
+  //   $('#files').bind('change', handleFileSelect);
+  // },
+
+  loadGEXF: function() {
     function handleFileSelect(evt) {
       GraphEditor.progressBar.show();
 
@@ -206,58 +274,113 @@ var GraphEditor = {
       var reader = new FileReader();
 
       reader.onload = function(e) {
-        var gexfContent = e.target.result;
+        var parser = new DOMParser();
+        var gexf = parser.parseFromString(e.target.result, "text/xml");
 
-        // NODES
-        $(gexfContent).find('node').each(function(index, item){
+        var nodesAttributes = {};
+        var edgesAttributes = {};
+        var attributesNodes = gexf.getElementsByTagName('attributes');
 
-          // Node custom attributes
-          var attributes = {};
-          var attributeName = null;
-          $(this).find('attvalue').each(function(index){
-              var attributeIndex = $(gexfContent).find('attributes').filter('.node');
-              if (attributeIndex.length > 0) {
-                attributeName = attributeIndex.find('id=' + $(this).attr('for')).attr('title');
-              } else {
-                attributeName = $(this).attr('for').toLowerCase();
-              }
-              attributes[attributeName] = $(this).attr('value');
-          });
+        // loop through attributes elements and store attributes for nodes and edges
+        for (var i = 0, li = attributesNodes.length; i< li; i++) {
+          var attributesNode = attributesNodes[i];
 
-          // Node position
-          attributes["position"] =  {
-              "x":$(this).find('viz\\:position').attr('x'),
-              "y":$(this).find('viz\\:position').attr('y')
+          if (attributesNode.getAttribute('class') == 'node') {
+            var attributeNodes = attributesNode.getElementsByTagName('attribute');
+
+            for (var j = 0, lj = attributeNodes.length; j < lj; j++) {
+              var attributeNode = attributeNodes[j];
+
+              var id = attributeNode.getAttribute('id'),
+                  title = attributeNode.getAttribute('title'),
+                  type = attributeNode.getAttribute('type');
+
+              // store node attributes
+              nodesAttributes[id] = {title: title, type: type};
+            }
+          } else if (attributesNode.getAttribute('class') == 'edge') {
+            var attributeEdges = attributesNode.getElementsByTagName('attribute');
+
+            for (var j = 0, lj = attributeEdges.length; j < lj; j++) {
+              var attributeEdge = attributeEdges[j];
+
+              var id = attributeEdge.getAttribute('id'),
+                  title = attributeEdge.getAttribute('title'),
+                  type = attributeEdge.getAttribute('type');
+
+              // store edge attributes
+              edgesAttributes[id] = {title: title, type: type};
+            }
           }
+        }
 
-          // type
-          attributes["type"] = $(this).attr('type');
-          attributes["_label"] = $(this).attr('label');
-          GraphEditor.addNode($(this).attr('id'), attributes);
-        });
+        var nodesNodes = gexf.getElementsByTagName('nodes');
 
-        // EDGES
-        $(gexfContent).find('edge').each(function(){
+        // loop through <nodes> elements
+        for (var i = 0, li = nodesNodes.length; i < li; i++) {
+          var nodesNode = nodesNodes[i];
+          var nodeNodes = nodesNode.getElementsByTagName('node');
 
-          //  Edge custom attributes
-          var attributes = {};
-          var attributeName = null;
-          $(this).find('attvalue').each(function(index){
-              var attributeIndex = $(gexfContent).find('attributes').filter('.edge');
-              if (attributeIndex.length > 0) {
-                attributeName = attributeIndex.find('id=' + $(this).attr('for')).attr('title');
-              } else {
-                attributeName = $(this).attr('for').toLowerCase();
-              }
-              attributes[attributeName] = $(this).attr('value');
-          });
-          var sourceId = $(this).attr('source');
-          var targetId = $(this).attr('target');
-          var source = $(gexfContent).find('node#'+sourceId).attr('id');
-          var target = $(gexfContent).find('node#'+targetId).attr('id');
-          var type = $(this).attr('label');
-          GraphEditor.addEdge(source, type, target, attributes);
-        });
+          // loop through <node> elements
+          for (var j = 0, lj = nodeNodes.length; j < lj; j++) {
+            var nodeNode = nodeNodes[j];
+
+            var nodeId = nodeNode.getAttribute('id'),
+                nodeLabel = nodeNode.getAttribute('label'),
+                nodeType = nodeNode.getAttribute('type');
+            // TODO: store node position (x,y)
+            var nodeAttributes = {_label: nodeLabel, type: nodeType};
+
+            var attvalueNodes = nodeNode.getElementsByTagName('attvalue');
+
+            // loop through <attvalue> elements
+            for (var k = 0, lk = attvalueNodes.length; k < lk; k++) {
+              var attvalueNode = attvalueNodes[k];
+
+              var attributeId = attvalueNode.getAttribute('for');
+              var attributeTitle = nodesAttributes[attributeId].title;
+              nodeAttributes[attributeTitle] = attvalueNode.getAttribute('value');
+            }
+
+            // finally, add node
+            GraphEditor.addNode(nodeId, nodeAttributes);
+          }
+        }
+
+        var edgesNodes = gexf.getElementsByTagName('edges');
+
+        // loop through <edges> elements
+        for (var i = 0, li = edgesNodes.length; i < li; i++) {
+          var edgesNode = edgesNodes[i];
+          var edgeNodes = edgesNode.getElementsByTagName('edge');
+
+          // loop through <edge> elements
+          for (var j = 0, lj = edgeNodes.length; j < lj; j++) {
+            var edgeNode = edgeNodes[j];
+
+            var edgeId = edgeNode.getAttribute('id'),
+                edgeSource = edgeNode.getAttribute('source'),
+                edgeTarget = edgeNode.getAttribute('target'),
+                edgeType = edgeNode.getAttribute('label');
+
+            var edgeAttributes = {};
+
+            var attvalueEdges = edgeNode.getElementsByTagName('attvalue');
+
+            // loop through <attvalue> elements
+            for (var k = 0, lk = attvalueEdges.length; k < lk; k++) {
+              var attvalueEdge = attvalueEdges[k];
+
+              var attributeId = attvalueEdge.getAttribute('for');
+              var attributeTitle = edgesAttributes[attributeId].title;
+              edgeAttributes[attributeTitle] = attvalueEdge.getAttribute('value');
+            }
+
+            // finally, add edge
+            GraphEditor.addEdge(edgeSource, edgeType, edgeTarget, edgeAttributes);
+          }
+        }
+
         GraphEditor.progressBar.hide();
       };
 

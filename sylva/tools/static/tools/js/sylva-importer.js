@@ -122,7 +122,7 @@ var Importer = {
         $(Importer.progressTextId).text('Node ' + nodeName + ' added');
         $(Importer.progressBarId).attr('value', Importer.counter);
         nodeData._id = response.id;
-        
+
         // If all the nodes are inserted then we can start with the edges
         if (Importer.counter == Object.keys(Importer.nodes).length){
           $('body').trigger($.Event('endNodeInsertion'));
@@ -176,7 +176,7 @@ var Importer = {
     Importer.edges = _edges;
     Importer.progressBarId = _progressBarId;
     Importer.progressTextId = _progressTextId;
-    
+
     // Progress bar initialization
     Importer.counterMax = Object.keys(Importer.nodes).length + Importer.edges.length;
     $(Importer.progressBarId).attr('max', Importer.counterMax);
@@ -193,7 +193,7 @@ var Importer = {
         Importer.addEdge(value.source, value.type, value.target, value.properties);
       });
     });
-    
+
     // Final message
     $('body').bind('importFinished', function(){
       $(Importer.progressTextId).text("Import process finished. Added " +
@@ -202,9 +202,9 @@ var Importer = {
   },
 
   validateNodes: function(importController){
-    
+
     Importer.matching.nodeAttributeWidgets = {};
-    
+
     importController.empty();
     var nodeAttributes;
     var nodeMatcher = $('<select>').append($('<option>'));
@@ -220,10 +220,10 @@ var Importer = {
             .attr('value', attribute)
               .append(attribute));
       });
-      
+
       // Store nodeType attributes selectors
       Importer.matching.nodeAttributeWidgets[item] = nodeAttributes.clone();
-   
+
     });
 
     var selectId;
@@ -243,10 +243,11 @@ var Importer = {
       elementDiv
         .append(nodeMatcher.clone()
           .attr('id', selectId)
+          .val(item)  // set default value
         );
       importController
         .append(elementDiv);
-      
+
       // Type attributes management
       $.each(value, function(attribute, att_properties){
         selectedAtttributeId = slugify(attribute) + '_' + selectId;
@@ -266,19 +267,14 @@ var Importer = {
         }
       });
 
-      // Bind change event to reload attributes selector
-      $('#'+selectId).change(function(evt){
-        var query = 'select[id$=_' + evt.target.id + ']';
-        var widget = Importer.matching.nodeAttributeWidgets[evt.target.value];
-        $(query).html(widget.html());
-      });
+      var query = 'select[id$=_' + selectId + ']';  // id with ending "_{selectId}"
+      var widget = Importer.matching.nodeAttributeWidgets[item];
+      var $selects = $(query).html(widget.html());  // append <option> elements to each <select>
 
-      // Autoselect value if matches the label
-      var oldVal = $('#'+selectId).val();
-      $('#'+selectId).val(item);
-      var newVal = $('#'+selectId).val();
-      if (newVal !== oldVal){
-        $('#'+selectId).trigger('change');
+      // set default value for node attributes' form select
+      for (var i = 0, l = $selects.length; i < l; i++) {
+        var selectVal = $('label[for=' + $selects[i].id + ']').first().text().split(':');
+        $selects[i].value = '(' + selectVal[0] + ') ' + selectVal[1];
       }
 
     });
@@ -357,7 +353,7 @@ var Importer = {
     var elementDiv;
 
     // Draw allowedEdges matching selectors
-    $.each(sylvaSchema.allowedEdges, function(i, value){
+    $.each(sylvaSchema.allowedEdges, function(index, value){
       var item = value.source + '_' + value.label + '_' + value.target;
       selectId = item.split(" ").join("") + '_matcher';
       edgeText = GraphEditor.edgeText(value.source, value.target, value.label);
@@ -370,6 +366,7 @@ var Importer = {
       elementDiv
         .append(relationshipMatcher.clone()
           .attr('id', selectId)
+          .val(Importer.matching.edgeSlugs[item])
         );
       importController.append(elementDiv);
 
@@ -392,23 +389,23 @@ var Importer = {
         }
       });
 
-      // Bind change event to reload attributes selector
-      $('#'+selectId).change(function(evt){
-        var query = 'select[id$=_' + evt.target.id + ']';
-        var widget = Importer.matching.edgeAttributeWidgets[evt.target.value];
-        $(query).html(widget.html());
-      }); 
+      var query = 'select[id$=_' + selectId + ']';    // id with ending "_{selectId}"
+      var widget = Importer.matching.edgeAttributeWidgets[index];
+      var $selects = $(query);
+      if (widget && $selects.length > 0) {
+        $selects = $(query).html(widget.html());  // append <option> elements to each <select>
+      };
 
-      // Autoselect value if matches the label
-      if (Importer.matching.edgeSlugs.hasOwnProperty(item)) {
-         var oldVal = $('#'+selectId).val();
-          $('#'+selectId).val(Importer.matching.edgeSlugs[item]);
-          var newVal = $('#'+selectId).val();
-          if (newVal !== oldVal){
-            $('#'+selectId).trigger('change');
-          }
+      var edgeType = $('label[for="' + selectId + '"]').text().split(' ').pop();
+
+      // set default value for edge attributes' form select
+      for (var i = 0, l = $selects.length; i < l; i++) {
+        var $select = $selects.eq(i);
+        var edgeProperty = $select.prev().text().split(':').pop();
+        var optionValue = edgeType + ' ' + edgeProperty;
+        $select.val($select.children('option[value="' + optionValue + '"]').text());
       }
-     
+
     });
 
     $('#check-schema-btn').text('Validate relationship types matching');
@@ -417,7 +414,7 @@ var Importer = {
       var validates = true;
       Importer.matching["edgeTypes"] = [];
       Importer.matching["edgeAttributes"] = [];
-      $.each(sylvaSchema.allowedEdges, function(i, value){
+      $.each(sylvaSchema.allowedEdges, function(index, value){
         var item = value.source + '_' + value.label + '_' + value.target;
         var itemId = item.split(" ").join("")+'_matcher';
         selectedValue = $('#'+itemId).val()
@@ -439,12 +436,12 @@ var Importer = {
             target: [graphItem.target, value.target]
           });
         }
-        
+
         // Attributes
         var attributes = {};
         $.each(value.properties, function(attribute, att_properties){
           attSelector = '#' + slugify(attribute) + '_' + itemId;
-          selectedAttribute = $(attSelector).val(); 
+          selectedAttribute = $(attSelector).val();
           if (att_properties.required && selectedAttribute === ""){
             alert("ERROR: " + item + " attribute is required: " + attribute);
             validates = false;
