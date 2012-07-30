@@ -344,8 +344,7 @@ var Importer = {
     });
 
     // Draw allowedEdges matching selectors
-    $.each(Importer.graphSchema.allowedEdges, function(index) {
-      var value = sylvaSchema.allowedEdges[index];
+    $.each(Importer.graphSchema.allowedEdges, function(index, value) {
       var item = value.source.trim() + '_' + value.label.trim() + '_' + value.target.trim();
       var selectId = item.split(" ").join("") + '_matcher';
       var edgeText = GraphEditor.edgeText(value.source, value.target, value.label);
@@ -364,6 +363,10 @@ var Importer = {
 
       // Type attributes management
       $.each(value.properties, function(attribute, att_properties){
+        if (attribute === '[Schema] Allowed Relationship' ||
+            attribute === '[Schema] Allowed Relationship Id') {
+          return false;
+        }
         selectedAtttributeId = slugify(attribute) + '_' + selectId;
         elementDiv = $('<div>').addClass('import-property-matcher');
         elementDiv
@@ -406,8 +409,7 @@ var Importer = {
       var validates = true;
       Importer.matching["edgeTypes"] = [];
       Importer.matching["edgeAttributes"] = [];
-      $.each(Importer.graphSchema.allowedEdges, function(index) {
-        var value = sylvaSchema.allowedEdges[index];
+      $.each(Importer.graphSchema.allowedEdges, function(index, value) {
         var item = value.source.trim() + '_' + value.label.trim() + '_' + value.target.trim();
         var itemId = item.split(" ").join("")+'_matcher';
         selectedValue = $('[id="'+itemId + '"]').val();
@@ -433,6 +435,10 @@ var Importer = {
         // Attributes
         var attributes = {};
         $.each(value.properties, function(attribute, att_properties){
+          if (attribute === '[Schema] Allowed Relationship' ||
+              attribute === '[Schema] Allowed Relationship Id') {
+            return false;
+          }
           attSelector = slugify(attribute) + '_' + itemId;
           selectedAttribute = $('[id="' + attSelector + '"]').val();
           if (att_properties.required && selectedAttribute === ""){
