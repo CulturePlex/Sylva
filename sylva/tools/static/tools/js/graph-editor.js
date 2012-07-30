@@ -291,9 +291,9 @@ var GraphEditor = {
             for (var j = 0, lj = attributeNodes.length; j < lj; j++) {
               var attributeNode = attributeNodes[j];
 
-              var id = attributeNode.getAttribute('id'),
+              var id = attributeNode.getAttribute('id').trim(),
                   title = attributeNode.getAttribute('title').trim(),
-                  type = attributeNode.getAttribute('type');
+                  type = attributeNode.getAttribute('type').trim();
 
               // store node attributes
               nodesAttributes[id] = {title: title, type: type};
@@ -304,9 +304,9 @@ var GraphEditor = {
             for (var j = 0, lj = attributeEdges.length; j < lj; j++) {
               var attributeEdge = attributeEdges[j];
 
-              var id = attributeEdge.getAttribute('id'),
+              var id = attributeEdge.getAttribute('id').trim(),
                   title = attributeEdge.getAttribute('title').trim(),
-                  type = attributeEdge.getAttribute('type');
+                  type = attributeEdge.getAttribute('type').trim();
 
               // store edge attributes
               edgesAttributes[id] = {title: title, type: type};
@@ -325,9 +325,9 @@ var GraphEditor = {
           for (var j = 0, lj = nodeNodes.length; j < lj; j++) {
             var nodeNode = nodeNodes[j];
 
-            var nodeId = nodeNode.getAttribute('id'),
-                nodeLabel = nodeNode.getAttribute('label'),
-                nodeType = nodeNode.getAttribute('type');
+            var nodeId = nodeNode.getAttribute('id').trim(),
+                nodeLabel = nodeNode.getAttribute('label').trim(),
+                nodeType = nodeNode.getAttribute('type').trim();
             // TODO: store node position (x,y)
             var nodeAttributes = {_label: nodeLabel, type: nodeType};
 
@@ -358,10 +358,10 @@ var GraphEditor = {
           for (var j = 0, lj = edgeNodes.length; j < lj; j++) {
             var edgeNode = edgeNodes[j];
 
-            var edgeId = edgeNode.getAttribute('id'),
-                edgeSource = edgeNode.getAttribute('source'),
-                edgeTarget = edgeNode.getAttribute('target'),
-                edgeType = edgeNode.getAttribute('label');
+            var edgeId = edgeNode.getAttribute('id').trim(),
+                edgeSource = edgeNode.getAttribute('source').trim(),
+                edgeTarget = edgeNode.getAttribute('target').trim(),
+                edgeType = edgeNode.getAttribute('label').trim();
 
             var edgeAttributes = {};
 
@@ -594,7 +594,7 @@ var GraphEditor = {
 
       // RelationshipType element
       elementType = $('<li>');
-      edgeText = GraphEditor.edgeText(value.source, value.target, value.label);
+      edgeText = GraphEditor.edgeText(value.source.trim(), value.target.trim(), value.label.trim());
         elementType.append(edgeText);
         elementType.append(elementAttributes);
         $('#'+edgeElement).append(elementType);

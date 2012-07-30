@@ -190,7 +190,7 @@ var Importer = {
     // Edges import when nodes are done
     $('body').bind('endNodeInsertion', function() {
       $.each(Importer.edges, function(index, value){
-        Importer.addEdge(value.source, value.type, value.target, value.properties);
+        Importer.addEdge(value.source.trim(), value.type.trim(), value.target.trim(), value.properties);
       });
     });
 
@@ -326,8 +326,8 @@ var Importer = {
     var relationshipMatcher = $('<select>').append($('<option>'));
 
     $.each(Importer.graphSchema.allowedEdges, function(item, value){
-      var edgeText = GraphEditor.edgeText(value.source, value.target, value.label);
-      var slug = value.source + '_' + value.label + '_' + value.target;
+      var edgeText = GraphEditor.edgeText(value.source.trim(), value.target.trim(), value.label.trim());
+      var slug = value.source.trim() + '_' + value.label.trim() + '_' + value.target.trim();
       Importer.matching.edgeSlugs[slug] = item;
       relationshipMatcher
         .append($('<option>')
@@ -349,7 +349,7 @@ var Importer = {
     // Draw allowedEdges matching selectors
     $.each(Importer.graphSchema.allowedEdges, function(index) {
       var value = sylvaSchema.allowedEdges[index];
-      var item = value.source + '_' + value.label + '_' + value.target;
+      var item = value.source.trim() + '_' + value.label.trim() + '_' + value.target.trim();
       var selectId = item.split(" ").join("") + '_matcher';
       var edgeText = GraphEditor.edgeText(value.source, value.target, value.label);
       var elementDiv = $('<div>').addClass('import-type-matcher');
@@ -411,7 +411,7 @@ var Importer = {
       Importer.matching["edgeAttributes"] = [];
       $.each(Importer.graphSchema.allowedEdges, function(index) {
         var value = sylvaSchema.allowedEdges[index];
-        var item = value.source + '_' + value.label + '_' + value.target;
+        var item = value.source.trim() + '_' + value.label.trim() + '_' + value.target.trim();
         var itemId = item.split(" ").join("")+'_matcher';
         selectedValue = $('[id="'+itemId + '"]').val();
         if (selectedValue === ""){
@@ -427,9 +427,9 @@ var Importer = {
                             */
           var graphItem = Importer.graphSchema.allowedEdges[selectedValue];
           Importer.matching.edgeTypes.push({
-            label: [graphItem.label, value.label],
-            source: [graphItem.source, value.source],
-            target: [graphItem.target, value.target]
+            label: [graphItem.label, value.label.trim()],
+            source: [graphItem.source, value.source.trim()],
+            target: [graphItem.target, value.target.trim()]
           });
         }
 
