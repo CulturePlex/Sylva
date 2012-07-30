@@ -5,6 +5,7 @@ if (!diagram) {
 diagram.Container = "diagram";
 diagram.CurrentModels = [];
 diagram.CurrentRelations = {};
+diagram.Counter = 0;
 
 (function($) {
     /**
@@ -104,8 +105,9 @@ diagram.CurrentRelations = {};
             primaries = [];
             model = diagram.Models[graphName][modelName];
             root = $("#"+ diagram.Container);
+            diagram.Counter++;
             divBox = $("<DIV>");
-            divBox.attr("id", "diagramBox_"+ modelName);
+            divBox.attr("id", "diagramBox_"+ diagram.Counter +"_"+ modelName);
             divBox.css({
                 "left": (parseInt(Math.random() * 55 + 1) * 10) + "px",
                 "top": (parseInt(Math.random() * 25 + 1) * 10) + "px"
@@ -146,7 +148,7 @@ diagram.CurrentRelations = {};
                 divField = $("<DIV>");
                 divField.addClass("field");
                 diagram.setLabel(divField, field.label, field.primary);
-                divField.attr("id", "diagramBoxField_"+ graphName +"."+ modelName +"."+ fieldName);
+                divField.attr("id", "diagramBoxField_"+ diagram.Counter +"_"+ graphName +"."+ modelName +"."+ fieldName);
                 if (field.type == "ForeignKey") {
                     divField.addClass("single");
                     divField.click(diagram.addRelated);
@@ -191,7 +193,7 @@ diagram.CurrentRelations = {};
             }
             divBox.prepend(divTitle);
             root.append(divBox);
-            jsPlumb.draggable("diagramBox_"+ modelName, {
+            jsPlumb.draggable("diagramBox_"+ diagram.Counter +"_"+ modelName, {
                 handle: ".title",
                 grid: [10, 10],
                 stop: function (event, ui) {
@@ -206,7 +208,7 @@ diagram.CurrentRelations = {};
                         top = "0px";
                     }
                     $this.animate({left: left, top: top}, "fast", function() {
-                        jsPlumb.repaint(["diagramBox_"+ modelName]);
+                        jsPlumb.repaint(["diagramBox_"+ diagram.Counter +"_"+ modelName]);
                     });
                     diagram.saveBoxPositions();
                 }
