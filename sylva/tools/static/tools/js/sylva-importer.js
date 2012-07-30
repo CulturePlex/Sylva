@@ -391,7 +391,7 @@ var Importer = {
         $selects = $(query).html(widget.html());  // append <option> elements to each <select>
       };
 
-      var edgeType = $('label[for="' + selectId + '"]').text().split(' ').pop();
+      var edgeType = $('label[for="' + selectId + '"]').text().match(/\([^\(\)]+\)/g).pop();
 
       // set default value for edge attributes' form select
       for (var i = 0, l = $selects.length; i < l; i++) {
