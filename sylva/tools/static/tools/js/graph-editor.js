@@ -108,11 +108,11 @@ var GraphEditor = {
     var edgeTarget = _target !== undefined ? _target: prompt("Enter target node");
 
     if (!this.nodeExists(edgeSource)){
-      alert("ERROR: Unknown node: " + edgeSource);
+      alert("ERROR: Unknown source node: " + edgeSource);
       return;
     }
     if (!this.nodeExists(edgeTarget)){
-      alert("ERROR: Unknown node: " + edgeTarget);
+      alert("ERROR: Unknown target node: " + edgeTarget);
       return;
     }
     if (edgeType == "") {
