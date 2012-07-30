@@ -259,18 +259,18 @@ var Importer = {
         importController
           .append(elementDiv);
         if (att_properties.required) {
-          $('label[for='+selectedAtttributeId+']')
+          $('label[for="'+selectedAtttributeId+'"]')
             .css('color', 'red');
         }
       });
 
-      var query = 'select[id$=_' + selectId + ']';  // id with ending "_{selectId}"
+      var query = 'select[id$="_' + selectId + '"]';  // id with ending "_{selectId}"
       var widget = Importer.matching.nodeAttributeWidgets[item];
       var $selects = $(query).html(widget.html());  // append <option> elements to each <select>
 
       // set default value for node attributes' form select
       for (var i = 0, l = $selects.length; i < l; i++) {
-        var selectVal = $('label[for=' + $selects[i].id + ']').first().text().split(':');
+        var selectVal = $('label[for="' + $selects[i].id + '"]').first().text().split(':');
         $selects[i].value = '(' + selectVal[0] + ') ' + selectVal[1];
       }
 
@@ -379,12 +379,12 @@ var Importer = {
         importController
           .append(elementDiv);
         if (att_properties.required) {
-          $('label[for='+selectedAtttributeId+']')
+          $('label[for="'+selectedAtttributeId+'"]')
             .css('color', 'red');
         }
       });
 
-      var query = 'select[id$=_' + selectId + ']';    // id with ending "_{selectId}"
+      var query = 'select[id$="_' + selectId + '"]';    // id with ending "_{selectId}"
       var widget = Importer.matching.edgeAttributeWidgets[index];
       var $selects = $(query);
       if (widget && $selects.length > 0) {

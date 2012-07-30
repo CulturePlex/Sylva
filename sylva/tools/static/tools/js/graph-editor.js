@@ -292,7 +292,7 @@ var GraphEditor = {
               var attributeNode = attributeNodes[j];
 
               var id = attributeNode.getAttribute('id'),
-                  title = attributeNode.getAttribute('title'),
+                  title = attributeNode.getAttribute('title').trim(),
                   type = attributeNode.getAttribute('type');
 
               // store node attributes
@@ -305,7 +305,7 @@ var GraphEditor = {
               var attributeEdge = attributeEdges[j];
 
               var id = attributeEdge.getAttribute('id'),
-                  title = attributeEdge.getAttribute('title'),
+                  title = attributeEdge.getAttribute('title').trim(),
                   type = attributeEdge.getAttribute('type');
 
               // store edge attributes
