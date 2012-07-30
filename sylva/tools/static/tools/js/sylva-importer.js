@@ -284,7 +284,7 @@ var Importer = {
       Importer.matching["nodeAttributes"] = {};
       $.each(Importer.graphSchema.nodeTypes, function(item) {
         var value = sylvaSchema.nodeTypes[item];
-        selectedValue = $('#'+slugify(item)+'_matcher').val();
+        selectedValue = $('[id="'+slugify(item)+'_matcher"]').val();
         if (selectedValue === ""){
           alert("ERROR: NodeType does not match: " + item);
           validates = false;
@@ -296,8 +296,8 @@ var Importer = {
         // Attributes
         Importer.matching.nodeAttributes[item] = {};
         $.each(value, function(attribute, att_properties){
-          attSelector = '#' + slugify(attribute) + '_' + slugify(item) + '_matcher';
-          selectedAttribute = $(attSelector).val();
+          attSelector = slugify(attribute) + '_' + slugify(item) + '_matcher';
+          selectedAttribute = $('[id="' + attSelector + '"]').val();
           if (att_properties.required && selectedAttribute === ""){
             // Do we need to fill all the types?
             // alert("ERROR: " + item + " attribute is required: " + attribute);
@@ -413,7 +413,7 @@ var Importer = {
         var value = sylvaSchema.allowedEdges[index];
         var item = value.source + '_' + value.label + '_' + value.target;
         var itemId = item.split(" ").join("")+'_matcher';
-        selectedValue = $('#'+itemId).val()
+        selectedValue = $('[id="'+itemId + '"]').val();
         if (selectedValue === ""){
           // Do we need to fill all the types?
           // alert("ERROR: RelationshipType does not match: " + item);
@@ -436,8 +436,8 @@ var Importer = {
         // Attributes
         var attributes = {};
         $.each(value.properties, function(attribute, att_properties){
-          attSelector = '#' + slugify(attribute) + '_' + itemId;
-          selectedAttribute = $(attSelector).val();
+          attSelector = slugify(attribute) + '_' + itemId;
+          selectedAttribute = $('[id="' + attSelector + '"]').val();
           if (att_properties.required && selectedAttribute === ""){
             alert("ERROR: " + item + " attribute is required: " + attribute);
             validates = false;
