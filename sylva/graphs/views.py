@@ -23,7 +23,7 @@ def graph_view(request, graph_slug):
 
     def jsonify_graph(graph, n_elements):
         """
-        Returns a tuple with the format (nodes, edges) with the 
+        Returns a tuple with the format (nodes, edges) with the
         elements of a subgraph jsonified.
         The subgraph is composed by the first random "n_elements"
         nodes traversed from the first one
@@ -44,14 +44,18 @@ def graph_view(request, graph_slug):
                         if len(nodes) >= n_elements: break
             if len(nodes) >= n_elements: break
         return (nodes, edges)
-        
+
 
     graph = get_object_or_404(Graph, slug=graph_slug)
-    nodes, edges = jsonify_graph(graph, settings.PREVIEW_NODES)
+    nodes_count = graph.nodes.count()
+    nodes, edges = jsonify_graph(graph, settings.PREVIEW_NODES)   # partial graph
+    total_nodes, total_edges = jsonify_graph(graph, nodes_count)  # full graph
     return render_to_response('graphs_view.html',
                               {"graph": graph,
                                 "nodes": simplejson.dumps(nodes),
-                                "edges": simplejson.dumps(edges)},
+                                "edges": simplejson.dumps(edges),
+                                "total_nodes": simplejson.dumps(total_nodes),
+                                "total_edges": simplejson.dumps(total_edges)},
                               context_instance=RequestContext(request))
 
 
@@ -63,7 +67,7 @@ def graph_edit(request, graph_slug):
         data = request.POST.copy()
         form = GraphForm(data=data, user=request.user, instance=graph)
         if form.is_valid():
-            with transaction.commit_on_success(): 
+            with transaction.commit_on_success():
                 instance = form.cleaned_data["instance"]
                 graph = form.save(commit=False)
                 graph.save()
@@ -109,7 +113,7 @@ def graph_create(request):
         data = request.POST.copy()
         form = GraphForm(data=data, user=request.user)
         if form.is_valid():
-            with transaction.commit_on_success(): 
+            with transaction.commit_on_success():
                 instance = form.cleaned_data["instance"]
                 graph = form.save(commit=False)
                 graph.owner = request.user
@@ -165,7 +169,7 @@ def graph_collaborators(request, graph_slug):
                     permission_row['perms'].append((item_str, p, True))
                 else:
                     permission_row['perms'].append((item_str, p, False))
-        permissions_table.append(permission_row) 
+        permissions_table.append(permission_row)
     #users = [u for u in users if u != graph.owner and u not in collaborators]
     return render_to_response('graphs_collaborators.html',
                               {"graph": graph,

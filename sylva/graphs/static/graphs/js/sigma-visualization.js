@@ -12,8 +12,8 @@
   var Sigma = {
     init: function() {
       // Parse nodes and edges.
-      var sylv_nodes = JSON.parse(JSON.stringify(sylv.nodes));
-      var sylv_edges = JSON.parse(JSON.stringify(sylv.edges));
+      var sylv_nodes = JSON.parse(JSON.stringify(sylv.total_nodes));
+      var sylv_edges = JSON.parse(JSON.stringify(sylv.total_edges));
       // Node info.
       var $tooltip;
 
