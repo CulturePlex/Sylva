@@ -369,7 +369,8 @@
         GraphEditor.addNodeToList(index);
       });
       //Set edges
-      $.each(this.getGraphEdgesJSON(), function(index, item){
+      var edges = this.getGraphEdgesJSON();
+      $.each(edges, function(index, item){
         var edgeText = GraphEditor.edgeText(item.source, item.target, item.type);
         GraphEditor.addEdgeToList(edgeText);
       });
@@ -401,7 +402,8 @@
         }
       });
       var edgeTypes = {};
-      $.each(this.getGraphEdgesJSON(), function(index, item){
+      var edges = this.getGraphEdgesJSON();
+      $.each(edges, function(index, item){
         var edgeLabel = nodes[item.source].type + "_" +
             item[edgeTypeLabel] +
             "_" + nodes[item.target].type;
@@ -500,7 +502,8 @@
           self.drawer.addNode(index, item.type, item.id);
         }
       });
-      $.each(this.getGraphEdgesJSON(), function(index, item){
+      var edges = this.getGraphEdgesJSON();
+      $.each(edges, function(index, item){
         self.drawer.addEdge(item.source, item.type, item.target, item.id);
       });
     }
