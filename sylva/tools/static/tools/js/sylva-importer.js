@@ -93,6 +93,7 @@ var Importer = {
     $('#second-step-info').text(text);
   },
 
+  // Import nodes recursively, checking if the AJAX request is successfully finished
   addNode: function(nodeName, nodeData){
     var nodeType = Importer.matching.nodeTypes[nodeData.type];
     var properties = {};
@@ -120,14 +121,19 @@ var Importer = {
         $(Importer.progressBarId).attr('value', Importer.counter);
         nodeData._id = response.id;
 
-        // If all the nodes are inserted then we can start with the edges
+        // If all the nodes are inserted, then we can start with the edges
         if (Importer.counter == Object.keys(Importer.nodes).length){
           $('body').trigger($.Event('endNodeInsertion'));
+        } else if (Importer.nodesBuffer) {
+          // continue importing nodes
+          var node = Importer.nodesBuffer.pop();
+          Importer.addNode(node.index, node.value);
         }
       }
     });
   },
 
+  // Import edges recursively, checking if the AJAX request is successfully finished
   addEdge: function(sourceName, edgeLabel, targetName, edgeData){
     var edgeType;
     $.each(Importer.matching.edgeTypes, function(index, item){
@@ -160,8 +166,14 @@ var Importer = {
             var relationshipText = GraphEditor.edgeText(sourceName, edgeLabel, targetName);
             $(Importer.progressTextId).html('Relationship ' + relationshipText + ' created.');
             $(Importer.progressBarId).attr('value', Importer.counter);
+
             if (Importer.counterMax === Importer.counter){
               $('body').trigger($.Event('importFinished'));
+            } else if (Importer.edgesBuffer) {
+              // continue importing edges
+              var edge = Importer.edgesBuffer.pop();
+              Importer.addEdge(edge.value.source.trim(), edge.value.type.trim(),
+                  edge.value.target.trim(), edge.value.properties);
             }
           }
         });
@@ -177,18 +189,37 @@ var Importer = {
     // Progress bar initialization
     Importer.counterMax = Object.keys(Importer.nodes).length + Importer.edges.length;
     $(Importer.progressBarId).attr('max', Importer.counterMax);
-        ;
 
-    // Nodes import
+
+    Importer.nodesBuffer = [];
+
     $.each(Importer.nodes, function(index, value){
-      Importer.addNode(index, value);
+      Importer.nodesBuffer.push({
+        "index": index,
+        "value": value
+      });
+    });
+
+    // start nodes importing
+    var node = Importer.nodesBuffer.pop();
+    Importer.addNode(node.index, node.value);
+
+
+    Importer.edgesBuffer = [];
+
+    $.each(Importer.edges, function(index, value) {
+      Importer.edgesBuffer.push({
+        "index": index,
+        "value": value
+      });
     });
 
     // Edges import when nodes are done
     $('body').bind('endNodeInsertion', function() {
-      $.each(Importer.edges, function(index, value){
-        Importer.addEdge(value.source.trim(), value.type.trim(), value.target.trim(), value.properties);
-      });
+      // start edges importing
+      var edge = Importer.edgesBuffer.pop();
+      Importer.addEdge(edge.value.source.trim(), edge.value.type.trim(),
+          edge.value.target.trim(), edge.value.properties);
     });
 
     // Final message
