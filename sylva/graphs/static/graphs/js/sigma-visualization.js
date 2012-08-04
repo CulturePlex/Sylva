@@ -71,7 +71,6 @@
           $tooltip =
             $('<div class="node-info"></div>')
               .append('<ul>' + attributesToString(sylv_nodes[nodePK]) + '</ul>')
-              .addClass('node-info')
               .css({
                 'left': node.displayX+212,
                 'top': node.displayY+61
@@ -113,7 +112,7 @@
       // Hide node popup info and show the rest of nodes and edges.
       sigInst.bind('outnodes', function(event) {
         // Hide node info.
-        $tooltip.remove();
+        $('.node-info').remove();
         // Show nodes and edges.
         sigInst.iterEdges(function(e) {
           e.hidden = false;
