@@ -66,17 +66,20 @@
           return str.join('');
         };
 
-        // Show node popup info.
-        sigInst.iterNodes(function(node) {
-          $tooltip =
-            $('<div class="node-info"></div>')
-              .append('<ul>' + attributesToString(sylv_nodes[nodePK]) + '</ul>')
-              .css({
-                'left': node.displayX+212,
-                'top': node.displayY+61
-              });
-          $('#graph-container').append($tooltip);
-        }, [nodePK]);
+        var showInfo = $('#sigma-node-info').prop('checked');
+        if (showInfo) {
+          // Show node popup info.
+          sigInst.iterNodes(function(node) {
+            $tooltip =
+              $('<div class="node-info"></div>')
+                .append('<ul>' + attributesToString(sylv_nodes[nodePK]) + '</ul>')
+                .css({
+                  'left': node.displayX+212,
+                  'top': node.displayY+61
+                });
+            $('#graph-container').append($tooltip);
+          }, [nodePK]);
+        }
 
         // Hide edges and nodes.
         sigInst.iterEdges(function(e) {

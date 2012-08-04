@@ -27,10 +27,16 @@
     <div id="node-type-legend">
     </div>
   </div>
-<select name="visualization-type" id="visualization-type">
-  <option data-type="processing" selected="selected">Inspect graph</option>
-  <option data-type="sigma">Whole graph</option>
-</select>
+  <div class="graph-controls">
+    <select id="visualization-type">
+      <option data-type="processing" selected>Inspect graph</option>
+      <option data-type="sigma">Whole graph</option>
+    </select>
+    <div class="sigma-checkbox" style="display:none;">
+      <input type="checkbox" id="sigma-node-info">
+      <label for="sigma-node-info">Show node info</label>
+    </div>
+  </div>
   <div id="graph-container" style="display:none;"></div>
   <span id="sigma-pause" class="pause" style="display:none;" data-state="running">{% trans "Pause" %}</span>
   <div id="canvas-box">

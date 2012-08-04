@@ -14,6 +14,7 @@
       $('#graph-container').hide().empty();
       $('#canvas-box').show();
       $('#element-info').html('Click any node to interact');
+      $('.sigma-checkbox').hide();
       sylv.Processing.init();
     },
     sigma: function() {
@@ -24,6 +25,7 @@
       $('#graph-container').show();
       $('#element-info').html('Click any node to interact');
       $('.pause').show();
+      $('.sigma-checkbox').css('display', 'inline-block');
       sylv.Sigma.init();
     }
   };
