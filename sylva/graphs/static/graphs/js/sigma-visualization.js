@@ -19,11 +19,11 @@
 
       // Instanciate Sigma.js and customize rendering.
       var sigInst = sigma.init(document.getElementById('graph-container')).drawingProperties({
-        defaultLabelColor: '#fff',
+        defaultLabelColor: '#000',
         defaultLabelSize: 14,
         defaultLabelBGColor: '#fff',
         defaultLabelHoverColor: '#000',
-        labelThreshold: 6,
+        labelThreshold: 16,
         defaultEdgeType: 'curve'
       }).graphProperties({
         minNodeSize: 0.5,
