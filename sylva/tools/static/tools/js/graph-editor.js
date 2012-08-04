@@ -495,11 +495,13 @@ var GraphEditor = {
     //Clear everything
     this.clearLists();
     //Set nodes
-    $.each(this.getGraphNodesJSON(), function(index, item){
+    var nodes = this.getGraphNodesJSON();
+    $.each(nodes, function(index, item){
       GraphEditor.addNodeToList(index);
     });
     //Set edges
-    $.each(this.getGraphEdgesJSON(), function(index, item){
+    var edges = this.getGraphEdgesJSON();
+    $.each(edges, function(index, item){
       var edgeText = GraphEditor.edgeText(item.source, item.target, item.type);
       GraphEditor.addEdgeToList(edgeText);
     });
