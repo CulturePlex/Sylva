@@ -10,6 +10,7 @@
 ;(function(sylv, sigma, $, window, document, undefined) {
 
   var Sigma = {
+
     init: function() {
       // Parse nodes and edges.
       var sylv_nodes = JSON.parse(JSON.stringify(sylv.total_nodes));
@@ -141,7 +142,30 @@
 
       // Start the ForceAtlas2 algorithm.
       sigInst.startForceAtlas2();
+    },
+
+    start: function() {
+      var sigInst = sigma.instances[1];
+      if (sigInst) {
+        sigInst.startForceAtlas2();
+      } else {
+        console.log("Error: there isn't any Sigma instance created yet");
+      }
+    },
+
+    stop: function() {
+      var sigInst = sigma.instances[1];
+      if (sigInst) {
+        sigInst.stopForceAtlas2();
+      } else {
+        console.log("Error: there isn't any Sigma instance running");
+      }
+    },
+
+    exists: function() {
+      return sigma.instances[1];
     }
+
   };
 
   // Reveal module.

@@ -10,11 +10,15 @@
 
   var visualizations = {
     processing: function() {
+      if (sylv.Sigma.exists()) {
+        sylv.Sigma.stop();
+      }
+      $('#graph-container').hide();
+      $('.sigma-checkbox').hide();
       $('.pause').hide();
-      $('#graph-container').hide().empty();
       $('#canvas-box').show();
       $('#element-info').html('Click any node to interact');
-      $('.sigma-checkbox').hide();
+
       sylv.Processing.init();
     },
     sigma: function() {
@@ -23,10 +27,15 @@
         .empty()
         .append('<canvas id="graphcanvas">Your browser does not support graph visualization</canvas>');
       $('#graph-container').show();
-      $('#element-info').html('Click any node to interact');
       $('.pause').show();
+      $('#element-info').html('Click any node to interact');
       $('.sigma-checkbox').css('display', 'inline-block');
-      sylv.Sigma.init();
+
+      if (sylv.Sigma.exists()) {
+        sylv.Sigma.start();
+      } else {
+        sylv.Sigma.init();
+      }
     }
   };
 
