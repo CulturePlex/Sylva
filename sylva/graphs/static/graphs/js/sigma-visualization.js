@@ -131,9 +131,11 @@
         if (running === true) {
           running = false;
           sigInst.stopForceAtlas2();
+          $(this).html('Play');
         } else {
           running = true;
           sigInst.startForceAtlas2();
+          $(this).html('Pause');
         }
       });
 

@@ -1309,6 +1309,7 @@ table.content-table {
     background-color: lightBlue;
     font-size: 10px;
     cursor: pointer;
+    width: 29px;
 }
 
 div.relationships-box {
