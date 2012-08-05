@@ -1299,6 +1299,7 @@ table.content-table {
     -webkit-box-shadow: 0 0 4px;
     box-shadow: 0 0 4px;
     font-size: 13px;
+    z-index: 100;
 }
 
 .pause {
