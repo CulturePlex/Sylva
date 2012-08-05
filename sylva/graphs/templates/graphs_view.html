@@ -22,19 +22,19 @@
 <div id="canvas-container">
   <div id="canvas-info">
     <div id="element-info">
-      Click any node to interact
+      {% trans "Click any node to interact" %}
     </div>
     <div id="node-type-legend">
     </div>
   </div>
   <div class="graph-controls">
     <select id="visualization-type">
-      <option data-type="processing" selected>Inspect graph</option>
-      <option data-type="sigma">Whole graph</option>
+      <option data-type="processing" selected>{% trans "Inspect graph" %}</option>
+      <option data-type="sigma">{% trans "Whole graph" %}</option>
     </select>
     <div class="sigma-checkbox" style="display:none;">
       <input type="checkbox" id="sigma-node-info">
-      <label for="sigma-node-info">Show node info</label>
+      <label for="sigma-node-info">{% trans "Show node info" %}</label>
     </div>
   </div>
   <div id="graph-container" style="display:none;"></div>
