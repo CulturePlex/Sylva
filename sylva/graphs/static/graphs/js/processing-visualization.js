@@ -174,11 +174,29 @@
     setTimeout(loadNodeTypes, 200);
   }
 
+  function start() {
+    var processingInst = Processing.instances[0];
+    if (processingInst) {
+      processingInst.start();
+    } else {
+      init();
+    }
+  }
+
+  function stop() {
+    var processingInst = Processing.instances[0];
+    if (processingInst) {
+      processingInst.stop();
+    }
+  }
+
   // reveal module
   window.sylv.Processing = {
     updateInfo: updateInfo,
     updateInfoRelationship: updateInfoRelationship,
-    init: init
+    init: init,
+    start: start,
+    stop: stop
   };
 
 })(sylv.GraphEditor, sylv.nodes, sylv.edges, sylv.nodeTypesLegend, sylv, jQuery, window, document);

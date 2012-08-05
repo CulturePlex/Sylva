@@ -151,7 +151,7 @@
       if (sigInst) {
         sigInst.startForceAtlas2();
       } else {
-        console.log("Error: there isn't any Sigma instance created yet");
+        Sigma.init();
       }
     },
 
@@ -159,13 +159,7 @@
       var sigInst = sigma.instances[1];
       if (sigInst) {
         sigInst.stopForceAtlas2();
-      } else {
-        console.log("Error: there isn't any Sigma instance running");
       }
-    },
-
-    exists: function() {
-      return sigma.instances[1];
     }
 
   };

@@ -402,8 +402,8 @@ void setup() {
   stroke(0);
   noStroke();
   _nodeRadius = 20;
-  PFont fontA = loadFont("Verdana");  
-  textFont(fontA, 8);  
+  PFont fontA = loadFont("Verdana");
+  textFont(fontA, 8);
   textAlign(CENTER);
   _nodeTypes.add("notype");
 }
@@ -421,6 +421,8 @@ void draw(){
   // Layout algorithm
   if (!_paused){
     spring();
+  } else {
+    noLoop();
   }
 
   translate(_canvasXPan, _canvasYPan);
@@ -490,7 +492,7 @@ void spring(){
   int N;
   float k, xmove, ymove;
   Node node;
-  
+
   for(int i=0;i<_nodeList.size();i++){
     node = _nodeList.get(i);
     node.setXSpeed(0);
@@ -622,7 +624,7 @@ void deleteEdge(String source, String type, String target){
   sourceNode.removeRelation(type, target);
 }
 
-/* Scaling produces an unwanted behaviour moving the canvas 
+/* Scaling produces an unwanted behaviour moving the canvas
   upper-left. This values help keeping the camera centered
 */
 float X_CORRECTOR = 10;
@@ -677,6 +679,18 @@ void toggleLabels(){
 
 void togglePause(){
   _paused = !_paused;
+  if (!_paused) {
+    loop();
+  }
+}
+
+void start() {
+  _paused = false;
+  loop();
+}
+
+void stop() {
+  _paused = true;
 }
 
 void checkControls(float mousex, float mousey){

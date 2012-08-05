@@ -9,34 +9,29 @@
 ;(function(sylv, $, window, document, undefined) {
 
   var visualizations = {
+
     processing: function() {
-      if (sylv.Sigma.exists()) {
-        sylv.Sigma.stop();
-      }
+      sylv.Sigma.stop();
       $('#graph-container').hide();
       $('.sigma-checkbox').hide();
       $('.pause').hide();
       $('#canvas-box').show();
       $('#element-info').html('Click any node to interact');
-
-      sylv.Processing.init();
+      sylv.Processing.start();
     },
+
     sigma: function() {
+      sylv.Processing.stop();
       $('#canvas-box')
         .hide()
-        .empty()
         .append('<canvas id="graphcanvas">Your browser does not support graph visualization</canvas>');
       $('#graph-container').show();
       $('.pause').show();
       $('#element-info').html('Click any node to interact');
       $('.sigma-checkbox').css('display', 'inline-block');
-
-      if (sylv.Sigma.exists()) {
-        sylv.Sigma.start();
-      } else {
-        sylv.Sigma.init();
-      }
+      sylv.Sigma.start();
     }
+
   };
 
   // DOM
