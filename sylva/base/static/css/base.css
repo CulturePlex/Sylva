@@ -1265,9 +1265,8 @@ table.content-table {
 
 .sigma-checkbox {
     display: inline-block;
-    position: absolute;
+    position: relative;
     margin-left: 12px;
-    margin-top: 11px;
 }
 
 .sigma-checkbox input[type="checkbox"] {

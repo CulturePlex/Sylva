@@ -104,7 +104,7 @@
           }
         });
 
-        // draw graph.
+        // Draw graph.
         sigInst.draw();
 
         // Update node legend.
@@ -128,7 +128,7 @@
         }).draw();
       });
 
-      // Bind pause.
+      // Bind pause button.
       $('#sigma-pause').on('click', function() {
         if (isDrawing === true) {
           isDrawing = false;
@@ -141,8 +141,15 @@
         }
       });
 
-      // Activate the FishEye.
-      // sigInst.activateFishEye().draw();
+      // Bind FishEye checkbox.
+      $('#sigma-fisheye').on('change', function() {
+        var fisheye = $(this).prop('checked');
+        if (fisheye) {
+        sigInst.activateFishEye().draw();
+        } else {
+        sigInst.desactivateFishEye().draw();
+        }
+      });
 
       // Start layout algorithm.
       sigInst.startForceAtlas2();
