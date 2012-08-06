@@ -9,6 +9,8 @@
 
 ;(function(sylv, sigma, $, window, document, undefined) {
 
+  var isDrawing;
+
   var Sigma = {
 
     init: function() {
@@ -126,14 +128,13 @@
       });
 
       // Bind pause.
-      var running = true;
       $('#sigma-pause').on('click', function() {
-        if (running === true) {
-          running = false;
+        if (isDrawing === true) {
+          isDrawing = false;
           sigInst.stopForceAtlas2();
           $(this).html('Play');
         } else {
-          running = true;
+          isDrawing = true;
           sigInst.startForceAtlas2();
           $(this).html('Pause');
         }
@@ -144,6 +145,7 @@
 
       // Start the ForceAtlas2 algorithm.
       sigInst.startForceAtlas2();
+      isDrawing = true;
     },
 
     start: function() {
@@ -153,12 +155,16 @@
       } else {
         Sigma.init();
       }
+      isDrawing = true;
+      $('#sigma-pause').html('Pause');
     },
 
     stop: function() {
       var sigInst = sigma.instances[1];
       if (sigInst) {
         sigInst.stopForceAtlas2();
+        isDrawing = false;
+        $('#sigma-pause').html('Play');
       }
     }
 
