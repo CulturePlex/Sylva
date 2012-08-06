@@ -27,7 +27,7 @@
         defaultLabelSize: 14,
         defaultLabelBGColor: '#fff',
         defaultLabelHoverColor: '#000',
-        labelThreshold: 16,
+        labelThreshold: 15,
         defaultEdgeType: 'curve'
       }).graphProperties({
         minNodeSize: 0.5,
