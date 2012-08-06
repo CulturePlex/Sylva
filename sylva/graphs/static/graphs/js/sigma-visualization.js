@@ -9,6 +9,7 @@
 
 ;(function(sylv, sigma, $, window, document, undefined) {
 
+  // Layout algorithm state.
   var isDrawing;
 
   var Sigma = {
@@ -143,11 +144,12 @@
       // Activate the FishEye.
       // sigInst.activateFishEye().draw();
 
-      // Start the ForceAtlas2 algorithm.
+      // Start layout algorithm.
       sigInst.startForceAtlas2();
       isDrawing = true;
     },
 
+    // Start layout algorithm.
     start: function() {
       var sigInst = sigma.instances[1];
       if (sigInst) {
@@ -159,6 +161,7 @@
       $('#sigma-pause').html('Pause');
     },
 
+    // Stop layout algorithm.
     stop: function() {
       var sigInst = sigma.instances[1];
       if (sigInst) {
