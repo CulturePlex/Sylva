@@ -10,41 +10,42 @@
 {% endblock %}
 
 {% block extra_scripts %}
-    <script src="{{ STATIC_PREFIX }}graphs/js/graph-editor.js"></script>
     <script type="text/javascript">
-      var GraphEditor = sylv.GraphEditor;
+      sylv.sylvaSchema = {{ sylva_schema|safe }};
     </script>
+
+    <script src="{{ STATIC_PREFIX }}graphs/js/graph-editor.js"></script>
     <script src="{{ STATIC_PREFIX }}tools/js/sylva-importer.js"></script>
+
     <script type="text/javascript">
-      var sylvaSchema = {{ sylva_schema|safe }};
-      Importer.addNodeURL = "{% url ajax_node_create graph.slug %}";
-      Importer.addRelationshipURL = "{% url ajax_relationship_create graph.slug %}";
+      sylv.Importer.addNodeURL = "{% url ajax_node_create graph.slug %}";
+      sylv.Importer.addRelationshipURL = "{% url ajax_relationship_create graph.slug %}";
 
       jQuery(document).ready(function() {
 
         // Events linking
         $('#schema-link').click(function(){
-          GraphEditor.loadSchema();
+          sylv.GraphEditor.loadSchema();
         });
 
         //Progress bar
         $('#progress-bar').hide();
 
         // GraphEditor object configuration
-        GraphEditor.USES_DRAWER = false;
-        GraphEditor.init();
+        sylv.GraphEditor.USES_DRAWER = false;
+        sylv.GraphEditor.init();
 
         // First step
-        Importer.loadFileStep();
+        sylv.Importer.loadFileStep();
 
         // Second step
-        Importer.validateSchemasStep();
+        sylv.Importer.validateSchemasStep();
 
         // Node Types matching validation
-        Importer.nodeTypesMatchingStep();
+        sylv.Importer.nodeTypesMatchingStep();
 
         // Relationship Types matching validation
-        Importer.relationshipTypesMatchingStep()
+        sylv.Importer.relationshipTypesMatchingStep()
 
       });
     </script>

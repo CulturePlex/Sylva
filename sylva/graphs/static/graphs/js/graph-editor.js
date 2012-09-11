@@ -1,6 +1,6 @@
 // JSHint options
 
-/*global window:true, document:true, setTimeout:true, console:true, jQuery:true, sylv:true, prompt:true, alert:true, FileReader:true, Processing:true */
+/*global window:true, document:true, setTimeout:true, console:true, jQuery:true, sylv:true, prompt:true, alert:true, FileReader:true, Processing:true, DOMParser:true */
 
 ;(function(sylv, $, window, document, undefined) {
 
@@ -31,6 +31,7 @@
       hide: function() {
         $('#'+GraphEditor.progressBarId).hide();
         GraphEditor._stopRefreshing = false;
+        $('body').trigger($.Event('fileLoaded'));
         GraphEditor.refresh();
       },
       set: function(value) {$('#'+GraphEditor.progressBarId+' progress').val(value);}
@@ -292,8 +293,7 @@
             for (var j = 0, lj = edgeNodes.length; j < lj; j++) {
               var edgeNode = edgeNodes[j];
 
-              var edgeId = edgeNode.getAttribute('id').trim(),
-                  edgeSource = edgeNode.getAttribute('source').trim(),
+              var edgeSource = edgeNode.getAttribute('source').trim(),
                   edgeTarget = edgeNode.getAttribute('target').trim(),
                   edgeType = edgeNode.getAttribute('label').trim();
 
