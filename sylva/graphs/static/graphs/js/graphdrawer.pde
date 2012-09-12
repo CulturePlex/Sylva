@@ -108,7 +108,7 @@ class Node{
     selected=true;
     // If jQuery is available trigger an event
     if ($ !== undefined) {
-      $('body').trigger('nodeSelected', [name, nodeId])
+      $('body').trigger('nodeSelected', [name, nodeId]);
     }
   }
 
@@ -336,10 +336,11 @@ class Relation{
     return (dist(transformedPosX, transformedPosY, x, y) < RELATION_MARKER_SIZE * _canvasScale);
   }
 
-  void setSelected(){
+  void setSelected() {
     // If jQuery is available trigger an event
     if ($ !== undefined) {
-      $('body').trigger('edgeSelected', [relationId])
+      $('body').trigger('edgeSelected', [relationId]);
+
     }
   }
 
@@ -451,7 +452,7 @@ void mousePressed(){
       ArrayList<Relation> nodeRelations = _nodeList.get(i).getRelations();
       for(int j=0;j<nodeRelations.size();j++){
         if (nodeRelations.get(j).touchingMe(mouseX, mouseY)){
-          nodeRelations.get(j).setSelected();
+          // nodeRelations.get(j).setSelected();  // TODO: show relation info
         }
       }
     }
