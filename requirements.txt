@@ -4,15 +4,16 @@ South==0.7.3
 # distribute==0.6.19
 django-guardian==1.0.4
 django-picklefield==0.1.9
+django-s3-folder-storage==0.1
 django-userena==1.0.2
 easy-thumbnails==1.0-alpha-21
 httplib2==0.7.4
 ipdb==0.6.1
 ipython==0.11
-# lucene-querybuilder==0.1.5
-# In the mean time, we use our version
-git+https://github.com/versae/lucene-querybuilder
-neo4jrestclient==1.6.2
+# In the past, we used our version
+# git+https://github.com/versae/lucene-querybuilder
+lucene-querybuilder==0.1.6
+neo4jrestclient==1.7.0
 pyblueprints==0.5.1
 pycrypto==2.4.1
 python-dateutil==1.5
