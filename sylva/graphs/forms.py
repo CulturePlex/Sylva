@@ -50,6 +50,19 @@ class GraphDeleteConfirmForm(forms.Form):
                                 widget=forms.RadioSelect())
 
 
+class GraphCloneForm(forms.Form):
+    CHOICES = (
+        ("schema", _("Schema")),
+        ("data", _("Data")),
+    )
+    options = forms.MultipleChoiceField(required=True,
+                                        widget=forms.widgets.CheckboxSelectMultiple,
+                                        choices=CHOICES,
+                                        initial=[c[0] for c in CHOICES],
+                                        label=_("Which parts of the graph " \
+                                                "would you like to clone?"))
+
+
 class AddCollaboratorForm(forms.Form):
     new_collaborator = forms.ChoiceField(choices=User.objects.none(),
                         widget=forms.Select(attrs={'class': 'chzn-select'}),

@@ -14,7 +14,8 @@ from guardian import shortcuts as guardian
 from guardian.decorators import permission_required
 
 from data.models import Data
-from graphs.forms import GraphForm, GraphDeleteConfirmForm, AddCollaboratorForm
+from graphs.forms import (GraphForm, GraphDeleteConfirmForm, GraphCloneForm,
+                            AddCollaboratorForm)
 from graphs.models import Graph, PERMISSIONS
 from schemas.models import Schema, RelationshipType, NodeType
 
@@ -126,6 +127,18 @@ def graph_create(request):
             return redirect(redirect_url)
     return render_to_response('graphs_create.html',
                               {"form": form},
+                              context_instance=RequestContext(request))
+
+
+@permission_required("schemas.view_schema",(Schema, "graph__slug", "graph_slug"))
+@permission_required("data.view_data", (Data, "graph__slug", "graph_slug"))
+@permission_required("graphs.view_graph", (Graph, "slug", "graph_slug"))
+def graph_clone(request, graph_slug):
+    graph = get_object_or_404(Graph, slug=graph_slug)
+    form = GraphCloneForm()
+    return render_to_response('graphs_clone.html',
+                              {"graph": graph,
+                               "form": form},
                               context_instance=RequestContext(request))
 
 

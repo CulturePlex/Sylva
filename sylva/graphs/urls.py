@@ -17,6 +17,9 @@ urlpatterns = patterns('graphs.views',
     # view
     url(r'^(?P<graph_slug>[\w-]+)/$', 'graph_view', name="graph_view"),
 
+    # clone
+    url(r'^(?P<graph_slug>[\w-]+)/clone/$', 'graph_clone', name="graph_clone"),
+
     # delete
     url(r'^(?P<graph_slug>[\w-]+)/delete/$', 'graph_delete', name="graph_delete"),
 

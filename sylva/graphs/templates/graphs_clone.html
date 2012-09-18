@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% load i18n graphs %}
+
+{% block title %}
+{{ graph.name }}
+{% endblock %}
+
+{% block menu_buttons %}
+{% toolbar on="graph" %}
+{% endblock %}
+
+
+{% block content_title %}
+{% trans "Clone" as clone %}
+{% breadcrumb graph clone %}
+{% endblock %}
+
+{% block navigation_buttons %}
+{{ block.super }}
+{% endblock %}
+
+{% block content %}
+<form method="post" action="." id="graphsClone" name="graphs_clone">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <input type="submit" name="cloneGraph" value="{% trans "Clone" %}" id="cloneGraph" />
+  <span class="buttonLinkOption">
+    {% trans "or" %} <a href="{% url graph_view graph.slug %}">{% trans "Cancel" %}</a>.
+  </span>
+</form>
+
+<script>
+  var el = document.getElementById('id_options_0');
+  el.disabled = true;
+  el.parentElement.style.color = 'grey';
+</script>
+
+{% endblock %}
