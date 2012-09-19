@@ -8,6 +8,7 @@ from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.shortcuts import (get_object_or_404, render_to_response, redirect,
                                 HttpResponse, HttpResponseRedirect)
+from django.utils.translation import gettext as _
 from django.template import RequestContext
 
 from guardian import shortcuts as guardian
@@ -135,7 +136,25 @@ def graph_create(request):
 @permission_required("graphs.view_graph", (Graph, "slug", "graph_slug"))
 def graph_clone(request, graph_slug):
     graph = get_object_or_404(Graph, slug=graph_slug)
-    form = GraphCloneForm()
+    form = GraphCloneForm(user=request.user)
+    if request.POST:
+        form = GraphCloneForm(data=request.POST, user=request.user)
+        if form.is_valid():
+            with transaction.commit_on_success():
+                instance = form.cleaned_data["instance"]
+                new_graph = form.save(commit=False)
+                new_graph.name = graph.name + " " + _("[cloned]")
+                new_graph.description = graph.description
+                new_graph.relaxed = graph.relaxed
+                new_graph.public = graph.public
+                new_graph.owner = request.user
+                data = Data.objects.create(instance=instance)
+                new_graph.data = data
+                schema = Schema.objects.create()
+                new_graph.schema = schema
+                new_graph.save()
+            redirect_url = reverse("dashboard")
+            return redirect(redirect_url)
     return render_to_response('graphs_clone.html',
                               {"graph": graph,
                                "form": form},

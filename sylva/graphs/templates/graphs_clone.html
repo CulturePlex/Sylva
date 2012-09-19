@@ -28,11 +28,9 @@
     {% trans "or" %} <a href="{% url graph_view graph.slug %}">{% trans "Cancel" %}</a>.
   </span>
 </form>
-
 <script>
   var el = document.getElementById('id_options_0');
   el.disabled = true;
   el.parentElement.style.color = 'grey';
 </script>
-
 {% endblock %}

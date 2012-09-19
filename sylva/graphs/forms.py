@@ -50,7 +50,7 @@ class GraphDeleteConfirmForm(forms.Form):
                                 widget=forms.RadioSelect())
 
 
-class GraphCloneForm(forms.Form):
+class GraphCloneForm(GraphForm):
     CHOICES = (
         ("schema", _("Schema")),
         ("data", _("Data")),
@@ -61,6 +61,9 @@ class GraphCloneForm(forms.Form):
                                         initial=[c[0] for c in CHOICES],
                                         label=_("Which parts of the graph " \
                                                 "would you like to clone?"))
+
+    class Meta(GraphForm.Meta):
+        exclude = ("name", "description", "relaxed", "public",)
 
 
 class AddCollaboratorForm(forms.Form):
