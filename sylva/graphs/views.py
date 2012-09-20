@@ -147,12 +147,20 @@ def graph_clone(request, graph_slug):
                 new_graph.description = graph.description
                 new_graph.relaxed = graph.relaxed
                 new_graph.public = graph.public
+                new_graph.order = graph.order
+                new_graph.public = graph.public
+                new_graph.options = graph.options
                 new_graph.owner = request.user
                 data = Data.objects.create(instance=instance)
                 new_graph.data = data
                 schema = Schema.objects.create()
                 new_graph.schema = schema
                 new_graph.save()
+                options = form.cleaned_data["options"]
+                clone_data = False
+                if options:
+                    clone_data = 'data' in options
+                graph.clone(new_graph, clone_data=clone_data)
             redirect_url = reverse("dashboard")
             return redirect(redirect_url)
     return render_to_response('graphs_clone.html',

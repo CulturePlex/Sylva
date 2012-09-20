@@ -10,7 +10,9 @@ from guardian.shortcuts import assign, get_users_with_perms, remove_perm
 
 from base.fields import AutoSlugField
 from data.models import Data
-from schemas.models import Schema
+from schemas.models import (Schema, NodeType, NodeProperty, RelationshipType,
+                            RelationshipProperty)
+from data.models import Data, MediaNode, MediaLink, MediaFile
 
 from graphs.mixins import GraphMixin
 
@@ -65,6 +67,127 @@ class Graph(models.Model, GraphMixin):
     @models.permalink
     def get_absolute_url(self):
          return ('graph_view', [self.slug])
+
+    def clone(self, new_graph, clone_data=True):
+        schema = self.schema
+        new_schema = new_graph.schema
+        nt_map, rt_map = self._clone_schema(schema, new_schema)
+        if clone_data:
+            self._clone_data(new_graph, new_schema, nt_map, rt_map)
+
+    def _clone_schema(self, schema, new_schema):
+        nodetypes_map = {}      # map old/new nodetypes IDs
+        relationtypes_map = {}  # map old/new relationtypes IDs
+        nodetypes = schema.nodetype_set.all()
+        for nt in nodetypes:
+            new_nt = NodeType(schema=new_schema,
+                              name=nt.name,
+                              plural_name=nt.plural_name,
+                              description=nt.description,
+                              order=nt.order,
+                              total=nt.total,
+                              validation=nt.validation)
+            new_nt.save()
+            nodetypes_map[nt.id] = new_nt.id
+            properties = nt.properties.all()
+            for np in properties:
+                new_np = NodeProperty(node=new_nt,
+                                      key=np.key,
+                                      value=np.value,
+                                      default=np.default,
+                                      datatype=np.datatype,
+                                      required=np.required,
+                                      display=np.display,
+                                      description=np.description,
+                                      validation=np.validation,
+                                      order=np.order)
+                new_np.save()
+        relationtypes = schema.relationshiptype_set.all()
+        for rt in relationtypes:
+            source = NodeType.objects.get(schema=new_schema,
+                                          name=rt.source.name)
+            target = NodeType.objects.get(schema=new_schema,
+                                          name=rt.target.name)
+            new_rt = RelationshipType(schema=new_schema,
+                                      source=source,
+                                      target=target,
+                                      name=rt.name,
+                                      plural_name=rt.plural_name,
+                                      description=rt.description,
+                                      order=rt.order,
+                                      total=rt.total,
+                                      validation=rt.validation,
+                                      inverse=rt.inverse,
+                                      plural_inverse=rt.plural_inverse,
+                                      arity_source=rt.arity_source,
+                                      arity_target=rt.arity_target)
+            new_rt.save()
+            relationtypes_map[rt.id] = new_rt.id
+            properties = rt.properties.all()
+            for rp in properties:
+                new_rp = RelationshipProperty(relationship=new_rt,
+                                              key=rp.key,
+                                              value=rp.value,
+                                              default=rp.default,
+                                              datatype=rp.datatype,
+                                              required=rp.required,
+                                              display=rp.display,
+                                              description=rp.description,
+                                              validation=rp.validation,
+                                              order=rp.order)
+                new_rp.save()
+        return nodetypes_map, relationtypes_map
+
+    def _clone_data(self, new_graph, new_schema, nodetypes_map, relationtypes_map):
+        nodes_map = {}  # map old/new nodes IDs
+        data = self.data
+        new_data = new_graph.data
+        nodes = self.nodes.all()
+        for n in nodes:
+            nt = NodeType.objects.get(pk=nodetypes_map[n.get_type().id])
+            new_graph.nodes.create(label=unicode(nt.id), properties=n.properties)
+        relations = self.relationships.all()
+        for r in relations:
+            s_query_list = []
+            t_query_list = []
+            s_properties = r.source.properties
+            t_properties = r.target.properties
+            for k in s_properties:
+                query = {
+                    'property': k,
+                    'match': s_properties[k],
+                    'lookup': 'exact',
+                }
+                s_query_list.append(query)
+            for k in t_properties:
+                query = {
+                    'property': k,
+                    'match': t_properties[k],
+                    'lookup': 'exact',
+                }
+                t_query_list.append(query)
+            snt = NodeType.objects.get(pk=nodetypes_map[r.source.get_type().id])
+            tnt = NodeType.objects.get(pk=nodetypes_map[r.target.get_type().id])
+            source = new_graph.nodes.filter(*s_query_list, label=snt.id)[0]
+            target = new_graph.nodes.filter(*t_query_list, label=tnt.id)[0]
+            rt = RelationshipType.objects.get(pk=relationtypes_map[r.get_type().id])
+            new_graph.relationships.create(source,
+                                           target,
+                                           label=unicode(rt.id),
+                                           properties=r.properties)
+            nodes_map[r.source.id] = source.id
+            nodes_map[r.target.id] = target.id
+
+        media_nodes = data.data.all()
+        for mn in media_nodes:
+            new_mn = MediaNode(node_id=nodes_map[int(mn.node_id)], data=new_data)
+            new_mn.save()
+            media_links = mn.links.all()
+            for ml in media_links:
+                new_ml = MediaLink(media_node=new_mn,
+                                   media_label=ml.media_label,
+                                   media_link=ml.media_link)
+                new_ml.save()
 
     def get_collaborators(self, include_anonymous=False):
         all_collaborators = get_users_with_perms(self)

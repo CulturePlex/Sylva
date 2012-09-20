@@ -55,7 +55,7 @@ class GraphCloneForm(GraphForm):
         ("schema", _("Schema")),
         ("data", _("Data")),
     )
-    options = forms.MultipleChoiceField(required=True,
+    options = forms.MultipleChoiceField(required=False,
                                         widget=forms.widgets.CheckboxSelectMultiple,
                                         choices=CHOICES,
                                         initial=[c[0] for c in CHOICES],
