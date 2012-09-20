@@ -2,6 +2,8 @@
 from lucenequerybuilder import Q
 from pyblueprints.neo4j import Neo4jIndexableGraph as Neo4jGraphDatabase
 from pyblueprints.neo4j import Neo4jDatabaseConnectionError
+from neo4jrestclient import options
+options.DEBUG = True
 
 from engines.gdb.backends import (GraphDatabaseConnectionError,
                                 GraphDatabaseInitializationError)
@@ -30,14 +32,14 @@ class GraphDatabase(BlueprintsGraphDatabase):
             return count
 
     def _get_count(self, index, label=None):
-        gremlin = self.gdb.neograph.extensions.GremlinPlugin.execute_script
+        gremlin = self.gdb.neograph.extensions.GremlinPlugin
         if label:
             script = """g.idx("%s")[[label:"%s"]].count()""" % (index.name,
                                                                 label)
         else:
             script = """g.idx("%s")[[graph:"%s"]].count()""" % (index.name,
                                                                 self.graph_id)
-        count = gremlin(script=script)
+        count = gremlin.execute_script(script=script)
         return self._clean_count(count)
 
     def get_nodes_count(self, label=None):
@@ -49,6 +51,38 @@ class GraphDatabase(BlueprintsGraphDatabase):
         index = self.node_index.neoindex
         return self._get_count(index, label=label)
 
+    def get_all_nodes(self, include_properties=False):
+        """
+        Get an iterator for the list of tuples of all nodes, the first element
+        is the id of the node and the third the node label.
+        If "include_properties" is True, the second element in the tuple
+        will be a dictionary containing the properties. Otherwise, None.
+        """
+        # Using Cypher
+        index = self.node_index.neoindex
+        cypher = self.gdb.neograph.extensions.CypherPlugin
+        if include_properties:
+            script = """start n=node:`%s`("label:*") return id(n), n""" \
+                     % (index.name)
+        else:
+            script = """start n=node:`%s`("label:*") return id(n), n._label""" \
+                     % index.name
+        result = None
+        try:
+            result = cypher.execute_query(query=script)
+        except:
+            pass
+        if result and "data" in result and len(result["data"]) > 0:
+            if include_properties:
+                for element in result["data"]:
+                    properties = element[1]["data"]
+                    elto_id = properties.pop("_id")
+                    elto_label = properties.pop("_label")
+                    yield (elto_id, properties, elto_label)
+            else:
+                for element in result["data"]:
+                    yield (element[0], None, element[1])
+
     def get_relationships_count(self, label=None):
         """
         Get the number of total relationships.
@@ -57,6 +91,53 @@ class GraphDatabase(BlueprintsGraphDatabase):
         """
         index = self.relationship_index.neoindex
         return self._get_count(index, label=label)
+
+    def get_all_relationships(self, include_properties=False):
+        """
+        Get an iterator for the list of tuples of all relationships, the
+        first element is the id of the node.
+        If "include_properties" is True, the second element in the tuple
+        will be a dictionary containing the properties.
+        """
+        # Using Cypher
+        index = self.relationship_index.neoindex
+        cypher = self.gdb.neograph.extensions.CypherPlugin
+        script = """start r=rel:`%s`("label:*") """ \
+                 """match a-[r]->b return distinct id(r), %s, a, b"""
+        if include_properties:
+            script = script % (index.name, "r")
+        else:
+            script = script % (index.name, "type(r)")
+        result = None
+        try:
+            result = cypher.execute_query(query=script)
+        except:
+            pass
+        if result and "data" in result and len(result["data"]) > 0:
+            if include_properties:
+                for element in result["data"]:
+                    properties = element[1]["data"]
+                    elto_label = properties.pop("_label")
+                    source_props = element[2]["data"]
+                    source_id = source_props.pop("_id")
+                    source_label = source_props.pop("_label")
+                    source = {
+                        "id": source_id,
+                        "properties": source_props,
+                        "label": source_label
+                    }
+                    target_props = element[3]["data"]
+                    target_id = target_props.pop("_id")
+                    target_label = target_props.pop("_label")
+                    target = {
+                        "id": target_id,
+                        "properties": target_props,
+                        "label": target_label
+                    }
+                    yield (element[0], properties, elto_label, source, target)
+            else:
+                for element in result["data"]:
+                    yield (element[0], None, element[1])
 
     def get_node_relationships_count(self, id, incoming=False, outgoing=False,
                                      label=None):

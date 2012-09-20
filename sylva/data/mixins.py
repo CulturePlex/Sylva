@@ -7,17 +7,23 @@ from engines.gdb.utils import get_gdb
 
 class DataMixin(object):
 
+    def __init__(self, *args, **kwargs):
+        super(DataMixin, self).__init__(*args, **kwargs)
+        self._gdb = None
+
     def get_gdb(self):
-        try:
-            if self.instance:
-                return self.instance.get_gdb(graph=self.graph)
-            else:
-                return get_gdb(graph=self.graph)
-        except ObjectDoesNotExist:
-            if self.instance:
-                return self.instance.get_gdb()
-            else:
-                return get_gdb()
+        if not self._gdb:
+            try:
+                if self.instance:
+                    self._gdb = self.instance.get_gdb(graph=self.graph)
+                else:
+                    self._gdb = get_gdb(graph=self.graph)
+            except ObjectDoesNotExist:
+                if self.instance:
+                    self._gdb = self.instance.get_gdb()
+                else:
+                    self._gdb = get_gdb()
+        return self._gdb
 
     def can_add_nodes(self):
         user = self.graph.owner
