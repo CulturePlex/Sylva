@@ -2,8 +2,6 @@
 from lucenequerybuilder import Q
 from pyblueprints.neo4j import Neo4jIndexableGraph as Neo4jGraphDatabase
 from pyblueprints.neo4j import Neo4jDatabaseConnectionError
-from neo4jrestclient import options
-options.DEBUG = True
 
 from engines.gdb.backends import (GraphDatabaseConnectionError,
                                 GraphDatabaseInitializationError)
@@ -67,12 +65,15 @@ class GraphDatabase(BlueprintsGraphDatabase):
         else:
             script = """start n=node:`%s`("label:*") return id(n), n._label""" \
                      % index.name
-        result = None
+        page = 1000
+        skip = 0
+        limit = page
         try:
-            result = cypher.execute_query(query=script)
+            paged_script = "%s skip %s limit %s" % (script, skip, limit)
+            result = cypher.execute_query(query=paged_script)
         except:
-            pass
-        if result and "data" in result and len(result["data"]) > 0:
+            result = None
+        while result and "data" in result and len(result["data"]) > 0:
             if include_properties:
                 for element in result["data"]:
                     properties = element[1]["data"]
@@ -82,6 +83,12 @@ class GraphDatabase(BlueprintsGraphDatabase):
             else:
                 for element in result["data"]:
                     yield (element[0], None, element[1])
+            skip += limit
+            try:
+                paged_script = "%s skip %s limit %s" % (script, skip, limit)
+                result = cypher.execute_query(query=paged_script)
+            except:
+                result = None
 
     def get_relationships_count(self, label=None):
         """
@@ -108,12 +115,15 @@ class GraphDatabase(BlueprintsGraphDatabase):
             script = script % (index.name, "r")
         else:
             script = script % (index.name, "type(r)")
-        result = None
+        page = 1000
+        skip = 0
+        limit = page
         try:
-            result = cypher.execute_query(query=script)
+            paged_script = "%s skip %s limit %s" % (script, skip, limit)
+            result = cypher.execute_query(query=paged_script)
         except:
-            pass
-        if result and "data" in result and len(result["data"]) > 0:
+            result = None
+        while result and "data" in result and len(result["data"]) > 0:
             if include_properties:
                 for element in result["data"]:
                     properties = element[1]["data"]
@@ -138,6 +148,13 @@ class GraphDatabase(BlueprintsGraphDatabase):
             else:
                 for element in result["data"]:
                     yield (element[0], None, element[1])
+            skip += page
+            try:
+                paged_script = "%s skip %s limit %s" % (script, skip, limit)
+                result = cypher.execute_query(query=paged_script)
+            except:
+                result = None
+
 
     def get_node_relationships_count(self, id, incoming=False, outgoing=False,
                                      label=None):
