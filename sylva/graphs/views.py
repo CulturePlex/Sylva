@@ -48,14 +48,17 @@ def graph_view(request, graph_slug):
             json_node = node.to_json()
             nodes[node.display] = json_node
             nodes_display[node.id] = node.display
+        print nodes_display.keys()
         for rel in graph.relationships.all():
-            edges.append({
-                'id': rel.id,
-                'source': nodes_display[rel.source.id],
-                'type': rel.label_display,
-                'target': nodes_display[rel.target.id],
-                'properties': rel.properties.copy()
-            })
+            if (rel.source.id in nodes_display
+                and rel.target.id in nodes_display):
+                edges.append({
+                    'id': rel.id,
+                    'source': nodes_display[rel.source.id],
+                    'type': rel.label_display,
+                    'target': nodes_display[rel.target.id],
+                    'properties': rel.properties.copy()
+                })
         return (nodes, edges)
 
     graph = get_object_or_404(Graph, slug=graph_slug)
