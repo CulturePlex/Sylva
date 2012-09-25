@@ -240,7 +240,7 @@ class RelationshipsManager(BaseManager):
             self.gdb.delete_relationships([relationship_id])
         else:
             eltos = self.gdb.get_all_relationships(include_properties=False)
-            self.gdb.delete_relationships(eltos, with_labels=True)
+            self.gdb.delete_relationships(eltos)
 
     def count(self, label=None):
         return self.gdb.get_relationships_count(label=label)
