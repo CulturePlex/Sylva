@@ -9,10 +9,9 @@ from django.dispatch import receiver
 from guardian.shortcuts import assign, get_users_with_perms, remove_perm
 
 from base.fields import AutoSlugField
-from data.models import Data
 from schemas.models import (Schema, NodeType, NodeProperty, RelationshipType,
                             RelationshipProperty)
-from data.models import Data, MediaNode, MediaLink, MediaFile
+from data.models import Data, MediaNode, MediaLink
 
 from graphs.mixins import GraphMixin
 
@@ -66,7 +65,7 @@ class Graph(models.Model, GraphMixin):
 
     @models.permalink
     def get_absolute_url(self):
-         return ('graph_view', [self.slug])
+        return ('graph_view', [self.slug])
 
     def clone(self, new_graph, clone_data=True):
         schema = self.schema
@@ -231,7 +230,7 @@ def assign_permissions_to_owner(*args, **kwargs):
     anonymous = User.objects.get(id=settings.ANONYMOUS_USER_ID)
     if graph.public:
         for permission, obj in aux.items():
-             assign("view_%s" % permission, anonymous, obj)
+            assign("view_%s" % permission, anonymous, obj)
     else:
         for permission, obj in aux.items():
             perm = "view_%s" % permission
