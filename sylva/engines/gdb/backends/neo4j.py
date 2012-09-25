@@ -108,7 +108,7 @@ class GraphDatabase(BlueprintsGraphDatabase):
                         % (prop, match)
             elif lookup["lookup"] == "exact":
                 where = u"( n.`%s`? =~ /(?i)%s/ )" \
-                        % (prop, prop, match)
+                        % (prop, match)
             if where:
                 wheres.append(where)
         script = u"%s %s return n" % (script, " or ".join(wheres))
