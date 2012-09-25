@@ -195,21 +195,33 @@ class GraphDatabase(BlueprintsGraphDatabase):
             where = None
             match = lookup["match"].replace(u"/", u"\\/")
             prop = lookup["property"].replace(u"`", u"\\`")
-            if lookup["lookup"] == "contains":
+            if lookup["lookup"] == "icontains":
                 where = u"( n.`%s`? =~ /(?i).*%s.*/ )" \
                         % (prop, match)
-            elif lookup["lookup"] == "starts":
+            elif lookup["lookup"] == "istarts":
                 where = u"( n.`%s`? =~ /(?i)%s.*/ )" \
                         % (prop, match)
-            elif lookup["lookup"] == "ends":
+            elif lookup["lookup"] == "iends":
                 where = u"( n.`%s`? =~ /(?i).*%s/ )" \
                         % (prop, match)
-            elif lookup["lookup"] == "exact":
+            elif lookup["lookup"] == "iexact":
                 where = u"( n.`%s`? =~ /(?i)%s/ )" \
+                        % (prop, match)
+            if lookup["lookup"] == "contains":
+                where = u"( n.`%s`? =~ /.*%s.*/ )" \
+                        % (prop, match)
+            elif lookup["lookup"] == "starts":
+                where = u"( n.`%s`? =~ /%s.*/ )" \
+                        % (prop, match)
+            elif lookup["lookup"] == "ends":
+                where = u"( n.`%s`? =~ /.*%s/ )" \
+                        % (prop, match)
+            elif lookup["lookup"] == "exact":
+                where = u"( n.`%s`? =~ /%s/ )" \
                         % (prop, match)
             if where:
                 wheres.append(where)
-        script = u"%s %s return n" % (script, " or ".join(wheres))
+        script = u"%s %s return n" % (script, " and ".join(wheres))
         result = None
         try:
             result = cypher(query=script)
