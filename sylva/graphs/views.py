@@ -21,7 +21,7 @@ from schemas.models import Schema, RelationshipType, NodeType
 @permission_required("graphs.view_graph", (Graph, "slug", "graph_slug"))
 def graph_view(request, graph_slug):
 
-    def jsonify_graph(graph, n_elements):
+    def jsonify_graph(graph, n_elements=settings.PREVIEW_NODES, full=False):
         """
         Returns a tuple with the format (nodes, edges) with the
         elements of a subgraph jsonified.
@@ -31,32 +31,45 @@ def graph_view(request, graph_slug):
         nodes = {}
         edges = []
         added_edges = []
-        for n in graph.nodes.iterator():
-            if n.display not in nodes:
-                nodes[n.display] = n.to_json()
-                for r in n.relationships.all():
-                    #labels = RelationshipType.objects.filter(id=r.label)
-                    #if labels:
-                    if r.id not in added_edges:
-                        nodes[r.target.display] = r.target.to_json()
-                        edges.append(r.to_json())
-                        added_edges.append(r.id)
-                        if len(nodes) >= n_elements: break
-            if len(nodes) >= n_elements: break
+        nodes_display = {}
+#        for n in graph.nodes.iterator():
+#            if n.display not in nodes:
+#                nodes[n.display] = n.to_json()
+#                for r in n.relationships.all():
+#                    #labels = RelationshipType.objects.filter(id=r.label)
+#                    #if labels:
+#                    if r.id not in added_edges:
+#                        nodes[r.target.display] = r.target.to_json()
+#                        edges.append(r.to_json())
+#                        added_edges.append(r.id)
+#                        if len(nodes) >= n_elements: break
+#            if len(nodes) >= n_elements: break
+        for node in graph.nodes.all():
+            json_node = node.to_json()
+            nodes[node.display] = json_node
+            nodes_display[node.id] = node.display
+        for rel in graph.relationships.all():
+            if (rel.source.id in nodes_display
+                and rel.target.id in nodes_display):
+                edges.append({
+                    'id': rel.id,
+                    'source': nodes_display[rel.source.id],
+                    'type': rel.label_display,
+                    'target': nodes_display[rel.target.id],
+                    'properties': rel.properties.copy()
+                })
         return (nodes, edges)
 
-
     graph = get_object_or_404(Graph, slug=graph_slug)
-    nodes_count = graph.nodes.count()
-    nodes, edges = jsonify_graph(graph, settings.PREVIEW_NODES)   # partial graph
-    total_nodes, total_edges = jsonify_graph(graph, nodes_count)  # full graph
-    return render_to_response('graphs_view.html',
-                              {"graph": graph,
+    nodes, edges = jsonify_graph(graph)   # partial graph disabled
+    # total_nodes, total_edges = jsonify_graph(graph, full=True)  # full graph
+    return render_to_response('graphs_view.html', {
+                                "graph": graph,
                                 "nodes": simplejson.dumps(nodes),
                                 "edges": simplejson.dumps(edges),
-                                "total_nodes": simplejson.dumps(total_nodes),
-                                "total_edges": simplejson.dumps(total_edges)},
-                              context_instance=RequestContext(request))
+                                "total_nodes": None,  # simplejson.dumps(total_nodes),
+                                "total_edges": None,  # simplejson.dumps(total_edges),
+                              }, context_instance=RequestContext(request))
 
 
 @permission_required("graphs.change_graph", (Graph, "slug", "graph_slug"))

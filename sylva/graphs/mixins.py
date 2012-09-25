@@ -73,23 +73,29 @@ class NodesManager(BaseManager):
                 nodetype.total += 1
                 nodetype.save()
             node_id = self.gdb.create_node(label=label, properties=properties)
-            node = Node(node_id, self.graph, initial=properties)
+            node = Node(node_id, self.graph, initial=properties, label=label)
             self.data.total_nodes += 1
             self.data.save()
             return node
         else:
             raise NodesLimitReachedException
 
-    def _create_node_list(self, eltos):
+    def _create_node_list(self, eltos, with_labels=False):
         nodes = []
-        for node_id, node_properties in eltos:
-            node = Node(node_id, self.graph, initial=node_properties)
-            nodes.append(node)
+        if with_labels:
+            for node_id, node_properties, node_label in eltos:
+                node = Node(node_id, self.graph, initial=node_properties,
+                            label=node_label)
+                nodes.append(node)
+        else:
+            for node_id, node_properties in eltos:
+                node = Node(node_id, self.graph, initial=node_properties)
+                nodes.append(node)
         return nodes
 
     def all(self):
         eltos = self.gdb.get_all_nodes(include_properties=True)
-        return self._create_node_list(eltos)
+        return self._create_node_list(eltos, with_labels=True)
 
     def filter(self, *lookups, **options):
         if "label" in options:
@@ -107,8 +113,9 @@ class NodesManager(BaseManager):
 
     def iterator(self):
         eltos = self.gdb.get_all_nodes(include_properties=True)
-        for node_id, node_properties in eltos:
-            node = Node(node_id, self.graph, initial=node_properties)
+        for node_id, node_properties, node_label in eltos:
+            node = Node(node_id, self.graph, initial=node_properties,
+                        label=node_label)
             yield node
 
     def in_bulk(self, id_list):
@@ -136,7 +143,8 @@ class NodesManager(BaseManager):
             self.gdb.delete_nodes([node_id])
         else:
             eltos = self.gdb.get_all_nodes(include_properties=False)
-            self.gdb.delete_nodes([node_id for node_id, props in eltos])
+            self.gdb.delete_nodes([node_id
+                                   for node_id, n_props, n_label in eltos])
 
     def count(self, label=None):
         return self.gdb.get_nodes_count(label=label)
@@ -173,17 +181,26 @@ class RelationshipsManager(BaseManager):
         else:
             raise RelationshipsLimitReachedException
 
-    def _create_relationship_list(self, eltos):
+    def _create_relationship_list(self, eltos, with_labels=False):
         relationships = []
-        for relationship_id, relationship_properties in eltos:
-            relationship = Relationship(relationship_id, self.graph,
-                                        initial=relationship_properties)
-            relationships.append(relationship)
+        if with_labels:
+            for rel_id, rel_props, rel_label, source, target in eltos:
+                relationship = Relationship(rel_id, self.graph,
+                                            initial=rel_props,
+                                            label=rel_label,
+                                            source_dict=source,
+                                            target_dict=target)
+                relationships.append(relationship)
+        else:
+            for rel_id, rel_props in eltos:
+                relationship = Relationship(rel_id, self.graph,
+                                            initial=rel_props)
+                relationships.append(relationship)
         return relationships
 
     def all(self):
         eltos = self.gdb.get_all_relationships(include_properties=True)
-        return self._create_relationship_list(eltos)
+        return self._create_relationship_list(eltos, with_labels=True)
 
     def filter(self, **options):
         if "label" in options:
@@ -196,9 +213,10 @@ class RelationshipsManager(BaseManager):
 
     def iterator(self):
         eltos = self.gdb.get_all_relationships(include_properties=True)
-        for relationship_id, relationship_properties in eltos:
-            relationship = Relationship(relationship_id, self.graph,
-                                        initial=relationship_properties)
+        for rel_id, rel_properties, rel_label in eltos:
+            relationship = Relationship(rel_id, self.graph,
+                                        initial=rel_properties,
+                                        label=rel_label)
             yield relationship
 
     def in_bulk(self, id_list):
@@ -222,7 +240,7 @@ class RelationshipsManager(BaseManager):
             self.gdb.delete_relationships([relationship_id])
         else:
             eltos = self.gdb.get_all_relationships(include_properties=False)
-            self.gdb.delete_relationships(eltos)
+            self.gdb.delete_relationships(eltos, with_labels=True)
 
     def count(self, label=None):
         return self.gdb.get_relationships_count(label=label)
@@ -233,9 +251,10 @@ class RelationshipsManager(BaseManager):
 
 class NodeRelationshipsManager(BaseManager):
 
-    def __init__(self, graph, node_id=None):
+    def __init__(self, graph, node_id=None, node_label=None):
         super(NodeRelationshipsManager, self).__init__(graph)
         self.node_id = node_id
+        self.node_label = node_label
 
     def create(self, target, label, properties=None, outgoing=False):
         if outgoing:
@@ -360,19 +379,34 @@ class BaseElement(object):
     Base element class for building Node and Relationship classes.
     """
 
-    def __init__(self, id, graph, properties=None, initial=None):
+    def __init__(self, id, graph, properties=None, initial=None, label=None,
+                 source_dict=None, target_dict=None):
         self._id = id
         self.graph = graph
         self.gdb = graph.data.get_gdb()
         self.schema = (not graph.relaxed) and graph.schema
         self.data = graph.data
-        self._label = None
-        if initial:
+        self._label = label
+        self._inital = initial
+        if isinstance(initial, dict):
             self._properties = initial
         elif not properties:
             self._get_properties()
         else:
             self._properties = self._set_properties(properties)
+        # Just for relationships
+        self._source = None
+        if source_dict:
+            self._source_dict = source_dict
+            self._source = Node(source_dict["id"], graph,
+                                initial=source_dict["properties"],
+                                label=source_dict["label"])
+        self._target = None
+        if target_dict:
+            self._target_dict = target_dict
+            self._target = Node(target_dict["id"], graph,
+                                initial=target_dict["properties"],
+                                label=target_dict["label"])
 
     def get(self, key, *args, **kwargs):
         try:
@@ -554,7 +588,8 @@ class Node(BaseElement):
         return property_keys
 
     def _get_properties(self):
-        self._properties = self.gdb.get_node_properties(self.id)
+        if not self._inital:
+            self._properties = self.gdb.get_node_properties(self.id)
         return self._properties
 
     def _set_properties(self, properties=None):
@@ -625,8 +660,10 @@ class Relationship(BaseElement):
         del self._properties[key]
 
     def _get_source(self):
-        node_id, properties = self.gdb.get_relationship_source(self.id)
-        return Node(node_id, self.graph, initial=properties)
+        if not self._source:
+            node_id, properties = self.gdb.get_relationship_source(self.id)
+            self._source = Node(node_id, self.graph, initial=properties)
+        return self._source
 
     def _set_source(self, node):
         self.gdb.set_relationship_source(self.id, node.id)
@@ -634,8 +671,10 @@ class Relationship(BaseElement):
     source = property(_get_source, _set_source)
 
     def _get_target(self):
-        node_id, properties = self.gdb.get_relationship_target(self.id)
-        return Node(node_id, self.graph, initial=properties)
+        if not self._target:
+            node_id, properties = self.gdb.get_relationship_target(self.id)
+            self._target = Node(node_id, self.graph, initial=properties)
+        return self._target
 
     def _set_target(self, node):
         self.gdb.set_relationship_target(self.id, node.id)
@@ -657,7 +696,8 @@ class Relationship(BaseElement):
         return property_keys
 
     def _get_properties(self):
-        self._properties = self.gdb.get_relationship_properties(self.id)
+        if not self._inital:
+            self._properties = self.gdb.get_relationship_properties(self.id)
         return self._properties
 
     def _set_properties(self, properties=None):
