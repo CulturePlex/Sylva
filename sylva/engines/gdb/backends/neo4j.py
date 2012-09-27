@@ -185,43 +185,46 @@ class GraphDatabase(BlueprintsGraphDatabase):
         index = self.node_index.neoindex
         cypher = self.gdb.neograph.extensions.CypherPlugin.execute_query
         if label:
-            script = """start n=node:`%s`(label="%s") where""" \
+            script = """start n=node:`%s`('label:%s') """ \
                      % (index.name, label)
         else:
-            script = """start n=node:`%s`("label:*") where""" \
+            script = """start n=node:`%s`('label:*') """ \
                      % index.name
         wheres = []
         for lookup in lookups:
             where = None
-            match = lookup["match"].replace(u"/", u"\\/")
-            prop = lookup["property"].replace(u"`", u"\\`")
+            match = unicode(lookup["match"]).replace(u"'", u"\\'")
+            prop = unicode(lookup["property"]).replace(u"`", u"\\`")
             if lookup["lookup"] == "icontains":
-                where = u"( n.`%s`? =~ /(?i).*%s.*/ )" \
+                where = u"( n.`%s`! =~ '(?i).*%s.*' )" \
                         % (prop, match)
             elif lookup["lookup"] == "istarts":
-                where = u"( n.`%s`? =~ /(?i)%s.*/ )" \
+                where = u"( n.`%s`! =~ '(?i)%s.*' )" \
                         % (prop, match)
             elif lookup["lookup"] == "iends":
-                where = u"( n.`%s`? =~ /(?i).*%s/ )" \
+                where = u"( n.`%s`! =~ '(?i).*%s' )" \
                         % (prop, match)
             elif lookup["lookup"] == "iexact":
-                where = u"( n.`%s`? =~ /(?i)%s/ )" \
+                where = u"( n.`%s`! =~ '(?i)%s' )" \
                         % (prop, match)
             if lookup["lookup"] == "contains":
-                where = u"( n.`%s`? =~ /.*%s.*/ )" \
+                where = u"( n.`%s`! =~ '.*%s.*' )" \
                         % (prop, match)
             elif lookup["lookup"] == "starts":
-                where = u"( n.`%s`? =~ /%s.*/ )" \
+                where = u"( n.`%s`! =~ '%s.*' )" \
                         % (prop, match)
             elif lookup["lookup"] == "ends":
-                where = u"( n.`%s`? =~ /.*%s/ )" \
+                where = u"( n.`%s`! =~ '.*%s' )" \
                         % (prop, match)
             elif lookup["lookup"] == "exact":
-                where = u"( n.`%s`? =~ /%s/ )" \
+                where = u"( n.`%s`! =~ '%s' )" \
                         % (prop, match)
             if where:
                 wheres.append(where)
-        script = u"%s %s return n" % (script, " and ".join(wheres))
+        if wheres:
+            script = u"%s where %s return n" % (script, " and ".join(wheres))
+        else:
+            script = u"%s return n" % script
         result = None
         try:
             result = cypher(query=script)
