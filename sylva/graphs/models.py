@@ -143,43 +143,21 @@ class Graph(models.Model, GraphMixin):
         new_data = new_graph.data
         nodes = self.nodes.all()
         for n in nodes:
-            nt = NodeType.objects.get(pk=nodetypes_map[n.get_type().id])
-            new_graph.nodes.create(label=unicode(nt.id), properties=n.properties)
+            nt = NodeType.objects.get(pk=nodetypes_map[int(n.label)])
+            new_node = new_graph.nodes.create(label=unicode(nt.id),
+                                              properties=n.properties)
+            nodes_map[n.id] = new_node
         relations = self.relationships.all()
         for r in relations:
-            s_query_list = []
-            t_query_list = []
-            s_properties = r.source.properties
-            t_properties = r.target.properties
-            for k in s_properties:
-                query = {
-                    'property': k,
-                    'match': s_properties[k],
-                    'lookup': 'exact',
-                }
-                s_query_list.append(query)
-            for k in t_properties:
-                query = {
-                    'property': k,
-                    'match': t_properties[k],
-                    'lookup': 'exact',
-                }
-                t_query_list.append(query)
-            snt = NodeType.objects.get(pk=nodetypes_map[r.source.get_type().id])
-            tnt = NodeType.objects.get(pk=nodetypes_map[r.target.get_type().id])
-            source = new_graph.nodes.filter(*s_query_list, label=snt.id)[0]
-            target = new_graph.nodes.filter(*t_query_list, label=tnt.id)[0]
-            rt = RelationshipType.objects.get(pk=relationtypes_map[r.get_type().id])
-            new_graph.relationships.create(source,
-                                           target,
+            rt = RelationshipType.objects.get(pk=relationtypes_map[int(r.label)])
+            new_graph.relationships.create(nodes_map[r.source.id],
+                                           nodes_map[r.target.id],
                                            label=unicode(rt.id),
                                            properties=r.properties)
-            nodes_map[r.source.id] = source.id
-            nodes_map[r.target.id] = target.id
-
         media_nodes = data.data.all()
         for mn in media_nodes:
-            new_mn = MediaNode(node_id=nodes_map[int(mn.node_id)], data=new_data)
+            new_mn = MediaNode(node_id=nodes_map[int(mn.node_id)].id,
+                               data=new_data)
             new_mn.save()
             media_links = mn.links.all()
             for ml in media_links:
