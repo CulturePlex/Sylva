@@ -57,6 +57,15 @@
 <li><a href="{% url graph_collaborators graph.slug %}" class="{% if on == "collaborators" %}text{% else %}link{% endif %}">
     <span>{% trans "Collaborators" %}</span>
 </a></li>
+<li>
+    <a id="toolsMenu" href="javascript:void(0);" class="{% if on == "Tools" %}text{% else %}link{% endif %}">
+        <span>{% trans "Tools" %}</span>
+    </a>
+    <table id="toolsBrowseId" class="toolsBrowse">
+        <tr><td class="dataActions"><a class="dataOption list" href="{% url tool_export graph.slug %}">{% trans "Export graph" %}</a></td></tr>
+        <tr><td class="dataActions"><a class="dataOption list" href="{% url graph_clone graph.slug %}">{% trans "Clone graph" %}</a></td></tr>
+    </table>
+</li>
 <li><form action="{% url graph_search graph.slug %}" method="GET" id="searchBox">
     {{ search_form.as_p }}
 </form></li>
