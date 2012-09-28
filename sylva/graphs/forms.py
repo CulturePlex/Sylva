@@ -60,7 +60,9 @@ class GraphCloneForm(GraphForm):
                                         choices=CHOICES,
                                         initial=[c[0] for c in CHOICES],
                                         label=_("Which parts of the graph " \
-                                                "would you like to clone?"))
+                                                "would you like to clone?"),
+                                        help_text=_("Note that your files will "\
+                                                    " not be copied"))
 
     class Meta(GraphForm.Meta):
         exclude = ("name", "description", "relaxed", "public",)
