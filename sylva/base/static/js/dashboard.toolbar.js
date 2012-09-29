@@ -1,5 +1,6 @@
-(function ($) {
-    init = function() {
+// nav menu
+;(function($) {
+    $(function() {
         $("#nodeTypeNavigation").change(function(e) {
             location.href = $(this).val();
             return false;
@@ -16,12 +17,5 @@
         $("#toolsBrowseId").on("mouseleave", function(e) {
            $(this).hide();
         });
-        $(document).on("click", function(event){
-            var target = $(event.target);
-            if (target.parents("#dataBrowse").length === 0) {
-                $("#dataBrowse").hide();
-            }
-        });
-    };
-    $(document).ready(init);
+    });
 })(jQuery);

@@ -5,7 +5,7 @@
 <li>
 <!--    href="{% url nodes_list graph.slug %}"-->
 <!--    <a id="dataMenu" href="{% url nodes_list graph.slug %}" class="inline {% if on == "nodes" %}text{% else %}link{% endif %}">-->
-    <a id="dataMenu" href="javascript:void(0);" class="inline {% if on == "nodes" %}text{% else %}link{% endif %}">
+    <a id="dataMenu" href="javascript:void(0);" class="inline link">
         <span>{% trans "Data" %}</span>
     </a>
 <!--    <span class="inline">-->
@@ -58,14 +58,28 @@
     <span>{% trans "Collaborators" %}</span>
 </a></li>
 <li>
-    <a id="toolsMenu" href="javascript:void(0);" class="{% if on == "Tools" %}text{% else %}link{% endif %}">
+    <a id="toolsMenu" href="javascript:void(0);" class="link">
         <span>{% trans "Tools" %}</span>
     </a>
     <table id="toolsBrowseId" class="toolsBrowse">
-        <tr><td class="dataActions"><a class="dataOption list" href="{% url tool_export graph.slug %}">{% trans "Export graph" %}</a></td></tr>
-        <tr><td class="dataActions"><a class="dataOption list" href="{% url graph_clone graph.slug %}">{% trans "Clone graph" %}</a></td></tr>
+        <tr>
+            <td class="dataActions">
+                <a class="dataOption list" href="{% url tool_export graph.slug %}" title="{% trans "download as a Gephi file" %}">
+                    {% trans "Export graph" %}
+                </a>
+            </td>
+        </tr>
+        <tr>
+            <td class="dataActions">
+                <a class="dataOption list" href="{% url graph_clone graph.slug %}">
+                    {% trans "Clone graph" %}
+                </a>
+            </td>
+        </tr>
     </table>
 </li>
-<li><form action="{% url graph_search graph.slug %}" method="GET" id="searchBox">
-    {{ search_form.as_p }}
-</form></li>
+<li>
+    <form action="{% url graph_search graph.slug %}" method="GET" id="searchBox">
+        {{ search_form.as_p }}
+    </form>
+</li>

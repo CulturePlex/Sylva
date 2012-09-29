@@ -1,4 +1,9 @@
-html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td,article,aside,canvas,details,embed,figure,figcaption,footer,header,hgroup,menu,nav,output,ruby,section,summary,time,mark,audio,video {
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,
+acronym,address,big,cite,code,del,dfn,em,img,ins,kbd,q,s,samp,small,strike,strong,
+sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,
+caption,tbody,tfoot,thead,tr,th,td,article,aside,canvas,details,embed,figure,
+figcaption,footer,header,hgroup,menu,nav,output,ruby,section,summary,time,mark,
+audio,video {
     border: 0;
     font-size: 100%;
     font: inherit;
@@ -811,7 +816,8 @@ select {
 /*    margin-top: 20px;*/
 }
 
-.button:hover,input[type="button"]:hover,input[type="submit"]:hover,input:active,textarea:active,select:active {
+.button:hover,input[type="button"]:hover,input[type="submit"]:hover,
+input:active,textarea:active,select:active {
     box-shadow: 0 1px 5px rgba(52,142,130,0.75);
     -webkit-box-shadow: 0 1px 5px rgba(52,142,130,0.75);
     -moz-box-shadow: 0 1px 5px rgba(52,142,130,0.75);
@@ -1368,13 +1374,10 @@ ol.searchResults {
 #dataBrowse {
     display: none;
     z-index: 1000;
-/*    float: left;*/
     position: absolute;
-/*    width: 180px;*/
-    right: 101px;
+    right: 80px;
     font: inherit;
     margin-top: 3px;
-/*    padding-right: 17px;*/
     border-radius: 4px;
     -moz-border-radius: 4px;
     -webkit-border-radius: 4px;
@@ -1396,6 +1399,7 @@ ol.searchResults {
 #dataBrowse table td {
     padding: 3px 5px 5px 5px;
     vertical-align: middle;
+    cursor: default;
 }
 
 #dataBrowse table td.dataActions {
