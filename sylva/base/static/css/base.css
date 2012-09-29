@@ -1380,21 +1380,22 @@ ol.searchResults {
     display: none;
     z-index: 1000;
     position: absolute;
-    right: 80px;
-    font: inherit;
+    left: 0px;
+    margin-left: 66px;
     margin-top: 3px;
-    border-radius: 4px;
-    -moz-border-radius: 4px;
-    -webkit-border-radius: 4px;
-    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.9);
-    -webkit-box-shadow: 0 1px 1px rgba(0, 0, 0, 0.9);
-    -moz-box-shadow: 0 1px 1px rgba(0, 0, 0, 0.9);
+    font: inherit;
     font-size: 12px;
     font-weight: 700;
     text-decoration: none;
     background-color: white;
     overflow: auto;
     max-height: 250px;
+    border-radius: 4px;
+    -moz-border-radius: 4px;
+    -webkit-border-radius: 4px;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.9);
+    -webkit-box-shadow: 0 1px 1px rgba(0, 0, 0, 0.9);
+    -moz-box-shadow: 0 1px 1px rgba(0, 0, 0, 0.9);
 }
 
 #dataBrowse table {
