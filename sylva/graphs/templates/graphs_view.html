@@ -69,11 +69,6 @@
 <br/>
 <div>
     <div class="not-available">
-    {% blocktrans with graph.slug as graph_id %}
-    <div class="download-message">
-      You can also try to <a title="Download as .gexf" href="/tools/{{ graph_id }}/export/">download</a> as a <a href="http://gephi.org/" title="Gephi, The Open Graph Visualization Platform">Gephi</a> file.
-    </div>
-    {% endblocktrans %}
     </div>
 </div>
 {% graph_info graph "show_edit" %}

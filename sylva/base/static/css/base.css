@@ -1253,6 +1253,10 @@ table.content-table {
     text-align: center;
 }
 
+#canvas-container {
+    height: 340px;
+}
+
 #canvas-info {
   width: 180px;
   height: 325px;
@@ -1264,6 +1268,7 @@ table.content-table {
 
 #visualization-type {
     width: 150px;
+    margin-top: 0px;
     border: 3px solid #D8E8DE;
     color: #555;
     display: inline-block;
