@@ -36,8 +36,15 @@
 
   // DOM
   $(function() {
-    // run Processing as default
-    visualizations.processing();
+    if (sylv.disableProcessing) {
+      sylv.Processing.init();
+      $('#graphcanvas').on('graph_init', function(e) {
+        e.stopPropagation();
+        visualizations.sigma();
+      });
+    } else {
+      visualizations.processing();
+    }
 
     $('#visualization-type').change(function() {
       var type = $(this).find('option:selected').data('type');

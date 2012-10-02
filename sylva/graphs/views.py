@@ -20,6 +20,7 @@ from graphs.forms import (GraphForm, GraphDeleteConfirmForm, GraphCloneForm,
 from graphs.models import Graph, PERMISSIONS
 from schemas.models import Schema, RelationshipType, NodeType
 
+
 @permission_required("graphs.view_graph", (Graph, "slug", "graph_slug"))
 def graph_view(request, graph_slug):
 
@@ -65,12 +66,15 @@ def graph_view(request, graph_slug):
     graph = get_object_or_404(Graph, slug=graph_slug)
     nodes, edges = jsonify_graph(graph)   # partial graph disabled
     # total_nodes, total_edges = jsonify_graph(graph, full=True)  # full graph
+    size = graph.nodes.count()
     return render_to_response('graphs_view.html', {
                                 "graph": graph,
                                 "nodes": simplejson.dumps(nodes),
                                 "edges": simplejson.dumps(edges),
                                 "total_nodes": None,  # simplejson.dumps(total_nodes),
                                 "total_edges": None,  # simplejson.dumps(total_edges),
+                                "size": size,
+                                "MAX_SIZE": settings.MAX_SIZE,
                               }, context_instance=RequestContext(request))
 
 

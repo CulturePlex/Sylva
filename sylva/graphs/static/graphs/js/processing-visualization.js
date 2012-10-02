@@ -117,40 +117,31 @@
       .append(title);
   }
 
+
   function init() {
-    // // Events linking
-    // $('#schema-link').click(function(){
-    //   GraphEditor.loadSchema();
-    // });
-
-    // //Progress bar
-    // $('#progress-bar').hide();
-
-    $('#sec-debug').hide(); // Comment this line to Debug the graph creation
+    $('#sec-debug').hide();  // Comment this line to Debug the graph creation
     GraphEditor.PDE_URL = sylv.PDE_URL;
     GraphEditor.USES_DRAWER = true;
+
     GraphEditor.init();
+
     $('#id_graph_nodes').val(JSON.stringify(nodes));
     $('#id_graph_edges').val(JSON.stringify(edges));
 
-    // Attach the nodeSelect event from the canvas to update the
-    // node info box
+    // Attach the nodeSelect event from the canvas to update the node info box
     $('body').bind('nodeSelected', updateInfo);
     $('body').bind('edgeSelected', updateInfoRelationship);
 
-    // Type legend extraction from Processing
-    function loadNodeTypes() {
-      var element;
+    $('#graphcanvas').on('pde_loaded', function(e) {
+      e.stopPropagation();
       var p = Processing.getInstanceById('graphcanvas');
       var colors = p.getNodeTypeColors();
       var iterator = colors.entrySet().iterator();
       while (iterator.hasNext()) {
-        element = iterator.next();
+        var element = iterator.next();
         nodeTypesLegend[element.getKey()] = '#' + element.getValue();
-        // Save nodes colors
         sylv.colors[element.getKey()] = nodeTypesLegend[element.getKey()];
       }
-      // Create legend in canvas
       $('#node-type-legend').empty();
       var list = $('#node-type-legend').append($('<ul>'));
       list.css({
@@ -170,8 +161,8 @@
             );
         }
       });
-    }
-    setTimeout(loadNodeTypes, 200);
+      $('#graphcanvas').trigger('graph_init');
+    });
   }
 
   function start() {
