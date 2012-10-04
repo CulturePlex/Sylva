@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+    # -*- coding: utf-8 -*-
 from engines.gdb.backends import NodeDoesNotExist, RelationshipDoesNotExist
 from schemas.models import NodeType, RelationshipType
 
@@ -17,12 +17,21 @@ class RelationshipsLimitReachedException(LimitReachedException):
 
 class GraphMixin(object):
 
+    def __init__(self, *args, **kwargs):
+        super(GraphMixin, self).__init__(*args, **kwargs)
+        self._nodes_manager = None
+        self._relationships_manager = None
+
     def _nodes(self):
-        return NodesManager(self)
+        if not self._nodes_manager:
+            self._nodes_manager = NodesManager(self)
+        return self._nodes_manager
     nodes = property(_nodes)
 
     def _relationships(self):
-        return RelationshipsManager(self)
+        if not self._relationships_manager:
+            self._relationships_manager = RelationshipsManager(self)
+        return self._relationships_manager
     relationships = property(_relationships)
 
 
@@ -60,6 +69,13 @@ class BaseManager(object):
                 return kwargs["default"]
             else:
                 raise KeyError(node_id)
+
+    # def _q(self):
+    #     if hasattr(self.gdb, "lookup_builder"):
+    #         return self.gdb.lookup_builder
+    #     else:
+    #         return dict
+    # Q = property(_q)
 
 
 class NodesManager(BaseManager):
@@ -213,10 +229,12 @@ class RelationshipsManager(BaseManager):
 
     def iterator(self):
         eltos = self.gdb.get_all_relationships(include_properties=True)
-        for rel_id, rel_properties, rel_label in eltos:
+        for rel_id, rel_properties, rel_label, source, target in eltos:
             relationship = Relationship(rel_id, self.graph,
                                         initial=rel_properties,
-                                        label=rel_label)
+                                        label=rel_label,
+                                        source_dict=source,
+                                        target_dict=target)
             yield relationship
 
     def in_bulk(self, id_list):
