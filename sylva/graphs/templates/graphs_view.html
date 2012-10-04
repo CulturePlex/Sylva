@@ -80,8 +80,8 @@
   sylv.nodes = {{ nodes|safe }};
   sylv.edges = {{ edges|safe }};
   // full graph (Sigma.js and others)
-  sylv.total_nodes = sylv.nodes;
-  sylv.total_edges = sylv.edges;
+  sylv.total_nodes = {{ total_nodes|safe }};
+  sylv.total_edges = {{ total_edges|safe }};
 
   sylv.colors = {};
   sylv.nodeTypesLegend = {};

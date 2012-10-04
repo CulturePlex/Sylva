@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import simplejson
+import json
 
 from django.db import transaction
 from django.conf import settings
@@ -7,7 +7,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.shortcuts import (get_object_or_404, render_to_response, redirect,
-                                HttpResponse, HttpResponseRedirect)
+                              HttpResponse)
 from django.utils.translation import gettext as _
 from django.template import RequestContext
 
@@ -16,62 +16,68 @@ from guardian.decorators import permission_required
 
 from data.models import Data
 from graphs.forms import (GraphForm, GraphDeleteConfirmForm, GraphCloneForm,
-                            AddCollaboratorForm)
+                          AddCollaboratorForm)
 from graphs.models import Graph, PERMISSIONS
-from schemas.models import Schema, RelationshipType, NodeType
+from schemas.models import Schema
+
 
 @permission_required("graphs.view_graph", (Graph, "slug", "graph_slug"))
 def graph_view(request, graph_slug):
 
     def jsonify_graph(graph, n_elements=settings.PREVIEW_NODES, full=False):
         """
-        Returns a tuple with the format (nodes, edges) with the
-        elements of a subgraph jsonified.
-        The subgraph is composed by the first random "n_elements"
+        Returns a tuple with the elements of a subgraph jsonified. The format
+        is (nodes, edges, preview_nodes, preview_edges)
+        The preview subgraph is composed by the first random "n_elements"
         nodes traversed from the first one
         """
         nodes = {}
         edges = []
-        added_edges = []
+        partial_edges = []
+        partial_nodes = {}
+        partial_nodes_ids = []
         nodes_display = {}
-#        for n in graph.nodes.iterator():
-#            if n.display not in nodes:
-#                nodes[n.display] = n.to_json()
-#                for r in n.relationships.all():
-#                    #labels = RelationshipType.objects.filter(id=r.label)
-#                    #if labels:
-#                    if r.id not in added_edges:
-#                        nodes[r.target.display] = r.target.to_json()
-#                        edges.append(r.to_json())
-#                        added_edges.append(r.id)
-#                        if len(nodes) >= n_elements: break
-#            if len(nodes) >= n_elements: break
         for node in graph.nodes.all():
             json_node = node.to_json()
             nodes[node.display] = json_node
             nodes_display[node.id] = node.display
         for rel in graph.relationships.all():
-            if (rel.source.id in nodes_display
-                and rel.target.id in nodes_display):
-                edges.append({
+            source_id = rel.source.id
+            target_id = rel.target.id
+            if (source_id in nodes_display
+                    and target_id in nodes_display):
+                edge = {
                     'id': rel.id,
-                    'source': nodes_display[rel.source.id],
+                    'source': nodes_display[source_id],
                     'type': rel.label_display,
-                    'target': nodes_display[rel.target.id],
-                    'properties': rel.properties.copy()
-                })
-        return (nodes, edges)
+                    'target': nodes_display[target_id],
+                    'properties': rel.properties
+                }
+                edges.append(edge)
+                if len(partial_nodes_ids) <= n_elements:
+                    if source_id not in partial_nodes_ids:
+                        node_display = nodes_display[source_id]
+                        partial_nodes[node_display] = nodes[node_display]
+                        partial_nodes_ids.append(source_id)
+                    elif target_id not in partial_nodes_ids:
+                        node_display = nodes_display[target_id]
+                        partial_nodes[node_display] = nodes[node_display]
+                        partial_nodes_ids.append(target_id)
+                if (source_id in partial_nodes_ids
+                        and target_id in partial_nodes_ids):
+                    partial_edges.append(edge)
+        return (nodes, edges, partial_nodes, partial_edges)
 
     graph = get_object_or_404(Graph, slug=graph_slug)
-    nodes, edges = jsonify_graph(graph)   # partial graph disabled
-    # total_nodes, total_edges = jsonify_graph(graph, full=True)  # full graph
-    return render_to_response('graphs_view.html', {
-                                "graph": graph,
-                                "nodes": simplejson.dumps(nodes),
-                                "edges": simplejson.dumps(edges),
-                                "total_nodes": None,  # simplejson.dumps(total_nodes),
-                                "total_edges": None,  # simplejson.dumps(total_edges),
-                              }, context_instance=RequestContext(request))
+    total_nodes, total_edges, nodes, edges = jsonify_graph(graph)
+    return render_to_response('graphs_view.html',
+                              {"graph": graph,
+                               "nodes": json.dumps(nodes),
+                               "edges": json.dumps(edges),
+                               "total_nodes": json.dumps(total_nodes),
+                               "total_edges": json.dumps(total_edges),
+                               },
+                              context_instance=RequestContext(request))
 
 
 @permission_required("graphs.change_graph", (Graph, "slug", "graph_slug"))
@@ -83,7 +89,7 @@ def graph_edit(request, graph_slug):
         form = GraphForm(data=data, user=request.user, instance=graph)
         if form.is_valid():
             with transaction.commit_on_success():
-                instance = form.cleaned_data["instance"]
+                # instance = form.cleaned_data["instance"]
                 graph = form.save(commit=False)
                 graph.save()
             redirect_url = reverse("graph_view", args=[graph.slug])
@@ -144,7 +150,8 @@ def graph_create(request):
                               context_instance=RequestContext(request))
 
 
-@permission_required("schemas.view_schema",(Schema, "graph__slug", "graph_slug"))
+@permission_required("schemas.view_schema", (Schema, "graph__slug",
+                                             "graph_slug"))
 @permission_required("data.view_data", (Data, "graph__slug", "graph_slug"))
 @permission_required("graphs.view_graph", (Graph, "slug", "graph_slug"))
 def graph_clone(request, graph_slug):
@@ -182,20 +189,22 @@ def graph_clone(request, graph_slug):
                               context_instance=RequestContext(request))
 
 
-@permission_required("graphs.change_collaborators", (Graph, "slug", "graph_slug"))
+@permission_required("graphs.change_collaborators", (Graph, "slug",
+                                                     "graph_slug"))
 def graph_collaborators(request, graph_slug):
     # Only graph owner should be able to do this
     graph = get_object_or_404(Graph, slug=graph_slug)
     if request.user != graph.owner:
         return redirect('%s?next=%s' % (reverse("signin"), request.path))
-    users = User.objects.all().exclude(pk=settings.ANONYMOUS_USER_ID)
+    # users = User.objects.all().exclude(pk=settings.ANONYMOUS_USER_ID)
     all_collaborators = guardian.get_users_with_perms(graph)
-    collaborators = list(all_collaborators.exclude(id__in=[request.user.id,
-                                                   settings.ANONYMOUS_USER_ID]))
+    collaborators = all_collaborators.exclude(id__in=[request.user.id,
+                                              settings.ANONYMOUS_USER_ID])
+    collaborators = list(collaborators)
     if request.POST:
         data = request.POST.copy()
         form = AddCollaboratorForm(data=data, graph=graph,
-                                collaborators=collaborators)
+                                   collaborators=collaborators)
         if form.is_valid():
             user_id = form.cleaned_data["new_collaborator"]
             user = get_object_or_404(User, id=user_id)
@@ -203,7 +212,7 @@ def graph_collaborators(request, graph_slug):
             collaborators.append(user)
     else:
         form = AddCollaboratorForm(graph=graph, collaborators=collaborators)
-    graph_permissions = guardian.get_perms_for_model(graph)
+    # graph_permissions = guardian.get_perms_for_model(graph)
     permissions_list = []
     permissions_table = []
     aux = (('graph', graph), ('schema', graph.schema), ('data', graph.data))
@@ -245,8 +254,8 @@ def change_permission(request, graph_slug):
         if user == graph.owner:
             return HttpResponse("owner", status=500)
         aux = {'graph': graph,
-                'schema': graph.schema,
-                'data': graph.data}
+               'schema': graph.schema,
+               'data': graph.data}
         if permission_str in PERMISSIONS[object_str]:
             if permission_str in guardian.get_perms(user, aux[object_str]):
                 guardian.remove_perm(permission_str, user, aux[object_str])
@@ -255,7 +264,7 @@ def change_permission(request, graph_slug):
         else:
             raise ValueError("Unknown %s permission: %s" % (object_str,
                                                             permission_str))
-    return HttpResponse(simplejson.dumps({}))
+    return HttpResponse(json.dumps({}))
 
 
 @permission_required("graphs.view_graph", (Graph, "slug", "graph_slug"))
@@ -269,4 +278,4 @@ def expand_node(request, graph_slug, node_id):
         nodes[edge.source.display] = edge.source.to_json()
         nodes[edge.target.display] = edge.target.to_json()
     node_neighbors = {"edges": edges, "nodes": nodes}
-    return HttpResponse(simplejson.dumps(node_neighbors))
+    return HttpResponse(json.dumps(node_neighbors))
