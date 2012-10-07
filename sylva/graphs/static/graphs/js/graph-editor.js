@@ -549,6 +549,7 @@
           success: function(block, error){
             GraphEditor.drawer = new Processing(document.getElementById('graphcanvas'), block);
             GraphEditor.drawInitialData();
+            $('#graphcanvas').trigger('pde_loaded');
           },
           error: function(){console.log("error");}
           }

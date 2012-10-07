@@ -250,3 +250,6 @@ OPTIONS = {
 
 # This setting controls the size of the graph preview in the graph screen
 PREVIEW_NODES = 25
+
+# Disable graph preview (Processing) if graph size is greater than this value
+MAX_SIZE = 200
