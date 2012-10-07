@@ -21,7 +21,6 @@ from graphs.models import Graph, PERMISSIONS
 from schemas.models import Schema
 
 
-
 @permission_required("graphs.view_graph", (Graph, "slug", "graph_slug"))
 def graph_view(request, graph_slug):
 
