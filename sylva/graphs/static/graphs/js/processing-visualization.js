@@ -75,19 +75,20 @@ sylv:true, prompt:true, alert:true, FileReader:true, Processing:true */
       });
       GraphEditor.deleteNode(selectedNodeName);
       delete nodes[selectedNodeName];
+
       return false;
     };
 
     var expandNodeLink = $('<a>')
       .attr('href', "#")
       .text('Expand node')
-      .attr('href', 'javascript:void(0);') // TODO: refactor
+      .attr('href', "#")
       .click(expandNode);
 
     var hideNodeLink = $('<a>')
       .attr('href', "#")
       .text('Hide node')
-      .attr('href', 'javascript:void(0);') // TODO: refactor
+      .attr('href', "#")
       .click(hideNode);
 
     var htmlContent = $('<div>')
