@@ -1,10 +1,11 @@
 // JSHint options
 
-/*global window:true, document:true, setTimeout:true, console:true, jQuery:true, sylv:true, prompt:true, alert:true, FileReader:true, Processing:true, sigma:true */
+/*global window:true, document:true, setTimeout:true, console:true, jQuery:true,
+sylv:true, prompt:true, alert:true, FileReader:true, Processing:true, sigma:true */
 
 
 /****************************************************************************
- * Sigma.js visualizations
+ * Sigma.js visualization
  ****************************************************************************/
 
 ;(function(sylv, sigma, $, window, document, undefined) {
@@ -108,13 +109,8 @@
         sigInst.draw();
 
         // Update node legend.
-        var nodeEditURL = sylv.editLinkURL.replace(/nodes\/0\/edit/,
-                                                   'nodes/' + sylv_nodes[nodePK].id + '/edit');
-        var nodeTitle = (nodePK.length < 22) ? nodePK : nodePK.substring(0,18) + "...";
-        $('#element-info').html(
-            '<h2>' + nodeTitle + '</h2>' +
-            '<a href="' + nodeEditURL + '">Edit node</a>'
-        );
+        sylv.Utils.updateNodeLegend(sylv_nodes[nodePK].id, nodePK, 'element-info');
+
       });
 
       // Hide node popup info and show the rest of nodes and edges.

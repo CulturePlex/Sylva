@@ -1,6 +1,7 @@
 // JSHint options
 
-/*global window:true, document:true, setTimeout:true, console:true, jQuery:true, sylv:true, alert:true */
+/*global window:true, document:true, setTimeout:true, console:true, jQuery:true,
+sylv:true, alert:true */
 
 /****************************************************************************
  * Visualizations

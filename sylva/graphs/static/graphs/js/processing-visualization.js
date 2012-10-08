@@ -1,6 +1,12 @@
 // JSHint options
 
-/*global window:true, document:true, setTimeout:true, console:true, jQuery:true, sylv:true, prompt:true, alert:true, FileReader:true, Processing:true */
+/*global window:true, document:true, setTimeout:true, console:true, jQuery:true,
+sylv:true, prompt:true, alert:true, FileReader:true, Processing:true */
+
+
+/****************************************************************************
+ * Processing.js visualization
+ ****************************************************************************/
 
 ;(function(GraphEditor, nodes, edges, nodeTypesLegend, sylv, $, window, document, undefined) {
 
@@ -72,14 +78,6 @@
       return false;
     };
 
-    var title = (nodeName.length < 22) ? nodeName : nodeName.substring(0,18) + "...";
-
-    var editLinkURL = sylv.editLinkURL;
-    editLinkURL = editLinkURL.replace('0/edit/', nodeId + '/edit/');
-    var editLink = $('<a>')
-      .attr('href', editLinkURL)
-      .text('Edit node');
-
     var expandNodeLink = $('<a>')
       .attr('href', "#")
       .text('Expand node')
@@ -92,14 +90,14 @@
       .attr('href', 'javascript:void(0);') // TODO: refactor
       .click(hideNode);
 
-    $('#element-info')
-      .empty()
-      .append($('<h2>').text(title))
-      .append(editLink)
-      .append($('<br>'))
+    var htmlContent = $('<div>')
       .append(expandNodeLink)
       .append($('<br>'))
       .append(hideNodeLink);
+
+    // Update node legend.
+    sylv.Utils.updateNodeLegend(nodeId, nodeName, 'element-info', htmlContent);
+
   }
 
   function updateInfoRelationship(evt, relationshipId) {
