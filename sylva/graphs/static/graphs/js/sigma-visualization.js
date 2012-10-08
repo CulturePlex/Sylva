@@ -110,8 +110,9 @@
         // Update node legend.
         var nodeEditURL = sylv.editLinkURL.replace(/nodes\/0\/edit/,
                                                    'nodes/' + sylv_nodes[nodePK].id + '/edit');
+        var nodeTitle = (nodePK.length < 22) ? nodePK : nodePK.substring(0,18) + "...";
         $('#element-info').html(
-            '<h2>' + nodePK + '</h2>' +
+            '<h2>' + nodeTitle + '</h2>' +
             '<a href="' + nodeEditURL + '">Edit node</a>'
         );
       });

@@ -72,7 +72,7 @@
       return false;
     };
 
-    var title = $('<h2>').text(nodeName);
+    var title = (nodeName.length < 22) ? nodeName : nodeName.substring(0,18) + "...";
 
     var editLinkURL = sylv.editLinkURL;
     editLinkURL = editLinkURL.replace('0/edit/', nodeId + '/edit/');
@@ -94,7 +94,7 @@
 
     $('#element-info')
       .empty()
-      .append(title)
+      .append($('<h2>').text(title))
       .append(editLink)
       .append($('<br>'))
       .append(expandNodeLink)
