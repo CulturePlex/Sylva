@@ -146,6 +146,7 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
+    'maintenancemode.middleware.MaintenanceModeMiddleware',
 )
 
 ROOT_URLCONF = 'urls'
@@ -240,16 +241,21 @@ ALLOWS_INSTANCES = False
 ALLOWS_INHERITANCE = False
 AUTOCOMPLETE_NODES = True
 ENABLE_SEARCH = True
+MAINTENANCE_MODE = False
+PREVIEW_NODES = 200  # Size of the graph preview in the graph screen
+MAX_SIZE = 300  # Disable graph preview (Processing) nodes number is above this value
 OPTIONS = {
     "ACCOUNT_FREE": ACCOUNT_FREE,
     "ALLOWS_INSTANCES": ALLOWS_INSTANCES,
     "ALLOWS_INHERITANCE": ALLOWS_INHERITANCE,
     "AUTOCOMPLETE_NODES": AUTOCOMPLETE_NODES,
     "ENABLE_SEARCH": ENABLE_SEARCH,
+    "MAINTENANCE_MODE": MAINTENANCE_MODE,
+    "PREVIEW_NODES": PREVIEW_NODES,
 }
 
-# This setting controls the size of the graph preview in the graph screen
-PREVIEW_NODES = 25
 
-# Disable graph preview (Processing) if graph size is greater than this value
-MAX_SIZE = 200
+
+
+
+

@@ -3,6 +3,7 @@ Pillow==1.7.6
 South==0.7.3
 # distribute==0.6.19
 django-guardian==1.0.4
+django-maintenancemode==0.10
 django-picklefield==0.1.9
 django-s3-folder-storage==0.1
 django-userena==1.0.2
