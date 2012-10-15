@@ -59,7 +59,7 @@ def graph_view(request, graph_slug):
                         node_display = nodes_display[source_id]
                         partial_nodes[node_display] = nodes[node_display]
                         partial_nodes_ids.append(source_id)
-                    elif target_id not in partial_nodes_ids:
+                    if target_id not in partial_nodes_ids:
                         node_display = nodes_display[target_id]
                         partial_nodes[node_display] = nodes[node_display]
                         partial_nodes_ids.append(target_id)
@@ -69,9 +69,8 @@ def graph_view(request, graph_slug):
         return (nodes, edges, partial_nodes, partial_edges)
 
     graph = get_object_or_404(Graph, slug=graph_slug)
-
     total_nodes, total_edges, nodes, edges = jsonify_graph(graph)
-    size = graph.nodes.count()
+    size = len(nodes)
     return render_to_response('graphs_view.html',
                               {"graph": graph,
                                "nodes": json.dumps(nodes),
@@ -79,7 +78,7 @@ def graph_view(request, graph_slug):
                                "total_nodes": json.dumps(total_nodes),
                                "total_edges": json.dumps(total_edges),
                                "size": size,
-                                "MAX_SIZE": settings.MAX_SIZE,
+                               "MAX_SIZE": settings.MAX_SIZE,
                                },
                               context_instance=RequestContext(request))
 
