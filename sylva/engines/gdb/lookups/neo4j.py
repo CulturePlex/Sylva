@@ -3,74 +3,56 @@
 
 
 class Q(object):
-    """ Q is a query builder for the Neo4j Cypher language backend"""
+    """
+    Q is a query builder for the Neo4j Cypher language backend
+
+    It allows to build filters like
+    Q("Artwork title", istartswith="copy", nullable=False)
+    Q(property="Artwork title", lookup="istartswith", match="copy")
+    """
 
     specialchars = r'+-!(){}[]^"~*?\:'
     doublechars = '&&||'
+    matchs = ("exact", "iexact",
+              "contains", "icontains",
+              "startswith", "istartswith",
+              "endswith", "iendswith",
+              "regex", "iregex",
+              "gt", "gte", "lt", "lte",
+              "in", "inrange", "isnull",
+              "equals", "notequals")
 
-    def __init__(self, property=None, match=None, lookup=None, nullable=False,
+    def __init__(self, property, lookup=None, match=None, nullable=False,
                  **kwargs):
         self._and = None
         self._or = None
         self._not = None
-        self.inrange = None
-        self.exrange = None
+        self.property = property
+        self.lookup = lookup
+        self.match = match
         self.nullable = nullable
-        # Q("Nombre de la Obra", startswith=, nullable=True)
-        if kwargs.get('inrange'):
-            self.inrange = tuple(kwargs['inrange'])
-        elif kwargs.get('exrange'):
-            self.exrange = tuple(kwargs['exrange'])
-        elif kwargs.get('fuzzy'):
-            fuzzy = kwargs['fuzzy']
-            if Q._check_whitespace(fuzzy):
-                raise ValueError('No whitespace allowed in fuzzy queries.')
-            if isinstance(fuzzy, basestring):
-                self.fuzzy = (fuzzy, None)
-            elif hasattr(fuzzy, '__iter__') and len(fuzzy) == 2\
-                    and 0 <= float(fuzzy[1]) <= 1:
-                self.fuzzy = tuple(fuzzy)
+        if not self.lookup or not self.match:
+            for m in self.matchs:
+                if m in kwargs:
+                    self.lookup = m
+                    self.match = kwargs[m]
+                    break
             else:
-                raise ValueError('fuzzy should be a string or two element '
-                                 'term/similarity ratio sequence. The '
-                                 'ratio, cast to float,  should be between'
-                                 ' 0 and 1.')
-
-    @property
-    def fielded(self):
-        """Returns whether any part of the query has a field."""
-        return self.field is not None or\
-                any(Q._has_field(l) for l in [self.must, self.must_not,
-                                              self.should, self._and, self._or,
-                                              self._not])
-    @staticmethod
-    def _has_field(val):
-        if hasattr(val, '__iter__'):
-            return any(Q._has_field(t) for t in val)
-        else:
-            return hasattr(val, 'field') and val.field is not None
-
-
-    @classmethod
-    def _check_whitespace(cls, s):
-        import string
-        if isinstance(s, basestring):
-            for c in string.whitespace:
-                if c in s:
-                    return True
-        return False
+                raise ValueError('Q objects must have at least a lookup method '
+                                 '(%s) and a match case'
+                                 % ", ".join(self.matchs))
 
     def _escape(self, s):
-        if isinstance(s, basestring):
-            rv = ''
-            specialchars = self.specialchars.translate(None,'*?')\
-                    if self.allow_wildcard else self.specialchars
-            for c in s:
-                if c in specialchars:
-                    rv += '\\' + c
-                else:
-                    rv += c
-            return rv
+        # if isinstance(s, basestring):
+        #     rv = ''
+        #     specialchars = self.specialchars.translate(None,'*?')\
+        #             if self.allow_wildcard else self.specialchars
+        #     for c in s:
+        #         if c in specialchars:
+        #             rv += '\\' + c
+        #         else:
+        #             rv += c
+        #     return rv
         return s
 
     def _make_and(q1, q2):
@@ -88,16 +70,6 @@ class Q(object):
         q._or = (q1, q2)
         return q
 
-    def _make_must(q1):
-        q = Q()
-        q.must.append(q1)
-        return q
-
-    def _make_must_not(q1):
-        q = Q()
-        q.must_not.append(q1)
-        return q
-
     def __and__(self, other):
         return Q._make_and(self, other)
 
@@ -107,24 +79,12 @@ class Q(object):
     def __invert__(self):
         return Q._make_not(self)
 
-    def __pos__(self):
-        return Q._make_must(self)
-
-    def __neg__(self):
-        return Q._make_must_not(self)
-
-    def __add__(self, other):
-        return self | Q._make_must(other)
-
-    def __sub__(self, other):
-        return self | Q._make_must_not(self)
-
     def __eq__(self, other):
         return hash(self) == hash(other)
 
     def __hash__(self):
-        return hash((tuple(self.should), tuple(self.must),tuple(self.must_not),
-                     self.exrange, self.inrange, self.field, self.fuzzy))
+        return hash((self.property, self.lookup, self.match,
+                     self.nullable))
 
     def __str__(self):
         if self._and is not None:
