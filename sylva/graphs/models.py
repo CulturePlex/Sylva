@@ -72,7 +72,7 @@ class Graph(models.Model, GraphMixin):
         new_schema = new_graph.schema
         nt_map, rt_map = self._clone_schema(schema, new_schema)
         if clone_data:
-            self._clone_data(new_graph, new_schema, nt_map, rt_map)
+            self._clone_data(new_graph, nt_map, rt_map)
 
     def _clone_schema(self, schema, new_schema):
         nodetypes_map = {}      # map old/new nodetypes IDs
@@ -137,7 +137,7 @@ class Graph(models.Model, GraphMixin):
                 new_rp.save()
         return nodetypes_map, relationtypes_map
 
-    def _clone_data(self, new_graph, new_schema, nodetypes_map, relationtypes_map):
+    def _clone_data(self, new_graph, nodetypes_map, relationtypes_map):
         nodes_map = {}  # map old/new nodes IDs
         data = self.data
         new_data = new_graph.data
