@@ -306,8 +306,10 @@
                 var attvalueEdge = attvalueEdges[k];
 
                 var attributeId = attvalueEdge.getAttribute('for');
-                var attributeTitle = edgesAttributes[attributeId].title;
-                edgeAttributes[attributeTitle] = attvalueEdge.getAttribute('value');
+                if (attributeId !== "_id") {
+                  var attributeTitle = edgesAttributes[attributeId].title;
+                  edgeAttributes[attributeTitle] = attvalueEdge.getAttribute('value');
+                }
               }
 
               // finally, add edge

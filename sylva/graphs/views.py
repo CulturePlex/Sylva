@@ -169,7 +169,6 @@ def graph_clone(request, graph_slug):
                 new_graph.name = graph.name + " " + _("[cloned]")
                 new_graph.description = graph.description
                 new_graph.relaxed = graph.relaxed
-                new_graph.public = graph.public
                 new_graph.order = graph.order
                 new_graph.public = graph.public
                 new_graph.options = graph.options
