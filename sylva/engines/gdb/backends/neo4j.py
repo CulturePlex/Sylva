@@ -127,6 +127,7 @@ class GraphDatabase(BlueprintsGraphDatabase):
             if include_properties:
                 for element in result["data"]:
                     properties = element[1]["data"]
+                    properties.pop("_id")
                     elto_label = properties.pop("_label")
                     source_props = element[2]["data"]
                     source_id = source_props.pop("_id")
