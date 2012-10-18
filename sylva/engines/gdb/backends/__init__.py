@@ -45,12 +45,6 @@ class BaseGraphDatabase(object):
         """
         raise NotImplementedError("Method has to be implemented")
 
-    def set_node_type(self, id, type):
-        """
-        Set the type of the node "type".
-        """
-        raise NotImplementedError("Method has to be implemented")
-
     def get_node_type(self, type):
         """
         Get the type of the node "type".
@@ -115,7 +109,7 @@ class BaseGraphDatabase(object):
         incoming and outgoing.
         If "incoming" is True, it only returns the ids for incoming ones.
         If "outgoing" is True, it only returns the ids for outgoing ones.
-        If "include_properties" is True, the value of the second value of the 
+        If "include_properties" is True, the value of the second value of the
         tuple is a dictionary containing the properties.
         If "label" is provided, relationships will be filtered.
         """
