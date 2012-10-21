@@ -1,27 +1,29 @@
 # -*- coding: utf-8 -*-
-from django.conf import settings
-from django.conf.urls.defaults import patterns, include, url
+from django.conf.urls.defaults import patterns, url
 from django.contrib import admin
 
-# from django.contrib import admin
-# from admin import admin_site
+
 admin.autodiscover()
 
 urlpatterns = patterns('graphs.views',
-    # create
+    # graph create
     url(r'^create/$', 'graph_create', name="graph_create"),
 
-    # edit
+    # graph edit
     url(r'^(?P<graph_slug>[\w-]+)/edit/$', 'graph_edit', name="graph_edit"),
 
-    # view
+    # graph view
     url(r'^(?P<graph_slug>[\w-]+)/$', 'graph_view', name="graph_view"),
 
-    # clone
+    # graph clone
     url(r'^(?P<graph_slug>[\w-]+)/clone/$', 'graph_clone', name="graph_clone"),
 
-    # delete
+    # graph delete
     url(r'^(?P<graph_slug>[\w-]+)/delete/$', 'graph_delete', name="graph_delete"),
+
+    # nodes view
+    url(r'^(?P<graph_slug>[\w-]+)/nodes/(?P<node_id>\d+)/$', 'nodes_view',
+        name="nodes_view"),
 
     # collaborators edit
     url(r'^(?P<graph_slug>[\w-]+)/collaborators/$', 'graph_collaborators',

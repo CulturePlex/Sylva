@@ -14,8 +14,10 @@
 {% endblock %}
 
 {% block content_title %}
-{% breadcrumb graph %}
-<!--<h2>{% trans "Graphs" %} » {{ graph.name|truncatewords_html:8 }}</h2>-->
+  {% block breadcrumb %}
+  {% breadcrumb graph %}
+  <!--<h2>{% trans "Graphs" %} » {{ graph.name|truncatewords_html:8 }}</h2>-->
+  {% endblock %}
 {% endblock %}
 
 {% block content %}
@@ -89,7 +91,8 @@
   sylv.nodeTypesLegend = {};
   sylv.PDE_URL = "{{ STATIC_PREFIX }}graphs/js/graphdrawer.pde";
   sylv.expandNodeLinkURL = "{% url expand_node graph.slug 0 %}";
-  sylv.editLinkURL = "{% url nodes_edit graph.slug 0 %}";
+  sylv.nodeEditURL = "{% url nodes_edit graph.slug 0 %}";
+  sylv.graphViewURL = "{% url graph_view graph.slug %}";
   sylv.disableProcessing = false;
   {% if size > MAX_SIZE %}
       sylv.disableProcessing = true;
