@@ -6,9 +6,9 @@ from django.core.urlresolvers import reverse
 from django.forms import ModelForm
 from django.utils.translation import gettext as _
 
-from django.conf import settings
+# from django.conf import settings
 
-from data.models import Data
+# from data.models import Data
 from graphs.models import Graph
 from engines.models import Instance
 
@@ -21,6 +21,21 @@ class GraphForm(ModelForm):
     def __init__(self, *args, **kwargs):
         user = kwargs.pop("user", None)
         super(GraphForm, self).__init__(*args, **kwargs)
+        graph = self.instance
+        queryset = []
+        initial = ''
+        if graph.pk:
+            pk = graph.owner.pk
+            queryset = User.objects.filter(pk=pk)
+            initial = pk
+        elif user:
+            pk = user.pk
+            queryset = User.objects.filter(pk=pk)
+            initial = pk
+        self.fields["owner"] = forms.ModelChoiceField(
+            queryset=queryset,
+            initial=initial,
+            widget=forms.HiddenInput())
         if settings.OPTIONS["ALLOWS_INSTANCES"]:
             if user:
                 instances = Instance.objects.filter(owner=user)
@@ -35,7 +50,7 @@ class GraphForm(ModelForm):
 
     class Meta:
         model = Graph
-        fields = ("name", "description", "relaxed", "public")
+        fields = ("owner", "name", "description", "relaxed", "public")
 
 
 class GraphDeleteConfirmForm(forms.Form):
