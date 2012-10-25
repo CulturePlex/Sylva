@@ -41,6 +41,10 @@ class BaseQ(object):
                 raise ValueError("Q objects must have at least a lookup method"
                                  " (%s) and a match case".format(all_matchs))
 
+    def is_valid(self):
+        return ((self.property and self.lookup and self.match) or
+                (self._and or self._or or self._not))
+
     def _make_and(q1, q2):
         q = q1.__class__()
         q._and = (q1, q2)

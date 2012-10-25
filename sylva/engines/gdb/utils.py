@@ -1,15 +1,20 @@
 # -*- coding: utf-8 -*-
 from django.conf import settings
 from django.utils.importlib import import_module
-from django.utils.translation import gettext as _
 
 
 def get_gdb(graph, using="default"):
-    gdb_properties = settings.GRAPHDATABASES[using]
-    connection_string = get_connection_string(gdb_properties)
-    engine = gdb_properties["ENGINE"]
-    module = import_module(engine)
-    gdb = module.GraphDatabase(connection_string, graph=graph)
+    # TODO: Add connection_props like cert_file and key_file
+    gdb_key = u"GDB_%s" % using.upper()
+    gdb = getattr(settings, gdb_key, None)
+    if not gdb:
+        gdb_properties = settings.GRAPHDATABASES[using]
+        connection_string = get_connection_string(gdb_properties)
+        engine = gdb_properties["ENGINE"]
+        module = import_module(engine)
+        gdb = module.GraphDatabase(connection_string, graph=graph)
+        # We cache all public instances gdb objects
+        setattr(settings, gdb_key, gdb)
     return gdb
 
 

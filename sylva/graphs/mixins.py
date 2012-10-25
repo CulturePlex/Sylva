@@ -19,27 +19,45 @@ class GraphMixin(object):
 
     def __init__(self, *args, **kwargs):
         super(GraphMixin, self).__init__(*args, **kwargs)
+        self._q = None
+        self._gdb = None
         self._nodes_manager = None
         self._relationships_manager = None
 
-    def _nodes(self):
+    def _get_gdb(self):
+        if not self._gdb:
+            self._gdb = self.data.get_gdb()
+        return self._gdb
+    gdb = property(_get_gdb)
+
+    def _get_nodes(self):
         if not self._nodes_manager:
             self._nodes_manager = NodesManager(self)
         return self._nodes_manager
-    nodes = property(_nodes)
+    nodes = property(_get_nodes)
 
-    def _relationships(self):
+    def _get_relationships(self):
         if not self._relationships_manager:
             self._relationships_manager = RelationshipsManager(self)
         return self._relationships_manager
-    relationships = property(_relationships)
+    relationships = property(_get_relationships)
+
+    def _get_q(self):
+        if not self._q:
+            gdb = self.gdb
+            if hasattr(gdb, "lookup_builder"):
+                self._q = gdb.lookup_builder()
+            else:
+                raise NotImplementedError("Q objects not implemented")
+        return self._q
+    Q = property(_get_q)
 
 
 class BaseManager(object):
 
     def __init__(self, graph):
         self.graph = graph
-        self.gdb = graph.data.get_gdb()
+        self.gdb = graph.gdb
         self.schema = (not graph.relaxed) and graph.schema
         self.data = graph.data
 
@@ -69,13 +87,6 @@ class BaseManager(object):
                 return kwargs["default"]
             else:
                 raise KeyError(node_id)
-
-    # def _q(self):
-    #     if hasattr(self.gdb, "lookup_builder"):
-    #         return self.gdb.lookup_builder
-    #     else:
-    #         return dict
-    # Q = property(_q)
 
 
 class NodesManager(BaseManager):
@@ -122,10 +133,10 @@ class NodesManager(BaseManager):
             else:
                 eltos = self.gdb.get_filtered_nodes(lookups, label=label,
                                                     include_properties=True)
-            return self._create_node_list(eltos)
         else:
             eltos = self.gdb.get_filtered_nodes(lookups,
                                                 include_properties=True)
+        return self._create_node_list(eltos)
 
     def iterator(self):
         eltos = self.gdb.get_all_nodes(include_properties=True)
@@ -218,14 +229,20 @@ class RelationshipsManager(BaseManager):
         eltos = self.gdb.get_all_relationships(include_properties=True)
         return self._create_relationship_list(eltos, with_labels=True)
 
-    def filter(self, **options):
+    def filter(self, *lookups, **options):
         if "label" in options:
             label = options.get("label")
-            eltos = self.gdb.get_relationships_by_label(label,
-                                                include_properties=True)
-            return self._create_relationship_list(eltos)
+            if not lookups:
+                eltos = self.gdb.get_relationships_by_label(label,
+                                                    include_properties=True)
+                return self._create_relationship_list(eltos)
+            else:
+                eltos = self.gdb.get_filtered_relationships(lookups,
+                                              label=label,
+                                              include_properties=True)
         else:
-            return []
+            eltos = self.gdb.get_filtered(label=label, include_properties=True)
+        return self._create_relationship_list(eltos, with_labels=True)
 
     def iterator(self):
         eltos = self.gdb.get_all_relationships(include_properties=True)

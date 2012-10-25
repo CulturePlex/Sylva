@@ -6,7 +6,7 @@ from django.conf import settings
 from django.forms.formsets import formset_factory
 from django.http import Http404
 from django.shortcuts import (render_to_response, get_object_or_404,
-                             redirect, HttpResponse)
+                              redirect, HttpResponse)
 from django.template import RequestContext
 from django.template.defaultfilters import slugify
 from django.utils.datastructures import SortedDict
@@ -44,12 +44,9 @@ def nodes_list(request, graph_slug):
     data_preview = []
     for type_element in graph.schema.nodetype_set.all():
         properties = [p.key for p in type_element.properties.all()]
-        data = create_data(properties,
-                    graph.nodes.filter(label=type_element.id)[:5])
-        data_preview.append([type_element.name,
-            properties,
-            data,
-            type_element.id])
+        data = create_data(properties, type_element.all()[:5])
+        data_preview.append([type_element.name, properties, data,
+                             type_element.id])
     return render_to_response('nodes_list.html',
                               {"graph": graph,
                                   "option_list": data_preview},
@@ -64,18 +61,13 @@ def nodes_lookup(request, graph_slug):
         node_type_id = data.keys()[0]
         node_type = get_object_or_404(NodeType, id=node_type_id)
         q = data[node_type_id]
-        query_list = []
         properties = node_type.properties.filter(display=True)
         if not properties:
             properties = node_type.properties.all()[:2]
+        query = graph.Q()
         for prop in properties:
-            query = {
-                "property": prop.key,
-                "match": q,
-                "lookup": "contains",
-            }
-            query_list.append(query)
-        nodes = graph.nodes.filter(label=node_type.id, *query_list)
+            query |= graph.Q(prop.key, icontains=q)
+        nodes = node_type.filter(query)[:10]
         json_nodes = []
         for node in nodes:
             json_nodes.append({
@@ -93,12 +85,9 @@ def nodes_list_full(request, graph_slug, node_type_id):
     type_element = get_object_or_404(NodeType, id=node_type_id)
     data_preview = []
     properties = [p.key for p in type_element.properties.all()]
-    data = create_data(properties,
-                graph.nodes.filter(label=type_element.id))
-    data_preview.append([type_element.name,
-        properties,
-        data])
-    nodes = graph.nodes.filter(label=node_type_id)
+    data = create_data(properties, type_element.all())
+    data_preview.append([type_element.name, properties, data])
+    nodes = type_element.all()
     return render_to_response('nodes_list.html', {
                                 "graph": graph,
                                 "option_list": data_preview,
@@ -418,9 +407,7 @@ def relationships_list(request, graph_slug):
     data_preview = []
     for type_element in graph.schema.relationshiptype_set.all():
         properties = [p.key for p in type_element.properties.all()]
-        data = create_data(properties,
-                    graph.relationships.filter(label=type_element.id)[:5],
-                    True)
+        data = create_data(properties, type_element.all()[:5], True)
         columns = ["source", "target"]
         columns.extend(properties)
         type_element_name = u"(%s) %s (%s)" % (type_element.source.name,
@@ -443,9 +430,7 @@ def relationships_list_full(request, graph_slug, relationship_type_id):
                                     id=relationship_type_id)
     data_preview = []
     properties = [p.key for p in type_element.properties.all()]
-    data = create_data(properties,
-                graph.relationships.filter(label=type_element.id),
-                True)
+    data = create_data(properties, type_element.all(), True)
     columns = ["source", "target"]
     columns.extend(properties)
     data_preview.append([type_element.name,

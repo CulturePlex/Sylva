@@ -342,6 +342,12 @@ class BaseGraphDatabase(object):
         """
         raise NotImplementedError("Method has to be implemented")
 
+    def lookup_builder(self):
+        """
+        Get a constructor for Q objects in order to make lookups in filters
+        """
+        raise NotImplementedError("Method has to be implemented")
+
     # Deleting the graph
 
     def delete(self):

@@ -39,7 +39,7 @@ def schema_edit(request, graph_slug):
 def schema_nodetype_delete(request, graph_slug, nodetype_id):
     graph = get_object_or_404(Graph, slug=graph_slug)
     nodetype = get_object_or_404(NodeType, id=nodetype_id)
-    count = len(graph.nodes.filter(label=nodetype.id, properties=False))
+    count = graph.nodes.count(label=nodetype.id)
     redirect_url = reverse("schema_edit", args=[graph.slug])
     if count == 0:
         form = TypeDeleteConfirmForm()
@@ -198,8 +198,7 @@ def schema_relationshiptype_delete(request, graph_slug,
     graph = get_object_or_404(Graph, slug=graph_slug)
     relationshiptype = get_object_or_404(RelationshipType,
                                          id=relationshiptype_id)
-    count = len(graph.relationships.filter(label=relationshiptype.id,
-                                           properties=False))
+    count = graph.relationships.count(label=relationshiptype.id)
     redirect_url = reverse("schema_edit", args=[graph.slug])
     if count == 0:
         form = TypeDeleteConfirmForm()
@@ -261,6 +260,7 @@ def schema_import(request, graph_slug):
                               {"graph": graph,
                                "form":  form},
                               context_instance=RequestContext(request))
+
 
 @permission_required("schemas.view_schema",
                      (Schema, "graph__slug", "graph_slug"))

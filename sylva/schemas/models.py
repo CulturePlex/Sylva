@@ -239,6 +239,12 @@ class NodeType(BaseType):
         else:
             return []
 
+    def filter(self, *lookups):
+        if self.id:
+            return self.schema.graph.nodes.filter(lookups, label=self.id)
+        else:
+            return []
+
 
 class RelationshipType(BaseType):
     inverse = models.CharField(_('inverse name'), max_length=150,

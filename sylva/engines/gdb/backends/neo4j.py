@@ -4,8 +4,9 @@ from pyblueprints.neo4j import Neo4jIndexableGraph as Neo4jGraphDatabase
 from pyblueprints.neo4j import Neo4jDatabaseConnectionError
 
 from engines.gdb.backends import (GraphDatabaseConnectionError,
-                                GraphDatabaseInitializationError)
+                                  GraphDatabaseInitializationError)
 from engines.gdb.backends.blueprints import BlueprintsGraphDatabase
+from engines.gdb.lookups.neo4j import Q as q_lookup_builder
 
 
 class GraphDatabase(BlueprintsGraphDatabase):
@@ -60,11 +61,11 @@ class GraphDatabase(BlueprintsGraphDatabase):
         index = self.node_index.neoindex
         cypher = self.gdb.neograph.extensions.CypherPlugin
         if include_properties:
-            script = """start n=node:`%s`("label:*") return id(n), n""" \
-                     % (index.name)
+            script = """start n=node:`%s`("label:*") """ \
+                     """return id(n), n""" % index.name
         else:
-            script = """start n=node:`%s`("label:*") return id(n), n._label""" \
-                     % index.name
+            script = """start n=node:`%s`("label:*") """ \
+                     """return id(n), n._label""" % index.name
         page = 1000
         skip = 0
         limit = page
@@ -156,7 +157,6 @@ class GraphDatabase(BlueprintsGraphDatabase):
             except:
                 result = None
 
-
     def get_node_relationships_count(self, id, incoming=False, outgoing=False,
                                      label=None):
         """
@@ -181,6 +181,10 @@ class GraphDatabase(BlueprintsGraphDatabase):
         count = gremlin(script=script)
         return self._clean_count(count)
 
+    def get_nodes_by_label(self, label, include_properties=False):
+        return self.get_filtered_nodes([], label=label,
+                                       include_properties=include_properties)
+
     def get_filtered_nodes(self, lookups, label=None, include_properties=None):
         # Using Cypher
         index = self.node_index.neoindex
@@ -191,44 +195,21 @@ class GraphDatabase(BlueprintsGraphDatabase):
         else:
             script = """start n=node:`%s`('label:*') """ \
                      % index.name
-        wheres = []
+        where, params = None, []
+        wheres = q_lookup_builder()
         for lookup in lookups:
-            where = None
-            match = unicode(lookup["match"]).replace(u"'", u"\\'")
-            prop = unicode(lookup["property"]).replace(u"`", u"\\`")
-            if lookup["lookup"] == "icontains":
-                where = u"( n.`%s`! =~ '(?i).*%s.*' )" \
-                        % (prop, match)
-            elif lookup["lookup"] == "istarts":
-                where = u"( n.`%s`! =~ '(?i)%s.*' )" \
-                        % (prop, match)
-            elif lookup["lookup"] == "iends":
-                where = u"( n.`%s`! =~ '(?i).*%s' )" \
-                        % (prop, match)
-            elif lookup["lookup"] == "iexact":
-                where = u"( n.`%s`! =~ '(?i)%s' )" \
-                        % (prop, match)
-            if lookup["lookup"] == "contains":
-                where = u"( n.`%s`! =~ '.*%s.*' )" \
-                        % (prop, match)
-            elif lookup["lookup"] == "starts":
-                where = u"( n.`%s`! =~ '%s.*' )" \
-                        % (prop, match)
-            elif lookup["lookup"] == "ends":
-                where = u"( n.`%s`! =~ '.*%s' )" \
-                        % (prop, match)
-            elif lookup["lookup"] == "exact":
-                where = u"( n.`%s`! =~ '%s' )" \
-                        % (prop, match)
-            if where:
-                wheres.append(where)
-        if wheres:
-            script = u"%s where %s return n" % (script, " and ".join(wheres))
+            if isinstance(lookup, q_lookup_builder):
+                wheres &= lookup
+            elif isinstance(lookup, dict):
+                wheres &= q_lookup_builder(**lookup)
+        where, params = wheres.get_query_objects(var="n")
+        if where:
+            script = u"%s where %s return n" % (script, where)
         else:
             script = u"%s return n" % script
         result = None
         try:
-            result = cypher(query=script)
+            result = cypher(query=script, params=params)
         except:
             pass
         if result and "data" in result and len(result["data"]) > 0:
@@ -243,7 +224,78 @@ class GraphDatabase(BlueprintsGraphDatabase):
                     node_id = element[0]["data"].pop("_id")
                     yield (node_id, None)
 
-    def _get_filtered_nodes(self, lookups, label=None, include_properties=None):
+    def get_relationships_by_label(self, label, include_properties=False):
+        return self.get_filtered_relationships([], label=label,
+                                        include_properties=include_properties)
+
+    def get_filtered_relationships(self, lookups, label=None,
+                                   include_properties=None):
+        # Using Cypher
+        index = self.relationship_index.neoindex
+        cypher = self.gdb.neograph.extensions.CypherPlugin.execute_query
+        script = """start r=rel:`%s`("label:*") """ \
+                 """match a-[r]->b """ % index.name
+        where, params = None, []
+        wheres = q_lookup_builder()
+        for lookup in lookups:
+            if isinstance(lookup, q_lookup_builder):
+                wheres &= lookup
+            elif isinstance(lookup, dict):
+                wheres &= q_lookup_builder(**lookup)
+        where, params = wheres.get_query_objects(var="r")
+        if include_properties:
+            type_or_r = "r"
+        else:
+            type_or_r = "type(r)"
+        if where:
+            script = u"%s where %s return distinct id(r), %s, a, b" \
+                     % (script, where, type_or_r)
+        else:
+            script = u"%s return distinct id(r), %s, a, b" \
+                     % (script, type_or_r)
+        page = 1000
+        skip = 0
+        limit = page
+        try:
+            paged_script = "%s skip %s limit %s" % (script, skip, limit)
+            result = cypher(query=paged_script)
+        except:
+            result = None
+        while result and "data" in result and len(result["data"]) > 0:
+            if include_properties:
+                for element in result["data"]:
+                    properties = element[1]["data"]
+                    properties.pop("_id")
+                    elto_label = properties.pop("_label")
+                    source_props = element[2]["data"]
+                    source_id = source_props.pop("_id")
+                    source_label = source_props.pop("_label")
+                    source = {
+                        "id": source_id,
+                        "properties": source_props,
+                        "label": source_label
+                    }
+                    target_props = element[3]["data"]
+                    target_id = target_props.pop("_id")
+                    target_label = target_props.pop("_label")
+                    target = {
+                        "id": target_id,
+                        "properties": target_props,
+                        "label": target_label
+                    }
+                    yield (element[0], properties, elto_label, source, target)
+            else:
+                for element in result["data"]:
+                    yield (element[0], None, element[1])
+            skip += page
+            try:
+                paged_script = "%s skip %s limit %s" % (script, skip, limit)
+                result = cypher.execute_query(query=paged_script)
+            except:
+                result = None
+
+    def _get_filtered_nodes(self, lookups, label=None,
+                            include_properties=None):
         # Working on indices
         idx = self.node_index.neoindex
         q = Q(r"graph", r"%s" % self.graph_id)
@@ -256,7 +308,7 @@ class GraphDatabase(BlueprintsGraphDatabase):
                        wildcard=True)
             elif lookup["lookup"] == "starts":
                 l |= Q(r"%s" % lookup["property"], r"%s*" % lookup["match"],
-                      wildcard=True)
+                       wildcard=True)
             elif lookup["lookup"] == "ends":
                 l |= Q(r"%s" % lookup["property"], r"*%s" % lookup["match"],
                        wildcard=True)
@@ -269,3 +321,6 @@ class GraphDatabase(BlueprintsGraphDatabase):
         else:
             for node in idx.query(q):
                 yield (node.id, None)
+
+    def lookup_builder(self):
+        return q_lookup_builder

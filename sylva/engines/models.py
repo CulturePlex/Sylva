@@ -53,6 +53,10 @@ class Instance(models.Model):
     owner = models.ForeignKey(User, verbose_name=_('owner'),
                               related_name="instances")
 
+    def __init__(self, *args, **kwargs):
+        super(Instance, self).__init__(*args, **kwargs)
+        self._gdb = None
+
     def __unicode__(self):
         return u"%s ~ %s" % (self.name, self._get_connection_string())
 
@@ -100,24 +104,26 @@ class Instance(models.Model):
         return connection_string
 
     def get_gdb(self, graph=None):
-        connection_dict = {
-            "name": self.name,
-            "scheme": self.scheme,
-            "host": self.host,
-            "port": self.port,
-            "path": self.path,
-            "username": self.username,
-            "password": self.password,
-            "query": self.query,
-            "fragment": self.fragment,
-            "key_file": self.key_cert and self.key_cert.file,
-            "cert_file": self.cert_file and self.cert_file.file,
-            "options": self.options,
-        }
-        connection_string = self._get_connection_string()
-        module = import_module(self.engine)
-        gdb = module.GraphDatabase(connection_string, connection_dict, graph)
-        return gdb
+        if not self._gdb:
+            connection_dict = {
+                "name": self.name,
+                "scheme": self.scheme,
+                "host": self.host,
+                "port": self.port,
+                "path": self.path,
+                "username": self.username,
+                "password": self.password,
+                "query": self.query,
+                "fragment": self.fragment,
+                "key_file": self.key_cert and self.key_cert.file,
+                "cert_file": self.cert_file and self.cert_file.file,
+                "options": self.options,
+            }
+            connection_string = self._get_connection_string()
+            module = import_module(self.engine)
+            self._gdb = module.GraphDatabase(connection_string,
+                                             connection_dict, graph)
+        return self._gdb
 
     def _get_password(self):
         if not self.encrypted_password:

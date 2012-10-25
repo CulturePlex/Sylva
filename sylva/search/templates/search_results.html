@@ -17,9 +17,10 @@
 {% block content %}
 <div id="content2">
     <div class="content2-first">
-    {% for result in results %}
+    <h2>{% trans "Nodes" %}</h2>
+    {% for result in node_results %}
         {% if result.list %}
-            <h2>{{ result.key }}</h2>
+            <h3>{{ result.key }}</h3>
             <ol class="searchResults">
             {% for item in result.list %}
                 {% with item.display as display %}
@@ -28,6 +29,26 @@
             {% endfor %}
             </ol>
         {% endif %}
+    {% empty %}
+        {% trans "No results found" %}
+    {% endfor %}
+    </div>
+    <div class="content2-second">
+    <h2>{% trans "Relationships" %}</h2>
+    {% for result in relationship_results %}
+        {{ result }}
+        {% if result.list %}
+            <h3>{{ result.key }}</h3>
+            <ol class="searchResults">
+            {% for item in result.list %}
+                {% with item.display as display %}
+                <li><a title="{{ display }}" href="{% url relationships_edit graph.slug item.id %}">{{ display|truncatewords:5 }}</a></li>
+                {% endwith %}
+            {% endfor %}
+            </ol>
+        {% endif %}
+    {% empty %}
+        {% trans "No results found" %}
     {% endfor %}
     </div>
 </div>

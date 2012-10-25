@@ -27,7 +27,8 @@ def search(request, graph_slug, node_type_id=None,
                  relationship_type_id=None):
     graph = get_object_or_404(Graph, slug=graph_slug)
     data = request.GET.copy()
-    results = []
+    node_results = []
+    relationship_results = []
     if data:
         q = data.get("q", "")
         display = bool(data.get("display", True))
@@ -40,7 +41,7 @@ def search(request, graph_slug, node_type_id=None,
             result = {}
             result["type"] = node_type
             result["key"] = node_type.name
-            query_list = []
+            query = graph.Q()
             if display:
                 properties = node_type.properties.filter(display=True)
                 if not properties:
@@ -48,18 +49,41 @@ def search(request, graph_slug, node_type_id=None,
             else:
                 properties = node_type.properties.all()
             for prop in properties:
-                query = {
-                    "property": prop.key,
-                    "match": q,
-                    "lookup": "contains",
-                }
-                query_list.append(query)
-            nodes = graph.nodes.filter(label=node_type.id, *query_list)
-            result["list"] = nodes
-            results.append(result)
+                query |= graph.Q(prop.key, icontains=q, nullable=True)
+            nodes = node_type.filter(query)
+            if nodes:
+                result["list"] = nodes
+                node_results.append(result)
+        if relationship_type_id:
+            filter_args = {
+                "id": relationship_type_id,
+                 "schema__graph": graph}
+            relationship_types = RelationshipType.objects.filter(**filter_args)
+        else:
+            relationship_types = graph.schema.relationshiptype_set.all()
+        for relationship_type in relationship_types:
+            result = {}
+            result["type"] = relationship_type
+            result["key"] = relationship_type.name
+            query = graph.Q()
+            if display:
+                properties = relationship_type.properties.filter(display=True)
+                if not properties:
+                    properties = relationship_type.properties.all()[:2]
+            else:
+                properties = relationship_type.properties.all()
+            for prop in properties:
+                query |= graph.Q(prop.key, icontains=q, nullable=True)
+            relationships = graph.relationships.filter(query,
+                                                    label=relationship_type.id)
+            if relationships:
+                result["list"] = relationships
+                relationship_results.append(result)
     return render_to_response('search_results.html', {
                                 "graph": graph,
-                                "results": results,
+                                "node_results": node_results,
+                                "relationship_results": relationship_results,
+                                "file_results": [],
                               }, context_instance=RequestContext(request))
 
 
