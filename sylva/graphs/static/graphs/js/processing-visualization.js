@@ -102,15 +102,7 @@ sylv:true, prompt:true, alert:true, FileReader:true, Processing:true */
   }
 
   function updateInfoRelationship(evt, relationshipId) {
-    /*
-    var editLinkURL = "";
-    editLinkURL = editLinkURL.replace('0/edit/', relationshipId, '/edit/');
-    var editLink = $('<a>')
-      .attr('href', editLinkURL)
-      .text('Edit relationship');
-    */
     var title = $('<h2>').text("Relationship: " + relationshipId);
-
     $('#canvas-info')
       .empty()
       .append(title);

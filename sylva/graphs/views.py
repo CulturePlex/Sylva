@@ -21,55 +21,59 @@ from graphs.models import Graph, PERMISSIONS
 from schemas.models import Schema
 
 
+def _jsonify_graph(nodes_list, relations_list,
+                   n_elements=settings.PREVIEW_NODES, full=False):
+    """
+    Returns a tuple with the elements of a subgraph jsonified. The format
+    is (nodes, edges, preview_nodes, preview_edges)
+    The preview subgraph is composed by the first random "n_elements"
+    nodes traversed from the first one
+    """
+    nodes = {}
+    edges = []
+    partial_edges = []
+    partial_nodes = {}
+    partial_nodes_ids = []
+    nodes_display = {}
+    for node in nodes_list:
+        json_node = node.to_json()
+        nodes[node.display] = json_node
+        nodes_display[node.id] = node.display
+    for rel in relations_list:
+        source_id = rel.source.id
+        target_id = rel.target.id
+        if (source_id in nodes_display
+                and target_id in nodes_display):
+            edge = {
+                'id': rel.id,
+                'source': nodes_display[source_id],
+                'type': rel.label_display,
+                'target': nodes_display[target_id],
+                'properties': rel.properties
+            }
+            edges.append(edge)
+            if len(partial_nodes_ids) <= n_elements:
+                if source_id not in partial_nodes_ids:
+                    node_display = nodes_display[source_id]
+                    partial_nodes[node_display] = nodes[node_display]
+                    partial_nodes_ids.append(source_id)
+                if target_id not in partial_nodes_ids:
+                    node_display = nodes_display[target_id]
+                    partial_nodes[node_display] = nodes[node_display]
+                    partial_nodes_ids.append(target_id)
+            if (source_id in partial_nodes_ids
+                    and target_id in partial_nodes_ids):
+                partial_edges.append(edge)
+    return (nodes, edges, partial_nodes, partial_edges)
+
+
 @permission_required("graphs.view_graph", (Graph, "slug", "graph_slug"))
 def graph_view(request, graph_slug):
-
-    def jsonify_graph(graph, n_elements=settings.PREVIEW_NODES, full=False):
-        """
-        Returns a tuple with the elements of a subgraph jsonified. The format
-        is (nodes, edges, preview_nodes, preview_edges)
-        The preview subgraph is composed by the first random "n_elements"
-        nodes traversed from the first one
-        """
-        nodes = {}
-        edges = []
-        partial_edges = []
-        partial_nodes = {}
-        partial_nodes_ids = []
-        nodes_display = {}
-        for node in graph.nodes.all():
-            json_node = node.to_json()
-            nodes[node.display] = json_node
-            nodes_display[node.id] = node.display
-        for rel in graph.relationships.all():
-            source_id = rel.source.id
-            target_id = rel.target.id
-            if (source_id in nodes_display
-                    and target_id in nodes_display):
-                edge = {
-                    'id': rel.id,
-                    'source': nodes_display[source_id],
-                    'type': rel.label_display,
-                    'target': nodes_display[target_id],
-                    'properties': rel.properties
-                }
-                edges.append(edge)
-                if len(partial_nodes_ids) <= n_elements:
-                    if source_id not in partial_nodes_ids:
-                        node_display = nodes_display[source_id]
-                        partial_nodes[node_display] = nodes[node_display]
-                        partial_nodes_ids.append(source_id)
-                    if target_id not in partial_nodes_ids:
-                        node_display = nodes_display[target_id]
-                        partial_nodes[node_display] = nodes[node_display]
-                        partial_nodes_ids.append(target_id)
-                if (source_id in partial_nodes_ids
-                        and target_id in partial_nodes_ids):
-                    partial_edges.append(edge)
-        return (nodes, edges, partial_nodes, partial_edges)
-
     graph = get_object_or_404(Graph, slug=graph_slug)
-    total_nodes, total_edges, nodes, edges = jsonify_graph(graph)
+    nodes_list = graph.nodes.all()
+    relations_list = graph.relationships.all()
+    total_nodes, total_edges, nodes, edges = _jsonify_graph(nodes_list,
+                                                            relations_list)
     size = len(nodes)
     return render_to_response('graphs_view.html',
                               {"graph": graph,
@@ -281,3 +285,30 @@ def expand_node(request, graph_slug, node_id):
         nodes[edge.target.display] = edge.target.to_json()
     node_neighbors = {"edges": edges, "nodes": nodes}
     return HttpResponse(json.dumps(node_neighbors))
+
+
+@permission_required("graphs.view_graph", (Graph, "slug", "graph_slug"))
+def nodes_view(request, graph_slug, node_id):
+    graph = get_object_or_404(Graph, slug=graph_slug)
+    node = graph.nodes.get(node_id)
+    relations_list = node.relationships.all()
+    nodes_list = [node]
+    for rel in relations_list:
+        if rel.source == node:
+            nodes_list.append(rel.target)
+        else:
+            nodes_list.append(rel.source)
+    total_nodes, total_edges, nodes, edges = _jsonify_graph(nodes_list,
+                                                            relations_list)
+    size = len(nodes)
+    return render_to_response('nodes_view.html',
+                              {"graph": graph,
+                               "node": node,
+                               "nodes": json.dumps(nodes),
+                               "edges": json.dumps(edges),
+                               "total_nodes": json.dumps(total_nodes),
+                               "total_edges": json.dumps(total_edges),
+                               "size": size,
+                               "MAX_SIZE": settings.MAX_SIZE,
+                               },
+                              context_instance=RequestContext(request))

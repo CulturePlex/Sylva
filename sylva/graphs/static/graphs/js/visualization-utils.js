@@ -15,10 +15,12 @@ sylv:true, prompt:true, alert:true, FileReader:true, Processing:true, sigma:true
     // Update node legend frame.
     updateNodeLegend: function(nodeId, nodeTitle, domId, html) {
       htmlContent = (typeof html === "undefined") ? '' : html;
-      var nodeEditURL = sylv.editLinkURL.replace(/nodes\/0\/edit/, 'nodes/' + nodeId + '/edit');
+      var nodeEditURL = sylv.nodeEditURL.replace(/nodes\/0\/edit/, 'nodes/' + nodeId + '/edit');
       var title = (nodeTitle.length < 22) ? nodeTitle : nodeTitle.substring(0,18) + "...";
       $('#' + domId).html(
-          '<h2>' + title + '</h2>' +
+          '<a href="' + sylv.graphViewURL + 'nodes/' + nodeId + '" title="' + nodeTitle + '">' +
+            '<h2>' + title + '</h2>' +
+          '</a>' +
           '<a href="' + nodeEditURL + '">Edit node</a>'
       ).append(htmlContent);
     }
