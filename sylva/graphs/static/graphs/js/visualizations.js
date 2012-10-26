@@ -46,8 +46,10 @@ sylv:true, alert:true */
     } else {
       visualizations.processing();
     }
+    $visualization_select = $('#visualization-type');
+    $visualization_select.children().first().attr('selected', 'selected');
 
-    $('#visualization-type').change(function() {
+    $visualization_select.change(function() {
       var type = $(this).find('option:selected').data('type');
       visualizations[type]();
     });
