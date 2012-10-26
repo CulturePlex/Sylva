@@ -416,7 +416,7 @@ class BaseElement(object):
 
     def __init__(self, id, graph, properties=None, initial=None, label=None,
                  source_dict=None, target_dict=None):
-        self._id = id
+        self._id = int(id)
         self.graph = graph
         self.gdb = graph.data.get_gdb()
         self.schema = (not graph.relaxed) and graph.schema
