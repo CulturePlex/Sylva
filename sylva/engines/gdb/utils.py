@@ -1,12 +1,14 @@
 # -*- coding: utf-8 -*-
 from django.conf import settings
+from django.core.cache import get_cache
 from django.utils.importlib import import_module
 
 
 def get_gdb(graph, using="default"):
     # TODO: Add connection_props like cert_file and key_file
-    gdb_key = u"GDB_%s" % using.upper()
-    gdb = getattr(settings, gdb_key, None)
+    gdb_key = u"GDB_%s_%s_%s" % (using.upper(), graph.slug, graph.id)
+    cache = get_cache("gdb")
+    gdb = cache.get(gdb_key, None)
     if not gdb:
         gdb_properties = settings.GRAPHDATABASES[using]
         connection_string = get_connection_string(gdb_properties)
@@ -14,7 +16,7 @@ def get_gdb(graph, using="default"):
         module = import_module(engine)
         gdb = module.GraphDatabase(connection_string, graph=graph)
         # We cache all public instances gdb objects
-        setattr(settings, gdb_key, gdb)
+        cache.set(gdb_key, gdb)
     return gdb
 
 

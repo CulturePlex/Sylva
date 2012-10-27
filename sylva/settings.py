@@ -193,6 +193,16 @@ LOGIN_REDIRECT_URL = '/dashboard/' # '/accounts/%(username)s/'
 LOGIN_URL = '/accounts/signin/'
 LOGOUT_URL = '/accounts/signout/'
 
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
+    },
+    'gdb': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'gdb-cache'
+    }
+}
+
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to
 # the site admins on every HTTP 500 error.
@@ -253,9 +263,3 @@ OPTIONS = {
     "MAINTENANCE_MODE": MAINTENANCE_MODE,
     "PREVIEW_NODES": PREVIEW_NODES,
 }
-
-
-
-
-
-
