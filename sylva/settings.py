@@ -199,7 +199,8 @@ CACHES = {
     },
     'gdb': {
         'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
-        'LOCATION': 'gdb-cache'
+        'LOCATION': 'gdb-cache',
+        'TIMEOUT': 7 * 24 * 60 * 60,  # One week. It's not changing a lot
     }
 }
 
