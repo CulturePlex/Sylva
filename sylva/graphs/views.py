@@ -68,15 +68,29 @@ def _jsonify_graph(nodes_list, relations_list,
 
 
 @permission_required("graphs.view_graph", (Graph, "slug", "graph_slug"))
-def graph_view(request, graph_slug):
+def graph_view(request, graph_slug, node_id=None):
     graph = get_object_or_404(Graph, slug=graph_slug)
-    nodes_list = graph.nodes.all()
-    relations_list = graph.relationships.all()
+    node = None
+    nodes_list = []
+    relations_list = []
+    if node_id:
+        node = graph.nodes.get(node_id)
+        nodes_list = [node]
+        relations_list = node.relationships.all()
+        for rel in relations_list:
+            if rel.source == node:
+                nodes_list.append(rel.target)
+            else:
+                nodes_list.append(rel.source)
+    else:
+        nodes_list = graph.nodes.all()
+        relations_list = graph.relationships.all()
     total_nodes, total_edges, nodes, edges = _jsonify_graph(nodes_list,
                                                             relations_list)
     size = len(nodes)
     return render_to_response('graphs_view.html',
                               {"graph": graph,
+                               "node": node,
                                "nodes": json.dumps(nodes),
                                "edges": json.dumps(edges),
                                "total_nodes": json.dumps(total_nodes),
@@ -285,30 +299,3 @@ def expand_node(request, graph_slug, node_id):
         nodes[edge.target.display] = edge.target.to_json()
     node_neighbors = {"edges": edges, "nodes": nodes}
     return HttpResponse(json.dumps(node_neighbors))
-
-
-@permission_required("graphs.view_graph", (Graph, "slug", "graph_slug"))
-def nodes_view(request, graph_slug, node_id):
-    graph = get_object_or_404(Graph, slug=graph_slug)
-    node = graph.nodes.get(node_id)
-    relations_list = node.relationships.all()
-    nodes_list = [node]
-    for rel in relations_list:
-        if rel.source == node:
-            nodes_list.append(rel.target)
-        else:
-            nodes_list.append(rel.source)
-    total_nodes, total_edges, nodes, edges = _jsonify_graph(nodes_list,
-                                                            relations_list)
-    size = len(nodes)
-    return render_to_response('nodes_view.html',
-                              {"graph": graph,
-                               "node": node,
-                               "nodes": json.dumps(nodes),
-                               "edges": json.dumps(edges),
-                               "total_nodes": json.dumps(total_nodes),
-                               "total_edges": json.dumps(total_edges),
-                               "size": size,
-                               "MAX_SIZE": settings.MAX_SIZE,
-                               },
-                              context_instance=RequestContext(request))

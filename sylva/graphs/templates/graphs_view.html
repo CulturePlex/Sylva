@@ -14,10 +14,11 @@
 {% endblock %}
 
 {% block content_title %}
-  {% block breadcrumb %}
-  {% breadcrumb graph %}
-  <!--<h2>{% trans "Graphs" %} » {{ graph.name|truncatewords_html:8 }}</h2>-->
-  {% endblock %}
+  {% if node %}
+    {% breadcrumb graph node.display %}
+  {% else %}
+    {% breadcrumb graph %}
+  {% endif %}
 {% endblock %}
 
 {% block content %}
