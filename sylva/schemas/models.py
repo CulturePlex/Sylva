@@ -241,7 +241,7 @@ class NodeType(BaseType):
 
     def filter(self, *lookups):
         if self.id:
-            return self.schema.graph.nodes.filter(lookups, label=self.id)
+            return self.schema.graph.nodes.filter(*lookups, label=self.id)
         else:
             return []
 
@@ -290,6 +290,25 @@ class RelationshipType(BaseType):
         if not self.arity_target or self.arity_target < 1:
             self.arity_target = 0
         super(RelationshipType, self).save(*args, **kwargs)
+
+    def count(self):
+        if self.id:
+            return self.schema.graph.relationships.count(label=self.id)
+        else:
+            return 0
+
+    def all(self):
+        if self.id:
+            return self.schema.graph.relationships.filter(label=self.id)
+        else:
+            return []
+
+    def filter(self, *lookups):
+        if self.id:
+            return self.schema.graph.relationships.filter(*lookups,
+                                                          label=self.id)
+        else:
+            return []
 
     def __unicode__(self):
         return '%s %s %s' % (self.source.name, self.name, self.target.name)
