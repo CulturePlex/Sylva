@@ -8,7 +8,7 @@ sylv:true, prompt:true, alert:true, FileReader:true, Processing:true */
  * Processing.js visualization
  ****************************************************************************/
 
-;(function(GraphEditor, nodes, edges, nodeTypesLegend, sylv, $, window, document, undefined) {
+;(function(sylv, $, window, document, undefined) {
 
   function updateInfo(evt, nodeName, nodeId) {
     if (nodeId === undefined) {
@@ -17,7 +17,7 @@ sylv:true, prompt:true, alert:true, FileReader:true, Processing:true */
 
     var expandNode = function(){
       var edgeId;
-      var edgeIds = $.map(edges, function(e) { return e.id; });
+      var edgeIds = $.map(sylv.edges, function(e) { return e.id; });
 
       var expandNodeLinkURL = sylv.expandNodeLinkURL;
       expandNodeLinkURL = expandNodeLinkURL.replace('0/expand/', nodeId + '/expand/');
@@ -30,17 +30,17 @@ sylv:true, prompt:true, alert:true, FileReader:true, Processing:true */
           var newEdges = parsedResult.edges;
 
           $.each(newNodes, function(i, node){
-            if (!nodes.hasOwnProperty(i)) {
-              GraphEditor.addNode(i, node);
-              nodes[i] = node;
+            if (!sylv.nodes.hasOwnProperty(i)) {
+              sylv.GraphEditor.addNode(i, node);
+              sylv.nodes[i] = node;
             }
           });
 
           $.each(newEdges, function(i, edge){
             edgeId = edge.id;
             if ($.inArray(edgeId, edgeIds) === -1) {
-              edges.push(edge);
-              GraphEditor.addEdge(edge.source, edge.type, edge.target, edge);
+              sylv.edges.push(edge);
+              sylv.GraphEditor.addEdge(edge.source, edge.type, edge.target, edge);
             }
           });
 
@@ -54,7 +54,7 @@ sylv:true, prompt:true, alert:true, FileReader:true, Processing:true */
       var selectedNodeName;
       var indexesToDelete = [];
 
-      $.each(nodes, function(i, node) {
+      $.each(sylv.nodes, function(i, node) {
         if (node.id == nodeId) {
           selectedNode = node;
           selectedNodeName = i;
@@ -64,17 +64,17 @@ sylv:true, prompt:true, alert:true, FileReader:true, Processing:true */
 
       if (selectedNode === undefined) { return false; }
 
-      $.each(edges, function(i, edge) {
+      $.each(sylv.edges, function(i, edge) {
         if (edge.source === selectedNodeName || edge.target === selectedNodeName) {
           indexesToDelete.push(i);
         }
       });
       $.each(indexesToDelete, function(i, index) {
-          edges.splice(index,1);
-          GraphEditor.deleteEdge(index);
+          sylv.edges.splice(index,1);
+          sylv.GraphEditor.deleteEdge(index);
       });
-      GraphEditor.deleteNode(selectedNodeName);
-      delete nodes[selectedNodeName];
+      sylv.GraphEditor.deleteNode(selectedNodeName);
+      delete sylv.nodes[selectedNodeName];
 
       return false;
     };
@@ -111,13 +111,13 @@ sylv:true, prompt:true, alert:true, FileReader:true, Processing:true */
 
   function init() {
     $('#sec-debug').hide();  // Comment this line to Debug the graph creation
-    GraphEditor.PDE_URL = sylv.PDE_URL;
-    GraphEditor.USES_DRAWER = true;
+    sylv.GraphEditor.PDE_URL = sylv.PDE_URL;
+    sylv.GraphEditor.USES_DRAWER = true;
 
-    GraphEditor.init();
+    sylv.GraphEditor.init();
 
-    $('#id_graph_nodes').val(JSON.stringify(nodes));
-    $('#id_graph_edges').val(JSON.stringify(edges));
+    $('#id_graph_nodes').val(JSON.stringify(sylv.nodes));
+    $('#id_graph_edges').val(JSON.stringify(sylv.edges));
 
     // Attach the nodeSelect event from the canvas to update the node info box
     $('body').bind('nodeSelected', updateInfo);
@@ -130,8 +130,8 @@ sylv:true, prompt:true, alert:true, FileReader:true, Processing:true */
       var iterator = colors.entrySet().iterator();
       while (iterator.hasNext()) {
         var element = iterator.next();
-        nodeTypesLegend[element.getKey()] = '#' + element.getValue();
-        sylv.colors[element.getKey()] = nodeTypesLegend[element.getKey()];
+        sylv.nodeTypesLegend[element.getKey()] = '#' + element.getValue();
+        sylv.colors[element.getKey()] = sylv.nodeTypesLegend[element.getKey()];
       }
       $('#node-type-legend').empty();
       var list = $('#node-type-legend').append($('<ul>'));
@@ -139,7 +139,7 @@ sylv:true, prompt:true, alert:true, FileReader:true, Processing:true */
         listStyleType: 'none',
         marginTop: "5px"
       });
-      $.each(nodeTypesLegend, function(type, color){
+      $.each(sylv.nodeTypesLegend, function(type, color){
         if (type !== "notype"){
           list
             .append($('<li>')
@@ -181,4 +181,4 @@ sylv:true, prompt:true, alert:true, FileReader:true, Processing:true */
     stop: stop
   };
 
-})(sylv.GraphEditor, sylv.nodes, sylv.edges, sylv.nodeTypesLegend, sylv, jQuery, window, document);
+})(sylv, jQuery, window, document);

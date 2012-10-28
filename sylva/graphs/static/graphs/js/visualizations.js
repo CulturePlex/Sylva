@@ -37,23 +37,37 @@ sylv:true, alert:true */
 
   // DOM
   $(function() {
-    if (sylv.disableProcessing) {
-      sylv.Processing.init();
-      $('#graphcanvas').on('graph_init', function(e) {
-        e.stopPropagation();
-        visualizations.sigma();
-      });
-    } else {
-      visualizations.processing();
-    }
+    // Graph rendering
+    $.getJSON(sylv.ajax_url, function(data) {
+
+      // partial graph (Processing.js)
+      sylv.nodes = data.nodes;
+      sylv.edges = data.edges;
+
+      // full graph (Sigma.js and others)
+      sylv.total_nodes = data.total_nodes;
+      sylv.total_edges = data.total_edges;
+
+      sylv.disableProcessing = data.size > sylv.MAX_SIZE;
+
+      if (sylv.disableProcessing) {
+        sylv.Processing.init();
+        $('#graphcanvas').on('graph_init', function(e) {
+          e.stopPropagation();
+          visualizations.sigma();
+        });
+      } else {
+        visualizations.processing();
+      }
+
+    });
+
+    // Select box bindings
     $visualization_select = $('#visualization-type');
     $visualization_select.children().first().attr('selected', 'selected');
-
     $visualization_select.change(function() {
       var type = $(this).find('option:selected').data('type');
       visualizations[type]();
     });
-
   });
-
 })(sylv, jQuery, window, document);

@@ -17,8 +17,8 @@ sylv:true, prompt:true, alert:true, FileReader:true, Processing:true, sigma:true
 
     init: function() {
       // Parse nodes and edges.
-      var sylv_nodes = JSON.parse(JSON.stringify(sylv.total_nodes));
-      var sylv_edges = JSON.parse(JSON.stringify(sylv.total_edges));
+      var sylv_nodes = sylv.total_nodes;
+      var sylv_edges = sylv.total_edges;
       // Node info.
       var $tooltip;
 

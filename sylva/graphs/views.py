@@ -8,6 +8,7 @@ from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.shortcuts import (get_object_or_404, render_to_response, redirect,
                               HttpResponse)
+from django.http import Http404
 from django.utils.translation import gettext as _
 from django.template import RequestContext
 
@@ -70,33 +71,15 @@ def _jsonify_graph(nodes_list, relations_list,
 @permission_required("graphs.view_graph", (Graph, "slug", "graph_slug"))
 def graph_view(request, graph_slug, node_id=None):
     graph = get_object_or_404(Graph, slug=graph_slug)
-    node = None
-    nodes_list = []
-    relations_list = []
+    ajax_url = ''
     if node_id:
-        node = graph.nodes.get(node_id)
-        nodes_list = [node]
-        relations_list = node.relationships.all()
-        for rel in relations_list:
-            if rel.source == node:
-                nodes_list.append(rel.target)
-            else:
-                nodes_list.append(rel.source)
+        ajax_url = reverse('nodes_data', args=[graph.slug, node_id])
     else:
-        nodes_list = graph.nodes.all()
-        relations_list = graph.relationships.all()
-    total_nodes, total_edges, nodes, edges = _jsonify_graph(nodes_list,
-                                                            relations_list)
-    size = len(nodes)
+        ajax_url = reverse('graph_data', args=[graph.slug])
     return render_to_response('graphs_view.html',
                               {"graph": graph,
-                               "node": node,
-                               "nodes": json.dumps(nodes),
-                               "edges": json.dumps(edges),
-                               "total_nodes": json.dumps(total_nodes),
-                               "total_edges": json.dumps(total_edges),
-                               "size": size,
                                "MAX_SIZE": settings.MAX_SIZE,
+                               "ajax_url": ajax_url
                                },
                               context_instance=RequestContext(request))
 
@@ -299,3 +282,37 @@ def expand_node(request, graph_slug, node_id):
         nodes[edge.target.display] = edge.target.to_json()
     node_neighbors = {"edges": edges, "nodes": nodes}
     return HttpResponse(json.dumps(node_neighbors))
+
+
+@permission_required("graphs.view_graph", (Graph, "slug", "graph_slug"))
+def graph_data(request, graph_slug, node_id=None):
+    if (request.is_ajax() or settings.DEBUG):
+        graph = get_object_or_404(Graph, slug=graph_slug)
+        node = None
+        nodes_list = []
+        relations_list = []
+        if node_id:
+            node = graph.nodes.get(node_id)
+            nodes_list = [node]
+            relations_list = node.relationships.all()
+            for rel in relations_list:
+                if rel.source == node:
+                    nodes_list.append(rel.target)
+                else:
+                    nodes_list.append(rel.source)
+        else:
+            nodes_list = graph.nodes.all()
+            relations_list = graph.relationships.all()
+        total_nodes, total_edges, nodes, edges = _jsonify_graph(nodes_list,
+                                                                relations_list)
+        size = len(nodes)
+        json_data = {
+            'total_nodes': total_nodes,
+            'total_edges': total_edges,
+            'nodes': nodes,
+            'edges': edges,
+            'size': size
+        }
+        return HttpResponse(json.dumps(json_data), status=200,
+                            mimetype='application/json')
+    raise Http404(_("Error: Invalid request (expected an AJAX request)"))

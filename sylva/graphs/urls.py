@@ -34,8 +34,14 @@ urlpatterns = patterns('graphs.views',
         'change_permission',
         name="change_permission"),
 
-    # expand node ajax request
+    # expand node ajax request (JSON)
     url(r'^(?P<graph_slug>[\w-]+)/nodes/(?P<node_id>\d+)/expand/$',
-        'expand_node',
-        name="expand_node"),
+        'expand_node', name="expand_node"),
+
+    # graph data (JSON)
+    url(r'^(?P<graph_slug>[\w-]+)/data/$', 'graph_data', name="graph_data"),
+
+    # nodes data (JSON)
+    url(r'^(?P<graph_slug>[\w-]+)/data/(?P<node_id>\d+)/$', 'graph_data',
+        name="nodes_data"),
 )
