@@ -73,6 +73,7 @@ sylv:true, alert:true */
       sylv.disableProcessing = data.size > sylv.MAX_SIZE;
 
       if (sylv.disableProcessing) {
+        $('#visualization-processing').remove();
         sylv.Processing.init();
         $('#graphcanvas').on('graph_init', function(e) {
           e.stopPropagation();

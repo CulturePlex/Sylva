@@ -32,10 +32,8 @@
   </div>
   <div class="graph-controls">
     <select id="visualization-type">
-      {% if size <= MAX_SIZE %}
-        <option data-type="processing" selected>{% trans "Inspect graph" %}</option>
-      {% endif %}
-      <option data-type="sigma">{% trans "Whole graph" %}</option>
+      <option id="visualization-processing" data-type="processing" selected>{% trans "Inspect graph" %}</option>
+      <option id="visualization-sigma" data-type="sigma">{% trans "Whole graph" %}</option>
     </select>
     <div class="sigma-checkbox" style="display:none;">
       <input type="checkbox" id="sigma-node-info">

@@ -72,12 +72,15 @@ def _jsonify_graph(nodes_list, relations_list,
 def graph_view(request, graph_slug, node_id=None):
     graph = get_object_or_404(Graph, slug=graph_slug)
     ajax_url = ''
+    node = None
     if node_id:
+        node = graph.nodes.get(node_id)
         ajax_url = reverse('nodes_data', args=[graph.slug, node_id])
     else:
         ajax_url = reverse('graph_data', args=[graph.slug])
     return render_to_response('graphs_view.html',
                               {"graph": graph,
+                               "node": node,
                                "MAX_SIZE": settings.MAX_SIZE,
                                "ajax_url": ajax_url
                                },
@@ -305,7 +308,7 @@ def graph_data(request, graph_slug, node_id=None):
             relations_list = graph.relationships.all()
         total_nodes, total_edges, nodes, edges = _jsonify_graph(nodes_list,
                                                                 relations_list)
-        size = len(nodes)
+        size = len(nodes_list)
         json_data = {
             'total_nodes': total_nodes,
             'total_edges': total_edges,
