@@ -24,7 +24,10 @@ body {
 blockquote,q {
     quotes: inherit;
     font-size: 95%;
-    padding: 15px;
+    padding-top: 0px;
+    padding-right: 0px;
+    padding-bottom: 0px;
+    padding-left: 16px;
 }
 
 blockquote:before,blockquote:after,q:before,q:after {
