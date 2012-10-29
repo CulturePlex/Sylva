@@ -52,14 +52,19 @@ sylv:true, alert:true */
       hwaccel: false,       // Whether to use hardware acceleration
       className: 'spinner', // The CSS class to assign to the spinner
       zIndex: 2e9,          // The z-index (defaults to 2000000000)
-      top: '100',           // Top position relative to parent in px
-      left: '650'           // Left position relative to parent in px
+      top: '105',           // Top position relative to parent in px
+      left: '635'           // Left position relative to parent in px
     };
     var target = document.getElementById('spinner');
     var spinner = new Spinner(opts).spin(target);
 
+    $('#graph-container').append('<div id="graph-loading" class="graph-loading-wrapper" style="opacity: 0.5;">' +
+                                   '<div id="graph-loading-message" class="graph-loading-inner" style="top: 185px;">loading...</div>' +
+                                 '</div>');
+
     // Graph rendering
     $.getJSON(sylv.ajax_url, function(data) {
+      $('#graph-loading').remove();
       spinner.stop();
 
       // partial graph (Processing.js)

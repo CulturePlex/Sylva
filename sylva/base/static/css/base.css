@@ -1257,6 +1257,24 @@ table.content-table {
     height: 340px;
 }
 
+.graph-loading-wrapper {
+    background-color: #CCC;
+    color: black;
+    cursor: wait;
+    font-size: 150%;
+    font-weight: bold;
+    width: 947px;
+    height: 295px;
+    position: absolute;
+    z-index: 500;
+}
+
+.graph-loading-inner {
+    position: relative;
+    text-align: center;
+    width: 100%;
+}
+
 #canvas-info {
   width: 180px;
   height: 325px;
