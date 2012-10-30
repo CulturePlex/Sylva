@@ -418,7 +418,7 @@ class BaseElement(object):
                  source_dict=None, target_dict=None):
         self._id = int(id)
         self.graph = graph
-        self.gdb = graph.data.get_gdb()
+        self.gdb = graph.gdb
         self.schema = (not graph.relaxed) and graph.schema
         self.data = graph.data
         self._label = label
@@ -426,11 +426,13 @@ class BaseElement(object):
         if isinstance(initial, dict):
             self._properties = initial
         elif not properties:
+            self._properties = None
             self._get_properties()
         else:
             self._properties = self._set_properties(properties)
         # Just for relationships
         self._source = None
+        self._display = None
         if source_dict:
             self._source_dict = source_dict
             self._source = Node(source_dict["id"], graph,
@@ -476,7 +478,8 @@ class BaseElement(object):
         return not self.__cmp__(obj)
 
     def __nonzero__(self):
-        return bool(self.id and self.gdb and self._properties)
+        return bool(self.id and self.gdb
+                    and isinstance(self._properties, dict))
 
     def __repr__(self):
         return self.__unicode__()
@@ -508,27 +511,29 @@ class BaseElement(object):
             return {}
 
     def _get_display(self, separator=u", "):
-        if not self._properties:
-            return u"%s" % self._id
-        else:
-            properties_to_display = self._get_properties_display()
-            if not properties_to_display:
-                properties_to_display = []
-                properties_values = self._properties.values()[:5]
-                for i in range(len(properties_values)):
-                    if properties_values[i]:
-                        try:
-                            unicode_value = unicode(properties_values[i])
-
-                            value_strip = unicode_value.strip()
-                            if len(value_strip) > 0:
-                                properties_to_display.append(value_strip)
-                        except UnicodeDecodeError:
-                            pass
-            if properties_to_display:
-                return separator.join(properties_to_display)
+        if not self._display:
+            if not self._properties:
+                self._display = u"%s" % self._id
             else:
-                return u"%s" % self._id
+                properties_to_display = self._get_properties_display()
+                if not properties_to_display:
+                    properties_to_display = []
+                    properties_values = self._properties.values()[:5]
+                    for i in range(len(properties_values)):
+                        if properties_values[i]:
+                            try:
+                                unicode_value = unicode(properties_values[i])
+
+                                value_strip = unicode_value.strip()
+                                if len(value_strip) > 0:
+                                    properties_to_display.append(value_strip)
+                            except UnicodeDecodeError:
+                                pass
+                if properties_to_display:
+                    self._display = separator.join(properties_to_display)
+                else:
+                    self._display = u"%s" % self._id
+        return self._display
     display = property(_get_display)
 
 
@@ -623,7 +628,7 @@ class Node(BaseElement):
         return property_keys
 
     def _get_properties(self):
-        if not self._inital:
+        if self._inital is None and self._properties is None:
             self._properties = self.gdb.get_node_properties(self.id)
         return self._properties
 
@@ -731,7 +736,7 @@ class Relationship(BaseElement):
         return property_keys
 
     def _get_properties(self):
-        if not self._inital:
+        if self._inital is None and self._properties is None:
             self._properties = self.gdb.get_relationship_properties(self.id)
         return self._properties
 
