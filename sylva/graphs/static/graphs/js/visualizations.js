@@ -59,7 +59,9 @@ sylv:true, alert:true */
     var spinner = new Spinner(opts).spin(target);
 
     $('#graph-container').append('<div id="graph-loading" class="graph-loading-wrapper" style="opacity: 0.5;">' +
-                                   '<div id="graph-loading-message" class="graph-loading-inner" style="top: 170px;">loading...</div>' +
+                                   '<div id="graph-loading-message" class="graph-loading-inner" style="top: 170px;">' +
+                                    gettext('loading...') +
+                                   '</div>' +
                                  '</div>');
 
     // Graph rendering
@@ -91,7 +93,7 @@ sylv:true, alert:true */
     });
     // Error handling.
     jqxhr.error(function() {
-      alert("Oops! Something went wrong with the server. Please, reload the page.");
+      alert(gettext("Oops! Something went wrong with the server. Please, reload the page."));
     });
 
     // Select box bindings

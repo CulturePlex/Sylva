@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from os import path
 
-from django.utils.translation import gettext_lazy as _
+# from django.utils.translation import gettext_lazy as _
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
@@ -18,7 +18,7 @@ MANAGERS = ADMINS
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3', # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
+        'ENGINE': 'django.db.backends.sqlite3',  # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
         'NAME': path.join(PROJECT_ROOT, 'sylva.sqlite'),          # Or path to database file if using sqlite3.
         'USER': '',                      # Not used with sqlite3.
         'PASSWORD': '',                  # Not used with sqlite3.
@@ -59,9 +59,17 @@ TIME_ZONE = 'America/Toronto'
 # Language code for this installation. All choices can be found here:
 # http://www.i18nguy.com/unicode/language-identifiers.html
 LANGUAGE_CODE = 'en-ca'
+
+# Supported translations
+ugettext = lambda s: s
 LANGUAGES = (
-  ('en', ugettext('English')),
-  ('es', ugettext('Español')),
+    ('en', ugettext('English')),
+    ('es', ugettext('Español')),
+)
+
+# I18n
+LOCALE_PATHS = (
+    path.join(PROJECT_ROOT, 'locale'),
 )
 
 SITE_ID = 1
@@ -110,7 +118,7 @@ STATICFILES_DIRS = (
 STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
-#    'django.contrib.staticfiles.finders.DefaultStorageFinder',
+    # 'django.contrib.staticfiles.finders.DefaultStorageFinder',
 )
 
 # Make this unique, and don't share it with anybody.
@@ -120,7 +128,7 @@ SECRET_KEY = '9s-jun0(l@mv(up-3v3#25sk#6=#g1&%ojnsus7y*nttqq_pr6'
 TEMPLATE_LOADERS = (
     'django.template.loaders.filesystem.Loader',
     'django.template.loaders.app_directories.Loader',
-#     'django.template.loaders.eggs.Loader',
+    # 'django.template.loaders.eggs.Loader',
 )
 
 TEMPLATE_CONTEXT_PROCESSORS = (
@@ -189,7 +197,7 @@ AUTHENTICATION_BACKENDS = (
 
 ANONYMOUS_USER_ID = -1
 AUTH_PROFILE_MODULE = "accounts.UserProfile"
-LOGIN_REDIRECT_URL = '/dashboard/' # '/accounts/%(username)s/'
+LOGIN_REDIRECT_URL = '/dashboard/'  # '/accounts/%(username)s/'
 LOGIN_URL = '/accounts/signin/'
 LOGOUT_URL = '/accounts/signout/'
 
