@@ -63,7 +63,7 @@ sylv:true, alert:true */
                                  '</div>');
 
     // Graph rendering
-    $.getJSON(sylv.ajax_url, function(data) {
+    var jqxhr = $.getJSON(sylv.ajax_url, function(data) {
       $('#graph-loading').remove();
       spinner.stop();
 
@@ -88,6 +88,10 @@ sylv:true, alert:true */
         visualizations.processing();
       }
 
+    });
+    // Error handling.
+    jqxhr.error(function() {
+      alert("Oops! Something went wrong with the server. Please, reload the page.");
     });
 
     // Select box bindings
