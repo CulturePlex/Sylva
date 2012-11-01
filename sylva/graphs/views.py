@@ -82,7 +82,8 @@ def graph_view(request, graph_slug, node_id=None):
                               {"graph": graph,
                                "node": node,
                                "MAX_SIZE": settings.MAX_SIZE,
-                               "ajax_url": ajax_url
+                               "ajax_url": ajax_url,
+                               "ENABLE_CLONING": settings.ENABLE_CLONING
                                },
                               context_instance=RequestContext(request))
 
@@ -162,6 +163,8 @@ def graph_create(request):
 @permission_required("data.view_data", (Data, "graph__slug", "graph_slug"))
 @permission_required("graphs.view_graph", (Graph, "slug", "graph_slug"))
 def graph_clone(request, graph_slug):
+    if not settings.ENABLE_CLONING:
+        return redirect(reverse('dashboard'))
     graph = get_object_or_404(Graph, slug=graph_slug)
     form = GraphCloneForm(user=request.user)
     if request.POST:

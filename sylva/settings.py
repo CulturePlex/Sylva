@@ -259,6 +259,7 @@ ALLOWS_INSTANCES = False
 ALLOWS_INHERITANCE = False
 AUTOCOMPLETE_NODES = True
 ENABLE_SEARCH = True
+ENABLE_CLONING = False
 MAINTENANCE_MODE = False
 PREVIEW_NODES = 200  # Size of the graph preview in the graph screen
 MAX_SIZE = 300  # Disable graph preview (Processing) nodes number is above this value
