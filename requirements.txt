@@ -21,5 +21,6 @@ python-dateutil==1.5
 python-rexster==0.1.1
 requests==0.8.2
 simplejson==2.2.1
+ujson==1.22
 wsgiref==0.1.2
 
