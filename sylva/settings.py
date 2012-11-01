@@ -61,7 +61,6 @@ TIME_ZONE = 'America/Toronto'
 LANGUAGE_CODE = 'en-ca'
 
 # Supported translations
-ugettext = lambda s: s
 LANGUAGES = (
     ('en', ugettext('English')),
     ('es', ugettext('Español')),
