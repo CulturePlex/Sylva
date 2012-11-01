@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
-import json
+try:
+    import ujson as json
+except:
+    import json
 
 from django.db import transaction
 from django.conf import settings

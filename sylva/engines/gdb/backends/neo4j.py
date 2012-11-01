@@ -50,46 +50,18 @@ class GraphDatabase(BlueprintsGraphDatabase):
         index = self.node_index.neoindex
         return self._get_count(index, label=label)
 
-    def get_all_nodes(self, include_properties=False):
+    def get_all_nodes(self, include_properties=False, limit=None, offset=None):
         """
         Get an iterator for the list of tuples of all nodes, the first element
         is the id of the node and the third the node label.
         If "include_properties" is True, the second element in the tuple
         will be a dictionary containing the properties. Otherwise, None.
         """
-        # Using Cypher
-        index = self.node_index.neoindex
-        cypher = self.gdb.neograph.extensions.CypherPlugin
-        if include_properties:
-            script = """start n=node:`%s`("label:*") """ \
-                     """return id(n), n""" % index.name
-        else:
-            script = """start n=node:`%s`("label:*") """ \
-                     """return id(n), n._label""" % index.name
-        page = 1000
-        skip = 0
-        limit = page
-        try:
-            paged_script = "%s skip %s limit %s" % (script, skip, limit)
-            result = cypher.execute_query(query=paged_script)
-        except:
-            result = None
-        while result and "data" in result and len(result["data"]) > 0:
-            if include_properties:
-                for element in result["data"]:
-                    properties = element[1]["data"]
-                    elto_id = properties.pop("_id")
-                    elto_label = properties.pop("_label")
-                    yield (elto_id, properties, elto_label)
-            else:
-                for element in result["data"]:
-                    yield (element[0], None, element[1])
-            skip += limit
-            try:
-                paged_script = "%s skip %s limit %s" % (script, skip, limit)
-                result = cypher.execute_query(query=paged_script)
-            except:
-                result = None
+        nodes = self.get_filtered_nodes(lookups=None, label=None,
+                                        include_properties=include_properties,
+                                        limit=limit, offset=offset)
+        for node in nodes:
+            yield node
 
     def get_relationships_count(self, label=None):
         """
@@ -100,62 +72,19 @@ class GraphDatabase(BlueprintsGraphDatabase):
         index = self.relationship_index.neoindex
         return self._get_count(index, label=label)
 
-    def get_all_relationships(self, include_properties=False):
+    def get_all_relationships(self, include_properties=False,
+                              limit=None, offset=None):
         """
         Get an iterator for the list of tuples of all relationships, the
         first element is the id of the node.
         If "include_properties" is True, the second element in the tuple
         will be a dictionary containing the properties.
         """
-        # Using Cypher
-        index = self.relationship_index.neoindex
-        cypher = self.gdb.neograph.extensions.CypherPlugin
-        script = """start r=rel:`%s`("label:*") """ \
-                 """match a-[r]->b return distinct id(r), %s, a, b"""
-        if include_properties:
-            script = script % (index.name, "r")
-        else:
-            script = script % (index.name, "type(r)")
-        page = 1000
-        skip = 0
-        limit = page
-        try:
-            paged_script = "%s skip %s limit %s" % (script, skip, limit)
-            result = cypher.execute_query(query=paged_script)
-        except:
-            result = None
-        while result and "data" in result and len(result["data"]) > 0:
-            if include_properties:
-                for element in result["data"]:
-                    properties = element[1]["data"]
-                    properties.pop("_id")
-                    elto_label = properties.pop("_label")
-                    source_props = element[2]["data"]
-                    source_id = source_props.pop("_id")
-                    source_label = source_props.pop("_label")
-                    source = {
-                        "id": source_id,
-                        "properties": source_props,
-                        "label": source_label
-                    }
-                    target_props = element[3]["data"]
-                    target_id = target_props.pop("_id")
-                    target_label = target_props.pop("_label")
-                    target = {
-                        "id": target_id,
-                        "properties": target_props,
-                        "label": target_label
-                    }
-                    yield (element[0], properties, elto_label, source, target)
-            else:
-                for element in result["data"]:
-                    yield (element[0], None, element[1])
-            skip += page
-            try:
-                paged_script = "%s skip %s limit %s" % (script, skip, limit)
-                result = cypher.execute_query(query=paged_script)
-            except:
-                result = None
+        rels = self.get_filtered_relationships(lookups=None, label=None,
+                                        include_properties=include_properties,
+                                        limit=limit, offset=offset)
+        for rel in rels:
+            yield rel
 
     def get_node_relationships_count(self, id, incoming=False, outgoing=False,
                                      label=None):
@@ -181,11 +110,14 @@ class GraphDatabase(BlueprintsGraphDatabase):
         count = gremlin(script=script)
         return self._clean_count(count)
 
-    def get_nodes_by_label(self, label, include_properties=False):
+    def get_nodes_by_label(self, label, include_properties=False,
+                           limit=None, offset=None):
         return self.get_filtered_nodes([], label=label,
-                                       include_properties=include_properties)
+                                       include_properties=include_properties,
+                                       limit=limit, offset=offset)
 
-    def get_filtered_nodes(self, lookups, label=None, include_properties=None):
+    def get_filtered_nodes(self, lookups, label=None, include_properties=None,
+                           limit=None, offset=None):
         # Using Cypher
         index = self.node_index.neoindex
         cypher = self.gdb.neograph.extensions.CypherPlugin.execute_query
@@ -195,54 +127,77 @@ class GraphDatabase(BlueprintsGraphDatabase):
         else:
             script = """start n=node:`%s`('label:*') """ \
                      % index.name
-        where, params = None, []
-        wheres = q_lookup_builder()
-        for lookup in lookups:
-            if isinstance(lookup, q_lookup_builder):
-                wheres &= lookup
-            elif isinstance(lookup, dict):
-                wheres &= q_lookup_builder(**lookup)
-        where, params = wheres.get_query_objects(var="n")
+        where = None
+        if lookups:
+            params = []
+            wheres = q_lookup_builder()
+            for lookup in lookups:
+                if isinstance(lookup, q_lookup_builder):
+                    wheres &= lookup
+                elif isinstance(lookup, dict):
+                    wheres &= q_lookup_builder(**lookup)
+            where, params = wheres.get_query_objects(var="n")
         if where:
-            script = u"%s where %s return n" % (script, where)
+            script = u"%s where %s return " % (script, where)
         else:
-            script = u"%s return n" % script
-        result = None
+            script = u"%s return " % script
+        if include_properties:
+            script = u"%s id(n), n" % script
+        else:
+            script = u"%s id(n)" % script
+        page = 1000
+        skip = offset or 0
+        limit = limit or page
         try:
-            result = cypher(query=script, params=params)
+            paged_script = "%s skip %s limit %s" % (script, skip, limit)
+            result = cypher(query=paged_script)
         except:
-            pass
-        if result and "data" in result and len(result["data"]) > 0:
+            result = None
+        while result and "data" in result:
             if include_properties:
                 for element in result["data"]:
-                    properties = element[0]["data"]
-                    node_id = properties.pop("_id")
-                    properties.pop("_label")
-                    yield (node_id, properties)
+                    properties = element[1]["data"]
+                    elto_id = properties.pop("_id")
+                    elto_label = properties.pop("_label")
+                    yield (elto_id, properties, elto_label)
             else:
                 for element in result["data"]:
-                    node_id = element[0]["data"].pop("_id")
-                    yield (node_id, None)
+                    yield (element[0], None, element[1])
+            skip += limit
+            if len(result["data"]) == limit:
+                try:
+                    paged_script = "%s skip %s limit %s" % (script, skip,
+                                                            limit)
+                    result = cypher.execute_query(query=paged_script)
+                except:
+                    result = None
+            else:
+                break
 
-    def get_relationships_by_label(self, label, include_properties=False):
+    def get_relationships_by_label(self, label, include_properties=False,
+                                   limit=None, offset=None):
         return self.get_filtered_relationships([], label=label,
-                                        include_properties=include_properties)
+                                        include_properties=include_properties,
+                                        limit=limit, offset=offset)
 
     def get_filtered_relationships(self, lookups, label=None,
-                                   include_properties=None):
+                                   include_properties=None,
+                                   limit=None, offset=None):
         # Using Cypher
         index = self.relationship_index.neoindex
         cypher = self.gdb.neograph.extensions.CypherPlugin.execute_query
         script = """start r=rel:`%s`("label:*") """ \
                  """match a-[r]->b """ % index.name
-        where, params = None, []
-        wheres = q_lookup_builder()
-        for lookup in lookups:
-            if isinstance(lookup, q_lookup_builder):
-                wheres &= lookup
-            elif isinstance(lookup, dict):
-                wheres &= q_lookup_builder(**lookup)
-        where, params = wheres.get_query_objects(var="r")
+        where = None
+        if lookups:
+            params = []
+            wheres = q_lookup_builder()
+            for lookup in lookups:
+                if isinstance(lookup, q_lookup_builder):
+                    wheres &= lookup
+                elif isinstance(lookup, dict):
+                    wheres &= q_lookup_builder(**lookup)
+            where, params = wheres.get_query_objects(var="r")
         if include_properties:
             type_or_r = "r"
         else:
@@ -254,8 +209,8 @@ class GraphDatabase(BlueprintsGraphDatabase):
             script = u"%s return distinct id(r), %s, a, b" \
                      % (script, type_or_r)
         page = 1000
-        skip = 0
-        limit = page
+        skip = offset or 0
+        limit = limit or page
         try:
             paged_script = "%s skip %s limit %s" % (script, skip, limit)
             result = cypher(query=paged_script)
@@ -288,39 +243,15 @@ class GraphDatabase(BlueprintsGraphDatabase):
                 for element in result["data"]:
                     yield (element[0], None, element[1])
             skip += page
-            try:
-                paged_script = "%s skip %s limit %s" % (script, skip, limit)
-                result = cypher.execute_query(query=paged_script)
-            except:
-                result = None
-
-    def _get_filtered_nodes(self, lookups, label=None,
-                            include_properties=None):
-        # Working on indices
-        idx = self.node_index.neoindex
-        q = Q(r"graph", r"%s" % self.graph_id)
-        if label:
-            q &= Q(r"label", r"%s" % label)
-        for lookup in lookups:
-            l = Q()
-            if lookup["lookup"] == "contains":
-                l |= Q(r"%s" % lookup["property"], r"*%s*" % lookup["match"],
-                       wildcard=True)
-            elif lookup["lookup"] == "starts":
-                l |= Q(r"%s" % lookup["property"], r"%s*" % lookup["match"],
-                       wildcard=True)
-            elif lookup["lookup"] == "ends":
-                l |= Q(r"%s" % lookup["property"], r"*%s" % lookup["match"],
-                       wildcard=True)
-            elif lookup["lookup"] == "exact":
-                l |= Q(r"%s" % lookup["property"], r"%s" % lookup["match"])
-        q = q & (l)
-        if include_properties:
-            for node in idx.query(q):
-                yield (node.id, node.properties)
-        else:
-            for node in idx.query(q):
-                yield (node.id, None)
+            if len(result["data"]) == limit:
+                try:
+                    paged_script = "%s skip %s limit %s" % (script, skip,
+                                                            limit)
+                    result = cypher.execute_query(query=paged_script)
+                except:
+                    result = None
+            else:
+                break
 
     def lookup_builder(self):
         return q_lookup_builder

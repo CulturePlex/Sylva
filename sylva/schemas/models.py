@@ -9,9 +9,10 @@ from django.utils.translation import gettext as _
 from django.template.defaultfilters import slugify
 
 from base.fields import AutoSlugField
+from schemas.mixins import SchemaMixin
 
 
-class Schema(models.Model):
+class Schema(models.Model, SchemaMixin):
     # graph = models.OneToOneField(Graph, verbose_name=_('graph'))
     options = models.TextField(_('options'), null=True, blank=True)
 

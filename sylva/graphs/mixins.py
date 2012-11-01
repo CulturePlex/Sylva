@@ -1,4 +1,6 @@
     # -*- coding: utf-8 -*-
+from collections import Sequence
+
 from engines.gdb.backends import NodeDoesNotExist, RelationshipDoesNotExist
 from schemas.models import NodeType, RelationshipType
 
@@ -89,6 +91,51 @@ class BaseManager(object):
                 raise KeyError(node_id)
 
 
+class BaseSequence(Sequence):
+
+    def __init__(self, graph, iterator_func, **kwargs):
+        self.graph = graph
+        self.func = iterator_func
+        self.params = kwargs
+        self.elements = None
+
+    def __len__(self):
+        if not self.elements:
+            eltos = self.func(**self.params)
+            self.elements = self.create_list(eltos, with_labels=True)
+        return len(self.elements)
+
+    def __getitem__(self, key):
+        if isinstance(key, slice):
+            if not self.elements:
+                eltos = self.func(**self.params)
+                self.elements = self.create_list(eltos, with_labels=True)
+            return self.elements[key]
+        elif isinstance(key, (int, float, long)):
+            if not self.elements:
+                eltos = self.func(**self.params)
+                self.elements = self.create_list(eltos, with_labels=True)
+            return self.elements[key]
+        else:
+            raise TypeError("key must be a number or a slice")
+
+
+class NodeSequence(BaseSequence):
+
+    def create_list(self, eltos, with_labels=False):
+        nodes = []
+        if with_labels:
+            for node_id, node_properties, node_label in eltos:
+                node = Node(node_id, self.graph, initial=node_properties,
+                            label=node_label)
+                nodes.append(node)
+        else:
+            for node_id, node_properties in eltos:
+                node = Node(node_id, self.graph, initial=node_properties)
+                nodes.append(node)
+        return nodes
+
+
 class NodesManager(BaseManager):
     NodeDoesNotExist = NodeDoesNotExist
 
@@ -107,36 +154,28 @@ class NodesManager(BaseManager):
         else:
             raise NodesLimitReachedException
 
-    def _create_node_list(self, eltos, with_labels=False):
-        nodes = []
-        if with_labels:
-            for node_id, node_properties, node_label in eltos:
-                node = Node(node_id, self.graph, initial=node_properties,
-                            label=node_label)
-                nodes.append(node)
-        else:
-            for node_id, node_properties in eltos:
-                node = Node(node_id, self.graph, initial=node_properties)
-                nodes.append(node)
-        return nodes
-
     def all(self):
-        eltos = self.gdb.get_all_nodes(include_properties=True)
-        return self._create_node_list(eltos, with_labels=True)
+        return NodeSequence(graph=self.graph,
+                            iterator_func=self.gdb.get_all_nodes,
+                            include_properties=True)
 
     def filter(self, *lookups, **options):
         if "label" in options:
             label = options.get("label")
             if not lookups:
-                eltos = self.gdb.get_nodes_by_label(label,
-                                                    include_properties=True)
+                eltos = NodeSequence(graph=self.graph,
+                                     iterator_func=self.gdb.get_nodes_by_label,
+                                     label=label, include_properties=True)
             else:
-                eltos = self.gdb.get_filtered_nodes(lookups, label=label,
-                                                    include_properties=True)
+                eltos = NodeSequence(graph=self.graph,
+                                     iterator_func=self.gdb.get_filtered_nodes,
+                                     lookups=lookups, label=label,
+                                     include_properties=True)
         else:
-            eltos = self.gdb.get_filtered_nodes(lookups,
-                                                include_properties=True)
-        return self._create_node_list(eltos)
+            eltos = NodeSequence(graph=self.graph,
+                                 iterator_func=self.gdb.get_filtered_nodes,
+                                 lookups=lookups, include_properties=True)
+        return eltos
 
     def iterator(self):
         eltos = self.gdb.get_all_nodes(include_properties=True)
@@ -180,6 +219,26 @@ class NodesManager(BaseManager):
         return Node(node_id, self.graph)
 
 
+class RelationshipSequence(BaseSequence):
+
+    def create_list(self, eltos, with_labels=False):
+        relationships = []
+        if with_labels:
+            for rel_id, rel_props, rel_label, source, target in eltos:
+                relationship = Relationship(rel_id, self.graph,
+                                            initial=rel_props,
+                                            label=rel_label,
+                                            source_dict=source,
+                                            target_dict=target)
+                relationships.append(relationship)
+        else:
+            for rel_id, rel_props in eltos:
+                relationship = Relationship(rel_id, self.graph,
+                                            initial=rel_props)
+                relationships.append(relationship)
+        return relationships
+
+
 class RelationshipsManager(BaseManager):
     RelationshipDoesNotExist = RelationshipDoesNotExist
 
@@ -208,41 +267,29 @@ class RelationshipsManager(BaseManager):
         else:
             raise RelationshipsLimitReachedException
 
-    def _create_relationship_list(self, eltos, with_labels=False):
-        relationships = []
-        if with_labels:
-            for rel_id, rel_props, rel_label, source, target in eltos:
-                relationship = Relationship(rel_id, self.graph,
-                                            initial=rel_props,
-                                            label=rel_label,
-                                            source_dict=source,
-                                            target_dict=target)
-                relationships.append(relationship)
-        else:
-            for rel_id, rel_props in eltos:
-                relationship = Relationship(rel_id, self.graph,
-                                            initial=rel_props)
-                relationships.append(relationship)
-        return relationships
-
     def all(self):
-        eltos = self.gdb.get_all_relationships(include_properties=True)
-        return self._create_relationship_list(eltos, with_labels=True)
+        return RelationshipSequence(graph=self.graph,
+                                iterator_func=self.gdb.get_all_relationships,
+                                include_properties=True)
 
     def filter(self, *lookups, **options):
         if "label" in options:
             label = options.get("label")
             if not lookups:
-                eltos = self.gdb.get_relationships_by_label(label,
-                                                    include_properties=True)
-                return self._create_relationship_list(eltos)
+                eltos = RelationshipSequence(graph=self.graph, label=label,
+                            iterator_func=self.gdb.get_relationships_by_label,
+                            include_properties=True)
             else:
-                eltos = self.gdb.get_filtered_relationships(lookups,
-                                              label=label,
-                                              include_properties=True)
+                eltos = RelationshipSequence(graph=self.graph, label=label,
+                            lookups=lookups,
+                            iterator_func=self.gdb.get_filtered_relationships,
+                            include_properties=True)
         else:
-            eltos = self.gdb.get_filtered(label=label, include_properties=True)
-        return self._create_relationship_list(eltos, with_labels=True)
+            eltos = RelationshipSequence(graph=self.graph, label=label,
+                            lookups=lookups,
+                            iterator_func=self.gdb.get_filtered_relationships,
+                            include_properties=True)
+        return eltos
 
     def iterator(self):
         eltos = self.gdb.get_all_relationships(include_properties=True)
@@ -430,6 +477,7 @@ class BaseElement(object):
             self._get_properties()
         else:
             self._properties = self._set_properties(properties)
+        self._properties_to_display = None
         # Just for relationships
         self._source = None
         self._display = None
@@ -560,7 +608,7 @@ class Node(BaseElement):
         return NodeType.objects.get(id=self.label)
 
     def _label_display(self):
-        return NodeType.objects.get(id=self.label).name
+        return self.schema.get_node_name(self.label)
 
     def to_json(self):
         node_dict = self.properties.copy()
@@ -594,30 +642,30 @@ class Node(BaseElement):
     relationships = property(_relationships)
 
     def _get_properties_display(self):
-        displays = []
-        if self.schema:
-            nodetype = self.schema.nodetype_set.get(pk=self.label)
-            displays = nodetype.properties.filter(display=True)
-            if not displays:
-                displays = nodetype.properties.all()[:2]
-        properties_to_display = []
-        properties = self._properties
-        for display in displays:
-            if display.key in properties:
-                if display.datatype == u"b":  # Boolean
-                    if properties[display.key]:
-                        properties_to_display.append(display.key)
+        if not self._properties_to_display:
+            displays = []
+            if self.schema:
+                displays = self.schema.get_displays(self.label)
+            # TODO: Get displays when there is not a schema
+            properties_to_display = []
+            properties = self._properties
+            for display in displays:
+                if display.key in properties:
+                    if display.datatype == u"b":  # Boolean
+                        if properties[display.key]:
+                            properties_to_display.append(display.key)
+                        else:
+                            properties_to_display.append(u"¬%s" % display.key)
                     else:
-                        properties_to_display.append(u"¬%s" % display.key)
-                else:
-                    try:
-                        unicode_value = unicode(properties[display.key])
-                        value_strip = unicode_value.strip()
-                        if len(value_strip) > 0:
-                            properties_to_display.append(value_strip)
-                    except UnicodeDecodeError:
-                        pass
-        return properties_to_display
+                        try:
+                            unicode_value = unicode(properties[display.key])
+                            value_strip = unicode_value.strip()
+                            if len(value_strip) > 0:
+                                properties_to_display.append(value_strip)
+                        except UnicodeDecodeError:
+                            pass
+            self._properties_to_display = properties_to_display
+        return self._properties_to_display
 
     def _get_property_keys(self):
         itemtypes = self.schema.nodetype_set.filter(pk=self.label)
@@ -671,10 +719,7 @@ class Relationship(BaseElement):
         return RelationshipType.objects.get(id=self.label)
 
     def _label_display(self):
-        try:
-            return RelationshipType.objects.get(id=self.label).name
-        except RelationshipType.DoesNotExist:
-            return ""
+        return self.schema.get_relationship_name(self.label)
 
     def to_json(self):
         return {
