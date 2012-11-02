@@ -54,6 +54,12 @@ class GraphDatabase(BlueprintsGraphDatabase):
         return self._cypher
     cypher = property(_get_cypher)
 
+    def _clean_count(self, count):
+        try:
+            return count["data"][0][0]
+        except IndexError:
+            return 0
+
     def get_nodes_count(self, label=None):
         """
         Get the number of total nodes.
@@ -67,7 +73,7 @@ class GraphDatabase(BlueprintsGraphDatabase):
             script = """start n=node:`%s`('label:*')""" % (index.name)
         script = """%s return count(n)""" % script
         count = self.cypher(query=script)
-        return count["data"][0][0]
+        return self._clean_count(count)
 
     def get_relationships_count(self, label=None):
         """
@@ -82,7 +88,7 @@ class GraphDatabase(BlueprintsGraphDatabase):
             script = """start r=rel:`%s`('label:*')""" % (index.name)
         script = """%s return count(r)""" % script
         count = self.cypher(query=script)
-        return count["data"][0][0]
+        return self._clean_count(count)
 
     def get_all_nodes(self, include_properties=False, limit=None, offset=None):
         """
