@@ -136,9 +136,9 @@ class Q(BaseQ):
             key = u"{0}p{1}".format(prefix, len(params))
             property = unicode(self.property).replace(u"`", u"\\`")
             if self.nullable is True:
-                nullable = u"?"
-            elif self.nullable is False:
                 nullable = u"!"
+            elif self.nullable is False:
+                nullable = u"?"
             else:
                 nullable = u""
             params[key] = match

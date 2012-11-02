@@ -23,23 +23,36 @@ class GraphDatabase(BlueprintsGraphDatabase):
         except Neo4jDatabaseConnectionError:
             raise GraphDatabaseConnectionError(self.url)
         self.setup_indexes()
+        self._nidx = None
+        self._ridx = None
+        self._gremlin = None
+        self._cypher = None
 
-    def _clean_count(self, count):
-        if isinstance(count, (tuple, list)):
-            return len(count)
-        else:
-            return count
+    def _get_nidx(self):
+        if not self._nidx:
+            self._nidx = self.node_index.neoindex
+        return self._nidx
+    nidx = property(_get_nidx)
 
-    def _get_count(self, index, label=None):
-        gremlin = self.gdb.neograph.extensions.GremlinPlugin
-        if label:
-            script = """g.idx("%s")[[label:"%s"]].count()""" % (index.name,
-                                                                label)
-        else:
-            script = """g.idx("%s")[[graph:"%s"]].count()""" % (index.name,
-                                                                self.graph_id)
-        count = gremlin.execute_script(script=script)
-        return self._clean_count(count)
+    def _get_ridx(self):
+        if not self._ridx:
+            self._ridx = self.relationship_index.neoindex
+        return self._ridx
+    ridx = property(_get_ridx)
+
+    def _get_gremlin(self):
+        if not self._gremlin:
+            plugin = self.gdb.neograph.extensions.GremlinPlugin.execute_script
+            self._gremlin = plugin
+        return self._gremlin
+    gremlin = property(_get_gremlin)
+
+    def _get_cypher(self):
+        if not self._cypher:
+            plugin = self.gdb.neograph.extensions.CypherPlugin.execute_query
+            self._cypher = plugin
+        return self._cypher
+    cypher = property(_get_cypher)
 
     def get_nodes_count(self, label=None):
         """
@@ -47,8 +60,29 @@ class GraphDatabase(BlueprintsGraphDatabase):
         If "label" is provided, the number is calculated according the
         the label of the element.
         """
-        index = self.node_index.neoindex
-        return self._get_count(index, label=label)
+        index = self.nidx
+        if label:
+            script = """start n=node:`%s`('label:%s')""" % (index.name, label)
+        else:
+            script = """start n=node:`%s`('label:*')""" % (index.name)
+        script = """%s return count(n)""" % script
+        count = self.cypher(query=script)
+        return count["data"][0][0]
+
+    def get_relationships_count(self, label=None):
+        """
+        Get the number of total relationships.
+        If "label" is provided, the number is calculated according the
+        the label of the element.
+        """
+        index = self.ridx
+        if label:
+            script = """start r=rel:`%s`('label:%s')""" % (index.name, label)
+        else:
+            script = """start r=rel:`%s`('label:*')""" % (index.name)
+        script = """%s return count(r)""" % script
+        count = self.cypher(query=script)
+        return count["data"][0][0]
 
     def get_all_nodes(self, include_properties=False, limit=None, offset=None):
         """
@@ -62,15 +96,6 @@ class GraphDatabase(BlueprintsGraphDatabase):
                                         limit=limit, offset=offset)
         for node in nodes:
             yield node
-
-    def get_relationships_count(self, label=None):
-        """
-        Get the number of total relationships.
-        If "label" is provided, the number is calculated according the
-        the label of the element.
-        """
-        index = self.relationship_index.neoindex
-        return self._get_count(index, label=label)
 
     def get_all_relationships(self, include_properties=False,
                               limit=None, offset=None):
@@ -94,9 +119,8 @@ class GraphDatabase(BlueprintsGraphDatabase):
         If "outgoing" is True, it only counts the ids for outgoing ones.
         If "label" is provided, relationships will be filtered.
         """
-        index = self.node_index.neoindex
-        gremlin = self.gdb.neograph.extensions.GremlinPlugin.execute_script
-        script = """g.idx("%s")[[id:"%s"]]""" % (index.name, id)
+        gremlin = self.gremlin
+        script = """g.idx("%s")[[id:"%s"]]""" % (self.nidx.name, id)
         if incoming:
             script = u"%s.inE" % script
         elif outgoing:
@@ -119,17 +143,16 @@ class GraphDatabase(BlueprintsGraphDatabase):
     def get_filtered_nodes(self, lookups, label=None, include_properties=None,
                            limit=None, offset=None):
         # Using Cypher
-        index = self.node_index.neoindex
-        cypher = self.gdb.neograph.extensions.CypherPlugin.execute_query
+        cypher = self.cypher
         if label:
             script = """start n=node:`%s`('label:%s') """ \
-                     % (index.name, label)
+                     % (self.nidx.name, label)
         else:
             script = """start n=node:`%s`('label:*') """ \
-                     % index.name
+                     % self.nidx.name
         where = None
+        params = []
         if lookups:
-            params = []
             wheres = q_lookup_builder()
             for lookup in lookups:
                 if isinstance(lookup, q_lookup_builder):
@@ -150,7 +173,7 @@ class GraphDatabase(BlueprintsGraphDatabase):
         limit = limit or page
         try:
             paged_script = "%s skip %s limit %s" % (script, skip, limit)
-            result = cypher(query=paged_script)
+            result = cypher(query=paged_script, params=params)
         except:
             result = None
         while result and "data" in result:
@@ -168,7 +191,7 @@ class GraphDatabase(BlueprintsGraphDatabase):
                 try:
                     paged_script = "%s skip %s limit %s" % (script, skip,
                                                             limit)
-                    result = cypher.execute_query(query=paged_script)
+                    result = cypher(query=paged_script, params=params)
                 except:
                     result = None
             else:
@@ -184,13 +207,16 @@ class GraphDatabase(BlueprintsGraphDatabase):
                                    include_properties=None,
                                    limit=None, offset=None):
         # Using Cypher
-        index = self.relationship_index.neoindex
-        cypher = self.gdb.neograph.extensions.CypherPlugin.execute_query
-        script = """start r=rel:`%s`("label:*") """ \
-                 """match a-[r]->b """ % index.name
+        cypher = self.cypher
+        if label:
+            script = """start r=rel:`%s`('label:%s') """ % (label,
+                                                            self.ridx.name)
+        else:
+            script = """start r=rel:`%s`('label:*') """ % self.ridx.name
+        script = """%s match a-[r]->b """ % script
         where = None
+        params = []
         if lookups:
-            params = []
             wheres = q_lookup_builder()
             for lookup in lookups:
                 if isinstance(lookup, q_lookup_builder):
@@ -213,7 +239,7 @@ class GraphDatabase(BlueprintsGraphDatabase):
         limit = limit or page
         try:
             paged_script = "%s skip %s limit %s" % (script, skip, limit)
-            result = cypher(query=paged_script)
+            result = cypher(query=paged_script, params=params)
         except:
             result = None
         while result and "data" in result and len(result["data"]) > 0:
@@ -247,7 +273,7 @@ class GraphDatabase(BlueprintsGraphDatabase):
                 try:
                     paged_script = "%s skip %s limit %s" % (script, skip,
                                                             limit)
-                    result = cypher.execute_query(query=paged_script)
+                    result = cypher(query=paged_script, params=params)
                 except:
                     result = None
             else:

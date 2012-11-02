@@ -93,28 +93,33 @@ class BaseManager(object):
 
 class BaseSequence(Sequence):
 
-    def __init__(self, graph, iterator_func, **kwargs):
+    def __init__(self, graph, iterator_func, *args, **kwargs):
         self.graph = graph
         self.func = iterator_func
-        self.params = kwargs
+        self.args = args
+        self.kwargs = kwargs
         self.elements = None
 
     def __len__(self):
         if not self.elements:
-            eltos = self.func(**self.params)
+            eltos = self.func(*self.args, **self.kwargs)
             self.elements = self.create_list(eltos, with_labels=True)
         return len(self.elements)
 
     def __getitem__(self, key):
-        if isinstance(key, slice):
+        if isinstance(key, (int, float, long)):
             if not self.elements:
-                eltos = self.func(**self.params)
+                eltos = self.func(*self.args, **self.kwargs)
                 self.elements = self.create_list(eltos, with_labels=True)
             return self.elements[key]
-        elif isinstance(key, (int, float, long)):
+        elif isinstance(key, slice):
             if not self.elements:
-                eltos = self.func(**self.params)
-                self.elements = self.create_list(eltos, with_labels=True)
+                self.kwargs.update({
+                    "offset": key.start,
+                    "limit": key.start + key.stop,
+                })
+                eltos = self.func(*self.args, **self.kwargs)
+                return self.create_list(eltos, with_labels=True)[:]
             return self.elements[key]
         else:
             raise TypeError("key must be a number or a slice")
@@ -169,12 +174,14 @@ class NodesManager(BaseManager):
             else:
                 eltos = NodeSequence(graph=self.graph,
                                      iterator_func=self.gdb.get_filtered_nodes,
-                                     lookups=lookups, label=label,
+                                     lookups=lookups,
+                                     label=label,
                                      include_properties=True)
         else:
             eltos = NodeSequence(graph=self.graph,
+                                 lookups=lookups,
                                  iterator_func=self.gdb.get_filtered_nodes,
-                                 lookups=lookups, include_properties=True)
+                                 include_properties=True)
         return eltos
 
     def iterator(self):
