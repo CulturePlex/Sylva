@@ -60,7 +60,9 @@ class BaseManager(object):
     def __init__(self, graph):
         self.graph = graph
         self.gdb = graph.gdb
-        self.schema = (not graph.relaxed) and graph.schema
+        # TODO: Fix _label_disaply when there is no schema
+        # self.schema = (not graph.relaxed) and graph.schema
+        self.schema = graph.schema
         self.data = graph.data
 
     def _filter_dict(self, properties, itemtype):
@@ -473,7 +475,9 @@ class BaseElement(object):
         self._id = int(id)
         self.graph = graph
         self.gdb = graph.gdb
-        self.schema = (not graph.relaxed) and graph.schema
+        # TODO: Fix _label_disaply when there is no schema
+        # self.schema = (not graph.relaxed) and graph.schema
+        self.schema = graph.schema
         self.data = graph.data
         self._label = label
         self._inital = initial
