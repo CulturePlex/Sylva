@@ -20,8 +20,11 @@ urlpatterns = patterns('',
     url(r'^accounts/signup/', "base.views.signup_redirect", name="signup"),
     url(r'^accounts/', include('userena.urls')),
 
-    # i18n
+    # python i18n
     url(r'^i18n/', include('django.conf.urls.i18n')),
+
+    # js i18n
+    url(r'^jsi18n/$', 'django.views.i18n.javascript_catalog'),
 
     # messaging
     url(r'^messages/', include('userena.contrib.umessages.urls')),
@@ -62,4 +65,4 @@ if settings.DEBUG:
         # static media server
         url(r'^media/(?P<path>.*)$', 'django.views.static.serve',
             {'document_root': settings.MEDIA_ROOT}),
-   )
+    )

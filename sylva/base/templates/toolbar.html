@@ -69,13 +69,15 @@
                 </a>
             </td>
         </tr>
-        <tr>
-            <td class="dataActions">
-                <a class="dataOption list" href="{% url graph_clone graph.slug %}">
-                    {% trans "Clone graph" %}
-                </a>
-            </td>
-        </tr>
+        {% if ENABLE_CLONING %}
+            <tr>
+                <td class="dataActions">
+                    <a class="dataOption list" href="{% url graph_clone graph.slug %}">
+                        {% trans "Clone graph" %}
+                    </a>
+                </td>
+            </tr>
+        {% endif %}
     </table>
 </li>
 <li>

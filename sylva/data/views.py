@@ -88,12 +88,12 @@ def nodes_list_full(request, graph_slug, node_type_id):
     data = create_data(properties, type_element.all())
     data_preview.append([type_element.name, properties, data])
     nodes = type_element.all()
-    return render_to_response('nodes_list.html', {
-                                "graph": graph,
-                                "option_list": data_preview,
-                                "nodes": nodes,
-                                "node_type": type_element,
-                              }, context_instance=RequestContext(request))
+    return render_to_response('nodes_list.html',
+                              {"graph": graph,
+                               "option_list": data_preview,
+                               "nodes": nodes,
+                               "node_type": type_element
+                               }, context_instance=RequestContext(request))
 
 
 @permission_required("data.add_data", (Data, "graph__slug", "graph_slug"))
@@ -131,9 +131,9 @@ def nodes_create(request, graph_slug, node_type_id):
                          "value": u"→ %s (%s)" % (relationship.name,
                                                   relationship.target.name)})
         outgoing_formset = RelationshipFormSet(itemtype=relationship,
-                                                   instance=nodetype,
-                                                   prefix=formset_prefix,
-                                                   data=data)
+                                               instance=nodetype,
+                                               prefix=formset_prefix,
+                                               data=data)
         outgoing_formsets[formset_prefix] = outgoing_formset
     incoming_formsets = SortedDict()
     for relationship in nodetype.incoming_relationships.all():
@@ -154,14 +154,14 @@ def nodes_create(request, graph_slug, node_type_id):
                          "value": u"← %s (%s)" % (relationship.name,
                                                   relationship.source.name)})
         incoming_formset = RelationshipFormSet(itemtype=relationship,
-                                                   instance=nodetype,
-                                                   prefix=formset_prefix,
-                                                   data=data)
+                                               instance=nodetype,
+                                               prefix=formset_prefix,
+                                               data=data)
         incoming_formsets[formset_prefix] = incoming_formset
     if (data and node_form.is_valid()
-        and mediafile_formset.is_valid() and  medialink_formset.is_valid()
-        and all([rf.is_valid() for rf in outgoing_formsets.values()])
-        and all([rf.is_valid() for rf in incoming_formsets.values()])):
+            and mediafile_formset.is_valid() and medialink_formset.is_valid()
+            and all([rf.is_valid() for rf in outgoing_formsets.values()])
+            and all([rf.is_valid() for rf in incoming_formsets.values()])):
         # TODO: This should be under a transaction
         node = node_form.save()
         for outgoing_formset in outgoing_formsets.values():
@@ -265,10 +265,10 @@ def nodes_edit(request, graph_slug, node_id):
                          "value": u"→ %s (%s)" % (relationship.name,
                                                   relationship.target.name)})
         outgoing_formset = RelationshipFormSet(itemtype=relationship,
-                                                   instance=nodetype,
-                                                   prefix=formset_prefix,
-                                                   initial=initial,
-                                                   data=data)
+                                               instance=nodetype,
+                                               prefix=formset_prefix,
+                                               initial=initial,
+                                               data=data)
         outgoing_formsets[formset_prefix] = outgoing_formset
     # Incoming relationships
 #    initial = []
@@ -310,16 +310,16 @@ def nodes_edit(request, graph_slug, node_id):
                          "value": u"← %s (%s)" % (relationship.name,
                                                   relationship.source.name)})
         incoming_formset = RelationshipFormSet(itemtype=relationship,
-                                                   instance=nodetype,
-                                                   prefix=formset_prefix,
-                                                   initial=initial,
-                                                   data=data)
+                                               instance=nodetype,
+                                               prefix=formset_prefix,
+                                               initial=initial,
+                                               data=data)
         incoming_formsets[formset_prefix] = incoming_formset
     # Save forms and formsets
     if (data and node_form.is_valid()
-        and mediafile_formset.is_valid() and  medialink_formset.is_valid()
-        and all([rf.is_valid() for rf in outgoing_formsets.values()])
-        and all([rf.is_valid() for rf in incoming_formsets.values()])):
+            and mediafile_formset.is_valid() and medialink_formset.is_valid()
+            and all([rf.is_valid() for rf in outgoing_formsets.values()])
+            and all([rf.is_valid() for rf in incoming_formsets.values()])):
         # TODO: This should be under a transaction
         node = node_form.save()
         for outgoing_formset in outgoing_formsets.values():
@@ -384,6 +384,18 @@ def nodes_delete(request, graph_slug, node_id):
             if confirm:
                 for relationship in node.relationships.all():
                     relationship.delete()
+                media_node = None
+                try:
+                    media_node = MediaNode.objects.get(node_id=node.id,
+                                                       data=graph.data)
+                except MediaNode.MultipleObjectsReturned:
+                    media_nodes = MediaNode.objects.filter(node_id=node.id,
+                                                           data=graph.data)
+                    media_node = media_nodes.latest("id")
+                except MediaNode.DoesNotExist:
+                    pass
+                if media_node:
+                    media_node.delete()
                 node.delete()
                 redirect_url = reverse("nodes_list", args=[graph.slug])
                 return redirect(redirect_url)
@@ -400,6 +412,7 @@ def nodes_delete(request, graph_slug, node_id):
                                "action": _("Delete")
                                },
                               context_instance=RequestContext(request))
+
 
 @permission_required("data.view_data", (Data, "graph__slug", "graph_slug"))
 def relationships_list(request, graph_slug):
@@ -438,7 +451,7 @@ def relationships_list_full(request, graph_slug, relationship_type_id):
         data])
     return render_to_response('nodes_list.html',
                               {"graph": graph,
-                                  "option_list": data_preview},
+                               "option_list": data_preview},
                               context_instance=RequestContext(request))
 
 

@@ -9,11 +9,13 @@ from schemas.models import Schema
 
 register = Library()
 
+
 @register.inclusion_tag('graphs_info.html', takes_context=True)
 def graph_info(context, graph, show_edit=None):
     return {'graph': graph,
             'show_edit': bool(show_edit),
             'user': context["user"]}
+
 
 @register.inclusion_tag('toolbar.html', takes_context=True)
 def toolbar(context, on):
@@ -25,7 +27,9 @@ def toolbar(context, on):
     return {'on': on,
             'graph': context["graph"],
             'node_type': context.get("node_type", None),
-            'search_form': search_form}
+            'search_form': search_form,
+            'ENABLE_CLONING': context.get("ENABLE_CLONING", None)}
+
 
 @register.inclusion_tag('breadcrumb.html', takes_context=True)
 def breadcrumb(context, *links):

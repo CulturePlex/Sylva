@@ -156,15 +156,17 @@ class Graph(models.Model, GraphMixin):
                                            properties=r.properties)
         media_nodes = data.data.all()
         for mn in media_nodes:
-            new_mn = MediaNode(node_id=nodes_map[int(mn.node_id)].id,
-                               data=new_data)
-            new_mn.save()
-            media_links = mn.links.all()
-            for ml in media_links:
-                new_ml = MediaLink(media_node=new_mn,
-                                   media_label=ml.media_label,
-                                   media_link=ml.media_link)
-                new_ml.save()
+            node_id = int(mn.node_id)
+            if node_id in nodes_map:
+                new_mn = MediaNode(node_id=nodes_map[node_id].id,
+                                   data=new_data)
+                new_mn.save()
+                media_links = mn.links.all()
+                for ml in media_links:
+                    new_ml = MediaLink(media_node=new_mn,
+                                       media_label=ml.media_label,
+                                       media_link=ml.media_link)
+                    new_ml.save()
 
     def get_collaborators(self, include_anonymous=False):
         all_collaborators = get_users_with_perms(self)

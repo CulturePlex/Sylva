@@ -40,9 +40,9 @@ sylv:true, alert:true */
 
     var opts = {
       lines: 15,            // The number of lines to draw
-      length: 16,           // The length of each line
+      length: 14,           // The length of each line
       width: 5,             // The line thickness
-      radius: 13,           // The radius of the inner circle
+      radius: 11,           // The radius of the inner circle
       corners: 1,           // Corner roundness (0..1)
       rotate: 0,            // The rotation offset
       color: '#000',        // #rgb or #rrggbb
@@ -53,17 +53,19 @@ sylv:true, alert:true */
       className: 'spinner', // The CSS class to assign to the spinner
       zIndex: 2e9,          // The z-index (defaults to 2000000000)
       top: '105',           // Top position relative to parent in px
-      left: '635'           // Left position relative to parent in px
+      left: '637'           // Left position relative to parent in px
     };
     var target = document.getElementById('spinner');
     var spinner = new Spinner(opts).spin(target);
 
     $('#graph-container').append('<div id="graph-loading" class="graph-loading-wrapper" style="opacity: 0.5;">' +
-                                   '<div id="graph-loading-message" class="graph-loading-inner" style="top: 185px;">loading...</div>' +
+                                   '<div id="graph-loading-message" class="graph-loading-inner" style="top: 170px;">' +
+                                    gettext('loading...') +
+                                   '</div>' +
                                  '</div>');
 
     // Graph rendering
-    $.getJSON(sylv.ajax_url, function(data) {
+    var jqxhr = $.getJSON(sylv.ajax_url, function(data) {
       $('#graph-loading').remove();
       spinner.stop();
 
@@ -88,6 +90,10 @@ sylv:true, alert:true */
         visualizations.processing();
       }
 
+    });
+    // Error handling.
+    jqxhr.error(function() {
+      alert(gettext("Oops! Something went wrong with the server. Please, reload the page."));
     });
 
     // Select box bindings
