@@ -4,27 +4,37 @@ import re
 import tempfile
 from cStringIO import StringIO
 
-from django.conf import settings
 import hotshot
 import hotshot.stats
 
-COMMENT_SYNTAX = ((re.compile(r'^application/(.*\+)?xml|text/html$', re.I),
-                              '<!--', '-->'),
-                  (re.compile(r'^application/j(avascript|son)$', re.I),
-                              '/*',   '*/' ))
+from django.conf import settings
+from django.core.exceptions import MiddlewareNotUsed
+
+COMMENT_SYNTAX = (
+    (re.compile(r'^application/(.*\+)?xml|text/html$', re.I),
+     '<!--', '-->'),
+)
+if getattr(settings, "PROFILE_MIDDLEWARE_JSON", True):
+    COMMENT_SYNTAX += (
+        (re.compile(r'^application/j(avascript|son)$', re.I),
+         '/*', '*/'),
+    )
 
 
 class ProfileMiddleware(object):
+
+    def __init__(self):
+        if not getattr(settings, "ENABLE_PROFILE", False):
+            raise MiddlewareNotUsed("Profiling middleware not used")
+
     def process_view(self, request, callback, args, kwargs):
         # Create a profile, writing into a temporary file.
         filename = tempfile.mktemp()
         profile = hotshot.Profile(filename)
-
         try:
             try:
                 # Profile the call of the view function.
                 response = profile.runcall(callback, request, *args, **kwargs)
-
                 # If we have got a 3xx status code, further
                 # action needs to be taken by the user agent
                 # in order to fulfill the request. So don't
@@ -33,7 +43,6 @@ class ProfileMiddleware(object):
                 # ignored by the user agent.
                 if response.status_code // 100 == 3:
                     return response
-
                 # Detect the appropriate syntax based on the
                 # Content-Type header.
                 for regex, begin_comment, end_comment in COMMENT_SYNTAX:
@@ -46,7 +55,6 @@ class ProfileMiddleware(object):
                     # the content and return the unchanged
                     # response.
                     return response
-
                 # The response can hold an iterator, that
                 # is executed when the content property
                 # is accessed. So we also have to profile
@@ -55,7 +63,6 @@ class ProfileMiddleware(object):
                                           response)
             finally:
                 profile.close()
-
             # Load the stats from the temporary file and
             # write them in a human readable format,
             # respecting some optional settings into a
@@ -70,7 +77,6 @@ class ProfileMiddleware(object):
                                        'PROFILE_MIDDLEWARE_RESTRICTIONS', []))
         finally:
             os.unlink(filename)
-
         # Construct an HTML/XML or Javascript comment, with
         # the formatted stats, written to the StringIO object
         # and attach it to the content of the response.
@@ -78,7 +84,6 @@ class ProfileMiddleware(object):
                                           stats.stream.getvalue().strip(),
                                           end_comment)
         response.content = content + comment
-
         # If the Content-Length header is given, add the
         # number of bytes we have added to it. If the
         # Content-Length header is ommited or incorrect,
@@ -87,5 +92,4 @@ class ProfileMiddleware(object):
         if response.has_header('Content-Length'):
             content_lenght = int(response['Content-Length']) + len(comment)
             response['Content-Length'] = content_lenght
-
         return response

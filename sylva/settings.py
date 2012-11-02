@@ -154,6 +154,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'maintenancemode.middleware.MaintenanceModeMiddleware',
+    'base.middleware.ProfileMiddleware',
 )
 
 ROOT_URLCONF = 'urls'
@@ -234,6 +235,11 @@ LOGGING = {
     }
 }
 
+# Profiling
+PROFILE_MIDDLEWARE_SORT = ["cumulative", "calls"]
+PROFILE_MIDDLEWARE_RESTRICTIONS = [0.2]
+PROFILE_MIDDLEWARE_JSON = True
+
 # Userena settings
 USERENA_DEFAULT_PRIVACY = "open"
 USERENA_DISABLE_PROFILE_LIST = False
@@ -260,9 +266,11 @@ ALLOWS_INHERITANCE = False
 AUTOCOMPLETE_NODES = True
 ENABLE_SEARCH = True
 ENABLE_CLONING = False
+ENABLE_PROFILE = False
 MAINTENANCE_MODE = False
 PREVIEW_NODES = 200  # Size of the graph preview in the graph screen
 MAX_SIZE = 300  # Disable graph preview (Processing) nodes number is above this value
+# OPTIONS is a dictionary made available in templates
 OPTIONS = {
     "ACCOUNT_FREE": ACCOUNT_FREE,
     "ALLOWS_INSTANCES": ALLOWS_INSTANCES,
