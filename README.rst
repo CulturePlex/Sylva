@@ -7,7 +7,7 @@ Installation:
 
 Just in case, first thing you need is to have installed pip_ and virtualenv_ in your machine::
 
-  $ sudo apt-get install python-pip python-dev build-essential 
+  $ sudo apt-get install python-pip python-dev build-essential python-profiler
   $ sudo pip install --upgrade pip 
   $ sudo pip install --upgrade virtualenv 
 
