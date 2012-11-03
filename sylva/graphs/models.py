@@ -143,17 +143,21 @@ class Graph(models.Model, GraphMixin):
         new_data = new_graph.data
         nodes = self.nodes.all()
         for n in nodes:
-            nt = NodeType.objects.get(pk=nodetypes_map[int(n.label)])
-            new_node = new_graph.nodes.create(label=unicode(nt.id),
-                                              properties=n.properties)
-            nodes_map[n.id] = new_node
+            node_label = int(n.label)
+            if node_label in nodetypes_map:
+                nt = NodeType.objects.get(pk=nodetypes_map[node_label])
+                new_node = new_graph.nodes.create(label=unicode(nt.id),
+                                                  properties=n.properties)
+                nodes_map[n.id] = new_node
         relations = self.relationships.all()
         for r in relations:
-            rt = RelationshipType.objects.get(pk=relationtypes_map[int(r.label)])
-            new_graph.relationships.create(nodes_map[r.source.id],
-                                           nodes_map[r.target.id],
-                                           label=unicode(rt.id),
-                                           properties=r.properties)
+            rel_label = int(r.label)
+            if rel_label in relationtypes_map:
+                rt = RelationshipType.objects.get(pk=relationtypes_map[rel_label])
+                new_graph.relationships.create(nodes_map[r.source.id],
+                                               nodes_map[r.target.id],
+                                               label=unicode(rt.id),
+                                               properties=r.properties)
         media_nodes = data.data.all()
         for mn in media_nodes:
             node_id = int(mn.node_id)
