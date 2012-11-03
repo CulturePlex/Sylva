@@ -18,6 +18,7 @@ class SchemaMixin(object):
         return self._displays[label]
 
     def get_relationship_name(self, label):
+        from schemas.models import RelationshipType
         if label not in self._relationship_names:
             try:
                 name = self.relationshiptype_set.get(id=label).name
@@ -27,10 +28,11 @@ class SchemaMixin(object):
         return self._relationship_names[label]
 
     def get_node_name(self, label):
+        from schemas.models import NodeType
         if label not in self._node_names:
             try:
                 name = self.nodetype_set.get(id=label).name
                 self._node_names[label] = name
-            except nodeType.DoesNotExist:
+            except NodeType.DoesNotExist:
                 self._node_names[label] = u""
         return self._node_names[label]
