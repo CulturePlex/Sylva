@@ -4,7 +4,7 @@ try:
 except:
     import json
 
-from django.db import transaction
+from django.db import transaction, IntegrityError
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
@@ -187,7 +187,12 @@ def graph_clone(request, graph_slug):
                 new_graph.data = data
                 schema = Schema.objects.create()
                 new_graph.schema = schema
-                new_graph.save()
+                try:
+                    new_graph.save()
+                except IntegrityError:
+                    import time
+                    new_graph.name += " " + str(int(time.time()))
+                    new_graph.save()
                 options = form.cleaned_data["options"]
                 clone_data = False
                 if options:
