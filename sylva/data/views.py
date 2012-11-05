@@ -376,6 +376,7 @@ def nodes_delete(request, graph_slug, node_id):
 #                    return redirect(redirect_url)
 #    else:
     form = ItemDeleteConfirmForm()
+    import ipdb; ipdb.set_trace()
     if request.POST:
         data = request.POST.copy()
         form = ItemDeleteConfirmForm(data=data)

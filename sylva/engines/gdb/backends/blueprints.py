@@ -53,7 +53,7 @@ class BlueprintsGraphDatabase(BaseGraphDatabase):
             if not key.startswith('_') and not key.startswith(self.PRIVATE_PREFIX):
                 properties[key] = element.getProperty(key)
         return properties
- 
+
     def __get_public_keys(self, element):
         return self.__get_public_properties(element).keys()
 
@@ -236,9 +236,12 @@ class BlueprintsGraphDatabase(BaseGraphDatabase):
         return result
 
     def delete_nodes(self, ids):
+        count = 0
         for _id in ids:
             vertex = self.gdb.getVertex(_id)
             self.gdb.removeVertex(vertex)
+            count += 1
+        return count
 
     def __yield_nodes(self, nodes, include_properties):
         for node in nodes:
@@ -366,12 +369,15 @@ class BlueprintsGraphDatabase(BaseGraphDatabase):
         self.gdb.removeEdge(edge)
 
     def delete_relationships(self, ids):
+        count = 0
         for _id in ids:
             if isinstance(_id, (list, tuple)):
                 edge = self.gdb.getEdge(_id[0])
             else:
                 edge = self.gdb.getEdge(_id)
             self.gdb.removeEdge(edge)
+            count += 1
+        return count
 
     def __yield_relationships(self, relationships, include_properties=False):
         for rel in relationships:
@@ -384,7 +390,7 @@ class BlueprintsGraphDatabase(BaseGraphDatabase):
     def get_all_relationships(self, include_properties=False):
         return self.__yield_relationships(
                 self.relationship_index.get("graph", unicode(self.graph_id)))
-           
+
     def get_relationships_by_label(self, label, include_properties=False):
         return self.__yield_relationships(
                 self.relationship_index.get("label", unicode(label)),
@@ -398,4 +404,3 @@ class BlueprintsGraphDatabase(BaseGraphDatabase):
         XXX
         """
         raise NotImplementedError("Method has to be implemented")
-

@@ -1,6 +1,8 @@
     # -*- coding: utf-8 -*-
 from collections import Sequence
 
+from django.db import transaction
+
 from engines.gdb.backends import NodeDoesNotExist, RelationshipDoesNotExist
 from schemas.models import NodeType, RelationshipType
 
@@ -116,8 +118,8 @@ class BaseSequence(Sequence):
         elif isinstance(key, slice):
             if not self.elements:
                 self.kwargs.update({
-                    "offset": key.start,
-                    "limit": key.start + key.stop,
+                    "offset": key.start or 0,
+                    "limit": (key.start or 0) + (key.stop or 1),
                 })
                 eltos = self.func(*self.args, **self.kwargs)
                 return self.create_list(eltos, with_labels=True)[:]
@@ -147,15 +149,17 @@ class NodesManager(BaseManager):
 
     def create(self, label, properties=None):
         if self.data.can_add_nodes():
-            if self.schema:
-                nodetype = self.schema.nodetype_set.get(pk=label)
-                properties = self._filter_dict(properties, nodetype)
-                nodetype.total += 1
-                nodetype.save()
+            with transaction.commit_on_success():
+                if self.schema:
+                    nodetype = self.schema.nodetype_set.get(pk=label)
+                    if not self.schema.relaxed:
+                        properties = self._filter_dict(properties, nodetype)
+                    nodetype.total += 1
+                    nodetype.save()
+                self.data.total_nodes += 1
+                self.data.save()
             node_id = self.gdb.create_node(label=label, properties=properties)
             node = Node(node_id, self.graph, initial=properties, label=label)
-            self.data.total_nodes += 1
-            self.data.save()
             return node
         else:
             raise NodesLimitReachedException
@@ -211,14 +215,33 @@ class NodesManager(BaseManager):
                 for relationship in self.get(node_id).relationships.all():
                     relationship.delete()
                 nodes_id.append(node_id)
-            self.gdb.delete_nodes(nodes_id)
+            count = self.gdb.delete_nodes(nodes_id)
+            with transaction.commit_on_success():
+                self.data.total_relationships -= count
+                self.data.save()
+                if self.schema:
+                    schema = self.schema
+                    nodetype = schema.nodetype_set.get(pk=label)
+                    nodetype.total = 0
+                    nodetype.save()
         elif "id" in options:
-            node_id = options.get("id")
-            self.gdb.delete_nodes([node_id])
+            node_ids = options.get("id")
+            if isinstance(node_ids, (list, tuple)):
+                node_ids = list(node_ids)
+            for node_id in node_ids:
+                Node(node_id, self.graph).delete()
         else:
             eltos = self.gdb.get_all_nodes(include_properties=False)
             self.gdb.delete_nodes([node_id
                                    for node_id, n_props, n_label in eltos])
+            with transaction.commit_on_success():
+                self.data.total_relationships = 0
+                self.data.save()
+                if self.schema:
+                    schema = self.schema
+                    for nodetype in schema.nodetype_set.all():
+                        nodetype.total = 0
+                        nodetype.save()
 
     def count(self, label=None):
         return self.gdb.get_nodes_count(label=label)
@@ -260,17 +283,19 @@ class RelationshipsManager(BaseManager):
         else:
             target_id = target
         if self.data.can_add_relationships():
-            if self.schema:
-                reltype = self.schema.relationshiptype_set.get(pk=label)
-                properties = self._filter_dict(properties, reltype)
-                reltype.total += 1
-                reltype.save()
+            with transaction.commit_on_success():
+                if self.schema:
+                    reltype = self.schema.relationshiptype_set.get(pk=label)
+                    if not self.schema.relaxed:
+                        properties = self._filter_dict(properties, reltype)
+                    reltype.total += 1
+                    reltype.save()
+                self.data.total_relationships += 1
+                self.data.save()
             relationship_id = self.gdb.create_relationship(source_id, target_id,
                                                            label, properties)
             relationship = Relationship(relationship_id, self.graph,
                                         initial=properties)
-            self.data.total_relationships += 1
-            self.data.save()
             return relationship
         else:
             raise RelationshipsLimitReachedException
@@ -323,14 +348,33 @@ class RelationshipsManager(BaseManager):
             label = options.get("label")
             eltos = self.gdb.get_relationships_by_label(label,
                                                     include_properties=False)
-            self.gdb.delete_relationships([relationship_id
-                                           for relationship_id, props in eltos])
+            count = self.gdb.delete_relationships([relationship_id
+                                       for relationship_id, props in eltos])
+            with transaction.commit_on_success():
+                self.data.total_relationships -= count
+                self.data.save()
+                if self.schema:
+                    schema = self.schema
+                    reltype = schema.relationshiptype_set.get(pk=label)
+                    reltype.total = 0
+                    reltype.save()
         elif "id" in options:
-            relationship_id = options.get("id")
-            self.gdb.delete_relationships([relationship_id])
+            relationship_ids = options.get("id")
+            if not isinstance(relationship_ids, (list, tuple)):
+                relationship_ids = [relationship_ids]
+            for relationship_id in relationship_ids:
+                Relationship(relationship_id, self.graph).delete()
         else:
             eltos = self.gdb.get_all_relationships(include_properties=False)
             self.gdb.delete_relationships(eltos)
+            with transaction.commit_on_success():
+                self.data.total_relationships = 0
+                self.data.save()
+                if self.schema:
+                    schema = self.schema
+                    for reltype in schema.relationshiptype_set.all():
+                        reltype.total = 0
+                        reltype.save()
 
     def count(self, label=None):
         return self.gdb.get_relationships_count(label=label)
@@ -354,19 +398,21 @@ class NodeRelationshipsManager(BaseManager):
             source_id = target.id
             target_id = self.node_id
         if self.data.can_add_relationships():
-            if self.schema:
-                relationshiptype = self.schema.relationshiptype_set.get(pk=label)
-                properties = self._filter_dict(properties, relationshiptype)
-                relationshiptype.total += 1
-                relationshiptype.save()
+            with transaction.commit_on_success():
+                if self.schema:
+                    reltype = self.schema.relationshiptype_set.get(pk=label)
+                    if not self.schema.relaxed:
+                        properties = self._filter_dict(properties, reltype)
+                    reltype.total += 1
+                    reltype.save()
+                self.data.total_relationships += 1
+                self.data.save()
             relationship_id = self.gdb.create_relationship(source_id,
                                                            target_id,
                                                            label,
                                                            properties)
             relationship = Relationship(relationship_id, self.graph,
                                         initial=properties)
-            self.data.total_relationships += 1
-            self.data.save()
             return relationship
         else:
             raise RelationshipsLimitReachedException
@@ -604,13 +650,17 @@ class Node(BaseElement):
             self.__delitem__(key)
         else:
             label = self.label
-            self.gdb.delete_node(self.id)
-            self.data.total_nodes -= 1
-            self.data.save()
-            if self.schema:
-                nodetype = self.schema.nodetype_set.get(pk=label)
-                nodetype.total -= 1
-                nodetype.save()
+            with transaction.commit_on_success():
+                self.data.total_nodes -= 1
+                self.data.save()
+                if self.schema:
+                    nodetype = self.schema.nodetype_set.get(pk=label)
+                    nodetype.total -= 1
+                    nodetype.save()
+                try:
+                    self.gdb.delete_node(self.id)
+                except:
+                    transaction.rollback()
             del self
 
     def get_type(self):
@@ -717,14 +767,18 @@ class Relationship(BaseElement):
         if key:
             self.__delitem__(key)
         else:
-            if self.schema:
-                reltype = self.schema.relationshiptype_set.get(pk=self.label)
-            self.gdb.delete_relationship(self.id)
-            self.data.total_relationships -= 1
-            self.data.save()
-            if self.schema:
-                reltype.total -= 1
-                reltype.save()
+            with transaction.commit_on_success():
+                self.data.total_relationships -= 1
+                self.data.save()
+                if self.schema:
+                    schema = self.schema
+                    reltype = schema.relationshiptype_set.get(pk=self.label)
+                    reltype.total -= 1
+                    reltype.save()
+                try:
+                    self.gdb.delete_relationship(self.id)
+                except:
+                    transaction.rollback()
             del self
 
     def get_type(self):

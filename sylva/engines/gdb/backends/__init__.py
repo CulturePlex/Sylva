@@ -142,6 +142,7 @@ class BaseGraphDatabase(object):
     def delete_nodes(self, ids):
         """
         Delete all the nodes whose "id" is on the list "ids".
+        Return the number of elements removed. Useful when "ids" is an iterator
         """
         raise NotImplementedError("Method has to be implemented")
 
@@ -290,6 +291,7 @@ class BaseGraphDatabase(object):
     def delete_relationships(self, ids):
         """
         Delete all the relationships which "id" is on the list "ids".
+        Return the number of elements removed. Useful when "ids" is an iterator
         """
         raise NotImplementedError("Method has to be implemented")
 
