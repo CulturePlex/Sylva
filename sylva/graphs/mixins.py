@@ -60,7 +60,6 @@ class BaseManager(object):
     def __init__(self, graph):
         self.graph = graph
         self.gdb = graph.gdb
-        # TODO: Fix _label_disaply when there is no schema
         # self.schema = (not graph.relaxed) and graph.schema
         self.schema = graph.schema
         self.data = graph.data
@@ -475,7 +474,6 @@ class BaseElement(object):
         self._id = int(id)
         self.graph = graph
         self.gdb = graph.gdb
-        # TODO: Fix _label_disaply when there is no schema
         # self.schema = (not graph.relaxed) and graph.schema
         self.schema = graph.schema
         self.data = graph.data
@@ -619,7 +617,10 @@ class Node(BaseElement):
         return NodeType.objects.get(id=self.label)
 
     def _label_display(self):
-        return self.schema.get_node_name(self.label)
+        if self.schema:
+            return self.schema.get_node_name(self.label)
+        else:
+            return self.label
 
     def to_json(self):
         node_dict = self.properties.copy()
@@ -730,7 +731,10 @@ class Relationship(BaseElement):
         return RelationshipType.objects.get(id=self.label)
 
     def _label_display(self):
-        return self.schema.get_relationship_name(self.label)
+        if self.schema:
+            return self.schema.get_relationship_name(self.label)
+        else:
+            return self.label
 
     def to_json(self):
         return {
