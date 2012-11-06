@@ -72,7 +72,7 @@
                 → {{ outgoing_formset.itemtype.name }} ({{ outgoing_formset.itemtype.target.name }})
                 </label>
                 <span class="helptext">
-                    {% trans "Target of the relationship" %} 
+                    {% trans "Target of the relationship" %}
                     <a href="{% url nodes_create outgoing_formset.itemtype.schema.graph.slug outgoing_formset.itemtype.target.id %}">
                         {% trans "Add" %} {{ outgoing_formset.itemtype.target.name }}
                     </a>
@@ -104,7 +104,7 @@
                 ← {{ incoming_formset.itemtype.name }} ({{ incoming_formset.itemtype.source.name }})
                 </label>
                 <span class="helptext">
-                    {% trans "Source of the relationship" %} 
+                    {% trans "Source of the relationship" %}
                     <a href="{% url nodes_create incoming_formset.itemtype.schema.graph.slug incoming_formset.itemtype.source.id %}">
                         {% trans "Add" %} {{ incoming_formset.itemtype.source.name }}
                     </a>
@@ -163,7 +163,7 @@
             {% else %}
                 <div class="initial" id="{{ medialink_formset.prefix }}-form-{{ forloop.counter0 }}">
                 {{ medialink_form.as_p }}
-                <a class="delete-row initial-form" href="javascript:void(0)">{% trans "Remove Link" %}</a>
+                <a class="linkDelete delete-rowupLinks initial-form" href="javascript:void(0)"></a>
                 </div>
             {% endif %}
         {% endfor %}
@@ -247,13 +247,14 @@
         $("#{{ medialink_formset.prefix }} p:last label").hide();
         init{{ medialink_formset.prefix }}();
         // Enable the deletion of initial forms
-        $(".initial-form").live("click", function(e) {
+        $(".initial-form").on("click", function(e) {
             // $(this).siblings("p:last").children("input[type='checkbox']").attr("checked", "checked");
             // $(this).parents("div.initial").hide();
             var $this = $(this);
-            $this.siblings("div.initial").find("input:checkbox[id $= -DELETE]").val("on").attr("checked", "checked");
-            $this.siblings("div.initial").hide();
+            var $parent = $this.parent();
+            $parent.find("input:checkbox[id $= -DELETE]").val("on").attr("checked", "checked");
             $this.hide();
+            $parent.hide();
         });
         // For old browsers
         $(".initial-form").parents("div.initial").each(function(i, form) {
