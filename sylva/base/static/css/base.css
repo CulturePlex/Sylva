@@ -486,7 +486,7 @@ a {
 }
 
 .content3-block p {
-    width:365px;
+    width:320px;
     float:left;
     text-align:left;
 }
@@ -655,16 +655,12 @@ form {
 }
 
 #content3 a.delete-row {
-/*    background: url(../img/recycle-full.png) no-repeat center 15px;*/
-/*    height: 45px;*/
-/*    display: block;*/
-/*    padding: 0 0 0 2px;*/
-/*    font-weight: bold;*/
     background: url(../img/recycle-full.png) no-repeat left -2px;
     height: 35px;
-/*    display: block;*/
     padding: 10px 0 0 30px;
     font-weight: bold;
+    margin-top: 18px;
+    position: absolute;
 }
 
 #content3 div.dynamic-form a.delete-rowupFiles {
@@ -675,10 +671,10 @@ form {
     float: right;
     position: relative;
     width: 15px;
-    margin-top: -115px;
+    margin-top: -105px;
 }
 
-#content3 div.dynamic-form a.delete-rowupLinks {
+a.delete-rowupLinks {
     background: url(../img/recycle-full.png) no-repeat left -2px;
     height: 35px;
     padding: 10px 0 0 30px;
@@ -686,7 +682,11 @@ form {
     float: right;
     position: relative;
     width: 15px;
-    margin-top: -110px;
+    margin-top: -100px;
+}
+
+a.linkDelete {
+    margin-top: -41px;
 }
 
 #content3 div.relationships a.delete-rowupProps {

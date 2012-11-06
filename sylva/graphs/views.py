@@ -41,8 +41,9 @@ def _jsonify_graph(nodes_list, relations_list,
     nodes_display = {}
     for node in nodes_list:
         json_node = node.to_json()
-        nodes[node.display] = json_node
-        nodes_display[node.id] = node.display
+        display = node.display + ' (' + str(node.id) + ')'
+        nodes[display] = json_node
+        nodes_display[node.id] = display
     for rel in relations_list:
         source_id = rel.source.id
         target_id = rel.target.id
