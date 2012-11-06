@@ -229,7 +229,9 @@ class NodeType(BaseType):
         return RelationshipType.objects.filter(Q(source=self) | Q(target=self))
 
     def count(self):
-        if self.id:
+        if self.total:
+            return self.total
+        elif self.id:
             return self.schema.graph.nodes.count(label=self.id)
         else:
             return 0
@@ -293,7 +295,9 @@ class RelationshipType(BaseType):
         super(RelationshipType, self).save(*args, **kwargs)
 
     def count(self):
-        if self.id:
+        if self.total:
+            return self.total
+        elif self.id:
             return self.schema.graph.relationships.count(label=self.id)
         else:
             return 0
