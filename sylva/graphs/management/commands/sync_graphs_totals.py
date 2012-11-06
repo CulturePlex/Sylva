@@ -28,9 +28,9 @@ class Command(BaseCommand):
     def make_list(self, args):
         graphs = []
         sep = " "
-        if "," in args:
-            sep = ","
         if args:
+            if "," in args:
+                sep = ","
             for arg in args.split(sep):
                 try:
                     try:
