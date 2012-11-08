@@ -147,9 +147,9 @@
                 {{ mediafile_form.as_p }}
                 </div>
             {% else %}
-                <a class="delete-row initial-form" href="javascript:void(0)"><!--{% trans "Remove File" %}--></a>
                 <div class="initial" id="{{ mediafile_formset.prefix }}-form-{{ forloop.counter0 }}">
-                {{ mediafile_form.as_p }}
+                    {{ mediafile_form.as_p }}
+                    <a class="fileDelete delete-rowupFiles initial-form" href="javascript:void(0)"></a>
                 </div>
             {% endif %}
         {% endfor %}
@@ -162,8 +162,8 @@
                 </div>
             {% else %}
                 <div class="initial" id="{{ medialink_formset.prefix }}-form-{{ forloop.counter0 }}">
-                {{ medialink_form.as_p }}
-                <a class="linkDelete delete-rowupLinks initial-form" href="javascript:void(0)"></a>
+                    {{ medialink_form.as_p }}
+                    <a class="linkDelete delete-rowupLinks initial-form" href="javascript:void(0)"></a>
                 </div>
             {% endif %}
         {% endfor %}

@@ -663,7 +663,7 @@ form {
     position: absolute;
 }
 
-#content3 div.dynamic-form a.delete-rowupFiles {
+#content3 .delete-rowupFiles {
     background: url(../img/recycle-full.png) no-repeat left -2px;
     height: 35px;
     padding: 10px 0 0 30px;
@@ -674,7 +674,7 @@ form {
     margin-top: -105px;
 }
 
-a.delete-rowupLinks {
+#content3 .delete-rowupLinks {
     background: url(../img/recycle-full.png) no-repeat left -2px;
     height: 35px;
     padding: 10px 0 0 30px;
@@ -685,7 +685,8 @@ a.delete-rowupLinks {
     margin-top: -100px;
 }
 
-a.linkDelete {
+#content3 .linkDelete,
+#content3 .fileDelete {
     margin-top: -41px;
 }
 
