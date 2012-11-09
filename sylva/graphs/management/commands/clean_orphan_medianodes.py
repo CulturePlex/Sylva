@@ -4,7 +4,7 @@ from django.core.files.base import ContentFile
 from django.core.management.base import BaseCommand
 from django.db import transaction
 
-from data.models import MediaNode
+from data.models import Data, MediaNode
 
 from engines.gdb.backends import NodeDoesNotExist
 
@@ -30,18 +30,26 @@ class Command(BaseCommand):
                                       % media_node.id)
                     media_node.delete()
                 else:
+                    media_node_id = media_node.id
+                    delete = False
                     try:
                         gdb = media_node.data.get_gdb()
                         gdb.get_node_label(media_node.node_id)
+                    except Data.DoesNotExist:
+                        media_node.delete()
+                        delete = True
                     except NodeDoesNotExist:
-                        self.stdout.write("Deleting orphan MediaNode [%s]\n"
-                                          % media_node.id)
                         try:
                             media_node.delete()
+                            delete = True
                         except Exception:
                             for file in media_node.files.all():
                                 file.media_file = file_name
                                 file.save()
                             media_node.delete()
+                            delete = True
+                    if delete:
+                        self.stdout.write("Deleting orphan MediaNode [%s]\n"
+                                          % media_node_id)
         default_storage.delete(file_path)
         self.stdout.write("Done\n")
