@@ -172,14 +172,15 @@ def nodes_create(request, graph_slug, node_type_id):
                 incoming_form.save(related_node=node)
         # Manage files and links
         mediafiles = mediafile_formset.save(commit=False)
-        media_node = MediaNode.objects.create(node_id=node.id, data=graph.data)
-        for mediafile in mediafiles:
-            mediafile.media_node = media_node
-            mediafile.save()
         medialinks = medialink_formset.save(commit=False)
-        for medialink in medialinks:
-            medialink.media_node = media_node
-            medialink.save()
+        if mediafiles or medialinks:
+            media_node = MediaNode.objects.create(node_id=node.id, data=graph.data)
+            for mediafile in mediafiles:
+                mediafile.media_node = media_node
+                mediafile.save()
+            for medialink in medialinks:
+                medialink.media_node = media_node
+                medialink.save()
         redirect_url = reverse("nodes_list_full", args=[graph.slug, node_type_id])
         return redirect(redirect_url)
     return render_to_response('nodes_editcreate.html',
@@ -329,14 +330,19 @@ def nodes_edit(request, graph_slug, node_id):
             for incoming_form in incoming_formset.forms:
                 incoming_form.save(related_node=node)
         mediafiles = mediafile_formset.save(commit=False)
+        medialinks = medialink_formset.save(commit=False)
         # Manage files and links
+        if not media_node.pk and (mediafiles or medialinks):
+            media_node = MediaNode.objects.create(node_id=node.id, data=graph.data)
         for mediafile in mediafiles:
             mediafile.media_node = media_node
             mediafile.save()
-        medialinks = medialink_formset.save(commit=False)
         for medialink in medialinks:
             medialink.media_node = media_node
             medialink.save()
+        if media_node.pk and not media_node.files.exists() and \
+                not media_node.links.exists():
+            media_node.delete()
         redirect_url = reverse("nodes_list_full", args=[graph.slug, nodetype.id])
         return redirect(redirect_url)
     return render_to_response('nodes_editcreate.html',
