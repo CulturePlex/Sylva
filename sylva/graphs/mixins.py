@@ -70,15 +70,15 @@ class BaseManager(object):
         if properties:
             if self.schema:
                 property_keys = [p.key for p in itemtype.properties.all()]
-                popped = [properties.pop(k) for k in properties.keys() \
-                                            if (k not in property_keys \
+                popped = [properties.pop(k) for k in properties.keys()
+                                            if (k not in property_keys
                                                 or unicode(k).startswith("_"))]
                 del popped
                 return properties
             else:
-                return dict(filter(lambda (k, v): \
-                                    not unicode(k).startswith("_"),
-                                   properties.iteritems()))
+                return dict(filter(lambda (k, v):
+                                       not unicode(k).startswith("_"),
+                                       properties.iteritems()))
         else:
             return {}
 
@@ -428,7 +428,7 @@ class NodeRelationshipsManager(BaseManager):
         return relationships
 
     def filter(self, **options):
-        label= None
+        label = None
         if "label" in options:
             label = options.get("label")
         relationships = []
@@ -601,15 +601,15 @@ class BaseElement(object):
         if properties:
             if self.schema:
                 property_keys = self._get_property_keys()
-                popped = [properties.pop(k) for k in properties.keys() \
-                                            if (k not in property_keys \
+                popped = [properties.pop(k) for k in properties.keys()
+                                            if (k not in property_keys
                                                 or unicode(k).startswith("_"))]
                 del popped
                 return properties
             else:
-                return dict(filter(lambda (k, v): \
-                                    not unicode(k).startswith("_"),
-                                   properties.iteritems()))
+                return dict(filter(lambda (k, v):
+                                        not unicode(k).startswith("_"),
+                                        properties.iteritems()))
         else:
             return {}
 
