@@ -152,7 +152,7 @@ class NodesManager(BaseManager):
             with transaction.commit_on_success():
                 if self.schema:
                     nodetype = self.schema.nodetype_set.get(pk=label)
-                    if not self.schema.relaxed:
+                    if not self.graph.relaxed:
                         properties = self._filter_dict(properties, nodetype)
                     nodetype.total += 1
                     nodetype.save()
@@ -286,7 +286,7 @@ class RelationshipsManager(BaseManager):
             with transaction.commit_on_success():
                 if self.schema:
                     reltype = self.schema.relationshiptype_set.get(pk=label)
-                    if not self.schema.relaxed:
+                    if not self.graph.relaxed:
                         properties = self._filter_dict(properties, reltype)
                     reltype.total += 1
                     reltype.save()
@@ -401,7 +401,7 @@ class NodeRelationshipsManager(BaseManager):
             with transaction.commit_on_success():
                 if self.schema:
                     reltype = self.schema.relationshiptype_set.get(pk=label)
-                    if not self.schema.relaxed:
+                    if not self.graph.relaxed:
                         properties = self._filter_dict(properties, reltype)
                     reltype.total += 1
                     reltype.save()

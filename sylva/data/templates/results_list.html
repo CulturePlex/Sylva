@@ -90,7 +90,7 @@
         </span>
     {% endblock %}
 {% endfor %}
-    {% if graph.data.total_nodes == 0 and graph.data.total_relationships == 0 and option_list or graph.schema.relaxed %}
+    {% if graph.data.total_nodes == 0 and graph.data.total_relationships == 0 and option_list or graph.relaxed %}
         <a class="button" href="{% url tool_import graph.slug %}">{% trans "Import" %}</a>
         <span class="buttonLinkOption">
             {% trans "Import a graph in GEXF format, or nodes and relationships in CSV format" %}.
