@@ -216,19 +216,23 @@
           var edgesAttributes = {};
           var attributesNodes = gexf.getElementsByTagName('attributes');
 
+          var id, title, type;
+          var attributeId, attributeTitle;
+          var i, j, k, li, lj, lk;
+
           // loop through attributes elements and store attributes for nodes and edges
-          for (var i = 0, li = attributesNodes.length; i< li; i++) {
+          for (i = 0, li = attributesNodes.length; i< li; i++) {
             var attributesNode = attributesNodes[i];
 
             if (attributesNode.getAttribute('class') == 'node') {
               var attributeNodes = attributesNode.getElementsByTagName('attribute');
 
-              for (var j = 0, lj = attributeNodes.length; j < lj; j++) {
+              for (j = 0, lj = attributeNodes.length; j < lj; j++) {
                 var attributeNode = attributeNodes[j];
 
-                var id = attributeNode.getAttribute('id').trim(),
-                    title = attributeNode.getAttribute('title').trim(),
-                    type = attributeNode.getAttribute('type').trim();
+                id = attributeNode.getAttribute('id').trim();
+                title = attributeNode.getAttribute('title').trim();
+                type = attributeNode.getAttribute('type').trim();
 
                 // store node attributes
                 nodesAttributes[id] = {title: title, type: type};
@@ -236,12 +240,12 @@
             } else if (attributesNode.getAttribute('class') == 'edge') {
               var attributeEdges = attributesNode.getElementsByTagName('attribute');
 
-              for (var j = 0, lj = attributeEdges.length; j < lj; j++) {
+              for (j = 0, lj = attributeEdges.length; j < lj; j++) {
                 var attributeEdge = attributeEdges[j];
 
-                var id = attributeEdge.getAttribute('id').trim(),
-                    title = attributeEdge.getAttribute('title').trim(),
-                    type = attributeEdge.getAttribute('type').trim();
+                id = attributeEdge.getAttribute('id').trim();
+                title = attributeEdge.getAttribute('title').trim();
+                type = attributeEdge.getAttribute('type').trim();
 
                 // store edge attributes
                 edgesAttributes[id] = {title: title, type: type};
@@ -252,12 +256,12 @@
           var nodesNodes = gexf.getElementsByTagName('nodes');
 
           // loop through <nodes> elements
-          for (var i = 0, li = nodesNodes.length; i < li; i++) {
+          for (i = 0, li = nodesNodes.length; i < li; i++) {
             var nodesNode = nodesNodes[i];
             var nodeNodes = nodesNode.getElementsByTagName('node');
 
             // loop through <node> elements
-            for (var j = 0, lj = nodeNodes.length; j < lj; j++) {
+            for (j = 0, lj = nodeNodes.length; j < lj; j++) {
               var nodeNode = nodeNodes[j];
 
               var nodeId = nodeNode.getAttribute('id').trim(),
@@ -269,11 +273,11 @@
               var attvalueNodes = nodeNode.getElementsByTagName('attvalue');
 
               // loop through <attvalue> elements
-              for (var k = 0, lk = attvalueNodes.length; k < lk; k++) {
+              for (k = 0, lk = attvalueNodes.length; k < lk; k++) {
                 var attvalueNode = attvalueNodes[k];
 
-                var attributeId = attvalueNode.getAttribute('for');
-                var attributeTitle = nodesAttributes[attributeId].title;
+                attributeId = attvalueNode.getAttribute('for');
+                attributeTitle = nodesAttributes[attributeId].title;
                 nodeAttributes[attributeTitle] = attvalueNode.getAttribute('value');
               }
 
@@ -285,12 +289,12 @@
           var edgesNodes = gexf.getElementsByTagName('edges');
 
           // loop through <edges> elements
-          for (var i = 0, li = edgesNodes.length; i < li; i++) {
+          for (i = 0, li = edgesNodes.length; i < li; i++) {
             var edgesNode = edgesNodes[i];
             var edgeNodes = edgesNode.getElementsByTagName('edge');
 
             // loop through <edge> elements
-            for (var j = 0, lj = edgeNodes.length; j < lj; j++) {
+            for (j = 0, lj = edgeNodes.length; j < lj; j++) {
               var edgeNode = edgeNodes[j];
 
               var edgeSource = edgeNode.getAttribute('source').trim(),
@@ -302,12 +306,12 @@
               var attvalueEdges = edgeNode.getElementsByTagName('attvalue');
 
               // loop through <attvalue> elements
-              for (var k = 0, lk = attvalueEdges.length; k < lk; k++) {
+              for (k = 0, lk = attvalueEdges.length; k < lk; k++) {
                 var attvalueEdge = attvalueEdges[k];
 
-                var attributeId = attvalueEdge.getAttribute('for');
+                attributeId = attvalueEdge.getAttribute('for');
                 if (attributeId !== "_id") {
-                  var attributeTitle = edgesAttributes[attributeId].title;
+                  attributeTitle = edgesAttributes[attributeId].title;
                   edgeAttributes[attributeTitle] = attvalueEdge.getAttribute('value');
                 }
               }
@@ -444,8 +448,8 @@
     },
 
     loadSchema: function(nodeTypeLabel, edgeTypeLabel){
-      var nodeTypeLabel = (nodeTypeLabel === undefined) ? "type" : nodeTypeLabel;
-      var edgeTypeLabel = (edgeTypeLabel === undefined) ? "type" : edgeTypeLabel;
+      var _nodeTypeLabel = (nodeTypeLabel === undefined) ? "type" : nodeTypeLabel;
+      var _edgeTypeLabel = (edgeTypeLabel === undefined) ? "type" : edgeTypeLabel;
       // Introspect graph schema
       var nodes = this.getGraphNodesJSON();
       var nodeTypes = {};
@@ -455,15 +459,15 @@
         // Node properties
         nodeTypeProperties = {_nameLabel: {}};
         $.each(item, function(pIndex, pValue){
-          if (pIndex !== nodeTypeLabel && pIndex !== "position"){
+          if (pIndex !== _nodeTypeLabel && pIndex !== "position"){
             nodeTypeProperties[pIndex] = {};
           }
         });
-        if (!nodeTypes.hasOwnProperty(item[nodeTypeLabel])) {
-          nodeTypes[item[nodeTypeLabel]] = nodeTypeProperties;
+        if (!nodeTypes.hasOwnProperty(item[_nodeTypeLabel])) {
+          nodeTypes[item[_nodeTypeLabel]] = nodeTypeProperties;
         } else {
           $.each(nodeTypeProperties, function(pIndex, pValue){
-            nodeTypes[item[nodeTypeLabel]][pIndex] = {};
+            nodeTypes[item[_nodeTypeLabel]][pIndex] = {};
           });
         }
       });
@@ -471,13 +475,13 @@
       var edges = this.getGraphEdgesJSON();
       $.each(edges, function(index, item){
         var edgeLabel = nodes[item.source].type + "_" +
-            item[edgeTypeLabel] +
+            item[_edgeTypeLabel] +
             "_" + nodes[item.target].type;
         if (!edgeTypes.hasOwnProperty(edgeLabel)){
           edgeTypes[edgeLabel] = {
-            source: nodes[item.source][nodeTypeLabel],
-            label: item[edgeTypeLabel],
-            target: nodes[item.target][nodeTypeLabel],
+            source: nodes[item.source][_nodeTypeLabel],
+            label: item[_edgeTypeLabel],
+            target: nodes[item.target][_nodeTypeLabel],
             properties: item.properties
           };
         }
