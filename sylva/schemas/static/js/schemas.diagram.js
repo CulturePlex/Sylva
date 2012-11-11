@@ -31,7 +31,7 @@ diagram.CurrentRelations = {};
                  // Only send the token to relative URLs i.e. locally.
                  xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
              }
-         } 
+         }
     });
 
     init = function() {
@@ -375,9 +375,10 @@ diagram.CurrentRelations = {};
                     }
                 }
             }
-            positions = JSON.parse($("#id_diagram_positions").val());
+            var positions_val = $("#id_diagram_positions").val();
+            positions = positions_val ? JSON.parse(positions_val) : [];
             for(var i=0; i<positions.length; i++) {
-                position = positions[i]
+                position = positions[i];
                 // Show just selected models
                 // if (!(appModel in diagram.CurrentModels)) {
                 //     $("#diagramModelItem_"+ modelName).toggleClass("selected");
