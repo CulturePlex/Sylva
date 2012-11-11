@@ -56,9 +56,9 @@
             var serie = JSON.parse($(this).val());
             if (serie.nodes + serie.relationships > 0) {
                 var values = [serie.nodes, serie.relationships, serie.storage];
-                series[serie.type]["data"].push(values);
-                series[serie.type]["label"] = serie.label;
-                labels.push(serie.title +" ("+ sizeFormat(serie.storage) +")")
+                series[serie.type].data.push(values);
+                series[serie.type].label = serie.label;
+                labels.push(serie.title +" ("+ sizeFormat(serie.storage) +")");
                 nodes.push(serie.nodes);
                 relationships.push(serie.relationships);
                 storages.push(serie.storage);
@@ -83,16 +83,16 @@
           var owned = series.owned.data;
           series.owned.data = [];
           Flotr._.each(owned, function (point) {
-              point[2] = (point[2] * (storageMax - storageMin)) / ((storage.max - storage.min) || 1)
+              point[2] = (point[2] * (storageMax - storageMin)) / ((storage.max - storage.min) || 1);
               series.owned.data.push(point);
-              storagesValues.push(point[2])
+              storagesValues.push(point[2]);
           });
           var collaboration = series.collaboration.data;
           series.collaboration.data = [];
           Flotr._.each(collaboration , function (point) {
-              point[2] = (point[2] * (storageMax - storageMin)) / ((storage.max - storage.min) || 1)
+              point[2] = (point[2] * (storageMax - storageMin)) / ((storage.max - storage.min) || 1);
               series.collaboration.data.push(point);
-              storagesValues.push(point[2])
+              storagesValues.push(point[2]);
           });
           var storageMean = _.reduce(storagesValues, function(a, b){ return a + b; }, 0) / storagesValues.length;
           // Draw the graph
@@ -102,7 +102,7 @@
             xaxis   : { min : node.min - storageMean, max : node.max + storageMean},
             mouse: {
                 track: true
-            },
+            }
           });
         })(document.getElementById("dashboardStats"));
     };

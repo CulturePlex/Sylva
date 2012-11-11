@@ -1,3 +1,5 @@
+/*jshint scripturl:true*/
+
 /* Adapted from https://github.com/versae/qbe */
 if (!diagram) {
     var diagram = {};
@@ -14,7 +16,7 @@ diagram.CurrentRelations = {};
          beforeSend: function(xhr, settings) {
              function getCookie(name) {
                  var cookieValue = null;
-                 if (document.cookie && document.cookie != '') {
+                 if (document.cookie && document.cookie !== '') {
                      var cookies = document.cookie.split(';');
                      for (var i = 0; i < cookies.length; i++) {
                          var cookie = jQuery.trim(cookies[i]);
@@ -36,7 +38,7 @@ diagram.CurrentRelations = {};
 
     init = function() {
         diagram.Defaults = {};
-        diagram.Defaults["single"] = {
+        diagram.Defaults.single = {
             label: null,
             paintStyle: {
                 strokeStyle: '#AEAA78',
@@ -60,7 +62,7 @@ diagram.CurrentRelations = {};
                 ];
             }
         };
-        diagram.Defaults["double"] = {
+        diagram.Defaults.double = {
             label: null,
             cssClass: "connection",
             paintStyle: {
@@ -91,7 +93,7 @@ diagram.CurrentRelations = {};
                     ]
                 ];
             }
-        }
+        };
 
         jsPlumb.Defaults.DragOptions = {cursor: 'pointer', zIndex: 2000};
         jsPlumb.Defaults.Container = diagram.Container;
@@ -107,8 +109,8 @@ diagram.CurrentRelations = {};
             divBox = $("<DIV>");
             divBox.attr("id", "diagramBox_"+ modelName);
             divBox.css({
-                "left": (parseInt(Math.random() * 55 + 1) * 10) + "px",
-                "top": (parseInt(Math.random() * 25 + 1) * 10) + "px"
+                "left": (parseInt(Math.random() * 55 + 1, 10) * 10) + "px",
+                "top": (parseInt(Math.random() * 25 + 1, 10) * 10) + "px"
             });
             divBox.on("mouseenter", function() {
                 $(".content2-first").scrollTo("#model_"+ modelName, {
@@ -126,7 +128,7 @@ diagram.CurrentRelations = {};
             anchorDelete.attr("id", "inlineDeleteLink_"+ modelName);
             anchorDelete.addClass("inline-deletelink");
             anchorDelete.click(function () {
-                $("#diagramModelAnchor_"+ graphName +"\\\."+ modelName).click();
+                $("#diagramModelAnchor_"+ graphName +"\\."+ modelName).click();
                 divFields.toggleClass("hidden");
                 anchorDelete.toggleClass("inline-morelink");
                 anchorDelete.toggleClass("inline-deletelink");
@@ -195,7 +197,7 @@ diagram.CurrentRelations = {};
                 stop: function (event, ui) {
                     var $this, position, left, top;
                     $this = $(this);
-                    position = $this.position()
+                    position = $this.position();
                     left = position.left;
                     if (position.left < 0) {
                         left = "0px";
@@ -258,7 +260,7 @@ diagram.CurrentRelations = {};
             if (pos >= 0) {
                 diagram.CurrentModels.splice(pos, 1);
                 var model = diagram.Models[graphName][modelName];
-                diagram.removeBox(graphName, modelName)
+                diagram.removeBox(graphName, modelName);
                 diagram.removeRelations(graphName, modelName);
             }
         };
@@ -272,10 +274,10 @@ diagram.CurrentRelations = {};
             var sourceId, targetId, model, lengthRelations, relationIndex, relation;
             model = diagram.Models[graphName][modelName];
             lengthRelations = model.relations.length;
-            for(var relationIndex = 0; relationIndex < lengthRelations; relationIndex++) {
+            for(relationIndex = 0; relationIndex < lengthRelations; relationIndex++) {
                 relation = model.relations[relationIndex];
-                if ((diagram.CurrentModels.indexOf(graphName +"."+ relation.source) >= 0)
-                    && (diagram.CurrentModels.indexOf(graphName +"."+ relation.target) >= 0)) {
+                if ((diagram.CurrentModels.indexOf(graphName +"."+ relation.source) >= 0) &&
+                    (diagram.CurrentModels.indexOf(graphName +"."+ relation.target) >= 0)) {
                     sourceId = "diagramBox_"+ relation.source;
                     if (relation.source === relation.target) {
                         // Reflexive relationships
@@ -286,7 +288,7 @@ diagram.CurrentRelations = {};
                     diagram.addRelation(sourceId, targetId, relation.label);
                 }
             }
-        }
+        };
 
         /**
          * Create a relation between a element with id sourceId and targetId
@@ -303,7 +305,7 @@ diagram.CurrentRelations = {};
             connectionKey = sourceId +"~"+ targetId;
             if (!(connectionKey in diagram.CurrentRelations)) {
                 if (!relStyle || (relStyle !== "single" && relStyle !== "double")) {
-                    relStyle = "single"
+                    relStyle = "single";
                 }
                 connection = jsPlumb.connect({
                     scope: "diagramBox",
@@ -327,15 +329,21 @@ diagram.CurrentRelations = {};
                 currentLabel = connection.getLabel();
                 connection.setLabel(currentLabel + "<br/>"+ label);
             }
-        }
+        };
 
        /**
          * Save the positions of the all the boxes in a serialized way into a
          * input type hidden
          */
         diagram.saveBoxPositions = function () {
-            var positions, positionsString, left, top, splits, appModel, modelName;
-            positions = [];
+            var positions = [],
+                positionsString,
+                left,
+                top,
+                splits,
+                appModel,
+                modelName,
+                status;
             for(var i=0; i<diagram.CurrentModels.length; i++) {
                 appModel = diagram.CurrentModels[i];
                 splits = appModel.split(".");
@@ -396,7 +404,7 @@ diagram.CurrentRelations = {};
                 }
             }
             jsPlumb.repaintEverything();
-        }
+        };
         diagram.loadModels();
     };
     $(document).ready(init);
