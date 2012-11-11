@@ -1,10 +1,10 @@
 (function ($) {
     sizeFormat = function(bytecount) {
-        var str = bytecount+' B'; 
-        if (Number(bytecount) > 1000) { str = (bytecount/1000).toFixed(2)+' kB'; } 
-        if (Number(bytecount) > 1000000) { str = (bytecount/1000000).toFixed(2)+' MB'; } 
-        if (Number(bytecount) > 1000000000) { str = (bytecount/1000000000).toFixed(2)+' GB'; } 
-        return str; 
+        var str = bytecount+' B';
+        if (Number(bytecount) > 1000) { str = (bytecount/1000).toFixed(2)+' kB'; }
+        if (Number(bytecount) > 1000000) { str = (bytecount/1000000).toFixed(2)+' MB'; }
+        if (Number(bytecount) > 1000000000) { str = (bytecount/1000000000).toFixed(2)+' GB'; }
+        return str;
     };
 
     init = function() {
@@ -13,11 +13,11 @@
             d1 = [],
             d2 = [],
             point, graph, i;
-              
+
           for (i = 0; i < 10; i++ ){
             point = [i, Math.ceil(Math.random()*10), Math.ceil(Math.random()*10)];
             d1.push(point);
-            
+
             point = [i, Math.ceil(Math.random()*10), Math.ceil(Math.random()*10)];
             d2.push(point);
           }
@@ -58,7 +58,6 @@
             var serie = JSON.parse($(this).val());
             if (serie.nodes + serie.relationships > 0) {
                 var values = [serie.nodes, serie.relationships, serie.storage];
-                console.log(serie, values)
                 series[serie.type]["data"].push(values);
                 series[serie.type]["label"] = serie.label;
                 labels.push(serie.title +" ("+ sizeFormat(serie.storage) +")")
