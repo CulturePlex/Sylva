@@ -73,7 +73,7 @@ sylv:true, prompt:true, alert:true, FileReader:true, Processing:true, sigma:true
 
         var showInfo = $('#sigma-node-info').prop('checked');
         if (showInfo) {
-          // Show node popup info.
+          // Show node info popup.
           sigInst.iterNodes(function(node) {
             $tooltip =
               $('<div class="node-info"></div>')
@@ -86,43 +86,46 @@ sylv:true, prompt:true, alert:true, FileReader:true, Processing:true, sigma:true
           }, [nodePK]);
         }
 
-        // Hide edges and nodes.
-        sigInst.iterEdges(function(e) {
-          if (nodes.indexOf(e.source) >= 0 || nodes.indexOf(e.target) >= 0) {
-            neighbors[e.source] = true;
-            neighbors[e.target] = true;
-            isOrphan = false;
+        var showRelatedNodes = $('#sigma-related-nodes').prop('checked');
+        if (showRelatedNodes) {
+          // Hide edges and nodes.
+          sigInst.iterEdges(function(e) {
+            if (nodes.indexOf(e.source) >= 0 || nodes.indexOf(e.target) >= 0) {
+              neighbors[e.source] = true;
+              neighbors[e.target] = true;
+              isOrphan = false;
+            }
+          });
+          if (isOrphan) {
+            neighbors[nodePK] = true;
           }
-        });
-
-        if (isOrphan) {
-          neighbors[nodePK] = true;
+          sigInst.iterNodes(function(n) {
+            if (!neighbors[n.id]) {
+              n.hidden = true;
+            }
+          });
+          // Draw graph.
+          sigInst.draw();
         }
-
-        sigInst.iterNodes(function(n) {
-          if (!neighbors[n.id]) {
-            n.hidden = true;
-          }
-        });
-
-        // Draw graph.
-        sigInst.draw();
 
         // Update node legend.
         sylv.Utils.updateNodeLegend(sylv_nodes[nodePK].id, nodePK, 'element-info');
 
       });
 
-      // Hide node popup info and show the rest of nodes and edges.
+      // Hide node info popup and show the rest of nodes and edges.
       sigInst.bind('outnodes', function(event) {
         // Hide node info.
         $('.node-info').remove();
-        // Show nodes and edges.
-        sigInst.iterEdges(function(e) {
-          e.hidden = false;
-        }).iterNodes(function(n) {
-          n.hidden = false;
-        }).draw();
+        var showRelatedNodes = $('#sigma-related-nodes').prop('checked');
+        if (showRelatedNodes) {
+          // Show nodes and edges.
+          sigInst.iterEdges(function(e) {
+            e.hidden = false;
+          }).iterNodes(function(n) {
+            n.hidden = false;
+          }).draw();
+        }
       });
 
       // Bind pause button.

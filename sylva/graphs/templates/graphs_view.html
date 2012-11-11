@@ -37,11 +37,15 @@
     </select>
     <div class="sigma-checkbox" style="display:none;">
       <input type="checkbox" id="sigma-node-info">
-      <label for="sigma-node-info">{% trans "Show node info" %}</label>
+      <label for="sigma-node-info" title="{% trans "Show node info" %}">{% trans "Node info" %}</label>
+    </div>
+    <div class="sigma-checkbox" style="display:none;">
+      <input type="checkbox" id="sigma-related-nodes">
+      <label for="sigma-related-nodes" title="{% trans "Show only related nodes" %}">{% trans "Related nodes" %}</label>
     </div>
     <div class="sigma-checkbox" style="display:none;">
       <input type="checkbox" id="sigma-fisheye">
-      <label for="sigma-fisheye">{% trans "FishEye" %}</label>
+      <label for="sigma-fisheye" title="{% trans "Activate fisheye effect" %}">{% trans "FishEye" %}</label>
     </div>
   </div>
   <div id="graph-container"></div>
