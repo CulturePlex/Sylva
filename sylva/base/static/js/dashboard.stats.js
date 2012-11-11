@@ -25,7 +25,7 @@
             owned: {
                 data: [],
                 lines: {show: false },
-                points: {show: true },
+                points: {show: false },
                 bubbles : { show : true },
                 markers: {
                   show: true,
@@ -37,7 +37,7 @@
             collaboration: {
                 data: [],
                 lines: {show: false },
-                points: {show: true },
+                points: {show: false },
                 bubbles : { show : true },
                 markers: {
                   show: true,
