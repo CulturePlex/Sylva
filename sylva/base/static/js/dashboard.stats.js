@@ -27,7 +27,6 @@
                 lines: {show: false },
                 points: {show: true },
                 bubbles : { show : true },
-                points : { show : false },
                 markers: {
                   show: true,
                   position: 'cm',
@@ -40,7 +39,6 @@
                 lines: {show: false },
                 points: {show: true },
                 bubbles : { show : true },
-                points : { show : false },
                 markers: {
                   show: true,
                   position: 'cm',
