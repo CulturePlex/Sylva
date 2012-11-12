@@ -11,12 +11,13 @@ from schemas.models import (NodeType, NodeProperty,
 ON_DELETE_NOTHING = "no"
 ON_DELETE_CASCADE = "de"
 
+
 class TypeDeleteForm(forms.Form):
     CHOICES = (
         (ON_DELETE_NOTHING, _("Nothing, let them as they are")),
         (ON_DELETE_CASCADE, _("Delete all related elements")),
     )
-    option = forms.ChoiceField(label=_("We found some elements of this type." \
+    option = forms.ChoiceField(label=_("We found some elements of this type."
                                        " What do you want to do with them?"),
                                choices=CHOICES, required=True,
                                widget=forms.RadioSelect())
@@ -32,9 +33,9 @@ class TypeDeleteForm(forms.Form):
                 )
             else:
                 choice = (
-                        ON_DELETE_CASCADE,
-                        _("Delete %s related elements" % count)
-                    )
+                    ON_DELETE_CASCADE,
+                    _("Delete %s related elements" % count)
+                )
             self.fields["option"].choices[1] = choice
 
 
@@ -43,7 +44,7 @@ class TypeDeleteConfirmForm(forms.Form):
         (1, _("Yes")),
         (0, _("No")),
     )
-    confirm = forms.ChoiceField(label=_("Are you sure you want to delete " \
+    confirm = forms.ChoiceField(label=_("Are you sure you want to delete "
                                         "this?"),
                                 choices=CHOICES, required=True,
                                 widget=forms.RadioSelect())

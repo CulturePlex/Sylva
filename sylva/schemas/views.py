@@ -3,7 +3,7 @@ import json
 
 from django.db import transaction
 from django.core.urlresolvers import reverse
-from django.contrib.auth.decorators import login_required
+# from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.forms import ValidationError
 from django.http import HttpResponse
@@ -17,8 +17,9 @@ from graphs.models import Graph, Schema
 from schemas.forms import (NodeTypeForm, NodePropertyFormSet,
                            RelationshipTypeForm, RelationshipTypeFormSet,
                            TypeDeleteForm, TypeDeleteConfirmForm,
-                           ON_DELETE_NOTHING, ON_DELETE_CASCADE,
                            SchemaImportForm)
+from schemas.forms import ON_DELETE_CASCADE
+# from schemas.forms import ON_DELETE_NOTHING
 from schemas.models import NodeType, RelationshipType
 
 
@@ -166,8 +167,8 @@ def schema_relationshiptype_editcreate(request, graph_slug,
             with transaction.commit_on_success():
                 relationshiptype = form.save(commit=False)
                 if (relationshiptype.source.schema != graph.schema
-                    or relationshiptype.target.schema != graph.schema):
-                        raise ValidationError("Operation not allowed")
+                        or relationshiptype.target.schema != graph.schema):
+                    raise ValidationError("Operation not allowed")
                 relationshiptype.schema = graph.schema
                 relationshiptype.save()
                 instances = formset.save(commit=False)
@@ -258,11 +259,11 @@ def schema_import(request, graph_slug):
             graph.schema._import(schema_dict)
             return redirect(schema_edit, graph_slug)
         except ValueError:
-            messages.error(request, _("An error occurred when processing " \
+            messages.error(request, _("An error occurred when processing "
                                       "the exported schema"))
     return render_to_response('schemas_import.html',
                               {"graph": graph,
-                               "form":  form},
+                               "form": form},
                               context_instance=RequestContext(request))
 
 
