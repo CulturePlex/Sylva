@@ -112,6 +112,15 @@
   // global namespace
   var sylv = {};
 </script>
+<script type="text/javascript">
+  (function($) {
+    setTimeout(function() {
+      $('header .success').first().parent().fadeOut(1000, function() {
+        $(this).remove();
+      });
+    }, 5000);
+  })(jQuery);
+</script>
 {% block extra_scripts %}{% endblock %}
 <script type="text/javascript">
   var _gaq = _gaq || [];
