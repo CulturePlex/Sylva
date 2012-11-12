@@ -4,6 +4,7 @@ import json
 from django.db import transaction
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
 from django.forms import ValidationError
 from django.http import HttpResponse
 from django.template import RequestContext
@@ -251,11 +252,14 @@ def schema_import(request, graph_slug):
     graph = get_object_or_404(Graph, slug=graph_slug)
     if request.POST:
         form = SchemaImportForm(request.POST, request.FILES)
-        # TODO Handle possible exceptions
-        data = request.FILES['file'].read()
-        schema_dict = json.loads(data)
-        graph.schema._import(schema_dict)
-        return redirect(schema_edit, graph_slug)
+        try:
+            data = request.FILES['file'].read()
+            schema_dict = json.loads(data)
+            graph.schema._import(schema_dict)
+            return redirect(schema_edit, graph_slug)
+        except ValueError:
+            messages.error(request, _("An error occurred when processing " \
+                                      "the exported schema"))
     return render_to_response('schemas_import.html',
                               {"graph": graph,
                                "form":  form},
