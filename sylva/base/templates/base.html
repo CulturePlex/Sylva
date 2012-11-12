@@ -41,10 +41,19 @@
         </ul>
       </nav>
       {% endblock %}
+        <!-- user messages -->
+        {% if messages %}
+          <ul class="messages">
+            {% for message in messages %}
+              <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+        <!-- end user messages -->
       {% block content_title %}
       {% endblock %}
-      <div class="nav-wrapper">
 
+      <div class="nav-wrapper">
         <div class="inside clearfix">
         {% block contact_navigation %}
         {% endblock %}
