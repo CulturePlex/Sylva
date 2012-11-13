@@ -62,17 +62,46 @@
         <span>{% trans "Tools" %}</span>
     </a>
     <table id="toolsBrowseId" class="toolsBrowse">
-        <tr>
-            <td class="dataActions">
-                <a class="dataOption list" href="{% url tool_export graph.slug %}" title="{% trans "download as a Gephi file" %}">
-                    {% trans "Export graph" %}
-                </a>
-            </td>
-        </tr>
-        {% if ENABLE_CLONING %}
+        {% if graph.schema.is_empty %}
             <tr>
                 <td class="dataActions">
-                    <a class="dataOption list" href="{% url graph_clone graph.slug %}">
+                    <a class="dataOption list" href="{% url schema_import graph.slug %}" title="{% trans "Import graph schema from a JSON file" %}">
+                        {% trans "Import schema" %}
+                    </a>
+                </td>
+            </tr>
+        {% endif %}
+        {% if not graph.schema.is_empty %}
+            <tr>
+                <td class="dataActions">
+                    <a class="dataOption list" href="{% url schema_export graph.slug %}" title="{% trans "Export graph schema as a JSON file" %}">
+                        {% trans "Export schema" %}
+                    </a>
+                </td>
+            </tr>
+        {% endif %}
+        {% if not graph.schema.is_empty and graph.is_empty %}
+            <tr>
+                <td class="dataActions">
+                    <a class="dataOption list" href="{% url tool_import graph.slug %}" title="{% trans "Import graph data from a Gephi file" %}">
+                        {% trans "Import data" %}
+                    </a>
+                </td>
+            </tr>
+        {% endif %}
+        {% if not graph.is_empty %}
+            <tr>
+                <td class="dataActions">
+                    <a class="dataOption list" href="{% url tool_export graph.slug %}" title="{% trans "Export graph data as a Gephi file" %}">
+                        {% trans "Export data" %}
+                    </a>
+                </td>
+            </tr>
+        {% endif %}
+        {% if ENABLE_CLONING and not graph.schema.is_empty and not graph.is_empty %}
+            <tr>
+                <td class="dataActions">
+                    <a class="dataOption list" href="{% url graph_clone graph.slug %}" title="{% trans "Create a copy of this graph" %}">
                         {% trans "Clone graph" %}
                     </a>
                 </td>
