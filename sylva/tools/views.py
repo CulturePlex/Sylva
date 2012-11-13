@@ -1,10 +1,14 @@
 # -*- coding: utf-8 -*-
 import simplejson
 
+from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
 from django.shortcuts import (get_object_or_404, render_to_response,
-                                HttpResponse)
+                                HttpResponse, redirect)
+from django.utils.translation import gettext as _
 from django.template import RequestContext
+
 from guardian.decorators import permission_required
 
 from data.models import Data
@@ -16,14 +20,19 @@ from converters import GEXFConverter
 @login_required()
 def graph_import_tool(request, graph_slug):
     graph = get_object_or_404(Graph, slug=graph_slug)
-    # Schema jsonification
-    schema = graph.schema.export()
-
-    return render_to_response('graph_import_tool.html', {
-                                "graph": graph,
-                                "sylva_schema": simplejson.dumps(schema),
-                            },
-                            context_instance=RequestContext(request))
+    if not graph.schema.nodetype_set.exists():
+        messages.error(request, _("You are trying to import data into a "
+                                   "graph with an empty schema"))
+        return redirect(reverse('dashboard'))
+    if len(graph.nodes.all()) > 0:  # TODO: use graph "size" denormalized attribute
+        messages.error(request, _("You are trying to import data into a "
+                                   "not empty graph"))
+        return redirect(reverse('dashboard'))
+    schema = graph.schema.export()  # Schema jsonification
+    return render_to_response('graph_import_tool.html',
+                              {"graph": graph,
+                               "sylva_schema": simplejson.dumps(schema)},
+                              context_instance=RequestContext(request))
 
 
 @permission_required("data.change_data", (Data, "graph__slug", "graph_slug"))
@@ -55,12 +64,12 @@ def ajax_relationship_create(request, graph_slug):
 @permission_required("data.view_data", (Data, "graph__slug", "graph_slug"))
 def graph_export_tool(request, graph_slug):
     graph = get_object_or_404(Graph, slug=graph_slug)
+    if len(graph.nodes.all()) == 0:  # TODO: use graph "size" denormalized attribute
+        messages.error(request, _("You are trying to export data from an "
+                                   "empty graph"))
+        return redirect(reverse('dashboard'))
     converter = GEXFConverter(graph)
     response = HttpResponse(converter.stream_export(), mimetype='application/xml')
     response['Content-Disposition'] = \
             'attachment; filename=%s.gexf' % graph_slug.replace("-", "_")
     return response
-
-
-
-
