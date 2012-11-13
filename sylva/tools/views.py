@@ -20,11 +20,11 @@ from converters import GEXFConverter
 @login_required()
 def graph_import_tool(request, graph_slug):
     graph = get_object_or_404(Graph, slug=graph_slug)
-    if not graph.schema.nodetype_set.exists():
+    if graph.schema.is_empty():
         messages.error(request, _("You are trying to import data into a "
                                    "graph with an empty schema"))
         return redirect(reverse('dashboard'))
-    if len(graph.nodes.all()) > 0:  # TODO: use graph "size" denormalized attribute
+    if not graph.is_empty():
         messages.error(request, _("You are trying to import data into a "
                                    "not empty graph"))
         return redirect(reverse('dashboard'))
@@ -64,7 +64,7 @@ def ajax_relationship_create(request, graph_slug):
 @permission_required("data.view_data", (Data, "graph__slug", "graph_slug"))
 def graph_export_tool(request, graph_slug):
     graph = get_object_or_404(Graph, slug=graph_slug)
-    if len(graph.nodes.all()) == 0:  # TODO: use graph "size" denormalized attribute
+    if graph.is_empty():
         messages.error(request, _("You are trying to export data from an "
                                    "empty graph"))
         return redirect(reverse('dashboard'))

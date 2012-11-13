@@ -27,6 +27,9 @@ class Schema(models.Model, SchemaMixin):
         except ObjectDoesNotExist:
             return _(u"Schema \"%s\"") % (self.id)
 
+    def is_empty(self):
+        return not self.nodetype_set.exists()
+
     def export(self):
 
         def get_property_fields(n):
@@ -46,7 +49,7 @@ class Schema(models.Model, SchemaMixin):
         schema["relationship_types"] = []
         for r_type in self.relationshiptype_set.all():
             schema["relationship_types"].append(r_type)
-        schema_json = {"nodeTypes": {}, "allowedEdges":[]}
+        schema_json = {"nodeTypes": {}, "allowedEdges": []}
         for node_type in schema["node_types"]:
             attributes = {}
             for n in node_type.properties.all():
@@ -188,7 +191,7 @@ class BaseType(models.Model):
 
     @models.permalink
     def get_absolute_url(self):
-         return ('nodes_list_full', [self.schema.graph.slug, self.id])
+        return ('nodes_list_full', [self.schema.graph.slug, self.id])
 
 
 class NodeType(BaseType):
@@ -411,6 +414,7 @@ class NodeProperty(BaseProperty):
     class Meta:
         verbose_name_plural = _("Node properties")
         ordering = ("order", "key")
+
 
 class RelationshipProperty(BaseProperty):
     relationship = models.ForeignKey(RelationshipType,

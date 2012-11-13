@@ -67,6 +67,9 @@ class Graph(models.Model, GraphMixin):
     def get_absolute_url(self):
         return ('graph_view', [self.slug])
 
+    def is_empty(self):
+        return len(self.nodes.all()) == 0  # TODO: use denormalized attribute instead
+
     def clone(self, new_graph, clone_data=True):
         schema = self.schema
         new_schema = new_graph.schema

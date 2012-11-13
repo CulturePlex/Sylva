@@ -240,12 +240,13 @@ def schema_relationshiptype_delete(request, graph_slug,
                      (Schema, "graph__slug", "graph_slug"))
 def schema_export(request, graph_slug):
     graph = get_object_or_404(Graph, slug=graph_slug)
-    if not graph.schema.nodetype_set.exists():
+    if graph.schema.is_empty():
         messages.error(request, _("You are trying to export an empty schema!"))
         return redirect(reverse('dashboard'))
     schema = graph.schema.export()
     response = HttpResponse(json.dumps(schema), mimetype='application/json')
-    response['Content-Disposition'] = 'attachment; filename=%s_schema.json' % graph_slug
+    response['Content-Disposition'] = 'attachment; filename=%s_schema.json' \
+                                                            % graph_slug
     return response
 
 
@@ -253,7 +254,7 @@ def schema_export(request, graph_slug):
                      (Schema, "graph__slug", "graph_slug"))
 def schema_import(request, graph_slug):
     graph = get_object_or_404(Graph, slug=graph_slug)
-    if graph.schema.nodetype_set.exists():
+    if not graph.schema.is_empty():
         messages.error(request, _("The schema already exists!"))
         return redirect(reverse('dashboard'))
     form = SchemaImportForm()
