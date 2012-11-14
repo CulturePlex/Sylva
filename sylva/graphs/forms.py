@@ -50,7 +50,7 @@ class GraphForm(ModelForm):
 
     class Meta:
         model = Graph
-        fields = ("owner", "name", "description", "relaxed", "public")
+        fields = ("owner", "name", "description", "public")  # Removed"relaxed"
 
 
 class GraphDeleteConfirmForm(forms.Form):
