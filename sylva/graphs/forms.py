@@ -33,7 +33,7 @@ class GraphForm(ModelForm):
             queryset=queryset,
             initial=initial,
             widget=forms.HiddenInput())
-        if settings.OPTIONS["ALLOWS_INSTANCES"]:
+        if settings.OPTIONS["ENABLE_INSTANCES"]:
             if user:
                 instances = Instance.objects.filter(owner=user)
                 self.fields["instance"].queryset = instances
