@@ -336,7 +336,7 @@ header .messages .success,
 header .messages .info,
 header .messages .debug {
     font-weight: bold;
-    padding: 12px;
+    padding: 7px;
     border-radius: 6px;
 }
 

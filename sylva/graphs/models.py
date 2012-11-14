@@ -68,7 +68,7 @@ class Graph(models.Model, GraphMixin):
         return ('graph_view', [self.slug])
 
     def is_empty(self):
-        return len(self.nodes.all()) == 0  # TODO: use denormalized attribute instead
+        return self.data.total_nodes == 0
 
     def clone(self, new_graph, clone_data=True):
         schema = self.schema
