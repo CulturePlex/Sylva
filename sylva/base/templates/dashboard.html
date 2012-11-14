@@ -23,7 +23,8 @@
               <div class="content3-block">
 
 <div class="dashboard-graphs">
-<a class="button" href="{% url graph_create %}">{% trans "New Graph" %}</a>
+  <a class="button" href="{% url graph_create %}">{% trans "New Graph" %}</a>
+  <input name="q" maxlength="100" placeholder="{% trans "Filter" %}..." type="text" class="filterBox" id="graphs-filter">
 <h2>{% trans "Graphs" %}</h2>
 <div class="graph-list">
 {% for graph in graphs %}

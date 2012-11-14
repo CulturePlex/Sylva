@@ -1,9 +1,31 @@
 (function ($) {
+    // Extends pseido selectos, adds case insesitive contains
+    $.expr[":"].icontains = $.expr.createPseudo(function(arg) {
+        return function( elem ) {
+            return $(elem).text().toUpperCase().indexOf(arg.toUpperCase()) >= 0;
+        };
+    });
+
+    filtering = function(e) {
+      var selector, value;
+      value = $(this).val();
+      if (value) {
+        selector = ".graph-item:not(:has(.graph-title:has(a:icontains("+ value +"))))";
+        $(selector).hide();
+      } else {
+        $(".graph-item").show();
+      }
+    };
+    $("#graphs-filter").on("keypress", filtering);
+    $("#graphs-filter").on("change", filtering);
+    $("#graphs-filter").on("blur", filtering);
+
     sizeFormat = function(bytecount) {
         var str = bytecount+' B';
         if (Number(bytecount) > 1000) { str = (bytecount/1000).toFixed(2)+' kB'; }
         if (Number(bytecount) > 1000000) { str = (bytecount/1000000).toFixed(2)+' MB'; }
         if (Number(bytecount) > 1000000000) { str = (bytecount/1000000000).toFixed(2)+' GB'; }
+        if (Number(bytecount) > 1000000000000) { str = (bytecount/1000000000000).toFixed(2)+' TB'; }
         return str;
     };
 

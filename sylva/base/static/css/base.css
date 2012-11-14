@@ -919,6 +919,8 @@ ul.errorlist {
 /* Dashboard Graphs */
 .graph-list,.instance-list {
     padding-bottom: 10px;
+    overflow: auto;
+    max-height: 500px;
 }
 
 .graph-item {
@@ -929,7 +931,7 @@ ul.errorlist {
     background: transparent url(../img/55-network_16.png) 2px center no-repeat;
     font-size: 120%;
     padding: 5px 5px 2px 20px;
-    height: 20px;
+    /*height: 20px;*/
     display: block;
 }
 
@@ -1426,6 +1428,40 @@ div.relationships-box {
 }
 
 #searchBox p input[type="text"]:hover {
+    box-shadow: 0 0 5px rgba(52,142,130,0.75);
+    -webkit-box-shadow: 0 0 5px rgba(52,142,130,0.75);
+    -moz-box-shadow: 0 0 5px rgba(52,142,130,0.75);
+}
+
+
+input[type="text"].filterBox {
+    width: 1px;
+    height: 16px;
+    font: inherit;
+    margin: 4px 5px 0 0;
+    background: url(../img/search_24.png) no-repeat right 50%;
+    padding-right: 17px;
+    border-radius: 4px;
+    -moz-box-shadow: 0 1px 1px rgba(0, 0, 0, 0.9);
+    -webkit-box-shadow: 0 1px 1px rgba(0, 0, 0, 0.9);
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.9);
+    display: block;
+    font-size: 12px;
+    font-weight: 700;
+    color: white;
+    text-decoration: none;
+    background-color: white;
+    position: relative;
+    float: right;
+}
+
+
+input[type="text"]:focus.filterBox {
+    width: 80px;
+    color: #262626;
+}
+
+input[type="text"]:hover.filterBox {
     box-shadow: 0 0 5px rgba(52,142,130,0.75);
     -webkit-box-shadow: 0 0 5px rgba(52,142,130,0.75);
     -moz-box-shadow: 0 0 5px rgba(52,142,130,0.75);
