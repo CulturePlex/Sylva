@@ -3,12 +3,9 @@ from django import forms
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
-from django.forms import ModelForm
+from django.forms import ModelForm, widgets
 from django.utils.translation import gettext as _
 
-# from django.conf import settings
-
-# from data.models import Data
 from graphs.models import Graph
 from engines.models import Instance
 
@@ -43,14 +40,14 @@ class GraphForm(ModelForm):
                 empty_label = _("Choose your backend instance")
                 self.fields["instance"].empty_label = empty_label
             help_text = _("Buy a <a href='%s'>new instance</a>.") \
-                        % reverse("dashboard")
+                % reverse("dashboard")
             self.fields["instance"].help_text = help_text
         else:
             self.fields["instance"].widget = forms.HiddenInput()
 
     class Meta:
         model = Graph
-        fields = ("owner", "name", "description", "public")  # Removed"relaxed"
+        fields = ("owner", "name", "description", "public")  # Removed relaxed
 
 
 class GraphDeleteConfirmForm(forms.Form):
@@ -58,7 +55,7 @@ class GraphDeleteConfirmForm(forms.Form):
         (1, _("Yes")),
         (0, _("No")),
     )
-    confirm = forms.ChoiceField(label=_("Are you sure you want to delete " \
+    confirm = forms.ChoiceField(label=_("Are you sure you want to delete "
                                         "this whole graph?"),
                                 help_text=_("This can take a few minutes"),
                                 choices=CHOICES, required=True,
@@ -71,12 +68,12 @@ class GraphCloneForm(GraphForm):
         ("data", _("Data")),
     )
     options = forms.MultipleChoiceField(required=False,
-                                        widget=forms.widgets.CheckboxSelectMultiple,
+                                        widget=widgets.CheckboxSelectMultiple,
                                         choices=CHOICES,
                                         initial=[c[0] for c in CHOICES],
-                                        label=_("Which parts of the graph " \
+                                        label=_("Which parts of the graph "
                                                 "would you like to clone?"),
-                                        help_text=_("Note that your files will "\
+                                        help_text=_("Note that your files will"
                                                     " not be copied"))
 
     class Meta(GraphForm.Meta):
@@ -84,9 +81,11 @@ class GraphCloneForm(GraphForm):
 
 
 class AddCollaboratorForm(forms.Form):
-    new_collaborator = forms.ChoiceField(choices=User.objects.none(),
-                        widget=forms.Select(attrs={'class': 'chzn-select'}),
-                        label=_("Collaborator"))
+    new_collaborator = forms.ChoiceField(
+        choices=User.objects.none(),
+        widget=forms.Select(attrs={'class': 'chzn-select'}),
+        label=_("Collaborator")
+    )
 
     def __init__(self, *args, **kwargs):
         anonymous_name = _("Any User")
@@ -96,7 +95,7 @@ class AddCollaboratorForm(forms.Form):
         if graph:
             users = User.objects.all().exclude(pk=settings.ANONYMOUS_USER_ID)
             no_collaborators = [
-                (u.id, ((u.id != -1) and u.username or anonymous_name)) \
-                for u in users \
+                (u.id, ((u.id != -1) and u.username or anonymous_name))
+                for u in users
                 if u != graph.owner and u not in collaborators]
             self.fields["new_collaborator"].choices = no_collaborators
