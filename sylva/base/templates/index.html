@@ -15,7 +15,7 @@
                 // Slideshow
                 $(function(){
                     $('#slides').slides({
-                        preload: true,
+                        /* preload: true, Doesn't work with jQuery 1.8.x */
                         preloadImage: '{{ STATIC_PREFIX }}img/loading.gif',
                         play: 5000,
                         pause: 2500,
@@ -133,10 +133,10 @@
         </div>
         <div class="content2-block">
             <div id="container">
-                <div id="slideshow"> 
+                <div id="slideshow">
         <!--            <img src="{{ STATIC_PREFIX }}img/new-ribbon.png" width="112" height="112" alt="New Ribbon" id="ribbon"> -->
-                    <div id="slides"> 
-                        <div class="slides_container"> 
+                    <div id="slides">
+                        <div class="slides_container">
                             <img src="{{ STATIC_PREFIX }}img/slide-1.jpg" width="570" height="270"
                                  alt="{% trans "Create graphs any time" %}" title="{% trans "Create graphs any time" %}">
                             <img src="{{ STATIC_PREFIX }}img/slide-2.jpg" width="570" height="270"
@@ -153,11 +153,11 @@
                                  alt="{% trans "Advanced definition for your schema" %}" title="{% trans "Advanced definition for your schema" %}">
                             <img src="{{ STATIC_PREFIX }}img/slide-8.jpg" width="570" height="270"
                                  alt="{% trans "Manage as collaborators as you want" %}" title="{% trans "Manage as collaborators as you want" %}">
-                        </div> 
-                        <a href="#" class="prev"><img src="{{ STATIC_PREFIX }}img/arrow-prev.png" width="24" height="43" alt="Arrow Prev"></a> 
-                        <a href="#" class="next"><img src="{{ STATIC_PREFIX }}img/arrow-next.png" width="24" height="43" alt="Arrow Next"></a> 
-                    </div> 
-                    <img src="{{ STATIC_PREFIX }}img/example-frame.png" width="739" height="341" alt="Example Frame" id="frame"> 
+                        </div>
+                        <a href="#" class="prev"><img src="{{ STATIC_PREFIX }}img/arrow-prev.png" width="24" height="43" alt="Arrow Prev"></a>
+                        <a href="#" class="next"><img src="{{ STATIC_PREFIX }}img/arrow-next.png" width="24" height="43" alt="Arrow Next"></a>
+                    </div>
+                    <img src="{{ STATIC_PREFIX }}img/example-frame.png" width="739" height="341" alt="Example Frame" id="frame">
                 </div>
             </div>
         </div>
