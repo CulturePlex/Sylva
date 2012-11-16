@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render_to_response, redirect
 from django.template import RequestContext
@@ -24,7 +25,8 @@ def signin_redirect(request, *args, **kwargs):
 
 
 def signup_redirect(request, *args, **kwargs):
-    if request.user.is_authenticated() and request.user.is_superuser:
+    if (settings.OPTIONS.get("ENABLE_SIGNUP", False) or
+            (request.user.is_authenticated() and request.user.is_superuser)):
         return signup(request, *args, **kwargs)
     return redirect("index")
 

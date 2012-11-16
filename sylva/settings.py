@@ -11,7 +11,7 @@ PROJECT_NAME = u"Sylva Project"
 PROJECT_ROOT = path.dirname(path.abspath(__file__))
 
 ADMINS = (
-    ('CulturePlex Lab', 'info@cultureplex.ca'),
+    ('Sylva', 'info@sylvadb.com'),
 )
 
 MANAGERS = ADMINS
@@ -233,6 +233,7 @@ LOGGING = {
 
 # Django settings
 MESSAGE_STORAGE = 'django.contrib.messages.storage.session.SessionStorage'
+DEFAULT_FROM_EMAIL = "info@sylvadb.com"
 
 # Profiling
 PROFILE_MIDDLEWARE_SORT = ["cumulative", "calls"]
@@ -242,7 +243,8 @@ PROFILE_MIDDLEWARE_JSON = True
 # Userena settings
 USERENA_DEFAULT_PRIVACY = "open"
 USERENA_DISABLE_PROFILE_LIST = False
-USERENA_WITHOUT_USERNAMES = True
+USERENA_WITHOUT_USERNAMES = False
+USERENA_HIDE_EMAIL = True
 USERENA_LANGUAGE_FIELD = "language"
 USERENA_SIGNIN_REDIRECT_URL = LOGIN_REDIRECT_URL
 USERENA_MUGSHOT_GRAVATAR = True
@@ -267,6 +269,7 @@ ENABLE_AUTOCOMPLETE_NODES = True
 ENABLE_SEARCH = True
 ENABLE_CLONING = False
 ENABLE_PROFILE = False
+ENABLE_SIGNUP = True
 MAINTENANCE_MODE = False
 PREVIEW_NODES = 200  # Size of the graph preview in the graph screen
 MAX_SIZE = 300  # Disable graph preview (Processing) nodes number is above this value
@@ -277,6 +280,7 @@ OPTIONS = {
     "ENABLE_INHERITANCE": ENABLE_INHERITANCE,
     "ENABLE_AUTOCOMPLETE_NODES": ENABLE_AUTOCOMPLETE_NODES,
     "ENABLE_SEARCH": ENABLE_SEARCH,
+    "ENABLE_SIGNUP": ENABLE_SIGNUP,
     "MAINTENANCE_MODE": MAINTENANCE_MODE,
     "PREVIEW_NODES": PREVIEW_NODES,
 }
