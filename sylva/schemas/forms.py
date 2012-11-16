@@ -54,7 +54,7 @@ class NodeTypeForm(forms.ModelForm):
 
     class Meta:
         model = NodeType
-        if settings.OPTIONS["ALLOWS_INHERITANCE"]:
+        if settings.OPTIONS["ENABLE_INHERITANCE"]:
             exclude = ("schema", "order", "total")
         else:
             exclude = ("schema", "order", "total", "inheritance")
@@ -75,7 +75,7 @@ class RelationshipTypeForm(forms.ModelForm):
 
     class Meta:
         model = RelationshipType
-        if settings.OPTIONS["ALLOWS_INHERITANCE"]:
+        if settings.OPTIONS["ENABLE_INHERITANCE"]:
             fields = ("source", "name", "plural_name", "inverse",
                       "plural_inverse", "target", "description",
                       "arity_source", "arity_target",
