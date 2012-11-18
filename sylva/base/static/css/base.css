@@ -1332,6 +1332,10 @@ table.content-table {
   border: 3px solid #D8E8DE;
 }
 
+.graph-controls {
+    z-index: 100;
+}
+
 #visualization-type {
     width: 150px;
     margin-top: 0px;
@@ -1386,6 +1390,7 @@ table.content-table {
     font-size: 10px;
     cursor: pointer;
     width: 29px;
+    z-index: 100;
 }
 
 div.relationships-box {
