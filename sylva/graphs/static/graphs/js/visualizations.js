@@ -77,6 +77,7 @@ sylv:true, alert:true */
       sylv.total_nodes = data.total_nodes;
       sylv.total_edges = data.total_edges;
 
+      sylv.size = data.size;
       sylv.disableProcessing = data.size > sylv.MAX_SIZE;
 
       if (sylv.disableProcessing) {

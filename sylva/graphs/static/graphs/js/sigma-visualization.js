@@ -1,7 +1,8 @@
 // JSHint options
 
 /*global window:true, document:true, setTimeout:true, console:true, jQuery:true,
-sylv:true, prompt:true, alert:true, FileReader:true, Processing:true, sigma:true */
+sylv:true, prompt:true, alert:true, FileReader:true, Processing:true, sigma:true,
+clearTimeout */
 
 
 /****************************************************************************
@@ -11,16 +12,22 @@ sylv:true, prompt:true, alert:true, FileReader:true, Processing:true, sigma:true
 ;(function(sylv, sigma, $, window, document, undefined) {
 
   // Layout algorithm state.
-  var isDrawing;
+  var isDrawing = false;
+  // setTimeout id.
+  var timeout_id = 0;
+
 
   var Sigma = {
 
     init: function() {
-      // Parse nodes and edges.
+      var that = this;
+      // Nodes and edges.
       var sylv_nodes = sylv.total_nodes;
       var sylv_edges = sylv.total_edges;
       // Node info.
       var $tooltip;
+      // Graph size.
+      var size = sylv.size;
 
       // Instanciate Sigma.js and customize rendering.
       var sigInst = sigma.init(document.getElementById('graph-container')).drawingProperties({
@@ -131,13 +138,9 @@ sylv:true, prompt:true, alert:true, FileReader:true, Processing:true, sigma:true
       // Bind pause button.
       $('#sigma-pause').on('click', function() {
         if (isDrawing === true) {
-          isDrawing = false;
-          sigInst.stopForceAtlas2();
-          $(this).html('Play');
+          that.stop();
         } else {
-          isDrawing = true;
-          sigInst.startForceAtlas2();
-          $(this).html('Pause');
+          that.start();
         }
       });
 
@@ -151,9 +154,20 @@ sylv:true, prompt:true, alert:true, FileReader:true, Processing:true, sigma:true
         }
       });
 
-      // Start layout algorithm.
       sigInst.startForceAtlas2();
       isDrawing = true;
+
+      var timeout;
+      if (size <= 20) {
+        timeout = 10000;
+      } else if (size <= 50) {
+        timeout = 15000;
+      } else if (size <= 100) {
+        timeout = 20000;
+      } else {
+        timeout = 30000;
+      }
+      that.addTimeout(timeout);
     },
 
     // Start layout algorithm.
@@ -170,12 +184,26 @@ sylv:true, prompt:true, alert:true, FileReader:true, Processing:true, sigma:true
 
     // Stop layout algorithm.
     stop: function() {
+      this.removeTimeout();
       var sigInst = sigma.instances[1];
       if (sigInst) {
         sigInst.stopForceAtlas2();
         isDrawing = false;
         $('#sigma-pause').html('Play');
       }
+    },
+
+    // Stop layout algorithm after `timeout` ms.
+    addTimeout: function(timeout) {
+      var that = this;
+      timeout_id = setTimeout(function() {
+        that.stop();
+      }, timeout);
+    },
+
+    // Clear setTimeout.
+    removeTimeout: function() {
+      clearTimeout(timeout_id);
     }
 
   };

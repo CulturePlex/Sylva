@@ -1,7 +1,8 @@
 // JSHint options
 
 /*global window:true, document:true, setTimeout:true, console:true, jQuery:true,
-sylv:true, prompt:true, alert:true, FileReader:true, Processing:true */
+sylv:true, prompt:true, alert:true, FileReader:true, Processing:true,
+clearTimeout:true */
 
 
 /****************************************************************************
@@ -9,6 +10,9 @@ sylv:true, prompt:true, alert:true, FileReader:true, Processing:true */
  ****************************************************************************/
 
 ;(function(sylv, $, window, document, undefined) {
+
+  // setTimeout id.
+  var timeout_id = 0;
 
   function updateInfo(evt, nodeName, nodeId) {
     if (nodeId === undefined) {
@@ -154,6 +158,20 @@ sylv:true, prompt:true, alert:true, FileReader:true, Processing:true */
       });
       $('#graphcanvas').trigger('graph_init');
     });
+
+    // Stop layout algoritm after `timeout` ms.
+    var size = sylv.size;
+    var timeout;
+    if (size <= 20) {
+      timeout = 10000;
+    } else if (size <= 50) {
+      timeout = 15000;
+    } else if (size <= 100) {
+      timeout = 20000;
+    } else {
+      timeout = 30000;
+    }
+    addTimeout(timeout);
   }
 
   function start() {
@@ -166,10 +184,22 @@ sylv:true, prompt:true, alert:true, FileReader:true, Processing:true */
   }
 
   function stop() {
+    removeTimeout();
     var processingInst = Processing.instances[0];
     if (processingInst) {
       processingInst.stop();
     }
+  }
+
+  // Stop layout algoritm after `timeout` ms.
+  function addTimeout(timeout) {
+    timeout_id = setTimeout(function() {
+      stop();
+    }, timeout);
+  }
+
+  function removeTimeout() {
+    clearTimeout(timeout_id);
   }
 
   // reveal module
