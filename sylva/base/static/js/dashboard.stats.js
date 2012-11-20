@@ -6,7 +6,7 @@
         };
     });
 
-    filtering = function(e) {
+    var filtering = function(e) {
       var selector, value;
       value = $(this).val();
       if (value) {
@@ -20,7 +20,7 @@
     $("#graphs-filter").on("change", filtering);
     $("#graphs-filter").on("blur", filtering);
 
-    sizeFormat = function(bytecount) {
+    var sizeFormat = function(bytecount) {
         var str = bytecount+' B';
         if (Number(bytecount) > 1000) { str = (bytecount/1000).toFixed(2)+' kB'; }
         if (Number(bytecount) > 1000000) { str = (bytecount/1000000).toFixed(2)+' MB'; }
@@ -29,7 +29,7 @@
         return str;
     };
 
-    init = function() {
+    var init = function() {
         (function basic_bubble(container) {
           var
             d1 = [],
