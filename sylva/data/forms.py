@@ -353,7 +353,7 @@ class RelationshipForm(ItemForm):
                             properties=properties
                         )
             else:
-                return (source_node.id, node_id, label, properties)
+                return (related_node.id, node_id, label, properties)
 
 
 def relationship_formset_factory(relationship, *args, **kwargs):
