@@ -3,7 +3,7 @@ from django import forms
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
-from django.forms.extras import widgets
+# from django.forms.extras import widgets
 from django.forms.formsets import BaseFormSet, DELETION_FIELD_NAME
 from django.forms.models import inlineformset_factory
 from django.template.defaultfilters import slugify
@@ -21,8 +21,8 @@ class ItemDeleteConfirmForm(forms.Form):
         (1, _("Yes")),
         (0, _("No")),
     )
-    confirm = forms.ChoiceField(label=_("Are you sure you want to delete " \
-                                        "this? All related relationships " \
+    confirm = forms.ChoiceField(label=_("Are you sure you want to delete "
+                                        "this? All related relationships "
                                         "will be removed"),
                                 choices=CHOICES, required=True,
                                 widget=forms.RadioSelect())
@@ -97,11 +97,11 @@ class ItemForm(forms.Form):
                 field_attrs["choices"] = item_property.get_choices()
                 field_attrs["initial"] = slugify(field_attrs["initial"] or "")
                 if initial and item_property.key in initial:
-                     slug_value = slugify(initial[item_property.key])
-                     initial[item_property.key] = slug_value
+                    slug_value = slugify(initial[item_property.key])
+                    initial[item_property.key] = slug_value
                 field = forms.ChoiceField(**field_attrs)
             elif item_property.datatype == datatype_dict["text"]:
-                field_attrs["widget"] = widget=forms.Textarea
+                field_attrs["widget"] = widget = forms.Textarea
                 field = forms.CharField(**field_attrs)
             else:
                 field = forms.CharField(**field_attrs)
@@ -116,7 +116,6 @@ class ItemForm(forms.Form):
             }
             field = forms.CharField(**field_attrs)
             self.fields[ITEM_FIELD_NAME] = field
-
 
     def _clean_fields(self):
         # Taken from django/forms/forms.py
@@ -156,7 +155,7 @@ class ItemForm(forms.Form):
         if ITEM_FIELD_NAME in cleaned_data:
             self.item_id = cleaned_data.pop(ITEM_FIELD_NAME)
         if (len(cleaned_data) <= 0 or
-            not any(not_false_values)):
+                not any(not_false_values)):
             msg = _("At least one field must be filled")
             for field_key, field_value in cleaned_data.items():
                 if not field_value.strip():
@@ -177,8 +176,8 @@ class ItemForm(forms.Form):
 
     def save(self, commit=True, *args, **kwargs):
         properties = self.cleaned_data
-        if (properties
-            and any([bool(unicode(v).strip()) for v in properties.values()])):
+        if (properties and any([bool(unicode(v).strip()) for v
+                in properties.values()])):
             if self.graph.relaxed:
                 properties_items = properties.items()
                 for field_key, field_value in properties_items:
@@ -308,7 +307,7 @@ class RelationshipForm(ItemForm):
             self._errors[self.itemtype.id] = self.error_class([msg])
         # If there is no data, there is no relationship to add
         if (self.itemtype.id in self._errors
-            and not (self.initial or cleaned_data)):
+                and not (self.initial or cleaned_data)):
             self._errors.pop(self.itemtype.id)
         return cleaned_data
 
@@ -316,8 +315,8 @@ class RelationshipForm(ItemForm):
         properties = None
         if hasattr(self, "cleaned_data"):
             properties = self.cleaned_data
-        if (properties
-            and any([bool(unicode(v).strip()) for v in properties.values()])):
+        if (properties and any([bool(unicode(v).strip()) for v
+                in properties.values()])):
             node_id = properties.pop(self.itemtype.id)
             if not self.graph.relaxed:
                 properties_items = properties.items()
