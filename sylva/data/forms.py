@@ -220,7 +220,7 @@ class RelationshipForm(ItemForm):
                 direction = u"target"
                 label = u"→ %s (%s)" % (itemtype.name,
                                         getattr(itemtype, direction).name)
-                if not settings.AUTOCOMPLETE_NODES:
+                if not settings.ENABLE_AUTOCOMPLETE_NODES:
                     choices = [(n.id, n.display)
                                for n in itemtype.target.all()]
                 url_create = reverse("nodes_create",
@@ -230,7 +230,7 @@ class RelationshipForm(ItemForm):
                 direction = u"source"
                 label = u"← (%s) %s" % (getattr(itemtype, direction).name,
                                         itemtype.inverse or itemtype.name)
-                if not settings.AUTOCOMPLETE_NODES:
+                if not settings.ENABLE_AUTOCOMPLETE_NODES:
                     choices = [(n.id, n.display)
                                for n in itemtype.source.all()]
                 url_create = reverse("nodes_create",
@@ -258,7 +258,7 @@ class RelationshipForm(ItemForm):
                 help_text = _("<a href=\"javascript:void(0);\""
                               " class=\"toggleProperties\">"
                               "Toggle properties</a>.")
-            if settings.AUTOCOMPLETE_NODES:
+            if settings.ENABLE_AUTOCOMPLETE_NODES:
                 if initial and itemtype.id in initial:
                     node = itemtype.schema.graph.nodes.get(initial.get(itemtype.id))
                     widget_class = u"autocomplete %s" % node.display
