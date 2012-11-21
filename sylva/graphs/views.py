@@ -162,6 +162,7 @@ def graph_create(request):
                               context_instance=RequestContext(request))
 
 
+@login_required
 @permission_required("schemas.view_schema", (Schema, "graph__slug",
                                              "graph_slug"))
 @permission_required("data.view_data", (Data, "graph__slug", "graph_slug"))
