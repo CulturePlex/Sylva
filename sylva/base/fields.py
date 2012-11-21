@@ -2,6 +2,9 @@ import re
 from django.db.models import fields
 from django.template.defaultfilters import slugify
 
+from south.modelsinspector import add_introspection_rules
+add_introspection_rules([], ["^base\.fields\.AutoSlugField"])
+
 
 def _unique_slugify(instance, value, slug_field_name='slug', queryset=None,
                     slug_separator='-'):
