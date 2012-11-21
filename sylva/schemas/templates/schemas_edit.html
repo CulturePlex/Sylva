@@ -125,7 +125,7 @@
     {% endfor %}
     {% if not node_type.get_outgoing_relationships and not node_type.get_incoming_relationships %}
     <span class="indent">
-    {% trans "New" %} 
+    {% trans "New" %}
     <a class="buttonLinkOption" href="{% url schema_relationshiptype_create graph.slug %}?target={{ node_type.id }}&inverse={{ relationship_name.grouper }}">
         {% trans "incoming" %}
     </a> {% trans "or" %}
@@ -170,8 +170,8 @@
 <link rel="stylesheet" type="text/css" href="{{ STATIC_PREFIX }}css/schemas.diagram.css" />
 {% endblock %}
 {% block extra_scripts %}
-<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.13/jquery-ui.min.js"></script>
-<script type="text/javascript" src="{{ STATIC_PREFIX }}js/jquery.jsplumb.1.3.9.min.js"></script>
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.9.1/jquery-ui.min.js"></script>
+<script type="text/javascript" src="{{ STATIC_PREFIX }}js/jquery.jsplumb.1.3.16.min.js"></script>
 <script type="text/javascript" src="{{ STATIC_PREFIX }}js/jquery.scrollto.min.js"></script>
 <script type="text/javascript" src="{{ STATIC_PREFIX }}js/schemas.diagram.js"></script>
 <script type="text/javascript">
