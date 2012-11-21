@@ -24,19 +24,17 @@ if [ "$backend" == "django.db.backends.sqlite3" ]; then
     " | python manage.py dbshell $settings
 elif [ "$backend" == "django.db.backends.postgresql_psycopg2" ]; then
     echo "PostgreSQL..."
+    echo "Remember the ALTER SEQUENCE command in PostgreSQL (try select 'pg_stat_reset();')"
     echo "
     TRUNCATE TABLE accounts_userprofile CASCADE;
     TRUNCATE TABLE accounts_account CASCADE;
     TRUNCATE TABLE auth_permission CASCADE;
     TRUNCATE TABLE django_content_type CASCADE;
-    " | python manage.py dbshell $settings
-    echo "Remember the ALTER SEQUENCE command in PostgreSQL (try select 'pg_stat_reset();')"
-    echo "
     ALTER SEQUENCE accounts_userprofile_id_seq RESTART WITH 1;
     ALTER SEQUENCE accounts_account_id_seq RESTART WITH 1;
     " | python manage.py dbshell $settings
 else
-    echo "Please, add 'sqlite' or 'postgresql' to the commnad"
+    echo "Please, add 'django.db.backends.sqlite3' or 'django.db.backends.postgresql_psycopg2' to your settings"
     exit;
 fi
 python manage.py loaddata $settings backups/contenttypes.json
