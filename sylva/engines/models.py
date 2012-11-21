@@ -52,6 +52,13 @@ class Instance(models.Model):
     options = models.TextField(_("options"), null=True, blank=True)
     owner = models.ForeignKey(User, verbose_name=_('owner'),
                               related_name="instances")
+    TYPE_TYPES = (
+        ("private", _("Private")),
+        ("public", _("Public")),
+        ("shared", _("Shared")),
+    )
+    type = models.CharField(_("type"), max_length=8, default="private",
+                            choices=TYPE_TYPES, null=True, blank=True)
 
     def __init__(self, *args, **kwargs):
         super(Instance, self).__init__(*args, **kwargs)
