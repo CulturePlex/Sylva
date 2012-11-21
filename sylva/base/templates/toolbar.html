@@ -8,16 +8,6 @@
     <a id="dataMenu" href="javascript:void(0);" class="inline link">
         <span>{% trans "Data" %}</span>
     </a>
-<!--    <span class="inline">-->
-<!--<!--        <label for="nodeTypeNavigation">{% trans "Nodes" %}: </label>-->
-<!--        <select id="nodeTypeNavigation">-->
-<!--        <option value="{% url nodes_list graph.slug %}">{% trans "All" %}</option>-->
-<!--        {% for type in graph.schema.nodetype_set.all %}-->
-<!--            <option value="{% url nodes_list_full graph.slug type.id %}"-->
-<!--                    {% if type == node_type %}selected="selected"{% endif %}>{{ type.name }} # {{ type.count }}</option>-->
-<!--        {% endfor %}-->
-<!--        </select>-->
-<!--    </span>-->
     <div id="dataBrowse">
     {% with graph.schema.nodetype_set.all as nodetypes %}
     {% if nodetypes %}
@@ -27,7 +17,7 @@
                 <td>
                     <span>{{ type.name }}</span>
                 </td><td>
-                    <span alt="{% trans "Count" %}" title="{% trans "Count" %}">{{ type.count }}</span>
+                    <span alt="{% trans "Count" %}" title="{% trans "Count" %}">{{ type.total }}</span>
                 </td><td class="dataActions">
                     <a class="dataOption list" href="{% url nodes_list_full graph.slug type.id %}" title="{% trans "List" %}" alt="{% trans "List" %}">
                         &nbsp;
