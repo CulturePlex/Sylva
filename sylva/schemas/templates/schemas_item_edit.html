@@ -49,7 +49,7 @@
             {% endif %}
             {% trans "or" %} <a href="{% url schema_edit graph.slug %}">{% trans "Cancel" %}</a>.
         </span>
-        
+
     </div>
     <div class="content-divider"></div>
     <div class="content2-second">
@@ -153,7 +153,7 @@
 <script type="text/javascript" src="{{ STATIC_PREFIX }}js/jquery.formsets.1.2.min.js"></script>
 <script type="text/javascript">
     (function($) {
-        rowAdded = function(row) {
+        var rowAdded = function(row) {
             // FIXME: The class "hidden" is not properly set in new rows
             //        added dynamically.
             var $hidden = $(".hidden");
@@ -162,9 +162,9 @@
             } else {
                 //$(row).add(".hidden").hide();
             }
-        }
+        };
 
-        init = function() {
+        var init = function() {
             $("#itemType tbody tr.formset").formset({
                 prefix: "properties",
                 addCssClass: "addButton",
@@ -186,7 +186,7 @@
                     $(".itemtype-properties-table textarea").addClass("expand");
                 }
             });
-        }
+        };
         init();
     })(jQuery);
 </script>
