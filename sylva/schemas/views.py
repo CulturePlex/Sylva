@@ -14,12 +14,15 @@ from django.utils.translation import gettext as _
 from guardian.decorators import permission_required
 
 from graphs.models import Graph, Schema
+from data.models import Data
 from schemas.forms import (NodeTypeForm, NodePropertyFormSet,
                            RelationshipTypeForm, RelationshipTypeFormSet,
                            TypeDeleteForm, TypeDeleteConfirmForm,
-                           SchemaImportForm)
+                           SchemaImportForm, ElementTypeChangedForm,
+                           ElementTypeDeletedForm)
 from schemas.forms import ON_DELETE_CASCADE
 # from schemas.forms import ON_DELETE_NOTHING
+from django.forms.formsets import formset_factory
 from schemas.models import NodeType, RelationshipType
 
 
@@ -110,7 +113,30 @@ def schema_nodetype_editcreate(request, graph_slug, nodetype_id=None):
                 for instance in instances:
                     instance.node = node_type
                     instance.save()
-                redirect_url = reverse("schema_edit", args=[graph.slug])
+                schema_modified = False
+                if formset.deleted_objects:
+                    schema_modified = True
+                    deleted_props = []
+                    for obj_prop in formset.deleted_objects:
+                        deleted_props.append({'key': obj_prop.key})
+                    request.session['schema_deleted_props'] = deleted_props
+                if formset.changed_objects:
+                    schema_modified = True
+                    changed_props = []
+                    for obj_prop, prop in formset.changed_objects:
+                        for data in formset.cleaned_data:
+                            if 'key' in data and data['key'] == obj_prop.key:
+                                if 'id' in data:
+                                    changed_props.append({
+                                        'key': data['id'].key,
+                                        'new_key': data['key']
+                                    })
+                    request.session['schema_changed_props'] = changed_props
+                if schema_modified:
+                    redirect_url = reverse("schema_nodetype_properties_mend",
+                                           args=[graph.slug, node_type.id])
+                else:
+                    redirect_url = reverse("schema_edit", args=[graph.slug])
             return redirect(redirect_url)
     return render_to_response('schemas_item_edit.html',
                               {"graph": graph,
@@ -127,6 +153,12 @@ def schema_nodetype_editcreate(request, graph_slug, nodetype_id=None):
                                "item_type_object": empty_nodetype,
                                "formset": formset},
                               context_instance=RequestContext(request))
+
+
+@permission_required("data.change_data", (Data, "graph__slug", "graph_slug"))
+def schema_nodetype_properties_mend(request, graph_slug, nodetype_id):
+    element_type = get_object_or_404(NodeType, id=nodetype_id)
+    return schema_properties_mend(request, graph_slug, element_type)
 
 
 @permission_required("schemas.change_schema",
@@ -175,7 +207,31 @@ def schema_relationshiptype_editcreate(request, graph_slug,
                 for instance in instances:
                     instance.relationship = relationshiptype
                     instance.save()
-                redirect_url = reverse("schema_edit", args=[graph.slug])
+                schema_modified = False
+                if formset.deleted_objects:
+                    schema_modified = True
+                    deleted_props = []
+                    for obj_prop in formset.deleted_objects:
+                        deleted_props.append({'key': obj_prop.key})
+                    request.session['schema_deleted_props'] = deleted_props
+                if formset.changed_objects:
+                    schema_modified = True
+                    changed_props = []
+                    for obj_prop, prop in formset.changed_objects:
+                        for data in formset.cleaned_data:
+                            if 'key' in data and data['key'] == obj_prop.key:
+                                if 'id' in data:
+                                    changed_props.append({
+                                        'key': data['id'].key,
+                                        'new_key': data['key']
+                                    })
+                    request.session['schema_changed_props'] = changed_props
+                if schema_modified:
+                    redirect_url = \
+                        reverse("schema_relationshiptype_properties_mend",
+                                args=[graph.slug, relationshiptype.id])
+                else:
+                    redirect_url = reverse("schema_edit", args=[graph.slug])
             return redirect(redirect_url)
     return render_to_response('schemas_item_edit.html',
                               {"graph": graph,
@@ -236,6 +292,13 @@ def schema_relationshiptype_delete(request, graph_slug,
                               context_instance=RequestContext(request))
 
 
+@permission_required("data.change_data", (Data, "graph__slug", "graph_slug"))
+def schema_relationshiptype_properties_mend(request, graph_slug,
+                                            relationshiptype_id):
+    element_type = get_object_or_404(RelationshipType, id=relationshiptype_id)
+    return schema_properties_mend(request, graph_slug, element_type)
+
+
 @permission_required("schemas.change_schema",
                      (Schema, "graph__slug", "graph_slug"))
 def schema_export(request, graph_slug):
@@ -285,3 +348,89 @@ def schema_diagram_positions(request, graph_slug):
         graph.schema.save()
         status = 204  # No Content
     return HttpResponse(status=status)
+
+
+def schema_properties_mend(request, graph_slug, element_type):
+    graph = get_object_or_404(Graph, slug=graph_slug)
+    if not 'schema_changed_props' in request.session and \
+            not 'schema_deleted_props' in request.session:
+        return redirect(reverse("schema_edit", args=[graph.slug]))
+    changed_props = request.session.get('schema_changed_props', [])
+    deleted_props = request.session.get('schema_deleted_props', [])
+    ElementTypeChangedFormSet = formset_factory(ElementTypeChangedForm, extra=0)
+    ElementTypeDeletedFormSet = formset_factory(ElementTypeDeletedForm, extra=0)
+    changed_formset = ElementTypeChangedFormSet(initial=changed_props,
+                                                prefix='changed')
+    deleted_formset = ElementTypeDeletedFormSet(initial=deleted_props,
+                                                prefix='deleted')
+    if request.POST:
+        data = request.POST.copy()
+        if changed_props:
+            changed_formset = ElementTypeChangedFormSet(data=data,
+                                                        initial=changed_props,
+                                                        prefix='changed')
+        if deleted_props:
+            deleted_formset = ElementTypeDeletedFormSet(data=data,
+                                                        initial=deleted_props,
+                                                        prefix='deleted')
+        fixed = False
+        if changed_props and deleted_props:
+            if changed_formset.is_valid() and deleted_formset.is_valid():
+                for cdata in changed_formset.cleaned_data:
+                    mend_schema_property(element_type, cdata['option'],
+                                         cdata['key'], cdata['new_key'])
+                for cdata in deleted_formset.cleaned_data:
+                    mend_schema_property(element_type, cdata['option'],
+                                         cdata['key'])
+                request.session.pop('schema_changed_props')
+                request.session.pop('schema_deleted_props')
+                fixed = True
+        elif changed_props and changed_formset.is_valid():
+            for cdata in changed_formset.cleaned_data:
+                mend_schema_property(element_type, cdata['option'],
+                                     cdata['key'], cdata['new_key'])
+            request.session.pop('schema_changed_props')
+            fixed = True
+        elif deleted_props and deleted_formset.is_valid():
+            for cdata in deleted_formset.cleaned_data:
+                mend_schema_property(element_type, cdata['option'], cdata['key'])
+            request.session.pop('schema_deleted_props')
+            fixed = True
+        if fixed:
+            return redirect(reverse("schema_edit", args=[graph.slug]))
+    return render_to_response('schemas_properties_mend.html',
+                              {"graph": graph,
+                               "item_type_label": _("Type"),
+                               "element_type": element_type,
+                               "changed_formset": changed_formset,
+                               "deleted_formset": deleted_formset,
+                               "changed_props": changed_props,
+                               "deleted_props": deleted_props},
+                              context_instance=RequestContext(request))
+
+
+def mend_schema_property(element_type=None, action=None, key=None, new_key=None):
+
+    def _rename_schema_property(element_type=None, key=None, new_key=None):
+        if element_type:
+            elements = element_type.all()
+            for element in elements:
+                try:
+                    element.set(new_key, element.get(key))
+                    element.delete(key)
+                except KeyError:
+                    pass
+
+    def _delete_schema_property(element_type=None, key=None):
+        if element_type:
+            elements = element_type.all()
+            for element in elements:
+                try:
+                    element.delete(key)
+                except KeyError:
+                    pass
+
+    if action == 'rename':
+        _rename_schema_property(element_type, key, new_key)
+    elif action == 'delete':
+        _delete_schema_property(element_type, key)

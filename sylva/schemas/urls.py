@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-from django.conf import settings
-from django.conf.urls.defaults import patterns, include, url
+from django.conf import settings  # flake8: noqa
+from django.conf.urls.defaults import patterns, include, url  # flake8: noqa
 from django.contrib import admin
 
 # from django.contrib import admin
@@ -25,6 +25,11 @@ urlpatterns = patterns('schemas.views',
         'schema_nodetype_delete',
         name="schema_nodetype_delete"),
 
+    # node type properties mend
+    url(r'^(?P<graph_slug>[\w-]+)/types/(?P<nodetype_id>\d+)/properties/$',
+        'schema_nodetype_properties_mend',
+        name="schema_nodetype_properties_mend"),
+
     # relationship type create
     url(r'^(?P<graph_slug>[\w-]+)/allowed/create/$',
         'schema_relationshiptype_create',
@@ -39,6 +44,11 @@ urlpatterns = patterns('schemas.views',
     url(r'^(?P<graph_slug>[\w-]+)/allowed/(?P<relationshiptype_id>\d+)/delete/$',
         'schema_relationshiptype_delete',
         name="schema_relationshiptype_delete"),
+
+    # relationship type properties mend
+    url(r'^(?P<graph_slug>[\w-]+)/allowed/(?P<relationshiptype_id>\d+)/properties/$',
+        'schema_relationshiptype_properties_mend',
+        name="schema_relationshiptype_properties_mend"),
 
     # export schema
     url(r'^(?P<graph_slug>[\w-]+)/diagram/$',
