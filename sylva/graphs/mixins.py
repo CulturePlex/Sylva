@@ -810,7 +810,7 @@ class Relationship(BaseElement):
         self._properties[key] = value
 
     def __delitem__(self, key):
-        self.gdb.delete_relationship_property(key)
+        self.gdb.delete_relationship_property(self.id, key)
         del self._properties[key]
 
     def _get_source(self):
