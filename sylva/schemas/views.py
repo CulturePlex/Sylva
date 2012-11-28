@@ -100,6 +100,12 @@ def schema_nodetype_editcreate(request, graph_slug, nodetype_id=None):
         empty_nodetype = NodeType()
     form = NodeTypeForm(instance=empty_nodetype)
     formset = NodePropertyFormSet(instance=empty_nodetype)
+    changed_props = request.session.get('schema_changed_props', None)
+    deleted_props = request.session.get('schema_deleted_props', None)
+    if changed_props:
+        del request.session['schema_changed_props']
+    if deleted_props:
+        del request.session['schema_deleted_props']
     if request.POST:
         data = request.POST.copy()
         form = NodeTypeForm(data=data, instance=empty_nodetype)
@@ -190,6 +196,12 @@ def schema_relationshiptype_editcreate(request, graph_slug,
     form = RelationshipTypeForm(initial=initial, schema=graph.schema,
                                 instance=empty_relationshiptype)
     formset = RelationshipTypeFormSet(instance=empty_relationshiptype)
+    changed_props = request.session.get('schema_changed_props', None)
+    deleted_props = request.session.get('schema_deleted_props', None)
+    if changed_props:
+        del request.session['schema_changed_props']
+    if deleted_props:
+        del request.session['schema_deleted_props']
     if request.POST:
         data = request.POST.copy()
         form = RelationshipTypeForm(data=data, schema=graph.schema,
