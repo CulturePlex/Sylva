@@ -108,6 +108,10 @@ abbr {
     max-height: 600px;
 }
 
+.medium-width {
+    width: 700px;
+}
+
 a.disabled,a.disabled:hover {
     cursor: default;
     color: #B0B0B0;
@@ -596,7 +600,7 @@ a {
 }
 
 /*
-    Slogan
+    Paragraph customs
 */
 p.slogan {
     text-align: center;
@@ -606,6 +610,11 @@ p.slogan {
     font-weight: bold;
     color: #A19C60;
     text-shadow:0 1px 1px rgba(175,203,188,0.8);
+}
+
+.stronger {
+    font-weight: bold;
+    font-size: 1.2em;
 }
 
 /* Links */
@@ -1622,9 +1631,4 @@ table.toolsBrowse .dataActions .dataOption {
 
 #content2 form.staytuned .helptext {
     font-size: 10px;
-}
-
-/* formsets */
-#content2 .formset-medium-width {
-    width: 700px;
 }

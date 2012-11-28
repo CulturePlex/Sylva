@@ -133,6 +133,7 @@ def schema_nodetype_editcreate(request, graph_slug, nodetype_id=None):
                                     })
                     request.session['schema_changed_props'] = changed_props
                 if schema_modified:
+                    messages.success(request, _("Your changes were saved"))
                     redirect_url = reverse("schema_nodetype_properties_mend",
                                            args=[graph.slug, node_type.id])
                 else:

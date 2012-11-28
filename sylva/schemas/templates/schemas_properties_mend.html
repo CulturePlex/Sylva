@@ -20,28 +20,28 @@
 {% endblock %}
 
 {% block content %}
-<div id="content2">
+
+<div id="content2" class="medium-width">
+    <p class="stronger">{% trans "Your changes in the schema have been saved, but we have not apply these changes in your data yet. Please, choose in each case what to do with the following properties:" %}</p>
     <form action="." method="POST">{% csrf_token %}
-        <div class="formset-medium-width">
-            {% if deleted_props %}
-                {{ deleted_formset.management_form }}
-                {% for form in deleted_formset %}
-                    <h2>{% trans "Property" %}: {{ form.initial.key }}</h2>
-                    {{ form.as_p }}
-                {% endfor %}
-            {% endif %}
-            {% if changed_props %}
-                {{ changed_formset.management_form }}
-                {% for form in changed_formset %}
-                    <h2>{% trans "Property" %}: {{ form.initial.key }} → {{ form.initial.new_key }}</h2>
-                    {{ form.as_p }}
-                {% endfor %}
-            {% endif %}
-        </div>
+        {% if deleted_props %}
+            {{ deleted_formset.management_form }}
+            {% for form in deleted_formset %}
+                <h2>{% trans "Property" %}: {{ form.initial.key }}</h2>
+                {{ form.as_p }}
+            {% endfor %}
+        {% endif %}
+        {% if changed_props %}
+            {{ changed_formset.management_form }}
+            {% for form in changed_formset %}
+                <h2>{% trans "Property" %}: {{ form.initial.key }} → {{ form.initial.new_key }}</h2>
+                {{ form.as_p }}
+            {% endfor %}
+        {% endif %}
         <br>
         <input type="submit" value="{% trans "Continue" %}"/>
         <span class="buttonLinkOption">
-            {% trans "or" %} <a href="{% url schema_edit graph.slug %}">{% trans "Cancel" %}</a>.
+            {% trans "or" %} <a href="{% url schema_edit graph.slug %}" title="{% trans "keep all options as default" %}">{% trans "Cancel" %}</a>.
         </span>
     </form>
 </div>
