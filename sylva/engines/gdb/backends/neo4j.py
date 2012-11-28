@@ -215,8 +215,8 @@ class GraphDatabase(BlueprintsGraphDatabase):
         # Using Cypher
         cypher = self.cypher
         if label:
-            script = """start r=rel:`%s`('label:%s') """ % (label,
-                                                            self.ridx.name)
+            script = """start r=rel:`%s`('label:%s') """ % (self.ridx.name,
+                                                            label)
         else:
             script = """start r=rel:`%s`('label:*') """ % self.ridx.name
         script = """%s match a-[r]->b """ % script
