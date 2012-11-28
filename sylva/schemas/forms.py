@@ -58,9 +58,16 @@ class NodeTypeForm(forms.ModelForm):
             exclude = ("schema", "order", "total")
         else:
             exclude = ("schema", "order", "total", "inheritance")
+        if not settings.OPTIONS.get("ENABLE_TYPE_VALIDATION_FORMS", False):
+            exclude += ("validation", )
 
-NodePropertyFormSet = inlineformset_factory(NodeType, NodeProperty,
-                                            extra=1, can_delete=True)
+if settings.OPTIONS.get("ENABLE_TYPE_VALIDATION_FORMS", False):
+    NodePropertyFormSet = inlineformset_factory(NodeType, NodeProperty,
+                                                    extra=1, can_delete=True)
+else:
+    NodePropertyFormSet = inlineformset_factory(NodeType, NodeProperty,
+                                                extra=1, can_delete=True,
+                                                exclude=["validation"])
 
 
 class ElementTypeChangedForm(forms.Form):
@@ -130,10 +137,18 @@ class RelationshipTypeForm(forms.ModelForm):
             fields = ("source", "name", "plural_name", "inverse",
                       "plural_inverse", "target", "description",
                       "arity_source", "arity_target")
+        if settings.OPTIONS.get("ENABLE_TYPE_VALIDATION_FORMS", False):
+            fields += ("validation", )
 
-RelationshipTypeFormSet = inlineformset_factory(RelationshipType,
-                                                RelationshipProperty,
-                                                extra=1, can_delete=True)
+if settings.OPTIONS.get("ENABLE_TYPE_VALIDATION_FORMS", False):
+    RelationshipTypeFormSet = inlineformset_factory(RelationshipType,
+                                                    RelationshipProperty,
+                                                    extra=1, can_delete=True)
+else:
+    RelationshipTypeFormSet = inlineformset_factory(RelationshipType,
+                                                    RelationshipProperty,
+                                                    extra=1, can_delete=True,
+                                                    exclude=["validation"])
 
 
 class SchemaImportForm(forms.Form):
