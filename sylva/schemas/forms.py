@@ -84,6 +84,7 @@ class ElementTypeChangedForm(forms.Form):
                        "don't show it, and start using the new property name "
                        "for the new elements")),
         )
+        self.fields['option'].initial = "keep"
 
 
 class ElementTypeDeletedForm(forms.Form):
@@ -105,6 +106,7 @@ class ElementTypeDeletedForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         super(ElementTypeDeletedForm, self).__init__(*args, **kwargs)
+        self.fields['option'].initial = "keep"
 
 
 class RelationshipTypeForm(forms.ModelForm):
