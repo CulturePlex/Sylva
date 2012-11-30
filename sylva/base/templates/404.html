@@ -2,10 +2,10 @@
 {% load i18n %}
 
 {% block title %}
+{% trans "Page not found" %}
 {% endblock title %}
 
 {% block extra_links %}
-  <link rel="stylesheet" type="text/css" href="{{ STATIC_PREFIX }}css/base.css" />
 {% endblock %}
 
 {% block extra_scripts %}
@@ -22,19 +22,19 @@
 {% endblock %}
 
 {% block main_navigation %}
-  <nav class="main">
-    <ul></ul>
-  </nav>
+  {{ block.super }}
 {% endblock %}
 
 {% block content %}
   <div id="homepage">
-    <div class="text-replacement" style="margin-left: 0px; opacity: 1; ">
-      <div id="content2">
-        <div class="content2-block"></div>
+    <div class="page-error">
+      <div class="heading">
+        <h1>{% trans "Sorry, that page doesn't exist!" %}</h1>
+      </div>
+      <div class="description">
+        <p>{% trans "The page you are looking for has not been found." %}</p>
       </div>
     </div>
-
     <div id="body-divider"></div>
       <div id="content3">
         <div class="content-padding">
@@ -42,4 +42,7 @@
       </div>
     </div>
   </div>
+{% endblock %}
+
+{% block scripts %}
 {% endblock %}

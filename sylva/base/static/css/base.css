@@ -1632,3 +1632,25 @@ table.toolsBrowse .dataActions .dataOption {
 #content2 form.staytuned .helptext {
     font-size: 10px;
 }
+
+.page-error {
+    width: 600px;
+    margin: auto;
+    font-weight: bold;
+    text-align: center;
+}
+
+.page-error .heading h1 {
+    margin: 50px 0 0;
+    font-size: 35px;
+    line-height: 1;
+}
+
+.page-error .description p {
+    font-size: 16px;
+    margin-top: 16px;
+}
+
+.twitter-widget {
+    margin-top: 30px;
+}
