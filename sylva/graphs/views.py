@@ -225,9 +225,9 @@ def graph_collaborators(request, graph_slug):
         data = request.POST.copy()
         form = AddCollaboratorForm(data=data, graph=graph)
         if form.is_valid():
-            user = form.cleaned_data["new_collaborator"]
-            guardian.assign('view_graph', user, graph)
-            collaborators.append(user)
+            new_collaborator = form.cleaned_data["new_collaborator"]
+            guardian.assign('view_graph', new_collaborator, graph)
+            collaborators.append(new_collaborator)
     else:
         form = AddCollaboratorForm(graph=graph)
     # graph_permissions = guardian.get_perms_for_model(graph)

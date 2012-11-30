@@ -84,8 +84,8 @@ class AddCollaboratorForm(forms.Form):
     new_collaborator = forms.ModelChoiceField(
         queryset=User.objects.none(),
         widget=forms.Select(attrs={'class': 'chzn-select',
-                                   'data-placeholder': _("Type the name...")}),
-        empty_label=_(u"Type the name")
+                                   'data-placeholder': _("Type the name")}),
+        empty_label=_(u"Type the name or e-mail")
     )
 
     def __init__(self, *args, **kwargs):
