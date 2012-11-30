@@ -81,21 +81,27 @@ class GraphCloneForm(GraphForm):
 
 
 class AddCollaboratorForm(forms.Form):
-    new_collaborator = forms.ChoiceField(
-        choices=User.objects.none(),
-        widget=forms.Select(attrs={'class': 'chzn-select'}),
-        label=_("Collaborator")
+    new_collaborator = forms.ModelChoiceField(
+        queryset=User.objects.none(),
+        widget=forms.Select(attrs={'class': 'chzn-select',
+                                   'data-placeholder': _("Type the name...")}),
+        empty_label=_(u"Type the name")
     )
 
     def __init__(self, *args, **kwargs):
-        anonymous_name = _("Any User")
-        graph = kwargs.pop("graph", None)
-        collaborators = kwargs.pop("collaborators", [])
+        self.graph = kwargs.pop("graph", None)
+        new_collaborator = kwargs.get("data", {}).get("new_collaborator", None)
         super(AddCollaboratorForm, self).__init__(*args, **kwargs)
-        if graph:
-            users = User.objects.all().exclude(pk=settings.ANONYMOUS_USER_ID)
-            no_collaborators = [
-                (u.id, ((u.id != -1) and u.username or anonymous_name))
-                for u in users
-                if u != graph.owner and u not in collaborators]
-            self.fields["new_collaborator"].choices = no_collaborators
+        if self.graph and new_collaborator:
+            users = User.objects.filter(id=new_collaborator)
+            self.fields["new_collaborator"].queryset = users
+
+    def clean_new_collaborator(self):
+        new_collaborator = self.cleaned_data["new_collaborator"]
+        collabs = self.graph.get_collaborators(include_anonymous=True,
+                                               as_queryset=True)
+        if (new_collaborator in collabs
+                and new_collaborator not in User.objects.all()):
+            raise forms.ValidationError((u"Plase, choose a valid user"))
+        else:
+            return new_collaborator

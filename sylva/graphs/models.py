@@ -175,12 +175,19 @@ class Graph(models.Model, GraphMixin):
                                        media_link=ml.media_link)
                     new_ml.save()
 
-    def get_collaborators(self, include_anonymous=False):
+    def get_collaborators(self, include_anonymous=False, as_queryset=False):
         all_collaborators = get_users_with_perms(self)
         if include_anonymous:
-            return list(all_collaborators.exclude(id=self.owner.id))
+            if as_queryset:
+                return all_collaborators.exclude(id=self.owner.id)
+            else:
+                return list(all_collaborators.exclude(id=self.owner.id))
         else:
-            return list(all_collaborators.exclude(id__in=[self.owner.id,
+            if as_queryset:
+                return all_collaborators.exclude(id__in=[self.owner.id,
+                                                 settings.ANONYMOUS_USER_ID])
+            else:
+                return list(all_collaborators.exclude(id__in=[self.owner.id,
                                                   settings.ANONYMOUS_USER_ID]))
 
 

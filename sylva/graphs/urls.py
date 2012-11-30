@@ -28,6 +28,8 @@ urlpatterns = patterns('graphs.views',
     # collaborators edit
     url(r'^(?P<graph_slug>[\w-]+)/collaborators/$', 'graph_collaborators',
         name="graph_collaborators"),
+    url(r'^(?P<graph_slug>[\w-]+)/collaborators/lookup/$', 'graph_ajax_collaborators',
+        name="graph_ajax_collaborators"),
 
     # user permissions update
     url(r'^(?P<graph_slug>[\w-]+)/collaborators/change_permission/$',
