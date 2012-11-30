@@ -1,11 +1,13 @@
 {% load i18n thumbnail static %}<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
 {% get_static_prefix as STATIC_PREFIX %}
+
 <html xml:lang="{{ LANGUAGE_CODE|slice:":2" }}"
       xmlns="http://www.w3.org/1999/xhtml"
       xmlns:v="urn:schemas-microsoft-com:vml"
       version="-//W3C//DTD XHTML 1.0 Strict//EN">
 
-<head>
+  <head>
     <title>{{ PROJECT_NAME }} - {% block title %}{% trans "Welcome to The Sylva Project" %}{% endblock %}</title>
     <meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
     <meta name="author" content="The CulturePlex Lab.">
@@ -23,118 +25,114 @@
     <![endif]-->
     {% block extra_metas %}{% endblock %}
     {% block extra_links %}{% endblock %}
-</head>
+  </head>
 
-<body {% block body_attrs %}{% endblock %}>
-{% block body %}
-
-  <div id="main">
-    <header class="global">
-      {% block menu_navigation %}
-      <nav class="menu">
-        <ul>
-<!--          <li><a href="{% url userena.views.profile_detail request.user %}" class="text">{{ request.user }}</a></li>-->
-          {% block menu_buttons %}
-<!--          <li><a href="{% url dashboard %}" class="link"><span>{% trans "Dashboard" %}</span></a></li>-->
+  <body {% block body_attrs %}{% endblock %}>
+    {% block body %}
+      <div id="main">
+        <header class="global">
+          {% block menu_navigation %}
+            <nav class="menu">
+              <ul>
+      <!--          <li><a href="{% url userena.views.profile_detail request.user %}" class="text">{{ request.user }}</a></li>-->
+                {% block menu_buttons %}
+      <!--          <li><a href="{% url dashboard %}" class="link"><span>{% trans "Dashboard" %}</span></a></li>-->
+                {% endblock %}
+      <!--          <li><a href="{{ LOGOUT_URL }}" class="link"><span>{% trans "Sign out" %}</span></a></li>-->
+              </ul>
+            </nav>
           {% endblock %}
-<!--          <li><a href="{{ LOGOUT_URL }}" class="link"><span>{% trans "Sign out" %}</span></a></li>-->
-        </ul>
-      </nav>
-      {% endblock %}
-        <!-- user messages -->
-        {% if messages %}
-          <ul class="messages">
-            {% for message in messages %}
-              <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
-            {% endfor %}
-          </ul>
-        {% endif %}
-        <!-- end user messages -->
-      {% block content_title %}
-      {% endblock %}
 
-      <div class="nav-wrapper">
-        <div class="inside clearfix">
-        {% block contact_navigation %}
-        {% endblock %}
-
-    {% block main_navigation %}
-      <nav class="main">
-        <ul>
-          {% if request.user.is_authenticated %}
-          <li><a href="{% url userena.views.profile_detail request.user %}" class="text">{{ request.user }}</a></li>
-          {% block navigation_buttons %}
-          <li><a href="{% url dashboard %}" class="link"><span>{% trans "Dashboard" %}</span></a></li>
-          {% endblock %}
-          <li><a href="{{ LOGOUT_URL }}" class="link"><span>{% trans "Sign out" %}</span></a></li>
-          {% else %}
-          <li><a href="{% url index %}" class="link-home" id="loginFormButton"><span>{% trans "Home" %}</span></a></li>
+          <!-- user messages -->
+          {% if messages %}
+            <ul class="messages">
+              {% for message in messages %}
+                <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+              {% endfor %}
+            </ul>
           {% endif %}
-        </ul>
-      </nav>
-    {% endblock %}
-        </div><!-- end .inside -->
-      </div><!-- end .nav-wrapper -->
-    </header>
+          <!-- end user messages -->
 
-  <div id="body">
-    <div class="body-inside">
-    {% block content %}
-    {% endblock %}
-    </div><!-- end .body-inside -->
-  </div><!-- end #body -->
-    <div id="footer" class="global">
-      <div class="inside">
-        <div class="copyright">
-      {% block footer %}
-        <p>{{ CURRENT_DATE|date:"Y" }} &copy; {% trans "Copyright" %} by {{ PROJECT_NAME }} & <a href="http://www.cultureplex.ca/">CulturePlex Lab</a>. {% trans "All rights reserved" %}.
-        </p>
-        <p><a href="#">{% trans "Terms" %}</a> | <a href="#">{% trans "FAQ" %}</a> | <a href="#" >{% trans "Contact us" %}</a>
-        </p>
-      {% endblock %}
+          {% block content_title %}{% endblock %}
+
+          <div class="nav-wrapper">
+            <div class="inside clearfix">
+              {% block contact_navigation %}{% endblock %}
+              {% block main_navigation %}
+                <nav class="main">
+                  <ul>
+                    {% if request.user.is_authenticated %}
+                      <li><a href="{% url userena.views.profile_detail request.user %}" class="text">{{ request.user }}</a></li>
+                      {% block navigation_buttons %}
+                        <li><a href="{% url dashboard %}" class="link"><span>{% trans "Dashboard" %}</span></a></li>
+                      {% endblock %}
+                      <li><a href="{{ LOGOUT_URL }}" class="link"><span>{% trans "Sign out" %}</span></a></li>
+                    {% else %}
+                      <li><a href="{% url index %}" class="link-home" id="loginFormButton"><span>{% trans "Home" %}</span></a></li>
+                    {% endif %}
+                  </ul>
+                </nav>
+              {% endblock %}
+            </div><!-- end .inside -->
+          </div><!-- end .nav-wrapper -->
+        </header>
+
+        <div id="body">
+          <div class="body-inside">
+            {% block content %}{% endblock %}
+          </div><!-- end .body-inside -->
+        </div><!-- end #body -->
+
+        <div id="footer" class="global">
+          <div class="inside">
+            <div class="copyright">
+              {% block footer %}
+                <p>{{ CURRENT_DATE|date:"Y" }} &copy; {% trans "Copyright" %} by {{ PROJECT_NAME }} & <a href="http://www.cultureplex.ca/">CulturePlex Lab</a>. {% trans "All rights reserved" %}.</p>
+                <p><a href="#">{% trans "Terms" %}</a> | <a href="#">{% trans "FAQ" %}</a> | <a href="#" >{% trans "Contact us" %}</a></p>
+              {% endblock %}
             </div><!-- end .copyright -->
-        <div class="top">
-          <a href="#">Top ↑</a>
-        </div><!-- end .top -->
-      </div><!-- end .inside -->
+            <div class="top">
+              <a href="#">Top ↑</a>
+            </div><!-- end .top -->
+          </div><!-- end .inside -->
+        </div>
 
-    </div>
-  </div><!-- end #main -->
-{% endblock %}
+      </div><!-- end #main -->
+    {% endblock %}
 
-{% block scripts %}
-  <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
-  <script type="text/javascript" src="{{ STATIC_PREFIX }}js/dashboard.toolbar.js"></script>
-  <script type="text/javascript" src="{{ STATIC_PREFIX }}js/spin.1.2.7.js"></script>
-  <script type="text/javascript" src="{% url django.views.i18n.javascript_catalog %}"></script>
-  <!--    <script type="text/javascript" src="{{ STATIC_PREFIX }}js/jquery.simplemodal.1.4.1.min.js"></script>-->
-  <script type="text/javascript">
-    // global namespace
-    var sylv = {};
-  </script>
-  <script type="text/javascript">
-    (function($) {
-      setTimeout(function() {
-        $('header .success').first().parent().fadeOut(1000, function() {
-          $(this).remove();
-        });
-      }, 5000);
-    })(jQuery);
-  </script>
+    {% block scripts %}
+      <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+      <script type="text/javascript" src="{{ STATIC_PREFIX }}js/dashboard.toolbar.js"></script>
+      <script type="text/javascript" src="{{ STATIC_PREFIX }}js/spin.1.2.7.js"></script>
+      <script type="text/javascript" src="{% url django.views.i18n.javascript_catalog %}"></script>
+      <!--    <script type="text/javascript" src="{{ STATIC_PREFIX }}js/jquery.simplemodal.1.4.1.min.js"></script>-->
+      <script type="text/javascript">
+        // global namespace
+        var sylv = {};
+      </script>
+      <script type="text/javascript">
+        (function($) {
+          setTimeout(function() {
+            $('header .success').first().parent().fadeOut(1000, function() {
+              $(this).remove();
+            });
+          }, 5000);
+        })(jQuery);
+      </script>
 
-  {% block extra_scripts %}{% endblock %}
+      {% block extra_scripts %}{% endblock %}
 
-  <script type="text/javascript">
-    var _gaq = _gaq || [];
-    _gaq.push(['_setAccount', '{{ GOOGLE_ANALYTICS_CODE }}']);
-    _gaq.push(['_setDomainName', 'sylvadb.com']);
-    _gaq.push(['_trackPageview']);
-    (function() {
-      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-    })();
-  </script>
-{% endblock scripts %}
-</body>
+      <script type="text/javascript">
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', '{{ GOOGLE_ANALYTICS_CODE }}']);
+        _gaq.push(['_setDomainName', 'sylvadb.com']);
+        _gaq.push(['_trackPageview']);
+        (function() {
+          var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+          ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+          var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+        })();
+      </script>
+    {% endblock scripts %}
+  </body>
 </html>
