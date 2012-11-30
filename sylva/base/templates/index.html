@@ -2,62 +2,64 @@
 {% load i18n %}
 
 {% block extra_links %}
-    <link rel="stylesheet" type="text/css" href="{{ STATIC_PREFIX }}css/index.css" />
-    <link rel="stylesheet" type="text/css" href="{{ STATIC_PREFIX }}css/carousel.css" />
+  <link rel="stylesheet" type="text/css" href="{{ STATIC_PREFIX }}css/index.css" />
+  <link rel="stylesheet" type="text/css" href="{{ STATIC_PREFIX }}css/carousel.css" />
 {% endblock %}
+
 {% block extra_scripts %}
-    {{ block.super }}
-    <script type="text/javascript" src="{{ STATIC_PREFIX }}js/jquery.slides.min.js"></script>
-    <script type="text/javascript" src="http://gsgd.co.uk/sandbox/jquery/easing/jquery.easing.1.3.js"></script>
-    <script>
-        (function($) {
-            var init = function() {
-                // Slideshow
-                $(function(){
-                    $('#slides').slides({
-                        /* preload: true, Doesn't work with jQuery 1.8.x */
-                        preloadImage: '{{ STATIC_PREFIX }}img/loading.gif',
-                        play: 5000,
-                        pause: 2500,
-                        hoverPause: true,
-                    });
-                });
-                {% if not user_is_signedin and not is_index %}
-                // Login modal window
-                $("#loginFormButton").click(function(e) {
-                    $("#loginForm").modal({
-                        overlayClose: true,
-                        opacity: 60,
-                        overlayCss: {backgroundColor: "#f2f2f2"},
-                        modal: true,
-                        onClose: function(e) {
-                            location.href = "{% url base.views.index %}";
-                        }
-                    });
-                    return false;
-                });
-                $("#loginFormButton").click();
-                {% endif %}
-            };
-            $(document).ready(init);
-        })(jQuery);
-    </script>
+  {{ block.super }}
+  <script type="text/javascript" src="{{ STATIC_PREFIX }}js/jquery.slides.min.js"></script>
+  <script type="text/javascript" src="http://gsgd.co.uk/sandbox/jquery/easing/jquery.easing.1.3.js"></script>
+  <script>
+    (function($) {
+      var init = function() {
+        // Slideshow
+        $(function() {
+          $('#slides').slides({
+            /* preload: true, Doesn't work with jQuery 1.8.x */
+            preloadImage: '{{ STATIC_PREFIX }}img/loading.gif',
+            play: 5000,
+            pause: 2500,
+            hoverPause: true,
+          });
+        });
+
+        {% if not user_is_signedin and not is_index %}
+          // Login modal window
+          $("#loginFormButton").click(function(e) {
+            $("#loginForm").modal({
+              overlayClose: true,
+              opacity: 60,
+              overlayCss: {backgroundColor: "#f2f2f2"},
+              modal: true,
+              onClose: function(e) {
+                location.href = "{% url base.views.index %}";
+              }
+            });
+            return false;
+          });
+          $("#loginFormButton").click();
+        {% endif %}
+      };
+      $(document).ready(init);
+    })(jQuery);
+  </script>
 {% endblock %}
 
 {% block menu_navigation %}
 {% endblock %}
 
 {% block content_title %}
-    <h1><a href="" class="inactive"></a></h1>
+  <h1><a href="" class="inactive"></a></h1>
 {% endblock %}
 
 {% block contact_navigation %}
-    <nav class="contact">
-    <ul>
-      <li>
-          <h2>{% trans "Contact us" %}</h2>
-          <a href="mailto:apps@cultureplex.ca" rel="">apps@cultureplex.ca</a>
-        </li>
+  <nav class="contact">
+  <ul>
+    <li>
+      <h2>{% trans "Contact us" %}</h2>
+      <a href="mailto:apps@cultureplex.ca" rel="">apps@cultureplex.ca</a>
+    </li>
 <!--        <li>-->
 <!--          <h2>Follow us</h2>-->
 <!--          <a href="http://www.twitter.com/sylvaproject" rel="external" target="blank">@sylvaproject</a>-->
@@ -66,8 +68,8 @@
 <!--          <h2>Read our blog</h2>-->
 <!--          <a href="http://sylva.blogs.cultureplex.ca/" rel="external" target="blank">sylva.blogs.cultureplex.ca</a>-->
 <!--        </li>-->
-      </ul>
-    </nav>
+    </ul>
+  </nav>
 {% endblock %}
 
 {% block main_navigation %}
@@ -75,43 +77,41 @@
     <ul>
       <li><a href="{% url signup %}" class="link signup"><span>{% trans "Sign up" %}</span></a></li>
       {% if request.user.is_authenticated %}
-      <li><a href="{% url django.contrib.auth.views.logout %}" class="link logout login"><span>{% trans "Sign out" %}</span></a></li>
+        <li><a href="{% url django.contrib.auth.views.logout %}" class="link logout login"><span>{% trans "Sign out" %}</span></a></li>
       {% else %}
-      <li><a href="{% url userena.views.signin %}" class="link login" id="loginFormButton"><span>{% trans "Sign in" %}</span></a></li>
+        <li><a href="{% url userena.views.signin %}" class="link login" id="loginFormButton"><span>{% trans "Sign in" %}</span></a></li>
       {% endif %}
 <!--      <li><a href="" class="link plans"><span>{% trans "Plans" %}</span></a></li>-->
     </ul>
     {% if user_is_signedin %}
-    <a href="{% url userena.views.profile_edit request.user %}">{{ request.user }}</a>
+      <a href="{% url userena.views.profile_edit request.user %}">{{ request.user }}</a>
     {% endif %}
   </nav>
-  <div id="loginForm" style="display: none;">
-  {% if form %}
-        {% if form.errors %}
-            <p>Your username and password didn't match. Please try again.</p>
-        {% endif %}
 
-        <form method="post" action=".">
-        {% csrf_token %}
+  <div id="loginForm" style="display: none;">
+    {% if form %}
+      {% if form.errors %}
+        <p>Your username and password didn't match. Please try again.</p>
+      {% endif %}
+
+      <form method="post" action=".">{% csrf_token %}
         {{ form }}
         <input type="submit" value="login" />
         <input type="hidden" name="next" value="{{ next }}" />
-        </form>
-  {% else %}
-        {% trans "You signed out. Come back soon!" %}
-  {% endif %}
+      </form>
+    {% else %}
+      {% trans "You signed out. Come back soon!" %}
+    {% endif %}
   </div>
 {% endblock %}
 
 {% block content %}
   <div id="homepage">
-
     <div class="text-replacement" style="margin-left: 0px; opacity: 1; ">
-
     <p class="slogan">{% trans "A Relaxed-Schema Graph Database Management System" %}.</p>
     <div id="content2">
         <div class="content2-block">
-            <div class="description">
+          <div class="description">
             {% blocktrans %}
             Sylva [from the Old Spanish "silva", a Rennaisance type of book to organize knowledge] is a free, easy-to-use, flexible, and scalable database management system that helps you collect, collaborate, visualize and query large data sets.
             <br/><br/>
@@ -123,13 +123,13 @@
             Start using Sylva as soon as it becomes available!
             {% endblocktrans %}
             <form action="https://docs.google.com/spreadsheet/formResponse?formkey=dFNETEZyMWFGQzh2OERiU21YdHNLdGc6MQ&amp;embedded=true&amp;ifq" method="POST" id="ss-form" class="staytuned">
-            <input type="text" name="entry.0.single" value="" class="ss-q-short" id="entry_0" placeholder="{% trans "Leave us your e-mail to" %}">
-            <input type="submit" name="submit" class="btn okbutton" value="{% trans "Stay tuned!" %}">
-            <input type="hidden" name="pageNumber" value="0">
-            <input type="hidden" name="backupCache" value="">
-            <label class="helptext" for="entry_0">{% trans "Your e-mail won't be used for any other porpuse" %}</label>
+              <input type="text" name="entry.0.single" value="" class="ss-q-short" id="entry_0" placeholder="{% trans "Leave us your e-mail to" %}">
+              <input type="submit" name="submit" class="btn okbutton" value="{% trans "Stay tuned!" %}">
+              <input type="hidden" name="pageNumber" value="0">
+              <input type="hidden" name="backupCache" value="">
+              <label class="helptext" for="entry_0">{% trans "Your e-mail won't be used for any other porpuse" %}</label>
             </form>
-             </div>
+          </div>
         </div>
         <div class="content2-block">
             <div id="container">
