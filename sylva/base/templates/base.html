@@ -100,38 +100,41 @@
 
     </div>
   </div><!-- end #main -->
-
 {% endblock %}
 
-<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
-<script type="text/javascript" src="{{ STATIC_PREFIX }}js/dashboard.toolbar.js"></script>
-<script type="text/javascript" src="{{ STATIC_PREFIX }}js/spin.1.2.7.js"></script>
-<script type="text/javascript" src="{% url django.views.i18n.javascript_catalog %}"></script>
-<!--    <script type="text/javascript" src="{{ STATIC_PREFIX }}js/jquery.simplemodal.1.4.1.min.js"></script>-->
-<script type="text/javascript">
-  // global namespace
-  var sylv = {};
-</script>
-<script type="text/javascript">
-  (function($) {
-    setTimeout(function() {
-      $('header .success').first().parent().fadeOut(1000, function() {
-        $(this).remove();
-      });
-    }, 5000);
-  })(jQuery);
-</script>
-{% block extra_scripts %}{% endblock %}
-<script type="text/javascript">
-  var _gaq = _gaq || [];
-  _gaq.push(['_setAccount', '{{ GOOGLE_ANALYTICS_CODE }}']);
-  _gaq.push(['_setDomainName', 'sylvadb.com']);
-  _gaq.push(['_trackPageview']);
-  (function() {
-    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-  })();
-</script>
+{% block scripts %}
+  <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+  <script type="text/javascript" src="{{ STATIC_PREFIX }}js/dashboard.toolbar.js"></script>
+  <script type="text/javascript" src="{{ STATIC_PREFIX }}js/spin.1.2.7.js"></script>
+  <script type="text/javascript" src="{% url django.views.i18n.javascript_catalog %}"></script>
+  <!--    <script type="text/javascript" src="{{ STATIC_PREFIX }}js/jquery.simplemodal.1.4.1.min.js"></script>-->
+  <script type="text/javascript">
+    // global namespace
+    var sylv = {};
+  </script>
+  <script type="text/javascript">
+    (function($) {
+      setTimeout(function() {
+        $('header .success').first().parent().fadeOut(1000, function() {
+          $(this).remove();
+        });
+      }, 5000);
+    })(jQuery);
+  </script>
+
+  {% block extra_scripts %}{% endblock %}
+
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', '{{ GOOGLE_ANALYTICS_CODE }}']);
+    _gaq.push(['_setDomainName', 'sylvadb.com']);
+    _gaq.push(['_trackPageview']);
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+{% endblock scripts %}
 </body>
 </html>
