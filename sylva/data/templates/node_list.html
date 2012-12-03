@@ -23,7 +23,7 @@
         <table id="content_table" class="content-table">
             <thead>
             <tr>
-                <th>{% trans "Id" %}</th>
+                <th>{% trans "#" %}</th>
                 {% for prop in properties %}
                     <th>{{ prop.key }}</th>
                 {% endfor %}
@@ -32,7 +32,7 @@
             <tbody>
             {% for node in nodes %}
                 <tr class="{% cycle 'row-odd' 'row-even' %}">
-                    <td>{{ node.id }}</td>
+                    <td><a href="{% url nodes_edit graph.slug node.id %}">{{ node.id }}</a></td>
                     {% for prop in properties %}
                         {% if prop.display %}
                         <td><a href="{% url nodes_edit graph.slug node.id %}">{{ node|get:prop.key|default:none_label }}</a></td>
