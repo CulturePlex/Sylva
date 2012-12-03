@@ -47,6 +47,9 @@
       <input type="checkbox" id="sigma-fisheye">
       <label for="sigma-fisheye" title="{% trans "Activate fisheye effect" %}">{% trans "FishEye" %}</label>
     </div>
+    <div class="sigma-checkbox" style="display:none; float:right;">
+      <a id="sigma-export-image" class="button" style="font-size:100%;" title="{% trans "Save as a PNG image" %}" download="{{ graph.slug }}.png">{% trans "Save as image" %}</a>
+    </div>
   </div>
   <div id="graph-container"></div>
   <span id="sigma-pause" class="pause" style="display:none;" data-state="running">{% trans "Pause" %}</span>

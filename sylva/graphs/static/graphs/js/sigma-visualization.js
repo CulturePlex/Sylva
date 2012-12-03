@@ -154,6 +154,28 @@ clearTimeout */
         }
       });
 
+      $('#sigma-export-image').on('mouseover', function() {
+        that.stop();
+      });
+
+      // Save as a PNG image.
+      $('#sigma-export-image').on('click', function() {
+        var $canvas = $('<canvas id="sigma_export_image">');
+        var width = $('#graph-container').children().first().width();
+        var height = $('#graph-container').children().first().height();
+        $canvas.attr('width', width);
+        $canvas.attr('height', height);
+        $('#graph-container').append($canvas);
+        var canvas = $canvas[0];
+        var ctx = canvas.getContext('2d');
+        ctx.globalCompositeOperation = 'source-over';
+        ctx.drawImage(document.getElementById('sigma_nodes_1'), 0, 0);
+        ctx.drawImage(document.getElementById('sigma_edges_1'), 0, 0);
+        var img_data = canvas.toDataURL('image/png');
+        $(this).attr('href', img_data.replace('image/png', 'image/octet-stream'));
+        $canvas.remove();
+      });
+
       sigInst.startForceAtlas2();
       isDrawing = true;
 
