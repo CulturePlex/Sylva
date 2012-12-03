@@ -9,6 +9,59 @@
 {{ graph.name }}
 {% endblock %}
 
+{% block extra_scripts %}
+{{ block.super }}
+<script type="text/javascript">
+    var retrieveRelationships = function(element, url, elementId){
+        $.ajax({
+            url: url,
+            success: function(data){
+                var label;
+                var relationships = JSON.parse(data);
+                var divs = [];
+                $.each(relationships, function(direction, rels){
+                    html = $('<div>');
+                    html.addClass('relationships-box');
+                    if (rels != false){
+                        html.append($('<span>').text(''));
+                    }
+                    $.each(rels, function(index, item){
+                        if (direction == "outgoing") {
+                          label = '→'+ item.label +' '+ item.node_display;
+                        } else {
+                          label = '←'+ item.node_display +' '+ item.label;
+                        }
+                        html.append($('<span>')
+                              .append(label))
+                                .append(' <br/> ');
+                    });
+                    divs.push(html);
+                });
+                element.html(divs);
+            },
+            error: function(error){
+                console.log("ERROR: ", error);
+            }
+        });
+    };
+
+    // Bind events to data toggle controls to start the fetching of relationships
+    $('.rels').live('click', function() {
+        var $this = $(this);
+        var nodeId = $this.data("node");
+        $("td[data-node="+ nodeId +"]").toggle(0, function () {
+            var element = $(this);
+            var url = element.data("node-rels");
+            // Fetch elements that are not already loaded and are visible
+            if (!element.hasClass('is-loaded')) {
+                element.addClass('is-loaded');
+                retrieveRelationships(element, url, nodeId);
+          }
+        });
+    });
+</script>
+{% endblock %}
+
 {% block menu_buttons %}
 {% toolbar on="nodes" %}
 {% endblock %}
@@ -32,7 +85,10 @@
             <tbody>
             {% for node in nodes %}
                 <tr class="{% cycle 'row-odd' 'row-even' %}">
-                    <td><a href="{% url nodes_edit graph.slug node.id %}">{{ node.id }}</a></td>
+                    <td class="dataList">
+                        <a href="javascript:void(0)" data-node="{{ node.id }}" class="rels" alt="{% trans "Toggle relationships" %}" title="{% trans "Toggle relationships" %}">&nbsp;</a>
+                        <a href="{% url nodes_edit graph.slug node.id %}" class="edit" alt="{% trans "Edit node" %}" title="{% trans "Edit node" %}"><!-- {{ node.id }}  -->&nbsp;</a>
+                    </td>
                     {% for prop in properties %}
                         {% if prop.display %}
                         <td><a href="{% url nodes_edit graph.slug node.id %}">{{ node|get:prop.key|default:none_label }}</a></td>
@@ -42,7 +98,7 @@
                     {% endfor %}
                 </tr>
                 <tr>
-                    <td colspan="{{ properties_count }}" class="hidden">
+                    <td colspan="{{ properties_count }}" class="hidden retrieve-relationships" data-node="{{ node.id }}" data-node-rels="{% url node_relationships graph.slug node.id %}">
                         <span class="helptext">{% trans "Loading" %}...</span>
                     </td>
                 </tr>

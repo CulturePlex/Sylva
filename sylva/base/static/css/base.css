@@ -1566,6 +1566,22 @@ ol.searchResults {
     background: url(../img/list_14.png) no-repeat left 50%;
 }
 
+.dataList {
+    width: 50px;
+}
+
+.dataList .rels {
+    background: url(../img/connections_16.png) no-repeat left 50%;
+    width: 16px;
+    display: inline-block;
+}
+
+.dataList .edit {
+    background: url(../img/edit_node_16.png) no-repeat left 50%;
+    width: 16px;
+    display: inline-block;
+}
+
 ul.inner {
     margin-left: 10px;
 }
