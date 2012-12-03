@@ -5,6 +5,7 @@ except ImportError:
     import json
 
 from django.db import transaction, IntegrityError
+from django.db.models import Q
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
@@ -222,15 +223,13 @@ def graph_collaborators(request, graph_slug):
     collaborators = list(collaborators)
     if request.POST:
         data = request.POST.copy()
-        form = AddCollaboratorForm(data=data, graph=graph,
-                                   collaborators=collaborators)
+        form = AddCollaboratorForm(data=data, graph=graph)
         if form.is_valid():
-            user_id = form.cleaned_data["new_collaborator"]
-            user = get_object_or_404(User, id=user_id)
-            guardian.assign('view_graph', user, graph)
-            collaborators.append(user)
+            new_collaborator = form.cleaned_data["new_collaborator"]
+            guardian.assign('view_graph', new_collaborator, graph)
+            collaborators.append(new_collaborator)
     else:
-        form = AddCollaboratorForm(graph=graph, collaborators=collaborators)
+        form = AddCollaboratorForm(graph=graph)
     # graph_permissions = guardian.get_perms_for_model(graph)
     permissions_list = []
     permissions_table = []
@@ -283,6 +282,34 @@ def change_permission(request, graph_slug):
         else:
             raise ValueError("Unknown %s permission: %s" % (object_str,
                                                             permission_str))
+    return HttpResponse(json.dumps({}))
+
+
+@permission_required("graphs.change_collaborators",
+                     (Graph, "slug", "graph_slug"))
+def graph_ajax_collaborators(request, graph_slug):
+    if request.is_ajax() and "term" in request.GET:
+        graph = get_object_or_404(Graph, slug=graph_slug)
+        term = request.GET["term"]
+        if graph and term:
+            collabs = graph.get_collaborators(include_anonymous=True,
+                                              as_queryset=True)
+            lookups = (Q(username__icontains=term) |
+                       Q(first_name__icontains=term) |
+                       Q(last_name__icontains=term) |
+                       Q(email__icontains=term))
+            no_collabs = User.objects.filter(lookups)
+            no_collabs = no_collabs.exclude(id=request.user.id)
+            no_collabs = no_collabs.exclude(id__in=collabs)
+            no_collabs_dict = {}
+            for no_collab in no_collabs:
+                full_name = no_collab.get_full_name()
+                if full_name:
+                    name = u"%s (%s)" % (full_name, no_collab.username)
+                else:
+                    name = no_collab.username
+                no_collabs_dict[no_collab.id] = name
+            return HttpResponse(json.dumps(no_collabs_dict))
     return HttpResponse(json.dumps({}))
 
 

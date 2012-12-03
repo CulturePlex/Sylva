@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% load i18n graphs graph_filters pdb %}
+
+{% block navigation_buttons %}
+{{ block.super }}
+{% endblock %}
+
+{% block title %}
+{{ graph.name }}
+{% endblock %}
+
+{% block menu_buttons %}
+{% toolbar on="nodes" %}
+{% endblock %}
+
+{% block content_title %}
+{% breadcrumb graph graph.data node_type %}
+{% endblock %}
+
+{% block content %}
+<div id="content2">
+    {% if nodes%}
+        <table id="content_table" class="content-table">
+            <thead>
+            <tr>
+                <th>{% trans "Id" %}</th>
+                {% for prop in properties %}
+                    <th>{{ prop.key }}</th>
+                {% endfor %}
+            </tr>
+            </thead>
+            <tbody>
+            {% for node in nodes %}
+                <tr class="{% cycle 'row-odd' 'row-even' %}">
+                    <td>{{ node.id }}</td>
+                    {% for prop in properties %}
+                        {% if prop.display %}
+                        <td><a href="{% url nodes_edit graph.slug node.id %}">{{ node|get:prop.key|default:none_label }}</a></td>
+                        {% else %}
+                        <td>{{ node|get:prop.key|default:none_label }}</td>
+                        {% endif %}
+                    {% endfor %}
+                </tr>
+                <tr>
+                    <td colspan="{{ properties_count }}" class="hidden">
+                        <span class="helptext">{% trans "Loading" %}...</span>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <a class="button" href="{% url schema_nodetype_create graph.slug %}">{% trans "New Type" %}</a>
+        <span class="buttonLinkOption">
+        {% trans "There are no types defined yet" %}.
+        </span>
+    {% endif %}
+    {% if graph.data.total_nodes == 0 and graph.data.total_relationships == 0 and graph.relaxed %}
+        <a class="button" href="{% url tool_import graph.slug %}">{% trans "Import" %}</a>
+        <span class="buttonLinkOption">
+            {% trans "Import a graph in GEXF format, or nodes and relationships in CSV format" %}.
+        </span>
+    {% else %}
+    <div class="pagination">
+        {% if nodes.paginator.per_page < nodes.paginator.count %}
+        Showing {{ nodes.paginator.per_page }} of {{ nodes.paginator.count }} {{ node_type.name }}.
+        <span class="step-links">
+            {% if nodes.has_previous %}
+                <a href="?page={{ nodes.previous_page_number }}">←</a>
+            {% endif %}
+
+            <span class="current">
+                Page {{ nodes.number }} of {{ nodes.paginator.num_pages }}.
+            </span>
+
+            {% if nodes.has_next %}
+                <a href="?page={{ nodes.next_page_number }}">→</a>
+            {% endif %}
+        </span>
+        {% else %}
+        Showing {{ nodes.paginator.count }} elements {{ node_type.name }}.
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

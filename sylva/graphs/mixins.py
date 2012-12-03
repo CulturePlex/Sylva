@@ -681,8 +681,9 @@ class Node(BaseElement):
         return node_dict
 
     def __getitem__(self, key):
-        if key not in self._properties:
-            self._properties[key] = self.gdb.get_node_property(self.id, key)
+        # Not need anymore because _properties is always updated
+        # if key not in self._properties:
+        #     self._properties[key] = self.gdb.get_node_property(self.id, key)
         return self._properties[key]
 
     def __setitem__(self, key, value):
@@ -800,9 +801,10 @@ class Relationship(BaseElement):
         }
 
     def __getitem__(self, key):
-        if key not in self._properties:
-            value = self.gdb.get_relationship_property(self.id, key)
-            self._properties[key] = value
+        # Not needed anymore since _properties is always updated
+        # if key not in self._properties:
+        #     value = self.gdb.get_relationship_property(self.id, key)
+        #     self._properties[key] = value
         return self._properties[key]
 
     def __setitem__(self, key, value):

@@ -1280,7 +1280,7 @@ table.content-table {
 
 .content-table table, th {
 /*    border: 1px solid #348E82;*/
-    padding: 5px 20px 5px 20px;
+    padding: 5px;
     background-color: #D6E7DF;
 }
 .content-table table, th select {
@@ -1299,15 +1299,28 @@ table.content-table {
 }
 
 .content-table td {
-/*    border: 1px solid #348E82;*/
-    padding: 5px;
-    text-align: center;
+    /*border: 1px solid #348E82;*/
+    padding: 3px;
+    text-align: left;
+    max-width: 100px;
 /*    padding-bottom: 3px;*/
+}
+
+.content-table tr.row-odd:hover, tr.row-even:hover {
+    background-color: #D6E7DF;
+}
+
+.content-table tr.row-odd {
+    background-color: #f2f2f2;
+}
+
+.content-table tr.row-even {
+    background-color: auto;
 }
 
 #permissions_table th {
     border-right: 1px solid white;
-    text-align: center;
+    text-align: left;
 }
 
 #canvas-container {

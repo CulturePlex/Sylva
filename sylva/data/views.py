@@ -2,6 +2,7 @@
 from json import dumps
 
 from django.db import transaction
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.core.urlresolvers import reverse
 from django.conf import settings
 from django.forms.formsets import formset_factory
@@ -11,6 +12,7 @@ from django.shortcuts import (render_to_response, get_object_or_404,
 from django.template import RequestContext
 from django.template.defaultfilters import slugify
 from django.utils.datastructures import SortedDict
+from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 
 from guardian.decorators import permission_required
@@ -83,17 +85,30 @@ def nodes_lookup(request, graph_slug):
 @permission_required("data.view_data", (Data, "graph__slug", "graph_slug"))
 def nodes_list_full(request, graph_slug, node_type_id):
     graph = get_object_or_404(Graph, slug=graph_slug)
-    type_element = get_object_or_404(NodeType, id=node_type_id)
-    data_preview = []
-    properties = [p.key for p in type_element.properties.all()]
-    data = create_data(properties, type_element.all())
-    data_preview.append([type_element.name, properties, data])
-    nodes = type_element.all()
-    return render_to_response('nodes_list.html',
+    node_type = get_object_or_404(NodeType, id=node_type_id)
+    nodes = node_type.all()
+    page = request.GET.get('page')
+    page_size = request.GET.get('size', 25)
+    paginator = Paginator(nodes, page_size) # Show 25 items per page
+    try:
+        paginated_nodes = paginator.page(page)
+    except PageNotAnInteger:
+        # If page is not an integer, deliver first page.
+        paginated_nodes = paginator.page(1)
+    except EmptyPage:
+        # If page is out of range (e.g. 9999), deliver last page of results.
+        paginated_nodes = paginator.page(paginator.num_pages)
+    label = u"<span class='helptext'>(%s)</span>" % _(u"Empty")
+    none_label = mark_safe(label)
+    properties = node_type.properties.all()
+    properties_count = len(properties) + 1
+    return render_to_response('node_list.html',
                               {"graph": graph,
-                               "option_list": data_preview,
-                               "nodes": nodes,
-                               "node_type": type_element
+                               "nodes": paginated_nodes,
+                               "node_type": node_type,
+                               "none_label": none_label,
+                               "properties": properties,
+                               "properties_count": properties_count
                                }, context_instance=RequestContext(request))
 
 

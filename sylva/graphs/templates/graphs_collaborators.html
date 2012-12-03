@@ -11,6 +11,7 @@
 
 {% block extra_scripts %}
 <script type="text/javascript" src="{{ STATIC_PREFIX }}js/chosen.jquery.min.js"></script>
+<script type="text/javascript" src="{{ STATIC_PREFIX }}js/chosen.ajax.js"></script>
 <link rel="stylesheet" type="text/css" href="{{ STATIC_PREFIX }}css/chosen.css" />
 <script type="text/javascript">
     function setPermission(userID, objectStr, permissionStr) {
@@ -26,11 +27,28 @@
             },
         });
     }
+
+    (function ($) {
+        init = function() {
+            $('.chzn-select').ajaxChosen({
+                type: 'GET',
+                url: '{% url graph_ajax_collaborators graph.slug %}',
+                dataType: 'json'
+            }, function (data) {
+                var results = {};
+                $.each(data, function (i, val) {
+                    results[i] = val;
+                });
+                return results;
+            }, {no_results_text: "No results matched"});
+        }
+
+        $(document).ready(init);
+    })(jQuery);
 </script>
 {% endblock %}
 
 {% block body_attrs %}
-onload="$('.chzn-select').chosen();"
 {% endblock %}
 
 {% block menu_buttons %}
@@ -39,8 +57,7 @@ onload="$('.chzn-select').chosen();"
 
 {% block content_title %}
 {% trans "Collaborators" as collaborators %}
-{% breadcrumb graph graph.data collaborators %}
-<!--<h2>{% trans "Graphs" %} » {{ graph.name|truncatewords_html:8 }} » {% trans "Collaborators" %}</h2>-->
+{% breadcrumb graph collaborators %}
 {% endblock %}
 
 {% block content %}
