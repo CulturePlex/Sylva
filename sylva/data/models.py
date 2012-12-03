@@ -34,10 +34,10 @@ class Data(models.Model, DataMixin):
         try:
             if self.instance:
                 return _(u"Data for \"%s\" on instance \"%s\"") \
-                       % (self.graph.name, self.instance.name)
+                    % (self.graph.name, self.instance.name)
             else:
                 return _(u"Data for \"%s\" on default instance") \
-                       % self.graph.name
+                    % self.graph.name
         except ObjectDoesNotExist:
             if self.instance:
                 return _(u"Data on instance \"%s\"") % self.instance.name
@@ -62,9 +62,12 @@ def node_files(instance, filename):
         filename_split = filename.rsplit(u".", 1)
         slug_filename = u"%s.%s" % (slugify(filename_split[0]),
                                     filename_split[1])
-        return path.join(u"nodes", slug_filename)
+        file_path = path.join(u"nodes", slug_filename)
     else:
-        return path.join("nodes", filename)
+        file_path = path.join("nodes", filename)
+    graph_slug = instance.media_node.data.graph.slug
+    # TODO: Add users' storage linked to instances
+    return path.join(graph_slug, file_path)
 
 
 class MediaFile(models.Model):
