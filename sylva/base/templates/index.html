@@ -58,12 +58,12 @@
   <ul>
     <li>
       <h2>{% trans "Contact us" %}</h2>
-      <a href="mailto:apps@cultureplex.ca" rel="">apps@cultureplex.ca</a>
+      <a href="mailto:info@sylvadb.com" rel="">info@sylvadb.com</a>
     </li>
-<!--        <li>-->
-<!--          <h2>Follow us</h2>-->
-<!--          <a href="http://www.twitter.com/sylvaproject" rel="external" target="blank">@sylvaproject</a>-->
-<!--        </li>-->
+    <li>
+      <h2>{% trans "Follow us" %}</h2>
+        <a href="http://www.twitter.com/sylvadb" rel="external" target="blank">@SylvaDB</a>
+    </li>
 <!--        <li>-->
 <!--          <h2>Read our blog</h2>-->
 <!--          <a href="http://sylva.blogs.cultureplex.ca/" rel="external" target="blank">sylva.blogs.cultureplex.ca</a>-->
@@ -108,7 +108,12 @@
 {% block content %}
   <div id="homepage">
     <div class="text-replacement" style="margin-left: 0px; opacity: 1; ">
-    <p class="slogan">{% trans "A Relaxed-Schema Graph Database Management System" %}.</p>
+    <p class="slogan">
+      {% comment %}
+      {% trans "A Relaxed-Schema Graph Database Management System" %}.</p>
+      {% endcomment %}
+      {% trans "The Graph Database for Humans" %}.
+    </p>
     <div id="content2">
         <div class="content2-block">
           <div class="description">
@@ -120,8 +125,9 @@
             The data sets are stored according to the schemas (graphs) created by the user, and can be visualized as networks and as lists.
             Researchers have absolute freedom to grant different permits to collaborators and to import and export their schemas and data sets.
             <br/><br/>
-            Start using Sylva as soon as it becomes available!
+            Start using Sylva now!
             {% endblocktrans %}
+            {% comment %}
             <form action="https://docs.google.com/spreadsheet/formResponse?formkey=dFNETEZyMWFGQzh2OERiU21YdHNLdGc6MQ&amp;embedded=true&amp;ifq" method="POST" id="ss-form" class="staytuned">
               <input type="text" name="entry.0.single" value="" class="ss-q-short" id="entry_0" placeholder="{% trans "Leave us your e-mail to" %}">
               <input type="submit" name="submit" class="btn okbutton" value="{% trans "Stay tuned!" %}">
@@ -129,6 +135,7 @@
               <input type="hidden" name="backupCache" value="">
               <label class="helptext" for="entry_0">{% trans "Your e-mail won't be used for any other porpuse" %}</label>
             </form>
+            {% endcomment %}
           </div>
         </div>
         <div class="content2-block">
@@ -180,9 +187,10 @@
               </div>
               <div class="content-divider"></div>
                 <div class="content3-block">
-                <h2 class="query" style="color: grey; font-style:italic;">{% trans "Query" %}</h4>
-                <p style="color: grey; font-style:italic;">{% blocktrans %}Research on your connected data discovering new information through the powerfull system of quering.{% endblocktrans %}</p>
-                <p style="color: grey; font-style:italic;">{% blocktrans %}Setup an expermient, save it and share it with others.{% endblocktrans %}</p>
+                <h2 class="query" >{% trans "Query" %}</h4>
+                <p >{% blocktrans %}Research on your connected data discovering new information through the powerfull system of quering.{% endblocktrans %}</p>
+                <p >{% blocktrans %}Setup an expermient, save it and share it with others.{% endblocktrans %}</p>
+                <p >{% blocktrans %}Coming soon...{% endblocktrans %}</p>
               <!-- end content blocks -->
               </div>
               <div class="clearfloats"></div>
