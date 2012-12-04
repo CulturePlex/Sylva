@@ -23,14 +23,14 @@
 {% if node_types %}
 <div>
 <div class="content2-first max600">
-{% for node_type in node_types %}
+{% for node_type in node_types.select_related %}
     <!--
     <h3>{{ node_type.name|capfirst }}</h3>
     -->
     <div>
     <fieldset class="module aligned wide model" id="model_{{ node_type.slug }}">
     {% if node_type.name %}<h2><a href="{% url schema_nodetype_edit graph.slug node_type.id %}">{{ node_type.name|capfirst }}</a></h2>{% endif %}
-    {% for node_property in node_type.properties.all %}
+    {% for node_property in node_type.properties.all.select_related %}
          <div class="form-row indent">
          <div>
             <label {% if node_property.required %}class="required"{% endif %}>⌂ {{ node_property.key|capfirst }}</label>
@@ -40,7 +40,7 @@
         </div>
     {% endfor %}
     {% regroup node_type.get_reflexive_relationships by name as reflexive_relationships %}
-    {% for relationship_name in reflexive_relationships %}
+    {% for relationship_name in reflexive_relationships.select_related %}
          <div class="form-row indent">
             <label>
                 ↔ {{ relationship_name.grouper|capfirst }}
@@ -54,7 +54,7 @@
                     {% if relationship.arity_target < 1 %}∞{% else %}{{ relationship.arity_target }} × {% endif %} {{ relationship.target.name|capfirst }}
                 </a>
                 {% if relationship.properties %}
-                    {% for relationship_property in relationship.properties.all %}
+                    {% for relationship_property in relationship.properties.all.select_related %}
                     <div class="form-row indent">
                         <label class="relProps{% if relationship_property.required %} required{% endif %}">⌂ {{ relationship_property.key|capfirst }}</label>
                         {% if relationship_property.datatype != "u" %}[{{ relationship_property.get_datatype_display }}]{% endif %}
@@ -67,7 +67,7 @@
         </div>
     {% endfor %}
     {% regroup node_type.get_outgoing_relationships by name as outgoing_relationships %}
-    {% for relationship_name in outgoing_relationships %}
+    {% for relationship_name in outgoing_relationships.select_related %}
          <div class="form-row indent">
             <label>
                 → {{ relationship_name.grouper|capfirst }}
@@ -81,7 +81,7 @@
                     {% if relationship.arity_target < 1 %}∞{% else %}{{ relationship.arity_target }} × {% endif %} {{ relationship.target.name|capfirst }}
                 </a>
                 {% if relationship.properties %}
-                    {% for relationship_property in relationship.properties.all %}
+                    {% for relationship_property in relationship.properties.all.select_related %}
                     <div class="form-row indent">
                         <label class="relProps{% if relationship_property.required %} required{% endif %}">⌂ {{ relationship_property.key|capfirst }}</label>
                         {% if relationship_property.datatype != "u" %}[{{ relationship_property.get_datatype_display }}]{% endif %}
@@ -97,7 +97,7 @@
     {% if not relationships.0.relationship_name.grouper %}
         {% regroup node_type.get_incoming_relationships by name as incoming_relationships %}
     {% endif %}
-    {% for relationship_name in incoming_relationships %}
+    {% for relationship_name in incoming_relationships.select_related %}
          <div class="form-row indent">
             <label>←
                 {% if relationship_name.grouper %}{{ relationship_name.grouper|capfirst }}{% else %}{{ relationship_name.list.0.name|capfirst }}{% endif %}
@@ -112,7 +112,7 @@
                     {{ relationship.source.name|capfirst }}
                 </a>
                 {% if relationship.relation.relationshipproperty_set.all %}
-                    {% for relationship_property in relationship.relation.relationshipproperty_set.all %}
+                    {% for relationship_property in relationship.relation.relationshipproperty_set.all.select_related %}
                     <div class="form-row indent">
                         <label class="relProps{% if relationship_property.required %} required{% endif %}">⌂ {{ relationship_property.key|capfirst }}</label>
                         [{{ relationship_property.get_datatype }}] <p class="help">{{ relationship_property.default }}</p>
