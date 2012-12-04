@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% load i18n graphs graph_filters pdb %}
+
+{% block navigation_buttons %}
+{{ block.super }}
+{% endblock %}
+
+{% block title %}
+{{ graph.name }}
+{% endblock %}
+
+{% block menu_buttons %}
+{% toolbar on="nodes" %}
+{% endblock %}
+
+{% block content_title %}
+{% breadcrumb graph graph.data %}
+{% endblock %}
+
+{% block content %}
+<div id="content2">
+    {% for type in types %}
+        <h2 >{{ type.name }}</h2>
+        <div class="indent">
+            <div>
+                {% blocktrans with type.count as count %}
+                    Nodes: {{ count }}
+                {% endblocktrans %}
+            </div>
+            <div>
+                {% blocktrans with type.properties.count as properties_count %}
+                    Properties: {{ properties_count }}
+                {% endblocktrans %}
+            </div>
+            <a class="button" href="{% url nodes_create graph.slug type.id %}">
+                {% blocktrans with type.name as name %}
+                    New {{ name }}
+                {% endblocktrans %}</a>
+            </a>
+            {% trans "or" %}
+            <a href="{% url nodes_list_full graph.slug type.id %}">
+                {% blocktrans %}
+                    View list
+                {% endblocktrans %}</a>
+            </span>
+        </div>
+    {% endfor %}
+</div>
+{% endblock %}

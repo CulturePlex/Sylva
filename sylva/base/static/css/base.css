@@ -98,6 +98,10 @@ abbr {
     display: none;
 }
 
+.bold {
+    font-weight: bold;
+}
+
 .max600 {
     overflow: hidden;
     max-height: 600px;

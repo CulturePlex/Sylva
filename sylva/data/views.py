@@ -44,15 +44,10 @@ def create_data(properties, data_list, add_edge_extras=False):
 @permission_required("data.view_data", (Data, "graph__slug", "graph_slug"))
 def nodes_list(request, graph_slug):
     graph = get_object_or_404(Graph, slug=graph_slug)
-    data_preview = []
-    for type_element in graph.schema.nodetype_set.all():
-        properties = [p.key for p in type_element.properties.all()]
-        data = create_data(properties, type_element.all()[:5])
-        data_preview.append([type_element.name, properties, data,
-                             type_element.id])
-    return render_to_response('nodes_list.html',
+    node_types = graph.schema.nodetype_set.all().select_related()
+    return render_to_response('nodes.html',
                               {"graph": graph,
-                                  "option_list": data_preview},
+                               "types": node_types},
                               context_instance=RequestContext(request))
 
 
