@@ -260,7 +260,7 @@ ACCOUNT_FREE = {
     "graphs": 10,
     "nodes": 1000,
     "relationships": 10000,
-    "storage": 10240,
+    "storage": 102400,
     "queries": 10,
 }
 ENABLE_INSTANCES = False
