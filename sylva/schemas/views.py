@@ -27,7 +27,7 @@ from schemas.models import NodeType, RelationshipType
 
 
 @permission_required("schemas.view_schema",
-                     (Schema, "graph__slug", "graph_slug"))
+                     (Schema, "graph__slug", "graph_slug"), return_403=True)
 def schema_edit(request, graph_slug):
     graph = get_object_or_404(Graph, slug=graph_slug)
     nodetypes = NodeType.objects.filter(schema__graph__slug=graph_slug)
@@ -40,7 +40,7 @@ def schema_edit(request, graph_slug):
 
 
 @permission_required("schemas.change_schema",
-                     (Schema, "graph__slug", "graph_slug"))
+                     (Schema, "graph__slug", "graph_slug"), return_403=True)
 def schema_nodetype_delete(request, graph_slug, nodetype_id):
     graph = get_object_or_404(Graph, slug=graph_slug)
     nodetype = get_object_or_404(NodeType, id=nodetype_id)
@@ -81,13 +81,13 @@ def schema_nodetype_delete(request, graph_slug, nodetype_id):
 
 
 @permission_required("schemas.change_schema",
-                     (Schema, "graph__slug", "graph_slug"))
+                     (Schema, "graph__slug", "graph_slug"), return_403=True)
 def schema_nodetype_create(request, graph_slug):
     return schema_nodetype_editcreate(request, graph_slug)
 
 
 @permission_required("schemas.change_schema",
-                     (Schema, "graph__slug", "graph_slug"))
+                     (Schema, "graph__slug", "graph_slug"), return_403=True)
 def schema_nodetype_edit(request, graph_slug, nodetype_id):
     return schema_nodetype_editcreate(request, graph_slug, nodetype_id)
 
@@ -162,23 +162,24 @@ def schema_nodetype_editcreate(request, graph_slug, nodetype_id=None):
                               context_instance=RequestContext(request))
 
 
-@permission_required("data.change_data", (Data, "graph__slug", "graph_slug"))
+@permission_required("data.change_data", (Data, "graph__slug", "graph_slug"),
+                     return_403=True)
 def schema_nodetype_properties_mend(request, graph_slug, nodetype_id):
     element_type = get_object_or_404(NodeType, id=nodetype_id)
     return schema_properties_mend(request, graph_slug, element_type)
 
 
 @permission_required("schemas.change_schema",
-                     (Schema, "graph__slug", "graph_slug"))
+                     (Schema, "graph__slug", "graph_slug"), return_403=True)
 def schema_relationshiptype_create(request, graph_slug):
     return schema_relationshiptype_editcreate(request, graph_slug)
 
 
 @permission_required("schemas.change_schema",
-                     (Schema, "graph__slug", "graph_slug"))
+                     (Schema, "graph__slug", "graph_slug"), return_403=True)
 def schema_relationshiptype_edit(request, graph_slug, relationshiptype_id):
-    return schema_relationshiptype_editcreate(request, graph_slug,
-                                       relationshiptype_id=relationshiptype_id)
+    func = schema_relationshiptype_editcreate
+    return func(request, graph_slug, relationshiptype_id=relationshiptype_id)
 
 
 def schema_relationshiptype_editcreate(request, graph_slug,
@@ -263,7 +264,7 @@ def schema_relationshiptype_editcreate(request, graph_slug,
 
 
 @permission_required("schemas.change_schema",
-                     (Schema, "graph__slug", "graph_slug"))
+                     (Schema, "graph__slug", "graph_slug"), return_403=True)
 def schema_relationshiptype_delete(request, graph_slug,
                                    relationshiptype_id):
     graph = get_object_or_404(Graph, slug=graph_slug)
@@ -305,7 +306,8 @@ def schema_relationshiptype_delete(request, graph_slug,
                               context_instance=RequestContext(request))
 
 
-@permission_required("data.change_data", (Data, "graph__slug", "graph_slug"))
+@permission_required("data.change_data", (Data, "graph__slug", "graph_slug"),
+                     return_403=True)
 def schema_relationshiptype_properties_mend(request, graph_slug,
                                             relationshiptype_id):
     element_type = get_object_or_404(RelationshipType, id=relationshiptype_id)
@@ -313,7 +315,7 @@ def schema_relationshiptype_properties_mend(request, graph_slug,
 
 
 @permission_required("schemas.change_schema",
-                     (Schema, "graph__slug", "graph_slug"))
+                     (Schema, "graph__slug", "graph_slug"), return_403=True)
 def schema_export(request, graph_slug):
     graph = get_object_or_404(Graph, slug=graph_slug)
     if graph.schema.is_empty():
@@ -321,13 +323,13 @@ def schema_export(request, graph_slug):
         return redirect(reverse('dashboard'))
     schema = graph.schema.export()
     response = HttpResponse(json.dumps(schema), mimetype='application/json')
-    response['Content-Disposition'] = 'attachment; filename=%s_schema.json' \
-                                                            % graph_slug
+    attachment = 'attachment; filename=%s_schema.json' % graph_slug
+    response['Content-Disposition'] = attachment
     return response
 
 
 @permission_required("schemas.change_schema",
-                     (Schema, "graph__slug", "graph_slug"))
+                     (Schema, "graph__slug", "graph_slug"), return_403=True)
 def schema_import(request, graph_slug):
     graph = get_object_or_404(Graph, slug=graph_slug)
     if not graph.schema.is_empty():
@@ -351,7 +353,7 @@ def schema_import(request, graph_slug):
 
 
 @permission_required("schemas.view_schema",
-                     (Schema, "graph__slug", "graph_slug"))
+                     (Schema, "graph__slug", "graph_slug"), return_403=True)
 def schema_diagram_positions(request, graph_slug):
     status = 200  # OK
     data = request.POST.copy()
@@ -370,8 +372,10 @@ def schema_properties_mend(request, graph_slug, element_type):
         return redirect(reverse("schema_edit", args=[graph.slug]))
     changed_props = request.session.get('schema_changed_props', [])
     deleted_props = request.session.get('schema_deleted_props', [])
-    ElementTypeChangedFormSet = formset_factory(ElementTypeChangedForm, extra=0)
-    ElementTypeDeletedFormSet = formset_factory(ElementTypeDeletedForm, extra=0)
+    ElementTypeChangedFormSet = formset_factory(ElementTypeChangedForm,
+                                                extra=0)
+    ElementTypeDeletedFormSet = formset_factory(ElementTypeDeletedForm,
+                                                extra=0)
     changed_formset = ElementTypeChangedFormSet(initial=changed_props,
                                                 prefix='changed')
     deleted_formset = ElementTypeDeletedFormSet(initial=deleted_props,
@@ -406,7 +410,8 @@ def schema_properties_mend(request, graph_slug, element_type):
             fixed = True
         elif deleted_props and deleted_formset.is_valid():
             for cdata in deleted_formset.cleaned_data:
-                mend_schema_property(element_type, cdata['option'], cdata['key'])
+                mend_schema_property(element_type, cdata['option'],
+                                     cdata['key'])
             request.session.pop('schema_deleted_props')
             fixed = True
         if fixed:
@@ -422,7 +427,8 @@ def schema_properties_mend(request, graph_slug, element_type):
                               context_instance=RequestContext(request))
 
 
-def mend_schema_property(element_type=None, action=None, key=None, new_key=None):
+def mend_schema_property(element_type=None, action=None, key=None,
+                         new_key=None):
 
     def _rename_schema_property(element_type=None, key=None, new_key=None):
         if element_type:
