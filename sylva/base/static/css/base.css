@@ -1687,3 +1687,47 @@ table.toolsBrowse .dataActions .dataOption {
 .twitter-widget {
     margin-top: 30px;
 }
+
+
+/* icons */
+
+[class^="icon-"] {
+    background-repeat: no-repeat;
+    display: inline-block;
+    vertical-align: text-top;
+    line-height: 14px;
+    width: 14px;
+    height: 14px;
+}
+
+.icon-connected {
+    background-image: url(../img/connected.png);
+}
+
+.icon-connected16 {
+    background-image: url(../img/connected_16.png);
+}
+
+.icon-connections {
+    background-image: url(../img/connections.png);
+}
+
+.icon-connections16 {
+    background-image: url(../img/connections_16.png);
+}
+
+.icon-edit-node {
+    background-image: url(../img/edit_node.png);
+}
+
+.icon-edit-node16 {
+    background-image: url(../img/edit_node_16.png);
+}
+
+.icon-eye {
+    background-image: url(../img/12-eye.png);
+}
+
+.icon-nodes16 {
+    background-image: url(../img/nodes_16.png);
+}

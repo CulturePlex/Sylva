@@ -98,7 +98,7 @@ sylv:true, alert:true */
     });
 
     // Select box bindings
-    $visualization_select = $('#visualization-type');
+    var $visualization_select = $('#visualization-type');
     $visualization_select.children().first().attr('selected', 'selected');
     $visualization_select.change(function() {
       var type = $(this).find('option:selected').data('type');
