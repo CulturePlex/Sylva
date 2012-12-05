@@ -27,7 +27,7 @@ class Account(models.Model):
     relationships = models.IntegerField(_('relationships'), blank=True,
                                         null=True)
     storage = models.IntegerField(_('storage'), blank=True, null=True,
-                                  help_text=_('MB'))
+                                  help_text=_('bytes'))
     queries = models.IntegerField(_('queries'), blank=True, null=True,
                                   help_text=_('Queries per day'))
     privacy = models.NullBooleanField(_('privacy'), blank=True, null=True,
