@@ -12,9 +12,11 @@ def get_gdb(graph, using="default"):
     if not gdb:
         gdb_properties = settings.GRAPHDATABASES[using]
         connection_string = get_connection_string(gdb_properties)
+        connection_params = get_connection_params(gdb_properties)
         engine = gdb_properties["ENGINE"]
         module = import_module(engine)
-        gdb = module.GraphDatabase(connection_string, graph=graph)
+        gdb = module.GraphDatabase(connection_string, connection_params,
+                                   graph=graph)
         # We cache all public instances gdb objects
         cache.set(gdb_key, gdb)
     return gdb
@@ -29,20 +31,25 @@ def get_connection_string(properties):
     user = properties["USER"]
     password = properties["PASSWORD"]
     if user and password:
-        return "%s://%s:%s@%s:%s/%s/" % (schema, user, password, host, port,
-                                         path)
+        uri = "%s://%s:%s@%s:%s/%s/" % (schema, user, password, host, port,
+                                        path)
     elif user:
-        return "%s://%s@%s:%s/%s/" % (schema, user, host, port, path)
+        uri = "%s://%s@%s:%s/%s/" % (schema, user, host, port, path)
     else:
-        return "%s://%s:%s/%s/" % (schema, host, port, path)
+        uri = "%s://%s:%s/%s/" % (schema, host, port, path)
+    query = properties.get("QUERY", None)
+    if query:
+        uri = "%s?%s" % (uri, query)
+    fragment = properties.get("FRAGMENT", None)
+    if fragment:
+        uri = "%s#%s" % (uri, fragment)
 
 
-def get_engines():
-    # TODO: Returns a dict binding the engines names with the proper module
-    # {
-    #   'neo4j': {
-    #         'module': 'engines.gdb.backends.neo4j',
-    #         'url': 'http://neo4j.org/',
-    #   },
-    # }
-    pass
+def get_connection_params(properties):
+    return {
+        "username": properties("USERNAME", None),
+        "password": properties("PASSWORD", None),
+        "key_file": properties("KEY_FILE", None),
+        "cert_file": properties("CERT_FILE", None),
+        "options": properties("OPTIONS", None),
+    }
