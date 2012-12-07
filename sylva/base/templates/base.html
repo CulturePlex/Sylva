@@ -87,7 +87,7 @@
           <div class="inside">
             <div class="copyright">
               {% block footer %}
-                <p>{{ CURRENT_DATE|date:"Y" }} &copy; {% trans "Copyright" %} by {{ PROJECT_NAME }} & <a href="http://www.cultureplex.ca/">CulturePlex Lab</a>. {% trans "All rights reserved" %}.</p>
+                <p>&copy; {{ CURRENT_DATE|date:"Y" }} <a href="{{ site.domain }}">{{ PROJECT_NAME }}</a>. {% trans "All rights reserved" %}.</p>
                 <p>
                   {% load flatpages %}
                   {% get_flatpages as flatpages %}
