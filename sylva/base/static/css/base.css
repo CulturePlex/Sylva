@@ -477,7 +477,7 @@ cursor:default;
     position: relative;
     margin: auto;
     padding: 20px;
-    z-index: -1;
+    /*z-index: -1;*/
 }
 
 #main #footer.global
@@ -502,16 +502,15 @@ nav.main,#main #footer.global .inside
     float: right;
 }
 
-
-a,#main #footer.global .inside
-a {
+#main #footer.global .inside a {
     color: #555;
     text-decoration: none;
 }
 
-#main footer.global .inside a:hover {
+#main #footer.global .inside a:hover {
     text-decoration: underline;
 }
+
 
 
 #content3 {

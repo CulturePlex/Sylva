@@ -1,4 +1,4 @@
-{% load i18n thumbnail static %}<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+{% load i18n thumbnail static flatpages %}<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 
 {% get_static_prefix as STATIC_PREFIX %}
 
@@ -88,7 +88,14 @@
             <div class="copyright">
               {% block footer %}
                 <p>{{ CURRENT_DATE|date:"Y" }} &copy; {% trans "Copyright" %} by {{ PROJECT_NAME }} & <a href="http://www.cultureplex.ca/">CulturePlex Lab</a>. {% trans "All rights reserved" %}.</p>
-                <p><a href="#">{% trans "Terms" %}</a> | <a href="#">{% trans "FAQ" %}</a> | <a href="#" >{% trans "Contact us" %}</a></p>
+                <p>
+                  {% load flatpages %}
+                  {% get_flatpages as flatpages %}
+                    {% for page in flatpages %}
+                      <a href="{{ page.url }}">{{ page.title }}</a>
+                      {% if not forloop.last %} | {% endif %}
+                    {% endfor %}
+                </p>
               {% endblock %}
             </div><!-- end .copyright -->
             <div class="top">
