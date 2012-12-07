@@ -87,7 +87,6 @@
           <div class="inside">
             <div class="copyright">
               {% block footer %}
-                <p>&copy; {{ CURRENT_DATE|date:"Y" }} <a href="{{ site.domain }}">{{ PROJECT_NAME }}</a>. {% trans "All rights reserved" %}.</p>
                 <p>
                   {% load flatpages %}
                   {% get_flatpages as flatpages %}
@@ -96,6 +95,12 @@
                       {% if not forloop.last %} | {% endif %}
                     {% endfor %}
                 </p>
+                <p>
+                  <i class="icon-envelope"></i> <a href="mailto:info@sylvadb.com" rel="">info@sylvadb.com</a>
+                  <i class="icon-twitter"></i> <a href="http://twitter.com/SylvaDB" rel="">@SylvaDB</a>
+                  <i class="icon-github"></i> <a href="http://github.com/CulturePlex/Sylva" rel="">CulturePlex/Sylva</a>
+                </p>
+                <p>&copy; {{ CURRENT_DATE|date:"Y" }} <a href="{{ site.domain }}">{{ PROJECT_NAME }}</a>. {% trans "All rights reserved" %}.</p>
               {% endblock %}
             </div><!-- end .copyright -->
             <div class="top">

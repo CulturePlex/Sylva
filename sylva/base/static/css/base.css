@@ -166,9 +166,9 @@ header.global {
 .inside {
     width: 1200px;
     height: 49px;
-    background-image: url(../img/sylva_logo_text_header.png);
+    /*background-image: url(../img/sylva_logo_text_header.png);
     background-repeat: no-repeat;
-    background-position: 10px 4px;
+    background-position: 10px 4px;*/
     background-color: #D6E7DF;
     margin: auto;
 }
@@ -311,7 +311,7 @@ span {
     padding: 2px 2px 2px 10px;
 }
 
-#main header.global nav.main ul li a.link
+#main header.global nav ul li a.link
 span {
     padding-left:3px;
     padding-right:3px;
@@ -542,7 +542,7 @@ nav.main,#main #footer.global .inside
 
 #content2 {
     /*  width:992px;*/
-    min-height: 450px;
+    min-height: 400px;
     /*  background:#1D5600;*/
     text-align: left;
     padding-top: 0px;
@@ -1639,11 +1639,11 @@ table.toolsBrowse .dataActions .dataOption {
 */
 #content2 div.description {
     text-align: left;
-    font-size: 13px;
+    font-size: 15px;
     font-family: Georgia;
     font-style: italic;
     text-shadow:0 1px 1px rgba(175,203,188,0.8);
-    margin-top: 30px;
+    margin-top: 15px;
     width: 415px;
     display: inline-block;
     float: left;

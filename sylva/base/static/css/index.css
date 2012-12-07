@@ -90,12 +90,13 @@ width:1100px;
 background-color:#fff;
 margin:auto;
 padding:0 50px;
+height: 140px;
 }
 
 #main header.global .nav-wrapper {
 display:block;
 width:100%;
-height:99px;
+height:180px;
 position:absolute;
 top:0;
 left:0;
@@ -105,31 +106,34 @@ border-bottom: 5px solid #348E82;
 
 #main header.global .nav-wrapper
 .inside {
-width:1200px;
-height:99px;
-background-image: url(../img/sylva_logo_header.png);
-background-repeat: no-repeat;
-background-position: 10px center;
-background-color: #D6E7DF;
-margin:auto;
+    width:1200px;
+    height:180px;
+/*    background-image: url(../img/sylva_logo_header.png);
+    background-repeat: no-repeat;
+    background-position: 10px center;
+*/    background-color: #D6E7DF;
+    margin:auto;
 }
 
 #main header.global
 nav.contact {
-float:left;
-text-shadow:0 1px 1px rgba(0,0,0,0.9);
-padding-left: 90px;
+  float: left;
+  text-shadow: none;
+  padding: 0;
+  margin-right: 10px;
 }
 
 #main header.global nav.contact
 ul {
-margin-left:50px;
+  margin-left:55px;
+  margin-top: 55px;
 }
 
 #main header.global nav.contact ul
 li {
-margin-right:40px;
-line-height:16px;
+margin-right:15px;
+padding: 11px 0 0 0;
+/*line-height:16px;*/
 }
 
 #main header.global nav.contact ul li
@@ -141,32 +145,40 @@ font-weight:400;
 
 #main header.global nav.contact ul li
 a {
-font-size:11px;
+border-radius:4px;
+-moz-border-radius:4px;
+-webkit-border-radius:4px;
+box-shadow:0 1px 1px rgba(0,0,0,0.9);
+-webkit-box-shadow:0 1px 1px rgba(0,0,0,0.9);
+-moz-box-shadow:0 1px 1px rgba(0,0,0,0.9);
+display:block;
+margin-top:1px;
+font-size:12px;
 font-weight:700;
-color:#FFF;
+color:#262626;
+line-height:32px;
 text-decoration:none;
-border-bottom:solid 1px #505050;
-padding-bottom:2px;
+padding: 5px 10px 5px 30px;
 }
 
 #main header.global nav.contact ul li a:hover {
-color:#FFF;
+color: rgba(0, 0, 0, 0.9);
 text-shadow:0 0 2px rgba(255,255,255,0.5);
 border-bottom:solid 1px #FFF;
 }
 
 #main header.global nav.main
 ul {
-    margin-right:50px;
-    margin-top: 16px;
+    margin-right: 55px;
+    margin-top: 55px;
 }
 
 #main header.global nav.main ul
 li {
-margin-left:25px;
+margin-left:15px;
 }
 
-/* Home lings */
+/* Home links */
 a.signup {
     background: #FFF url(../img/shut-down.png) no-repeat 0 center;
 }
@@ -177,6 +189,18 @@ a.login {
 
 a.plans {
     background: #FFF url(../img/badge.png) no-repeat 0 center;
+}
+
+a.email {
+    background: #FFF url(../img/envelope.png) no-repeat 0 center;
+}
+
+a.twitter {
+    background: #FFF url(../img/twitter.png) no-repeat 0 center;
+}
+
+a.github {
+    background: #FFF url(../img/github.png) no-repeat 0 center;
 }
 
 #main header.global nav.main ul li
@@ -210,21 +234,21 @@ cursor:default;
 /*background:url(../img/larr.gif) no-repeat 0 59%;*/
 /*}*/
 
-#main header.global nav.main ul li a.link-home
+/*#main header.global nav.main ul li a.link-home
 span {
 padding-left:12px;
 }
-
+*/
 #main header.global nav.main ul li a:hover {
 box-shadow:0 0 5px rgba(52,142,130,0.75);
 -webkit-box-shadow:0 0 5px rgba(52,142,130,0.75);
 -moz-box-shadow:0 0 5px rgba(52,142,130,0.75);
 }
 
-#main header.global nav
+/*#main header.global nav
 ul {
 padding:29px 0;
-}
+}*/
 
 #main header.global nav ul
 li {
@@ -234,7 +258,8 @@ list-style:none;
 
 #main header.global
 h1 {
-padding-top:5px;
+padding-top:105px;
+text-align: center;
 }
 
 #main header.global h1
@@ -593,7 +618,7 @@ background:#FFF;
 }
 
 .content3-block p {
-  width:274px; 
+  width:274px;
   float:left;
   text-align:left;
 }
@@ -604,7 +629,7 @@ background:#FFF;
     width:2px;
     height:274px;
     float:left;
-    padding:0px 30px 0px 30px; 
+    padding:0px 30px 0px 30px;
   }
   /* end divider */
 
@@ -629,12 +654,17 @@ h2.query {
 /*
     Slogan
 */
-p.slogan {
-    text-align: center;
-    font-size: 15px;
-    font-family: Georgia;
-    font-style: italic;
-    font-weight: bold;
-    color: #A19C60;
-    text-shadow:0 1px 1px rgba(175,203,188,0.8);
+.slogan {
+  font-size: 15px;
+  font-family: Georgia;
+  font-style: italic;
+  font-weight: bold;
+  color: #A19C60;
+  text-shadow: 0 1px 1px rgba(175, 203, 188, 0.8);
+  background: url("../img/sylva_logo_text.png") no-repeat scroll center 43px transparent;
+  display: block;
+  height: 120px;
+  text-align: center;
+  padding-top: 12px;
+  height: 306px;
 }
