@@ -108,10 +108,8 @@ border-bottom: 5px solid #348E82;
 .inside {
     width:1200px;
     height:180px;
-/*    background-image: url(../img/sylva_logo_header.png);
-    background-repeat: no-repeat;
-    background-position: 10px center;
-*/    background-color: #D6E7DF;
+    background-image: none;
+    background-color: #D6E7DF;
     margin:auto;
 }
 
