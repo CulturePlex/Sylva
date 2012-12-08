@@ -17,7 +17,7 @@ gettext */
     updateNodeLegend: function(nodeId, nodeTitle, domId, html) {
       var htmlContent = (typeof html === "undefined") ? '' : html;
       var nodeEditURL = sylv.nodeEditURL.replace(/nodes\/0\/edit/, 'nodes/' + nodeId + '/edit');
-      var title = (nodeTitle.length < 22) ? nodeTitle : nodeTitle.substring(0,18) + "...";
+      var title = (nodeTitle.length < 22) ? nodeTitle : nodeTitle.substring(0,16) + "...";
       $('#' + domId).html(
         '<h2 title="' + nodeTitle + '">' + title + '</h2>' +
         '<a href="' + sylv.graphViewURL + 'nodes/' + nodeId + '">' +
