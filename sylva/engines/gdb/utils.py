@@ -43,6 +43,7 @@ def get_connection_string(properties):
     fragment = properties.get("FRAGMENT", None)
     if fragment:
         uri = "%s#%s" % (uri, fragment)
+    return uri
 
 
 def get_connection_params(properties):
