@@ -55,8 +55,9 @@ class GraphDeleteConfirmForm(forms.Form):
         (1, _("Yes")),
         (0, _("No")),
     )
-    confirm = forms.ChoiceField(label=_("Are you sure you want to delete "
-                                        "this whole graph?"),
+    confirm = forms.ChoiceField(label=_("This operation can't be undone. Are "
+                                        "you sure you want to delete this "
+                                        "whole graph?"),
                                 help_text=_("This can take a few minutes"),
                                 choices=CHOICES, required=True,
                                 widget=forms.RadioSelect())

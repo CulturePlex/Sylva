@@ -191,7 +191,10 @@ class GraphDatabase(BlueprintsGraphDatabase):
                     yield (elto_id, properties, elto_label)
             else:
                 for element in result["data"]:
-                    yield (element[0], None, element[1])
+                    if len(element) > 1:
+                        yield (element[0], None, element[1])
+                    else:
+                        yield (element[0], None, None)
             skip += limit
             if len(result["data"]) == limit:
                 try:
