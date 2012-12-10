@@ -171,6 +171,7 @@ INSTALLED_APPS = (
     'django.contrib.flatpages',
     'django.contrib.admin',
     'django.contrib.admindocs',
+    'accounts',
     'userena',
     'userena.contrib.umessages',
     'guardian',
@@ -181,7 +182,6 @@ INSTALLED_APPS = (
     'graphs',
     'schemas',
     'engines',
-    'accounts',
     'tools',
     'search',
     'operators',
@@ -239,8 +239,8 @@ TINYMCE_DEFAULT_CONFIG = {
     'theme': 'advanced',
     'theme_advanced_toolbar_location': 'top',
     'theme_advanced_buttons1': 'bold,italic,underline,strikethrough,separator,link,separator,undo,redo,separator,cleanup,separator,bullist,numlist,separator,code',
-    'theme_advanced_buttons2' : '',
-    'theme_advanced_buttons3' : '',
+    'theme_advanced_buttons2': '',
+    'theme_advanced_buttons3': '',
 }
 
 # Django settings
