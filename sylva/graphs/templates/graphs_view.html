@@ -51,7 +51,9 @@
       <a id="sigma-export-image" class="button" style="font-size:100%;" title="{% trans "Save as a PNG image" %}" download="{{ graph.slug }}.png">{% trans "Save as image" %}</a>
     </div>
   </div>
-  <div id="graph-container"></div>
+  <div id="sigma-wrapper">
+    <div id="sigma-container"></div>
+  </div>
   <span id="sigma-pause" class="pause" style="display:none;" data-state="running">{% trans "Pause" %}</span>
   <div id="canvas-box">
     <div id="spinner"></div>

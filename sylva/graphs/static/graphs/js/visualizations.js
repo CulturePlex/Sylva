@@ -13,7 +13,7 @@ sylv:true, alert:true */
 
     processing: function() {
       sylv.Sigma.stop();
-      $('#graph-container').hide();
+      $('#sigma-wrapper').hide();
       $('.sigma-checkbox').hide();
       $('.pause').hide();
       $('#canvas-box').show();
@@ -26,7 +26,7 @@ sylv:true, alert:true */
       $('#canvas-box')
         .hide()
         .append('<canvas id="graphcanvas">Your browser does not support graph visualization</canvas>');
-      $('#graph-container').show();
+      $('#sigma-wrapper').show();
       $('.pause').show();
       $('#element-info').html('Click any node to interact');
       $('.sigma-checkbox').css('display', 'inline-block');
@@ -58,7 +58,7 @@ sylv:true, alert:true */
     var target = document.getElementById('spinner');
     var spinner = new Spinner(opts).spin(target);
 
-    $('#graph-container').append('<div id="graph-loading" class="graph-loading-wrapper" style="opacity: 0.5;">' +
+    $('#sigma-container').append('<div id="graph-loading" class="graph-loading-wrapper" style="opacity: 0.5;">' +
                                    '<div id="graph-loading-message" class="graph-loading-inner" style="top: 170px;">' +
                                     gettext('loading...') +
                                    '</div>' +

@@ -30,7 +30,7 @@ clearTimeout */
       var size = sylv.size;
 
       // Instanciate Sigma.js and customize rendering.
-      var sigInst = sigma.init(document.getElementById('graph-container')).drawingProperties({
+      var sigInst = sigma.init(document.getElementById('sigma-container')).drawingProperties({
         defaultLabelColor: '#000',
         defaultLabelSize: 14,
         defaultLabelBGColor: '#fff',
@@ -89,7 +89,7 @@ clearTimeout */
                   'left': node.displayX+212,
                   'top': node.displayY+61
                 });
-            $('#graph-container').append($tooltip);
+            $('#sigma-container').append($tooltip);
           }, [nodePK]);
         }
 
@@ -161,11 +161,11 @@ clearTimeout */
       // Save as a PNG image.
       $('#sigma-export-image').on('click', function() {
         var $canvas = $('<canvas id="sigma_export_image">');
-        var width = $('#graph-container').children().first().width();
-        var height = $('#graph-container').children().first().height();
+        var width = $('#sigma-container').children().first().width();
+        var height = $('#sigma-container').children().first().height();
         $canvas.attr('width', width);
         $canvas.attr('height', height);
-        $('#graph-container').append($canvas);
+        $('#sigma-container').append($canvas);
         var canvas = $canvas[0];
         var ctx = canvas.getContext('2d');
         ctx.globalCompositeOperation = 'source-over';
