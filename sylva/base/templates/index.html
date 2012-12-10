@@ -50,24 +50,21 @@
 {% endblock %}
 
 {% block content_title %}
-  <h1><a href="" class="inactive"></a></h1>
+  <h1>{% trans "A Flexible Way To Manage Your Graphs" %}</h1>
 {% endblock %}
 
 {% block contact_navigation %}
   <nav class="contact">
-  <ul>
-    <li>
-      <h2>{% trans "Contact us" %}</h2>
-      <a href="mailto:info@sylvadb.com" rel="">info@sylvadb.com</a>
-    </li>
-    <li>
-      <h2>{% trans "Follow us" %}</h2>
-        <a href="http://www.twitter.com/sylvadb" rel="external" target="blank">@SylvaDB</a>
-    </li>
-<!--        <li>-->
-<!--          <h2>Read our blog</h2>-->
-<!--          <a href="http://sylva.blogs.cultureplex.ca/" rel="external" target="blank">sylva.blogs.cultureplex.ca</a>-->
-<!--        </li>-->
+    <ul>
+      <li>
+        <a class="link email" href="mailto:info@sylvadb.com" rel="external"><span>{% trans "Contact" %}</span></a>
+      </li>
+      <li>
+          <a class="link twitter" href="http://twitter.com/sylvadb" rel="external" target="blank"><span>{% trans "Follow" %}</span></a>
+      </li>
+      <li>
+          <a class="link github" href="http://github.com/CulturePlex/Sylva" rel="external" target="blank"><span>{% trans "Code" %}</span></a>
+      </li>
     </ul>
   </nav>
 {% endblock %}
@@ -75,19 +72,26 @@
 {% block main_navigation %}
   <nav class="main">
     <ul>
+      <li><a href="" class="link plans active" title="{% trans "Coming soon!" %}"><span>{% trans "Plans" %}</span></a></li>
       <li><a href="{% url signup %}" class="link signup"><span>{% trans "Sign up" %}</span></a></li>
       {% if request.user.is_authenticated %}
-        <li><a href="{% url django.contrib.auth.views.logout %}" class="link logout login"><span>{% trans "Sign out" %}</span></a></li>
+        <li><a href="{% url django.contrib.auth.views.logout %}" class="link logout"><span>{% trans "Sign out" %}</span></a></li>
       {% else %}
         <li><a href="{% url userena.views.signin %}" class="link login" id="loginFormButton"><span>{% trans "Sign in" %}</span></a></li>
       {% endif %}
-<!--      <li><a href="" class="link plans"><span>{% trans "Plans" %}</span></a></li>-->
     </ul>
     {% if user_is_signedin %}
       <a href="{% url userena.views.profile_edit request.user %}">{{ request.user }}</a>
     {% endif %}
   </nav>
-
+    <p class="slogan">
+      {% comment %}
+      {% trans "A Relaxed-Schema Graph Database Management System" %}.</p>
+      {% endcomment %}
+      {% trans "Graph Databases" %}
+      </br></br></br></br></br></br>
+      {% trans "Made Easy For Everyone" %}
+    </p>
   <div id="loginForm" style="display: none;">
     {% if form %}
       {% if form.errors %}
@@ -108,24 +112,15 @@
 {% block content %}
   <div id="homepage">
     <div class="text-replacement" style="margin-left: 0px; opacity: 1; ">
-    <p class="slogan">
-      {% comment %}
-      {% trans "A Relaxed-Schema Graph Database Management System" %}.</p>
-      {% endcomment %}
-      {% trans "The Graph Database for Humans" %}.
-    </p>
     <div id="content2">
         <div class="content2-block">
           <div class="description">
             {% blocktrans %}
-            Sylva [from the Old Spanish "silva", a Rennaisance type of book to organize knowledge] is a free, easy-to-use, flexible, and scalable database management system that helps you collect, collaborate, visualize and query large data sets.
+            Sylva ["silva", a book to organize knowledge during the Renaissance] is an easy-to-use, flexible, and scalable database management system that helps you collect, collaborate, visualize and query large data sets. In Sylva, all your data is connected using a graph, and you will see the connections all the way through.
             <br/><br/>
-            No programming knowledge is required to use Sylva!
+            No programming knowledge is needed to use Sylva. We promise :)
             <br/><br/>
-            The data sets are stored according to the schemas (graphs) created by the user, and can be visualized as networks and as lists.
-            Researchers have absolute freedom to grant different permits to collaborators and to import and export their schemas and data sets.
-            <br/><br/>
-            Start using Sylva now!
+            In Sylva, data sets are stored according to the schemas (graphs) created by the user. Researchers have absolute freedom to grant different permits to collaborators and to import and export their schemas and data sets.
             {% endblocktrans %}
             {% comment %}
             <form action="https://docs.google.com/spreadsheet/formResponse?formkey=dFNETEZyMWFGQzh2OERiU21YdHNLdGc6MQ&amp;embedded=true&amp;ifq" method="POST" id="ss-form" class="staytuned">
@@ -177,20 +172,21 @@
               <!-- content blocks (three side by side), can remove if needed, this was just an example -->
               <div class="content3-block">
                 <h2 class="model">{% trans "Model" %}</h3>
-                <p>{% blocktrans %}Create a schema of your data and change it as many times as you need. Absolute flexibility for editing the schema again and again. Even you You be the one to decide what happens with the referential integrity and cascade deletions.{% endblocktrans %}</p>
+                <p>{% blocktrans %}Create a schema of your data and change it as many times as you need.{% endblocktrans %}</p>
+                <p>{% blocktrans %}Sylva gives you absolute flexibility for editing the schema again and again. You decide what happens with referential integrity and cascade deletions.{% endblocktrans %}</p>
               </div>
               <div class="content-divider"></div>
               <div class="content3-block">
                 <h2 class="collect">{% trans "Collect" %}</h2>
-                <p>{% blocktrans %}With access to a browser and Internet connection you can have as many people as you want from just as many countries collecting the data simultaneously.{% endblocktrans %}</p>
-                <p>{% blocktrans %}And since it is <strong>your</strong> data, you can export it whenever you need to, in the most common formats: GML, GEXF, CSV, etc.{% endblocktrans %}</p>
+                <p>{% blocktrans %}Populate your database manually or import your data from an existing set.{% endblocktrans %}</p>
+                <p>{% blocktrans %}You can collaborate with your team in all phases of the process, no matter where they are. And since it is your data, you can export it whenever you need to.{% endblocktrans %}</p>
               </div>
               <div class="content-divider"></div>
                 <div class="content3-block">
                 <h2 class="query" >{% trans "Query" %}</h4>
-                <p >{% blocktrans %}Research on your connected data discovering new information through the powerfull system of quering.{% endblocktrans %}</p>
-                <p >{% blocktrans %}Setup an expermient, save it and share it with others.{% endblocktrans %}</p>
-                <p >{% blocktrans %}Coming soon...{% endblocktrans %}</p>
+                <p >{% blocktrans %}Get all the knowledge out of your data with the powerful query system of Sylva.{% endblocktrans %}</p>
+                <p >{% blocktrans %}Do research on your connected data and discover new information. Setup an experiment, save it and share it with others.{% endblocktrans %}</p>
+                <p ><span class="helptext">{% blocktrans %}Coming soon...{% endblocktrans %}</span></p>
               <!-- end content blocks -->
               </div>
               <div class="clearfloats"></div>

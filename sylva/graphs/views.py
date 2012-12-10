@@ -73,7 +73,8 @@ def _jsonify_graph(nodes_list, relations_list,
     return (nodes, edges, partial_nodes, partial_edges)
 
 
-@permission_required("graphs.view_graph", (Graph, "slug", "graph_slug"))
+@permission_required("graphs.view_graph", (Graph, "slug", "graph_slug"),
+                     return_403=True)
 def graph_view(request, graph_slug, node_id=None):
     graph = get_object_or_404(Graph, slug=graph_slug)
     ajax_url = ''
@@ -93,7 +94,8 @@ def graph_view(request, graph_slug, node_id=None):
                               context_instance=RequestContext(request))
 
 
-@permission_required("graphs.change_graph", (Graph, "slug", "graph_slug"))
+@permission_required("graphs.change_graph", (Graph, "slug", "graph_slug"),
+                     return_403=True)
 def graph_edit(request, graph_slug):
     graph = get_object_or_404(Graph, slug=graph_slug)
     form = GraphForm(user=request.user, instance=graph)
@@ -115,7 +117,8 @@ def graph_edit(request, graph_slug):
                               context_instance=RequestContext(request))
 
 
-@permission_required("graphs.change_graph", (Graph, "slug", "graph_slug"))
+@permission_required("graphs.change_graph", (Graph, "slug", "graph_slug"),
+                     return_403=True)
 def graph_delete(request, graph_slug):
     graph = get_object_or_404(Graph, slug=graph_slug)
     form = GraphDeleteConfirmForm()
@@ -165,9 +168,12 @@ def graph_create(request):
 
 @login_required
 @permission_required("schemas.view_schema", (Schema, "graph__slug",
-                                             "graph_slug"))
-@permission_required("data.view_data", (Data, "graph__slug", "graph_slug"))
-@permission_required("graphs.view_graph", (Graph, "slug", "graph_slug"))
+                                             "graph_slug"),
+                     return_403=True)
+@permission_required("data.view_data", (Data, "graph__slug", "graph_slug"),
+                     return_403=True)
+@permission_required("graphs.view_graph", (Graph, "slug", "graph_slug"),
+                     return_403=True)
 def graph_clone(request, graph_slug):
     if not settings.ENABLE_CLONING:
         return redirect(reverse('dashboard'))
@@ -210,7 +216,8 @@ def graph_clone(request, graph_slug):
 
 
 @permission_required("graphs.change_collaborators", (Graph, "slug",
-                                                     "graph_slug"))
+                                                     "graph_slug"),
+                     return_403=True)
 def graph_collaborators(request, graph_slug):
     # Only graph owner should be able to do this
     graph = get_object_or_404(Graph, slug=graph_slug)
@@ -260,7 +267,7 @@ def graph_collaborators(request, graph_slug):
 
 
 @permission_required("graphs.change_collaborators",
-                     (Graph, "slug", "graph_slug"))
+                     (Graph, "slug", "graph_slug"), return_403=True)
 def change_permission(request, graph_slug):
     if request.is_ajax():
         graph = get_object_or_404(Graph, slug=graph_slug)
@@ -286,7 +293,7 @@ def change_permission(request, graph_slug):
 
 
 @permission_required("graphs.change_collaborators",
-                     (Graph, "slug", "graph_slug"))
+                     (Graph, "slug", "graph_slug"), return_403=True)
 def graph_ajax_collaborators(request, graph_slug):
     if request.is_ajax() and "term" in request.GET:
         graph = get_object_or_404(Graph, slug=graph_slug)
@@ -313,7 +320,8 @@ def graph_ajax_collaborators(request, graph_slug):
     return HttpResponse(json.dumps({}))
 
 
-@permission_required("graphs.view_graph", (Graph, "slug", "graph_slug"))
+@permission_required("graphs.view_graph", (Graph, "slug", "graph_slug"),
+                     return_403=True)
 def expand_node(request, graph_slug, node_id):
     graph = get_object_or_404(Graph, slug=graph_slug)
     node = graph.nodes.get(node_id)
@@ -327,7 +335,8 @@ def expand_node(request, graph_slug, node_id):
     return HttpResponse(json.dumps(node_neighbors))
 
 
-@permission_required("graphs.view_graph", (Graph, "slug", "graph_slug"))
+@permission_required("graphs.view_graph", (Graph, "slug", "graph_slug"),
+                     return_403=True)
 def graph_data(request, graph_slug, node_id=None):
     if (request.is_ajax() or settings.DEBUG):
         graph = get_object_or_404(Graph, slug=graph_slug)

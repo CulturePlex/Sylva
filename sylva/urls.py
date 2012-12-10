@@ -50,9 +50,18 @@ urlpatterns = patterns('',
     # tools
     url(r'^tools/', include('tools.urls')),
 
+    # tinyMCE
+    url(r'^tinymce/', include('tinymce.urls')),
+
     # admin_media
     url(r'^admin/', include(admin.site.urls)),
     # url(r'^admin/', include(admin_site.urls)),
+)
+
+urlpatterns += patterns('django.contrib.flatpages.views',
+    url(r'^about/$', 'flatpage', {'url': '/about/'}, name='about'),
+    url(r'^terms/$', 'flatpage', {'url': '/terms/'}, name='terms'),
+    url(r'^privacy/$', 'flatpage', {'url': '/privacy/'}, name='privacy'),
 )
 
 if settings.DEBUG:

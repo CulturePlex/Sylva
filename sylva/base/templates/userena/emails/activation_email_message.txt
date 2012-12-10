@@ -1,0 +1,24 @@
+{% load i18n settings %}{% autoescape off %}
+{% if not without_usernames %}{% blocktrans with user.username as username %}Dear {{ username }},{% endblocktrans %}
+{% endif %}
+{% blocktrans with site.name as site %}Thank you for signing up at {{ site }}.{% endblocktrans %}
+
+{% trans "To activate your account you should click on the link below:" %}
+
+    {{ protocol }}://{{ site.domain }}{% url userena_activate activation_key %}
+{% get_setting OPTIONS as OPTIONS %}{% if OPTIONS.ACTIVATION_EMAIL_BETA_MESSAGE %}
+{% blocktrans with site.name as name %}Please, keep in mind that we are in beta mood and still improving {{ name }}.{% endblocktrans %}
+{% blocktrans %}You have signed up for a Free account. This means that you will enjoy up to:{% endblocktrans %}
+- {% blocktrans with OPTIONS.ACCOUNT_FREE.graphs as graphs %}{{ graphs }} graphs{% endblocktrans %}
+- {% blocktrans with OPTIONS.ACCOUNT_FREE.nodes as nodes %}{{ nodes }} nodes{% endblocktrans %}
+- {% blocktrans with OPTIONS.ACCOUNT_FREE.relationships as relationships %}{{ relationships }} relationships{% endblocktrans %}
+- {% blocktrans with OPTIONS.ACCOUNT_FREE.storage|filesizeformat as storage %}{{ storage }} of storage{% endblocktrans %}
+- {% blocktrans with OPTIONS.ACCOUNT_FREE.queries as queries %}{{ queries }} saved queries{% endblocktrans %}
+
+{% blocktrans with site.name as name %}We would like to hear from you about your experience with {{ name }}.{% endblocktrans %} {% blocktrans with OPTIONS.DEFAULT_FROM_EMAIL as email %}Please, drop us a line at {{ email }}
+{% endblocktrans %}{% endif %}
+{% trans "Thanks for using our site!" %}
+
+{% trans "Sincerely" %},
+{{ site.name }}
+{% endautoescape %}

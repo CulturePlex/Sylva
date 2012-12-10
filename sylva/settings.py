@@ -7,7 +7,7 @@ DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 ugettext = lambda s: s
 
-PROJECT_NAME = u"Sylva Project"
+PROJECT_NAME = u"SylvaDB"
 PROJECT_ROOT = path.dirname(path.abspath(__file__))
 
 ADMINS = (
@@ -63,7 +63,7 @@ LANGUAGE_CODE = 'en-ca'
 # Supported translations
 LANGUAGES = (
     ('en', ugettext('English')),
-    ('es', ugettext('Español')),
+    # ('es', ugettext('Español')),
 )
 
 # I18n
@@ -140,6 +140,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     "base.context_processors.google_analytics_code",
     "base.context_processors.debug",
     "base.context_processors.logout",
+    "base.context_processors.site",
 )
 
 MIDDLEWARE_CLASSES = (
@@ -167,12 +168,14 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.flatpages',
     'django.contrib.admin',
     'django.contrib.admindocs',
     'userena',
     'userena.contrib.umessages',
     'guardian',
     'easy_thumbnails',
+    'tinymce',
     'base',
     'data',
     'graphs',
@@ -231,9 +234,18 @@ LOGGING = {
     }
 }
 
+# TinyMCE
+TINYMCE_DEFAULT_CONFIG = {
+    'theme': 'advanced',
+    'theme_advanced_toolbar_location': 'top',
+    'theme_advanced_buttons1': 'bold,italic,underline,strikethrough,separator,link,separator,undo,redo,separator,cleanup,separator,bullist,numlist,separator,code',
+    'theme_advanced_buttons2' : '',
+    'theme_advanced_buttons3' : '',
+}
+
 # Django settings
 MESSAGE_STORAGE = 'django.contrib.messages.storage.session.SessionStorage'
-DEFAULT_FROM_EMAIL = "info@sylvadb.com"
+DEFAULT_FROM_EMAIL = "\"SylvaDB\" <info@sylvadb.com>"
 
 # Profiling
 PROFILE_MIDDLEWARE_SORT = ["cumulative", "calls"]
@@ -251,7 +263,10 @@ USERENA_MUGSHOT_GRAVATAR = True
 USERENA_MUGSHOT_DEFAULT = "mm"
 USERENA_MUGSHOT_SIZE = 100
 USERENA_USE_MESSAGES = False
+
+# Guardian
 GUARDIAN_RENDER_403 = True
+GUARDIAN_TEMPLATE_403 = '403.html'
 
 # Sylva settings
 GOOGLE_ANALYTICS_CODE = "UA-1613313-12"
@@ -261,7 +276,7 @@ ACCOUNT_FREE = {
     "graphs": 10,
     "nodes": 1000,
     "relationships": 10000,
-    "storage": 102400,
+    "storage": 100 * 1024 * 1024,
     "queries": 10,
 }
 ENABLE_INSTANCES = False
@@ -272,6 +287,7 @@ ENABLE_CLONING = False
 ENABLE_PROFILE = False
 ENABLE_SIGNUP = True
 ENABLE_TYPE_VALIDATION_FORMS = False
+ACTIVATION_EMAIL_BETA_MESSAGE = True
 MAINTENANCE_MODE = False
 PREVIEW_NODES = 200  # Size of the graph preview in the graph screen
 MAX_SIZE = 300  # Disable graph preview (Processing) nodes number is above this value
@@ -286,4 +302,6 @@ OPTIONS = {
     "ENABLE_TYPE_VALIDATION_FORMS": ENABLE_TYPE_VALIDATION_FORMS,
     "MAINTENANCE_MODE": MAINTENANCE_MODE,
     "PREVIEW_NODES": PREVIEW_NODES,
+    "DEFAULT_FROM_EMAIL": DEFAULT_FROM_EMAIL,
+    "ACTIVATION_EMAIL_BETA_MESSAGE": ACTIVATION_EMAIL_BETA_MESSAGE,
 }

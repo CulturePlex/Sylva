@@ -41,7 +41,8 @@ def create_data(properties, data_list, add_edge_extras=False):
     return data
 
 
-@permission_required("data.view_data", (Data, "graph__slug", "graph_slug"))
+@permission_required("data.view_data", (Data, "graph__slug", "graph_slug"),
+                     return_403=True)
 def nodes_list(request, graph_slug):
     graph = get_object_or_404(Graph, slug=graph_slug)
     node_types = graph.schema.nodetype_set.all().select_related()
@@ -51,7 +52,8 @@ def nodes_list(request, graph_slug):
                               context_instance=RequestContext(request))
 
 
-@permission_required("data.view_data", (Data, "graph__slug", "graph_slug"))
+@permission_required("data.view_data", (Data, "graph__slug", "graph_slug"),
+                     return_403=True)
 def nodes_lookup(request, graph_slug):
     graph = get_object_or_404(Graph, slug=graph_slug)
     data = request.GET.copy()
@@ -77,14 +79,15 @@ def nodes_lookup(request, graph_slug):
     raise Http404(_("Mismatch criteria for matching the search."))
 
 
-@permission_required("data.view_data", (Data, "graph__slug", "graph_slug"))
+@permission_required("data.view_data", (Data, "graph__slug", "graph_slug"),
+                     return_403=True)
 def nodes_list_full(request, graph_slug, node_type_id):
     graph = get_object_or_404(Graph, slug=graph_slug)
     node_type = get_object_or_404(NodeType, id=node_type_id)
     nodes = node_type.all()
     page = request.GET.get('page')
     page_size = request.GET.get('size', 25)
-    paginator = Paginator(nodes, page_size) # Show 25 items per page
+    paginator = Paginator(nodes, page_size)  # Show 25 items per page
     try:
         paginated_nodes = paginator.page(page)
     except PageNotAnInteger:
@@ -107,7 +110,8 @@ def nodes_list_full(request, graph_slug, node_type_id):
                                }, context_instance=RequestContext(request))
 
 
-@permission_required("data.add_data", (Data, "graph__slug", "graph_slug"))
+@permission_required("data.add_data", (Data, "graph__slug", "graph_slug"),
+                     return_403=True)
 def nodes_create(request, graph_slug, node_type_id):
     graph = get_object_or_404(Graph, slug=graph_slug)
     nodetype = get_object_or_404(NodeType, id=node_type_id)
@@ -140,7 +144,7 @@ def nodes_create(request, graph_slug, node_type_id):
         formset_prefix = slugify(relationship_slug).replace("-", "_")
         prefixes.append({"key": formset_prefix,
                          "value": u"→ %s (%s)" % (relationship.name,
-                                                  relationship.target.name)})
+                                                    relationship.target.name)})
         outgoing_formset = RelationshipFormSet(itemtype=relationship,
                                                instance=nodetype,
                                                prefix=formset_prefix,
@@ -163,7 +167,7 @@ def nodes_create(request, graph_slug, node_type_id):
         formset_prefix = slugify(relationship_slug).replace("-", "_")
         prefixes.append({"key": formset_prefix,
                          "value": u"← %s (%s)" % (relationship.name,
-                                                  relationship.source.name)})
+                                                    relationship.source.name)})
         incoming_formset = RelationshipFormSet(itemtype=relationship,
                                                instance=nodetype,
                                                prefix=formset_prefix,
@@ -202,19 +206,20 @@ def nodes_create(request, graph_slug, node_type_id):
                                args=[graph.slug, node_type_id])
         return redirect(redirect_url)
     return render_to_response('nodes_editcreate.html',
-        {"graph": graph,
-         "nodetype": nodetype,
-         "node_form": node_form,
-         "prefixes": prefixes,
-         "outgoing_formsets": outgoing_formsets,
-         "incoming_formsets": incoming_formsets,
-         "mediafile_formset": mediafile_formset,
-         "medialink_formset": medialink_formset,
-         "action": u"%s %s" % (_("New"), nodetype.name)},
-        context_instance=RequestContext(request))
+                              {"graph": graph,
+                               "nodetype": nodetype,
+                               "node_form": node_form,
+                               "prefixes": prefixes,
+                               "outgoing_formsets": outgoing_formsets,
+                               "incoming_formsets": incoming_formsets,
+                               "mediafile_formset": mediafile_formset,
+                               "medialink_formset": medialink_formset,
+                               "action": u"%s %s" % (_("New"), nodetype.name)},
+                              context_instance=RequestContext(request))
 
 
-@permission_required("data.change_data", (Data, "graph__slug", "graph_slug"))
+@permission_required("data.change_data", (Data, "graph__slug", "graph_slug"),
+                     return_403=True)
 def nodes_edit(request, graph_slug, node_id):
     graph = get_object_or_404(Graph, slug=graph_slug)
     node = graph.nodes.get(node_id)
@@ -222,7 +227,8 @@ def nodes_edit(request, graph_slug, node_id):
     try:
         media_node = MediaNode.objects.get(node_id=node.id, data=graph.data)
     except MediaNode.MultipleObjectsReturned:
-        media_nodes = MediaNode.objects.filter(node_id=node.id, data=graph.data)
+        media_nodes = MediaNode.objects.filter(node_id=node.id,
+                                               data=graph.data)
         media_node = media_nodes.latest("id")
     except MediaNode.DoesNotExist:
         media_node = MediaNode()
@@ -282,7 +288,7 @@ def nodes_edit(request, graph_slug, node_id):
         formset_prefix = slugify(relationship_slug).replace("-", "_")
         prefixes.append({"key": formset_prefix,
                          "value": u"→ %s (%s)" % (relationship.name,
-                                                  relationship.target.name)})
+                                                    relationship.target.name)})
         outgoing_formset = RelationshipFormSet(itemtype=relationship,
                                                instance=nodetype,
                                                prefix=formset_prefix,
@@ -327,7 +333,7 @@ def nodes_edit(request, graph_slug, node_id):
         formset_prefix = slugify(relationship_slug).replace("-", "_")
         prefixes.append({"key": formset_prefix,
                          "value": u"← %s (%s)" % (relationship.name,
-                                                  relationship.source.name)})
+                                                    relationship.source.name)})
         incoming_formset = RelationshipFormSet(itemtype=relationship,
                                                instance=nodetype,
                                                prefix=formset_prefix,
@@ -371,21 +377,22 @@ def nodes_edit(request, graph_slug, node_id):
                                args=[graph.slug, nodetype.id])
         return redirect(redirect_url)
     return render_to_response('nodes_editcreate.html',
-        {"graph": graph,
-         "nodetype": nodetype,
-         "node_form": node_form,
-         "node": node,
-         "prefixes": prefixes,
-         "outgoing_formsets": outgoing_formsets,
-         "incoming_formsets": incoming_formsets,
-         "mediafile_formset": mediafile_formset,
-         "medialink_formset": medialink_formset,
-         "action": _("Edit"),
-         "delete": True},
-        context_instance=RequestContext(request))
+                              {"graph": graph,
+                               "nodetype": nodetype,
+                               "node_form": node_form,
+                               "node": node,
+                               "prefixes": prefixes,
+                               "outgoing_formsets": outgoing_formsets,
+                               "incoming_formsets": incoming_formsets,
+                               "mediafile_formset": mediafile_formset,
+                               "medialink_formset": medialink_formset,
+                               "action": _("Edit"),
+                               "delete": True},
+                              context_instance=RequestContext(request))
 
 
-@permission_required("data.delete_data", (Data, "graph__slug", "graph_slug"))
+@permission_required("data.delete_data", (Data, "graph__slug", "graph_slug"),
+                     return_403=True)
 def nodes_delete(request, graph_slug, node_id):
     graph = get_object_or_404(Graph, slug=graph_slug)
     node = graph.nodes.get(node_id)
@@ -445,7 +452,8 @@ def nodes_delete(request, graph_slug, node_id):
                               context_instance=RequestContext(request))
 
 
-@permission_required("data.view_data", (Data, "graph__slug", "graph_slug"))
+@permission_required("data.view_data", (Data, "graph__slug", "graph_slug"),
+                     return_403=True)
 def relationships_list(request, graph_slug):
     graph = get_object_or_404(Graph, slug=graph_slug)
     data_preview = []
@@ -457,36 +465,34 @@ def relationships_list(request, graph_slug):
         type_element_name = u"(%s) %s (%s)" % (type_element.source.name,
                                                type_element.name,
                                                type_element.target.name)
-        data_preview.append([type_element_name,
-            columns,
-            data,
-            type_element.id])
+        data_preview.append([type_element_name, columns, data,
+                             type_element.id])
     return render_to_response('relationships_list.html',
                               {"graph": graph,
                                   "option_list": data_preview},
                               context_instance=RequestContext(request))
 
 
-@permission_required("data.view_data", (Data, "graph__slug", "graph_slug"))
+@permission_required("data.view_data", (Data, "graph__slug", "graph_slug"),
+                     return_403=True)
 def relationships_list_full(request, graph_slug, relationship_type_id):
     graph = get_object_or_404(Graph, slug=graph_slug)
     type_element = get_object_or_404(RelationshipType,
-                                    id=relationship_type_id)
+                                     id=relationship_type_id)
     data_preview = []
     properties = [p.key for p in type_element.properties.all()]
     data = create_data(properties, type_element.all(), True)
     columns = ["source", "target"]
     columns.extend(properties)
-    data_preview.append([type_element.name,
-        columns,
-        data])
+    data_preview.append([type_element.name, columns, data])
     return render_to_response('nodes_list.html',
                               {"graph": graph,
                                "option_list": data_preview},
                               context_instance=RequestContext(request))
 
 
-@permission_required("data.view_data", (Data, "graph__slug", "graph_slug"))
+@permission_required("data.view_data", (Data, "graph__slug", "graph_slug"),
+                     return_403=True)
 def node_relationships(request, graph_slug, node_id):
     graph = get_object_or_404(Graph, slug=graph_slug)
     node = graph.nodes.get(int(node_id))

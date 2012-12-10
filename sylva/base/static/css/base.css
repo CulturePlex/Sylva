@@ -317,7 +317,7 @@ span {
     padding: 2px 2px 2px 10px;
 }
 
-#main header.global nav.main ul li a.link
+#main header.global nav ul li a.link
 span {
     padding-left:3px;
     padding-right:3px;
@@ -483,7 +483,7 @@ cursor:default;
     position: relative;
     margin: auto;
     padding: 20px;
-    z-index: -1;
+    /*z-index: -1;*/
 }
 
 #main #footer.global
@@ -508,16 +508,15 @@ nav.main,#main #footer.global .inside
     float: right;
 }
 
-
-a,#main #footer.global .inside
-a {
+#main #footer.global .inside a {
     color: #555;
     text-decoration: none;
 }
 
-#main footer.global .inside a:hover {
+#main #footer.global .inside a:hover {
     text-decoration: underline;
 }
+
 
 
 #content3 {
@@ -549,7 +548,7 @@ a {
 
 #content2 {
     /*  width:992px;*/
-    min-height: 450px;
+    min-height: 400px;
     /*  background:#1D5600;*/
     text-align: left;
     padding-top: 0px;
@@ -1644,11 +1643,11 @@ table.toolsBrowse .dataActions .dataOption {
 */
 #content2 div.description {
     text-align: left;
-    font-size: 13px;
+    font-size: 15px;
     font-family: Georgia;
     font-style: italic;
     text-shadow:0 1px 1px rgba(175,203,188,0.8);
-    margin-top: 30px;
+    margin-top: 15px;
     width: 415px;
     display: inline-block;
     float: left;

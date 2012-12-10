@@ -1,4 +1,4 @@
-{% load i18n thumbnail static %}<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+{% load i18n thumbnail static flatpages %}<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 
 {% get_static_prefix as STATIC_PREFIX %}
 
@@ -20,6 +20,7 @@
     <meta name="keywords" content="graph, database, graph database, system, sylva, sylva project, schema-less, relaxed schema, management, database management system, DBMS">
     <link rel="icon" href="{{ STATIC_PREFIX }}img/favicon.ico">
     <link rel="stylesheet" type="text/css" href="{{ STATIC_PREFIX }}css/base.css" />
+    <link rel="stylesheet" type="text/css" href="{{ STATIC_PREFIX }}css/font-awesome.css" />
     <!--[if lt IE 7]>
     <link rel="stylesheet" type="text/css" href="{{ STATIC_PREFIX }}css/iefixes.css" />
     <![endif]-->
@@ -87,8 +88,20 @@
           <div class="inside">
             <div class="copyright">
               {% block footer %}
-                <p>{{ CURRENT_DATE|date:"Y" }} &copy; {% trans "Copyright" %} by {{ PROJECT_NAME }} & <a href="http://www.cultureplex.ca/">CulturePlex Lab</a>. {% trans "All rights reserved" %}.</p>
-                <p><a href="#">{% trans "Terms" %}</a> | <a href="#">{% trans "FAQ" %}</a> | <a href="#" >{% trans "Contact us" %}</a></p>
+                <p>
+                  {% load flatpages %}
+                  {% get_flatpages as flatpages %}
+                    {% for page in flatpages %}
+                      <a href="{{ page.url }}">{{ page.title }}</a>
+                      {% if not forloop.last %} | {% endif %}
+                    {% endfor %}
+                </p>
+                <p>
+                  <i class="icon-envelope"></i> <a href="mailto:info@sylvadb.com" rel="">info@sylvadb.com</a>
+                  <i class="icon-twitter"></i> <a href="http://twitter.com/SylvaDB" rel="">@SylvaDB</a>
+                  <i class="icon-github"></i> <a href="http://github.com/CulturePlex/Sylva" rel="">CulturePlex/Sylva</a>
+                </p>
+                <p>&copy; {{ CURRENT_DATE|date:"Y" }} <a href="{{ site.domain }}">{{ PROJECT_NAME }}</a>. {% trans "All rights reserved" %}.</p>
               {% endblock %}
             </div><!-- end .copyright -->
             <div class="top">
