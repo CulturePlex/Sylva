@@ -12,6 +12,11 @@ audio,video {
     padding: 0;
 }
 
+html {
+    -webkit-font-smoothing: antialiased;
+    text-rendering: Legibility;
+}
+
 body {
     line-height: normal;
     font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
@@ -21,7 +26,14 @@ body {
     background-color: #f2f2f2;
 }
 
-blockquote,q {
+h2 {
+    font: normal 19px Georgia;
+    color: #348E82;
+    padding-bottom: 5px;
+    padding-top: 5px;
+}
+
+blockquote, q {
     quotes: inherit;
     font-size: 95%;
     padding-top: 0px;
@@ -39,6 +51,22 @@ table {
     border-spacing: 0;
 }
 
+th {
+    cursor: pointer;
+    font-size: 115%;
+    font-weight: bold;
+/*    display: inline-block;*/
+/*    margin-top: 10px;*/
+}
+
+fieldset {
+    margin-bottom: 15px;
+}
+
+textarea {
+    overflow: auto;
+    height: 80px;
+}
 
 label {
     cursor: pointer;
@@ -48,19 +76,6 @@ label {
 /*    margin-top: 10px;*/
 }
 
-th {
-    cursor: pointer;
-    font-size: 115%;
-    font-weight: bold;
-/*    display: inline-block;*/
-/*    margin-top: 10px;*/
-}
-
-textarea {
-    overflow: auto;
-    height: 80px;
-}
-
 button,input,select,textarea {
     margin: 0;
 }
@@ -68,15 +83,6 @@ button,input,select,textarea {
 button {
     width: auto;
     overflow: visible;
-}
-
-html {
-    -webkit-font-smoothing: antialiased;
-    text-rendering: Legibility;
-}
-
-fieldset {
-    margin-bottom: 15px;
 }
 
 abbr {
@@ -433,9 +439,9 @@ li {
 
 #main header.global
 h1 {
-    font: normal 25px serif;
+    font: normal 26px Georgia;
     color: #348E82;
-    text-shadow: 1px 1px 1px #A19C60;
+    /*text-shadow: 1px 1px 1px #A19C60;*/
     /*padding-bottom: 10px;*/
     /*padding-top:5px;*/
 }
@@ -595,12 +601,9 @@ a {
 
 /* end content 2 */
 
-#main h2,legend {
-    font: normal 20px serif;
-    color: #348E82;
-/*    text-shadow: 1px 1px 1px #A19C60;*/
-    padding-bottom: 5px;
-    padding-top: 5px;
+#element-info {
+    overflow: hidden;
+    width: 180px;
 }
 
 /*
@@ -1356,6 +1359,7 @@ table.content-table {
   margin-right: 4px;
   padding: 3px;
   border: 3px solid #D8E8DE;
+  overflow: hidden;
 }
 
 .graph-controls {

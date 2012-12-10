@@ -19,7 +19,7 @@ gettext */
       var nodeEditURL = sylv.nodeEditURL.replace(/nodes\/0\/edit/, 'nodes/' + nodeId + '/edit');
       var title = (nodeTitle.length < 22) ? nodeTitle : nodeTitle.substring(0,16) + "...";
       $('#' + domId).html(
-        '<h2 title="' + nodeTitle + '">' + title + '</h2>' +
+        '<h2 title="' + nodeTitle + '" style="font-size: 18px;">' + title + '</h2>' +
         '<a href="' + sylv.graphViewURL + 'nodes/' + nodeId + '">' +
           '<i class="icon-connections16"></i> ' + gettext('View related nodes') +
         '</a>' +
