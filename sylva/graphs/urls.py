@@ -23,7 +23,7 @@ urlpatterns = patterns('graphs.views',
 
     # nodes view
     url(r'^(?P<graph_slug>[\w-]+)/nodes/(?P<node_id>\d+)/$', 'graph_view',
-        name="nodes_view"),
+        name="related_nodes"),
 
     # collaborators edit
     url(r'^(?P<graph_slug>[\w-]+)/collaborators/$', 'graph_collaborators',

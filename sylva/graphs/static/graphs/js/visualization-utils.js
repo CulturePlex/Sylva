@@ -17,6 +17,7 @@ gettext */
     updateNodeLegend: function(nodeId, nodeTitle, domId, html) {
       var htmlContent = (typeof html === "undefined") ? '' : html;
       var nodeEditURL = sylv.nodeEditURL.replace(/nodes\/0\/edit/, 'nodes/' + nodeId + '/edit');
+      var nodeViewURL = sylv.nodeViewURL.replace(/nodes\/0\/view/, 'nodes/' + nodeId + '/view');
       var title = (nodeTitle.length < 22) ? nodeTitle : nodeTitle.substring(0,16) + "...";
       $('#' + domId).html(
         '<h2 title="' + nodeTitle + '" style="font-size: 18px;">' + title + '</h2>' +
@@ -24,7 +25,7 @@ gettext */
           '<i class="icon-connections16"></i> ' + gettext('View related nodes') +
         '</a>' +
         '<br>' +
-        '<a href="' + nodeEditURL + '">' +
+        '<a href="' + nodeViewURL + '">' +
           '<i class="icon-nodes16"></i> ' + gettext('View node data') +
         '</a>' +
         '<br>' +

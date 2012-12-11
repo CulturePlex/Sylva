@@ -93,6 +93,7 @@
   sylv.nodeTypesLegend = {};
   sylv.PDE_URL = "{{ STATIC_PREFIX }}graphs/js/graphdrawer.pde";
   sylv.expandNodeLinkURL = "{% url expand_node graph.slug 0 %}";
+  sylv.nodeViewURL = "{% url nodes_view graph.slug 0 %}";
   sylv.nodeEditURL = "{% url nodes_edit graph.slug 0 %}";
   sylv.graphViewURL = "{% url graph_view graph.slug %}";
   sylv.disableProcessing = false;

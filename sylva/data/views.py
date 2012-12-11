@@ -218,6 +218,58 @@ def nodes_create(request, graph_slug, node_type_id):
                               context_instance=RequestContext(request))
 
 
+@permission_required("data.view_data", (Data, "graph__slug", "graph_slug"),
+                     return_403=True)
+def nodes_view(request, graph_slug, node_id):
+    graph = get_object_or_404(Graph, slug=graph_slug)
+    node = graph.nodes.get(node_id)
+    nodetype = get_object_or_404(NodeType, id=node.label)
+    try:
+        media_node = MediaNode.objects.get(node_id=node.id, data=graph.data)
+    except MediaNode.MultipleObjectsReturned:
+        media_nodes = MediaNode.objects.filter(node_id=node.id, data=graph.data)
+        media_node = media_nodes.latest("id")
+    except MediaNode.DoesNotExist:
+        media_node = MediaNode()
+    prefixes = []
+    allowed_outgoing_relationships = nodetype.outgoing_relationships.all()
+    outgoing_relationships = []
+    for relationship in allowed_outgoing_relationships:
+        relationship_slug = "o_%s%s_%s" % (relationship.name, relationship.id,
+                                           relationship.target.id)
+        prefix = slugify(relationship_slug).replace("-", "_")
+        prefixes.append({"key": prefix,
+                         "value": u"→ %s (%s)" % (relationship.name,
+                                                  relationship.target.name)})
+        graph_relationships = node.relationships.filter(label=relationship.id)
+        if graph_relationships:
+            outgoing_relationships.append({"prefix": prefix,
+                                           "relations": graph_relationships})
+    allowed_incoming_relationships = nodetype.get_incoming_relationships()
+    incoming_relationships = []
+    for relationship in allowed_incoming_relationships:
+        relationship_slug = "o_%s%s_%s" % (relationship.name, relationship.id,
+                                           relationship.target.id)
+        prefix = slugify(relationship_slug).replace("-", "_")
+        prefixes.append({"key": prefix,
+                         "value": u"← %s (%s)" % (relationship.name,
+                                                  relationship.source.name)})
+        graph_relationships = node.relationships.filter(label=relationship.id)
+        if graph_relationships:
+            incoming_relationships.append({"prefix": prefix,
+                                           "relations": graph_relationships})
+    return render_to_response('nodes_view.html',
+                              {"graph": graph,
+                               "nodetype": nodetype,
+                               "node": node,
+                               "prefixes": prefixes,
+                               "outgoing_relationships": outgoing_relationships,
+                               "incoming_relationships": incoming_relationships,
+                               "media_node": media_node,
+                               "action": _("View")},
+                              context_instance=RequestContext(request))
+
+
 @permission_required("data.change_data", (Data, "graph__slug", "graph_slug"),
                      return_403=True)
 def nodes_edit(request, graph_slug, node_id):

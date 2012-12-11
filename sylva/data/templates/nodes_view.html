@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+{% load i18n graphs %}
+{% load string_filters %}
+
+{% block extra_links %}
+    <link href="{{ STATIC_PREFIX }}css/token.input.css" type="text/css" rel="stylesheet" />
+{% endblock %}
+
+{% block navigation_buttons %}
+    {{ block.super }}
+{% endblock %}
+
+{% block title %}
+    {{ graph.name }}
+{% endblock %}
+
+{% block menu_buttons %}
+    {% toolbar on="nodes" %}
+{% endblock %}
+
+{% block content_title %}
+    {% breadcrumb graph graph.data nodetype action %}
+    <!--<h2>{% trans "Graphs" %} » {{ graph.name|truncatewords_html:5 }} » {% trans "Nodes" %} » {{ action }} {{ nodetype.name }}</h2>-->
+{% endblock %}
+
+{% block content %}
+    <div id="content3">
+        <div class="content{% if outgoing_relationships or incoming_relationships %}3-block{% else %}2-first{% endif %}">
+            <h2>{% trans "Properties" %}</h2>
+            {% for key, value in node.properties.items %}
+                <p>{{ key }}: {{ value }}</p>
+            {% endfor %}
+        </div>
+        {% if outgoing_relationships or incoming_relationships %}
+            <div class="content-divider"></div>
+            <div class="content3-block relationships">
+                <select id="h2-relationships">
+                    <option value="all">{% trans "All Relationships" %}</option>
+                    {% if incoming_relationships %}
+                        <option value="incoming">{% trans "Incoming" %}</option>
+                    {% endif %}
+                    {% if outgoing_relationships %}
+                        <option value="outgoing">{% trans "Outgoing" %}</option>
+                    {% endif %}
+                    {% for p in prefixes %}
+                        <option value="{{ p.key }}">{{ p.value }}</option>
+                    {% endfor %}
+                </select>
+                {% if outgoing_relationships %}
+                    {% for dict in outgoing_relationships %}
+                        <div id="{{ dict.prefix }}" class="all outgoing">
+                            {% for relationship in dict.relations %}
+                                <div>
+                                    → {{ relationship.source.display }} <span class="bold">{{ relationship.label_display }}</span> {{ relationship.target.display }}
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+                {% if incoming_relationships %}
+                    {% for dict in incoming_relationships %}
+                        <div id="{{ dict.prefix }}" class="all incoming">
+                            {% for relationship in dict.relations %}
+                                <div>
+                                    ← {{ relationship.target.display }} <span class="bold">{{ relationship.label_display }}</span> {{ relationship.source.display }}
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        {% endif %}
+        <div class="content-divider"></div>
+        <div class="content{% if outgoing_relationships or incoming_relationships %}3-block{% else %}2-second{% endif %}">
+            <h2>{% trans "Files" %}</h2>
+            <h2>{% trans "Links" %}</h2>
+        </div>
+    </div>
+{% endblock content %}
+{% block extra_scripts %}
+    <script type="text/javascript">
+        (function($) {
+            $(function() {
+                $('#h2-relationships').on("change", function() {
+                    var option = $(this).val();
+                    if (option === 'all') {
+                        $('.all').show();
+                    } else if (option === 'incoming') {
+                        $('.outgoing').hide();
+                        $('.incoming').show();
+                    } else if (option === 'outgoing') {
+                        $('.incoming').hide();
+                        $('.outgoing').show();
+                    } else {
+                        $('.all').hide();
+                        $('#' + option).show();
+                    }
+                });
+            });
+        })(jQuery);
+    </script>
+{% endblock extra_scripts %}

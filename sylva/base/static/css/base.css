@@ -215,6 +215,7 @@ select#h2-relationships {
     border-image: initial;
     margin-top: initial;
     box-shadow: none;
+    cursor: pointer;
 }
 
 span.all-relationships label {
@@ -778,6 +779,10 @@ form {
     position: relative;
     width: 15px;
     margin-top: 0px;
+}
+
+#content3 .relationships .all {
+    margin-bottom: 10px;
 }
 
 div.dynamic-form,div.initial {
