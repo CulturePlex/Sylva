@@ -151,6 +151,7 @@ class BlueprintsGraphDatabase(BaseGraphDatabase):
         if not "_id" in vertex.getPropertyKeys():
             vertex.setProperty("_id", vertex.getId())
         vertex.setProperty("%slabel" % self.PRIVATE_PREFIX, label)
+        vertex.setProperty("%sgraph" % self.PRIVATE_PREFIX, self.graph_id)
         self.node_index.put("id", str(vertex.getId()), vertex)
         self.node_index.put("label", label, vertex)
         self.node_index.put("graph", self.graph_id, vertex)
@@ -289,6 +290,7 @@ class BlueprintsGraphDatabase(BaseGraphDatabase):
         if not "_id" in edge.getPropertyKeys():
             edge.setProperty("_id", edge.getId())
         edge.setProperty("%slabel" % self.PRIVATE_PREFIX, label)
+        edge.setProperty("%sgraph" % self.PRIVATE_PREFIX, self.graph_id)
         self.relationship_index.put("id", str(edge.getId()), edge)
         self.relationship_index.put("label", label, edge)
         self.relationship_index.put("graph", self.graph_id, edge)
