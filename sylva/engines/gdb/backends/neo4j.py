@@ -188,6 +188,7 @@ class GraphDatabase(BlueprintsGraphDatabase):
                     properties = element[1]["data"]
                     elto_id = properties.pop("_id")
                     elto_label = properties.pop("_label")
+                    properties.pop("_graph", None)
                     yield (elto_id, properties, elto_label)
             else:
                 for element in result["data"]:
@@ -256,10 +257,12 @@ class GraphDatabase(BlueprintsGraphDatabase):
                 for element in result["data"]:
                     properties = element[1]["data"]
                     properties.pop("_id")
+                    properties.pop("_graph", None)
                     elto_label = properties.pop("_label")
                     source_props = element[2]["data"]
                     source_id = source_props.pop("_id")
                     source_label = source_props.pop("_label")
+                    source_props.pop("_graph", None)
                     source = {
                         "id": source_id,
                         "properties": source_props,
@@ -268,6 +271,7 @@ class GraphDatabase(BlueprintsGraphDatabase):
                     target_props = element[3]["data"]
                     target_id = target_props.pop("_id")
                     target_label = target_props.pop("_label")
+                    target_props.pop("_graph", None)
                     target = {
                         "id": target_id,
                         "properties": target_props,

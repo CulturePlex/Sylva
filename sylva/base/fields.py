@@ -3,7 +3,7 @@ from django.db.models import fields
 from django.template.defaultfilters import slugify
 
 from south.modelsinspector import add_introspection_rules
-add_introspection_rules([], ["^base\.fields\.AutoSlugField"])
+# add_introspection_rules([], ["^base\.fields\.AutoSlugField"])
 
 
 def _unique_slugify(instance, value, slug_field_name='slug', queryset=None,
@@ -11,8 +11,8 @@ def _unique_slugify(instance, value, slug_field_name='slug', queryset=None,
     """
     Calculates a unique slug of ``value`` for an instance.
 
-    :param slug_field_name: Should be a string matching the name of the field to
-        store the slug in (and the field to check against for uniqueness).
+    :param slug_field_name: Should be a string matching the name of the field
+        to store the slug in (and the field to check against for uniqueness).
 
     :param queryset: usually doesn't need to be explicitly provided - it'll
         default to using the ``.all()`` queryset from the model's default
@@ -57,8 +57,8 @@ def _slug_strip(value, separator=None):
     Cleans up a slug by removing slug separator characters that occur at the
     beginning or end of a slug.
 
-    If an alternate separator is used, it will also replace any instances of the
-    default '-' separator with the new separator.
+    If an alternate separator is used, it will also replace any instances of
+    the default '-' separator with the new separator.
 
     """
     if separator == '-' or not separator:
@@ -72,7 +72,8 @@ def _slug_strip(value, separator=None):
 class AutoSlugField(fields.SlugField):
     """Auto slug field, creates unique slug for model."""
 
-    def __init__(self, populate_from, *args, **kwargs):
+    def __init__(self, populate_from=[], populate_separator=u"-",
+                 *args, **kwargs):
         """Create auto slug field.
 
         If field is unique, the uniqueness of the slug is ensured from existing
@@ -87,8 +88,8 @@ class AutoSlugField(fields.SlugField):
 
         :type populate_from: sequence
         """
-        self.populate_separator = kwargs.get("populate_separator", u"-")
         self.populate_from = populate_from
+        self.populate_separator = populate_separator
         kwargs["blank"] = True
         super(fields.SlugField, self).__init__(*args, **kwargs)
 
@@ -101,12 +102,24 @@ class AutoSlugField(fields.SlugField):
         if not (current_slug is None or current_slug == ""):
             slug = current_slug
         else:
-            slug = self.populate_separator.\
-                        join(unicode(getattr(model_instance, prepop))
-                             for prepop in self.populate_from)
+            slugged = [unicode(getattr(model_instance, prepop))
+                       for prepop in self.populate_from]
+            slug = self.populate_separator.join(slugged)
 
         if self.unique:
             return _unique_slugify(model_instance, value=slug,
                                    slug_field_name=self.attname)
         else:
             return slugify(slug)[:self.max_length]
+
+
+add_introspection_rules([
+    (
+        [AutoSlugField],
+        [],
+        {
+            "populate_from": ["populate_from", {"default": []}],
+            "populate_separator": ["populate_separator", {"default": u"-"}],
+        },
+    ),
+], ["^base\.fields\.AutoSlugField"])
