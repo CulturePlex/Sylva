@@ -224,6 +224,11 @@ def nodes_view(request, graph_slug, node_id):
     graph = get_object_or_404(Graph, slug=graph_slug)
     node = graph.nodes.get(node_id)
     nodetype = get_object_or_404(NodeType, id=node.label)
+    nodetype_properties = nodetype.properties.all()
+    node_properties = []
+    for prop in nodetype_properties:
+        if prop.key in node.properties:
+            node_properties.append((prop.key, node.properties[prop.key]))
     try:
         media_node = MediaNode.objects.get(node_id=node.id, data=graph.data)
     except MediaNode.MultipleObjectsReturned:
@@ -262,6 +267,7 @@ def nodes_view(request, graph_slug, node_id):
                               {"graph": graph,
                                "nodetype": nodetype,
                                "node": node,
+                               "node_properties": node_properties,
                                "prefixes": prefixes,
                                "outgoing_relationships": outgoing_relationships,
                                "incoming_relationships": incoming_relationships,

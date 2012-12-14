@@ -27,9 +27,14 @@
     <div id="content3">
         <div class="content{% if outgoing_relationships or incoming_relationships %}3-block{% else %}2-first{% endif %}">
             <h2>{% trans "Properties" %}</h2>
-            {% for key, value in node.properties.items %}
-                <p>{{ key }}: {{ value }}</p>
-            {% endfor %}
+            <dl class="node-properties">
+                {% for prop in node_properties %}
+                    {% if prop.1 %}
+                        <dt>{{ prop.0 }}</dt>
+                        <dd>{{ prop.1 }}</dd>
+                    {% endif %}
+                {% endfor %}
+            </dl>
         </div>
         {% if outgoing_relationships or incoming_relationships %}
             <div class="content-divider"></div>
@@ -50,8 +55,18 @@
                     {% for dict in outgoing_relationships %}
                         <div id="{{ dict.prefix }}" class="all outgoing">
                             {% for relationship in dict.relations %}
-                                <div>
+                                <div class="relationship">
                                     → {{ relationship.source.display }} <span class="bold">{{ relationship.label_display }}</span> {{ relationship.target.display }}
+                                    <div class="rel-properties hidden">
+                                        <dl>
+                                            {% for key, value in relationship.properties.items %}
+                                                {% if value %}
+                                                    <dt>{{ key }}</dt>
+                                                    <dd>{{ value }}</dd>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </dl>
+                                    </div>
                                 </div>
                             {% endfor %}
                         </div>
@@ -61,8 +76,18 @@
                     {% for dict in incoming_relationships %}
                         <div id="{{ dict.prefix }}" class="all incoming">
                             {% for relationship in dict.relations %}
-                                <div>
+                                <div class="relationship">
                                     ← {{ relationship.target.display }} <span class="bold">{{ relationship.label_display }}</span> {{ relationship.source.display }}
+                                    <div class="rel-properties hidden">
+                                        <dl>
+                                            {% for key, value in relationship.properties.items %}
+                                                {% if value %}
+                                                    <dt>{{ key }}</dt>
+                                                    <dd>{{ value }}</dd>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </dl>
+                                    </div>
                                 </div>
                             {% endfor %}
                         </div>
@@ -81,7 +106,7 @@
     <script type="text/javascript">
         (function($) {
             $(function() {
-                $('#h2-relationships').on("change", function() {
+                $('#h2-relationships').on('change', function() {
                     var option = $(this).val();
                     if (option === 'all') {
                         $('.all').show();
@@ -94,6 +119,12 @@
                     } else {
                         $('.all').hide();
                         $('#' + option).show();
+                    }
+                });
+
+                $('.relationship').on('click', function() {
+                    if ($(this).find('dl').html().trim() !== '') {
+                        $(this).find('.rel-properties').toggle();
                     }
                 });
             });
