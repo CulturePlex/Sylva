@@ -15,7 +15,7 @@ class SettingNode(PrefixNode):
         tokens = token.contents.split()
         if len(tokens) > 1 and tokens[2] != 'as':
             raise template.TemplateSyntaxError(
-                "First argument in '%s' must be 'as'" % tokens[0])
+                "Second argument in '%s' must be 'as'" % tokens[0])
         if len(tokens) > 1:
             varname = tokens[3]
         else:
@@ -44,8 +44,8 @@ def get_setting(parser, token):
 
     Examples::
 
-        {% get_setting SETTING %}
-        {% get_setting SETTING as setting_varname %}
+        {% get_setting INSTALLED_APPS %}
+        {% get_setting INSTALLED_APPS as INSTALLED_APPS %}
 
     """
     var = token.split_contents()[1]
