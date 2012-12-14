@@ -31,6 +31,7 @@ h2 {
     color: #348E82;
     padding-bottom: 5px;
     padding-top: 5px;
+    text-overflow: inherit;
 }
 
 blockquote, q {
@@ -205,7 +206,7 @@ h2 {
 }
 
 select#h2-relationships {
-    font: normal 20px serif;
+    font: normal 18px Georgia;
     color: #348E82;
     padding-bottom: 5px;
     padding-top: 5px;
