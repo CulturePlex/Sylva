@@ -55,8 +55,8 @@
                     {% for dict in outgoing_relationships %}
                         <div id="{{ dict.prefix }}" class="all outgoing">
                             {% for relationship in dict.relations %}
-                                <div class="relationship">
-                                    → {{ relationship.source.display }} <span class="bold">{{ relationship.label_display }}</span> {{ relationship.target.display }}
+                                <div class="relationship" title="{{ relationship.get_type }}">
+                                    <span class="symbol-arrow">→</span> {{ relationship.source.display }} <span class="bold">{{ relationship.label_display }}</span> {{ relationship.target.display }}
                                     <div class="rel-properties hidden">
                                         <dl>
                                             {% for key, value in relationship.properties.items %}
@@ -76,8 +76,8 @@
                     {% for dict in incoming_relationships %}
                         <div id="{{ dict.prefix }}" class="all incoming">
                             {% for relationship in dict.relations %}
-                                <div class="relationship">
-                                    ← {{ relationship.target.display }} <span class="bold">{{ relationship.label_display }}</span> {{ relationship.source.display }}
+                                <div class="relationship" title="{{ relationship.get_type }}">
+                                    <span class="symbol-arrow">←</span> {{ relationship.target.display }} <span class="bold">{{ relationship.label_display }}</span> {{ relationship.source.display }}
                                     <div class="rel-properties hidden">
                                         <dl>
                                             {% for key, value in relationship.properties.items %}

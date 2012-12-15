@@ -12,14 +12,11 @@ audio,video {
     padding: 0;
 }
 
-html {
-    -webkit-font-smoothing: antialiased;
-    text-rendering: Legibility;
-}
-
 body {
     line-height: normal;
     font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+    text-rendering: optimizelegibility;
+    -webkit-font-smoothing: antialiased;
     font-size: 13px;
     font-weight: 400;
     color: #555;
@@ -799,19 +796,18 @@ form {
 }
 
 #content3 .relationship {
-    margin-bottom: 8px;
-    background-color: whitesmoke;
+    background-color: #F2F2F2;
     border-radius: 3px;
     padding: 7px;
     cursor: pointer;
 }
 
 #content3 .relationship:hover {
-    background-color: #EEEEEE;
+    background-color: #D6E7DF;
 }
 
 #content3 .node-properties dt {
-    margin-top: 7px;
+    margin-top: 5px;
 }
 
 #content3 .rel-properties dl {
@@ -1783,4 +1779,11 @@ table.toolsBrowse .dataActions .dataOption {
 
 .icon-nodes16 {
     background-image: url(../img/nodes_16.png);
+}
+
+
+/* UTF-8 symbols */
+
+.symbol-arrow {
+    font-size: 18px;
 }
