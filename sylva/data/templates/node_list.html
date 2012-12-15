@@ -121,22 +121,28 @@
     {% else %}
     <div class="pagination">
         {% if nodes.paginator.per_page < nodes.paginator.count %}
-        Showing {{ nodes.paginator.per_page }} of {{ nodes.paginator.count }} {{ node_type.name }}.
-        <span class="step-links">
-            {% if nodes.has_previous %}
-                <a href="?page={{ nodes.previous_page_number }}"><span class="symbol-medium">←</span></a>
-            {% endif %}
+            {% blocktrans with per_page=nodes.paginator.per_page count=nodes.paginator.count name=node_type.name %}
+                Showing {{ per_page }} of {{ count }} {{ name }}.
+            {% endblocktrans %}
+            <span class="step-links">
+                {% if nodes.has_previous %}
+                    <a href="?page={{ nodes.previous_page_number }}"><span class="symbol-medium">←</span></a>
+                {% endif %}
 
-            <span class="current">
-                Page {{ nodes.number }} of {{ nodes.paginator.num_pages }}.
+                <span class="current">
+                    {% blocktrans with number=nodes.number num_pages=nodes.paginator.num_pages %}
+                        Page {{ number }} of {{ num_pages }}.
+                    {% endblocktrans %}
+                </span>
+
+                {% if nodes.has_next %}
+                    <a href="?page={{ nodes.next_page_number }}"><span class="symbol-medium">→</span></a>
+                {% endif %}
             </span>
-
-            {% if nodes.has_next %}
-                <a href="?page={{ nodes.next_page_number }}"><span class="symbol-medium">→</span></a>
-            {% endif %}
-        </span>
         {% else %}
-        Showing {{ nodes.paginator.count }} elements {{ node_type.name }}.
+            {% blocktrans with count=nodes.paginator.count name=node_type.name %}
+                Showing {{ count }} elements {{ name }}.
+            {% endblocktrans %}
         {% endif %}
     </div>
     {% endif %}
