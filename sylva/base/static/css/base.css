@@ -798,7 +798,7 @@ form {
 #content3 .relationship {
     background-color: #F2F2F2;
     border-radius: 3px;
-    padding: 7px;
+    padding: 5px;
     cursor: pointer;
 }
 
@@ -813,7 +813,7 @@ form {
 #content3 .rel-properties dl {
     border-left: 3px solid #DDDDDD;
     margin-bottom: 2px;
-    margin-left: 30px;
+    margin-left: 23px;
     margin-top: 6px;
     padding-left: 5px;
 }
@@ -1470,7 +1470,8 @@ table.content-table {
 
 div.relationships-box {
   overflow: auto;
-  max-height: 30px;
+  line-height: 17px;
+  max-height: 37px;
 }
 
 #searchBox p label {
@@ -1740,7 +1741,7 @@ table.toolsBrowse .dataActions .dataOption {
 
 /* icons */
 
-[class^="icon-"] {
+[class^="sylva-icon"] {
     background-repeat: no-repeat;
     display: inline-block;
     vertical-align: text-top;
@@ -1749,41 +1750,49 @@ table.toolsBrowse .dataActions .dataOption {
     height: 14px;
 }
 
-.icon-connected {
+.sylva-icon-connected {
     background-image: url(../img/connected.png);
 }
 
-.icon-connected16 {
+.sylva-icon-connected16 {
     background-image: url(../img/connected_16.png);
 }
 
-.icon-connections {
+.sylva-icon-connections {
     background-image: url(../img/connections.png);
 }
 
-.icon-connections16 {
+.sylva-icon-connections16 {
     background-image: url(../img/connections_16.png);
 }
 
-.icon-edit-node {
+.sylva-icon-edit-node {
     background-image: url(../img/edit_node.png);
 }
 
-.icon-edit-node16 {
+.sylva-icon-edit-node16 {
     background-image: url(../img/edit_node_16.png);
 }
 
-.icon-eye {
+.sylva-icon-eye {
     background-image: url(../img/12-eye.png);
 }
 
-.icon-nodes16 {
+.sylva-icon-nodes16 {
     background-image: url(../img/nodes_16.png);
 }
 
 
 /* UTF-8 symbols */
 
-.symbol-arrow {
-    font-size: 18px;
+.symbol-small {
+    font-size: 100%;
+}
+
+.symbol-medium {
+    font-size: 140%;
+}
+
+.symbol-large {
+    font-size: 170%;
 }

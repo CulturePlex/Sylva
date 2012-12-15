@@ -22,15 +22,15 @@ gettext */
       $('#' + domId).html(
         '<h2 title="' + nodeTitle + '" style="font-size: 18px;">' + title + '</h2>' +
         '<a href="' + sylv.graphViewURL + 'nodes/' + nodeId + '">' +
-          '<i class="icon-connections16"></i> ' + gettext('View related nodes') +
+          '<i class="sylva-icon-connections16"></i> ' + gettext('View related nodes') +
         '</a>' +
         '<br>' +
         '<a href="' + nodeViewURL + '">' +
-          '<i class="icon-nodes16"></i> ' + gettext('View node data') +
+          '<i class="sylva-icon-nodes16"></i> ' + gettext('View node data') +
         '</a>' +
         '<br>' +
         '<a href="' + nodeEditURL + '">' +
-          '<i class="icon-edit-node16"></i> ' + gettext('Edit node data') +
+          '<i class="sylva-icon-edit-node16"></i> ' + gettext('Edit node data') +
         '</a>'
       ).append(htmlContent);
     }

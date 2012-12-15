@@ -69,7 +69,7 @@
             <span class="all-relationships outgoing-relationships {{ prefix }}-relationships">
                 {{ outgoing_formset.management_form }}
                 <label>
-                → {{ outgoing_formset.itemtype.name }} ({{ outgoing_formset.itemtype.target.name }})
+                <span class="symbol-medium">→</span> {{ outgoing_formset.itemtype.name }} ({{ outgoing_formset.itemtype.target.name }})
                 </label>
                 <span class="helptext">
                     {% trans "Target of the relationship" %}
@@ -101,7 +101,7 @@
             <span class="all-relationships incoming-relationships {{ prefix }}-relationships">
                 {{ incoming_formset.management_form }}
                 <label>
-                ← {{ incoming_formset.itemtype.name }} ({{ incoming_formset.itemtype.source.name }})
+                <span class="symbol-medium">←</span> {{ incoming_formset.itemtype.name }} ({{ incoming_formset.itemtype.source.name }})
                 </label>
                 <span class="helptext">
                     {% trans "Source of the relationship" %}

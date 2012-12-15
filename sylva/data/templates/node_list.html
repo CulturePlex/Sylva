@@ -28,9 +28,9 @@
                     }
                     $.each(rels, function(index, item){
                         if (direction == "outgoing") {
-                          label = ' → '+ elemendDisplay  +' <span class="bold">'+ item.label +'</span> '+ item.node_display;
+                          label = '<span class="symbol-medium">→</span> '+ elemendDisplay  +' <span class="bold">'+ item.label +'</span> '+ item.node_display;
                         } else {
-                          label = ' ← '+ item.node_display +' <span class="bold">'+ item.label +'</span> '+ elemendDisplay;
+                          label = ' <span class="symbol-medium">←</span> '+ item.node_display +' <span class="bold">'+ item.label +'</span> '+ elemendDisplay;
                         }
                         html.append($('<span>')
                               .append(label))
@@ -124,7 +124,7 @@
         Showing {{ nodes.paginator.per_page }} of {{ nodes.paginator.count }} {{ node_type.name }}.
         <span class="step-links">
             {% if nodes.has_previous %}
-                <a href="?page={{ nodes.previous_page_number }}">←</a>
+                <a href="?page={{ nodes.previous_page_number }}"><span class="symbol-medium">←</span></a>
             {% endif %}
 
             <span class="current">
@@ -132,7 +132,7 @@
             </span>
 
             {% if nodes.has_next %}
-                <a href="?page={{ nodes.next_page_number }}">→</a>
+                <a href="?page={{ nodes.next_page_number }}"><span class="symbol-medium">→</span></a>
             {% endif %}
         </span>
         {% else %}
