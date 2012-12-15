@@ -93,7 +93,7 @@
                     </td>
                     {% for prop in properties %}
                         {% if prop.display %}
-                        <td><a href="{% url nodes_edit graph.slug node.id %}">{{ node|get:prop.key|default:none_label }}</a></td>
+                        <td><a href="{% url nodes_view graph.slug node.id %}" title="{% trans "View node" %}">{{ node|get:prop.key|default:none_label }}</a></td>
                         {% else %}
                         <td>{{ node|get:prop.key|default:none_label }}</td>
                         {% endif %}
