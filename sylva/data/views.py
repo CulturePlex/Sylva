@@ -228,7 +228,11 @@ def nodes_view(request, graph_slug, node_id):
     node_properties = []
     for prop in nodetype_properties:
         if prop.key in node.properties:
-            node_properties.append((prop.key, node.properties[prop.key]))
+            node_properties.append({
+                "key": prop.key,
+                "value": node.properties[prop.key],
+                "type": u"%s" % prop.get_datatype_display()
+            })
     try:
         media_node = MediaNode.objects.get(node_id=node.id, data=graph.data)
     except MediaNode.MultipleObjectsReturned:

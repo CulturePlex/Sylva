@@ -806,6 +806,11 @@ form {
     background-color: #D6E7DF;
 }
 
+#content3 .node-properties {
+    background-color: #F2F2F2;
+    padding: 5px;
+}
+
 #content3 .node-properties dt {
     margin-top: 5px;
 }

@@ -24,9 +24,17 @@
             <h2>{% trans "Properties" %}</h2>
             <dl class="node-properties">
                 {% for prop in node_properties %}
-                    {% if prop.1 %}
-                        <dt>{{ prop.0 }}</dt>
-                        <dd>{{ prop.1 }}</dd>
+                    {% if prop.value %}
+                        <dt>{{ prop.key }}</dt>
+                        <dd>
+                            {% if prop.type == "Boolean" %}
+                                {% blocktrans with value=prop.value %}
+                                    {{ value }}
+                                {% endblocktrans %}
+                            {% else %}
+                                {{ prop.value }}
+                            {% endif %}
+                        </dd>
                     {% endif %}
                 {% endfor %}
             </dl>
