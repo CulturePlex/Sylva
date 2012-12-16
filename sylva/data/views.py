@@ -235,11 +235,11 @@ def nodes_view(request, graph_slug, node_id):
             })
     try:
         media_node = MediaNode.objects.get(node_id=node.id, data=graph.data)
+    except MediaNode.DoesNotExist:
+        media_node = MediaNode()
     except MediaNode.MultipleObjectsReturned:
         media_nodes = MediaNode.objects.filter(node_id=node.id, data=graph.data)
         media_node = media_nodes.latest("id")
-    except MediaNode.DoesNotExist:
-        media_node = MediaNode()
     prefixes = []
     allowed_outgoing_relationships = nodetype.outgoing_relationships.all()
     outgoing_relationships = []
@@ -288,12 +288,12 @@ def nodes_edit(request, graph_slug, node_id):
     nodetype = get_object_or_404(NodeType, id=node.label)
     try:
         media_node = MediaNode.objects.get(node_id=node.id, data=graph.data)
+    except MediaNode.DoesNotExist:
+        media_node = MediaNode()
     except MediaNode.MultipleObjectsReturned:
         media_nodes = MediaNode.objects.filter(node_id=node.id,
                                                data=graph.data)
         media_node = media_nodes.latest("id")
-    except MediaNode.DoesNotExist:
-        media_node = MediaNode()
     if request.POST:
         data = request.POST.copy()
         mediafile_formset = MediaFileFormSet(instance=media_node,
@@ -488,12 +488,12 @@ def nodes_delete(request, graph_slug, node_id):
                 try:
                     media_node = MediaNode.objects.get(node_id=node.id,
                                                        data=graph.data)
+                except MediaNode.DoesNotExist:
+                    pass
                 except MediaNode.MultipleObjectsReturned:
                     media_nodes = MediaNode.objects.filter(node_id=node.id,
                                                            data=graph.data)
                     media_node = media_nodes.latest("id")
-                except MediaNode.DoesNotExist:
-                    pass
                 if media_node:
                     media_node.delete()
                 node.delete()
