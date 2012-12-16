@@ -275,7 +275,8 @@ def nodes_view(request, graph_slug, node_id):
                                "prefixes": prefixes,
                                "outgoing_relationships": outgoing_relationships,
                                "incoming_relationships": incoming_relationships,
-                               "media_node": media_node,
+                               "media_links": media_node.links.all(),
+                               "media_files": media_node.files.all(),
                                "action": _("View")},
                               context_instance=RequestContext(request))
 

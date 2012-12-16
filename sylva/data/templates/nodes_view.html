@@ -107,7 +107,23 @@
         <div class="content-divider"></div>
         <div class="content3-block">
             <h2>{% trans "Files" %}</h2>
+            {% if media_files %}
+                <dl>
+                    {% for file in media_files %}
+                        <dt>{{ file.media_label }}</dt>
+                        <dd><a href="{{ file.media_file.url }}">{% trans "Download" %}</a></dd>
+                    {% endfor %}
+                </dl>
+            {% endif %}
             <h2>{% trans "Links" %}</h2>
+            {% if media_links %}
+                <dl>
+                    {% for link in media_links %}
+                        <dt>{{ link.media_label }}</dt>
+                        <dd><a href="{{ link.media_link }}" target="_blank">{{ link.media_link }}</a></dd>
+                    {% endfor %}
+                </dl>
+            {% endif %}
         </div>
     </div>
 {% endblock content %}
