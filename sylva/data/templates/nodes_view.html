@@ -20,40 +20,44 @@
 
 {% block content %}
     <div id="content3">
-        <div class="content{% if outgoing_relationships or incoming_relationships %}3-block{% else %}2-first{% endif %}">
+        <div class="content3-block">
             <h2>{% trans "Properties" %}</h2>
-            <dl class="node-properties">
-                {% for prop in node_properties %}
-                    {% if prop.value %}
-                        <dt>{{ prop.key }}</dt>
-                        <dd>
-                            {% if prop.type == "Boolean" %}
-                                {% blocktrans with value=prop.value %}
-                                    {{ value }}
-                                {% endblocktrans %}
-                            {% else %}
-                                {{ prop.value }}
-                            {% endif %}
-                        </dd>
-                    {% endif %}
-                {% endfor %}
-            </dl>
-        </div>
-        {% if outgoing_relationships or incoming_relationships %}
-            <div class="content-divider"></div>
-            <div class="content3-block relationships">
-                <select id="h2-relationships">
-                    <option value="all">{% trans "All Relationships" %}</option>
-                    {% if incoming_relationships %}
-                        <option value="incoming">{% trans "Incoming" %}</option>
-                    {% endif %}
-                    {% if outgoing_relationships %}
-                        <option value="outgoing">{% trans "Outgoing" %}</option>
-                    {% endif %}
-                    {% for p in prefixes %}
-                        <option value="{{ p.key }}">{{ p.value }}</option>
+            {% if node_properties %}
+                <dl class="node-properties">
+                    {% for prop in node_properties %}
+                        {% if prop.value %}
+                            <dt>{{ prop.key }}</dt>
+                            <dd>
+                                {% if prop.type == "Boolean" %}
+                                    {% blocktrans with value=prop.value %}
+                                        {{ value }}
+                                    {% endblocktrans %}
+                                {% else %}
+                                    {{ prop.value }}
+                                {% endif %}
+                            </dd>
+                        {% endif %}
                     {% endfor %}
-                </select>
+                </dl>
+            {% else %}
+                {% trans "Empty" %}. <a href="{% url nodes_edit graph.slug node.id %}">{% trans "Add property" %}</a>
+            {% endif %}
+        </div>
+        <div class="content-divider"></div>
+        <div class="content3-block relationships">
+            <select id="h2-relationships">
+                <option value="all">{% trans "All Relationships" %}</option>
+                {% if incoming_relationships %}
+                    <option value="incoming">{% trans "Incoming" %}</option>
+                {% endif %}
+                {% if outgoing_relationships %}
+                    <option value="outgoing">{% trans "Outgoing" %}</option>
+                {% endif %}
+                {% for p in prefixes %}
+                    <option value="{{ p.key }}">{{ p.value }}</option>
+                {% endfor %}
+            </select>
+            {% if incoming_relationships or outgoing_relationships %}
                 {% if outgoing_relationships %}
                     {% for dict in outgoing_relationships %}
                         <div id="{{ dict.prefix }}" class="all outgoing">
@@ -96,10 +100,12 @@
                         </div>
                     {% endfor %}
                 {% endif %}
-            </div>
-        {% endif %}
+            {% else %}
+                {% trans "Empty" %}. <a href="{% url nodes_edit graph.slug node.id %}">{% trans "Add relationship" %}</a>
+            {% endif %}
+        </div>
         <div class="content-divider"></div>
-        <div class="content{% if outgoing_relationships or incoming_relationships %}3-block{% else %}2-second{% endif %}">
+        <div class="content3-block">
             <h2>{% trans "Files" %}</h2>
             <h2>{% trans "Links" %}</h2>
         </div>
