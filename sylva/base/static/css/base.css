@@ -796,7 +796,6 @@ form {
 }
 
 #content3 .relationship {
-    background-color: #F2F2F2;
     border-radius: 3px;
     padding: 5px;
     cursor: pointer;
@@ -807,7 +806,6 @@ form {
 }
 
 #content3 .node-properties {
-    background-color: #F2F2F2;
     padding: 5px;
 }
 
