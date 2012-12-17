@@ -21,7 +21,8 @@
 {% block content %}
     <div id="content3">
         <div class="content3-block">
-            <h2>{% trans "Properties" %}</h2>
+            <a href="{% url nodes_edit graph.slug node.id %}" title="{% trans "Edit" %}"><i class="sylva-icon-edit-node16"></i></a>
+            <h2 class="inline">{% trans "Properties" %}</h2>
             {% if node_properties %}
                 <dl class="node-properties">
                     {% for prop in node_properties %}
@@ -45,7 +46,8 @@
         </div>
         <div class="content-divider"></div>
         <div class="content3-block relationships">
-            <select id="h2-relationships">
+            <a href="{% url nodes_edit graph.slug node.id %}" title="{% trans "Edit" %}"><i class="sylva-icon-edit-node16"></i></a>
+            <select id="h2-relationships" class="inline">
                 <option value="all">{% trans "All Relationships" %}</option>
                 {% if incoming_relationships %}
                     <option value="incoming">{% trans "Incoming" %}</option>
@@ -106,24 +108,30 @@
         </div>
         <div class="content-divider"></div>
         <div class="content3-block">
-            <h2>{% trans "Files" %}</h2>
-            {% if media_files %}
-                <dl>
-                    {% for file in media_files %}
-                        <dt>{{ file.media_label }}</dt>
-                        <dd><a href="{{ file.media_file.url }}">{% trans "Download" %}</a></dd>
-                    {% endfor %}
-                </dl>
-            {% endif %}
-            <h2>{% trans "Links" %}</h2>
-            {% if media_links %}
-                <dl>
-                    {% for link in media_links %}
-                        <dt>{{ link.media_label }}</dt>
-                        <dd><a href="{{ link.media_link }}" target="_blank">{{ link.media_link }}</a></dd>
-                    {% endfor %}
-                </dl>
-            {% endif %}
+            <div>
+                <a href="{% url nodes_edit graph.slug node.id %}" title="{% trans "Edit" %}"><i class="sylva-icon-edit-node16"></i></a>
+                <h2 class="inline">{% trans "Files" %}</h2>
+                {% if media_files %}
+                    <dl>
+                        {% for file in media_files %}
+                            <dt>{{ file.media_label }}</dt>
+                            <dd><a href="{{ file.media_file.url }}">{% trans "Download" %}</a></dd>
+                        {% endfor %}
+                    </dl>
+                {% endif %}
+            </div>
+            <div>
+                <a href="{% url nodes_edit graph.slug node.id %}" title="{% trans "Edit" %}"><i class="sylva-icon-edit-node16"></i></a>
+                <h2 class="inline">{% trans "Links" %}</h2>
+                {% if media_links %}
+                    <dl>
+                        {% for link in media_links %}
+                            <dt>{{ link.media_label }}</dt>
+                            <dd><a href="{{ link.media_link }}" target="_blank">{{ link.media_link }}</a></dd>
+                        {% endfor %}
+                    </dl>
+                {% endif %}
+            </div>
         </div>
     </div>
 {% endblock content %}

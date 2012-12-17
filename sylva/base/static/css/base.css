@@ -122,6 +122,10 @@ abbr {
     font-weight: bold;
 }
 
+.inline {
+    display: inline-block;
+}
+
 .max600 {
     overflow: hidden;
     max-height: 600px;
@@ -1747,8 +1751,6 @@ table.toolsBrowse .dataActions .dataOption {
 [class^="sylva-icon"] {
     background-repeat: no-repeat;
     display: inline-block;
-    vertical-align: text-top;
-    line-height: 14px;
     width: 14px;
     height: 14px;
 }
