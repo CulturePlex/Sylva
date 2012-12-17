@@ -169,8 +169,9 @@ clearTimeout */
         var canvas = $canvas[0];
         var ctx = canvas.getContext('2d');
         ctx.globalCompositeOperation = 'source-over';
-        ctx.drawImage(document.getElementById('sigma_nodes_1'), 0, 0);
         ctx.drawImage(document.getElementById('sigma_edges_1'), 0, 0);
+        ctx.drawImage(document.getElementById('sigma_nodes_1'), 0, 0);
+        ctx.drawImage(document.getElementById('sigma_labels_1'), 0, 0);
         var img_data = canvas.toDataURL('image/png');
         $(this).attr('href', img_data.replace('image/png', 'image/octet-stream'));
         $canvas.remove();
