@@ -1,15 +1,12 @@
-{% load i18n thumbnail static flatpages %}<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+{% load i18n thumbnail static flatpages %}
 
 {% get_static_prefix as STATIC_PREFIX %}
 
-<html xml:lang="{{ LANGUAGE_CODE|slice:":2" }}"
-      xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:v="urn:schemas-microsoft-com:vml"
-      version="-//W3C//DTD XHTML 1.0 Strict//EN">
-
+<!DOCTYPE html>
+<html lang="{{ LANGUAGE_CODE|slice:":2" }}">
   <head>
+    <meta charset="utf-8">
     <title>{{ PROJECT_NAME }} - {% block title %}{% trans "Welcome to The Sylva Project" %}{% endblock %}</title>
-    <meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
     <meta name="author" content="The CulturePlex Lab.">
     <meta name="resource-type" content="document">
     <meta name="distribution" content="global">
@@ -18,12 +15,15 @@
     <meta name="copyright" content="Copyright {{ CURRENT_DATE|date:"Y" }} CulturePlex Lab.">
     <meta name="description" content="A Relaxed-Schema Graph Database Management System">
     <meta name="keywords" content="graph, database, graph database, system, sylva, sylva project, schema-less, relaxed schema, management, database management system, DBMS">
+
     <link rel="icon" href="{{ STATIC_PREFIX }}img/favicon.ico">
     <link rel="stylesheet" type="text/css" href="{{ STATIC_PREFIX }}css/base.css" />
     <link rel="stylesheet" type="text/css" href="{{ STATIC_PREFIX }}css/font-awesome.css" />
+
     <!--[if lt IE 7]>
     <link rel="stylesheet" type="text/css" href="{{ STATIC_PREFIX }}css/iefixes.css" />
     <![endif]-->
+
     {% block extra_metas %}{% endblock %}
     {% block extra_links %}{% endblock %}
   </head>
