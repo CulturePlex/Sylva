@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from django.conf.urls.defaults import patterns, include, url
+from django.conf.urls import patterns, url
 
 urlpatterns = patterns('tools.views',
     # import tool
@@ -7,9 +7,9 @@ urlpatterns = patterns('tools.views',
         name="tool_import"),
 
     # ajax creation methods
-    url(r'^(?P<graph_slug>[\w-]+)/ajax-node/create/$', 
+    url(r'^(?P<graph_slug>[\w-]+)/ajax-node/create/$',
         'ajax_node_create', name="ajax_node_create"),
-    url(r'^(?P<graph_slug>[\w-]+)/ajax-relationship/create/$', 
+    url(r'^(?P<graph_slug>[\w-]+)/ajax-relationship/create/$',
         'ajax_relationship_create', name="ajax_relationship_create"),
 
     # export tool
