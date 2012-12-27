@@ -2,103 +2,353 @@
 {% load i18n %}
 
 {% block extra_links %}
-    <link rel="stylesheet" href="{{ STATIC_PREFIX }}bootstrap/css/bootstrap-custom.css">
-    <link rel="stylesheet" href="{{ STATIC_PREFIX }}css/font-awesome.css">
+  <link rel="stylesheet" href="{{ STATIC_PREFIX }}bootstrap/css/bootstrap-custom.css">
+  <link rel="stylesheet" href="{{ STATIC_PREFIX }}css/font-awesome.css">
 {% endblock extra_links %}
 
 {% block title %}
-    {% trans "Getting Started with SylvaDB" %}
+  {% trans "Getting Started with SylvaDB" %}
 {% endblock title %}
 
 {% block content_title %}
-    <h1>{% trans "Getting Started" %}</h1>
+  <h1>{% trans "Getting Started" %}</h1>
 {% endblock content_title %}
 
 {% block content %}
-    <div class="doc">
-        <div class="container-fluid">
-            <div class="row-fluid">
-                <div class="span4">
-                    <div class="well sidebar-nav fixed-sidebar-nav">
-                        <ul class="nav nav-list">
-                            <li class="nav-header">
-                                <a href="javascript:void(0)" data-toggle="collapse" data-target="#introduction">Introduction</a>
-                                <i class="icon-chevron-down icon-large nav-arrow"></i>
-                                <i class="icon-chevron-up icon-large nav-arrow" style="display: none;"></i>
-                            </li>
-                            <div id="introduction" class="collapse">
-                                <li><a href="#what-is-a-graph-database">What is a graph database?</a></li>
-                                <li><a href="#features-of-graph-databases">Features of graph databases</a></li>
-                            </div>
-                            <li class="nav-header">
-                                <a href="javascript:void(0)" data-toggle="collapse" data-target="#schema">Schemas</a>
-                                <i class="icon-chevron-down icon-large nav-arrow"></i>
-                                <i class="icon-chevron-up icon-large nav-arrow" style="display: none;"></i>
-                            </li>
-                            <div id="schema" class="collapse">
-                                <li><a href="#your-first-schema">Your first schema</a></li>
-                            </div>
-                        </ul>
-                    </div>
-                </div>
-                <div class="span8">
-                    <h1>Getting started with SylvaDB</h1>
-                    <div class="section">
-                        <h2>
-                            Introduction
-                            <a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a>
-                        </h2>
-                        <div class="inner-section">
-                            <h3>
-                                What is a graph database?
-                                <a class="headerlink" href="#what-is-a-graph-database" title="Permalink to this headline">¶</a>
-                            </h3>
-                            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam consectetur neque a tortor euismod viverra. Aenean non lectus lacus. Suspendisse rhoncus sollicitudin tortor, non sagittis sem ullamcorper sollicitudin. Nam feugiat dignissim risus sit amet convallis. Fusce euismod nunc in sem scelerisque id tincidunt eros eleifend. Aenean eget velit gravida nisi pulvinar auctor eu ac enim. In metus lorem, pulvinar eu feugiat quis, auctor quis leo. Praesent sit amet ante vitae risus suscipit adipiscing. Suspendisse pulvinar viverra turpis non euismod. Praesent quis erat turpis, eget ultrices arcu.</p>
-                            <p>Fusce quis mauris elementum magna pellentesque rutrum vel in ipsum. Phasellus vel turpis massa. Vestibulum vel congue nunc. Nulla facilisi. Quisque euismod ultricies ligula in rhoncus. Mauris a aliquet quam. Etiam sit amet tortor massa, at sollicitudin lacus. Nam tellus mauris, congue vitae mollis eget, vestibulum in ante. Praesent non dictum turpis. Aenean iaculis, turpis eget euismod rhoncus, magna dolor lacinia ante, molestie luctus justo purus scelerisque nisi.</p>
-                            <h3>
-                                Features of graph databases
-                                <a class="headerlink" href="#features-of-graph-databases" title="Permalink to this headline">¶</a>
-                            </h3>
-                            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam consectetur neque a tortor euismod viverra. Aenean non lectus lacus. Suspendisse rhoncus sollicitudin tortor, non sagittis sem ullamcorper sollicitudin. Nam feugiat dignissim risus sit amet convallis. Fusce euismod nunc in sem scelerisque id tincidunt eros eleifend. Aenean eget velit gravida nisi pulvinar auctor eu ac enim. In metus lorem, pulvinar eu feugiat quis, auctor quis leo. Praesent sit amet ante vitae risus suscipit adipiscing. Suspendisse pulvinar viverra turpis non euismod. Praesent quis erat turpis, eget ultrices arcu.</p>
-                        </div>
-                    </div>
-                    <div class="section">
-                        <h2>
-                            Schemas
-                            <a class="headerlink" href="#schemas" title="Permalink to this headline">¶</a>
-                        </h2>
-                        <div class="inner-section">
-                            <h3>
-                                Your first schema
-                                <a class="headerlink" href="#your-first-schema" title="Permalink to this headline">¶</a>
-                            </h3>
-                            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam consectetur neque a tortor euismod viverra. Aenean non lectus lacus. Suspendisse rhoncus sollicitudin tortor, non sagittis sem ullamcorper sollicitudin. Nam feugiat dignissim risus sit amet convallis. Fusce euismod nunc in sem scelerisque id tincidunt eros eleifend. Aenean eget velit gravida nisi pulvinar auctor eu ac enim. In metus lorem, pulvinar eu feugiat quis, auctor quis leo. Praesent sit amet ante vitae risus suscipit adipiscing. Suspendisse pulvinar viverra turpis non euismod. Praesent quis erat turpis, eget ultrices arcu.</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
+  <div class="doc">
+    <div class="container-fluid">
+      <div class="row-fluid">
+        <div class="span4">
+          <div class="well sidebar-nav fixed-sidebar-nav">
+            <ul class="nav nav-list">
+              <li class="nav-header">
+                <a href="javascript:void(0)" data-toggle="collapse" data-target="#introduction-block">{% trans "Introduction" %}</a>
+                <i class="icon-chevron-down icon-large nav-arrow" style="display: none;"></i>
+                <i class="icon-chevron-up icon-large nav-arrow"></i>
+              </li>
+              <ul id="introduction-block" class="collapse in">
+                <li><a href="#what-is-a-graph-database">{% trans "What is a graph database" %}</a></li>
+                <li><a href="#why-use-sylvadb">{% trans "Why use SylvaDB" %}</a></li>
+              </ul>
+              <li class="nav-header">
+                <a href="javascript:void(0)" data-toggle="collapse" data-target="#an-overview-block">{% trans "An overview" %}</a>
+                <i class="icon-chevron-down icon-large nav-arrow" style="display: none;"></i>
+                <i class="icon-chevron-up icon-large nav-arrow"></i>
+              </li>
+              <ul id="an-overview-block" class="collapse in">
+                <li><a href="#the-dashboard">{% trans "The Dashboard" %}</a></li>
+              </ul>
+              <li class="nav-header">
+                <a href="javascript:void(0)" data-toggle="collapse" data-target="#designing-the-graph-block">{% trans "Designing the graph" %}</a>
+                <i class="icon-chevron-down icon-large nav-arrow" style="display: none;"></i>
+                <i class="icon-chevron-up icon-large nav-arrow"></i>
+              </li>
+              <ul id="designing-the-graph-block" class="collapse in">
+                <li><a href="#creating-a-graph">{% trans "Creating a graph" %}</a></li>
+                <li><a href="#creating-a-schema">{% trans "Creating a schema" %}</a></li>
+              </ul>
+              <li class="nav-header">
+                <a href="javascript:void(0)" data-toggle="collapse" data-target="#adding-data-block">{% trans "Adding data" %}</a>
+                <i class="icon-chevron-down icon-large nav-arrow" style="display: none;"></i>
+                <i class="icon-chevron-up icon-large nav-arrow"></i>
+              </li>
+              <ul id="adding-data-block" class="collapse in">
+                <li><a href="#creating-nodes">{% trans "Creating nodes" %}</a></li>
+                <li><a href="#creating-relationships">{% trans "Creating relationships" %}</a></li>
+                <li><a href="#adding-multimedia">{% trans "Adding multimedia" %}</a></li>
+              </ul>
+              <li class="nav-header">
+                <a href="javascript:void(0)" data-toggle="collapse" data-target="#visualizing-the-graph-block">{% trans "Visualizing the graph" %}</a>
+                <i class="icon-chevron-down icon-large nav-arrow" style="display: none;"></i>
+                <i class="icon-chevron-up icon-large nav-arrow"></i>
+              </li>
+              <ul id="visualizing-the-graph-block" class="collapse in">
+                <li><a href="#graph-visualization">{% trans "Graph visualization" %}</a></li>
+              </ul>
+            </ul>
+          </div>
         </div>
+        <div class="span8">
+          <h1>{% trans "Getting started with SylvaDB" %}</h1>
+          <div class="section">
+            <h2>
+              {% trans "Introduction" %}
+              <a class="headerlink" id="introduction" href="#introduction" title="{% trans "Permalink to this headline" %}">¶</a>
+            </h2>
+            <div class="inner-section">
+              <h3>
+                {% trans "What is a graph database" %}
+                <a class="headerlink" id="what-is-a-graph-database" href="#what-is-a-graph-database" title="{% trans "Permalink to this headline" %}">¶</a>
+              </h3>
+
+              <p>{% trans "A graph database stores data in a graph, the most generic of data structures, capable of elegantly representing any kind of data in a highly accessible way. Basically, a graph states that something is related to something else. It's a natural way of specifying relationships among a collection of items." %}</p>
+
+              <p>{% trans "A graph uses <strong>nodes</strong>, <strong>edges</strong> and <strong>properties</strong> to represent the data. Typically, nodes are represented as circles and edges as arrows." %}</p>
+
+              <p>{% trans "This is an example of a simple graph:" %}</p>
+
+              <img src="{{ STATIC_PREFIX }}img/docs/get_started/simple_graph.png" alt="{% trans "simple graph" %}" width="250">
+
+              <p>{% trans "<strong>Nodes</strong> represent <em>entities</em> such as people, books, songs, or any other item you might want to keep track of. <strong>Edges</strong> represent the relationship between the nodes. And properties are pertinent information that relate to nodes or relationships. But in the above graph there isn't any property... yet." %}</p>
+
+              <p>{% trans "This is an example of a simple graph with some properties:" %}</p>
+
+              <img src="{{ STATIC_PREFIX }}img/docs/get_started/simple_property_graph.png" alt="{% trans "simple property graph" %}">
+
+              <p>{% trans "In this graph there are three nodes representing two kind of entities: the entity <strong>Person</strong> and the entity <strong>Group</strong>. As you can see, each node has a set of properties with information about the entity. Also, there are relationships between all the nodes. And only two relationships have properties. Easy!" %}</p>
+
+              <p>{% trans "A graph is a flexible and powerful tool for describing relations between elements of any kind. For this reason, graph databases are often faster than traditional databases for associative data sets with highly complex relationships. They can scale more naturally as they do not typically require expensive database operations. Also, they are suitable to manage ad-hoc and changing data as they depend less on a rigid <em>schema</em> to describe relations between elements." %}</p>
+
+              <h3>
+                {% trans "Why use SylvaDB" %}
+                <a class="headerlink" id="why-use-sylvadb" href="#why-use-sylvadb" title="{% trans "Permalink to this headline" %}">¶</a>
+              </h3>
+              <p>{% trans "SylvaDB is an easy-to-use, flexible, and scalable graph database management system that helps you collect, collaborate, visualize and query large data sets. It provides all the benefits of using a graph database. And the best thing is that you will need no programming knowledge to use it." %}</p>
+            </div>
+          </div>
+          <div class="section">
+            <h2>
+              {% trans "An overview" %}
+              <a class="headerlink" id="an-overview" href="#an-overview" title="{% trans "Permalink to this headline" %}">¶</a>
+            </h2>
+            <div class="inner-section">
+              <h3>
+                {% trans "The Dashboard" %}
+                <a class="headerlink" id="the-dashboard" href="#the-dashboard" title="{% trans "Permalink to this headline" %}">¶</a>
+              </h3>
+
+              <p>{% trans "This is the panel where you manage your graphs in SylvaDB. It's divided in three columns: Graphs, Collaborations and Statistics." %}</p>
+
+              <img class="border" src="{{ STATIC_PREFIX }}img/docs/get_started/dashboard.png" alt="{% trans "the dashboard" %}">
+
+              <p>{% trans "In <strong>Graphs</strong> you will find all the graphs you have created. <strong>Collaborations</strong> is for all those graphs where you are contributing as a collaborator. And <strong>Statistics</strong> shows some statistics about your graphs." %}</p>
+
+              <p>{% trans "We haven't created any graph yet... So, let's create a new one!" %}</p>
+            </div>
+          </div>
+          <div class="section">
+            <h2>
+              {% trans "Designing the graph" %}
+              <a class="headerlink" id="designing-the-graph" href="#designing-the-graph" title="{% trans "Permalink to this headline" %}">¶</a>
+            </h2>
+            <div class="inner-section">
+              <h3>
+                {% trans "Creating a graph" %}
+                <a class="headerlink" id="creating-a-graph" href="#creating-a-graph" title="{% trans "Permalink to this headline" %}">¶</a>
+              </h3>
+
+              <p>{% trans "We are going to create a graph about music. So, first of all, we need to choose a <strong>name</strong> for our graph. We will call it <em>My music collection</em>. It's useful to also provide a <strong>description</strong>, although it's not required. Finally, we choose if our graph will be <strong>public</strong> or not (publicly available for other people)." %}</p>
+
+              <img class="border" src="{{ STATIC_PREFIX }}img/docs/get_started/new_graph.png" alt="{% trans "new graph" %}">
+
+              <p>{% trans "After clicking on <em>Create new graph</em>, we will be redirected to the Dashboard, where we can see an overview of our new graph." %}</p>
+
+              <img class="border" src="{{ STATIC_PREFIX }}img/docs/get_started/graph_overview.png" alt="{% trans "graph overview" %}">
+
+              <p>{% trans "Some useful information is showed in this overview. For example, you can see the number of <em>nodes</em> and <em>relationships</em> of the graph, also the number of <em>collaborators</em>, and other information that we will see later, as <em>Strict Schema...</em> What does it mean? Let's see!" %}</p>
+
+              <h3>
+                {% trans "Creating a schema" %}
+                <a class="headerlink" id="creating-a-schema" href="#creating-a-schema" title="{% trans "Permalink to this headline" %}">¶</a>
+              </h3>
+
+              <p>{% trans "A schema is the place where you describe how is organized your data, the structure of your database. In a graph database you use the schema to define <strong>Types</strong>: the kind of data you can store in your nodes. Also, you describe the relationships between the nodes. This is what we call the <em>strict schema</em> of a graph." %}</p>
+
+              <p>{% trans "So, clicking on" %} <img class="inline" src="{{ STATIC_PREFIX }}img/docs/get_started/schema_link.png" alt="{% trans "strict schema" %}"> {% trans "you will see there isn't any Type defined yet. Let's create a new Type." %}</p>
+
+              <p>{% trans "After clicking on <em>New Type</em>, you will see a form where you can add a <strong>Name</strong> and a <strong>Description</strong> for your Type." %}</p>
+
+              <img class="border" src="{{ STATIC_PREFIX }}img/docs/get_started/schema_new_type.png" alt="{% trans "New Type" %}">
+
+              <p>{% trans "You should see Types as data <em>entities</em>. For example: a book, a person, an album, etc. Here we are defining a Type to represent an <strong>Album</strong> entity." %}</p>
+
+              <p>{% trans "Then, we define the <strong>properties</strong> of the Type. We need to think what are the most relevant information about a music album. For example, we would store: <em>title</em>, <em>duration</em>, <em>number of tracks</em> and <em>release date</em>. Those are what we call the <strong>keys</strong>." %}</p>
+
+              <img class="border" src="{{ STATIC_PREFIX }}img/docs/get_started/schema_type_properties.png" alt="{% trans "Type properties" %}">
+
+              <p>{% trans "Note that we have marked the property <em>Title</em> as the <strong>label</strong> of this Type. This way, we will use this property to identify each node when we visualize the graph." %}</p>
+
+              <p>{% trans "We finish clicking on" %} <img class="inline" src="{{ STATIC_PREFIX }}img/docs/get_started/schema_save_type.png" alt="{% trans "Save Type" %}">. {% trans "You will see an overview of our schema:" %}</p>
+
+              <img class="border" src="{{ STATIC_PREFIX }}img/docs/get_started/schema_diagram.png" alt="{% trans "Schema diagram" %}">
+
+              <p>{% trans "Also we want to represent entities like <strong>Artist</strong> and <strong>Concert</strong>, so move to the bottom of the page and click <em>New Type</em>." %}</p>
+
+              <img class="border" src="{{ STATIC_PREFIX }}img/docs/get_started/schema_more_types.png" alt="{% trans "More Types" %}">
+
+              <p>{% trans "Now, repeating the steps to create Types for <em>Artist</em> and <em>Concert</em>, we get:" %}</p>
+
+              <img class="border" src="{{ STATIC_PREFIX }}img/docs/get_started/schema_types_listed.png" alt="{% trans "Types listed" %}">
+
+              <p>{% trans "We have defined three types in our schema: <strong>Artist</strong>, <strong>Album</strong> and <strong>Concert</strong>, so we can already create nodes in our graph using these Types. But, this way, our graph will contain only nodes without any relation between them. And we think there is some sort of connection between these three entities, so, we need to also define <strong>Relationships</strong> in our schema." %}</p>
+
+              <p>{% trans "Here you can see the relationships we want to create:" %}</p>
+
+              <img src="{{ STATIC_PREFIX }}img/docs/get_started/music_collection_schema_graph.png" alt="{% trans "Music Collection schema graph" %}">
+
+              <p>{% trans "Note that we have two different relationships between <em>Album</em> and <em>Concert</em>." %}</p>
+
+              <p>{% trans "We start defining the relationship between <em>Artist</em> and <em>Concert</em>. So, in the <em>Artist</em> section from the schema overview we saw before, we click on <strong>outgoing</strong>:" %}</p>
+
+              <img class="border" src="{{ STATIC_PREFIX }}img/docs/get_started/schema_artist_concert_relationship.png" alt="{% trans "Artist-Concert relationship" %}">
+
+              <p>{% trans "Then, we select <em>Concert</em> as the <strong>target</strong> of the relationship:" %}</p>
+
+              <img class="border" src="{{ STATIC_PREFIX }}img/docs/get_started/schema_artist_concert_relationship_name.png" alt="{% trans "Artist-Concert relationship name" %}">
+
+              <p>{% trans "We also want to add some properties to this relationship. We want to store the <em>date</em> and the <em>city</em> in these relationships:" %}</p>
+
+              <img class="border" src="{{ STATIC_PREFIX }}img/docs/get_started/schema_artist_concert_relationship_properties.png" alt="{% trans "Artist-Concert relationship properties" %}">
+
+              <p>{% trans "As you can see, we have marked the property <em>date</em> as the <strong>label</strong> of the relationship. This way, we will use this property to identify each relationship when we visualize the graph." %}</p>
+
+              <p>{% trans "After clicking <em>Save Type</em>, you will see that a new relationship has been created in the Schema diagram (you can drag the boxes to see the schema better):" %}</p>
+
+              <img class="border" src="{{ STATIC_PREFIX }}img/docs/get_started/schema_artist_concert_diagram.png" alt="{% trans "Artist-Concert diagram" %}">
+
+              <p>{% trans "When you create a relationship in the schema between two Types, you will not see the links <em>incoming</em> nor <em>outgoing</em> anymore. So, you will need to use the link <strong>Allowed Relationship</strong> at the bottom of the page if you want to create more relationships using either of these Types." %}</p>
+
+              <img class="border" src="{{ STATIC_PREFIX }}img/docs/get_started/schema_more_types.png" alt="{% trans "More Types" %}">
+
+              <p>{% trans "This time, we don't want to define any property in these relationships. So, repeating the process to create the rest of relationships, finally we get our database schema:" %}</p>
+
+              <img class="border" src="{{ STATIC_PREFIX }}img/docs/get_started/schema_full_diagram.png" alt="{% trans "Schema diagram" %}">
+
+              <p>{% trans "We have created a schema for the <em>Music Collection</em> graph. But, we haven't added any data yet, so in the next topics we will see how to add some <strong>nodes</strong> and <strong>relationships</strong> to the graph." %}</p>
+            </div>
+          </div>
+          <div class="section">
+            <h2>
+              {% trans "Adding data" %}
+              <a class="headerlink" id="adding-data" href="#adding-data" title="{% trans "Permalink to this headline" %}">¶</a>
+            </h2>
+            <div class="inner-section">
+              <h3>
+                {% trans "Creating nodes" %}
+                <a class="headerlink" id="creating-nodes" href="#creating-nodes" title="{% trans "Permalink to this headline" %}">¶</a>
+              </h3>
+
+              <p>{% trans "In order to store some data in our graph, we need to create nodes. So, move to the top menu at the right corner of the screen:" %}</p>
+
+              <img class="border" src="{{ STATIC_PREFIX }}img/docs/get_started/data_dropdown_menu.png" alt="{% trans "Data menu" %}">
+
+              <p>{% trans "And add a new <em>Artist</em> clicking on the '+' symbol:" %}</p>
+
+              <img class="border" src="{{ STATIC_PREFIX }}img/docs/get_started/data_artist_new_link.png" alt="{% trans "Data Artist new link" %}">
+
+              <p>{% trans "Yo will see a form to fill in with data about the Artist. This form is composed by four sections:" %}</p>
+
+              <ul>
+                <li>{% trans "Properties" %}</li>
+                <li>{% trans "Relationships" %}</li>
+                <li>{% trans "Files" %}</li>
+                <li>{% trans "Links" %}</li>
+              </ul>
+
+              <p>{% trans "The <strong>Properties</strong> section represent the properties we defined in the schema for the <em>type</em> <strong>Artist</strong>. For example, we will add information about <em>Led Zeppelin</em>:" %}</p>
+
+              <img class="border" src="{{ STATIC_PREFIX }}img/docs/get_started/data_properties_section.png" alt="{% trans "Data properties section" %}">
+
+              <p>{% trans "We will see the rest of form sections later. So, let's save the <em>artist</em> clicking on the <em>save</em> button. You will see a data summary with the <em>nodes</em> for the <em>type</em> <strong>Artist</strong>." %}</p>
+
+              <p>{% trans "Let's add some information about an <strong>Album</strong>. Again, move to the top menu and click on the '+' icon:" %}</p>
+
+              <img class="border" src="{{ STATIC_PREFIX }}img/docs/get_started/data_album_new_link.png" alt="{% trans "Data Album new link" %}">
+
+              <p>{% trans "We repeat the same process filling in the properties for <em>Album</em>." %}</p>
+
+              <img class="border" src="{{ STATIC_PREFIX }}img/docs/get_started/data_album_properties.png" alt="{% trans "Data Album properties" %}">
+
+              <p>{% trans "We also add some information about a <strong>Concert</strong>:" %}</p>
+
+              <img class="border" src="{{ STATIC_PREFIX }}img/docs/get_started/data_concert_properties.png" alt="{% trans "Data Concert properties" %}">
+
+              <p>{% trans "We have just created three nodes in our graph for the <em>types</em> <strong>Artist</strong>, <strong>Album</strong> and <strong>Concert</strong>." %}</p>
+
+              <h3>
+                {% trans "Creating relationships" %}
+                <a class="headerlink" id="creating-relationships" href="#creating-relationships" title="{% trans "Permalink to this headline" %}">¶</a>
+              </h3>
+
+              <p>{% trans "After saving the <strong>Concert</strong>, you will see a data summary with the <em>nodes</em> for this <em>entity</em>. Currently, this list only shows one <em>node</em>." %}</p>
+
+              <img class="border" src="{{ STATIC_PREFIX }}img/docs/get_started/data_concert_list.png" alt="{% trans "Data Concert list" %}">
+
+              <p>{% trans "Since we haven't added any relationship yet, clicking on the icon" %} <img class="inline" src="{{ STATIC_PREFIX }}img/docs/get_started/relationship_icon.png" alt="{% trans "Relationship icon" %}"> {% trans "will not show any relationship. So, let's add a relationship." %}</p>
+
+              <p>{% trans "Clicking on the icon" %} <img class="inline" src="{{ STATIC_PREFIX }}img/docs/get_started/edit_icon.png" alt="{% trans "Edit icon" %}"> {% trans "the form for <strong>Concert</strong> will be showed again, but this time, we just want to add relationships:" %}</p>
+
+              <img class="border" src="{{ STATIC_PREFIX }}img/docs/get_started/data_concert_relationships_empty.png" alt="{% trans "Data Concert relationships" %}">
+
+              <p>{% trans "Note that the little arrows show you the direction of the relationship. Also, you can see enclosed by parenthesis the <em>type</em> of the <em>node</em> at the <strong>source</strong> or <strong>target</strong> of the relationship." %}</p>
+
+              <p>{% trans "Adding a <em>target</em> or <em>source</em> to each relationship is really easy. Just start typing the <em>label</em> property of the node (remember you marked the label checkbox in some properties), and you will show a list with results matching the criteria." %}</p>
+
+              <img class="border" src="{{ STATIC_PREFIX }}img/docs/get_started/data_concert_relationships_full.png" alt="{% trans "Data Concert relationships" %}">
+
+              <p>{% trans "We don't need to fill in the relationship <strong>was recorded in</strong>, so we will remove it clicking on" %} <img class="inline" src="{{ STATIC_PREFIX }}img/docs/get_started/trash_icon.png" alt="{% trans "Trash icon" %}"></p>
+
+              <p>{% trans "Finally, we finish clicking on <strong>Save Concert</strong>. We can repeat the same process with the rest of nodes and relationships." %}</p>
+
+              <h3>
+                {% trans "Adding multimedia" %}
+                <a class="headerlink" id="adding-multimedia" href="#adding-multimedia" title="{% trans "Permalink to this headline" %}">¶</a>
+              </h3>
+
+              <p>{% trans "In the previous form you can also add <strong>links</strong> and <strong>files</strong> to your node:" %}</p>
+
+              <img class="border" src="{{ STATIC_PREFIX }}img/docs/get_started/data_multimedia.png" alt="{% trans "Data multimedia" %}">
+            </div>
+          </div>
+          <div class="section">
+            <h2>
+              {% trans "Visualizing the graph" %}
+              <a class="headerlink" id="visualizing-the-graph" href="#visualizing-the-graph" title="{% trans "Permalink to this headline" %}">¶</a>
+            </h2>
+            <div class="inner-section">
+              <h3>
+                {% trans "Graph visualization" %}
+                <a class="headerlink" id="graph-visualization" href="#graph-visualization" title="{% trans "Permalink to this headline" %}">¶</a>
+              </h3>
+
+              <p>{% trans "Clicking on <strong>Graph</strong> from the top menu, you will visualize the graph. You can choose two kind of views from the select box: <strong>inspect graph</strong> and <strong>whole graph</strong>." %}</p>
+
+              <p>{% trans "With <strong>inspect graph</strong> view, you can get a more detailed view of your graph. This view is useful for small graphs:" %}</p>
+
+              <img class="border" src="{{ STATIC_PREFIX }}img/docs/get_started/visualization_inspect_graph.png" alt="{% trans "Visualization inspect graph" %}">
+
+              <p>{% trans "The <strong>whole graph</strong> view is the best option when you want to visualize big graphs (graphs with more than 50 nodes). It also provides some useful tools to improve the analysis and visualization of your graph:" %}</p>
+
+              <img class="border" src="{{ STATIC_PREFIX }}img/docs/get_started/visualization_whole_graph.png" alt="{% trans "Visualization whole graph" %}">
+
+
+
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
+  </div>
 {% endblock content %}
 
 {% block extra_scripts %}
-    <script src="{{ STATIC_PREFIX }}bootstrap/js/bootstrap-custom.js"></script>
-    <script>
-        (function($) {
-            $(function() {
-                $('.collapse').on({
-                    show: function() {
-                        var $prev = $(this).prev();
-                        $prev.find('.icon-chevron-down').hide();
-                        $prev.find('.icon-chevron-up').show();
-                    },
-                    hide: function() {
-                        var $prev = $(this).prev();
-                        $prev.find('.icon-chevron-down').show();
-                        $prev.find('.icon-chevron-up').hide();
-                    }
-                });
-            });
-        }(jQuery));
-    </script>
+  <script src="{{ STATIC_PREFIX }}bootstrap/js/bootstrap-custom.js"></script>
+  <script>
+    (function($) {
+      $(function() {
+        $('.collapse').on({
+          show: function() {
+            var $prev = $(this).prev();
+            $prev.find('.icon-chevron-down').hide();
+            $prev.find('.icon-chevron-up').show();
+          },
+          hide: function() {
+            var $prev = $(this).prev();
+            $prev.find('.icon-chevron-down').show();
+            $prev.find('.icon-chevron-up').hide();
+          }
+        });
+      });
+    }(jQuery));
+  </script>
 {% endblock extra_scripts %}

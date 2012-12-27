@@ -1760,27 +1760,80 @@ table.toolsBrowse .dataActions .dataOption {
 .doc h1 {
     color: #348E82;
     font-size: 26px;
-    margin-bottom: 8px;
+    margin-bottom: -10px;
 }
 
 .doc h2 {
     font-size: 20px;
     font-weight: bold;
-    margin-bottom: 3px;
-    margin-top: 7px;
 }
 
 .doc h3 {
     font-size: 17px;
     font-weight: bold;
     margin-bottom: 5px;
-    margin-top: 3px;
+    margin-top: 20px;
 }
 
 .doc p {
     margin-bottom: 8px;
     line-height: 20px;
     font-size: 15px;
+}
+
+.doc b,
+.doc strong {
+    font-weight: bold;
+}
+
+.doc i,
+.doc em {
+    font-style: italic;
+}
+
+.doc img {
+    background: white;
+    max-width: 750px;
+    display: block;
+    margin-bottom: 15px;
+    margin-top: 15px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.doc img.border {
+    padding: 2px;
+    border: 1px solid #DDD;
+    border-radius: 4px;
+}
+
+.doc img.inline {
+    display: inline;
+    margin-bottom: 0;
+    margin-top: 0;
+    margin-left: 2px;
+    margin-right: 2px;
+    vertical-align: middle;
+}
+
+.doc .section {
+    margin-bottom: 20px;
+    margin-top: 25px;
+}
+
+.doc .inner-section {
+    margin-top: -10px;
+    font-size: 15px;
+}
+
+.doc .inner-section ul {
+    padding-left: 30px;
+    line-height: 20px;
+    margin-bottom: 10px;
+}
+
+.doc .inner-section li {
+    list-style-type: disc;
 }
 
 .doc .nav-header {
@@ -1793,6 +1846,8 @@ table.toolsBrowse .dataActions .dataOption {
 
 .doc .collapse {
     font-size: 15px;
+    padding-left: 10px;
+    margin-bottom: 5px;
 }
 
 .doc a.headerlink {
@@ -1800,14 +1855,14 @@ table.toolsBrowse .dataActions .dataOption {
 }
 
 body :hover > a.headerlink {
-  visibility: visible;
+    visibility: visible;
 }
 
 .doc .nav-arrow {
-  float: right;
-  position: relative;
-  right: -17px;
-  top: -23px;
+    float: right;
+    position: relative;
+    right: -17px;
+    top: -23px;
 }
 
 .doc .fixed-sidebar-nav {
