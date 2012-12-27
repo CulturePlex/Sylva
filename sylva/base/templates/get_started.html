@@ -1,6 +1,11 @@
 {% extends "base.html" %}
 {% load i18n %}
 
+{% block extra_links %}
+    <link rel="stylesheet" href="{{ STATIC_PREFIX }}bootstrap/css/bootstrap-custom.css">
+    <link rel="stylesheet" href="{{ STATIC_PREFIX }}css/font-awesome.css">
+{% endblock extra_links %}
+
 {% block title %}
     {% trans "Getting Started with SylvaDB" %}
 {% endblock title %}
@@ -10,4 +15,90 @@
 {% endblock content_title %}
 
 {% block content %}
+    <div class="doc">
+        <div class="container-fluid">
+            <div class="row-fluid">
+                <div class="span4">
+                    <div class="well sidebar-nav fixed-sidebar-nav">
+                        <ul class="nav nav-list">
+                            <li class="nav-header">
+                                <a href="javascript:void(0)" data-toggle="collapse" data-target="#introduction">Introduction</a>
+                                <i class="icon-chevron-down icon-large nav-arrow"></i>
+                                <i class="icon-chevron-up icon-large nav-arrow" style="display: none;"></i>
+                            </li>
+                            <div id="introduction" class="collapse">
+                                <li><a href="#what-is-a-graph-database">What is a graph database?</a></li>
+                                <li><a href="#features-of-graph-databases">Features of graph databases</a></li>
+                            </div>
+                            <li class="nav-header">
+                                <a href="javascript:void(0)" data-toggle="collapse" data-target="#schema">Schemas</a>
+                                <i class="icon-chevron-down icon-large nav-arrow"></i>
+                                <i class="icon-chevron-up icon-large nav-arrow" style="display: none;"></i>
+                            </li>
+                            <div id="schema" class="collapse">
+                                <li><a href="#your-first-schema">Your first schema</a></li>
+                            </div>
+                        </ul>
+                    </div>
+                </div>
+                <div class="span8">
+                    <h1>Getting started with SylvaDB</h1>
+                    <div class="section">
+                        <h2>
+                            Introduction
+                            <a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a>
+                        </h2>
+                        <div class="inner-section">
+                            <h3>
+                                What is a graph database?
+                                <a class="headerlink" href="#what-is-a-graph-database" title="Permalink to this headline">¶</a>
+                            </h3>
+                            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam consectetur neque a tortor euismod viverra. Aenean non lectus lacus. Suspendisse rhoncus sollicitudin tortor, non sagittis sem ullamcorper sollicitudin. Nam feugiat dignissim risus sit amet convallis. Fusce euismod nunc in sem scelerisque id tincidunt eros eleifend. Aenean eget velit gravida nisi pulvinar auctor eu ac enim. In metus lorem, pulvinar eu feugiat quis, auctor quis leo. Praesent sit amet ante vitae risus suscipit adipiscing. Suspendisse pulvinar viverra turpis non euismod. Praesent quis erat turpis, eget ultrices arcu.</p>
+                            <p>Fusce quis mauris elementum magna pellentesque rutrum vel in ipsum. Phasellus vel turpis massa. Vestibulum vel congue nunc. Nulla facilisi. Quisque euismod ultricies ligula in rhoncus. Mauris a aliquet quam. Etiam sit amet tortor massa, at sollicitudin lacus. Nam tellus mauris, congue vitae mollis eget, vestibulum in ante. Praesent non dictum turpis. Aenean iaculis, turpis eget euismod rhoncus, magna dolor lacinia ante, molestie luctus justo purus scelerisque nisi.</p>
+                            <h3>
+                                Features of graph databases
+                                <a class="headerlink" href="#features-of-graph-databases" title="Permalink to this headline">¶</a>
+                            </h3>
+                            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam consectetur neque a tortor euismod viverra. Aenean non lectus lacus. Suspendisse rhoncus sollicitudin tortor, non sagittis sem ullamcorper sollicitudin. Nam feugiat dignissim risus sit amet convallis. Fusce euismod nunc in sem scelerisque id tincidunt eros eleifend. Aenean eget velit gravida nisi pulvinar auctor eu ac enim. In metus lorem, pulvinar eu feugiat quis, auctor quis leo. Praesent sit amet ante vitae risus suscipit adipiscing. Suspendisse pulvinar viverra turpis non euismod. Praesent quis erat turpis, eget ultrices arcu.</p>
+                        </div>
+                    </div>
+                    <div class="section">
+                        <h2>
+                            Schemas
+                            <a class="headerlink" href="#schemas" title="Permalink to this headline">¶</a>
+                        </h2>
+                        <div class="inner-section">
+                            <h3>
+                                Your first schema
+                                <a class="headerlink" href="#your-first-schema" title="Permalink to this headline">¶</a>
+                            </h3>
+                            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam consectetur neque a tortor euismod viverra. Aenean non lectus lacus. Suspendisse rhoncus sollicitudin tortor, non sagittis sem ullamcorper sollicitudin. Nam feugiat dignissim risus sit amet convallis. Fusce euismod nunc in sem scelerisque id tincidunt eros eleifend. Aenean eget velit gravida nisi pulvinar auctor eu ac enim. In metus lorem, pulvinar eu feugiat quis, auctor quis leo. Praesent sit amet ante vitae risus suscipit adipiscing. Suspendisse pulvinar viverra turpis non euismod. Praesent quis erat turpis, eget ultrices arcu.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 {% endblock content %}
+
+{% block extra_scripts %}
+    <script src="{{ STATIC_PREFIX }}bootstrap/js/bootstrap-custom.js"></script>
+    <script>
+        (function($) {
+            $(function() {
+                $('.collapse').on({
+                    show: function() {
+                        var $prev = $(this).prev();
+                        $prev.find('.icon-chevron-down').hide();
+                        $prev.find('.icon-chevron-up').show();
+                    },
+                    hide: function() {
+                        var $prev = $(this).prev();
+                        $prev.find('.icon-chevron-down').show();
+                        $prev.find('.icon-chevron-up').hide();
+                    }
+                });
+            });
+        }(jQuery));
+    </script>
+{% endblock extra_scripts %}

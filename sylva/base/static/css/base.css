@@ -1746,6 +1746,78 @@ table.toolsBrowse .dataActions .dataOption {
 }
 
 
+/* documentation */
+
+.doc .container-fluid {
+    padding: 0;
+}
+
+.doc h1,
+.doc h2 {
+    font-family: Georgia;
+}
+
+.doc h1 {
+    color: #348E82;
+    font-size: 26px;
+    margin-bottom: 8px;
+}
+
+.doc h2 {
+    font-size: 20px;
+    font-weight: bold;
+    margin-bottom: 3px;
+    margin-top: 7px;
+}
+
+.doc h3 {
+    font-size: 17px;
+    font-weight: bold;
+    margin-bottom: 5px;
+    margin-top: 3px;
+}
+
+.doc p {
+    margin-bottom: 8px;
+    line-height: 20px;
+    font-size: 15px;
+}
+
+.doc .nav-header {
+    font-size: 13px;
+}
+
+.doc .nav-list {
+    line-height: 20px;
+}
+
+.doc .collapse {
+    font-size: 15px;
+}
+
+.doc a.headerlink {
+  visibility: hidden;
+}
+
+body :hover > a.headerlink {
+  visibility: visible;
+}
+
+.doc .nav-arrow {
+  float: right;
+  position: relative;
+  right: -17px;
+  top: -23px;
+}
+
+.doc .fixed-sidebar-nav {
+    position: fixed;
+    width: 326px;
+}
+
+/* END documentation */
+
+
 /* icons */
 
 [class^="sylva-icon"] {
@@ -1787,6 +1859,7 @@ table.toolsBrowse .dataActions .dataOption {
     background-image: url(../img/nodes_16.png);
 }
 
+/* END icons */
 
 /* UTF-8 symbols */
 
@@ -1801,3 +1874,5 @@ table.toolsBrowse .dataActions .dataOption {
 .symbol-large {
     font-size: 170%;
 }
+
+/* END UTF-8 symbols */
