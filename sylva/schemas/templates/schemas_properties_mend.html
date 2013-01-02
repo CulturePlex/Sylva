@@ -22,7 +22,7 @@
 {% block content %}
 
 <div id="content2" class="medium-width">
-    <p class="stronger">{% trans "Your changes in the schema have been saved, but we have not apply these changes in your data yet. Please, choose in each case what to do with the following properties:" %}</p>
+    <p class="stronger">{% trans "Your changes in the schema have been saved, but we haven't applied these changes in your data yet. Please, choose what to do with the following properties:" %}</p>
     <form action="." method="POST">{% csrf_token %}
         {% if deleted_props %}
             {{ deleted_formset.management_form }}
