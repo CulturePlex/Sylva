@@ -40,7 +40,7 @@
         </div>
     {% endfor %}
     {% regroup node_type.get_reflexive_relationships by name as reflexive_relationships %}
-    {% for relationship_name in reflexive_relationships.select_related %}
+    {% for relationship_name in reflexive_relationships %}
          <div class="form-row indent">
             <label>
                 ↔ {{ relationship_name.grouper|capfirst }}
@@ -67,7 +67,7 @@
         </div>
     {% endfor %}
     {% regroup node_type.get_outgoing_relationships by name as outgoing_relationships %}
-    {% for relationship_name in outgoing_relationships.select_related %}
+    {% for relationship_name in outgoing_relationships %}
          <div class="form-row indent">
             <label>
                 → {{ relationship_name.grouper|capfirst }}
@@ -97,7 +97,7 @@
     {% if not relationships.0.relationship_name.grouper %}
         {% regroup node_type.get_incoming_relationships by name as incoming_relationships %}
     {% endif %}
-    {% for relationship_name in incoming_relationships.select_related %}
+    {% for relationship_name in incoming_relationships %}
          <div class="form-row indent">
             <label>←
                 {% if relationship_name.grouper %}{{ relationship_name.grouper|capfirst }}{% else %}{{ relationship_name.list.0.name|capfirst }}{% endif %}
