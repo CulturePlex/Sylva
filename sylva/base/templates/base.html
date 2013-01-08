@@ -71,6 +71,7 @@
                     {% else %}
                       <li><a href="{% url index %}" class="link-home" id="loginFormButton"><span>{% trans "Home" %}</span></a></li>
                     {% endif %}
+                    <li><a href="{% url get_started %}" class="link"><span>{% trans "Help" %}</span></a></li>
                   </ul>
                 </nav>
               {% endblock %}
