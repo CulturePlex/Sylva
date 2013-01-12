@@ -18,6 +18,7 @@
 
     <link rel="icon" href="{{ STATIC_PREFIX }}img/favicon.ico">
     <link rel="stylesheet" type="text/css" href="{{ STATIC_PREFIX }}css/font-awesome.css" />
+    <link rel=" stylesheet" type="text/css" href="{{ STATIC_PREFIX }}joyride/joyride-2.0.3.css">
     <link rel="stylesheet" type="text/css" href="{{ STATIC_PREFIX }}css/base.css" />
 
     <!--[if lt IE 7]>
@@ -62,8 +63,10 @@
               {% block main_navigation %}
                 <nav class="main">
                   <ul>
+                    <li><a href="javascript:void(0)" id="toggleTour" class="text" style="display: none;"><span>{% trans "Take a tour" %}</span></a></li>
+                    <li><a href="{% url get_started %}" class="link"><span>{% trans "Help" %}</span></a></li>
                     {% if request.user.is_authenticated %}
-                      <li><a href="{% url userena.views.profile_detail request.user %}" class="text">{{ request.user }}</a></li>
+                      <li><a href="{% url userena.views.profile_detail request.user %}" class="link">{{ request.user }}</a></li>
                       {% block navigation_buttons %}
                         <li><a href="{% url dashboard %}" class="link"><span>{% trans "Dashboard" %}</span></a></li>
                       {% endblock %}
@@ -71,7 +74,6 @@
                     {% else %}
                       <li><a href="{% url index %}" class="link-home" id="loginFormButton"><span>{% trans "Home" %}</span></a></li>
                     {% endif %}
-                    <li><a href="{% url get_started %}" class="link"><span>{% trans "Help" %}</span></a></li>
                   </ul>
                 </nav>
               {% endblock %}
@@ -116,15 +118,18 @@
 
     {% block scripts %}
       <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
-      <script type="text/javascript" src="{{ STATIC_PREFIX }}js/dashboard.toolbar.js"></script>
       <script type="text/javascript" src="{{ STATIC_PREFIX }}js/spin.1.2.7.js"></script>
+      <script type="text/javascript" src="{{ STATIC_PREFIX }}joyride/jquery.joyride-2.0.3.js"></script>
+      <script type="text/javascript" src="{{ STATIC_PREFIX }}js/dashboard.toolbar.js"></script>
       <script type="text/javascript" src="{% url django.views.i18n.javascript_catalog %}"></script>
       <!--    <script type="text/javascript" src="{{ STATIC_PREFIX }}js/jquery.simplemodal.1.4.1.min.js"></script>-->
+
       <script type="text/javascript">
         // global namespace
         var sylv = {};
         sylv.MEDIA_URL = {{ STATIC_PREFIX }};
       </script>
+
       <script type="text/javascript">
         (function($) {
           setTimeout(function() {
@@ -133,6 +138,34 @@
             });
           }, 5000);
         })(jQuery);
+      </script>
+
+      <script type="text/javascript">
+        (function($) {
+          $(document).ready(function() {
+
+            if ($('#tour').length !== 0) {
+              $('#toggleTour')
+                .show()
+                .on('click', function() {
+                  var $el = $(this);
+                  var deactive = function() {
+                    $el.removeClass('active');
+                  };
+
+                  if ($el.hasClass('active')) {
+                    deactive();
+                    $('.joyride-close-tip').click();
+                  } else {
+                    $el.addClass('active');
+                    $('#tour').joyride({
+                      postRideCallback: deactive
+                    });
+                  }
+                });
+            }
+          });
+        }(jQuery));
       </script>
 
       {% block extra_scripts %}{% endblock %}

@@ -1931,3 +1931,21 @@ body :hover > a.headerlink {
 }
 
 /* END UTF-8 symbols */
+
+
+/* jQuery Joyride Feature Tours */
+
+.joyride-tip-guide h1,
+.joyride-tip-guide h2,
+.joyride-tip-guide h3,
+.joyride-tip-guide h4,
+.joyride-tip-guide h5,
+.joyride-tip-guide h6 {
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+.position-graphs-filter {
+    margin-left: -21px;
+}
+
+/* END jQuery Joyride Feature Tours */
