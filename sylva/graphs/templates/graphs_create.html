@@ -23,4 +23,20 @@
 <span class="buttonLinkOption">{% trans "or" %} <a href="{% url dashboard %}">{% trans "Cancel" %}</a>.</span>
 </form>
 
+<!-- Features Tour -->
+<ol id="tour" class="hidden">
+  <li data-id="id_name" data-button="{% trans "Next" %}" data-options="tipLocation:right" class="position-new-graph-name">
+    <h2>{% trans "Name" %}</h2>
+    <p>{% trans "Choose a name for your graph. You will be able to change the name later." %}</p>
+  </li>
+  <li data-id="id_description" data-button="{% trans "Next" %}" data-options="tipLocation:right" class="position-new-graph-description">
+    <h2>{% trans "Description" %}</h2>
+    <p>{% trans "A short description would be useful. You also will be able to change it later." %}</p>
+  </li>
+  <li data-id="id_public" data-button="{% trans "Finish" %}" class="position-new-graph-public">
+    <h2>{% trans "Public or private" %}</h2>
+    <p>{% trans "If you mark this checkbox, your graph will be readable for other people." %}</p>
+  </li>
+</ol>
+
 {% endblock %}

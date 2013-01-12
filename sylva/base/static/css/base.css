@@ -1948,4 +1948,33 @@ body :hover > a.headerlink {
     margin-left: -21px;
 }
 
+.position-new-graph-name {
+    margin-top: -23px;
+    margin-left: 23px;
+}
+
+.position-new-graph-description {
+    margin-top: 8px;
+    margin-left: 23px;
+}
+
+.position-new-graph-public {
+    margin-left: -31px;
+    margin-top: 16px;
+}
+
+.position-schema-export {
+    margin-left: -15px;
+}
+
+.position-schema-overview {
+    top: 0 !important;
+    left: 160px !important;
+}
+
+.position-remove-schema-property {
+    margin-top: -62px;
+    margin-left: -307px;
+}
+
 /* END jQuery Joyride Feature Tours */

@@ -22,7 +22,7 @@
 {% block content %}
 {% if node_types %}
 <div>
-<div class="content2-first max600">
+<div id="schemaOverview" class="content2-first max600">
 {% for node_type in node_types.select_related %}
     <!--
     <h3>{{ node_type.name|capfirst }}</h3>
@@ -141,7 +141,7 @@
 </div>
     <div class="content-divider"></div>
     <div class="content2-second diagram">
-        <h2>{% trans "Diagram" %}</h2>
+        <h2 id="diagramTitle">{% trans "Diagram" %}</h2>
         <div id="diagramContainer">
             <div id="diagram"></div>
         </div>
@@ -149,21 +149,53 @@
         <input type="hidden" id="id_diagram_positions_url" name="diagram_positions" value="{% url schama_diagram_positions graph.slug %}"/>
     </div>
 </div>
-    <a class="button" href="{% url schema_nodetype_create graph.slug %}">{% trans "New Type" %}</a>
+    <a id="schemaNewType" class="button" href="{% url schema_nodetype_create graph.slug %}">{% trans "New Type" %}</a>
 {% else %}
-    <a class="button" href="{% url schema_import graph.slug %}">{% trans "Import Schema" %}</a>
+    <a id="schemaImport" class="button" href="{% url schema_import graph.slug %}">{% trans "Import Schema" %}</a>
 {% endif %}
 <span class="buttonLinkOption">
 {% if node_types %}
-    <a href="{% url schema_relationshiptype_create graph.slug %}">{% trans "Allowed Relationship" %}</a>
+    <a id="allowedRelations" href="{% url schema_relationshiptype_create graph.slug %}">{% trans "Allowed Relationship" %}</a>
     {% trans "or" %}
-    <a href="{% url schema_export graph.slug %}">{% trans "Export" %}</a>.
+    <a id="schemaExport" href="{% url schema_export graph.slug %}">{% trans "Export" %}</a>.
 {% else %}
     {% trans "or" %}
-    <a href="{% url schema_nodetype_create graph.slug %}">{% trans "New Type" %}</a>.
+    <a id="schemaNewType" href="{% url schema_nodetype_create graph.slug %}">{% trans "New Type" %}</a>.
     {% trans "There are no types defined yet" %}.
 {% endif %}
 </span>
+
+<!-- Features Tour -->
+<ol id="tour" class="hidden">
+    <li data-id="schemaNewType" data-button="{% trans "Next" %}">
+        <h2>{% trans "New Type" %}</h2>
+        <p>{% trans "Define a new type of data in your database schema." %}</p>
+    </li>
+    {% if node_types %}
+        <li data-id="allowedRelations" data-button="{% trans "Next" %}">
+            <h2>{% trans "Allowed Relationship" %}</h2>
+            <p>{% trans "Define the kind of relationships that are allowed in your graph." %}</p>
+        </li>
+        <li data-id="schemaExport" data-button="{% trans "Next" %}" class="position-schema-export">
+            <h2>{% trans "Schema export" %}</h2>
+            <p>{% trans "You can export your database schema as a JSON file." %}</p>
+        </li>
+        <li data-id="schemaOverview" data-button="{% trans "Next" %}" data-options="tipLocation:top;nubPosition:bottom" class="position-schema-overview">
+            <h2>{% trans "Schema overview" %}</h2>
+            <p>{% trans "An overview of your schema is showed in this column." %}</p>
+        </li>
+        <li data-id="diagramTitle" data-button="{% trans "Finish" %}">
+            <h2>{% trans "Diagram" %}</h2>
+            <p>{% trans "Here you can visualize a diagram of your schema. You can drag the boxes and reorder the diagram as you want." %}</p>
+        </li>
+    {% else %}
+        <li data-id="schemaImport" data-button="{% trans "Finish" %}">
+            <h2>{% trans "Schema import" %}</h2>
+            <p>{% trans "You can import your database schema from a JSON file." %}</p>
+        </li>
+    {% endif %}
+</ol>
+
 {% endblock %}
 
 {% block extra_links %}

@@ -53,7 +53,7 @@
     </div>
     <div class="content-divider"></div>
     <div class="content2-second">
-        <h2>{% trans "Properties" %}</h2>
+        <h2 id="propertiesTitle">{% trans "Properties" %}</h2>
         <table cellspacing="0" class="itemtype-properties-table" width="100%">
             <tbody class="dynamic">
             {{ formset.management_form }}
@@ -147,6 +147,50 @@
 <!--    </div>-->
 </form>
 </div>
+
+<!-- Features Tour -->
+<ol id="tour" class="hidden">
+  <li data-id="id_name" data-button="{% trans "Next" %}">
+    <h2>{% trans "Name" %}</h2>
+    <p>{% trans "Choose a name for your Type." %}</p>
+  </li>
+  <li data-id="id_description" data-button="{% trans "Next" %}">
+    <h2>{% trans "Description" %}</h2>
+    <p>{% trans "A description would be useful, too." %}</p>
+  </li>
+  <li data-id="propertiesTitle" data-button="{% trans "Next" %}">
+    <h2>{% trans "Properties" %}</h2>
+    <p>{% trans "You can add as many properties as you want to your Types." %}</p>
+  </li>
+  <li data-id="id_properties-0-key" data-button="{% trans "Next" %}">
+    <h2>{% trans "Property key" %}</h2>
+    <p>{% trans "Choose a name to identify each property." %}</p>
+  </li>
+  <li data-id="id_properties-0-description" data-button="{% trans "Next" %}">
+    <h2>{% trans "Property description" %}</h2>
+    <p>{% trans "You can also add a description if you want." %}</p>
+  </li>
+  <li data-id="id_properties-0-display" data-button="{% trans "Next" %}">
+    <h2>{% trans "Label" %}</h2>
+    <p>{% trans "Mark this checkbox if you want to use this property as the label of the Type. You will use the label to identify this Type in SylvaDB." %}</p>
+  </li>
+  <li data-id="advancedModeButton" data-button="{% trans "Next" %}">
+    <h2>{% trans "Advanced Mode" %}</h2>
+    <p>{% trans "Clicking on this link, you can use advanced features like:" %}
+        <dl>
+            <dt>{% trans "Data type" %}</dt>
+            <dd>{% trans "Limit the kind of data you can store in this property to the type selected." %}</dd>
+            <dt>{% trans "Order" %}</dt>
+            <dd>{% trans "Set the order of your properties." %}</dd>
+        </dl>
+    </p>
+  </li>
+  <li data-class="delete-row" data-button="{% trans "Finish" %}" data-options="nubPosition:right" class="position-remove-schema-property">
+    <h2>{% trans "Remove" %}</h2>
+    <p>{% trans "Clicking on this icon you will remove the property. After saving, you will be asked what to do with the properties already stored in your graph." %}</p>
+  </li>
+</ol>
+
 {% endblock %}
 
 {% block extra_scripts %}

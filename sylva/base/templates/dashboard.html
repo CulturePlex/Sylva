@@ -23,9 +23,9 @@
               <div class="content3-block">
 
 <div class="dashboard-graphs">
-  <a class="button" href="{% url graph_create %}">{% trans "New Graph" %}</a>
+  <a id="newGraph" class="button" href="{% url graph_create %}">{% trans "New Graph" %}</a>
   <input name="q" maxlength="100" placeholder="{% trans "Filter" %}..." type="text" class="filterBox" id="graphs-filter">
-<h2>{% trans "Graphs" %}</h2>
+<h2 id="graphsTitle">{% trans "Graphs" %}</h2>
 <div class="graph-list">
 {% for graph in graphs %}
     {% graph_info graph %}
@@ -57,7 +57,7 @@
   </div>
   <div class="content-divider"></div>
   <div class="content3-block">
-    <h2 class="collect">{% trans "Collaborations" %}</h2>
+    <h2 id="collaborationsTitle" class="collect">{% trans "Collaborations" %}</h2>
 
     <div class="graph-list">
     {% for graph in collaborations %}
@@ -85,9 +85,21 @@
 
 <!-- Features Tour -->
 <ol id="tour" class="hidden">
-  <li data-id="graphs-filter" data-button="{% trans "Next" %}" class="position-graphs-filter">
+  <li data-id="newGraph" data-button="{% trans "Next" %}">
+    <h2>{% trans "Create a graph" %}</h2>
+    <p>{% trans "You can start creating a graph clicking on this button." %}</p>
+  </li>
+  <li data-id="graphsTitle" data-button="{% trans "Next" %}">
+    <h2>{% trans "Graphs" %}</h2>
+    <p>{% trans "Your personal graphs are listed in this section." %}</p>
+  </li>
+  <li data-id="collaborationsTitle" data-button="{% trans "Next" %}">
+    <h2>{% trans "Collaborations" %}</h2>
+    <p>{% trans "The graphs where you are a collaborator are listed here." %}</p>
+  </li>
+  <li data-id="graphs-filter" data-button="{% trans "Finish" %}" class="position-graphs-filter">
     <h2>{% trans "Search" %}</h2>
-    <p>{% trans "You can quickly search your graphs with just typing the name." %}</p>
+    <p>{% trans "You can quickly filter all your graphs with just typing the name." %}</p>
   </li>
 </ol>
 
