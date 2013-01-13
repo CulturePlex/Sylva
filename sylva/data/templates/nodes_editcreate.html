@@ -183,132 +183,134 @@
 <script type="text/javascript" src="{{ STATIC_PREFIX }}js/jquery.tokeninput.js"></script>
 <script type="text/javascript">
     (function($) {
-        // Outgoing
-        {% for prefix, outgoing_formset in outgoing_formsets.items %}
-        var init_{{ prefix }} = function() {
-            $("div#{{ prefix }}").formset({
-                prefix: "{{ prefix }}",
-                addCssClass: "addButton inFormsets",
-                addText: "{% trans "Add" %} {{ outgoing_formset.itemtype.name }} ({{ outgoing_formset.itemtype.target.name }})",
-                extraClasses: ["row1", "row2"],
-                added: function(row) {$("#{{prefix}} p:last label").hide(); nodeAutocomplete(row.find("input.autocomplete"));},
-                deleteCssClass: "delete-rowup{% if outgoing_formset.itemtype.properties.count %}Props{% endif %}",
-                deleteText: "&nbsp;"
+        $(function() {
+            // Outgoing
+            {% for prefix, outgoing_formset in outgoing_formsets.items %}
+            var init_{{ prefix }} = function() {
+                $("div#{{ prefix }}").formset({
+                    prefix: "{{ prefix }}",
+                    addCssClass: "addButton inFormsets",
+                    addText: "{% trans "Add" %} {{ outgoing_formset.itemtype.name }} ({{ outgoing_formset.itemtype.target.name }})",
+                    extraClasses: ["row1", "row2"],
+                    added: function(row) {$("#{{prefix}} p:last label").hide(); nodeAutocomplete(row.find("input.autocomplete"));},
+                    deleteCssClass: "delete-rowup{% if outgoing_formset.itemtype.properties.count %}Props{% endif %}",
+                    deleteText: "&nbsp;"
+                });
+            };
+            $("#{{ prefix }} p:last label").hide();
+            init_{{ prefix }}();
+            $("#{{ prefix }} p:last label").hide();
+            {% endfor %}
+            // Incoming
+            {% for prefix, incoming_formset in incoming_formsets.items %}
+            var init_{{ prefix }} = function() {
+                var label = "{% if incoming_formset.itemtype.inverse %}{{ incoming_formset.itemtype.inverse }}{% else %}{{ incoming_formset.itemtype.name }}{% endif %}";
+                $("div#{{ prefix }}").formset({
+                    prefix: "{{ prefix }}",
+                    addCssClass: "addButton inFormsets",
+                    addText: "{% trans "Add" %} "+ label,  // +" ({{ incoming_formset.itemtype.source.name }})",
+                    extraClasses: ["row1", "row2"],
+                    added: function(row) {$("#{{prefix}} p:last label").hide(); nodeAutocomplete(row.find("input.autocomplete"));},
+                    deleteCssClass: "delete-rowup{% if incoming_formset.itemtype.properties.count %}Props{% endif %}",
+                    deleteText: "&nbsp;"
+                });
+            };
+            $("#{{ prefix }} p:last label").hide();
+            init_{{ prefix }}();
+            $("#{{ prefix }} p:last label").hide();
+            {% endfor %}
+            // Files
+            var init{{ mediafile_formset.prefix }} = function() {
+                $("div#{{ mediafile_formset.prefix }}").formset({
+                    prefix: "{{ mediafile_formset.prefix }}",
+                    addCssClass: "addButton inFormsets",
+                    addText: "{% trans "Add File" %}",
+                    extraClasses: ["row1", "row2"],
+                    added: function(row) {$("#{{ mediafile_formset.prefix }} p:last label").hide();},
+                    deleteCssClass: "delete-rowupFiles",
+                    deleteText: "&nbsp;"
+                });
+            };
+            $("#{{ mediafile_formset.prefix }} p:last label").hide();
+            init{{ mediafile_formset.prefix }}();
+            // Links
+            init{{ medialink_formset.prefix }} = function() {
+                $("div#{{ medialink_formset.prefix }}").formset({
+                    prefix: "{{ medialink_formset.prefix }}",
+                    addCssClass: "addButton inFormsets",
+                    addText: "{% trans "Add Link" %}",
+                    extraClasses: ["row1", "row2"],
+                    added: function(row) {$("#{{ medialink_formset.prefix }} p:last label").hide();},
+                    deleteCssClass: "delete-rowupLinks",
+                    deleteText: "&nbsp;"
+                });
+            };
+            $("#{{ medialink_formset.prefix }} p:last label").hide();
+            init{{ medialink_formset.prefix }}();
+            // Enable the deletion of initial forms
+            $(".initial-form").on("click", function(e) {
+                // $(this).siblings("p:last").children("input[type='checkbox']").attr("checked", "checked");
+                // $(this).parents("div.initial").hide();
+                var $this = $(this);
+                var $parent = $this.parent();
+                $parent.find("input:checkbox[id $= -DELETE]").val("on").attr("checked", "checked");
+                $this.hide();
+                $parent.hide();
             });
-        };
-        $("#{{ prefix }} p:last label").hide();
-        init_{{ prefix }}();
-        $("#{{ prefix }} p:last label").hide();
-        {% endfor %}
-        // Incoming
-        {% for prefix, incoming_formset in incoming_formsets.items %}
-        var init_{{ prefix }} = function() {
-            var label = "{% if incoming_formset.itemtype.inverse %}{{ incoming_formset.itemtype.inverse }}{% else %}{{ incoming_formset.itemtype.name }}{% endif %}";
-            $("div#{{ prefix }}").formset({
-                prefix: "{{ prefix }}",
-                addCssClass: "addButton inFormsets",
-                addText: "{% trans "Add" %} "+ label,  // +" ({{ incoming_formset.itemtype.source.name }})",
-                extraClasses: ["row1", "row2"],
-                added: function(row) {$("#{{prefix}} p:last label").hide(); nodeAutocomplete(row.find("input.autocomplete"));},
-                deleteCssClass: "delete-rowup{% if incoming_formset.itemtype.properties.count %}Props{% endif %}",
-                deleteText: "&nbsp;"
+            // For old browsers
+            $(".initial-form").parents("div.initial").each(function(i, form) {
+                $(form).children("p:last").hide();
             });
-        };
-        $("#{{ prefix }} p:last label").hide();
-        init_{{ prefix }}();
-        $("#{{ prefix }} p:last label").hide();
-        {% endfor %}
-        // Files
-        var init{{ mediafile_formset.prefix }} = function() {
-            $("div#{{ mediafile_formset.prefix }}").formset({
-                prefix: "{{ mediafile_formset.prefix }}",
-                addCssClass: "addButton inFormsets",
-                addText: "{% trans "Add File" %}",
-                extraClasses: ["row1", "row2"],
-                added: function(row) {$("#{{ mediafile_formset.prefix }} p:last label").hide();},
-                deleteCssClass: "delete-rowupFiles",
-                deleteText: "&nbsp;"
-            });
-        };
-        $("#{{ mediafile_formset.prefix }} p:last label").hide();
-        init{{ mediafile_formset.prefix }}();
-        // Links
-        init{{ medialink_formset.prefix }} = function() {
-            $("div#{{ medialink_formset.prefix }}").formset({
-                prefix: "{{ medialink_formset.prefix }}",
-                addCssClass: "addButton inFormsets",
-                addText: "{% trans "Add Link" %}",
-                extraClasses: ["row1", "row2"],
-                added: function(row) {$("#{{ medialink_formset.prefix }} p:last label").hide();},
-                deleteCssClass: "delete-rowupLinks",
-                deleteText: "&nbsp;"
-            });
-        };
-        $("#{{ medialink_formset.prefix }} p:last label").hide();
-        init{{ medialink_formset.prefix }}();
-        // Enable the deletion of initial forms
-        $(".initial-form").on("click", function(e) {
-            // $(this).siblings("p:last").children("input[type='checkbox']").attr("checked", "checked");
-            // $(this).parents("div.initial").hide();
-            var $this = $(this);
-            var $parent = $this.parent();
-            $parent.find("input:checkbox[id $= -DELETE]").val("on").attr("checked", "checked");
-            $this.hide();
-            $parent.hide();
-        });
-        // For old browsers
-        $(".initial-form").parents("div.initial").each(function(i, form) {
-            $(form).children("p:last").hide();
-        });
-        // For the properties of the relationships
-        $(".toggleProperties").live("click", function (e) {
-            $(this).parents("p").siblings("p").toggle();
-            var last = $(this).parents("p").siblings("p:last");
-            if (last.parent().hasClass("initial") || last.parent().hasClass("dynamic-form")) {
-                last.hide();
-            }
-        });
-        // Enabling autocomplete for nodes
-        var nodeAutocomplete = function(input) {
-            var params = {}, $input = $(input);
-            if ($input.attr("class")) {
-                if ($input.attr("class").indexOf(" ") > 0) {
-                    params = {
-                        queryParam: $input.attr("data-type"),
-                        minChars: 2,
-                        propertyToSearch: "display",
-                        tokenLimit: 1,
-                        preventDuplicates: true,
-                        tokenValue: "id",
-                        prePopulate: [{
-                            id: $input.val(),
-                            display: $input.attr("class").split(" ").slice(1).join(" ")
-                        }]
-                    };
-                } else {
-                    params = {
-                        queryParam: $input.attr("data-type"),
-                        minChars: 2,
-                        propertyToSearch: "display",
-                        tokenLimit: 1,
-                        preventDuplicates: true,
-                        tokenValue: "id"
-                    };
+            // For the properties of the relationships
+            $(".toggleProperties").live("click", function (e) {
+                $(this).parents("p").siblings("p").toggle();
+                var last = $(this).parents("p").siblings("p:last");
+                if (last.parent().hasClass("initial") || last.parent().hasClass("dynamic-form")) {
+                    last.hide();
                 }
-                $input.tokenInput("{% url nodes_lookup graph.slug %}", params);
-            }
-        };
+            });
+            // Enabling autocomplete for nodes
+            var nodeAutocomplete = function(input) {
+                var params = {}, $input = $(input);
+                if ($input.attr("class")) {
+                    if ($input.attr("class").indexOf(" ") > 0) {
+                        params = {
+                            queryParam: $input.attr("data-type"),
+                            minChars: 2,
+                            propertyToSearch: "display",
+                            tokenLimit: 1,
+                            preventDuplicates: true,
+                            tokenValue: "id",
+                            prePopulate: [{
+                                id: $input.val(),
+                                display: $input.attr("class").split(" ").slice(1).join(" ")
+                            }]
+                        };
+                    } else {
+                        params = {
+                            queryParam: $input.attr("data-type"),
+                            minChars: 2,
+                            propertyToSearch: "display",
+                            tokenLimit: 1,
+                            preventDuplicates: true,
+                            tokenValue: "id"
+                        };
+                    }
+                    $input.tokenInput("{% url nodes_lookup graph.slug %}", params);
+                }
+            };
 
-        $(".autocomplete").each(function(i, input) {
-            nodeAutocomplete(input);
-        });
+            $(".autocomplete").each(function(i, input) {
+                nodeAutocomplete(input);
+            });
 
-        // Selecting the type of relationships to show
-        $("#h2-relationships").change(function(e) {
-            var val = $(this).val();
-            $(".all-relationships").hide();
-            $("."+ val +"-relationships").show();
+            // Selecting the type of relationships to show
+            $("#h2-relationships").change(function(e) {
+                var val = $(this).val();
+                $(".all-relationships").hide();
+                $("."+ val +"-relationships").show();
+            });
         });
-    })(jQuery);
+    }(jQuery));
 </script>
 {% endblock %}
