@@ -219,14 +219,14 @@
             });
             $("#itemType table.itemtype-properties-table tbody.dynamic").append($("#advancedMode"));
             $("#advancedModeButton").click(function() {
-                var $hidden = $(".hidden");
-                if ($hidden.is(":visible")) {
+                var $hiddens = $(".formset .hidden");
+                if ($hiddens.is(":visible")) {
                     $(this).html("{% trans "Advanced Mode" %}");
-                    $hidden.hide()
+                    $hiddens.hide();
                     $(".itemtype-properties-table textarea").removeClass("expand");
                 } else {
                     $(this).html("{% trans "Regular Mode" %}");
-                    $hidden.show();
+                    $hiddens.show();
                     $(".itemtype-properties-table textarea").addClass("expand");
                 }
             });
