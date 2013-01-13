@@ -1944,54 +1944,54 @@ body :hover > a.headerlink {
     font-family: Arial, Helvetica, sans-serif;
 }
 
-.position-graphs-filter {
+.joyride-position-graphs-filter {
     margin-left: -21px;
 }
 
-.position-new-graph-name {
+.joyride-position-new-graph-name {
     margin-top: -23px;
     margin-left: 23px;
 }
 
-.position-new-graph-description {
+.joyride-position-new-graph-description {
     margin-top: 8px;
     margin-left: 23px;
 }
 
-.position-new-graph-public {
+.joyride-position-new-graph-public {
     margin-left: -31px;
     margin-top: 16px;
 }
 
-.position-schema-export {
+.joyride-position-schema-export {
     margin-left: -15px;
 }
 
-.position-schema-overview {
+.joyride-position-schema-overview {
     top: 0 !important;
     left: 160px !important;
 }
 
-.position-remove-schema-property {
+.joyride-position-remove-schema-property {
     margin-top: -62px;
     margin-left: -307px;
 }
 
-.position-data-properties,
-.position-data-relationships,
-.position-data-files {
+.joyride-position-data-properties,
+.joyride-position-data-relationships,
+.joyride-position-data-files {
     top: 148px !important;
 }
 
-.position-data-links {
+.joyride-position-data-links {
     top: 356px !important;
 }
 
-.position-data-relationship-input {
+.joyride-position-data-relationship-input {
     top: 226px !important;
 }
 
-.position-data-more-relationships {
+.joyride-position-data-more-relationships {
     top: 253px !important;
 }
 
