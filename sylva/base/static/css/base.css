@@ -1977,4 +1977,22 @@ body :hover > a.headerlink {
     margin-left: -307px;
 }
 
+.position-data-properties,
+.position-data-relationships,
+.position-data-files {
+    top: 148px !important;
+}
+
+.position-data-links {
+    top: 356px !important;
+}
+
+.position-data-relationship-input {
+    top: 226px !important;
+}
+
+.position-data-more-relationships {
+    top: 253px !important;
+}
+
 /* END jQuery Joyride Feature Tours */

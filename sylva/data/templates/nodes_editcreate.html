@@ -28,7 +28,7 @@
 <form action="." method="POST" enctype="multipart/form-data">
 {% csrf_token %}
     <div class="content{% if outgoing_formsets or incoming_formsets %}3-block{% else %}2-first{% endif %}">
-        <h2>{% trans "Properties" %}</h2>
+        <h2 id="propertiesTitle">{% trans "Properties" %}</h2>
         {% for field in node_form %}
             <p {% if field.name in fields_to_hide and not field.value %}class="hidden"{% endif %}>
             {{ field.errors }}
@@ -139,7 +139,7 @@
     {% endif %}
     <div class="content-divider"></div>
     <div class="content{% if outgoing_formsets or incoming_formsets %}3-block{% else %}2-second{% endif %}">
-        <h2>{% trans "Files" %}</h2>
+        <h2 id="filesTitle">{% trans "Files" %}</h2>
         {{ mediafile_formset.management_form }}
         {% for mediafile_form in mediafile_formset.forms %}
             {% if forloop.last %}
@@ -153,7 +153,7 @@
                 </div>
             {% endif %}
         {% endfor %}
-        <h2>{% trans "Links" %}</h2>
+        <h2 id="linksTitle">{% trans "Links" %}</h2>
         {{ medialink_formset.management_form }}
         {% for medialink_form in medialink_formset.forms %}
             {% if forloop.last %}
@@ -170,7 +170,37 @@
     </div>
 </form>
 </div>
+
+<!-- Features Tour -->
+<ol id="tour" class="hidden">
+  <li data-id="propertiesTitle" data-button="{% trans "Next" %}" class="position-data-properties">
+    <h2>{% trans "Properties" %}</h2>
+    <p>{% trans "The properties fields of this Type." %}</p>
+  </li>
+  <li data-id="h2-relationships" data-button="{% trans "Next" %}" class="position-data-relationships">
+    <h2>{% trans "Relationships" %}</h2>
+    <p>{% trans "By default, all the allowed relationships are showed. Clicking on this box, you can filter by other criteria." %}</p>
+  </li>
+  <li data-class="token-input-input-token" data-button="{% trans "Next" %}" class="position-data-relationship-input">
+    <h2>{% trans "Create relationship" %}</h2>
+    <p>{% trans "Start typing the label of a node to show it." %}</p>
+  </li>
+  <li data-class="addButton" data-button="{% trans "Next" %}" class="position-data-more-relationships">
+    <h2>{% trans "More relationships" %}</h2>
+    <p>{% trans "You can create more relationships of this type." %}</p>
+  </li>
+  <li data-id="filesTitle" data-button="{% trans "Next" %}" class="position-data-files">
+    <h2>{% trans "Files" %}</h2>
+    <p>{% trans "You can add files to this Type." %}</p>
+  </li>
+  <li data-id="linksTitle" data-button="{% trans "Finish" %}" class="position-data-links">
+    <h2>{% trans "Links" %}</h2>
+    <p>{% trans "Also you can add links." %}</p>
+  </li>
+</ol>
+
 {% endblock %}
+
 {% block extra_scripts %}
     {{ node_form.media }}
     {% for prefix, outgoing_formset in outgoing_formsets.items %}
