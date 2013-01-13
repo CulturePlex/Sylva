@@ -204,30 +204,29 @@
             }
         };
 
-        var init = function() {
-            $("#itemType tbody tr.formset").formset({
-                prefix: "properties",
-                addCssClass: "addButton",
-                addText: "{% trans "Add Property" %}",
-                deleteText: "{% trans "Remove" %}",
-                extraClasses: ["row1", "row2"],
-                added: rowAdded
-            });
-            $("#itemType table.itemtype-properties-table tbody.dynamic").append($("#advancedMode"));
-            $("#advancedModeButton").click(function() {
-                var $hiddens = $(".formset .hidden");
-                if ($hiddens.is(":visible")) {
-                    $(this).html("{% trans "Advanced Mode" %}");
-                    $hiddens.hide();
-                    $(".itemtype-properties-table textarea").removeClass("expand");
-                } else {
-                    $(this).html("{% trans "Regular Mode" %}");
-                    $hiddens.show();
-                    $(".itemtype-properties-table textarea").addClass("expand");
-                }
-            });
-        };
-        init();
+        $("#itemType tbody tr.formset").formset({
+            prefix: "properties",
+            addCssClass: "addButton",
+            addText: "{% trans "Add Property" %}",
+            deleteText: "{% trans "Remove" %}",
+            extraClasses: ["row1", "row2"],
+            added: rowAdded
+        });
+
+        $("#itemType table.itemtype-properties-table tbody.dynamic").append($("#advancedMode"));
+
+        $("#advancedModeButton").click(function() {
+            var $hiddens = $(".formset .hidden");
+            if ($hiddens.is(":visible")) {
+                $(this).html("{% trans "Advanced Mode" %}");
+                $hiddens.hide();
+                $(".itemtype-properties-table textarea").removeClass("expand");
+            } else {
+                $(this).html("{% trans "Regular Mode" %}");
+                $hiddens.show();
+                $(".itemtype-properties-table textarea").addClass("expand");
+            }
+        });
     })(jQuery);
 </script>
 {% endblock %}
