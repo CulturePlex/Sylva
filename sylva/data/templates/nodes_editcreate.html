@@ -185,7 +185,7 @@
     (function($) {
         // Outgoing
         {% for prefix, outgoing_formset in outgoing_formsets.items %}
-        init_{{ prefix }} = function() {
+        var init_{{ prefix }} = function() {
             $("div#{{ prefix }}").formset({
                 prefix: "{{ prefix }}",
                 addCssClass: "addButton inFormsets",
@@ -202,7 +202,7 @@
         {% endfor %}
         // Incoming
         {% for prefix, incoming_formset in incoming_formsets.items %}
-        init_{{ prefix }} = function() {
+        var init_{{ prefix }} = function() {
             var label = "{% if incoming_formset.itemtype.inverse %}{{ incoming_formset.itemtype.inverse }}{% else %}{{ incoming_formset.itemtype.name }}{% endif %}";
             $("div#{{ prefix }}").formset({
                 prefix: "{{ prefix }}",
@@ -219,7 +219,7 @@
         $("#{{ prefix }} p:last label").hide();
         {% endfor %}
         // Files
-        init{{ mediafile_formset.prefix }} = function() {
+        var init{{ mediafile_formset.prefix }} = function() {
             $("div#{{ mediafile_formset.prefix }}").formset({
                 prefix: "{{ mediafile_formset.prefix }}",
                 addCssClass: "addButton inFormsets",
@@ -269,7 +269,7 @@
             }
         });
         // Enabling autocomplete for nodes
-        nodeAutocomplete = function(input) {
+        var nodeAutocomplete = function(input) {
             var params = {}, $input = $(input);
             if ($input.attr("class")) {
                 if ($input.attr("class").indexOf(" ") > 0) {
@@ -297,10 +297,14 @@
                 }
                 $input.tokenInput("{% url nodes_lookup graph.slug %}", params);
             }
-        }
-        $(".autocomplete").each(function(i, input) {nodeAutocomplete(input);});
+        };
+
+        $(".autocomplete").each(function(i, input) {
+            nodeAutocomplete(input);
+        });
+
         // Selecting the type of relationships to show
-        $("#h2-relationships").change(function (e) {
+        $("#h2-relationships").change(function(e) {
             var val = $(this).val();
             $(".all-relationships").hide();
             $("."+ val +"-relationships").show();
