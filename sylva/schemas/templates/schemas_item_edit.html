@@ -198,13 +198,9 @@
 <script type="text/javascript">
     (function($) {
         var rowAdded = function(row) {
-            // FIXME: The class "hidden" is not properly set in new rows
-            //        added dynamically.
-            var $hidden = $(".hidden");
-            if ($hidden.is(":visible")) {
-                $(row).add(".hidden").show();
-            } else {
-                //$(row).add(".hidden").hide();
+            var $hiddens = $(".formset .hidden");
+            if ($hiddens.is(":visible")) {
+                $hiddens.show();
             }
         };
 
