@@ -102,6 +102,7 @@ clearTimeout:true */
 
     // Update node legend.
     sylv.Utils.updateNodeLegend(nodeId, nodeName, 'element-info', htmlContent);
+    $('#element-info div').hide();
 
   }
 
