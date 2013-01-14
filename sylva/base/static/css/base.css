@@ -1995,4 +1995,10 @@ body :hover > a.headerlink {
     top: 253px !important;
 }
 
+.joyride-position-graph-pause {
+    margin-left: 790px;
+    margin-top: -100px;
+}
+
+
 /* END jQuery Joyride Feature Tours */

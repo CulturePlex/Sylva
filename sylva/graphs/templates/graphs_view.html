@@ -85,7 +85,39 @@
     </div>
 </div>
 {% graph_info graph "show_edit" %}
-{% endblock %}
+
+<!-- Features Tour -->
+<ol id="tour" class="hidden">
+  <li data-id="visualization-type" data-button="{% trans "Next" %}">
+    <h2>{% trans "Visualization" %}</h2>
+    <p>{% trans "You can choose from two different views in order to visualize the graph:" %}
+      <dl>
+        <dt>{% trans "Inspect graph" %}</dt>
+        <dd>{% trans "Choose this view to visualize small graphs in detail." %}</dd>
+        <dt>{% trans "Whole graph" %}</dt>
+        <dd>{% trans "This is the recommended view to visualize big/medium graphs (those with more than 50 nodes)." %}</dd>
+      </dl>
+    </p>
+  </li>
+  <li data-id="canvas-info" data-button="{% trans "Next" %}" data-options="tipLocation:right">
+    <h2>{% trans "Nodes info" %}</h2>
+    <p>{% trans "Clicking on a node, you will show some useful info inside this panel. For example:" %}
+      <dl>
+        <dt>{% trans "Color legend" %}</dt>
+        <dd>{% trans "Useful to identify the different types of node from the graph." %}</dd>
+        <dt>{% trans "Related nodes" %}</dt>
+        <dd>{% trans "Clicking on this link, you will show a partial graph with just the related nodes to the one selected." %}</dd>
+      </dl>
+    </p>
+  </li>
+  <li data-class="graph-title" data-button="{% trans "Finish" %}" data-options="nubPosition:right" class="joyride-position-graph-pause">
+    <h2>{% trans "Pause" %}</h2>
+    <p>{% trans "You can use this button to pause/run the rendering of the graph." %}
+    </p>
+  </li>
+</ol>
+
+{% endblock content %}
 
 {% block extra_scripts %}
 <script type="text/javascript">
