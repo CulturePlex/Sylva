@@ -110,7 +110,7 @@
         <div class="content3-block">
             <div>
                 <a href="{% url nodes_edit graph.slug node.id %}" title="{% trans "Edit" %}"><i class="sylva-icon-edit-node16"></i></a>
-                <h2 class="inline">{% trans "Files" %}</h2>
+                <h2 id="filesTitle" class="inline">{% trans "Files" %}</h2>
                 {% if media_files %}
                     <dl>
                         {% for file in media_files %}
@@ -122,7 +122,7 @@
             </div>
             <div>
                 <a href="{% url nodes_edit graph.slug node.id %}" title="{% trans "Edit" %}"><i class="sylva-icon-edit-node16"></i></a>
-                <h2 class="inline">{% trans "Links" %}</h2>
+                <h2 id="linksTitle" class="inline">{% trans "Links" %}</h2>
                 {% if media_links %}
                     <dl>
                         {% for link in media_links %}
@@ -134,6 +134,25 @@
             </div>
         </div>
     </div>
+    <!-- Features Tour -->
+    <ol id="tour" class="hidden">
+        <li data-class="node-properties" data-button="{% trans "Next" %}">
+            <h2>{% trans "Node properties" %}</h2>
+            <p>{% trans "Here is the list of properties of this node." %}</p>
+        </li>
+        <li data-id="h2-relationships" data-button="{% trans "Next" %}">
+            <h2>{% trans "Relationships" %}</h2>
+            <p>{% trans "Here is the list of relationships related to this node." %}</p>
+        </li>
+        <li data-class="relationship" data-button="{% trans "Next" %}">
+            <h2>{% trans "Relationship details" %}</h2>
+            <p>{% trans "Clicking on the relationship, you will see its properties (in case they exist)." %}</p>
+        </li>
+        <li data-id="filesTitle" data-button="{% trans "Finish" %}">
+            <h2>{% trans "Multimedia" %}</h2>
+            <p>{% trans "You can also show the meta-contents stored in this node: files and links." %}</p>
+        </li>
+    </ol>
 {% endblock content %}
 {% block extra_scripts %}
     <script type="text/javascript">
