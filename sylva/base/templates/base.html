@@ -127,22 +127,27 @@
       <script type="text/javascript">
         // global namespace
         var sylv = {};
-        sylv.MEDIA_URL = {{ STATIC_PREFIX }};
+        sylv.MEDIA_URL = "{{ STATIC_PREFIX }}";
       </script>
 
       <script type="text/javascript">
         (function($) {
-          setTimeout(function() {
-            $('header .success').first().parent().fadeOut(1000, function() {
-              $(this).remove();
-            });
-          }, 5000);
-        })(jQuery);
+          $(function() {
+            setTimeout(function() {
+              $('header .success')
+                .first()
+                .parent()
+                .fadeOut(1000, function() {
+                  $(this).remove();
+                });
+            }, 5000);
+          });
+        }(jQuery));
       </script>
 
       <script type="text/javascript">
         (function($) {
-          $(document).ready(function() {
+          $(function() {
 
             if ($('#tour').length !== 0) {
               $('#toggleTour')
