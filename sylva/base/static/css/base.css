@@ -1944,6 +1944,15 @@ body :hover > a.headerlink {
     font-family: Arial, Helvetica, sans-serif;
 }
 
+.joyride-tip-guide .joyride-next-tip {
+    background: #348E82;
+    border: solid 1px #348E82;
+}
+
+.joyride-next-tip:hover {
+    border: solid 1px #348E82 !important;
+}
+
 .joyride-position-graphs-filter {
     margin-left: -21px;
 }
