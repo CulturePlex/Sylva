@@ -91,7 +91,11 @@ sylv:true, alert:true */
         visualizations.processing();
       }
 
+      if (sylv.size === 0) {
+        alert(gettext("Your graph is empty"));
+      }
     });
+
     // Error handling.
     jqxhr.error(function() {
       alert(gettext("Oops! Something went wrong with the server. Please, reload the page."));
