@@ -185,6 +185,7 @@ INSTALLED_APPS = (
     'tools',
     'search',
     'operators',
+    'payments',
     'south',
 )
 
@@ -220,6 +221,10 @@ LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
     'handlers': {
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+        },
         'mail_admins': {
             'level': 'ERROR',
             'class': 'django.utils.log.AdminEmailHandler'
@@ -230,6 +235,11 @@ LOGGING = {
             'handlers': ['mail_admins'],
             'level': 'ERROR',
             'propagate': True,
+        },
+        'payments': {
+            'handlers': ['console'],
+            'level': "INFO",
+            'propagate': False,
         },
     }
 }
