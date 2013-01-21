@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from django.conf import settings
 from django.template import Library
 from django.utils.translation import gettext as _
 
@@ -28,7 +29,7 @@ def toolbar(context, on):
             'graph': context["graph"],
             'node_type': context.get("node_type", None),
             'search_form': search_form,
-            'ENABLE_CLONING': context.get("ENABLE_CLONING", None)}
+            'ENABLE_CLONING': settings.ENABLE_CLONING}
 
 
 @register.inclusion_tag('breadcrumb.html', takes_context=True)

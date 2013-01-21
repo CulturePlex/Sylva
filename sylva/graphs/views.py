@@ -2,7 +2,7 @@
 try:
     import ujson as json
 except ImportError:
-    import json
+    import json  # NOQA
 
 from django.db import transaction, IntegrityError
 from django.db.models import Q
@@ -88,9 +88,7 @@ def graph_view(request, graph_slug, node_id=None):
                               {"graph": graph,
                                "node": node,
                                "MAX_SIZE": settings.MAX_SIZE,
-                               "ajax_url": ajax_url,
-                               "ENABLE_CLONING": settings.ENABLE_CLONING
-                               },
+                               "ajax_url": ajax_url},
                               context_instance=RequestContext(request))
 
 
