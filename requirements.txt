@@ -29,3 +29,5 @@ simplejson==2.6.2
 six==1.2.0
 ujson==1.23
 wsgiref==0.1.2
+stripe==1.7.8
+git+git://github.com/Yaco-Sistemas/django-zebra.git
