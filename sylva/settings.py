@@ -315,3 +315,11 @@ OPTIONS = {
     "DEFAULT_FROM_EMAIL": DEFAULT_FROM_EMAIL,
     "ACTIVATION_EMAIL_BETA_MESSAGE": ACTIVATION_EMAIL_BETA_MESSAGE,
 }
+
+# django-zebra
+
+STRIPE_SECRET = ""  # set in local settings
+STRIPE_PUBLISHABLE = ""  # set in local settings
+
+ZEBRA_AUTO_CREATE_STRIPE_CUSTOMERS = False
+ZEBRA_CUSTOMER_MODEL = 'payments.StripeCustomer'
