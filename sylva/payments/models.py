@@ -55,7 +55,8 @@ class StripeCustomer(DatesModelBase, ZebraStripeCustomer):
             customer = stripe.Customer.create(card=self.card,
                                               email=str(self.user.email))
         except stripe.InvalidRequestError:
-            logger.error("Stripe: you must supply a valid card: %s" % self.card)
+            logger.error("payments: you must supply a valid card: %s"
+                                                        % self.card)
         if customer:
             self.stripe_customer_id = customer.id
             super(StripeCustomer, self).save(*args, **kwargs)

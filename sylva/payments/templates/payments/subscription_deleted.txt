@@ -1,0 +1,7 @@
+Hello {% if first_name %}{{ first_name }}{% else %}{{ username }}{% endif %},
+
+you have successfully unsubscribed for your SylvaDB Premium account.
+
+Thanks for using SylvaDB,
+
+The SylvaDB team
