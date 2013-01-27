@@ -1,6 +1,6 @@
 Hello {% if first_name %}{{ first_name }}{% else %}{{ username }}{% endif %},
 
-congratulations, you have successfully subscribed for a SylvaDB Premium account.
+congratulations, you have successfully subscribed for a SylvaDB {{ plan_name }} account.
 
 Thanks for using SylvaDB,
 

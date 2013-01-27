@@ -118,6 +118,7 @@ def process_subscription_deleted_event(sender, **kwargs):
 def process_stripe_event(event_type, subject, template, **kwargs):
     received = False
     customer = None
+    plan_name = ''
     full_json = kwargs.pop("full_json")
     if full_json:
         data = full_json.get("data")
@@ -125,6 +126,9 @@ def process_stripe_event(event_type, subject, template, **kwargs):
             obj = data.get("object")
             if obj:
                 stripe_customer_id = obj.get("customer")
+                plan = obj.get("plan")
+                if plan:
+                    plan_name = plan.get("name")
                 if stripe_customer_id:
                     received = True
                     try:
@@ -134,13 +138,13 @@ def process_stripe_event(event_type, subject, template, **kwargs):
                                                         % stripe_customer_id)
                     if customer:
                         email = customer['email']
-                        send_payments_email(email, subject, template)
+                        send_payments_email(email, plan_name, subject, template)
     if not received:
         logger.error("payments: JSON data for the Stripe Webhook '%s' "
                      "could not be processed." % (event_type))
 
 
-def send_payments_email(email, subject, template):
+def send_payments_email(email, plan_name, subject, template):
     user = None
     try:
         user = User.objects.get(email=email)
@@ -152,7 +156,8 @@ def send_payments_email(email, subject, template):
             'first_name': user.first_name,
             'last_name': user.last_name,
             'email': user.email,
-            'username': user.username
+            'username': user.username,
+            'plan_name': plan_name
         })
         fail_silently = not settings.DEBUG
         send_mail(subject, message, from_email, [user.email],
