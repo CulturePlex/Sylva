@@ -1,0 +1,19 @@
+[{
+    "pk": 1,
+    "model": "payments.stripeplan",
+    "fields": {
+        "date_created": "2013-01-27T12:29:55.991",
+        "account": 2,
+        "stripe_plan_id": "basic",
+        "date_modified": "2013-01-27T12:29:55.991"
+    }
+}, {
+    "pk": 2,
+    "model": "payments.stripeplan",
+    "fields": {
+        "date_created": "2013-01-27T12:30:03.009",
+        "account": 3,
+        "stripe_plan_id": "premium",
+        "date_modified": "2013-01-27T12:30:03.009"
+    }
+}]
