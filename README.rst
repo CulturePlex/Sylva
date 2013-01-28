@@ -52,8 +52,9 @@ you must create a database. In developing stage, we use SQLite::
 
   $ cd $HOME
   $ cd sylva/sylva
-  $ python manage.py syncdb
+  $ python manage.py syncdb --noinput
   $ python manage.py migrate
+  $ python manage.py createsuperuser
 
 And that is. If you run the project using the standalone development server of
 Django_, you could be able to access to the URL http://localhost:8000/::
