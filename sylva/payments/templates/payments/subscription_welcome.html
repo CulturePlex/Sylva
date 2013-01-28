@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}
+  {% trans "Congratulations" %}
+{% endblock title %}
+
+{% block content_title %}
+  <h1>{% trans "Congratulations" %}</h1>
+{% endblock content_title %}
+
+{% block content %}
+  <p>
+    <b>{% if user.first_name %}{{ user.first_name }}{% else %}{{ user.username }}{% endif %}</b>!
+    {% blocktrans %}You are now subscribed for a {{ account_name }} plan.{% endblocktrans %}
+  </p>
+  <br>
+  <a href="{% url dashboard %}">{% trans "Continue" %}</a>
+{% endblock content %}

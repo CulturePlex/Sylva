@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% load i18n zebra_tags %}
+
+{% block title %}
+  {% blocktrans %}{{ plan_name }} plan{% endblocktrans %}
+{% endblock title %}
+
+{% block content_title %}
+  <h1>{% blocktrans %}Subscribe for a {{ plan_name }} plan{% endblocktrans %}</h1>
+{% endblock content_title %}
+
+{% block content %}
+  <h3>{% trans "You can trust us: we don't store your credit card." %}</h3>
+  <p>{% trans "We use Stripe as a Payment gateway, so don't be afraid about your credit card. All your data will be encripted before sending it to Stripe's servers." %}</p>
+  <div class="form">
+    {% zebra_card_form %}
+  </div>
+{% endblock content %}
+
+{% block extra_scripts %}
+  {% zebra_head_and_stripe_key %}
+{% endblock extra_scripts %}

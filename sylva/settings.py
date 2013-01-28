@@ -185,6 +185,7 @@ INSTALLED_APPS = (
     'tools',
     'search',
     'operators',
+    'zebra',
     'payments',
     'south',
 )

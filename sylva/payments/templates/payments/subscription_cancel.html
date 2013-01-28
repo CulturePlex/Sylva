@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% load i18n zebra_tags %}
+
+{% block content %}
+  <h2>{% trans "You are going to cancel your subscription" %}</h2>
+  <form action="." method="post">{% csrf_token %}
+    {{ form.as_p }}
+    <input type="submit" value="{% trans "Unsubscribe" %}">
+  </form>
+{% endblock %}
+
+{% block extra_scripts %}
+  <script>
+    (function($) {
+      $(function() {
+        $('input[type=submit]').on('click', function(e) {
+          $(this).val('{% trans "Unsubscribing..." %}');
+        });
+      });
+    }(jQuery));
+  </script>
+{% endblock extra_scripts %}

@@ -3,7 +3,7 @@
     "model": "accounts.account",
     "fields": {
         "relationships": 10000,
-        "name": "Free account",
+        "name": "Free",
         "privacy": false,
         "storage": 10240,
         "graphs": 10,
