@@ -1,7 +1,7 @@
-Hello {% if first_name %}{{ first_name }}{% else %}{{ username }}{% endif %},
+{% load i18n %}{% blocktrans %}Hello {% if first_name %}{{ first_name }}{% else %}{{ username }}{% endif %},
 
 you have successfully unsubscribed for your SylvaDB {{ plan_name }} account.
 
 Thanks for using SylvaDB,
 
-The SylvaDB team
+The SylvaDB team{% endblocktrans %}
