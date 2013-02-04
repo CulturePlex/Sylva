@@ -11,6 +11,8 @@ from django.template.loader import render_to_string
 
 from accounts.models import Account
 
+from engines.models import Instance
+
 from zebra.models import StripeCustomer as ZebraStripeCustomer
 from zebra.models import StripePlan as ZebraStripePlan
 from zebra.models import StripeSubscription as ZebraStripeSubscription
@@ -41,8 +43,8 @@ class StripeCustomer(DatesModelBase, ZebraStripeCustomer):
     unsubscribed, and then subscribed again using both the same card and
     email, a new customer will be created on Stripe.
     '''
-    user = models.OneToOneField(User, verbose_name=_('User'),
-                                related_name='stripe_customer')
+    user = models.ForeignKey(User, verbose_name=_('User'),
+                             related_name='stripe_customers')
     card = models.CharField(max_length=50, blank=True, null=True)
 
     class Meta:
@@ -78,6 +80,10 @@ class StripeSubscription(DatesModelBase, ZebraStripeSubscription):
                                     related_name='stripe_subscription')
     plan = models.ForeignKey(StripePlan, verbose_name=_('Plan'),
                              related_name='stripe_subscriptions')
+    instance = models.OneToOneField(Instance,
+                                    verbose_name=_('Instance'),
+                                    related_name='stripe_subscription',
+                                    null=True)
 
     class Meta:
         verbose_name = _('StripeSubscription')
@@ -90,7 +96,7 @@ class StripeSubscription(DatesModelBase, ZebraStripeSubscription):
         super(StripeSubscription, self).save(*args, **kwargs)
 
     def __unicode__(self):
-        return u"%s: %s" % (self.customer, self.plan)
+        return u"%s (%s)" % (self.customer, self.plan)
 
     @property
     def stripe_customer(self):
