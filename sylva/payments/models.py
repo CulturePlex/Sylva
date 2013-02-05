@@ -52,15 +52,15 @@ class StripeCustomer(DatesModelBase, ZebraStripeCustomer):
         verbose_name_plural = _('StripeCustomers')
 
     def save(self, *args, **kwargs):
-        customer = None
+        stripe_customer = None
         try:
-            customer = stripe.Customer.create(card=self.card,
-                                              email=str(self.user.email))
+            stripe_customer = stripe.Customer.create(card=self.card,
+                                                     email=str(self.user.email))
         except stripe.InvalidRequestError:
             logger.error("payments: you must supply a valid card: %s"
                                                         % self.card)
-        if customer:
-            self.stripe_customer_id = customer.id
+        if stripe_customer:
+            self.stripe_customer_id = stripe_customer.id
             super(StripeCustomer, self).save(*args, **kwargs)
 
 
@@ -90,9 +90,9 @@ class StripeSubscription(DatesModelBase, ZebraStripeSubscription):
         verbose_name_plural = _('StripeSubscriptions')
 
     def save(self, *args, **kwargs):
-        customer = self.customer.stripe_customer
-        customer.update_subscription(plan=self.plan.stripe_plan_id,
-                                     prorate="True")
+        stripe_customer = self.customer.stripe_customer
+        stripe_customer.update_subscription(plan=self.plan.stripe_plan_id,
+                                            prorate="True")
         super(StripeSubscription, self).save(*args, **kwargs)
 
     def __unicode__(self):
