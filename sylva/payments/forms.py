@@ -5,7 +5,9 @@ from django.template.defaultfilters import slugify
 
 from zebra.forms import StripePaymentForm
 
-from payments.models import StripeCustomer, StripeSubscription, StripePlan
+from payments.models import (StripeCustomer, StripeSubscription, StripePlan,
+                             StripeCustomerException,
+                             StripeSubscriptionException)
 
 import stripe
 
@@ -15,10 +17,10 @@ logger = logging.getLogger('payments')
 
 class SubscriptionForm(StripePaymentForm):
 
-    def stripe_create_subscription(self, user, plan_name, default_error_message):
+    def stripe_create_subscription(self, user, plan_name):
         customer = None
         stripe_errors = False
-        error_message = default_error_message
+        error_message = ''
         stripe_token = self.cleaned_data['stripe_token']
         try:
             user.stripe_customer
@@ -29,24 +31,10 @@ class SubscriptionForm(StripePaymentForm):
                 plan = StripePlan.objects.get(stripe_plan_id=slugify(plan_name))
                 StripeSubscription.objects.create(customer=customer,
                                                   plan=plan)
-            except stripe.CardError, e:
+            except (StripeCustomerException,
+                    StripeSubscriptionException), e:
                 stripe_errors = True
-                error = e.json_body['error']
-                if error['code'] in ['missing', 'processing_error']:
-                    logger.info('payments: %s: (%s) %s' %
-                           (error['type'], error['code'], error['message']))
-                else:
-                    error_message = error['message']
-            except (stripe.InvalidRequestError,
-                    stripe.AuthenticationError,
-                    stripe.APIConnectionError,
-                    stripe.StripeError), e:
-                stripe_errors = True
-                error = e.json_body['error']
-                logger.info('payments: %s: %s' %
-                                    (error['type'], error['message']))
-                if stripe_errors and customer:
-                    customer.delete()
+                error_message = e.message
 
         return stripe_errors, error_message
 
@@ -64,7 +52,8 @@ class UnsubscriptionForm(forms.Form):
                 stripe.StripeError), e:
             stripe_errors = True
             error = e.json_body['error']
-            logger.info('payments: %s: %s' % (error['type'], error['message']))
+            logger.info('payments (subscription): %s: %s' %
+                                (error['type'], error['message']))
 
         return stripe_errors
 

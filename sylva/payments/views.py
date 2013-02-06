@@ -26,9 +26,8 @@ def subscription_create(request, plan_name=''):
                                                             % account_name))
         return redirect('dashboard')
     stripe_errors = False
-    error_message = ''
-    default_error_message = _('Sorry, an error occurred while processing the '
-                              'card. Your payment could not be processed.')
+    error_message = _('Sorry, an error occurred while processing the '
+                      'card. Your payment could not be processed.')
     form = SubscriptionForm()
     if request.method == 'POST':
         form = SubscriptionForm(request.POST)
@@ -37,11 +36,10 @@ def subscription_create(request, plan_name=''):
             try:
                 account = Account.objects.get(name=plan_name)
             except Account.DoesNotExist:
-                messages.error(request, default_error_message)
+                messages.error(request, error_message)
                 return redirect('dashboard')
             stripe_errors, error_message = \
-                        form.stripe_create_subscription(user, plan_name,
-                                                        default_error_message)
+                            form.stripe_create_subscription(user, plan_name)
             if stripe_errors:
                 messages.error(request, error_message)
             else:
@@ -91,7 +89,7 @@ def subscription_cancel(request):
                 profile.account = account
                 profile.save()
                 customer.delete()
-                messages.success(request, 'You have successfully unsubscribed')
+                messages.success(request, _('You have successfully unsubscribed'))
                 return redirect('dashboard')
     return render_to_response('payments/subscription_cancel.html',
                               {'form': form},

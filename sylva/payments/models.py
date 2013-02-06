@@ -34,8 +34,6 @@ class DatesModelBase(models.Model):
         abstract = True
 
 
-# Stripe integrations
-
 class StripeCustomer(DatesModelBase, ZebraStripeCustomer):
     '''
     A new customer is always created on Stripe, even using both the same
@@ -53,12 +51,34 @@ class StripeCustomer(DatesModelBase, ZebraStripeCustomer):
 
     def save(self, *args, **kwargs):
         stripe_customer = None
+        stripe_errors = False
+        error_message = _('Sorry, an error occurred while processing the '
+                          'card. Your payment could not be processed.')
         try:
             stripe_customer = stripe.Customer.create(card=self.card,
                                                      email=str(self.user.email))
-        except stripe.InvalidRequestError:
-            logger.error("payments: you must supply a valid card: %s"
-                                                        % self.card)
+        except stripe.CardError, e:
+            stripe_errors = True
+            error = e.json_body['error']
+            logger.info('payments (customer): %s: (%s) %s' %
+                               (error['type'], error['code'], error['message']))
+            if error['code'] not in ['missing', 'processing_error']:
+                error_message = error['message']
+        except (stripe.InvalidRequestError,
+                stripe.AuthenticationError,
+                stripe.APIConnectionError,
+                stripe.StripeError), e:
+            stripe_errors = True
+            error = e.json_body['error']
+            logger.info('payments (customer): %s: %s' %
+                                (error['type'], error['message']))
+        except Exception:
+            stripe_errors = True
+            logger.info('payments (customer): Unexpected error')
+
+        if stripe_errors:
+            raise StripeCustomerException(error_message)
+
         if stripe_customer:
             self.stripe_customer_id = stripe_customer.id
             super(StripeCustomer, self).save(*args, **kwargs)
@@ -90,9 +110,29 @@ class StripeSubscription(DatesModelBase, ZebraStripeSubscription):
         verbose_name_plural = _('StripeSubscriptions')
 
     def save(self, *args, **kwargs):
-        stripe_customer = self.customer.stripe_customer
-        stripe_customer.update_subscription(plan=self.plan.stripe_plan_id,
-                                            prorate="True")
+        customer = self.customer
+        stripe_customer = customer.stripe_customer
+        stripe_errors = False
+        error_message = _('Sorry, an error occurred while processing the '
+                          'card. Your payment could not be processed.')
+        try:
+            stripe_customer.update_subscription(plan=self.plan.stripe_plan_id,
+                                                prorate="True")
+        except (stripe.InvalidRequestError,
+                stripe.AuthenticationError,
+                stripe.APIConnectionError,
+                stripe.StripeError), e:
+            stripe_errors = True
+            error = e.json_body['error']
+            logger.info('payments (subscription): %s: %s' %
+                                (error['type'], error['message']))
+        except Exception:
+            stripe_errors = True
+            logger.info('payments (subscription): Unexpected error')
+
+        if stripe_errors:
+            raise StripeSubscriptionException(error_message)
+
         super(StripeSubscription, self).save(*args, **kwargs)
 
     def __unicode__(self):
@@ -101,6 +141,16 @@ class StripeSubscription(DatesModelBase, ZebraStripeSubscription):
     @property
     def stripe_customer(self):
         return self.customer.stripe_customer
+
+
+# Custom exceptions
+
+class StripeCustomerException(Exception):
+    pass
+
+
+class StripeSubscriptionException(Exception):
+    pass
 
 
 # Stripe Webhooks
