@@ -23,18 +23,15 @@ class SubscriptionForm(StripePaymentForm):
         error_message = ''
         stripe_token = self.cleaned_data['stripe_token']
         try:
-            user.stripe_customer
-        except StripeCustomer.DoesNotExist:
-            try:
-                customer = StripeCustomer.objects.create(user=user,
-                                                         card=stripe_token)
-                plan = StripePlan.objects.get(stripe_plan_id=slugify(plan_name))
-                StripeSubscription.objects.create(customer=customer,
-                                                  plan=plan)
-            except (StripeCustomerException,
-                    StripeSubscriptionException), e:
-                stripe_errors = True
-                error_message = e.message
+            customer = StripeCustomer.objects.create(user=user,
+                                                     card=stripe_token)
+            plan = StripePlan.objects.get(stripe_plan_id=slugify(plan_name))
+            StripeSubscription.objects.create(customer=customer,
+                                              plan=plan)
+        except (StripeCustomerException,
+                StripeSubscriptionException), e:
+            stripe_errors = True
+            error_message = e.message
 
         return stripe_errors, error_message
 

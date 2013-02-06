@@ -83,6 +83,19 @@ class StripeCustomer(DatesModelBase, ZebraStripeCustomer):
             self.stripe_customer_id = stripe_customer.id
             super(StripeCustomer, self).save(*args, **kwargs)
 
+    def delete(self, *args, **kwargs):
+        user = self.user
+        customers = user.stripe_customers.all()
+        if len(customers) == 1:
+            try:
+                profile = user.get_profile()
+                account = Account.objects.get(name='Free')
+                profile.account = account
+                profile.save()
+            except Exception:
+                pass
+        super(StripeCustomer, self).delete(*args, **kwargs)
+
 
 class StripePlan(DatesModelBase, ZebraStripePlan):
     account = models.OneToOneField(Account,
@@ -109,6 +122,13 @@ class StripeSubscription(DatesModelBase, ZebraStripeSubscription):
         verbose_name = _('StripeSubscription')
         verbose_name_plural = _('StripeSubscriptions')
 
+    def __unicode__(self):
+        return u"%s (%s)" % (self.customer, self.plan)
+
+    @property
+    def stripe_customer(self):
+        return self.customer.stripe_customer
+
     def save(self, *args, **kwargs):
         customer = self.customer
         stripe_customer = customer.stripe_customer
@@ -134,13 +154,6 @@ class StripeSubscription(DatesModelBase, ZebraStripeSubscription):
             raise StripeSubscriptionException(error_message)
 
         super(StripeSubscription, self).save(*args, **kwargs)
-
-    def __unicode__(self):
-        return u"%s (%s)" % (self.customer, self.plan)
-
-    @property
-    def stripe_customer(self):
-        return self.customer.stripe_customer
 
 
 # Custom exceptions
