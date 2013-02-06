@@ -131,12 +131,21 @@ class StripeSubscription(DatesModelBase, ZebraStripeSubscription):
 
     def save(self, *args, **kwargs):
         customer = self.customer
+        user = customer.user
         stripe_customer = customer.stripe_customer
         stripe_errors = False
         error_message = _('Sorry, an error occurred while processing the '
                           'card. Your payment could not be processed.')
+        profile = user.get_profile()
+        stripe_plan_id = self.plan.stripe_plan_id
+        plan_name = stripe_plan_id.capitalize()
+        customers = user.stripe_customers.exclude(stripe_subscription__isnull=True)
+        if len(customers) == 1:
+            if profile.account.name == plan_name == 'Basic':
+                customer.delete()
+                raise StripeSubscriptionException(error_message)
         try:
-            stripe_customer.update_subscription(plan=self.plan.stripe_plan_id,
+            stripe_customer.update_subscription(plan=stripe_plan_id,
                                                 prorate="True")
         except (stripe.InvalidRequestError,
                 stripe.AuthenticationError,
@@ -152,6 +161,14 @@ class StripeSubscription(DatesModelBase, ZebraStripeSubscription):
 
         if stripe_errors:
             raise StripeSubscriptionException(error_message)
+
+        if profile.account.name != plan_name:
+            try:
+                account = Account.objects.get(name=plan_name)
+                profile.account = account
+                profile.save()
+            except Account.DoesNotExist:
+                raise StripeSubscriptionException(error_message)
 
         super(StripeSubscription, self).save(*args, **kwargs)
 

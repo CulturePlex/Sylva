@@ -9,16 +9,13 @@ from django.utils.translation import ugettext_lazy as _
 
 from base.decorators import is_enable
 
-from accounts.models import Account
-
 from payments.forms import SubscriptionForm, UnsubscriptionForm
 
 
 @is_enable(settings.ENABLE_PAYMENTS)
 @login_required
-def subscription_create(request, plan_name=''):
+def subscription_edit_create(request, plan_name=''):
     user = request.user
-    profile = user.get_profile()
     stripe_errors = False
     error_message = _('Sorry, an error occurred while processing the '
                       'card. Your payment could not be processed.')
@@ -26,22 +23,13 @@ def subscription_create(request, plan_name=''):
     if request.method == 'POST':
         form = SubscriptionForm(request.POST)
         if form.is_valid():
-            account = None
-            try:
-                account = Account.objects.get(name=plan_name)
-            except Account.DoesNotExist:
-                messages.error(request, error_message)
-                return redirect('dashboard')
             stripe_errors, error_message = \
-                            form.stripe_create_subscription(user, plan_name)
+                        form.stripe_edit_create_subscription(user, plan_name)
             if stripe_errors:
                 messages.error(request, error_message)
             else:
-                profile = user.get_profile()
-                profile.account = account
-                profile.save()
                 return redirect('subscription_welcome')
-    return render_to_response('payments/subscription_create.html',
+    return render_to_response('payments/subscription_edit_create.html',
                               {'form': form,
                                'plan_name': plan_name,
                                'publishable': settings.STRIPE_PUBLISHABLE},

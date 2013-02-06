@@ -2,6 +2,7 @@ import logging
 
 from django import forms
 from django.template.defaultfilters import slugify
+from django.utils.translation import ugettext_lazy as _
 
 from zebra.forms import StripePaymentForm
 
@@ -17,21 +18,41 @@ logger = logging.getLogger('payments')
 
 class SubscriptionForm(StripePaymentForm):
 
-    def stripe_create_subscription(self, user, plan_name):
+    def stripe_edit_create_subscription(self, user, plan_name):
         customer = None
         stripe_errors = False
         error_message = ''
         stripe_token = self.cleaned_data['stripe_token']
+        customers = user.stripe_customers.all()
         try:
-            customer = StripeCustomer.objects.create(user=user,
-                                                     card=stripe_token)
             plan = StripePlan.objects.get(stripe_plan_id=slugify(plan_name))
-            StripeSubscription.objects.create(customer=customer,
-                                              plan=plan)
-        except (StripeCustomerException,
-                StripeSubscriptionException), e:
+        except StripePlan.DoesNotExist:
             stripe_errors = True
-            error_message = e.message
+            error_message = _('This plan does not exist')
+        if not stripe_errors:
+            subscription_updated = False
+            if len(customers) == 1:
+                customer = customers[0]
+                if user.get_profile().account.name != plan_name:
+                    subscription = customer.stripe_subscription
+                    subscription.plan = plan
+                    subscription.save()
+                    subscription_updated = True
+            elif len(customers) > 1 and plan_name == 'Basic':
+                stripe_errors = True
+                error_message = _('You need to cancel your Premium '
+                                  'subscriptions before subscribing for a '
+                                  'Basic plan')
+            if not stripe_errors and not subscription_updated:
+                try:
+                    customer = StripeCustomer.objects.create(user=user,
+                                                             card=stripe_token)
+                    StripeSubscription.objects.create(customer=customer,
+                                                      plan=plan)
+                except (StripeCustomerException,
+                        StripeSubscriptionException), e:
+                    stripe_errors = True
+                    error_message = e.message
 
         return stripe_errors, error_message
 
