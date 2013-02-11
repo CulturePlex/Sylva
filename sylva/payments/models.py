@@ -106,6 +106,9 @@ class StripePlan(DatesModelBase, ZebraStripePlan):
         verbose_name = _('StripePlan')
         verbose_name_plural = _('StripePlans')
 
+    def __unicode__(self):
+        return self.account.name
+
 
 class StripeSubscription(DatesModelBase, ZebraStripeSubscription):
     customer = models.OneToOneField(StripeCustomer,
