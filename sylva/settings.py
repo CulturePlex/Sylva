@@ -326,8 +326,15 @@ STRIPE_PUBLISHABLE = ""  # set in local settings
 ZEBRA_AUTO_CREATE_STRIPE_CUSTOMERS = False
 ZEBRA_CUSTOMER_MODEL = 'payments.StripeCustomer'
 
-PREMIUM_ID = "premium"
-PREMIUM_PRICE = "9.99"
-
-BASIC_ID = "basic"
-BASIC_PRICE = "4.99"
+STRIPE_PLANS = {
+    '2': {
+        'name': 'Basic',
+        'price': 4.99,
+        'account_type': 2
+    },
+    '3': {
+        'name': 'Premium',
+        'price': 9.99,
+        'account_type': 3
+    }
+}

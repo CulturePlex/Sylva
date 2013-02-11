@@ -14,7 +14,7 @@ from payments.forms import SubscriptionForm, UnsubscriptionForm
 
 @is_enabled(settings.ENABLE_PAYMENTS)
 @login_required
-def subscription_edit_create(request, plan_name=''):
+def subscription_edit_create(request, plan_id=''):
     user = request.user
     stripe_errors = False
     error_message = _('Sorry, an error occurred while processing the '
@@ -24,14 +24,14 @@ def subscription_edit_create(request, plan_name=''):
         form = SubscriptionForm(request.POST)
         if form.is_valid():
             stripe_errors, error_message = \
-                        form.stripe_edit_create_subscription(user, plan_name)
+                        form.stripe_edit_create_subscription(user, plan_id)
             if stripe_errors:
                 messages.error(request, error_message)
             else:
                 return redirect('subscription_welcome')
     return render_to_response('payments/subscription_edit_create.html',
                               {'form': form,
-                               'plan_name': plan_name,
+                               'plan_name': settings.STRIPE_PLANS[plan_id]['name'],
                                'publishable': settings.STRIPE_PUBLISHABLE},
                               context_instance=RequestContext(request))
 
@@ -69,12 +69,11 @@ def subscription_cancel(request):
 @login_required
 def subscription_welcome(request):
     user = request.user
-    profile = user.get_profile()
-    account_name = profile.account.name
-    is_subscribed = account_name == 'Basic' or account_name == 'Premium'
+    account = user.get_profile().account
+    is_subscribed = account.type != 1
     if not is_subscribed:
         return redirect('dashboard')
     return render_to_response('payments/subscription_welcome.html',
                               {'user': user,
-                               'account_name': account_name},
+                               'account_name': account.name},
                               context_instance=RequestContext(request))

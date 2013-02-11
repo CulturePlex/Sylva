@@ -1,7 +1,8 @@
+# -*- encoding: utf-8 -*-
 import logging
+import settings
 
 from django import forms
-from django.template.defaultfilters import slugify
 from django.utils.translation import ugettext_lazy as _
 
 from zebra.forms import StripePaymentForm
@@ -18,14 +19,14 @@ logger = logging.getLogger('payments')
 
 class SubscriptionForm(StripePaymentForm):
 
-    def stripe_edit_create_subscription(self, user, plan_name):
+    def stripe_edit_create_subscription(self, user, plan_id):
         customer = None
         stripe_errors = False
         error_message = ''
         stripe_token = self.cleaned_data['stripe_token']
         customers = user.stripe_customers.all()
         try:
-            plan = StripePlan.objects.get(stripe_plan_id=slugify(plan_name))
+            plan = StripePlan.objects.get(stripe_plan_id=plan_id)
         except StripePlan.DoesNotExist:
             stripe_errors = True
             error_message = _('This plan does not exist')
@@ -33,16 +34,18 @@ class SubscriptionForm(StripePaymentForm):
             subscription_updated = False
             if len(customers) == 1:
                 customer = customers[0]
-                if user.get_profile().account.name != plan_name:
+                account_type = settings.STRIPE_PLANS[plan_id]['account_type']
+                if user.get_profile().account.type != account_type:
                     subscription = customer.stripe_subscription
                     subscription.plan = plan
                     subscription.save()
                     subscription_updated = True
-            elif len(customers) > 1 and plan_name == 'Basic':
+            elif len(customers) > 1 and plan_id == '2':
                 stripe_errors = True
-                error_message = _('You need to cancel your Premium '
+                error_message = _('You need to cancel your %s '
                                   'subscriptions before subscribing for a '
-                                  'Basic plan')
+                                  '%s plan' % (settings.STRIPE_PLANS['3']['name'],
+                                               settings.STRIPE_PLANS['2']['name']))
             if not stripe_errors and not subscription_updated:
                 try:
                     customer = StripeCustomer.objects.create(user=user,

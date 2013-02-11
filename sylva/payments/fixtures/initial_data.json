@@ -4,7 +4,7 @@
     "fields": {
         "date_created": "2013-01-27T12:29:55.991",
         "account": 2,
-        "stripe_plan_id": "basic",
+        "stripe_plan_id": "2",
         "date_modified": "2013-01-27T12:29:55.991"
     }
 }, {
@@ -13,7 +13,7 @@
     "fields": {
         "date_created": "2013-01-27T12:30:03.009",
         "account": 3,
-        "stripe_plan_id": "premium",
+        "stripe_plan_id": "3",
         "date_modified": "2013-01-27T12:30:03.009"
     }
 }]

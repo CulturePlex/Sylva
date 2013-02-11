@@ -89,7 +89,7 @@ class StripeCustomer(DatesModelBase, ZebraStripeCustomer):
         if len(customers) == 1:
             try:
                 profile = user.get_profile()
-                account = Account.objects.get(name='Free')
+                account = Account.objects.get(type=1)
                 profile.account = account
                 profile.save()
             except Exception:
@@ -130,19 +130,20 @@ class StripeSubscription(DatesModelBase, ZebraStripeSubscription):
         return self.customer.stripe_customer
 
     def save(self, *args, **kwargs):
-        customer = self.customer
-        user = customer.user
-        stripe_customer = customer.stripe_customer
+        '''A customer can be subscribed for 1 Basic plan or N Premium plans'''
+        new_customer = self.customer
+        user = new_customer.user
+        stripe_customer = new_customer.stripe_customer
         stripe_errors = False
         error_message = _('Sorry, an error occurred while processing the '
                           'card. Your payment could not be processed.')
         profile = user.get_profile()
         stripe_plan_id = self.plan.stripe_plan_id
-        plan_name = stripe_plan_id.capitalize()
+        account_type = settings.STRIPE_PLANS[stripe_plan_id]['account_type']
         customers = user.stripe_customers.exclude(stripe_subscription__isnull=True)
-        if len(customers) == 1:
-            if profile.account.name == plan_name == 'Basic':
-                customer.delete()
+        if len(customers) == 1:  # the user is already subscribed for a plan
+            if profile.account.type == account_type == 2:  # is Basic plan
+                new_customer.delete()
                 raise StripeSubscriptionException(error_message)
         try:
             stripe_customer.update_subscription(plan=stripe_plan_id,
@@ -162,9 +163,9 @@ class StripeSubscription(DatesModelBase, ZebraStripeSubscription):
         if stripe_errors:
             raise StripeSubscriptionException(error_message)
 
-        if profile.account.name != plan_name:
+        if profile.account.type != account_type:
             try:
-                account = Account.objects.get(name=plan_name)
+                account = Account.objects.get(type=account_type)
                 profile.account = account
                 profile.save()
             except Account.DoesNotExist:
