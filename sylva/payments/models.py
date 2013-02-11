@@ -86,7 +86,7 @@ class StripeCustomer(DatesModelBase, ZebraStripeCustomer):
     def delete(self, *args, **kwargs):
         user = self.user
         customers = user.stripe_customers.all()
-        if len(customers) == 1:
+        if len(customers) <= 1:
             try:
                 profile = user.get_profile()
                 account = Account.objects.get(type=1)
