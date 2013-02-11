@@ -12,3 +12,14 @@ def is_enabled(setting=False, next='index'):
                 return redirect(next)
         return wraps(view)(_decorator)
     return _is_enabled
+
+
+def is_subscribed(view):
+    def _decorator(request, *args, **kwargs):
+        user = request.user
+        account = user.get_profile().account
+        is_subscribed = account.type != 1
+        if not is_subscribed:
+            return redirect('dashboard')
+        return view(request, *args, **kwargs)
+    return wraps(view)(_decorator)

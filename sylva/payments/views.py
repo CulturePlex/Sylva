@@ -7,7 +7,7 @@ from django.template import RequestContext
 from django.shortcuts import redirect
 from django.utils.translation import ugettext_lazy as _
 
-from base.decorators import is_enabled
+from base.decorators import is_enabled, is_subscribed
 
 from payments.forms import SubscriptionForm, UnsubscriptionForm
 
@@ -38,6 +38,7 @@ def subscription_edit_create(request, plan_id=''):
 
 @is_enabled(settings.ENABLE_PAYMENTS)
 @login_required
+@is_subscribed
 def subscription_cancel(request):
     user = request.user
     customer = None
@@ -67,12 +68,10 @@ def subscription_cancel(request):
 
 @is_enabled(settings.ENABLE_PAYMENTS)
 @login_required
+@is_subscribed
 def subscription_welcome(request):
     user = request.user
     account = user.get_profile().account
-    is_subscribed = account.type != 1
-    if not is_subscribed:
-        return redirect('dashboard')
     return render_to_response('payments/subscription_welcome.html',
                               {'user': user,
                                'account_name': account.name},
