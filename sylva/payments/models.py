@@ -144,6 +144,8 @@ class StripeSubscription(DatesModelBase, ZebraStripeSubscription):
         if len(customers) == 1:  # the user is already subscribed for a plan
             if profile.account.type == account_type == 2:  # is Basic plan
                 new_customer.delete()
+                error_message = _('You are already subscribed for a %s plan' %
+                                            settings.STRIPE_PLANS['2']['name'])
                 raise StripeSubscriptionException(error_message)
         try:
             stripe_customer.update_subscription(plan=stripe_plan_id,
