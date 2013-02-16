@@ -2,17 +2,60 @@
 {% load i18n %}
 
 {% block extra_links %}
+  <link rel="stylesheet" href="{{ STATIC_PREFIX }}bootstrap/css/bootstrap-custom.css">
 {% endblock extra_links %}
 
 {% block title %}
-  {% trans "Plans" %}
+  {% trans "Pricing Plans" %}
 {% endblock title %}
 
 {% block content_title %}
-  <h1>{% trans "Plans" %}</h1>
+  <h1>{% trans "Pricing Plans" %}</h1>
 {% endblock content_title %}
 
 {% block content %}
+  <div class="container">
+    <div class="row-fluid pricing">
+      <div class="span4 plan">
+        <h3>{% trans "Free" %}</h3>
+        <span>$0</span>
+        <ul>
+          <li>{% trans "Feature One" %}</li>
+          <li>{% trans "Feature Two" %}</li>
+          <li>{% trans "Feature Three" %}</li>
+          <li>{% trans "Feature Four" %}</li>
+        </ul>
+        <div class="empty">
+        </div>
+      </div>
+      <div class="span4 plan featured animate go-up">
+        <h3>{% trans "Basic" %}</h3>
+        <span>$4.99</span>
+        <ul>
+          <li>{% trans "Feature One" %}</li>
+          <li>{% trans "Feature Two" %}</li>
+          <li>{% trans "Feature Three" %}</li>
+          <li>{% trans "Feature Four" %}</li>
+        </ul>
+        <div>
+          <a href="#" class="btn btn-large">{% trans "Subscribe Now" %}</a>
+        </div>
+      </div>
+      <div class="span4 plan featured animate go-up">
+        <h3>{% trans "Premium" %}</h3>
+        <span>$9.99</span>
+        <ul>
+          <li>{% trans "Feature One" %}</li>
+          <li>{% trans "Feature Two" %}</li>
+          <li>{% trans "Feature Three" %}</li>
+          <li>{% trans "Feature Four" %}</li>
+        </ul>
+        <div>
+          <a href="#" class="btn btn-large">{% trans "Subscribe Now" %}</a>
+        </div>
+      </div>
+    </div>
+  </div>
 {% endblock content %}
 
 {% block extra_scripts %}

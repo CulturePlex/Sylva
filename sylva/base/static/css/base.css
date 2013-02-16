@@ -1748,6 +1748,10 @@ table.toolsBrowse .dataActions .dataOption {
 
 /* documentation */
 
+body :hover > a.headerlink {
+    visibility: visible;
+}
+
 .doc .container-fluid {
     padding: 0;
 }
@@ -1852,10 +1856,6 @@ table.toolsBrowse .dataActions .dataOption {
 
 .doc a.headerlink {
   visibility: hidden;
-}
-
-body :hover > a.headerlink {
-    visibility: visible;
 }
 
 .doc .nav-arrow {
@@ -2014,5 +2014,120 @@ body :hover > a.headerlink {
     margin-top: -62px;
 }
 
-
 /* END jQuery Joyride Feature Tours */
+
+
+/* Pricing plans */
+
+.pricing .plan {
+    text-align: center;
+    padding: 0;
+}
+
+.pricing .plan h3,
+.pricing .plan span,
+.pricing .featured h3,
+.pricing .featured span {
+    display: block;
+    border: 1px solid #ABABAB;
+    border-top: none;
+    line-height: 1.8em;
+    margin: 0;
+}
+
+.pricing .plan h3,
+.pricing .plan span {
+    text-shadow: 0 -1px 0 #D1D1D1;
+    background-color: #D1D1D1;
+    background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#D1D1D1), to(#ABABAB));
+    background-image: -webkit-linear-gradient(top, #D1D1D1, #ABABAB);
+    background-image: -o-linear-gradient(top, #D1D1D1, #ABABAB);
+    background-image: linear-gradient(to bottom, #D1D1D1, #ABABAB);
+    background-image: -moz-linear-gradient(top, #D1D1D1, #ABABAB);
+    border-color: #ABABAB;
+    background-repeat: repeat-x;
+}
+
+.pricing .featured h3,
+.pricing .featured span {
+    color: #ffffff;
+    text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
+    background-color: #57a59a;
+    background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#57a59a), to(#348E82));
+    background-image: -webkit-linear-gradient(top, #57a59a, #348E82);
+    background-image: -o-linear-gradient(top, #57a59a, #348E82);
+    background-image: linear-gradient(to bottom, #57a59a, #348E82);
+    background-image: -moz-linear-gradient(top, #57a59a, #348E82);
+    background-repeat: repeat-x;
+    border-color: #348E82;
+    background-repeat: repeat-x;
+}
+
+.pricing .plan h3,
+.pricing .featured h3 {
+    border-radius: 4px 4px 0 0;
+    font-size: 1.2em;
+    font-weight: bold;
+}
+
+.pricing .plan span,
+.pricing .featured span {
+    font-size: 4em;
+}
+
+.pricing .plan ul {
+    margin: 0;
+    list-style: none;
+    padding: 15px;
+    background-color: #fff;
+    border-left: 1px solid #ABABAB;
+    border-right: 1px solid #ABABAB;
+}
+
+.pricing .plan li {
+    padding-bottom: 10px;
+    padding-top: 10px;
+    border-bottom: 1px dotted #ABABAB;
+}
+
+.pricing .plan div {
+    border-radius: 0 0 4px 4px;
+    border: 1px solid #ABABAB;
+    border-top: none;
+}
+
+.pricing .plan div.empty {
+    padding-bottom: 52px;
+}
+
+.pricing .plan a {
+    margin: auto;
+    margin-bottom: 10px;
+    padding: 10px;
+}
+
+.pricing .featured.animate.go-up {
+    -webkit-transform: translate(0px, 0px);
+    -moz-transform: translate(0px, 0px);
+    -o-transform: translate(0px, 0px);
+    -ms-transform: translate(0px, 0px);
+    transform: translate(0px, 0px);
+}
+
+.pricing .featured.animate.go-up:hover {
+    -webkit-transform: translate(0px, -10px);
+    -moz-transform: translate(0px, -10px);
+    -o-transform: translate(0px, -10px);
+    -ms-transform: translate(0px, -10px);
+    transform: translate(0px, -10px);
+}
+
+.pricing .featured.animate {
+    -webkit-transition: all .3s ease-in-out;
+    -moz-transition: all .3s ease-in-out;
+    -o-transition: all .3s ease-in-out;
+    -ms-transition: all .3s ease-in-out;
+    transition: all .3s ease-in-out;
+}
+
+/* END Pricing plans */
