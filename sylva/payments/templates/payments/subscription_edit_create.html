@@ -10,9 +10,11 @@
 {% endblock content_title %}
 
 {% block content %}
-  <h3>{% trans "You can trust us: we don't store your credit card." %}</h3>
-  <p>{% trans "We use Stripe as a Payment gateway, so don't be afraid about your credit card. All your data will be encripted before sending it to Stripe's servers." %}</p>
-  <div class="form">
+  <div class="subscription-info">
+    <h3>{% trans "You can trust us: we don't store your credit card." %}</h3>
+    <p>{% trans "We use <a href=\"https://stripe.com\">Stripe</a> as a Payment gateway, so don't be afraid about your credit card. All your data will be encripted before sending it to Stripe's servers." %}</p>
+  </div>
+  <div class="subscription-form">
     {% zebra_card_form %}
   </div>
 {% endblock content %}

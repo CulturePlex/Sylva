@@ -671,7 +671,11 @@ p.forgot-password {
 }
 
 /* Defaults */
-.button,input,textarea,select {
+.button,
+button,
+input,
+textarea,
+select {
     border-radius: 4px;
     -moz-border-radius: 4px;
     -webkit-border-radius: 4px;
@@ -908,7 +912,10 @@ select {
     width: 317px;
 }
 
-.button,input[type="button"],input[type="submit"] {
+.button,
+input[type="button"],
+input[type="submit"],
+button[type="submit"] {
     font-size: 105%;
     font-weight: 700;
     color: #348E82;
@@ -918,12 +925,15 @@ select {
     display: inline-block;
     background-color: #D6E7DF;
     cursor: pointer;
-/*    margin-bottom: 10px;*/
-/*    margin-top: 20px;*/
 }
 
-.button:hover,input[type="button"]:hover,input[type="submit"]:hover,
-input:active,textarea:active,select:active {
+.button:hover,
+input[type="button"]:hover,
+input[type="submit"]:hover,
+button[type="submit"]:hover,
+input:active,
+textarea:active,
+select:active {
     box-shadow: 0 1px 5px rgba(52,142,130,0.75);
     -webkit-box-shadow: 0 1px 5px rgba(52,142,130,0.75);
     -moz-box-shadow: 0 1px 5px rgba(52,142,130,0.75);
@@ -2131,3 +2141,42 @@ body :hover > a.headerlink {
 }
 
 /* END Pricing plans */
+
+
+/* Subscription form */
+
+    .subscription-info h3 {
+       font-size: 17px;
+       font-weight: bold;
+       margin-bottom: 5px;
+    }
+
+    .subscription-info p {
+        margin-bottom: 8px;
+        line-height: 20px;
+        font-size: 15px;
+        width: 750px;
+    }
+
+    .subscription-form {
+        margin-top: 15px;
+    }
+
+    .subscription-form form {
+        width: 350px;
+    }
+
+    .subscription-form #id_card_number,
+    .subscription-form #id_card_cvv {
+        width: 300px;
+    }
+
+    .subscription-form #id_card_expiry_year {
+        width: 317px;
+    }
+
+    .subscription-form .payment-errors {
+        color: darkred;
+    }
+
+/* END Subscription form */
