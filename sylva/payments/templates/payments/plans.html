@@ -3,6 +3,7 @@
 
 {% block extra_links %}
   <link rel="stylesheet" href="{{ STATIC_PREFIX }}bootstrap/css/bootstrap-custom.css">
+  <link rel="stylesheet" href="{{ STATIC_PREFIX }}css/font-awesome.css">
 {% endblock extra_links %}
 
 {% block title %}
@@ -78,6 +79,84 @@
         </div>
       </div>
     </div>
+    <div class="row comparison">
+    <table class="table-striped table-bordered span12">
+      <thead>
+        <tr>
+          <th></th>
+          <th>{% trans "Free" %}</th>
+          <th>{% blocktrans with name=basic_plan.name %}{{ name }}{% endblocktrans %}</th>
+          <th>{% blocktrans with name=premium_plan.name %}{{ name }}{% endblocktrans %}</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>{% trans "Feature One" %}</td>
+          <td><i class="icon-ok"></i></td>
+          <td><i class="icon-ok"></i></td>
+          <td><i class="icon-ok"></i></td>
+        </tr>
+        <tr>
+          <td>{% trans "Feature Two" %}</td>
+          <td><i class="icon-remove"></i></td>
+          <td><i class="icon-remove"></i></td>
+          <td><i class="icon-ok"></i></td>
+        </tr>
+        <tr>
+          <td>{% trans "Feature Three" %}</td>
+          <td><i class="icon-remove"></i></td>
+          <td><i class="icon-remove"></i></td>
+          <td><i class="icon-ok"></i></td>
+        </tr>
+        <tr>
+          <td>{% trans "Feature Four" %}</td>
+          <td><i class="icon-remove"></i></td>
+          <td><i class="icon-ok"></i></td>
+          <td><i class="icon-ok"></i></td>
+        </tr>
+        <tr>
+          <td>{% trans "Feature Five" %}</td>
+          <td><i class="icon-remove"></i></td>
+          <td><i class="icon-ok"></i></td>
+          <td><i class="icon-ok"></i></td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>
+            {% if is_subscribed %}
+              <a href="{% url subscription_cancel %}" class="btn btn-large">{% trans "Unsubscribe" %}</a>
+            {% else %}
+              <div class="empty"></div>
+            {% endif %}
+          </td>
+          <td>
+            {% if is_subscribed and account_type == 2 %}
+              <a href="javascript:void(0)" class="btn btn-large" disabled="disabled">{% trans "Already subscribed" %}</a>
+            {% else %}
+              <a href="{% url subscription_basic %}" class="btn btn-large">
+                {% if is_subscribed and account_type == 3 %}
+                  {% trans "Downgrade" %}
+                {% else %}
+                  {% trans "Subscribe Now" %}
+                {% endif %}
+              </a>
+            {% endif %}
+          </td>
+          <td>
+            <a href="{% url subscription_premium %}" class="btn btn-large">
+              {% if is_subscribed and account_type == 2 %}
+                {% trans "Upgrade" %}
+              {% elif is_subscribed and account_type == 3 %}
+                {% trans "Create new instance" %}
+              {% else %}
+                {% trans "Subscribe Now" %}
+              {% endif %}
+            </a>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
   </div>
 {% endblock content %}
 

@@ -2147,6 +2147,57 @@ body :hover > a.headerlink {
 /* END Pricing plans */
 
 
+/* Comparison plans */
+
+.comparison {
+    margin-left: 0 !important;
+    margin-top: 50px;
+    text-align: center;
+}
+
+.comparison table tr th,
+.comparison table tr td {
+    padding: 15px;
+}
+
+.comparison table thead tr:first-child th {
+    color: #ffffff;
+    text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
+    background-color: #57a59a;
+    background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#57a59a), to(#348E82));
+    background-image: -webkit-linear-gradient(top, #57a59a, #348E82);
+    background-image: -o-linear-gradient(top, #57a59a, #348E82);
+    background-image: linear-gradient(to bottom, #57a59a, #348E82);
+    background-image: -moz-linear-gradient(top, #57a59a, #348E82);
+    background-repeat: repeat-x;
+    border-color: #348E82;
+    background-repeat: repeat-x;
+    cursor: text;
+}
+
+.comparison table tr td {
+    font-size: 1.5em;
+}
+
+.comparison table tr td:first-child {
+    font-size: 1em;
+}
+
+.comparison table tr td div.empty {
+    width: 162px;
+}
+
+.comparison table .icon-ok {
+    color: #51A351;
+}
+
+.comparison table .icon-remove {
+    color: #BD362F;
+}
+
+/* END Comparison plans */
+
+
 /* Subscription form */
 
     .subscription-info h3 {
