@@ -104,6 +104,10 @@ abbr {
     cursor: help;
 }
 
+strong, b {
+    font-weight: bold;
+}
+
 .clear {
     clear: both;
     display: block;
