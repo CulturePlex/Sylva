@@ -2120,7 +2120,7 @@ body :hover > a.headerlink {
     padding: 10px;
 }
 
-.pricing .featured.animate.go-up {
+/*.pricing .featured.animate.go-up {
     -webkit-transform: translate(0px, 0px);
     -moz-transform: translate(0px, 0px);
     -o-transform: translate(0px, 0px);
@@ -2142,7 +2142,7 @@ body :hover > a.headerlink {
     -o-transition: all .3s ease-in-out;
     -ms-transition: all .3s ease-in-out;
     transition: all .3s ease-in-out;
-}
+}*/
 
 /* END Pricing plans */
 
