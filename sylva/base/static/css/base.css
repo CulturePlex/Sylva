@@ -2170,15 +2170,6 @@ body :hover > a.headerlink {
         width: 350px;
     }
 
-    .subscription-form #id_card_number,
-    .subscription-form #id_card_cvv {
-        width: 300px;
-    }
-
-    .subscription-form #id_card_expiry_year {
-        width: 317px;
-    }
-
     .subscription-form .payment-errors {
         color: darkred;
     }
