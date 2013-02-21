@@ -2201,7 +2201,7 @@ body :hover > a.headerlink {
 /* Subscription form */
 
     .subscription-info h3 {
-       font-size: 17px;
+       font-size: 18px;
        font-weight: bold;
        margin-bottom: 5px;
     }
@@ -2210,7 +2210,7 @@ body :hover > a.headerlink {
         margin-bottom: 8px;
         line-height: 20px;
         font-size: 15px;
-        width: 750px;
+        width: 410px;
     }
 
     .subscription-form {
