@@ -6,14 +6,14 @@
 {% endblock title %}
 
 {% block content_title %}
-  <h1>{% trans "Congratulations" %}</h1>
+  <h1>{% trans "Congratulations!" %}</h1>
 {% endblock content_title %}
 
 {% block content %}
   <p>
-    <b>{% if user.first_name %}{{ user.first_name }}{% else %}{{ user.username }}{% endif %}</b>!
-    {% blocktrans %}You are now subscribed for a {{ account_name }} plan.{% endblocktrans %}
+    {% if user.first_name %}{{ user.first_name }}{% else %}{{ user.username }}{% endif %},
+    {% blocktrans %}you are now subscribed for a <strong>{{ account_name }}</strong> plan.{% endblocktrans %}
   </p>
   <br>
-  <a href="{% url dashboard %}">{% trans "Continue" %}</a>
+  <a href="{% url dashboard %}" class="button">{% trans "Continue" %}</a>
 {% endblock content %}

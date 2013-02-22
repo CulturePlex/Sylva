@@ -89,3 +89,22 @@ def subscription_welcome(request):
                               {'user': user,
                                'account_name': account.name},
                               context_instance=RequestContext(request))
+
+
+@is_enabled(settings.ENABLE_PAYMENTS)
+def subscription_plans(request):
+    user = request.user
+    is_subscribed = False
+    account_type = None
+    basic_plan = settings.STRIPE_PLANS['2']
+    premium_plan = settings.STRIPE_PLANS['3']
+    if user.is_authenticated():
+        account = user.get_profile().account
+        is_subscribed = account.type != 1
+        account_type = account.type
+    return render_to_response('payments/plans.html',
+                              {'basic_plan': basic_plan,
+                               'premium_plan': premium_plan,
+                               'is_subscribed': is_subscribed,
+                               'account_type': account_type},
+                              context_instance=RequestContext(request))
