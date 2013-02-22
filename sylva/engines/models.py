@@ -48,7 +48,7 @@ class Instance(models.Model):
     key_file = models.FileField(_("Key file"), upload_to=get_upload_to,
                                 null=True, blank=True,)
     cert_file = models.FileField(_("Cert file"), upload_to=get_upload_to,
-                                null=True, blank=True,)
+                                 null=True, blank=True,)
     options = models.TextField(_("options"), null=True, blank=True)
     owner = models.ForeignKey(User, verbose_name=_('owner'),
                               related_name="instances")
@@ -59,6 +59,10 @@ class Instance(models.Model):
     )
     type = models.CharField(_("type"), max_length=8, default="private",
                             choices=TYPE_TYPES, null=True, blank=True)
+    activation = models.CharField(_("activation code"), max_length=50,
+                                  null=True, blank=True,
+                                  help_text=_("Blank if already activated"))
+    activated = models.NullBooleanField(_("activated"), default=True)
 
     def __init__(self, *args, **kwargs):
         super(Instance, self).__init__(*args, **kwargs)
