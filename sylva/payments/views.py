@@ -8,7 +8,7 @@ from django.shortcuts import redirect
 from django.utils.translation import ugettext_lazy as _
 
 from base.decorators import is_enabled, is_subscribed
-
+from engines.utils import deploy
 from payments.forms import SubscriptionForm, UnsubscriptionForm
 
 
@@ -23,11 +23,24 @@ def subscription_edit_create(request, plan_id=''):
     if request.method == 'POST':
         form = SubscriptionForm(request.POST)
         if form.is_valid():
-            stripe_errors, error_message = \
-                        form.stripe_edit_create_subscription(user, plan_id)
-            if stripe_errors:
+            stripe_subscription, stripe_errors, error_message = \
+                form.stripe_edit_create_subscription(user, plan_id)
+            if stripe_errors or not stripe_subscription:
                 messages.error(request, error_message)
             else:
+                if plan_id == '3':  # Premium
+                    try:
+                        #TODO: Add support for other engines
+                        engine = 'engines.gdb.deployments.neo4j'
+                        instance = deploy(request, engine, stripe_subscription)
+                        stripe_subscription.instance = instance
+                        stripe_subscription.save()
+                    except:
+                        #TODO: Unsubscribe if any error happens,
+                        #      show an informative message to the user,
+                        #      and destroy the corrupt instance
+                        # return redirect('subscription_problem_on_deployment')
+                        pass
                 return redirect('subscription_welcome')
     return render_to_response('payments/subscription_edit_create.html',
                               {'form': form,
