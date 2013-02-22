@@ -30,8 +30,8 @@ def subscription_edit_create(request, plan_id=''):
             else:
                 if plan_id == '3':  # Premium
                     try:
-                        #TODO: Add support for other engines in the form
-                        engine = 'engines.gdb.deployments.neo4j'
+                        #TODO: Add support for other backends in the form
+                        engine = 'engines.gdb.backends.neo4j'
                         user = stripe_subscription.customer.user
                         instance = deploy(engine, request, user)
                         stripe_subscription.instance = instance

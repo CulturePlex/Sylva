@@ -6,6 +6,11 @@ from django.conf import settings
 from django.core.cache import get_cache
 from django.utils.importlib import import_module
 
+BACKENDS_DEPLOYMENT = {
+    "engines.gdb.backends.neo4j": "engines.gdb.deployments.neo4j",
+}
+BACKENDS_DEPLOYMENT.update(getattr(settings, "BACKENDS_DEPLOYMENT", {}))
+
 
 def get_gdb(graph, using="default"):
     # TODO: Add connection_props like cert_file and key_file
@@ -60,11 +65,30 @@ def get_connection_params(properties):
 
 
 def deploy(engine, request, user=None, **kwargs):
+    module = get_deploy_module(engine)
     try:
-        module = import_module(engine)
         return module.deploy(request, user=user, **kwargs)
     except Exception, e:
         raise Exception("Unable to deploy %s: %s" % (engine, e))
+
+
+def get_deploy_module(engine):
+    try:
+        module = import_module(BACKENDS_DEPLOYMENT.get(engine, engine))
+    except (ImportError, KeyError), e:
+        raise Exception("Unable to load the deployment module %s: %s"
+                        % (engine, e))
+    else:
+        return module
+
+
+def get_deploy_status(deploy_engine, deploy_id, **kwargs):
+    module = get_deploy_module(deploy_engine)
+    try:
+        return module.get_deploy_status(deploy_id, **kwargs)
+    except Exception, e:
+        raise Exception("Unable to get deployment %s status for %s: %s"
+                        % (deploy_engine, deploy_id, e))
 
 
 def generate_password(length=14, punctuation=False, extra_chars=""):

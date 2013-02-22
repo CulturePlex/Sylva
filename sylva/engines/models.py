@@ -8,6 +8,8 @@ from django.utils.importlib import import_module
 from django.utils.translation import gettext as _
 from django.db import models
 
+from engines.gdb.utils import get_deploy_status
+
 default_engine = settings.GRAPHDATABASES["default"]["ENGINE"]
 
 
@@ -153,3 +155,6 @@ class Instance(models.Model):
             self.encrypted_password = binascii.b2a_hex(enc_obj.encrypt(value))
 
     password = property(_get_password, _set_password)
+
+    def get_status(self):
+        return get_deploy_status(self.engine, self.name)

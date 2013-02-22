@@ -16,9 +16,7 @@ AWS_ACCESS_KEY_ID = settings.AWS_ACCESS_KEY_ID
 AWS_SECRET_ACCESS_KEY = settings.AWS_SECRET_ACCESS_KEY
 
 
-def deploy(request, user=None,
-           instance_type=None, image_id=None, ebs_volume=None):
-    user = user or request.user
+def get_connection():
     try:
         connection = connect_to_region(
             aws_access_key_id=AWS_ACCESS_KEY_ID,
@@ -29,53 +27,72 @@ def deploy(request, user=None,
     except BotoServerError, e:
         raise Exception("Unable to connect to CloudFormation: %s"
                         % e.error_message)
+    if not connection:
+        raise Exception("Unable to create a connection to CloudFormation, "
+                        "response is %s" % connection)
+    return connection
+
+
+def get_deploy_status(deploy_id):
+    connection = get_connection()
+    stacks = connection.describe_stacks(deploy_id)
+    if len(stacks) == 1:
+        stack = stacks[0]
+        return stack.stack_status
     else:
-        stack_name = u"sylvadb-{0}-{1}".format(user.username,
-                                               generate_password(length=8))
-        username = generate_password(length=14)
-        password = generate_password(length=26, punctuation=True)
-        activation = generate_password(length=50, punctuation=True)
-        instance = Instance.objects.create(
-            name=stack_name,
-            username=username,
-            plain_password=password,
-            owner=user,
-            activation=activation,
-            activated=False,
+        return None
+
+
+def deploy(request, user=None,
+           instance_type=None, image_id=None, ebs_volume=None):
+    user = user or request.user
+    connection = get_connection()
+    stack_name = u"sylvadb-{0}-{1}".format(user.username,
+                                           generate_password(length=8))
+    username = generate_password(length=14)
+    password = generate_password(length=26, punctuation=True)
+    activation = generate_password(length=50, punctuation=True)
+    instance = Instance.objects.create(
+        name=stack_name,
+        username=username,
+        plain_password=password,
+        owner=user,
+        activation=activation,
+        activated=False,
+    )
+    reversed_url = reverse("instance_activate", args=(instance.id, ))
+    web_hook = u"{0}{1}".format(request.get_host(), reversed_url)
+    template = get_template(activation, instance_type, image_id,
+                            ebs_volume)
+    parameters = [
+        ("AcceptOracleLicense", "true"),
+        ("SSHKeyName", "neo4j_cert"),
+        ("WebHookEndPoint", web_hook),
+        ("Neo4jUserName", username),
+        ("Neo4jPassword", password),
+        ("AwsAvailabilityZone", AWS_CLOUDFORMATION_REGION + "d"),
+    ]
+    try:
+        stack_id = connection.create_stack(
+            stack_name=stack_name,
+            template_body=template,
+            template_url=None,
+            parameters=parameters,
+            notification_arns=[],
+            disable_rollback=False,
+            timeout_in_minutes=None,
+            capabilities=None
         )
-        reversed_url = reverse("instance_activate", args=(instance.id, ))
-        web_hook = u"{0}{1}".format(request.get_host(), reversed_url)
-        template = get_template(activation, instance_type, image_id,
-                                ebs_volume)
-        parameters = [
-            ("AcceptOracleLicense", "true"),
-            ("SSHKeyName", "neo4j_cert"),
-            ("WebHookEndPoint", web_hook),
-            ("Neo4jUserName", username),
-            ("Neo4jPassword", password),
-            ("AwsAvailabilityZone", AWS_CLOUDFORMATION_REGION + "d"),
-        ]
-        try:
-            stack_id = connection.create_stack(
-                stack_name=stack_name,
-                template_body=template,
-                template_url=None,
-                parameters=parameters,
-                notification_arns=[],
-                disable_rollback=False,
-                timeout_in_minutes=None,
-                capabilities=None
-            )
-        except BotoServerError, e:
-            raise Exception("Unable to create a CloudFormation stack '%s': %s"
-                            % (stack_name, e.error_message))
-        else:
-            options = {
-                "stack_id": stack_id
-            }
-            instance.options = json.dumps(options)
-            instance.save()
-            return instance
+    except BotoServerError, e:
+        raise Exception("Unable to create a CloudFormation stack '%s': %s"
+                        % (stack_name, e.error_message))
+    else:
+        options = {
+            "stack_id": stack_id
+        }
+        instance.options = json.dumps(options)
+        instance.save()
+        return instance
 
 
 def get_template(activation, instance_type=None, image_id=None,
