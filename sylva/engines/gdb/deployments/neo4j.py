@@ -7,42 +7,31 @@ from django.core.urlresolvers import reverse
 from django.conf import settings
 
 from engines.models import Instance
-from engines.utils import generate_password
+from engines.gdb.utils import generate_password
 
 
 AWS_CLOUDFORMATION_REGION = getattr(settings, "AWS_CLOUDFORMATION_REGION",
-                                    "us-east-1d")
+                                    "us-east-1")
 AWS_ACCESS_KEY_ID = settings.AWS_ACCESS_KEY_ID
 AWS_SECRET_ACCESS_KEY = settings.AWS_SECRET_ACCESS_KEY
 
 
-def deploy(request, subscription,
+def deploy(request, user=None,
            instance_type=None, image_id=None, ebs_volume=None):
+    user = user or request.user
     try:
-        region = connect_to_region(AWS_CLOUDFORMATION_REGION)
-        connection = region.CloudFormationConnection(
+        connection = connect_to_region(
             aws_access_key_id=AWS_ACCESS_KEY_ID,
             aws_secret_access_key=AWS_SECRET_ACCESS_KEY,
+            region_name=AWS_CLOUDFORMATION_REGION,
             is_secure=True,
-            # port=None,
-            # proxy=None,
-            # proxy_port=None,
-            # proxy_user=None,
-            # proxy_pass=None,
-            # debug=0,
-            # https_connection_factory=None,
-            region=AWS_CLOUDFORMATION_REGION,
-            path='/',
-            # converter=None,
-            # security_token=None,
-            # validate_certs=True
         )
     except BotoServerError, e:
         raise Exception("Unable to connect to CloudFormation: %s"
                         % e.error_message)
     else:
-        stack_name = u"sylvadb-%s-%s".format(request.user,
-                                             generate_password(length=8))
+        stack_name = u"sylvadb-{0}-{1}".format(user.username,
+                                               generate_password(length=8))
         username = generate_password(length=14)
         password = generate_password(length=26, punctuation=True)
         activation = generate_password(length=50, punctuation=True)
@@ -50,12 +39,12 @@ def deploy(request, subscription,
             name=stack_name,
             username=username,
             plain_password=password,
-            owner=request.user,
+            owner=user,
             activation=activation,
             activated=False,
         )
-        reversed_url = reverse("instance_activate", args=(activation, ))
-        web_hook = u"%s%s".format(request.get_host(), reversed_url)
+        reversed_url = reverse("instance_activate", args=(instance.id, ))
+        web_hook = u"{0}{1}".format(request.get_host(), reversed_url)
         template = get_template(activation, instance_type, image_id,
                                 ebs_volume)
         parameters = [
@@ -64,7 +53,7 @@ def deploy(request, subscription,
             ("WebHookEndPoint", web_hook),
             ("Neo4jUserName", username),
             ("Neo4jPassword", password),
-            ("AwsAvailabilityZone", AWS_CLOUDFORMATION_REGION),
+            ("AwsAvailabilityZone", AWS_CLOUDFORMATION_REGION + "d"),
         ]
         try:
             stack_id = connection.create_stack(
@@ -176,7 +165,9 @@ def get_template(activation, instance_type=None, image_id=None,
                         "wget -O /var/tmp/go https://raw.github.com/neo4j-contrib/neo4j-puppet/master/go\n",
                         "chmod +x /var/tmp/go\n",
                         "sudo /var/tmp/go ", {"Ref": "AcceptOracleLicense"}, " ", {"Ref": "Neo4jUserName"}, " ", {"Ref": "Neo4jPassword"}, "\n",
-                        "curl -X POST --data \"schema=", "http", "host=", {"Fn::GetAtt": ["Server", public_endpoint]}, "port=", "7474", "path=", "/db/data", "activation=", activation, "\" ", {"Ref": "WebHookEndPoint"}, "\n"
+                        # Template error: resource ElasticIP has missing or circular dependencies:
+                        #"curl -X POST --data \"schema=", "http", "host=", {"Fn::GetAtt": ["Server", public_endpoint]}, "port=", "7474", "path=", "db/data", "activation=", activation, "\" ", {"Ref": "WebHookEndPoint"}, "\n"
+                        "curl -X POST --data \"schema=", "http", "host=", "`curl http://169.254.169.254/latest/meta-data/public-ipv4`", "port=", "7474", "path=", "db/data", "activation=", activation, "\" ", {"Ref": "WebHookEndPoint"}, "\n"
                     ]]}},
                     "Volumes": [{
                         "VolumeId": {"Ref": "EBSVolume"},

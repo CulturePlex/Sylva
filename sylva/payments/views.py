@@ -8,7 +8,7 @@ from django.shortcuts import redirect
 from django.utils.translation import ugettext_lazy as _
 
 from base.decorators import is_enabled, is_subscribed
-from engines.utils import deploy
+from engines.gdb.utils import deploy
 from payments.forms import SubscriptionForm, UnsubscriptionForm
 
 
@@ -30,9 +30,10 @@ def subscription_edit_create(request, plan_id=''):
             else:
                 if plan_id == '3':  # Premium
                     try:
-                        #TODO: Add support for other engines
+                        #TODO: Add support for other engines in the form
                         engine = 'engines.gdb.deployments.neo4j'
-                        instance = deploy(request, engine, stripe_subscription)
+                        user = stripe_subscription.customer.user
+                        instance = deploy(engine, request, user)
                         stripe_subscription.instance = instance
                         stripe_subscription.save()
                     except:

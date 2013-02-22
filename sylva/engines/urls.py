@@ -9,9 +9,9 @@ admin.autodiscover()
 
 urlpatterns = patterns('engines.views',
     # edit
-    url(r'^/(?P<engine_id>\d+)/edit/$', 'edit', name="engine_edit"),
+    url(r'^(?P<engine_id>\d+)/edit/$', 'edit', name="engine_edit"),
 
     # activation
-    url(r'^/(?P<instance_id>\d+)/activate/$', 'instance_activate',
-        name="instance_activate"),
+    url(r'^instance/(?P<instance_id>\d+)/activate/$',
+        'instance_activate', name="instance_activate"),
 )

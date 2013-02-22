@@ -59,15 +59,15 @@ def get_connection_params(properties):
     }
 
 
-def deploy(request, engine, subscription, **kwargs):
+def deploy(engine, request, user=None, **kwargs):
     try:
         module = import_module(engine)
-        return module.deploy(request, subscription, **kwargs)
-    except:
-        raise Exception("Deployment module %s not found" % engine)
+        return module.deploy(request, user=user, **kwargs)
+    except Exception, e:
+        raise Exception("Unable to deploy %s: %s" % (engine, e))
 
 
-def generate_password(length=14, punctuation=False, extra_chars=[]):
+def generate_password(length=14, punctuation=False, extra_chars=""):
     chars = string.letters + string.digits + extra_chars
     if punctuation:
         chars += string.punctuation
