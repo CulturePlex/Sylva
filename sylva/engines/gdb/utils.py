@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+import string
+from random import choice
+
 from django.conf import settings
 from django.core.cache import get_cache
 from django.utils.importlib import import_module
@@ -54,3 +57,18 @@ def get_connection_params(properties):
         "cert_file": properties.get("CERT_FILE", None),
         "options": properties.get("OPTIONS", None),
     }
+
+
+def deploy(request, engine, subscription, **kwargs):
+    try:
+        module = import_module(engine)
+        return module.deploy(request, subscription, **kwargs)
+    except:
+        raise Exception("Deployment module %s not found" % engine)
+
+
+def generate_password(length=14, punctuation=False, extra_chars=[]):
+    chars = string.letters + string.digits + extra_chars
+    if punctuation:
+        chars += string.punctuation
+    return ''.join(choice(chars) for x in range(length))
