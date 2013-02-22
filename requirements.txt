@@ -2,7 +2,7 @@ Django==1.4.2
 Pillow==1.7.8
 South==0.7.6
 argparse==1.2.1
-boto==2.6.0
+boto==2.8.0
 # distribute==0.6.24
 django-guardian==1.0.4
 django-maintenancemode==0.10
