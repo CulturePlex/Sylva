@@ -226,6 +226,13 @@ h2 {
     font-weight: 400;
 }
 
+#main legend {
+    font: normal 19px Georgia;
+    color: #348E82;
+    padding-bottom: 5px;
+    padding-top: 5px;
+}
+
 select#h2-relationships {
     font: normal 18px Georgia;
     color: #348E82;
@@ -965,8 +972,7 @@ select:active {
 
 ul.errorlist {
     position: relative;
-    float: right;
-    margin-right: 5px;
+    width: 317px;
 }
 
 .errorlist li {
