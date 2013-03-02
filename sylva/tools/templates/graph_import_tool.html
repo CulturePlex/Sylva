@@ -66,86 +66,90 @@
 {% endblock %}
 
 {% block content %}
-  <div id="content2">
-    <div class="content2-first">
-      <div id="first-step">
-        <p class="sylva-info">{% trans "This tool allows to import data from a Gephi (GEXF) file into Sylva. Load the file with the widget below this text to get started." %}</p>
-        <label for="gexf-file">{% trans "Import GEXF" %}</label>
-        <input type="file" id="files" name="files[]" multiple  />
-        <div id="progress-bar">
-          <strong>{% trans "Please wait while your graph data is loaded..." %}</strong>
+  <div class="import-tool">
+    <div id="content2">
+      <div class="content2-first">
+        <div id="first-step">
+          <p class="sylva-info">{% trans "This tool allows to import data from a Gephi (GEXF) file into Sylva. Load the file with the widget below this text to get started." %}</p>
+          <label for="gexf-file">{% trans "Import GEXF" %}</label>
+          <input type="file" id="files" name="files[]" multiple>
+          <div id="progress-bar">
+            <strong>{% trans "Please wait while your graph data is loaded..." %}</strong>
+          </div>
+          <div class="hidden">
+            <p class="sylva-info">{% trans "Or use the experimental CSV support providing nodes and edges in separate files." %}</p>
+            <div>
+              <label for="csv-nodes">{% trans "Node file" %}</label>
+              <input type="file" id="csv-nodes" name="csv-nodes" />
+              <div id="csv-nodes-progress-bar" style="display:none">
+                <strong>{% trans "Please wait while your nodes are loaded..." %}</strong>
+              </div>
+            </div>
+            <div>
+              <label for="csv-edges">{% trans "Edge file" %}</label>
+              <input type="file" id="csv-edges" name="csv-edges" />
+              <div id="csv-edges-progress-bar" style="display:none">
+                <strong>{% trans "Please wait while your edges are loaded..." %}</strong>
+              </div>
+            </div>
+            <button id="load-csv" class="button">{% trans "Load CSVs" %}</button>
+          </div>
         </div>
-        <div class="hidden">
-          <hr/>
-          <p class="sylva-info">{% trans "Or use the experimental CSV support providing nodes and edges in separate files." %}</p>
-          <div>
-            <label for="csv-nodes">{% trans "Node file" %}</label>
-            <input type="file" id="csv-nodes" name="csv-nodes" />
-            <div id="csv-nodes-progress-bar" style="display:none">
-              <strong>{% trans "Please wait while your nodes are loaded..." %}</strong>
+        <div id="validation-controls">
+          <div id="import-controller">
+            <div class="hidden">
+              <label for="node-type-label">{% trans "Node type label" %}</label>
+              <input id="node-type-label" value="type" type="text" />
+              <label for="edge-type-label">{% trans "Relationship type label" %}</label>
+              <input id="edge-type-label" value="type" type="text" />
             </div>
           </div>
-          <div>
-            <label for="csv-edges">{% trans "Edge file" %}</label>
-            <input type="file" id="csv-edges" name="csv-edges" />
-            <div id="csv-edges-progress-bar" style="display:none">
-              <strong>{% trans "Please wait while your edges are loaded..." %}</strong>
+          <button id="check-schema-btn" class="button">{% trans "Validate schema" %}</button>
+        </div>
+      </div>
+      <div class="content-divider"></div>
+      <div class="content2-second">
+        <div id="import-gexf">
+          <div id="second-step">
+            <p id="second-step-info" class="sylva-info"></p>
+            <div style="float:left">
+              <h2>{% trans "Your graph schema" %}</h2>
+              <span class="graph-title">{% trans "Node Types" %}</span>
+              <ul id="graph-schema-nodes" class="summary"></ul>
+              <span class="graph-title">{% trans "Edge Types" %}</span>
+              <ul id="graph-schema-edges" class="summary"></ul>
+            </div>
+            <div style="float:right">
+              <h2>{% trans "Sylva graph schema" %}</h2>
+              <div id="sylva-schema"></div>
+              <span class="graph-title">{% trans "Node Types" %}</span>
+              <ul id="sylva-schema-nodes" class="summary"></ul>
+              <span class="graph-title">{% trans "Edge Types" %}</span>
+              <ul id="sylva-schema-edges" class="summary"></ul>
             </div>
           </div>
-          <button id="load-csv" class="button">{% trans "Load CSVs" %}</button>
-                </div>
-        </div>
-      <hr/>
-      <div id="validation-controls">
-        <div id="import-controller">
-          <label for="node-type-label">{% trans "Node type label" %}</label>
-          <input id="node-type-label" value="type" type="text" />
-          <label for="edge-type-label">{% trans "Relationship type label" %}</label>
-          <input id="edge-type-label" value="type" type="text" />
-        </div>
-        <button id="check-schema-btn">{% trans "Validate schema" %}</button>
-      </div>
-    </div>
-    <div class="content-divider"></div>
-    <div class="content2-second">
-      <div id="import-gexf">
-        <div id="second-step">
-          <p id="second-step-info" class="sylva-info"></p>
-          <div style="float:left">
-            <h2>{% trans "Your graph schema" %}</h2>
-            <span class="graph-title">{% trans "Node Types" %}</span>
-            <ul id="graph-schema-nodes"></ul>
-            <span class="graph-title">{% trans "Edge Types" %}</span>
-            <ul id="graph-schema-edges"></ul>
-          </div>
-          <div style="float:right">
-            <h2>{% trans "Sylva graph schema" %}</h2>
-            <div id="sylva-schema"></div>
-            <span class="graph-title">{% trans "Node Types" %}</span>
-            <ul id="sylva-schema-nodes"></ul>
-            <span class="graph-title">{% trans "Edge Types" %}</span>
-            <ul id="sylva-schema-edges"></ul>
+          <div id="third-step">
+            <div class="progress-wrapper">
+              <progress id="import-progress-bar"></progress>
+              <p id="import-progress-text"></p>
+            </div>
+            <div id="summary" style="display:none">
+              <h2>{% trans "Data Summary" %}</h2>
+              <h4>{% trans "Nodes" %}</h4>
+              <ul id="node-list"></ul>
+              <h4>{% trans "Relationships" %}</h4>
+              <ol id="edge-list"></ol>
+            </div>
           </div>
         </div>
-        <div id="third-step">
-          <progress id="import-progress-bar"></progress>
-          <p id="import-progress-text"></p>
-          <div id="summary" style="display:none">
-            <h2>{% trans "Data Summary" %}</h2>
-            <h4>{% trans "Nodes" %}</h4>
-            <ul id="node-list"></ul>
-            <h4>{% trans "Relationships" %}</h4>
-            <ol id="edge-list"></ol>
-          </div>
+        <div id="sec-debug" style="display:none">
+          <h3>{% trans "Graph Nodes Debug" %}</h3>
+          <textarea id="id_graph_nodes" rows="10" cols="80" name="graph_nodes">{}</textarea>
+          <h3>{% trans "Graph Edges Debug" %}</h3>
+          <textarea id="id_graph_edges" rows="10" cols="80" name="graph_edges">[]</textarea>
+          <h3>{% trans "Graph Schema Debug" %}</h3>
+          <textarea id="id_graph_schema" rows="10" cols="80" name="graph_schema">{}</textarea>
         </div>
-      </div>
-      <div id="sec-debug" style="display:none">
-        <h3>{% trans "Graph Nodes Debug" %}</h3>
-        <textarea id="id_graph_nodes" rows="10" cols="80" name="graph_nodes">{}</textarea>
-        <h3>{% trans "Graph Edges Debug" %}</h3>
-        <textarea id="id_graph_edges" rows="10" cols="80" name="graph_edges">[]</textarea>
-        <h3>{% trans "Graph Schema Debug" %}</h3>
-        <textarea id="id_graph_schema" rows="10" cols="80" name="graph_schema">{}</textarea>
       </div>
     </div>
   </div>

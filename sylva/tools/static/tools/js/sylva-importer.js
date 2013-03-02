@@ -73,14 +73,16 @@
       $('body').bind('edgesValidated', function(){
         $('#second-step').hide();
         $('#validation-controls').hide();
+        $('.content-divider').hide();
         $('#third-step').show();
 
         // var nodes = GraphEditor.getGraphNodesJSON();
         // var edges = GraphEditor.getGraphEdgesJSON();
+
         Importer.addData(GraphEditor.getGraphNodesJSON(),
-            GraphEditor.getGraphEdgesJSON(),
-            '#import-progress-bar',
-            '#import-progress-text');
+                         GraphEditor.getGraphEdgesJSON(),
+                         '#import-progress-bar',
+                         '#import-progress-text');
       });
     },
 

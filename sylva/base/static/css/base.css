@@ -684,7 +684,9 @@ p.forgot-password {
 /* Defaults */
 .button,
 button,
-input,
+input[type="text"],
+input[type="submit"],
+input[type="button"],
 textarea,
 select {
     border-radius: 4px;
@@ -717,7 +719,8 @@ select {
     padding-left: 18px;
 }
 
-input[type="checkbox"],input[type="radio"] {
+input[type="checkbox"],
+input[type="radio"] {
     display: initial;
     width: auto;
     margin-top: -4px;
@@ -951,7 +954,9 @@ select:active {
     text-decoration: none;
 }
 
-.button:active,input[type="button"]:active,input[type="submit"]:active {
+.button:active,
+input[type="button"]:active,
+input[type="submit"]:active {
     box-shadow: 0 0 5px rgba(52,142,130,0.75);
     -webkit-box-shadow: 0 0 5px rgba(52,142,130,0.75);
     -moz-box-shadow: 0 0 5px rgba(52,142,130,0.75);
@@ -997,7 +1002,8 @@ ul.errorlist {
 }
 
 /* Dashboard Graphs */
-.graph-list,.instance-list {
+.graph-list,
+.instance-list {
     padding-bottom: 10px;
     overflow: auto;
     max-height: 500px;
@@ -1010,8 +1016,8 @@ ul.errorlist {
 .graph-title {
     background: transparent url(../img/55-network_16.png) 2px center no-repeat;
     font-size: 120%;
+    font-weight: bold;
     padding: 5px 5px 2px 20px;
-    /*height: 20px;*/
     display: block;
 }
 
@@ -2232,3 +2238,33 @@ body :hover > a.headerlink {
     }
 
 /* END Subscription form */
+
+
+/* END Import tool */
+
+.import-tool label {
+    margin-bottom: 5px;
+}
+
+.import-tool input,
+.import-tool select {
+    margin-bottom: 10px;
+}
+
+.import-tool .summary {
+    margin-bottom: 10px;
+}
+
+.import-tool .progress-wrapper {
+    position: absolute;
+    top: 110px;
+    left: 475px;
+}
+
+.import-tool progress {
+    height: 25px;
+    width: 270px;
+    margin-bottom: 5px;
+}
+
+/* END Import tool */
