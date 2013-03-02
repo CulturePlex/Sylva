@@ -2261,10 +2261,14 @@ body :hover > a.headerlink {
     left: 475px;
 }
 
-.import-tool progress {
+.import-tool .progress-wrapper progress {
     height: 25px;
     width: 270px;
     margin-bottom: 5px;
+}
+
+.import-tool .progress-wrapper a {
+    margin-left: 95px;
 }
 
 /* END Import tool */

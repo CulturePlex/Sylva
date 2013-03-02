@@ -81,14 +81,14 @@
             <div>
               <label for="csv-nodes">{% trans "Node file" %}</label>
               <input type="file" id="csv-nodes" name="csv-nodes" />
-              <div id="csv-nodes-progress-bar" style="display:none">
+              <div id="csv-nodes-progress-bar" style="display: none;">
                 <strong>{% trans "Please wait while your nodes are loaded..." %}</strong>
               </div>
             </div>
             <div>
               <label for="csv-edges">{% trans "Edge file" %}</label>
               <input type="file" id="csv-edges" name="csv-edges" />
-              <div id="csv-edges-progress-bar" style="display:none">
+              <div id="csv-edges-progress-bar" style="display: none;">
                 <strong>{% trans "Please wait while your edges are loaded..." %}</strong>
               </div>
             </div>
@@ -132,8 +132,9 @@
             <div class="progress-wrapper">
               <progress id="import-progress-bar"></progress>
               <p id="import-progress-text"></p>
+              <a href="{{ graph.get_absolute_url }}" id="import-finish" class="button" style="display: none;">{% trans "Continue" %}</a>
             </div>
-            <div id="summary" style="display:none">
+            <div id="summary" style="display: none;">
               <h2>{% trans "Data Summary" %}</h2>
               <h4>{% trans "Nodes" %}</h4>
               <ul id="node-list"></ul>
@@ -142,7 +143,7 @@
             </div>
           </div>
         </div>
-        <div id="sec-debug" style="display:none">
+        <div id="sec-debug" style="display: none;">
           <h3>{% trans "Graph Nodes Debug" %}</h3>
           <textarea id="id_graph_nodes" rows="10" cols="80" name="graph_nodes">{}</textarea>
           <h3>{% trans "Graph Edges Debug" %}</h3>

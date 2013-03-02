@@ -224,9 +224,10 @@
       });
 
       // Final message
-      $('body').bind('importFinished', function(){
+      $('body').bind('importFinished', function() {
         $(Importer.progressTextId).text("Import process finished. Added " +
-              Importer.counter + " elements.");
+            Importer.counter + " elements.");
+        $('#import-finish').show();
       });
     },
 
