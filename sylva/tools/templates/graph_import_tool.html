@@ -10,44 +10,49 @@
 {% endblock %}
 
 {% block extra_scripts %}
-    <script type="text/javascript">
+    <script>
       sylv.sylvaSchema = {{ sylva_schema|safe }};
     </script>
 
     <script src="{{ STATIC_PREFIX }}graphs/js/graph-editor.js"></script>
     <script src="{{ STATIC_PREFIX }}tools/js/sylva-importer.js"></script>
 
-    <script type="text/javascript">
+    <script>
       sylv.Importer.addNodeURL = "{% url ajax_node_create graph.slug %}";
       sylv.Importer.addRelationshipURL = "{% url ajax_relationship_create graph.slug %}";
 
-      jQuery(document).ready(function() {
+      (function($) {
+        $(function()  {
+          // Events linking
+          $('#schema-link').on('click', function() {
+            sylv.GraphEditor.loadSchema();
+          });
 
-        // Events linking
-        $('#schema-link').click(function(){
-          sylv.GraphEditor.loadSchema();
+          // CSV files
+          $('#load-csv').on('click', function() {
+            sylv.Importer.doneWithFiles();
+          });
+
+          //Progress bar
+          $('#progress-bar').hide();
+
+          // GraphEditor object configuration
+          sylv.GraphEditor.USES_DRAWER = false;
+          sylv.GraphEditor.init();
+
+          // First step
+          sylv.Importer.loadFileStep();
+
+          // Second step
+          sylv.Importer.validateSchemasStep();
+
+          // Node Types matching validation
+          sylv.Importer.nodeTypesMatchingStep();
+
+          // Relationship Types matching validation
+          sylv.Importer.relationshipTypesMatchingStep()
         });
-
-        //Progress bar
-        $('#progress-bar').hide();
-
-        // GraphEditor object configuration
-        sylv.GraphEditor.USES_DRAWER = false;
-        sylv.GraphEditor.init();
-
-        // First step
-        sylv.Importer.loadFileStep();
-
-        // Second step
-        sylv.Importer.validateSchemasStep();
-
-        // Node Types matching validation
-        sylv.Importer.nodeTypesMatchingStep();
-
-        // Relationship Types matching validation
-        sylv.Importer.relationshipTypesMatchingStep()
-
-      });
+      }(jQuery));
     </script>
 {% endblock %}
 
@@ -92,7 +97,7 @@
             <strong>Please wait while your edges are loaded...</strong>
           </div>
         </div>
-        <button onclick="Importer.doneWithFiles()">Load CSVs</button>
+        <button id="load-csv" class="button">Load CSVs</button>
       </div>
       <hr/>
       <div id="validation-controls">
