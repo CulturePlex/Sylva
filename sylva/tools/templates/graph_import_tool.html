@@ -70,44 +70,39 @@
   <div id="content2">
     <div class="content2-first">
       <div id="first-step">
-        <p class="sylva-info">This tool allows to import data from a Gephi (GEXF)
-          file into Sylva. Load the file with the widget below this text to get
-          started.
-        </p>
-        <label for="gexf-file">Import GEXF</label>
+        <p class="sylva-info">{% trans "This tool allows to import data from a Gephi (GEXF) file into Sylva. Load the file with the widget below this text to get started." %}</p>
+        <label for="gexf-file">{% trans "Import GEXF" %}</label>
         <input type="file" id="files" name="files[]" multiple  />
         <div id="progress-bar">
-          <strong>Please wait while your graph data is loaded...</strong>
+          <strong>{% trans "Please wait while your graph data is loaded..." %}</strong>
         </div>
         <hr/>
-        <p class="sylva-info">Or use the experimental CSV support providing
-          nodes and edges in separate files.
-        </p>
+        <p class="sylva-info">{% trans "Or use the experimental CSV support providing nodes and edges in separate files." %}</p>
         <div>
-          <label for="csv-nodes">Node file</label>
+          <label for="csv-nodes">{% trans "Node file" %}</label>
           <input type="file" id="csv-nodes" name="csv-nodes" />
           <div id="csv-nodes-progress-bar" style="display:none">
-            <strong>Please wait while your nodes are loaded...</strong>
+            <strong>{% trans "Please wait while your nodes are loaded..." %}</strong>
           </div>
         </div>
         <div>
-          <label for="csv-edges">Edge file</label>
+          <label for="csv-edges">{% trans "Edge file" %}</label>
           <input type="file" id="csv-edges" name="csv-edges" />
           <div id="csv-edges-progress-bar" style="display:none">
-            <strong>Please wait while your edges are loaded...</strong>
+            <strong>{% trans "Please wait while your edges are loaded..." %}</strong>
           </div>
         </div>
-        <button id="load-csv" class="button">Load CSVs</button>
+        <button id="load-csv" class="button">{% trans "Load CSVs" %}</button>
       </div>
       <hr/>
       <div id="validation-controls">
         <div id="import-controller">
-          <label for="node-type-label">Node type label</label>
+          <label for="node-type-label">{% trans "Node type label" %}</label>
           <input id="node-type-label" value="type" type="text" />
-          <label for="edge-type-label">Relationship type label</label>
+          <label for="edge-type-label">{% trans "Relationship type label" %}</label>
           <input id="edge-type-label" value="type" type="text" />
         </div>
-        <button id="check-schema-btn">Validate schema</button>
+        <button id="check-schema-btn">{% trans "Validate schema" %}</button>
       </div>
     </div>
     <div class="content-divider"></div>
@@ -116,18 +111,18 @@
           <div id="second-step">
             <p id="second-step-info" class="sylva-info"></p>
             <div style="float:left">
-              <h2>Your graph schema</h2>
-              <span class="graph-title">Node Types</span>
+              <h2>{% trans "Your graph schema" %}</h2>
+              <span class="graph-title">{% trans "Node Types" %}</span>
               <ul id="graph-schema-nodes"></ul>
-              <span class="graph-title">Edge Types</span>
+              <span class="graph-title">{% trans "Edge Types" %}</span>
               <ul id="graph-schema-edges"></ul>
             </div>
             <div style="float:right">
-              <h2>Sylva graph schema</h2>
+              <h2>{% trans "Sylva graph schema" %}</h2>
               <div id="sylva-schema"></div>
-              <span class="graph-title">Node Types</span>
+              <span class="graph-title">{% trans "Node Types" %}</span>
               <ul id="sylva-schema-nodes"></ul>
-              <span class="graph-title">Edge Types</span>
+              <span class="graph-title">{% trans "Edge Types" %}</span>
               <ul id="sylva-schema-edges"></ul>
             </div>
           </div>
@@ -135,20 +130,20 @@
             <progress id="import-progress-bar"></progress>
             <p id="import-progress-text"></p>
             <div id="summary" style="display:none">
-                <h2>Data Summary</h2>
-                <h4>Nodes</h4>
+                <h2>{% trans "Data Summary" %}</h2>
+                <h4>{% trans "Nodes" %}</h4>
                 <ul id="node-list"></ul>
-                <h4>Relationships</h4>
+                <h4>{% trans "Relationships" %}</h4>
                 <ol id="edge-list"></ol>
             </div>
           </div>
         </div>
         <div id="sec-debug" style="display:none">
-          <h3>Graph Nodes Debug</h3>
+          <h3>{% trans "Graph Nodes Debug" %}</h3>
           <textarea id="id_graph_nodes" rows="10" cols="80" name="graph_nodes">{}</textarea>
-          <h3>Graph Edges Debug</h3>
+          <h3>{% trans "Graph Edges Debug" %}</h3>
           <textarea id="id_graph_edges" rows="10" cols="80" name="graph_edges">[]</textarea>
-          <h3>Graph Schema Debug</h3>
+          <h3>{% trans "Graph Schema Debug" %}</h3>
           <textarea id="id_graph_schema" rows="10" cols="80" name="graph_schema">{}</textarea>
         </div>
     </div>
