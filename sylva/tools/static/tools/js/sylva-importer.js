@@ -145,41 +145,41 @@
       });
 
       if (edgeType !== undefined) {
-          var properties = {};
+        var properties = {};
 
-          $.each(Importer.matching.edgeAttributes[edgeType], function(index, value){
-            if (value !== ""){
-              properties[index] = edgeData[value];
+        $.each(Importer.matching.edgeAttributes[edgeType], function(index, value){
+          if (value !== ""){
+            properties[index] = edgeData[value];
+          }
+        });
+
+        $.ajax({
+          url: Importer.addRelationshipURL,
+          data: {
+            type: Importer.matching.edgeTypes[edgeType].label[1],
+            sourceId: Importer.nodes[sourceName]._id,
+            targetId: Importer.nodes[targetName]._id,
+            properties: JSON.stringify(properties)
+          },
+          success: function(response){
+            response = JSON.parse(response);
+            Importer.counter++;
+            var relationshipText = GraphEditor.edgeText(sourceName, edgeLabel, targetName);
+            $(Importer.progressTextId).html('Relationship ' + relationshipText + ' created.');
+            $(Importer.progressBarId).attr('value', Importer.counter);
+
+            if (Importer.counterMax === Importer.counter){
+              $('body').trigger($.Event('importFinished'));
+            } else if (Importer.edgesBuffer) {
+              // continue importing edges
+              var edge = Importer.edgesBuffer.pop();
+              Importer.addEdge(edge.value.source.trim(),
+                               edge.value.type.trim(),
+                               edge.value.target.trim(),
+                               edge.value.properties);
             }
-          });
-
-          $.ajax({
-            url: Importer.addRelationshipURL,
-            data: {
-              type: Importer.matching.edgeTypes[edgeType].label[1],
-              sourceId: Importer.nodes[sourceName]._id,
-              targetId: Importer.nodes[targetName]._id,
-              properties: JSON.stringify(properties)
-            },
-            success: function(response){
-              response = JSON.parse(response);
-              Importer.counter++;
-              var relationshipText = GraphEditor.edgeText(sourceName, edgeLabel, targetName);
-              $(Importer.progressTextId).html('Relationship ' + relationshipText + ' created.');
-              $(Importer.progressBarId).attr('value', Importer.counter);
-
-              if (Importer.counterMax === Importer.counter){
-                $('body').trigger($.Event('importFinished'));
-              } else if (Importer.edgesBuffer) {
-                // continue importing edges
-                var edge = Importer.edgesBuffer.pop();
-                Importer.addEdge(edge.value.source.trim(),
-                                 edge.value.type.trim(),
-                                 edge.value.target.trim(),
-                                 edge.value.properties);
-              }
-            }
-          });
+          }
+        });
       }
     },
 
