@@ -68,7 +68,7 @@
 
       var json = this.getGraphNodesJSON();
       if (this.nodeExists(nodeName)){
-        alert("ERROR: That node already exists");
+        console.log("ERROR: That node already exists");
         return;
       }
       var data = _properties !== undefined ? _properties : {};
@@ -89,11 +89,11 @@
     deleteNode: function(name){
       var nodeName = (name !== undefined) ? name : prompt("Enter node to be deleted");
       if (!this.nodeExists(nodeName)){
-        alert("ERROR: Unknown node: " + nodeName);
+        console.log("ERROR: Unknown node: " + nodeName);
         return;
       }
       if (this.nodeBelongsToEdge(nodeName)){
-        alert("ERROR: node " + nodeName + " belongs to a relationship. Delete relationship first");
+        console.log("ERROR: node " + nodeName + " belongs to a relationship. Delete relationship first");
         return;
       }
       var json = this.getGraphNodesJSON();
@@ -111,11 +111,11 @@
       var edgeTarget = _target !== undefined ? _target: prompt("Enter target node");
 
       if (!this.nodeExists(edgeSource)){
-        alert("ERROR: Unknown source node: " + edgeSource);
+        console.log("ERROR: Unknown source node: " + edgeSource);
         return;
       }
       if (!this.nodeExists(edgeTarget)){
-        alert("ERROR: Unknown target node: " + edgeTarget);
+        console.log("ERROR: Unknown target node: " + edgeTarget);
         return;
       }
       if (edgeType === "") {
@@ -136,7 +136,7 @@
       var edgeNumber = (number !== undefined) ? number : parseInt(prompt("Enter edge number to be deleted"), 10) - 1;
       var json = this.getGraphEdgesJSON();
       if (edgeNumber>json.length || edgeNumber<0) {
-        alert("Invalid edge number: " + (edgeNumber+1));
+        console.log("Invalid edge number: " + (edgeNumber+1));
         return;
       }
       var newList = [];
