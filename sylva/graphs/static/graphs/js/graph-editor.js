@@ -557,12 +557,11 @@
       if (GraphEditor.USES_DRAWER){
         $.ajax({
           url: GraphEditor.PDE_URL,
-          success: function(block, error){
-            GraphEditor.drawer = new Processing(document.getElementById('graphcanvas'), block);
-            GraphEditor.drawInitialData();
-            $('#graphcanvas').trigger('pde_loaded');
-          },
-          error: function(){console.log("error");}
+            success: function(block, error){
+              GraphEditor.drawer = new Processing(document.getElementById('graphcanvas'), block);
+              GraphEditor.drawInitialData();
+              $('#graphcanvas').trigger('pde_loaded');
+            }
           }
         );
       }
