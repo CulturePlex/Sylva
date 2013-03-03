@@ -119,7 +119,8 @@
         return;
       }
       if (edgeType === "") {
-        edgeType = " ";
+        console.log("ERROR: empty edge label");
+        return;
       }
       var json = this.getGraphEdgesJSON();
       var properties = (_properties !== undefined) ? _properties : {};
