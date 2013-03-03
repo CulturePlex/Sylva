@@ -119,8 +119,7 @@
         return;
       }
       if (edgeType === "") {
-        alert("Relationship type is mandatory");
-        return;
+        edgeType = " ";
       }
       var json = this.getGraphEdgesJSON();
       var properties = (_properties !== undefined) ? _properties : {};
@@ -217,7 +216,7 @@
           var attributesNodes = gexf.getElementsByTagName('attributes');
 
           var id, title, type;
-          var attributeId, attributeTitle;
+          var attribute, attributeId, attributeTitle;
           var i, j, k, li, lj, lk;
 
           // loop through attributes elements and store attributes for nodes and edges
@@ -277,8 +276,11 @@
                 var attvalueNode = attvalueNodes[k];
 
                 attributeId = attvalueNode.getAttribute('for');
-                attributeTitle = nodesAttributes[attributeId].title;
-                nodeAttributes[attributeTitle] = attvalueNode.getAttribute('value');
+                attribute = nodesAttributes[attributeId];
+                if (attribute !== undefined) {
+                  attributeTitle = attribute.title;
+                  nodeAttributes[attributeTitle] = attvalueNode.getAttribute('value');
+                }
               }
 
               // finally, add node
@@ -311,8 +313,11 @@
 
                 attributeId = attvalueEdge.getAttribute('for');
                 if (attributeId !== "_id") {
-                  attributeTitle = edgesAttributes[attributeId].title;
-                  edgeAttributes[attributeTitle] = attvalueEdge.getAttribute('value');
+                  attribute = edgesAttributes[attributeId];
+                  if (attribute !== undefined) {
+                    attributeTitle = attribute.title;
+                    edgeAttributes[attributeTitle] = attvalueEdge.getAttribute('value');
+                  }
                 }
               }
 
