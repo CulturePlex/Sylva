@@ -173,8 +173,10 @@
               } else if (Importer.edgesBuffer) {
                 // continue importing edges
                 var edge = Importer.edgesBuffer.pop();
-                Importer.addEdge(edge.value.source.trim(), edge.value.type.trim(),
-                    edge.value.target.trim(), edge.value.properties);
+                Importer.addEdge(edge.value.source.trim(),
+                                 edge.value.type.trim(),
+                                 edge.value.target.trim(),
+                                 edge.value.properties);
               }
             }
           });
