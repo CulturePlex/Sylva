@@ -52,6 +52,12 @@ class TypeDeleteConfirmForm(forms.Form):
 
 class NodeTypeForm(forms.ModelForm):
 
+    def clean_name(self):
+        name = self.cleaned_data["name"]
+        if name.strip() == "":
+            raise forms.ValidationError(_("You need to provide a name."))
+        return name
+
     class Meta:
         model = NodeType
         if settings.OPTIONS["ENABLE_INHERITANCE"]:
@@ -63,7 +69,7 @@ class NodeTypeForm(forms.ModelForm):
 
 if settings.OPTIONS.get("ENABLE_TYPE_VALIDATION_FORMS", False):
     NodePropertyFormSet = inlineformset_factory(NodeType, NodeProperty,
-                                                    extra=1, can_delete=True)
+                                                extra=1, can_delete=True)
 else:
     NodePropertyFormSet = inlineformset_factory(NodeType, NodeProperty,
                                                 extra=1, can_delete=True,
@@ -125,6 +131,12 @@ class RelationshipTypeForm(forms.ModelForm):
             nodetypes_qs = schema.nodetype_set.all()
             self.fields["source"].queryset = nodetypes_qs
             self.fields["target"].queryset = nodetypes_qs
+
+    def clean_name(self):
+        name = self.cleaned_data["name"]
+        if name.strip() == "":
+            raise forms.ValidationError(_("You need to provide a name."))
+        return name
 
     class Meta:
         model = RelationshipType
