@@ -136,10 +136,6 @@ class StripeSubscription(DatesModelBase, ZebraStripeSubscription):
         '''A customer can be subscribed for 1 Basic plan or N Premium plans'''
         new_customer = self.customer
         user = new_customer.user
-        stripe_customer = new_customer.stripe_customer
-        stripe_errors = False
-        error_message = _('Sorry, an error occurred while processing the '
-                          'card. Your payment could not be processed.')
         profile = user.get_profile()
         stripe_plan_id = self.plan.stripe_plan_id
         account_type = settings.STRIPE_PLANS[stripe_plan_id]['account_type']
@@ -150,6 +146,18 @@ class StripeSubscription(DatesModelBase, ZebraStripeSubscription):
                 error_message = _('You are already subscribed for a %s plan' %
                                             settings.STRIPE_PLANS['2']['name'])
                 raise StripeSubscriptionException(error_message)
+        super(StripeSubscription, self).save(*args, **kwargs)
+
+    def update_stripe_subscription(self):
+        new_customer = self.customer
+        user = new_customer.user
+        stripe_customer = new_customer.stripe_customer
+        stripe_errors = False
+        error_message = _('Sorry, an error occurred while processing the '
+                          'card. Your payment could not be processed.')
+        profile = user.get_profile()
+        stripe_plan_id = self.plan.stripe_plan_id
+        account_type = settings.STRIPE_PLANS[stripe_plan_id]['account_type']
         try:
             stripe_customer.update_subscription(plan=stripe_plan_id,
                                                 prorate="True")
@@ -175,8 +183,6 @@ class StripeSubscription(DatesModelBase, ZebraStripeSubscription):
                 profile.save()
             except Account.DoesNotExist:
                 raise StripeSubscriptionException(error_message)
-
-        super(StripeSubscription, self).save(*args, **kwargs)
 
 
 # Custom exceptions

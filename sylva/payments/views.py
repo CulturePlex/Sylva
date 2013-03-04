@@ -10,6 +10,7 @@ from django.utils.translation import ugettext_lazy as _
 from base.decorators import is_enabled, is_subscribed
 from engines.gdb.utils import deploy
 from payments.forms import SubscriptionForm, UnsubscriptionForm
+from payments.models import StripeSubscriptionException
 
 
 @is_enabled(settings.ENABLE_PAYMENTS)
@@ -37,12 +38,17 @@ def subscription_edit_create(request, plan_id=''):
                         stripe_subscription.instance = instance
                         stripe_subscription.save()
                     except:
-                        #TODO: Unsubscribe if any error happens,
-                        #      show an informative message to the user,
-                        #      and destroy the corrupt instance
-                        # return redirect('subscription_problem_on_deployment')
-                        pass
-                return redirect('subscription_welcome')
+                        stripe_errors = True
+                        # TODO: destroy the corrupt instance
+                        stripe_subscription.customer.delete()
+                        messages.error(request, error_message)
+                if not stripe_errors:
+                    try:
+                        stripe_subscription.update_stripe_subscription()
+                        return redirect('subscription_welcome')
+                    except StripeSubscriptionException:
+                        stripe_subscription.customer.delete()
+                        messages.error(request, error_message)
     return render_to_response('payments/subscription_edit_create.html',
                               {'form': form,
                                'plan_name': settings.STRIPE_PLANS[plan_id]['name'],
