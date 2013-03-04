@@ -61,7 +61,7 @@ class StripeCustomer(DatesModelBase, ZebraStripeCustomer):
             stripe_errors = True
             error = e.json_body['error']
             logger.info('payments (customer): %s: (%s) %s' %
-                               (error['type'], error['code'], error['message']))
+                        (error['type'], error['code'], error['message']))
             if error['code'] not in ['missing', 'processing_error']:
                 error_message = error['message']
         except (stripe.InvalidRequestError,
@@ -71,7 +71,7 @@ class StripeCustomer(DatesModelBase, ZebraStripeCustomer):
             stripe_errors = True
             error = e.json_body['error']
             logger.info('payments (customer): %s: %s' %
-                                (error['type'], error['message']))
+                        (error['type'], error['message']))
         except Exception:
             stripe_errors = True
             logger.info('payments (customer): Unexpected error')
@@ -144,7 +144,7 @@ class StripeSubscription(DatesModelBase, ZebraStripeSubscription):
             if profile.account.type == account_type == 2:  # is Basic plan
                 new_customer.delete()
                 error_message = _('You are already subscribed for a %s plan' %
-                                            settings.STRIPE_PLANS['2']['name'])
+                                  settings.STRIPE_PLANS['2']['name'])
                 raise StripeSubscriptionException(error_message)
         super(StripeSubscription, self).save(*args, **kwargs)
 
@@ -168,7 +168,7 @@ class StripeSubscription(DatesModelBase, ZebraStripeSubscription):
             stripe_errors = True
             error = e.json_body['error']
             logger.info('payments (subscription): %s: %s' %
-                                (error['type'], error['message']))
+                        (error['type'], error['message']))
         except Exception:
             stripe_errors = True
             logger.info('payments (subscription): Unexpected error')
@@ -233,7 +233,7 @@ def process_stripe_event(event_type, subject, template, **kwargs):
                         customer = stripe.Customer.retrieve(stripe_customer_id)
                     except stripe.InvalidRequestError:
                         logger.error("payments: No such Stripe customer: %s"
-                                                        % stripe_customer_id)
+                                     % stripe_customer_id)
                     if customer:
                         email = customer['email']
                         send_payments_email(email, plan_name, subject, template)
