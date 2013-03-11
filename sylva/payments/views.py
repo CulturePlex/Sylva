@@ -101,17 +101,18 @@ def subscription_welcome(request):
 @is_enabled(settings.ENABLE_PAYMENTS)
 def subscription_plans(request):
     user = request.user
-    is_subscribed = False
     account_type = None
+    is_basic = None
+    is_premium = None
     basic_plan = settings.STRIPE_PLANS['2']
     premium_plan = settings.STRIPE_PLANS['3']
     if user.is_authenticated():
-        account = user.get_profile().account
-        is_subscribed = account.type != 1
-        account_type = account.type
+        account_type = user.get_profile().account.type
+        is_basic = account_type == 2
+        is_premium = account_type == 3
     return render_to_response('payments/plans.html',
                               {'basic_plan': basic_plan,
                                'premium_plan': premium_plan,
-                               'is_subscribed': is_subscribed,
-                               'account_type': account_type},
+                               'is_basic': is_basic,
+                               'is_premium': is_premium},
                               context_instance=RequestContext(request))

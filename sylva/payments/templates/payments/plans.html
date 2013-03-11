@@ -38,11 +38,11 @@
           <li>{% trans "Feature Four" %}</li>
         </ul>
         <div>
-          {% if is_subscribed and account_type == 2 %}
+          {% if is_basic %}
             <a href="javascript:void(0)" class="btn btn-large" disabled="disabled">{% trans "Already subscribed" %}</a>
           {% else %}
             <a href="{% url subscription_basic %}" class="btn btn-large">
-              {% if is_subscribed and account_type == 3 %}
+              {% if is_premium %}
                 {% blocktrans with name=basic_plan.name %}Downgrade to {{ name }}{% endblocktrans %}
               {% else %}
                 {% trans "Subscribe Now" %}
@@ -62,9 +62,9 @@
         </ul>
         <div>
           <a href="{% url subscription_premium %}" class="btn btn-large">
-            {% if is_subscribed and account_type == 2 %}
+            {% if is_basic %}
               {% blocktrans with name=premium_plan.name %}Upgrade to {{ name }}{% endblocktrans %}
-            {% elif is_subscribed and account_type == 3 %}
+            {% elif is_premium %}
               {% blocktrans with name=premium_plan.name %}Create new {{ name }} instance{% endblocktrans %}
             {% else %}
               {% trans "Subscribe Now" %}
@@ -120,11 +120,11 @@
             <div class="empty"></div>
           </td>
           <td>
-            {% if is_subscribed and account_type == 2 %}
+            {% if is_basic %}
               <a href="javascript:void(0)" class="btn btn-large" disabled="disabled">{% trans "Already subscribed" %}</a>
             {% else %}
               <a href="{% url subscription_basic %}" class="btn btn-large">
-                {% if is_subscribed and account_type == 3 %}
+                {% if is_premium %}
                   {% blocktrans with name=basic_plan.name %}Downgrade to {{ name }}{% endblocktrans %}
                 {% else %}
                   {% trans "Subscribe Now" %}
@@ -134,9 +134,9 @@
           </td>
           <td>
             <a href="{% url subscription_premium %}" class="btn btn-large">
-              {% if is_subscribed and account_type == 2 %}
+              {% if is_basic %}
                 {% blocktrans with name=premium_plan.name %}Upgrade to {{ name }}{% endblocktrans %}
-              {% elif is_subscribed and account_type == 3 %}
+              {% elif is_premium %}
                 {% blocktrans with name=premium_plan.name %}Create new {{ name }} instance{% endblocktrans %}
               {% else %}
                 {% trans "Subscribe Now" %}
