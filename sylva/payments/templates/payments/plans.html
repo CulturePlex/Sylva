@@ -26,13 +26,7 @@
           <li>{% trans "Feature Three" %}</li>
           <li>{% trans "Feature Four" %}</li>
         </ul>
-        {% if is_subscribed %}
-          <div>
-            <a href="{% url subscription_cancel %}" class="btn btn-large">{% trans "Unsubscribe" %}</a>
-          </div>
-        {% else %}
-          <div class="empty"></div>
-        {% endif %}
+        <div class="empty"></div>
       </div>
       <div class="span4 plan featured animate go-up">
         <h3>{% blocktrans with name=basic_plan.name %}{{ name }}{% endblocktrans %}</h3>
@@ -123,11 +117,7 @@
         <tr>
           <td></td>
           <td>
-            {% if is_subscribed %}
-              <a href="{% url subscription_cancel %}" class="btn btn-large">{% trans "Unsubscribe" %}</a>
-            {% else %}
-              <div class="empty"></div>
-            {% endif %}
+            <div class="empty"></div>
           </td>
           <td>
             {% if is_subscribed and account_type == 2 %}
