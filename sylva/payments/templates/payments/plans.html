@@ -43,7 +43,7 @@
           {% else %}
             <a href="{% url subscription_basic %}" class="btn btn-large">
               {% if is_subscribed and account_type == 3 %}
-                {% trans "Downgrade" %}
+                {% blocktrans with name=basic_plan.name %}Downgrade to {{ name }}{% endblocktrans %}
               {% else %}
                 {% trans "Subscribe Now" %}
               {% endif %}
@@ -63,9 +63,9 @@
         <div>
           <a href="{% url subscription_premium %}" class="btn btn-large">
             {% if is_subscribed and account_type == 2 %}
-              {% trans "Upgrade" %}
+              {% blocktrans with name=premium_plan.name %}Upgrade to {{ name }}{% endblocktrans %}
             {% elif is_subscribed and account_type == 3 %}
-              {% trans "Create new instance" %}
+              {% blocktrans with name=premium_plan.name %}Create new {{ name }} instance{% endblocktrans %}
             {% else %}
               {% trans "Subscribe Now" %}
             {% endif %}
@@ -125,7 +125,7 @@
             {% else %}
               <a href="{% url subscription_basic %}" class="btn btn-large">
                 {% if is_subscribed and account_type == 3 %}
-                  {% trans "Downgrade" %}
+                  {% blocktrans with name=basic_plan.name %}Downgrade to {{ name }}{% endblocktrans %}
                 {% else %}
                   {% trans "Subscribe Now" %}
                 {% endif %}
@@ -135,9 +135,9 @@
           <td>
             <a href="{% url subscription_premium %}" class="btn btn-large">
               {% if is_subscribed and account_type == 2 %}
-                {% trans "Upgrade" %}
+                {% blocktrans with name=premium_plan.name %}Upgrade to {{ name }}{% endblocktrans %}
               {% elif is_subscribed and account_type == 3 %}
-                {% trans "Create new instance" %}
+                {% blocktrans with name=premium_plan.name %}Create new {{ name }} instance{% endblocktrans %}
               {% else %}
                 {% trans "Subscribe Now" %}
               {% endif %}
