@@ -24,30 +24,30 @@ def subscription_edit_create(request, plan_id=''):
     if request.method == 'POST':
         form = SubscriptionForm(request.POST)
         if form.is_valid():
-            stripe_subscription, stripe_errors, error_message = \
+            subscription, stripe_errors, error_message = \
                 form.stripe_edit_create_subscription(user, plan_id)
-            if stripe_errors or not stripe_subscription:
+            if stripe_errors or not subscription:
                 messages.error(request, error_message)
             else:
                 if plan_id == '3':  # Premium
                     try:
                         #TODO: Add support for other backends in the form
                         engine = 'engines.gdb.backends.neo4j'
-                        user = stripe_subscription.customer.user
+                        user = subscription.customer.user
                         instance = deploy(engine, request, user)
-                        stripe_subscription.instance = instance
-                        stripe_subscription.save()
+                        subscription.instance = instance
+                        subscription.save()
                     except:
                         stripe_errors = True
                         # TODO: destroy the corrupt instance
-                        stripe_subscription.customer.delete()
+                        subscription.customer.delete()
                         messages.error(request, error_message)
                 if not stripe_errors:
                     try:
-                        stripe_subscription.update_stripe_subscription()
+                        subscription.update_stripe_subscription()
                         return redirect('subscription_welcome')
                     except StripeSubscriptionException:
-                        stripe_subscription.customer.delete()
+                        subscription.customer.delete()
                         messages.error(request, error_message)
     return render_to_response('payments/subscription_edit_create.html',
                               {'form': form,

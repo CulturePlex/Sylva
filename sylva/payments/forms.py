@@ -21,6 +21,7 @@ class SubscriptionForm(StripePaymentForm):
 
     def stripe_edit_create_subscription(self, user, plan_id):
         customer = None
+        subscription = None
         stripe_errors = False
         error_message = ''
         stripe_token = self.cleaned_data['stripe_token']
@@ -46,12 +47,11 @@ class SubscriptionForm(StripePaymentForm):
                                   'before subscribing for a %s plan' %
                                         (settings.STRIPE_PLANS['3']['name'],
                                          settings.STRIPE_PLANS['2']['name']))
-            stripe_subscription = None
             if not stripe_errors and not subscription_updated:
                 try:
                     customer = StripeCustomer.objects.create(user=user,
                                                              card=stripe_token)
-                    stripe_subscription = StripeSubscription.objects.create(
+                    subscription = StripeSubscription.objects.create(
                         customer=customer,
                         plan=plan
                     )
@@ -60,7 +60,7 @@ class SubscriptionForm(StripePaymentForm):
                     stripe_errors = True
                     error_message = e.message
 
-        return stripe_subscription, stripe_errors, error_message
+        return subscription, stripe_errors, error_message
 
 
 class UnsubscriptionForm(forms.Form):
