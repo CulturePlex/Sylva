@@ -6,7 +6,17 @@
 {% endblock title %}
 
 {% block content_title %}
-  <h1>{% blocktrans %}Subscribe for a {{ plan_name }} plan{% endblocktrans %}</h1>
+  <h1>
+    {% if action == 'upgrade' %}
+      {% blocktrans %}Upgrade to {{ plan_name }}{% endblocktrans %}
+    {% elif action == 'add-instance' %}
+      {% blocktrans %}Add a new instance to your {{ plan_name }} plan{% endblocktrans %}
+    {% elif action == 'downgrade' %}
+      {% blocktrans %}Downgrade to {{ plan_name }}{% endblocktrans %}
+    {% else %}
+      {% blocktrans %}Subscribe for a {{ plan_name }} plan{% endblocktrans %}
+    {% endif %}
+  </h1>
 {% endblock content_title %}
 
 {% block content %}

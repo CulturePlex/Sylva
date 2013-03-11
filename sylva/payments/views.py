@@ -20,6 +20,7 @@ def subscription_edit_create(request, plan_id=''):
     stripe_errors = False
     error_message = _('Sorry, an error occurred while processing the '
                       'card. Your payment could not be processed.')
+    action = request.GET.get('action', '')
     form = SubscriptionForm()
     if request.method == 'POST':
         form = SubscriptionForm(request.POST)
@@ -51,6 +52,7 @@ def subscription_edit_create(request, plan_id=''):
                         messages.error(request, error_message)
     return render_to_response('payments/subscription_edit_create.html',
                               {'form': form,
+                               'action': action,
                                'plan_name': settings.STRIPE_PLANS[plan_id]['name'],
                                'publishable': settings.STRIPE_PUBLISHABLE},
                               context_instance=RequestContext(request))
