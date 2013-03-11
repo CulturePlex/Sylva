@@ -65,7 +65,7 @@
             {% if is_basic %}
               {% blocktrans with name=premium_plan.name %}Upgrade to {{ name }}{% endblocktrans %}
             {% elif is_premium %}
-              {% blocktrans with name=premium_plan.name %}Create new {{ name }} instance{% endblocktrans %}
+              {% blocktrans with name=premium_plan.name %}Add {{ name }} instance{% endblocktrans %}
             {% else %}
               {% trans "Subscribe Now" %}
             {% endif %}
@@ -137,7 +137,7 @@
               {% if is_basic %}
                 {% blocktrans with name=premium_plan.name %}Upgrade to {{ name }}{% endblocktrans %}
               {% elif is_premium %}
-                {% blocktrans with name=premium_plan.name %}Create new {{ name }} instance{% endblocktrans %}
+                {% blocktrans with name=premium_plan.name %}Add {{ name }} instance{% endblocktrans %}
               {% else %}
                 {% trans "Subscribe Now" %}
               {% endif %}
