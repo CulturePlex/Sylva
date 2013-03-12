@@ -112,7 +112,7 @@ def subscription_plans(request):
         account_type = user.get_profile().account.type
         is_basic = account_type == 2
         is_premium = account_type == 3
-    return render_to_response('payments/plans.html',
+    return render_to_response('payments/subscription_plans.html',
                               {'basic_plan': basic_plan,
                                'premium_plan': premium_plan,
                                'is_basic': is_basic,
