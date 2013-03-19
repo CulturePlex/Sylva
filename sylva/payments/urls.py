@@ -9,4 +9,5 @@ urlpatterns = patterns('payments.views',
     url(r'^unsubscribe/$', 'subscription_cancel', name='subscription_cancel'),
     url(r'^welcome/$', 'subscription_welcome', name='subscription_welcome'),
     url(r'^plans/$', 'subscription_plans', name='subscription_plans'),
+    url(r'^subscriptions/$', 'subscription_list', name='subscription_list'),
 )

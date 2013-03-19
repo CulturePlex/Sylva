@@ -118,3 +118,26 @@ def subscription_plans(request):
                                'is_basic': is_basic,
                                'is_premium': is_premium},
                               context_instance=RequestContext(request))
+
+
+@is_enabled(settings.ENABLE_PAYMENTS)
+@login_required
+@is_subscribed
+def subscription_list(request):
+    user = request.user
+    customers = user.stripe_customers.all()
+    account_type = user.get_profile().account.type
+    is_basic = account_type == 2
+    is_premium = account_type == 3
+    plan = settings.STRIPE_PLANS[str(account_type)]
+    basic_plan = settings.STRIPE_PLANS['2']
+    premium_plan = settings.STRIPE_PLANS['3']
+    return render_to_response('payments/subscription_list.html',
+                              {'customers': customers,
+                               'num_instances': customers.count,
+                               'is_basic': is_basic,
+                               'is_premium': is_premium,
+                               'plan': plan,
+                               'basic_plan': basic_plan,
+                               'premium_plan': premium_plan},
+                              context_instance=RequestContext(request))

@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block extra_links %}
+  <link rel="stylesheet" href="{{ STATIC_PREFIX }}bootstrap/css/bootstrap-custom.css">
+  <link rel="stylesheet" href="{{ STATIC_PREFIX }}css/font-awesome.css">
+{% endblock extra_links %}
+
+{% block title %}
+  {% trans "Subscriptions" %}
+{% endblock title %}
+
+{% block content_title %}
+  <h1>{% trans "Subscriptions" %}</h1>
+{% endblock content_title %}
+
+{% block content %}
+  <div class="subscriptions">
+    <h2>
+      {% blocktrans with plan_name=plan.name %}You are currently subscribed for a {{ plan_name }} plan{% endblocktrans %}
+    </h2>
+    {% if is_premium %}
+      <div class="info-wrapper">
+        <div class="left-side">
+          <p>
+            {% blocktrans count num_instances=num_instances %}You have 1 instance{% plural %}You have {{ num_instances }} instances{% endblocktrans %}:
+          </p>
+          <ul>
+            {% for customer in customers %}
+              <li>
+                <span>{% trans "Instance" %} {{ forloop.counter }}:</span>
+                <a href="{% url subscription_cancel %}" class="btn btn-small">
+                  {% trans "Destroy instance" %}
+                </a>
+              </li>
+            {% endfor %}
+          </ul>
+        </div>
+        <div class="right-side">
+          <p>
+            {% trans "You can " %}
+            <a href="{% url subscription_premium %}" class="btn btn-small" style="margin-right: 50px;">
+              {% trans "create new instance" %}
+            </a>
+            {% if num_instances == 1 %}
+                {% trans "You can also" %}
+                <a href="{% url subscription_basic %}?action=downgrade" class="btn btn-small">
+                  {% blocktrans with plan_name=basic_plan.name %}Downgrade to {{ plan_name }}{% endblocktrans %}
+                </a>
+            {% endif %}
+          </p>
+        </div>
+      </div>
+    {% elif is_basic %}
+      <p>
+        {% trans "You can" %}
+        <a href="{% url subscription_premium %}?action=upgrade" class="btn btn-small">
+          {% blocktrans with plan_name=premium_plan.name %}Upgrade to {{ plan_name }}{% endblocktrans %}
+        </a>
+        {% trans "and" %}
+        <a href="{% url subscription_plans %}">
+          {% trans "enjoy the benefits" %}
+        </a>
+        {% blocktrans with plan_name=premium_plan.name %}of a {{ plan_name }} subscription{% endblocktrans %}
+      </p>
+      <p>{% trans "or" %}</p>
+      <p>
+        {% trans "sadly, you can" %}
+        <a href="{% url subscription_cancel %}" class="btn btn-small">
+          {% trans "Unsubscribe" %}
+        </a>
+        {% trans "and return to a Free account." %}
+      </p>
+    {% endif %}
+  </div>
+{% endblock content %}

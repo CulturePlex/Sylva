@@ -2242,6 +2242,37 @@ body :hover > a.headerlink {
 /* END Subscription form */
 
 
+/* User subscriptions */
+
+.subscriptions h2 {
+    margin-bottom: 5px;
+}
+
+.subscriptions li {
+    line-height: 35px;
+}
+
+.subscriptions ul {
+    margin-top: 10px;
+}
+
+.subscriptions .info-wrapper {
+    height: 400px;
+}
+
+.subscriptions .left-side {
+    float: left;
+    border-right: 1px solid lightgray;
+    margin-right: 60px;
+    padding-right: 60px;
+    overflow-y: auto;
+    max-height: 100%;
+    width: 210px;
+}
+
+/* END User subscriptions */
+
+
 /* END Import tool */
 
 .import-tool label {
