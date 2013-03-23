@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% load i18n graphs %}
+
+{% block navigation_buttons %}
+  {{ block.super }}
+{% endblock %}
+
+{% block title %}
+  {{ graph.name }}
+{% endblock %}
+
+{% block menu_buttons %}
+  {% toolbar on="operator" %}
+{% endblock %}
+
+{% block content_title %}
+  {% trans "Queries" as label %}
+  {% breadcrumb graph label %}
+{% endblock %}
+
+{% block content %}
+{% endblock %}
+
+{% block extra_links %}
+{% endblock %}
+
+{% block extra_scripts %}
+{% endblock %}

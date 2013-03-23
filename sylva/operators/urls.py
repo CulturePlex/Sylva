@@ -11,5 +11,7 @@ urlpatterns = patterns('operators.views',
     # query
     url(r'^(?P<graph_slug>[\w-]+)/query/$', 'operator_query',
         name="operator_query"),
+    url(r'^(?P<graph_slug>[\w-]+)/graph-query/$', 'graph_query',
+        name="graph_query"),
 
 )
