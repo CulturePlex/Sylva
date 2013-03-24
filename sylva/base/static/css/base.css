@@ -2305,3 +2305,14 @@ body :hover > a.headerlink {
 }
 
 /* END Import tool */
+
+
+/* Queries */
+
+.visual-search {
+    width: 700px;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 20px;
+}
+/* END Queries */

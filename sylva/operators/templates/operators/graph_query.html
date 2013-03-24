@@ -19,10 +19,69 @@
 {% endblock %}
 
 {% block content %}
+  <div id="search-query" class="visual-search"></div>
 {% endblock %}
 
 {% block extra_links %}
+  <link rel="stylesheet" href="{{ STATIC_PREFIX }}operators/visualsearch/visualsearch.css">
+  <link rel="stylesheet" href="{{ STATIC_PREFIX }}operators/visualsearch/visualsearch-datauri.css">
 {% endblock %}
 
 {% block extra_scripts %}
+  <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.2/jquery-ui.min.js"></script>
+  <script src="{{ STATIC_PREFIX }}operators/visualsearch/vendor/underscore-1.4.3.js"></script>
+  <script src="{{ STATIC_PREFIX }}operators/visualsearch/vendor/backbone-0.9.10.js"></script>
+  <script src="{{ STATIC_PREFIX }}operators/visualsearch/visualsearch.js"></script>
+  <script>
+  $(document).ready(function() {
+    var visualSearch = VS.init({
+      container : $('.visual-search'),
+      query     : '',
+      callbacks : {
+        search       : function(query, searchCollection) {
+          var count  = searchCollection.size();
+          console.log('You searched ' + count + ' statements: ' + query);
+        },
+        facetMatches : function(callback) {
+          callback([
+            'account', 'filter', 'access', 'title',
+            { label: 'city',    category: 'location' },
+            { label: 'address', category: 'location' },
+            { label: 'country', category: 'location' },
+            { label: 'state',   category: 'location' },
+            { label: 'state',   category: 'location' },
+          ]);
+        },
+        valueMatches : function(facet, searchTerm, callback) {
+          switch (facet) {
+            case 'account':
+              callback([
+                { value: '1-amanda', label: 'Amanda' },
+                { value: '2-aron',   label: 'Aron' },
+                { value: '3-eric',   label: 'Eric' },
+                { value: '4-jeremy', label: 'Jeremy' },
+                { value: '5-samuel', label: 'Samuel' },
+                { value: '6-scott',  label: 'Scott' }
+              ]);
+              break;
+            case 'filter':
+              callback(['published', 'unpublished', 'draft']);
+              break;
+            case 'access':
+              callback(['public', 'private', 'protected']);
+              break;
+            case 'title':
+              callback([
+                'Pentagon Papers',
+                'CoffeeScript Manual',
+                'Laboratory for Object Oriented Thinking',
+                'A Repository Grows in Brooklyn'
+              ]);
+              break;
+          }
+        }
+      }
+    });
+  });
+</script>
 {% endblock %}
