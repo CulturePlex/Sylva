@@ -124,13 +124,48 @@
       <script type="text/javascript" src="{% url django.views.i18n.javascript_catalog %}"></script>
       <!--    <script type="text/javascript" src="{{ STATIC_PREFIX }}js/jquery.simplemodal.1.4.1.min.js"></script>-->
 
-      <script type="text/javascript">
+      <script>
+        // CSRF protection for all AJAX requests
+        $.ajaxSetup({
+          crossDomain: false,  // obviates need for sameOrigin test
+          beforeSend: function(xhr, settings) {
+
+            var getCookie = function(name) {
+              var cookieValue = null;
+              if (document.cookie && document.cookie !== '') {
+                var cookies = document.cookie.split(';');
+                for (var i = 0; i < cookies.length; i++) {
+                  var cookie = jQuery.trim(cookies[i]);
+                  // Does this cookie string begin with the name we want?
+                  if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                  }
+                }
+              }
+              return cookieValue;
+            };
+
+            var csrfSafeMethod = function(method) {
+              // these HTTP methods do not require CSRF protection
+              return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+            };
+
+            if (!csrfSafeMethod(settings.type)) {
+              var csrftoken = getCookie('csrftoken');
+              xhr.setRequestHeader("X-CSRFToken", csrftoken);
+            }
+          }
+        });
+      </script>
+
+      <script>
         // global namespace
         var sylv = {};
         sylv.MEDIA_URL = "{{ STATIC_PREFIX }}";
       </script>
 
-      <script type="text/javascript">
+      <script>
         (function($) {
           $(function() {
             setTimeout(function() {
@@ -145,7 +180,7 @@
         }(jQuery));
       </script>
 
-      <script type="text/javascript">
+      <script>
         (function($) {
           $(function() {
 
