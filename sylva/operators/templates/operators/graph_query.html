@@ -73,7 +73,11 @@
           callbacks: {
             search: function(query, searchCollection) {
               var count = searchCollection.size();
-              console.log('You searched ' + count + ' statements: ' + query);
+              if (count >= 3) {
+                $.post('{% url process_ajax_query %}', {'query': query}, function(data) {
+                  console.log(data);
+                });
+              }
             },
             facetMatches: function(callback) {
               callback([
