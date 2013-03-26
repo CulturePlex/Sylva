@@ -19,6 +19,7 @@
 {% endblock %}
 
 {% block content %}
+  <div id="spinner"></div>
   <div id="search-query" class="visual-search"></div>
 {% endblock %}
 
@@ -33,55 +34,77 @@
   <script src="{{ STATIC_PREFIX }}operators/visualsearch/vendor/backbone-0.9.10.js"></script>
   <script src="{{ STATIC_PREFIX }}operators/visualsearch/visualsearch.js"></script>
   <script>
-  $(document).ready(function() {
-    var visualSearch = VS.init({
-      container : $('.visual-search'),
-      query     : '',
-      callbacks : {
-        search       : function(query, searchCollection) {
-          var count  = searchCollection.size();
-          console.log('You searched ' + count + ' statements: ' + query);
-        },
-        facetMatches : function(callback) {
-          callback([
-            'account', 'filter', 'access', 'title',
-            { label: 'city',    category: 'location' },
-            { label: 'address', category: 'location' },
-            { label: 'country', category: 'location' },
-            { label: 'state',   category: 'location' },
-            { label: 'state',   category: 'location' },
-          ]);
-        },
-        valueMatches : function(facet, searchTerm, callback) {
-          switch (facet) {
-            case 'account':
-              callback([
-                { value: '1-amanda', label: 'Amanda' },
-                { value: '2-aron',   label: 'Aron' },
-                { value: '3-eric',   label: 'Eric' },
-                { value: '4-jeremy', label: 'Jeremy' },
-                { value: '5-samuel', label: 'Samuel' },
-                { value: '6-scott',  label: 'Scott' }
-              ]);
-              break;
-            case 'filter':
-              callback(['published', 'unpublished', 'draft']);
-              break;
-            case 'access':
-              callback(['public', 'private', 'protected']);
-              break;
-            case 'title':
-              callback([
-                'Pentagon Papers',
-                'CoffeeScript Manual',
-                'Laboratory for Object Oriented Thinking',
-                'A Repository Grows in Brooklyn'
-              ]);
-              break;
+    $(function() {
+      var opts = {
+        lines: 15,            // The number of lines to draw
+        length: 14,           // The length of each line
+        width: 5,             // The line thickness
+        radius: 11,           // The radius of the inner circle
+        corners: 1,           // Corner roundness (0..1)
+        rotate: 0,            // The rotation offset
+        color: '#000',        // #rgb or #rrggbb
+        speed: 1,             // Rounds per second
+        trail: 60,            // Afterglow percentage
+        shadow: false,        // Whether to render a shadow
+        hwaccel: false,       // Whether to use hardware acceleration
+        className: 'spinner', // The CSS class to assign to the spinner
+        zIndex: 2e9           // The z-index (defaults to 2000000000)
+      };
+
+      var target = document.getElementById('spinner');
+      var spinner = new Spinner(opts).spin(target);
+
+      var jqxhr = $.getJSON('{% url graph_data graph.slug %}', function(data) {
+        spinner.stop();
+
+        sylv.total_nodes = data.total_nodes;
+        sylv.total_edges = data.total_edges;
+
+        sylv.node_names = [];
+        for (var prop in sylv.total_nodes) {
+          if (sylv.total_nodes.hasOwnProperty(prop)) {
+            sylv.node_names.push(prop);
           }
         }
-      }
+
+        var visualSearch = VS.init({
+          container: $('.visual-search'),
+          query: '',
+          callbacks: {
+            search: function(query, searchCollection) {
+              var count = searchCollection.size();
+              console.log('You searched ' + count + ' statements: ' + query);
+            },
+            facetMatches: function(callback) {
+              callback([
+                'start',
+                'match',
+                {label: 'where'},
+                {label: 'return'},
+                {label: 'order by'}
+              ], {preserveOrder: true});
+            },
+            valueMatches: function(facet, searchTerm, callback) {
+              switch (facet) {
+                case 'start':
+                  callback(sylv.node_names);
+                  break;
+                case 'match':
+                  callback([
+                    'incoming relationships',
+                    'outgoing relationships'
+                  ])
+                  break;
+              }
+            }
+          }
+        });
+      });
+
+      // Error handling.
+      jqxhr.error(function() {
+        alert(gettext("Oops! Something went wrong with the server. Please, reload the page."));
+      });
     });
-  });
-</script>
+  </script>
 {% endblock %}
