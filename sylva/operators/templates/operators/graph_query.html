@@ -35,79 +35,75 @@
   <script src="{{ STATIC_PREFIX }}operators/visualsearch/visualsearch.js"></script>
   <script>
     $(function() {
-      var opts = {
-        lines: 15,            // The number of lines to draw
-        length: 14,           // The length of each line
-        width: 5,             // The line thickness
-        radius: 11,           // The radius of the inner circle
-        corners: 1,           // Corner roundness (0..1)
-        rotate: 0,            // The rotation offset
-        color: '#000',        // #rgb or #rrggbb
-        speed: 1,             // Rounds per second
-        trail: 60,            // Afterglow percentage
-        shadow: false,        // Whether to render a shadow
-        hwaccel: false,       // Whether to use hardware acceleration
-        className: 'spinner', // The CSS class to assign to the spinner
-        zIndex: 2e9           // The z-index (defaults to 2000000000)
-      };
+      var node_types = JSON.parse('{{ node_types|safe }}');
+      var relationship_types = JSON.parse('{{ relationship_types|safe }}');
+      var node_properties = JSON.parse('{{ node_properties|safe }}');
 
-      var target = document.getElementById('spinner');
-      var spinner = new Spinner(opts).spin(target);
-
-      var jqxhr = $.getJSON('{% url graph_data graph.slug %}', function(data) {
-        spinner.stop();
-
-        sylv.total_nodes = data.total_nodes;
-        sylv.total_edges = data.total_edges;
-
-        sylv.node_names = [];
-        for (var prop in sylv.total_nodes) {
-          if (sylv.total_nodes.hasOwnProperty(prop)) {
-            sylv.node_names.push(prop);
-          }
-        }
-
-        var visualSearch = VS.init({
-          container: $('.visual-search'),
-          query: '',
-          callbacks: {
-            search: function(query, searchCollection) {
-              var count = searchCollection.size();
-              if (count >= 3) {
-                $.post('{% url process_ajax_query %}', {'query': query}, function(data) {
-                  console.log(data);
-                });
-              }
-            },
-            facetMatches: function(callback) {
-              callback([
-                'start',
-                'match',
-                {label: 'where'},
-                {label: 'return'},
-                {label: 'order by'}
-              ], {preserveOrder: true});
-            },
-            valueMatches: function(facet, searchTerm, callback) {
-              switch (facet) {
-                case 'start':
-                  callback(sylv.node_names);
-                  break;
-                case 'match':
-                  callback([
-                    'incoming relationships',
-                    'outgoing relationships'
-                  ])
-                  break;
-              }
+      var visualSearch = VS.init({
+        container: $('.visual-search'),
+        query: '',
+        callbacks: {
+          search: function(query, searchCollection) {
+            var count = searchCollection.size();
+            if (count >= 5) {
+              $.post('{% url process_ajax_query %}', {'query': query}, function(data) {
+                console.log(data);
+              });
+            }
+          },
+          facetMatches: function(callback) {
+            callback([
+              'node type',
+              'relationship type',
+              'node property key',
+              {label: 'node property value'},
+              'condition',
+              'operator',
+              'facet'
+            ], {preserveOrder: true});
+          },
+          valueMatches: function(facet, searchTerm, callback) {
+            switch (facet) {
+              case 'node type':
+                callback(node_types);
+                break;
+              case 'facet':
+                callback([
+                  'with',
+                  'that has',
+                  'that have',
+                  'who has',
+                  'who have',
+                  'who has a',
+                  'who has the',
+                  'who have a',
+                  'who have the'
+                ]);
+                break;
+              case 'node property key':
+                callback(node_properties);
+                break;
+              case 'operator':
+                callback([
+                  'that starts with',
+                  'that ends with',
+                  'greater than',
+                  'lower than',
+                  'equals'
+                ]);
+                break;
+              case 'condition':
+                callback([
+                  'and',
+                  'or'
+                ]);
+                break;
+              case 'relationship type':
+                callback(relationship_types);
+                break;
             }
           }
-        });
-      });
-
-      // Error handling.
-      jqxhr.error(function() {
-        alert(gettext("Oops! Something went wrong with the server. Please, reload the page."));
+        }
       });
     });
   </script>

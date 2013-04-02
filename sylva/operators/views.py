@@ -17,7 +17,7 @@ from base.decorators import is_enabled
 from graphs.models import Graph
 from schemas.models import NodeType, RelationshipType
 
-from .parser import parse_query
+# from .parser import parse_query
 
 
 @is_enabled(settings.ENABLE_QUERIES)
@@ -65,7 +65,8 @@ def graph_query(request, graph_slug):
 def process_ajax_query(request):
     if request.is_ajax() and request.method == 'POST':
         query = request.POST.get('query')
-        data = parse_query(query)
+        # data = parse_query(query)
+        data = query
         return HttpResponse(json.dumps(data),
                             status=200,
                             mimetype='application/json')
