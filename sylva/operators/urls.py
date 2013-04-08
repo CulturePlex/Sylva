@@ -7,8 +7,12 @@ from django.contrib import admin
 # from admin import admin_site
 admin.autodiscover()
 
-urlpatterns = patterns('operators.views',
+urlpatterns = patterns(
+    'operators.views',
+
     # query
+    url(r'^(?P<graph_slug>[\w-]+)/builder/$', 'operator_builder',
+        name="operator_builder"),
     url(r'^(?P<graph_slug>[\w-]+)/query/$', 'operator_query',
         name="operator_query"),
     url(r'^(?P<graph_slug>[\w-]+)/graph-query/$', 'graph_query',
