@@ -13,8 +13,8 @@ from django.shortcuts import (get_object_or_404, render_to_response,
 from guardian.decorators import permission_required
 
 from base.decorators import is_enabled
-
 from graphs.models import Graph
+from operators.grammar import QueryParser
 from schemas.models import NodeType, RelationshipType
 
 # from .parser import parse_query
@@ -78,10 +78,13 @@ def process_ajax_query(request):
                      return_403=True)
 def operator_query(request, graph_slug):
     graph = get_object_or_404(Graph, slug=graph_slug)
+    query_parser = QueryParser(graph)
+    grammar = query_parser.build_grammar()
     nodetypes = NodeType.objects.filter(schema__graph__slug=graph_slug)
     reltypes = RelationshipType.objects.filter(schema__graph__slug=graph_slug)
     return render_to_response('operators/operator_query.html',
                               {"graph": graph,
                                "node_types": nodetypes,
-                               "relationship_types": reltypes},
+                               "relationship_types": reltypes,
+                               "grammar": grammar},
                               context_instance=RequestContext(request))

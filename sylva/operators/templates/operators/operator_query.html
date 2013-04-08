@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% load i18n graphs %}
+
+{% block title %}
+{% trans "Search" %}
+{% endblock %}
+
+{% block menu_buttons %}
+{% toolbar on="query" %}
+{% endblock %}
+
+{% block content_title %}
+{% trans "Query" as label %}
+{% breadcrumb graph label request.GET.q|truncatewords:"4" %}
+{% endblock %}
+
+{% block content %}
+<pre>
+{{ grammar }}
+</pre>
+<div id="content2">
+    <div class="content2-first">
+    <h2>{% trans "Nodes" %}</h2>
+    {% for result in node_results %}
+        {% if result.list %}
+            <h3>{{ result.key }}</h3>
+            <ol class="searchResults">
+            {% for item in result.list %}
+                {% with item.display as display %}
+                <li><a title="{{ display }}" href="{% url nodes_edit graph.slug item.id %}">{{ display|truncatewords:5 }}</a></li>
+                {% endwith %}
+            {% endfor %}
+            </ol>
+        {% endif %}
+    {% empty %}
+        {% trans "No results found" %}
+    {% endfor %}
+    </div>
+    <div class="content2-second">
+    <h2>{% trans "Relationships" %}</h2>
+    {% for result in relationship_results %}
+        {{ result }}
+        {% if result.list %}
+            <h3>{{ result.key }}</h3>
+            <ol class="searchResults">
+            {% for item in result.list %}
+                {% with item.display as display %}
+                <li><a title="{{ display }}" href="{% url relationships_edit graph.slug item.id %}">{{ display|truncatewords:5 }}</a></li>
+                {% endwith %}
+            {% endfor %}
+            </ol>
+        {% endif %}
+    {% empty %}
+        {% trans "No results found" %}
+    {% endfor %}
+    </div>
+</div>
+{% endblock %}
