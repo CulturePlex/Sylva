@@ -9,9 +9,78 @@
 {{ graph.name }}
 {% endblock %}
 
+{% block extra_links %}
+<link rel="stylesheet" href="{{ STATIC_PREFIX }}visualsearch/visualsearch.css">
+<link rel="stylesheet" href="{{ STATIC_PREFIX }}visualsearch/visualsearch-datauri.css">
+{% endblock %}
+
 {% block extra_scripts %}
 {{ block.super }}
-<script type="text/javascript">
+<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.2/jquery-ui.min.js"></script>
+<script src="{{ STATIC_PREFIX }}visualsearch/vendor/underscore-1.4.3.js"></script>
+<script src="{{ STATIC_PREFIX }}visualsearch/vendor/backbone-0.9.10.js"></script>
+<script src="{{ STATIC_PREFIX }}visualsearch/visualsearch.js"></script>
+<script>
+    $(function() {
+        var facets = JSON.parse('{{ property_keys|escapejs }}');
+        var facet_values = JSON.parse('{{ property_values|escapejs }}');
+
+        var $table_rows = $('#content_table tr');
+        var $table_rows_filtered = $table_rows;
+        var query_facets = [];
+
+        var visualSearch = VS.init({
+            container: $('.visual-search'),
+            query: '',
+            autosearch: true,
+            showFacets: true,
+            callbacks: {
+                facetMatches: function(callback) {
+                    callback(facets);
+                },
+                valueMatches: function(facet, searchTerm, callback) {
+                    callback(facet_values[facet]);
+                },
+                search: function(query, searchCollection) {
+                    query_facets = searchCollection.facets();
+                    for (var i = 0, l = query_facets.length; i < l; i++) {
+                        var query_facet = query_facets[i];
+                        for (var prop in query_facet) {
+                            if (query_facet.hasOwnProperty(prop)) {
+                                $table_rows_filtered = $table_rows_filtered.filter(':contains("' + query_facet[prop] + '")');
+                            }
+                        }
+                    }
+                    $table_rows.not($table_rows_filtered).hide();
+                },
+                clearSearch: function(actualClearSearch) {
+                  actualClearSearch();
+                  $table_rows.show();
+                  $table_rows_filtered = $table_rows;
+                },
+                removedFacet: function (facet, query, options) {
+                    var $table_rows_filtered = $table_rows;
+                    var facet_delete_index = 0;
+                    for (var i = 0, l = query_facets.length; i < l; i++) {
+                        var query_facet = query_facets[i];
+                        for (var prop in query_facet) {
+                            if (query_facet.hasOwnProperty(prop) && prop === facet.attributes.category) {
+                                facet_delete_index = i;
+                            } else {
+                                $table_rows_filtered = $table_rows_filtered.filter(':contains("' + query_facet[prop] + '")');
+                            }
+                        }
+                    }
+                    query_facets.splice(facet_delete_index, 1);
+                    $table_rows.show()
+                               .not($table_rows_filtered)
+                               .hide();
+                }
+            }
+        });
+    });
+</script>
+<script>
     var retrieveRelationships = function(element, url, elementId, elemendDisplay){
         $.ajax({
             url: url,
@@ -58,7 +127,7 @@
             if (!element.hasClass('is-loaded')) {
                 element.addClass('is-loaded');
                 retrieveRelationships(element, url, nodeId, display);
-          }
+            }
         });
     });
 </script>
@@ -74,7 +143,8 @@
 
 {% block content %}
 <div id="content2">
-    {% if nodes%}
+    {% if nodes %}
+        <div id="search-query" class="visual-search"></div>
         <table id="content_table" class="content-table">
             <thead>
             <tr>

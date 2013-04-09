@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
-from json import dumps
+try:
+    import ujson as json
+except ImportError:
+    import json  # NOQA
 
 from django.db import transaction
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
@@ -74,7 +77,7 @@ def nodes_lookup(request, graph_slug):
                 "id": node.id,
                 "display": node.display
             })
-        return HttpResponse(dumps(json_nodes),
+        return HttpResponse(json.dumps(json_nodes),
                             status=200, mimetype='application/json')
     raise Http404(_("Mismatch criteria for matching the search."))
 
@@ -86,8 +89,8 @@ def nodes_list_full(request, graph_slug, node_type_id):
     node_type = get_object_or_404(NodeType, id=node_type_id)
     nodes = node_type.all()
     page = request.GET.get('page')
-    page_size = request.GET.get('size', 25)
-    paginator = Paginator(nodes, page_size)  # Show 25 items per page
+    page_size = request.GET.get('size', 1000)
+    paginator = Paginator(nodes, page_size)
     try:
         paginated_nodes = paginator.page(page)
     except PageNotAnInteger:
@@ -100,13 +103,24 @@ def nodes_list_full(request, graph_slug, node_type_id):
     none_label = mark_safe(label)
     properties = node_type.properties.all()
     properties_count = len(properties) + 1
+    property_keys = [prop.key for prop in properties]
+    property_values = dict([(prop_key, set()) for prop_key in property_keys])
+    for node in paginated_nodes:
+        node_properties = node.properties
+        for prop_key in property_keys:
+            if prop_key in node_properties:
+                property_values[prop_key].add(node_properties[prop_key])
+    for key in property_values:
+        property_values[key] = list(property_values[key])
     return render_to_response('node_list.html',
                               {"graph": graph,
                                "nodes": paginated_nodes,
                                "node_type": node_type,
                                "none_label": none_label,
                                "properties": properties,
-                               "properties_count": properties_count
+                               "properties_count": properties_count,
+                               "property_keys": json.dumps(property_keys),
+                               "property_values": json.dumps(property_values)
                                }, context_instance=RequestContext(request))
 
 
@@ -574,4 +588,4 @@ def node_relationships(request, graph_slug, node_id):
                         "direction": "outgoing",
                         "label": label.name})
     result = {'incoming': incoming, 'outgoing': outgoing}
-    return HttpResponse(dumps(result))
+    return HttpResponse(json.dumps(result))
