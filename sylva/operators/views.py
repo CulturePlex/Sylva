@@ -13,8 +13,8 @@ from django.shortcuts import (get_object_or_404, render_to_response,
 from guardian.decorators import permission_required
 
 from base.decorators import is_enabled
-
 from graphs.models import Graph
+from operators.grammar import QueryParser
 from schemas.models import NodeType, RelationshipType
 
 # from .parser import parse_query
@@ -24,11 +24,11 @@ from schemas.models import NodeType, RelationshipType
 @login_required
 @permission_required("data.view_data", (Graph, "slug", "graph_slug"),
                      return_403=True)
-def operator_query(request, graph_slug):
+def operator_builder(request, graph_slug):
     graph = get_object_or_404(Graph, slug=graph_slug)
     nodetypes = NodeType.objects.filter(schema__graph__slug=graph_slug)
     reltypes = RelationshipType.objects.filter(schema__graph__slug=graph_slug)
-    return render_to_response('operators/operator_query.html',
+    return render_to_response('operators/operator_builder.html',
                               {"graph": graph,
                                "node_types": nodetypes,
                                "relationship_types": reltypes},
@@ -70,3 +70,21 @@ def process_ajax_query(request):
         return HttpResponse(json.dumps(data),
                             status=200,
                             mimetype='application/json')
+
+
+@is_enabled(settings.ENABLE_QUERIES)
+@login_required
+@permission_required("data.view_data", (Graph, "slug", "graph_slug"),
+                     return_403=True)
+def operator_query(request, graph_slug):
+    graph = get_object_or_404(Graph, slug=graph_slug)
+    query_parser = QueryParser(graph)
+    grammar = query_parser.build_grammar()
+    nodetypes = NodeType.objects.filter(schema__graph__slug=graph_slug)
+    reltypes = RelationshipType.objects.filter(schema__graph__slug=graph_slug)
+    return render_to_response('operators/operator_query.html',
+                              {"graph": graph,
+                               "node_types": nodetypes,
+                               "relationship_types": reltypes,
+                               "grammar": grammar},
+                              context_instance=RequestContext(request))
