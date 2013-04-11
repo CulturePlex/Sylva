@@ -79,14 +79,14 @@ r{rel_type_id}_facet = (conditions:cond)? (ws ("who" | "that")?)? ws r{rel_type_
             for prop in rel_type.properties.all().values("key"):
                 property_name = prop["key"]
                 property_names = [
-                   property_name,
-                   property_name.lower(),
-                   property_name.upper(),
-                   property_name.capitalize(),
-                   u"{0}s".format(property_name),
-                   u"{0}s".format(property_name).lower(),
-                   u"{0}s".format(property_name).upper(),
-                   u"{0}s".format(property_name).capitalize()
+                    property_name,
+                    property_name.lower(),
+                    property_name.upper(),
+                    property_name.capitalize(),
+                    u"{0}s".format(property_name),
+                    u"{0}s".format(property_name).lower(),
+                    u"{0}s".format(property_name).upper(),
+                    u"{0}s".format(property_name).capitalize()
                 ]
                 rule = u"('{0}') -> '{1}'"
                 property_rule = rule.format(
@@ -95,18 +95,18 @@ r{rel_type_id}_facet = (conditions:cond)? (ws ("who" | "that")?)? ws r{rel_type_
                 )
                 properties.append(property_rule)
             rel_type_names = [rel_type.name, rel_type.name.lower(),
-                               rel_type.name.upper(),
-                               rel_type.name.capitalize()]
+                              rel_type.name.upper(),
+                              rel_type.name.capitalize()]
             if rel_type.plural_name:
                 rel_type_names += [rel_type.plural_name,
-                                    rel_type.plural_name.lower(),
-                                    rel_type.plural_name.upper(),
-                                    rel_type.plural_name.capitalize()]
+                                   rel_type.plural_name.lower(),
+                                   rel_type.plural_name.upper(),
+                                   rel_type.plural_name.capitalize()]
             else:
                 rel_type_names += [u"{0}s".format(rel_type.name),
-                                    u"{0}s".format(rel_type.name).lower(),
-                                    u"{0}s".format(rel_type.name).upper(),
-                                    u"{0}s".format(rel_type.name).capitalize()]
+                                   u"{0}s".format(rel_type.name).lower(),
+                                   u"{0}s".format(rel_type.name).upper(),
+                                   u"{0}s".format(rel_type.name).capitalize()]
             rel_type_rules = rules_template.format(
                 rel_type_id=rel_type.id,
                 rel_type_names=u"' | '".join(rel_type_names),
@@ -142,14 +142,14 @@ n{node_type_id}_facet = (n{node_type_id}_properties:r ws ("of" | "from") ws ("th
             for prop in node_type.properties.all().values("key"):
                 property_name = prop["key"]
                 property_names = [
-                   property_name,
-                   property_name.lower(),
-                   property_name.upper(),
-                   property_name.capitalize(),
-                   u"{0}s".format(property_name),
-                   u"{0}s".format(property_name).lower(),
-                   u"{0}s".format(property_name).upper(),
-                   u"{0}s".format(property_name).capitalize()
+                    property_name,
+                    property_name.lower(),
+                    property_name.upper(),
+                    property_name.capitalize(),
+                    u"{0}s".format(property_name),
+                    u"{0}s".format(property_name).lower(),
+                    u"{0}s".format(property_name).upper(),
+                    u"{0}s".format(property_name).capitalize()
                 ]
                 rule = u"('{0}') -> '{1}'"
                 property_rule = rule.format(
@@ -179,7 +179,6 @@ n{node_type_id}_facet = (n{node_type_id}_properties:r ws ("of" | "from") ws ("th
         rule = u"n_types = ({0})"
         rules.append(rule.format(" | ".join(node_type_rule_codes)))
         return rules
-
 
 
 def query_generator(query_dict):
