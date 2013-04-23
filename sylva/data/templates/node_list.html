@@ -25,7 +25,7 @@
         var facets = JSON.parse('{{ property_keys|escapejs }}');
         var facet_values = JSON.parse('{{ property_values|escapejs }}');
 
-        var $table_rows = $('#content_table tr');
+        var $table_rows = $('#content_table tbody tr');
         var $table_rows_filtered = $table_rows;
         var query_facets = [];
 
