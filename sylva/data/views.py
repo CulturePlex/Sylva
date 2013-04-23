@@ -89,7 +89,7 @@ def nodes_list_full(request, graph_slug, node_type_id):
     node_type = get_object_or_404(NodeType, id=node_type_id)
     nodes = node_type.all()
     page = request.GET.get('page')
-    page_size = request.GET.get('size', 1000)
+    page_size = request.GET.get('size', 100)
     paginator = Paginator(nodes, page_size)
     try:
         paginated_nodes = paginator.page(page)
