@@ -294,3 +294,127 @@ class GraphDatabase(BlueprintsGraphDatabase):
 
     def lookup_builder(self):
         return q_lookup_builder
+
+    def query(self, query_dict, limit=None, offset=None):
+        script = self._query_generator(query_dict)
+        cypher = self.cypher
+        page = 1000
+        skip = offset or 0
+        limit = limit or page
+        try:
+            paged_script = "%s skip %s limit %s" % (script, skip, limit)
+            result = cypher(query=paged_script)
+        except:
+            result = None
+        while result and "data" in result and len(result["data"]) > 0:
+            for element in result["data"]:
+                if "data" in element:
+                    yield element["data"]
+                else:
+                    yield element
+            skip += page
+            if len(result["data"]) == limit:
+                try:
+                    paged_script = "%s skip %s limit %s" % (script, skip,
+                                                            limit)
+                    result = cypher(query=paged_script)
+                except:
+                    result = None
+            else:
+                break
+
+    def _query_generator(self, query_dict):
+        conditions_list = []
+        for lookup, property_tuple, match in query_dict["conditions"]:
+            #if property_tuple == u"property":
+            type_property = u"{0}.`{1}`".format(*property_tuple[1:])
+            if lookup == "exact":
+                lookup = u"="
+                match = u"'{0}'".format(match)
+            elif lookup == "iexact":
+                lookup = u"=~"
+                match = u"'(?i){0}'".format(match)
+            elif lookup == "contains":
+                lookup = u"=~"
+                match = u"'.*{0}.*'".format(match)
+            elif lookup == "icontains":
+                lookup = u"=~"
+                match = u"'(?i).*{0}.*'".format(match)
+            elif lookup == "startswith":
+                lookup = u"=~"
+                match = u"'{0}.*'".format(match)
+            elif lookup == "istartswith":
+                lookup = u"=~"
+                match = u"'(?i){0}.*'".format(match)
+            elif lookup == "endswith":
+                lookup = u"=~"
+                match = u"'.*{0}'".format(match)
+            elif lookup == "iendswith":
+                lookup = u"=~"
+                match = u"'(?i).*{0}'".format(match)
+            elif lookup == "regex":
+                lookup = u"=~"
+                match = u"'{0}'".format(match)
+            elif lookup == "iregex":
+                lookup = u"=~"
+                match = u"'(?i){0}'".format(match)
+            elif lookup == "gt":
+                lookup = u">"
+                match = u"{0}".format(match)
+            elif lookup == "gte":
+                lookup = u">"
+                match = u"{0}".format(match)
+            elif lookup == "lt":
+                lookup = u"<"
+                match = u"{0}".format(match)
+            elif lookup == "lte":
+                lookup = u"<"
+                match = u"{0}".format(match)
+            # elif lookup in ["in", "inrange"]:
+            #     lookup = u"IN"
+            #     match = u"['{0}']".format(u"', '".join([_escape(m)
+            #                               for m in match]))
+            # elif lookup == "isnull":
+            #     if match:
+            #         lookup = u"="
+            #     else:
+            #         lookup = u"<>"
+            #     match = u"null"
+            # elif lookup in ["eq", "equals"]:
+            #     lookup = u"="
+            #     match = u"'{0}'".format(_escape(match))
+            # elif lookup in ["neq", "notequals"]:
+            #     lookup = u"<>"
+            #     match = u"'{0}'".format(_escape(match))
+            else:
+                lookup = lookup
+                match = u""
+            condition = u"{0} {1} {2}".format(type_property, lookup, match)
+            conditions_list.append(condition)
+        conditions = u" AND ".join(conditions_list)
+        origins_list = []
+        for origin_dict in query_dict["origin"]:
+            origin = u"""{alias}=node:`{nidx}`('label:{type}')""".format(
+                nidx=self.nidx.name,
+                alias=origin_dict["alias"],
+                type=origin_dict["type"].id,
+            )
+            origins_list.append(origin)
+        origins = u", ".join(origins_list)
+        results_list = []
+        for result_dict in query_dict["result"]:
+            for property_name in result_dict["properties"]:
+                if property_name == "*":
+                    result = u"{0}".format(result_dict["alias"])
+                else:
+                    result = u"{0}.`{1}`".format(
+                        result_dict["alias"],
+                        property_name
+                    )
+                results_list.append(result)
+        results = u", ".join(results_list)
+        if conditions:
+            where = u"WHERE {0} ".format(conditions)
+        else:
+            where = u""
+        return u"START {0} {1}RETURN {2}".format(origins, where, results)

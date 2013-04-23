@@ -26,40 +26,57 @@ class QueryParser(object):
 
     def parse(self, query):
         grammar = self.build_grammar()
-        query_dict = grammar(query).dict()
+        grammar_query = grammar(query)
+        query_dict = grammar_query.dict()
         return query_dict
 
     def build_grammar(self):
+
+        def merge(d1, d2):
+            """Merge two query dicts"""
+            m = {}
+            for key in d1.keys():
+                m[key] = d1[key] + d2[key]
+            return m
+
         self.counter = Counter()
         self.types = {}
         node_type_rules = self.get_node_type_rules()
         relationship_type_rules = self.get_relationship_type_rules()
-        rules = ["""
-facet = (('with' | 'that' ws ('has' | 'have') | 'who' ws ('has' | 'have')) (ws ('a' | 'the'))?) -> ""
-conditions = "and" -> "and"
-           | "or" -> "or"
+        rules = [u"""
+n_facet = ('with' (ws ('a' | 'the'))?)
+        -> ""
+r_facet = ('that' | 'who')
+        -> ""
+conditions = "and"
+           -> "and"
+           | "or"
+           -> "or"
            | -> "and"
-op = "that" ws "starts" ws "with" ws -> 'startswith'
-   | "that" ws "ends" ws "with" ws  -> 'endswith'
-   | "greater" ws "than" ws  -> 'gt'
-   | "lower" ws "than" ws  -> 'lt'
+op = ("that" ws "start" "s"? ws "with" ws)
+   -> 'istartswith'
+   | ("that" ws "end" "s"? ws "with" ws)
+   -> 'iendswith'
+   | ("greater" ws "than" ws)
+   -> 'gt'
+   | ("lower" ws "than" ws)
+   -> 'lt'
    | -> 'iexact'
         """]
         rules += node_type_rules
         rules += relationship_type_rules
-        rules += ["""
-dict = n_types:item
+        rules += [u"""
+dict = <n_types:item>
      -> item
-     | n_types:source ws n_types:rel ws n_types:target
-     -> {
-        "origin": [source["origin"], rel, target["origin"]],
-        "pattern": {"source": source["origin"], "target": target["origin"], "relation": rel},
-        "conditions": source["conditions"] + target["conditions"],
-        "result": [source["result"], target["result"]],
-     }
      | -> None
         """]
-        return "\n".join(rules)
+        rules = "\n".join(rules)
+        print rules
+        return parsley.makeGrammar(rules, {
+            "merge": merge,
+            "types": self.types,
+            "counter": self.counter,
+        })
 
     def get_relationship_type_rules(self):
         rules = []
@@ -68,8 +85,8 @@ dict = n_types:item
         rules_template = u"""
 r{rel_type_id} = ('{rel_type_names}')
         -> {{'type': types.get({rel_type_id}), 'alias': "r{rel_type_id}_{{0}}".format(counter.get('r{rel_type_id}', 0))}}
-r{rel_type_id}_facet = (conditions:cond)? (ws ("who" | "that")?)? ws r{rel_type_id}:rel ws ("a" | "the")? ws
-        -> {{'origin': rel, 'result': {{"alias": t['alias'], "properties": r}}}}
+r{rel_type_id}_facet = ((conditions:cond)? ws r_facet ws r{rel_type_id}:r ws ("a" | "the")? ws)
+        -> {{'origin': r, 'result': {{"alias": r['alias'], "properties": ["*"]}}}}
         """
         rel_types = self.schema.relationshiptype_set.all().select_related()
         for rel_type in rel_types:
@@ -121,19 +138,27 @@ r{rel_type_id}_facet = (conditions:cond)? (ws ("who" | "that")?)? ws r{rel_type_
         rules = []
         node_type_rule_codes = []
         rules_template = u"""
-n{node_type_id}_value = ('James' | 'John')
+n{node_type_id}_value = <anything*:x> -> ''.join(x)
 n{node_type_id} = ('{node_type_names}')
        -> {{'type': types.get({node_type_id}), 'alias': "n{node_type_id}_{{0}}".format(counter.get('n{node_type_id}', 0))}}
 n{node_type_id}_property = {node_type_properties}
-n{node_type_id}_properties = n{node_type_id}_property:first (ws (',' | "and") ws n{node_type_id}_property)*:rest
+n{node_type_id}_properties = <n{node_type_id}_property:first> <(ws (',' | "and") ws n{node_type_id}_property)*:rest>
                   -> [first] + rest
                   | -> []
-n{node_type_id}_facet = (n{node_type_id}_properties:r ws ("of" | "from") ws ("the" ws)?)? n{node_type_id}:t ws facet ws n{node_type_id}_property:p "of"? ws (op)?:f ws n{node_type_id}_value:v ws
-             -> {{'conditions': [(f, ('property', t['alias'], p), v)], 'origin': t, 'result': {{"alias": t['alias'], "properties": r}}}}
-             | n{node_type_id}_facet:left ws 'and' ws n{node_type_id}_facet:right
-             -> ('and', left, right)
-             | n{node_type_id}_facet:left ws 'or' ws n{node_type_id}_facet:right
-             -> ('or', left, right)
+n{node_type_id}_facet = <n{node_type_id}:t> <~~n_facet>
+             -> {{'conditions': [], 'origin': [t], 'result': [{{"alias": t['alias'], "properties": ["*"]}}]}}
+             # Type conditions
+             | <n{node_type_id}:t> ws <n_facet> ws <n{node_type_id}_property:p> "of"? ws <op?:f> ws <n{node_type_id}_value:v>
+             ->  {{'conditions': [(f, ('property', t['alias'], p), v)], 'origin': [t], 'result': [{{"alias": t['alias'], "properties": ["*"]}}]}}
+             # Type properties
+             | <n{node_type_id}_properties:r> ws ("of" | "from") ws ("the" ws)? <n{node_type_id}:t>
+             -> {{'conditions': [], 'origin': [t], 'result': [{{"alias": t['alias'], "properties": r}}]}}
+             # Type properties and conditions
+             | <n{node_type_id}_properties:r> ws ("of" | "from") ws ("the" ws)? <n{node_type_id}:t> ws <n_facet> ws <n{node_type_id}_property:p> "of"? ws <op?:f> ws <n{node_type_id}_value:v>
+             -> {{'conditions': [(f, ('property', t['alias'], p), v)], 'origin': [t], 'result': [{{"alias": t['alias'], "properties": r}}]}}
+             # Conditions
+             | <n{node_type_id}_facet:left> ws <conditions:cond> ws <n{node_type_id}_facet:right>
+             -> (cond, left, right)
         """
         for node_type in self.schema.nodetype_set.all().select_related():
             self.types[node_type.id] = node_type
@@ -179,86 +204,3 @@ n{node_type_id}_facet = (n{node_type_id}_properties:r ws ("of" | "from") ws ("th
         rule = u"n_types = ({0})"
         rules.append(rule.format(" | ".join(node_type_rule_codes)))
         return rules
-
-
-def query_generator(query_dict):
-    conditions_list = []
-    for lookup, property_tuple, match in query_dict["conditions"]:
-        #if property_tuple == u"property":
-        type_property = u"{0}.{1}".format(*property_tuple[1:])
-        if lookup == "exact":
-            lookup = u"="
-            match = u"'{0}'".format(match)
-        elif lookup == "iexact":
-            lookup = u"=~"
-            match = u"'(?i){0}'".format(match)
-        elif lookup == "contains":
-            lookup = u"=~"
-            match = u".*{0}.*".format(match)
-        elif lookup == "icontains":
-            lookup = u"=~"
-            match = u"(?i).*{0}.*".format(match)
-        elif lookup == "startswith":
-            lookup = u"=~"
-            match = u"{0}.*".format(match)
-        elif lookup == "istartswith":
-            lookup = u"=~"
-            match = u"(?i){0}.*".format(match)
-        elif lookup == "endswith":
-            lookup = u"=~"
-            match = u".*{0}".format(match)
-        elif lookup == "iendswith":
-            lookup = u"=~"
-            match = u"(?i).*{0}".format(match)
-        elif lookup == "regex":
-            lookup = u"=~"
-            match = u"{0}".format(match)
-        elif lookup == "iregex":
-            lookup = u"=~"
-            match = u"(?i){0}".format(match)
-        elif lookup == "gt":
-            lookup = u">"
-            match = u"{0}".format(match)
-        elif lookup == "gte":
-            lookup = u">"
-            match = u"{0}".format(match)
-        elif lookup == "lt":
-            lookup = u"<"
-            match = u"{0}".format(match)
-        elif lookup == "lte":
-            lookup = u"<"
-            match = u"{0}".format(match)
-        # elif lookup in ["in", "inrange"]:
-        #     lookup = u"IN"
-        #     match = u"['{0}']".format(u"', '".join([_escape(m)
-        #                               for m in match]))
-        # elif lookup == "isnull":
-        #     if match:
-        #         lookup = u"="
-        #     else:
-        #         lookup = u"<>"
-        #     match = u"null"
-        # elif lookup in ["eq", "equals"]:
-        #     lookup = u"="
-        #     match = u"'{0}'".format(_escape(match))
-        # elif lookup in ["neq", "notequals"]:
-        #     lookup = u"<>"
-        #     match = u"'{0}'".format(_escape(match))
-        else:
-            lookup = lookup
-            match = u""
-        condition = u"{0} {1} {2}".format(type_property, lookup, match)
-        conditions_list.append(condition)
-    conditions = u" AND ".join(conditions_list)
-    origins_list = []
-    for origin_dict in query_dict["origin"]:
-        origin = u"{alias}=node(\"label:{type}\")".format(**origin_dict)
-        origins_list.append(origin)
-    origins = u", ".join(origins_list)
-    results_list = []
-    for result_dict in query_dict["result"]:
-        for property_name in result_dict["properties"]:
-            result = u"{0}.{1}".format(result_dict["alias"], property_name)
-            results_list.append(result)
-    resutls = u", ".join(results_list)
-    return u"START {0} WHERE {1} RETURN {2}".format(origins, conditions, resutls)

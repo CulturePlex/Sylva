@@ -52,12 +52,12 @@ def graph_query(request, graph_slug):
                 'value': node_prop.key,
                 'label': '(' + node_type.name + ') ' + node_prop.key
             })
-    return render_to_response('operators/graph_query.html',
-                              {"graph": graph,
-                               "node_types": json.dumps(node_type_names),
-                               "relationship_types": json.dumps(rel_type_names),
-                               "node_properties": json.dumps(node_properties)},
-                              context_instance=RequestContext(request))
+    return render_to_response('operators/graph_query.html', {
+        "graph": graph,
+        "node_types": json.dumps(node_type_names),
+        "relationship_types": json.dumps(rel_type_names),
+        "node_properties": json.dumps(node_properties)
+    }, context_instance=RequestContext(request))
 
 
 @is_enabled(settings.ENABLE_QUERIES)
@@ -78,13 +78,27 @@ def process_ajax_query(request):
                      return_403=True)
 def operator_query(request, graph_slug):
     graph = get_object_or_404(Graph, slug=graph_slug)
-    query_parser = QueryParser(graph)
-    grammar = query_parser.build_grammar()
-    nodetypes = NodeType.objects.filter(schema__graph__slug=graph_slug)
-    reltypes = RelationshipType.objects.filter(schema__graph__slug=graph_slug)
     return render_to_response('operators/operator_query.html',
-                              {"graph": graph,
-                               "node_types": nodetypes,
-                               "relationship_types": reltypes,
-                               "grammar": grammar},
+                              {"graph": graph},
                               context_instance=RequestContext(request))
+
+
+@is_enabled(settings.ENABLE_QUERIES)
+@login_required
+@permission_required("data.view_data", (Graph, "slug", "graph_slug"),
+                     return_403=True)
+def operator_query_results(request, graph_slug):
+    query = request.POST.get("query", "").strip()
+    if request.is_ajax() and query:
+        graph = get_object_or_404(Graph, slug=graph_slug)
+        query_parser = QueryParser(graph)
+        # query = "notas of autor with notas that start with lista"
+        query_dict = query_parser.parse(query)
+        results = graph.query(query_dict)
+        # TODO: Try to make the response streamed
+        return HttpResponse(json.dumps([r for r in results]),
+                            status=200,
+                            mimetype='application/json')
+    return HttpResponse(json.dumps(None),
+                        status=400,  # Bad request
+                        mimetype='application/json')

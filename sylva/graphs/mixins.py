@@ -56,6 +56,9 @@ class GraphMixin(object):
         return self._q
     Q = property(_get_q)
 
+    def query(self, query_dict):
+        return self.gdb.query(query_dict)
+
 
 class BaseManager(object):
 
