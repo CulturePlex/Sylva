@@ -21,7 +21,8 @@
         $("#id_query").keypress(function (e) {
             var query = $(this).val();
             if (e.which == 13) {
-                $("#results").html("{% trans "Loading" %}...");
+                $("#results").html("<span class='help'>{% trans "Loading" %}...</span>");
+                console.log(query);
                 $.ajax({
                     type: "POST",
                     url: "{% url operator_query_results graph.slug %}",
@@ -29,8 +30,12 @@
                     success: function (data) {
                         $("#results").html("");
                         for (var i = 0, j = data.length; i < j; i += 1) {
-                            var row = $("div");
-                            row.html(data[i]);
+                            var row = $("<div>");
+                            for (var k = 0, l = data[i].length; k < l; k += 1) {
+                                var cell = $("<span>");
+                                cell.text(data[i][k]);
+                                row.append(cell);
+                            }
                             $("#results").append(row);
                         }
                     },
@@ -48,10 +53,21 @@
 {% endblock %}
 
 {% block content %}
-<input type="text" name="query" id="id_query" placeholder="{% trans "Type your query..." %}">
 <div id="content2">
     <div class="content2-first">
-    <h2>{% trans "Results" %}</h2>
-    <div id="results"></div>
+        <h2>{% trans "Saved Queries" %}</h2>
+        <div id="savedQueries">
+            {% for saved_query in queries %}
+            {% empty %}
+            <span>{% trans "No saved queries yet" %}</span>
+            {% endfor %}
+        </div>
+    </div>
+    <div class="content-divider"></div>
+    <div class="content2-second">
+        <input type="text" name="query" id="id_query" style="width: 500px;" placeholder="{% trans "Type your query..." %}">
+        <h2>{% trans "List" %}</h2>
+        <div id="results"></div>
+    </div>
 </div>
 {% endblock %}

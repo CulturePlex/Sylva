@@ -407,9 +407,14 @@ class GraphDatabase(BlueprintsGraphDatabase):
                 if property_name == "*":
                     result = u"{0}".format(result_dict["alias"])
                 else:
+                    # Due to a bug in Parsley, strings are returned as utf8
+                    try:
+                        property_name_decoded = property_name.decode("utf8")
+                    except UnicodeDecodeError:
+                        property_name_decoded = property_name
                     result = u"{0}.`{1}`".format(
                         result_dict["alias"],
-                        property_name
+                        property_name_decoded
                     )
                 results_list.append(result)
         results = u", ".join(results_list)

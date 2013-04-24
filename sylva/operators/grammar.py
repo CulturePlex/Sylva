@@ -39,6 +39,40 @@ class QueryParser(object):
                 m[key] = d1[key] + d2[key]
             return m
 
+        def node_facet(f=None, t=None, p=None, v=None, r=None, **kwargs):
+            if not t:
+                return {}
+            elif f and p and v:
+                if r:
+                    return {
+                        'conditions': [(f, ('property', t['alias'], p), v)],
+                        'origin': [t],
+                        'result': [{
+                            "alias": t['alias'], "properties": r
+                        }]}
+                else:
+                    return {
+                        'conditions': [(f, ('property', t['alias'], p), v)],
+                        'origin': [t],
+                        'result': [{
+                            "alias": t['alias'], "properties": ["*"]
+                        }]}
+            else:
+                if r:
+                    return {
+                        'conditions': [],
+                        'origin': [t],
+                        'result': [{
+                            "alias": t['alias'], "properties": r
+                        }]}
+                else:
+                    return {
+                        'conditions': [],
+                        'origin': [t],
+                        'result': [{
+                            "alias": t['alias'], "properties": ["*"]
+                        }]}
+
         self.counter = Counter()
         self.types = {}
         node_type_rules = self.get_node_type_rules()
@@ -71,11 +105,11 @@ dict = <n_types:item>
      | -> None
         """]
         rules = "\n".join(rules)
-        print rules
         return parsley.makeGrammar(rules, {
             "merge": merge,
             "types": self.types,
             "counter": self.counter,
+            "node_facet": node_facet,
         })
 
     def get_relationship_type_rules(self):
@@ -145,17 +179,8 @@ n{node_type_id}_property = {node_type_properties}
 n{node_type_id}_properties = <n{node_type_id}_property:first> <(ws (',' | "and") ws n{node_type_id}_property)*:rest>
                   -> [first] + rest
                   | -> []
-n{node_type_id}_facet = <n{node_type_id}:t> <~~n_facet>
-             -> {{'conditions': [], 'origin': [t], 'result': [{{"alias": t['alias'], "properties": ["*"]}}]}}
-             # Type conditions
-             | <n{node_type_id}:t> ws <n_facet> ws <n{node_type_id}_property:p> "of"? ws <op?:f> ws <n{node_type_id}_value:v>
-             ->  {{'conditions': [(f, ('property', t['alias'], p), v)], 'origin': [t], 'result': [{{"alias": t['alias'], "properties": ["*"]}}]}}
-             # Type properties
-             | <n{node_type_id}_properties:r> ws ("of" | "from") ws ("the" ws)? <n{node_type_id}:t>
-             -> {{'conditions': [], 'origin': [t], 'result': [{{"alias": t['alias'], "properties": r}}]}}
-             # Type properties and conditions
-             | <n{node_type_id}_properties:r> ws ("of" | "from") ws ("the" ws)? <n{node_type_id}:t> ws <n_facet> ws <n{node_type_id}_property:p> "of"? ws <op?:f> ws <n{node_type_id}_value:v>
-             -> {{'conditions': [(f, ('property', t['alias'], p), v)], 'origin': [t], 'result': [{{"alias": t['alias'], "properties": r}}]}}
+n{node_type_id}_facet = <(<n{node_type_id}_properties:r> ws ("of" | "from") ws ("the" ws)?)?> <n{node_type_id}:t> <(ws <n_facet> ws <n{node_type_id}_property:p> "of"? ws <op?:f> ws <n{node_type_id}_value:v>)?>
+             -> node_facet(**locals())
              # Conditions
              | <n{node_type_id}_facet:left> ws <conditions:cond> ws <n{node_type_id}_facet:right>
              -> (cond, left, right)
