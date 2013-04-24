@@ -27,7 +27,7 @@
 
         var $table_rows = $('#content_table tbody tr');
         var $table_rows_filtered = $table_rows;
-        var query_facets = [];
+        var query_facets = {};
 
         var visualSearch = VS.init({
             container: $('.visual-search'),
@@ -42,12 +42,13 @@
                     callback(facet_values[facet]);
                 },
                 search: function(query, searchCollection) {
-                    query_facets = searchCollection.facets();
-                    for (var i = 0, l = query_facets.length; i < l; i++) {
-                        var query_facet = query_facets[i];
-                        for (var prop in query_facet) {
-                            if (query_facet.hasOwnProperty(prop)) {
-                                $table_rows_filtered = $table_rows_filtered.filter(':contains("' + query_facet[prop] + '")');
+                    var collection_facets = searchCollection.facets();
+                    for (var i = 0, l = collection_facets.length; i < l; i++) {
+                        collection_facet = collection_facets[i];
+                        for (var facet in collection_facet) {
+                            if (collection_facet.hasOwnProperty(facet)) {
+                                $table_rows_filtered = $table_rows_filtered.filter(':contains("' + collection_facet[facet] + '")');
+                                query_facets[facet] = collection_facet[facet];
                             }
                         }
                     }
@@ -59,22 +60,23 @@
                   $table_rows_filtered = $table_rows;
                 },
                 removedFacet: function (facet, query, options) {
-                    var $table_rows_filtered = $table_rows;
-                    var facet_delete_index = 0;
-                    for (var i = 0, l = query_facets.length; i < l; i++) {
-                        var query_facet = query_facets[i];
-                        for (var prop in query_facet) {
-                            if (query_facet.hasOwnProperty(prop) && prop === facet.attributes.category) {
-                                facet_delete_index = i;
-                            } else {
-                                $table_rows_filtered = $table_rows_filtered.filter(':contains("' + query_facet[prop] + '")');
-                            }
+                    delete query_facets[facet.attributes.category];
+                    $table_rows_filtered = $table_rows;
+                    var is_empty = true;
+                    for (var prop in query_facets) {
+                        if (query_facets.hasOwnProperty(prop)) {
+                            is_empty = false;
+                            $table_rows_filtered = $table_rows_filtered.filter(':contains("' + query_facets[prop] + '")');
                         }
                     }
-                    query_facets.splice(facet_delete_index, 1);
-                    $table_rows.show()
-                               .not($table_rows_filtered)
-                               .hide();
+                    if (is_empty) {
+                        $table_rows.show();
+                        $table_rows_filtered = $table_rows;
+                    } else {
+                        $table_rows.show()
+                                   .not($table_rows_filtered)
+                                   .hide();
+                    }
                 }
             }
         });
