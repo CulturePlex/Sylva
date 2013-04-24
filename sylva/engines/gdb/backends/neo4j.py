@@ -404,17 +404,12 @@ class GraphDatabase(BlueprintsGraphDatabase):
         results_list = []
         for result_dict in query_dict["result"]:
             for property_name in result_dict["properties"]:
-                if property_name == "*":
+                if property_name == u"*":
                     result = u"{0}".format(result_dict["alias"])
                 else:
-                    # Due to a bug in Parsley, strings are returned as utf8
-                    try:
-                        property_name_decoded = property_name.decode("utf8")
-                    except UnicodeDecodeError:
-                        property_name_decoded = property_name
                     result = u"{0}.`{1}`".format(
                         result_dict["alias"],
-                        property_name_decoded
+                        property_name
                     )
                 results_list.append(result)
         results = u", ".join(results_list)

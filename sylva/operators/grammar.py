@@ -1,5 +1,5 @@
+# -*- coding: utf-8 -*-
 import parsley
-#from pprint import pprint
 
 
 class Counter(dict):
@@ -55,7 +55,7 @@ class QueryParser(object):
                         'conditions': [(f, ('property', t['alias'], p), v)],
                         'origin': [t],
                         'result': [{
-                            "alias": t['alias'], "properties": ["*"]
+                            "alias": t['alias'], "properties": [u"*"]
                         }]}
             else:
                 if r:
@@ -70,7 +70,7 @@ class QueryParser(object):
                         'conditions': [],
                         'origin': [t],
                         'result': [{
-                            "alias": t['alias'], "properties": ["*"]
+                            "alias": t['alias'], "properties": [u"*"]
                         }]}
 
         self.counter = Counter()
@@ -104,7 +104,7 @@ dict = <n_types:item>
      -> item
      | -> None
         """]
-        rules = "\n".join(rules)
+        rules = u"\n".join(rules)
         return parsley.makeGrammar(rules, {
             "merge": merge,
             "types": self.types,
@@ -120,7 +120,7 @@ dict = <n_types:item>
 r{rel_type_id} = ('{rel_type_names}')
         -> {{'type': types.get({rel_type_id}), 'alias': "r{rel_type_id}_{{0}}".format(counter.get('r{rel_type_id}', 0))}}
 r{rel_type_id}_facet = ((conditions:cond)? ws r_facet ws r{rel_type_id}:r ws ("a" | "the")? ws)
-        -> {{'origin': r, 'result': {{"alias": r['alias'], "properties": ["*"]}}}}
+        -> {{'origin': r, 'result': {{"alias": r['alias'], "properties": [u"*"]}}}}
         """
         rel_types = self.schema.relationshiptype_set.all().select_related()
         for rel_type in rel_types:
@@ -139,7 +139,7 @@ r{rel_type_id}_facet = ((conditions:cond)? ws r_facet ws r{rel_type_id}:r ws ("a
                     u"{0}s".format(property_name).upper(),
                     u"{0}s".format(property_name).capitalize()
                 ]
-                rule = u"('{0}') -> '{1}'"
+                rule = u"('{0}') -> u'{1}'"
                 property_rule = rule.format(
                     u"' | '".join(property_names),
                     property_name
@@ -165,7 +165,7 @@ r{rel_type_id}_facet = ((conditions:cond)? ws r_facet ws r{rel_type_id}:r ws ("a
             )
             rules.append(rel_type_rules)
         rule = u"r_types = ({0})"
-        rules.append(rule.format(" | ".join(rel_type_rule_codes)))
+        rules.append(rule.format(u" | ".join(rel_type_rule_codes)))
         return rules
 
     def get_node_type_rules(self):
@@ -201,7 +201,7 @@ n{node_type_id}_facet = <(<n{node_type_id}_properties:r> ws ("of" | "from") ws (
                     u"{0}s".format(property_name).upper(),
                     u"{0}s".format(property_name).capitalize()
                 ]
-                rule = u"('{0}') -> '{1}'"
+                rule = u"('{0}') -> u'{1}'"
                 property_rule = rule.format(
                     u"' | '".join(property_names),
                     property_name
