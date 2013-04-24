@@ -404,17 +404,20 @@ class GraphDatabase(BlueprintsGraphDatabase):
         results_list = []
         for result_dict in query_dict["result"]:
             for property_name in result_dict["properties"]:
-                if property_name == u"*":
-                    result = u"{0}".format(result_dict["alias"])
-                else:
-                    result = u"{0}.`{1}`".format(
-                        result_dict["alias"],
-                        property_name
-                    )
-                results_list.append(result)
+                if property_name:
+                    if property_name == u"*":
+                        result = u"{0}".format(result_dict["alias"])
+                    else:
+                        result = u"{0}.`{1}`".format(
+                            result_dict["alias"],
+                            property_name
+                        )
+                    results_list.append(result)
         results = u", ".join(results_list)
         if conditions:
             where = u"WHERE {0} ".format(conditions)
         else:
             where = u""
-        return u"START {0} {1}RETURN {2}".format(origins, where, results)
+        q = u"START {0} {1}RETURN DISTINCT {2}".format(origins, where, results)
+        print q
+        return q

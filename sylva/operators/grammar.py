@@ -28,15 +28,18 @@ class QueryParser(object):
         grammar = self.build_grammar()
         grammar_query = grammar(query)
         query_dict = grammar_query.dict()
+        print query_dict
         return query_dict
 
     def build_grammar(self):
 
-        def merge(d1, d2):
-            """Merge two query dicts"""
+        def merge(*args):
+            """Merge dictionaries in *args"""
             m = {}
-            for key in d1.keys():
-                m[key] = d1[key] + d2[key]
+            for key in ("conditions", "origin", "pattern", "result"):
+                m[key] = []
+                for d in args:
+                    m[key] += d.get(key, [])
             return m
 
         def node_facet(f=None, t=None, p=None, v=None, r=None, **kwargs):
@@ -100,11 +103,18 @@ op = ("that" ws "start" "s"? ws "with" ws)
         rules += node_type_rules
         rules += relationship_type_rules
         rules += [u"""
-dict = <n_types:item>
-     -> item
+rel = <r_types:r> ws <n_types:t>
+    -> merge(r, t)
+    | -> {}
+
+dict = <n_types:n> <~rel>
+     -> n
+     | <n_types:s> ws <rel:r>
+     -> merge(s, r)
      | -> None
         """]
         rules = u"\n".join(rules)
+        print rules
         return parsley.makeGrammar(rules, {
             "merge": merge,
             "types": self.types,
@@ -119,8 +129,8 @@ dict = <n_types:item>
         rules_template = u"""
 r{rel_type_id} = ('{rel_type_names}')
         -> {{'type': types.get({rel_type_id}), 'alias': "r{rel_type_id}_{{0}}".format(counter.get('r{rel_type_id}', 0))}}
-r{rel_type_id}_facet = ((conditions:cond)? ws r_facet ws r{rel_type_id}:r ws ("a" | "the")? ws)
-        -> {{'origin': r, 'result': {{"alias": r['alias'], "properties": [u"*"]}}}}
+r{rel_type_id}_facet = (conditions ws)? r_facet ws <r{rel_type_id}:r> ws ("a" | "the")?
+        -> {{'origin': [r], 'result': [{{"alias": r['alias'], "properties": []}}]}}
         """
         rel_types = self.schema.relationshiptype_set.all().select_related()
         for rel_type in rel_types:
@@ -177,13 +187,13 @@ n{node_type_id} = ('{node_type_names}')
        -> {{'type': types.get({node_type_id}), 'alias': "n{node_type_id}_{{0}}".format(counter.get('n{node_type_id}', 0))}}
 n{node_type_id}_property = {node_type_properties}
 n{node_type_id}_properties = <n{node_type_id}_property:first> <(ws (',' | "and") ws n{node_type_id}_property)*:rest>
-                  -> [first] + rest
-                  | -> []
-n{node_type_id}_facet = <(<n{node_type_id}_properties:r> ws ("of" | "from") ws ("the" ws)?)?> <n{node_type_id}:t> <(ws <n_facet> ws <n{node_type_id}_property:p> "of"? ws <op?:f> ws <n{node_type_id}_value:v>)?>
-             -> node_facet(**locals())
-             # Conditions
-             | <n{node_type_id}_facet:left> ws <conditions:cond> ws <n{node_type_id}_facet:right>
-             -> (cond, left, right)
+        -> [first] + rest
+        | -> []
+n{node_type_id}_facet = (<n{node_type_id}_properties:r> ws ("of" | "from") ws ("the" ws)?)? <n{node_type_id}:t> <(ws <n_facet> ws <n{node_type_id}_property:p> "of"? ws <op?:f> ws <n{node_type_id}_value:v>)?>
+        -> node_facet(**locals())
+        # Conditions
+        | <n{node_type_id}_facet:left> ws <conditions:cond> ws <n{node_type_id}_facet:right>
+        -> (cond, left, right)
         """
         for node_type in self.schema.nodetype_set.all().select_related():
             self.types[node_type.id] = node_type
