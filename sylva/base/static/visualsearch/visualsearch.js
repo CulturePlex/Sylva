@@ -869,12 +869,8 @@ VS.ui.SearchFacet = Backbone.View.extend({
     this.deselectFacet();
     this.disableEdit();
     this.options.app.searchQuery.remove(this.model);
-    if (committed && this.options.app.options.autosearch) {
-      this.search(e, -1);
-    } else {
-      this.options.app.searchBox.renderFacets();
-      this.options.app.searchBox.focusNextFacet(this, -1, {viewPosition: this.options.order});
-    }
+    this.options.app.searchBox.renderFacets();
+    this.options.app.searchBox.focusNextFacet(this, -1, {viewPosition: this.options.order});
   },
 
   // Selects the text in the facet's input field. When the user tabs between
