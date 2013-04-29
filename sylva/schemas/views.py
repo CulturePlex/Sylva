@@ -336,7 +336,7 @@ def schema_import(request, graph_slug):
         messages.error(request, _("The schema already exists!"))
         return redirect(reverse('dashboard'))
     form = SchemaImportForm()
-    if request.POST:
+    if request.POST and request.FILES:
         form = SchemaImportForm(request.POST, request.FILES)
         try:
             data = request.FILES['file'].read()
