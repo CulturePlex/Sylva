@@ -132,6 +132,8 @@
   sylv.nodeEditURL = "{% url nodes_edit graph.slug 0 %}";
   sylv.graphViewURL = "{% url graph_view graph.slug %}";
   sylv.disableProcessing = false;
+  sylv.is_graph_empty = {{ is_graph_empty|slugify }};
+  sylv.is_schema_empty = {{ is_schema_empty|slugify }};
   sylv.MAX_SIZE = {{ MAX_SIZE }};
   sylv.ajax_url = "{{ ajax_url }}";
 </script>

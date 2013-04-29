@@ -91,9 +91,24 @@ sylv:true, alert:true */
         visualizations.processing();
       }
 
-      if (sylv.size === 0) {
-        alert(gettext("Your graph is empty"));
+      var msg = '';
+      if (sylv.is_schema_empty) {
+        msg += gettext("Your Schema is empty.");
+        msg += '<br>';
+        msg += gettext("You need to define a Schema before adding data to your graph.");
+      } else if (sylv.is_graph_empty) {
+        msg += gettext("Your graph is empty.");
+        msg += '<br>';
+        msg += gettext("You haven't added any data to your graph yet.");
       }
+
+      if (msg !== '') {
+        $('#graphcanvas').hide();
+        $('#sigma-wrapper').show();
+        $('#sigma-container').html('<div class="graph-empty-message">' + msg + '</div>');
+      }
+
+
     });
 
     // Error handling.

@@ -77,6 +77,8 @@ def _jsonify_graph(nodes_list, relations_list,
                      return_403=True)
 def graph_view(request, graph_slug, node_id=None):
     graph = get_object_or_404(Graph, slug=graph_slug)
+    is_graph_empty = graph.is_empty()
+    is_schema_empty = graph.schema.is_empty()
     ajax_url = ''
     node = None
     if node_id:
@@ -86,8 +88,10 @@ def graph_view(request, graph_slug, node_id=None):
         ajax_url = reverse('graph_data', args=[graph.slug])
     return render_to_response('graphs_view.html',
                               {"graph": graph,
-                               "node": node,
+                               "is_graph_empty": is_graph_empty,
+                               "is_schema_empty": is_schema_empty,
                                "MAX_SIZE": settings.MAX_SIZE,
+                               "node": node,
                                "ajax_url": ajax_url},
                               context_instance=RequestContext(request))
 
