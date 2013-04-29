@@ -17,9 +17,4 @@ urlpatterns = patterns(
         name="operator_query"),
     url(r'^(?P<graph_slug>[\w-]+)/query/results/$', 'operator_query_results',
         name="operator_query_results"),
-
-    url(r'^(?P<graph_slug>[\w-]+)/graph-query/$', 'graph_query',
-        name="graph_query"),
-    url(r'^process-ajax-query/$', 'process_ajax_query',
-        name="process_ajax_query"),
 )
