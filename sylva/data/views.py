@@ -76,6 +76,7 @@ def nodes_lookup(request, graph_slug, with_properties=False, page_size=10):
             for node in nodes:
                 json_nodes.append({
                     "id": node.id,
+                    "display": node.display,
                     "properties": node.properties
                 })
         else:

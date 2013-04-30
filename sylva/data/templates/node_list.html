@@ -55,8 +55,14 @@
                     }
                     $table_rows.not($table_rows_filtered).hide();
                     if (!$table_rows.is(':visible')) {
-                        // run search
-                        $.ajax({});
+                        var node_type_id = {{ node_type.id }};
+                        var data_query = {};
+                        data_query[node_type_id] = query;
+                        $.ajax({
+                            url: "{% url nodes_lookup_full graph.slug %}",
+                            data: data_query,
+                            success: add_search_results
+                        });
                     }
                 },
                 clearSearch: function(actualClearSearch) {
@@ -85,6 +91,112 @@
                 }
             }
         });
+
+        // Show search results as table rows.
+        var add_search_results = function(nodes) {
+            var i, j, l1, l2;
+
+            var tbody = document.querySelector('#content_table tbody');
+            tbody.innerHTML = '';
+            document.querySelector('.pagination').classList.add('hidden');
+
+            if (nodes.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4">{% trans "Your search did not return any results" %}</td></tr>';
+                return;
+            }
+
+            var properties = facets;
+
+            var tr_elements = document.createDocumentFragment();
+
+            for (i = 0, l1 = nodes.length; i < l1; i++) {
+                var tr_node = document.createElement('tr');
+                var tr_rel = document.createElement('tr');
+
+                if (i % 2 === 0) {
+                    tr_node.className = 'row-even';
+                    tr_rel.className = 'row-even';
+                } else {
+                    tr_node.className = 'row-odd';
+                    tr_rel.className = 'row-odd';
+                }
+
+                var td_dataList = document.createElement('td');
+                td_dataList.className = 'dataList';
+
+                var link_toggle = document.createElement('a');
+                link_toggle.href = 'javascript:void(0)';
+                link_toggle.dataset.node = nodes[i].id;
+                link_toggle.className = 'rels';
+                link_toggle.title = '{% trans "Toggle relationships" %}';
+                link_toggle.innerHTML = '&nbsp';
+
+                td_dataList.appendChild(link_toggle);
+
+                var link_edit = document.createElement('a');
+                var link_edit_url = '{% url nodes_edit graph.slug 0 %}';
+                link_edit.href = link_edit_url.replace('/0/', '/' + nodes[i].id + '/');
+                link_edit.className = 'edit';
+                link_edit.title = '{% trans "Edit node" %}';
+                link_edit.innerHTML = '&nbsp';
+
+                td_dataList.appendChild(link_edit);
+                tr_node.appendChild(td_dataList);
+                tr_elements.appendChild(tr_node);
+
+                var node_properties = nodes[i].properties;
+                for (j = 0, l2 = properties.length; j < l2; j++) {
+                    var prop = properties[j];
+                    var td_prop = document.createElement('td');
+
+                    if (node_properties.hasOwnProperty(prop)) {
+                        if (node_properties[prop] === '') {
+                            var span_empty = document.createElement('span');
+                            span_empty.className = 'helptext';
+                            span_empty.innerText = '(Empty)';
+
+                            td_prop.appendChild(span_empty);
+                        } else if (node_properties[prop] === 'True' || node_properties[prop] === 'False') {
+                            td_prop.appendChild(document.createTextNode(node_properties[prop]));
+                        } else {
+                            var link_prop = document.createElement('a');
+                            var link_prop_url = '{% url nodes_view graph.slug 0 %}';
+                            link_prop.href = link_prop_url.replace('/0/', '/' + nodes[i].id + '/');
+                            link_prop.title = '{% trans "View node" %}';
+                            link_prop.innerText = node_properties[prop];
+
+                            td_prop.appendChild(link_prop);
+                        }
+                    } else {
+                        var span_empty = document.createElement('span');
+                        span_empty.className = 'helptext';
+                        span_empty.innerText = '(Empty)';
+
+                        td_prop.appendChild(span_empty);
+                    }
+
+                    tr_node.appendChild(td_prop);
+                }
+
+                var td_rel = document.createElement('td');
+                td_rel.colSpan = properties.length + 1;
+                td_rel.className = 'hidden retrieve-relationships';
+                td_rel.dataset.node = nodes[i].id;
+                td_rel.dataset.display = nodes[i].display;
+                var rel_url = '{% url node_relationships graph.slug 0 %}';
+                td_rel.dataset.nodeRels= rel_url.replace('/0/', '/' + nodes[i].id + '/');
+
+                var span_loading = document.createElement('span');
+                span_loading.className = 'helptext';
+                span_loading.innerText = '{% trans "Loading" %}...';
+
+                td_rel.appendChild(span_loading);
+                tr_rel.appendChild(td_rel);
+                tr_elements.appendChild(tr_rel);
+            }
+
+            tbody.appendChild(tr_elements);
+        };
     });
 </script>
 <script>
