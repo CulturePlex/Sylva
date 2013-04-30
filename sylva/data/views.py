@@ -57,7 +57,7 @@ def nodes_list(request, graph_slug):
 
 @permission_required("data.view_data", (Data, "graph__slug", "graph_slug"),
                      return_403=True)
-def nodes_lookup(request, graph_slug):
+def nodes_lookup(request, graph_slug, with_properties=False, page_size=10):
     graph = get_object_or_404(Graph, slug=graph_slug)
     data = request.GET.copy()
     if (request.is_ajax() or settings.DEBUG) and data:
@@ -70,13 +70,20 @@ def nodes_lookup(request, graph_slug):
         query = graph.Q()
         for prop in properties:
             query |= graph.Q(prop.key, icontains=q)
-        nodes = node_type.filter(query)[:10]
+        nodes = node_type.filter(query)[:page_size]
         json_nodes = []
-        for node in nodes:
-            json_nodes.append({
-                "id": node.id,
-                "display": node.display
-            })
+        if with_properties:
+            for node in nodes:
+                json_nodes.append({
+                    "id": node.id,
+                    "properties": node.properties
+                })
+        else:
+            for node in nodes:
+                json_nodes.append({
+                    "id": node.id,
+                    "display": node.display
+                })
         return HttpResponse(json.dumps(json_nodes),
                             status=200, mimetype='application/json')
     raise Http404(_("Mismatch criteria for matching the search."))
@@ -89,7 +96,7 @@ def nodes_list_full(request, graph_slug, node_type_id):
     node_type = get_object_or_404(NodeType, id=node_type_id)
     nodes = node_type.all()
     page = request.GET.get('page')
-    page_size = request.GET.get('size', 100)
+    page_size = request.GET.get('size', settings.DATA_PAGE_SIZE)
     paginator = Paginator(nodes, page_size)
     try:
         paginated_nodes = paginator.page(page)

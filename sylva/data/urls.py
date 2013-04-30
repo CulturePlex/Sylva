@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from django.conf import settings
 from django.conf.urls import patterns, url
 from django.contrib import admin
 
@@ -11,6 +12,9 @@ urlpatterns = patterns('data.views',
     url(r'^(?P<graph_slug>[\w-]+)/nodes/$', 'nodes_list', name="nodes_list"),
     url(r'^(?P<graph_slug>[\w-]+)/nodes/lookup/$', 'nodes_lookup',
         name="nodes_lookup"),
+    url(r'^(?P<graph_slug>[\w-]+)/nodes/lookup-full/$', 'nodes_lookup',
+        {'with_properties': True, 'page_size': settings.DATA_PAGE_SIZE},
+        name="nodes_lookup_full"),
     url(r'^(?P<graph_slug>[\w-]+)/types/(?P<node_type_id>\d+)/create/$',
         'nodes_create', name="nodes_create"),
     url(r'^(?P<graph_slug>[\w-]+)/nodes/(?P<node_type_id>\d+)/$',
