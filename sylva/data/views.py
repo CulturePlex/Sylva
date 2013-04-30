@@ -109,7 +109,10 @@ def nodes_list_full(request, graph_slug, node_type_id):
         node_properties = node.properties
         for prop_key in property_keys:
             if prop_key in node_properties:
-                property_values[prop_key].add(node_properties[prop_key])
+                prop_value = node_properties[prop_key]
+                if prop_value == "":
+                    prop_value = "(Empty)"
+                property_values[prop_key].add(prop_value)
     for key in property_values:
         property_values[key] = list(property_values[key])
     return render_to_response('node_list.html',
