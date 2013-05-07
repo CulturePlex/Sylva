@@ -105,7 +105,8 @@
 
             var tbody = document.querySelector('#content_table tbody');
             tbody.innerHTML = '';
-            document.querySelector('.pagination').classList.add('hidden');
+            var pagination = document.querySelector('.pagination');
+            pagination.classList.add('hidden');
 
             if (nodes.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="4">{% trans "Your search did not return any results" %}</td></tr>';
@@ -203,6 +204,11 @@
             }
 
             tbody.appendChild(tr_elements);
+
+            pagination.innerHTML = '<span class="pagination-info">' +
+                                       '{% trans "Showing" %}' + ' ' + nodes.length + ' ' + '{% trans "results" %}' +
+                                   '</span>';
+            pagination.classList.remove('hidden');
         };
     });
 </script>
