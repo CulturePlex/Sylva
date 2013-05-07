@@ -54,6 +54,13 @@
                         }
                     }
                     $table_rows.not($table_rows_filtered).hide();
+
+                    var $pag_info = $('.pagination-info');
+                    var info_list = $pag_info.text().trim().split(' ');
+                    var results_count = $table_rows.filter(':visible').length;
+                    info_list[1] = results_count;
+                    $pag_info.text(info_list.join(' '));
+
                     if (!$table_rows.is(':visible')) {
                         var node_type_id = {{ node_type.id }};
                         var data_query = {};
@@ -310,9 +317,11 @@
     {% else %}
     <div class="pagination">
         {% if nodes.paginator.per_page < nodes.paginator.count %}
-            {% blocktrans with per_page=nodes.paginator.per_page count=nodes.paginator.count name=node_type.name %}
-                Showing {{ per_page }} of {{ count }} {{ name }}.
-            {% endblocktrans %}
+            <span class='pagination-info'>
+                {% blocktrans with per_page=nodes.paginator.per_page count=nodes.paginator.count name=node_type.name %}
+                    Showing {{ per_page }} of {{ count }} {{ name }}.
+                {% endblocktrans %}
+            </span>
             <span class="step-links">
                 {% if nodes.has_previous %}
                     <a href="?page={{ nodes.previous_page_number }}"><span class="symbol-medium">←</span></a>
