@@ -57,7 +57,7 @@
                     if (!$table_rows.is(':visible')) {
                         var node_type_id = {{ node_type.id }};
                         var data_query = {};
-                        data_query[node_type_id] = query;
+                        data_query[node_type_id] = JSON.stringify(collection_facets[0]);
                         $.ajax({
                             url: "{% url nodes_lookup_full graph.slug %}",
                             data: data_query,

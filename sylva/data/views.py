@@ -63,13 +63,25 @@ def nodes_lookup(request, graph_slug, with_properties=False, page_size=10):
     if (request.is_ajax() or settings.DEBUG) and data:
         node_type_id = data.keys()[0]
         node_type = get_object_or_404(NodeType, id=node_type_id)
-        q = data[node_type_id]
-        properties = node_type.properties.filter(display=True)
-        if not properties:
-            properties = node_type.properties.all()[:2]
+        is_full_search = True
         query = graph.Q()
-        for prop in properties:
-            query |= graph.Q(prop.key, icontains=q)
+        q = None
+        if not with_properties:
+            q = data[node_type_id]
+        else:
+            q = json.loads(data[node_type_id])
+            if 'search' in q:
+                q = q['search']
+            else:
+                is_full_search = False
+                for key, value in q.iteritems():
+                    query |= graph.Q(key, icontains=value)
+        if is_full_search:
+            properties = node_type.properties.filter(display=True)
+            if not properties:
+                properties = node_type.properties.all()[:2]
+            for prop in properties:
+                query |= graph.Q(prop.key, icontains=q)
         nodes = node_type.filter(query)[:page_size]
         json_nodes = []
         if with_properties:
