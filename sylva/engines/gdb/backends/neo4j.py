@@ -394,18 +394,25 @@ class GraphDatabase(BlueprintsGraphDatabase):
         conditions = u" AND ".join(conditions_list)
         origins_list = []
         for origin_dict in query_dict["origin"]:
-            origin = u"""{alias}=node:`{nidx}`('label:{type}')""".format(
-                nidx=self.nidx.name,
-                alias=origin_dict["alias"],
-                type=origin_dict["type"].id,
-            )
+            if origin_dict.get("nodetype"):
+                origin = u"""{alias}=node:`{nidx}`('label:{type}')""".format(
+                    nidx=self.nidx.name,
+                    alias=origin_dict["alias"],
+                    type=origin_dict["type"].id,
+                )
+            else:
+                origin = u"""{alias}=rel:`{ridx}`('label:{type}')""".format(
+                    ridx=self.ridx.name,
+                    alias=origin_dict["alias"],
+                    type=origin_dict["type"].id,
+                )
             origins_list.append(origin)
         origins = u", ".join(origins_list)
         results_list = []
         for result_dict in query_dict["result"]:
             for property_name in result_dict["properties"]:
                 if property_name:
-                    if property_name == u"*":
+                    if property_name is Ellipsis:
                         result = u"{0}".format(result_dict["alias"])
                     else:
                         result = u"{0}.`{1}`".format(
@@ -414,10 +421,29 @@ class GraphDatabase(BlueprintsGraphDatabase):
                         )
                     results_list.append(result)
         results = u", ".join(results_list)
+        patterns_list = []
+        for pattern_dict in query_dict["patterns"]:
+            source = pattern_dict["source"]["alias"]
+            target = pattern_dict["target"]["alias"]
+            relation = pattern_dict["relation"]["alias"]
+            relation_type = pattern_dict["relation"]["type"].id
+            pattern = u"({source})-[{rel}:`{rel_type}`]-(target)".format(
+                source=source,
+                rel=relation,
+                rel_type=relation_type,
+                target=target,
+            )
+            patterns_list.append(pattern)
+        if patterns_list:
+            patterns = ", ".join(patterns_list)
+            match = u"MATCH {0} ".format(patterns)
+        else:
+            match = u""
         if conditions:
             where = u"WHERE {0} ".format(conditions)
         else:
             where = u""
-        q = u"START {0} {1}RETURN DISTINCT {2}".format(origins, where, results)
+        q = u"START {0} {1}{2}RETURN DISTINCT {3}".format(origins, match,
+                                                          where, results)
         print q
         return q

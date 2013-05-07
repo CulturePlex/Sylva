@@ -36,7 +36,7 @@ class QueryParser(object):
         def merge(*args):
             """Merge dictionaries in *args"""
             m = {}
-            for key in ("conditions", "origin", "pattern", "result"):
+            for key in ("conditions", "origin", "patterns", "result"):
                 m[key] = []
                 for d in args:
                     m[key] += d.get(key, [])
@@ -58,7 +58,7 @@ class QueryParser(object):
                         'conditions': [(f, ('property', t['alias'], p), v)],
                         'origin': [t],
                         'result': [{
-                            "alias": t['alias'], "properties": [u"*"]
+                            "alias": t['alias'], "properties": [Ellipsis]
                         }]}
             else:
                 if r:
@@ -73,7 +73,7 @@ class QueryParser(object):
                         'conditions': [],
                         'origin': [t],
                         'result': [{
-                            "alias": t['alias'], "properties": [u"*"]
+                            "alias": t['alias'], "properties": [Ellipsis]
                         }]}
 
         self.counter = Counter()
@@ -104,13 +104,17 @@ op = ("that" ws "start" "s"? ws "with" ws)
         rules += relationship_type_rules
         rules += [u"""
 rel = <r_types:r> ws <n_types:t>
-    -> merge(r, t)
+    -> {'relation': r, 'node': t, 'merge': merge(r, t)}
     | -> {}
 
 dict = <n_types:n> <~rel>
      -> n
      | <n_types:s> ws <rel:r>
-     -> merge(s, r)
+     -> merge(s, r['merge'], {"patterns": [{
+            "source": s["origin"][-1],  # Not sure if [0] or [-1]
+            "target": r["node"]["origin"][-1],
+            "relation": r["relation"]["origin"][-1],
+        }]})
      | -> None
         """]
         rules = u"\n".join(rules)
@@ -128,7 +132,7 @@ dict = <n_types:n> <~rel>
         rel_type_rule_codes = []
         rules_template = u"""
 r{rel_type_id} = ('{rel_type_names}')
-        -> {{'type': types.get({rel_type_id}), 'alias': "r{rel_type_id}_{{0}}".format(counter.get('r{rel_type_id}', 0))}}
+        -> {{'type': types.get({rel_type_id}), 'nodetype': False,  'alias': "r{rel_type_id}_{{0}}".format(counter.get('r{rel_type_id}', 0))}}
 r{rel_type_id}_facet = (conditions ws)? r_facet ws <r{rel_type_id}:r> ws ("a" | "the")?
         -> {{'origin': [r], 'result': [{{"alias": r['alias'], "properties": []}}]}}
         """
@@ -184,7 +188,7 @@ r{rel_type_id}_facet = (conditions ws)? r_facet ws <r{rel_type_id}:r> ws ("a" | 
         rules_template = u"""
 n{node_type_id}_value = <anything*:x> -> ''.join(x)
 n{node_type_id} = ('{node_type_names}')
-       -> {{'type': types.get({node_type_id}), 'alias': "n{node_type_id}_{{0}}".format(counter.get('n{node_type_id}', 0))}}
+       -> {{'type': types.get({node_type_id}), 'nodetype': True, 'alias': "n{node_type_id}_{{0}}".format(counter.get('n{node_type_id}', 0))}}
 n{node_type_id}_property = {node_type_properties}
 n{node_type_id}_properties = <n{node_type_id}_property:first> <(ws (',' | "and") ws n{node_type_id}_property)*:rest>
         -> [first] + rest
