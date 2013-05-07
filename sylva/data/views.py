@@ -75,13 +75,13 @@ def nodes_lookup(request, graph_slug, with_properties=False, page_size=10):
             else:
                 is_full_search = False
                 for key, value in q.iteritems():
-                    query |= graph.Q(key, icontains=value)
+                    query &= graph.Q(key, icontains=value, nullable=True)
         if is_full_search:
             properties = node_type.properties.filter(display=True)
             if not properties:
                 properties = node_type.properties.all()[:2]
             for prop in properties:
-                query |= graph.Q(prop.key, icontains=q)
+                query |= graph.Q(prop.key, icontains=q, nullable=True)
         nodes = node_type.filter(query)[:page_size]
         json_nodes = []
         if with_properties:
