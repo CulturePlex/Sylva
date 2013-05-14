@@ -188,6 +188,7 @@
 
                 var td_rel = document.createElement('td');
                 td_rel.colSpan = properties.length + 1;
+                td_rel.id = 'td' + nodes[i].id;
                 td_rel.className = 'hidden retrieve-relationships';
                 td_rel.dataset.node = nodes[i].id;
                 td_rel.dataset.display = nodes[i].display;
@@ -217,7 +218,7 @@
         $.ajax({
             url: url,
             success: function(data){
-                var label;
+                var label, html;
                 var relationships = JSON.parse(data);
                 var divs = [];
                 $.each(relationships, function(direction, rels){
@@ -248,10 +249,10 @@
     };
 
     // Bind events to data toggle controls to start the fetching of relationships
-    $('.rels').live('click', function() {
+    $('#content_table').on('click', '.rels', function() {
         var $this = $(this);
         var nodeId = $this.data("node");
-        $("td[data-node="+ nodeId +"]").toggle(0, function () {
+        $("#td" + nodeId).toggle(0, function () {
             var element = $(this);
             element.parent().show();
             var url = element.data("node-rels");
@@ -303,7 +304,7 @@
                     {% endfor %}
                 </tr>
                 <tr class="{% cycle 'row-even' 'row-odd' %}">
-                    <td colspan="{{ properties_count }}" class="hidden retrieve-relationships" data-node="{{ node.id }}" data-display="{{ node.display }}" data-node-rels="{% url node_relationships graph.slug node.id %}">
+                    <td colspan="{{ properties_count }}" id="td{{ node.id }}" class="hidden retrieve-relationships" data-node="{{ node.id }}" data-display="{{ node.display }}" data-node-rels="{% url node_relationships graph.slug node.id %}">
                         <span class="helptext">{% trans "Loading" %}...</span>
                     </td>
                 </tr>
