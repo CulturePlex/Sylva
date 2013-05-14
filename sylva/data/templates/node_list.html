@@ -253,6 +253,7 @@
         var nodeId = $this.data("node");
         $("td[data-node="+ nodeId +"]").toggle(0, function () {
             var element = $(this);
+            element.parent().show();
             var url = element.data("node-rels");
             var display = element.data("display");
             // Fetch elements that are not already loaded and are visible
