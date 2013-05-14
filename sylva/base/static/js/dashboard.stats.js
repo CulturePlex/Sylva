@@ -116,10 +116,14 @@
               series.collaboration.data.push(point);
               storagesValues.push(point[2]);
           });
+
           var storageMean = _.reduce(storagesValues, function(a, b){ return a + b; }, 0) / storagesValues.length;
+          var storagesValuesMax = _.max(storagesValues);
+          var normalizedAverage = (storageMean / storagesValuesMax) * 0.1;
+
           // Draw the graph
           graph = Flotr.draw(container, [series.owned, series.collaboration], {
-            bubbles : { show : true, baseRadius : storageMean },
+            bubbles : { show : true, baseRadius : normalizedAverage },
             yaxis   : { min : relationship.min - storageMean, max : relationship.max + storageMean },
             xaxis   : { min : node.min - storageMean, max : node.max + storageMean},
             mouse: {
