@@ -32,6 +32,9 @@
             var $table_rows = $('#content_table tbody tr');
             var $table_rows_filtered = $table_rows;
             var query_facets = {};
+            var pagination_content = '';
+
+            var searching = false;
 
             var visualSearch = VS.init({
                 container: $('#search-query'),
@@ -57,15 +60,20 @@
                                 }
                             }
                         }
+                        // Show only faceted results.
                         $table_rows.not($table_rows_filtered).hide();
 
+                        // Update pagination info.
                         var $pag_info = $('.pagination-info');
+                        pagination_content = $pag_info.parent().html();
                         var info_list = $pag_info.text().trim().split(' ');
                         var results_count = $table_rows.filter(':visible').length;
                         info_list[1] = results_count;
                         $pag_info.text(info_list.join(' '));
 
+                        // In other case, run a full search.
                         if (!$table_rows.is(':visible')) {
+                            searching = true;
                             var node_type_id = {{ node_type.id }};
                             var data_query = {};
                             data_query[node_type_id] = JSON.stringify(query_facets);
@@ -98,6 +106,9 @@
                             $table_rows.show()
                                        .not($table_rows_filtered)
                                        .hide();
+                        }
+                        if (!searching) {
+                            document.querySelector('.pagination').innerHTML = pagination_content;
                         }
                     }
                 }
