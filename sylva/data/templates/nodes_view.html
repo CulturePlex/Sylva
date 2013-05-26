@@ -115,7 +115,7 @@
                     <dl>
                         {% for file in media_files %}
                             <dt>{{ file.media_label }}</dt>
-                            <dd><a href="{{ file.media_file.url }}">{% trans "Download" %}</a></dd>
+                            <dd><a href="{{ file.media_file.url }}" download="{{ file.media_file.name }}">{% trans "Download" %}</a></dd>
                         {% endfor %}
                     </dl>
                 {% endif %}
