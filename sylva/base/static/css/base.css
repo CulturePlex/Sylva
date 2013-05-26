@@ -56,7 +56,7 @@ blockquote, q {
     padding-left: 16px;
 }
 
-blockquote:before,blockquote:after,q:before,q:after {
+blockquote:before, blockquote:after, q:before, q:after {
     content: inherit;
 }
 
@@ -90,7 +90,7 @@ label {
 /*    margin-top: 10px;*/
 }
 
-button,input,select,textarea {
+button, input, select, textarea {
     margin: 0;
 }
 
@@ -162,8 +162,7 @@ a.disabled,a.disabled:hover {
     height: 0;
 }
 
-* html .clearfix,:first-child+html
-.clearfix {
+* html .clearfix, :first-child+html .clearfix {
     zoom: 1;
 }
 
@@ -171,8 +170,7 @@ a.disabled,a.disabled:hover {
     padding-top: 50px;
 }
 
-#main
-header.global {
+#main header.global {
     width: 1170px;
     background-color: white;
     margin: auto;
@@ -190,8 +188,7 @@ header.global {
     border-bottom: 1px solid #348E82;
 }
 
-#main header.global .nav-wrapper
-.inside {
+#main header.global .nav-wrapper .inside {
     width: 1200px;
     height: 49px;
     background-image: url(../img/sylva_logo_text_header.png);
@@ -201,26 +198,22 @@ header.global {
     margin: auto;
 }
 
-#main header.global
-nav.contact {
+#main header.global nav.contact {
     float:left;
     text-shadow:0 1px 1px rgba(0,0,0,0.9);
     padding-left: 90px;
 }
 
-#main header.global nav.contact
-ul {
+#main header.global nav.contact ul {
     margin-left: 50px;
 }
 
-#main header.global nav.contact ul
-li {
+#main header.global nav.contact ul li {
     margin-right: 40px;
     line-height: 16px;
 }
 
-#main header.global nav.contact ul li
-h2 {
+#main header.global nav.contact ul li h2 {
     font-size: 11px;
     color: #a1a1a1;
     font-weight: 400;
@@ -251,8 +244,7 @@ span.all-relationships label {
     display: block;
 }
 
-#main header.global nav.contact ul li
-a {
+#main header.global nav.contact ul li a {
     font-size: 11px;
     font-weight: 700;
     color: #FFF;
@@ -267,13 +259,11 @@ a {
     border-bottom: solid 1px #FFF;
 }
 
-#main header.global nav.main
-ul {
+#main header.global nav.main ul {
     margin-right: 15px;
 }
 
-#main header.global nav.main ul
-li {
+#main header.global nav.main ul li {
     margin-left: 10px;
 }
 
@@ -294,8 +284,7 @@ a.plans {
     background: #FFF url(../img/badge.png) no-repeat 0 center;
 }
 
-#main header.global nav.main ul li
-a.text {
+#main header.global nav.main ul li a.text {
     border: none;
     background: none;
     color: #348E82;
@@ -317,8 +306,7 @@ a.text {
     width: auto;
 }
 
-#main header.global nav.main ul li
-a {
+#main header.global nav.main ul li a {
     border-radius: 4px;
     -moz-border-radius: 4px;
     -webkit-border-radius: 4px;
@@ -335,20 +323,17 @@ a {
     background-color: white;
 }
 
-#main header.global nav.main ul li
-a.active {
+#main header.global nav.main ul li a.active {
     opacity: 0.2;
     cursor: default;
 }
 
-#main header.global nav.main ul li a.link-home
-span {
+#main header.global nav.main ul li a.link-home span {
     background: url(../img/larr.gif) no-repeat 0 50%;
     padding: 2px 2px 2px 10px;
 }
 
-#main header.global nav ul li a.link
-span {
+#main header.global nav ul li a.link span {
     padding-left:3px;
     padding-right:3px;
 }
@@ -359,8 +344,7 @@ span {
     -moz-box-shadow: 0 0 5px rgba(52,142,130,0.75);
 }
 
-#main header.global nav.main
-ul {
+#main header.global nav.main ul {
     padding: 11px 0 0 0;
 }
 
@@ -409,8 +393,7 @@ header .messages .debug {
     background-color: lightgray;
 }
 
-ul#box-nav li
-a.text {
+ul#box-nav li a.text {
     border: none;
     background: none;
     color: #348E82;
@@ -420,8 +403,7 @@ a.text {
     -webkit-border-radius: none;
 }
 
-ul#box-nav li
-a {
+ul#box-nav li a {
     border-radius: 4px;
     -moz-border-radius: 4px;
     -webkit-border-radius: 4px;
@@ -452,23 +434,18 @@ ul#box-nav {
     float: right;
 }
 
-ul#box-nav
-li {
+ul#box-nav li {
     float: left;
     list-style: none;
     margin-left: 10px;
 }
 
-
-
-#main header.global nav ul
-li {
+#main header.global nav ul li {
     float: left;
     list-style: none;
 }
 
-#main header.global
-h1 {
+#main header.global h1 {
     font: normal 26px Georgia;
     color: #348E82;
     /*text-shadow: 1px 1px 1px #A19C60;*/
@@ -476,16 +453,14 @@ h1 {
     /*padding-top:5px;*/
 }
 
-#main header.global h1
-a {
+#main header.global h1 a {
     display: block;
     text-align: center;
 /*text-indent:-9999em;*/
 }
 
-#main header.global h1
-a.inactive {
-cursor:default;
+#main header.global h1 a.inactive {
+    cursor:default;
 }
 
 #body {
@@ -501,13 +476,11 @@ cursor:default;
     padding: 5px 30px 5px 20px;
 }
 
-#body
-#homepage {
+#body #homepage {
     padding-top: 0px;
 }
 
-#main
-#footer.global {
+#main #footer.global {
     background: white;
     width: 1160px;
     position: relative;
@@ -516,8 +489,7 @@ cursor:default;
     /*z-index: -1;*/
 }
 
-#main #footer.global
-.inside {
+#main #footer.global .inside {
     border-top: solid 1px #DADADA;
     width: 100%;
     padding-top: 15px;
@@ -528,13 +500,11 @@ cursor:default;
     display: block;
 }
 
-ol,ul {
+ol, ul {
     list-style: none;
 }
 
-#main header.global
-nav.main,#main #footer.global .inside
-.top {
+#main header.global nav.main,#main #footer.global .inside .top {
     float: right;
 }
 
@@ -546,8 +516,6 @@ nav.main,#main #footer.global .inside
 #main #footer.global .inside a:hover {
     text-decoration: underline;
 }
-
-
 
 #content3 {
     /*  width:992px;*/
@@ -1038,7 +1006,6 @@ ul.errorlist {
     overflow: hidden;
 }
 
-
 .graph-schema {
     background: transparent url(../img/connected_16.png) left center no-repeat;
     padding: 1px 5px 1px 16px;
@@ -1200,18 +1167,15 @@ nav.menu {
     padding: 3px 0 0 0;
 }
 
-nav.menu
-ul {
+nav.menu ul {
     margin-right: 0px;
 }
 
-nav.menu ul
-li {
+nav.menu ul li {
     margin-left: 10px;
 }
 
-nav.menu ul li
-a.text {
+nav.menu ul li a.text {
     border: none;
     background: none;
     color: #348E82;
@@ -1221,8 +1185,7 @@ a.text {
     -webkit-border-radius: none;
 }
 
-nav.menu ul li
-a {
+nav.menu ul li a {
     border-radius: 4px;
     -moz-border-radius: 4px;
     -webkit-border-radius: 4px;
@@ -1248,20 +1211,17 @@ nav.menu ul li a.link {
     padding-right:3px;
 }
 
-nav.menu ul li
-a.active {
+nav.menu ul li a.active {
     opacity: 0.2;
     cursor: default;
 }
 
-nav.menu ul li a.link-home
-span {
+nav.menu ul li a.link-home span {
     background: url(../img/larr.gif) no-repeat 0 50%;
     padding: 2px 2px 2px 10px;
 }
 
-nav.menu ul li a.link
-span {
+nav.menu ul li a.link span {
     padding-left:3px;
     padding-right:3px;
 }
@@ -1272,13 +1232,11 @@ nav.menu ul li a:hover {
     -moz-box-shadow: 0 0 5px rgba(52,142,130,0.75);
 }
 
-nav.menu
-ul {
+nav.menu ul {
     padding: 0px 0 0 0;
 }
 
-nav.menu ul
-li {
+nav.menu ul li {
     float: left;
     list-style: none;
 }
