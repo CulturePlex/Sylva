@@ -480,6 +480,10 @@ ul#box-nav li {
     padding-top: 0px;
 }
 
+.body-inside {
+    min-height: 100px;
+}
+
 #main #footer.global {
     background: white;
     width: 1160px;
