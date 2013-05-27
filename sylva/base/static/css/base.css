@@ -144,6 +144,14 @@ strong, b {
     width: 700px;
 }
 
+.text-center {
+    text-align: center;
+}
+
+.text-left {
+    text-align: left;
+}
+
 a.disabled,a.disabled:hover {
     cursor: default;
     color: #B0B0B0;
@@ -1329,7 +1337,6 @@ table.content-table {
 }
 
 .content-table table, th {
-/*    border: 1px solid #348E82;*/
     padding: 5px;
     background-color: #D6E7DF;
 }
@@ -1344,16 +1351,11 @@ table.content-table {
     border: 1px solid #D6E7DF;
     background-color: #D6E7DF;
     box-shadow: none;
-    /* Firefox*/
-/*    padding: 3px 0 0;*/
 }
 
 .content-table td {
-    /*border: 1px solid #348E82;*/
     padding: 3px;
-    text-align: left;
     max-width: 100px;
-/*    padding-bottom: 3px;*/
 }
 
 .content-table tr.row-odd:hover, tr.row-even:hover {
