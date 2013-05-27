@@ -370,10 +370,11 @@
                 {% endif %}
             </span>
         {% elif nodes %}
-            <br>
-            {% blocktrans with count=nodes.paginator.count name=node_type.name %}
-                Showing {{ count }} elements {{ name }}.
-            {% endblocktrans %}
+            <span class="pagination-info">
+                {% blocktrans with count=nodes.paginator.count name=node_type.name %}
+                    Showing {{ count }} elements {{ name }}.
+                {% endblocktrans %}
+            </span>
         {% endif %}
     </div>
     {% endif %}
