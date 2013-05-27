@@ -1370,6 +1370,10 @@ table.content-table {
     background-color: auto;
 }
 
+.pagination {
+    margin-top: 10px;
+}
+
 #permissions_table th {
     border-right: 1px solid white;
     text-align: left;

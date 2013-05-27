@@ -85,11 +85,17 @@
                         }
                     },
                     clearSearch: function(actualClearSearch) {
-                      actualClearSearch();
-                      $table_rows.show();
-                      $table_rows_filtered = $table_rows;
+                        if (!searching) {
+                            update_pagination_info(pagination_content);
+                        }
+                        actualClearSearch();
+                        $table_rows.show();
+                        $table_rows_filtered = $table_rows;
                     },
                     removedFacet: function (facet, query, options) {
+                        if (!searching) {
+                            update_pagination_info(pagination_content);
+                        }
                         delete query_facets[facet.attributes.category];
                         $table_rows_filtered = $table_rows;
                         var is_empty = true;
@@ -107,12 +113,13 @@
                                        .not($table_rows_filtered)
                                        .hide();
                         }
-                        if (!searching) {
-                            document.querySelector('.pagination').innerHTML = pagination_content;
-                        }
                     }
                 }
             });
+
+            var update_pagination_info = function(content) {
+                document.querySelector('.pagination').innerHTML = content;
+            };
 
             // Show search results as table rows.
             var add_search_results = function(nodes) {
