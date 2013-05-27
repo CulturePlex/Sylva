@@ -98,7 +98,7 @@
         {% regroup node_type.get_incoming_relationships by name as incoming_relationships %}
     {% endif %}
     {% for relationship_name in incoming_relationships %}
-         <div class="form-row indent">
+        <div class="form-row indent">
             <label>←
                 {% if relationship_name.grouper %}{{ relationship_name.grouper|capfirst }}{% else %}{{ relationship_name.list.0.name|capfirst }}{% endif %}
                 <a class="buttonLinkOption indent" href="{% url schema_relationshiptype_create graph.slug %}?target={{ node_type.id }}&inverse={{ relationship_name.grouper }}&name={{ relationship_name.list.0.name }}">
@@ -151,19 +151,25 @@
 </div>
     <a id="schemaNewType" class="button" href="{% url schema_nodetype_create graph.slug %}">{% trans "New Type" %}</a>
 {% else %}
-    <a id="schemaImport" class="button" href="{% url schema_import graph.slug %}">{% trans "Import Schema" %}</a>
-{% endif %}
-<span class="buttonLinkOption">
-{% if node_types %}
-    <a id="allowedRelations" href="{% url schema_relationshiptype_create graph.slug %}">{% trans "Allowed Relationship" %}</a>
-    {% trans "or" %}
-    <a id="schemaExport" href="{% url schema_export graph.slug %}">{% trans "Export" %}</a>.
-{% else %}
-    {% trans "or" %}
-    <a id="schemaNewType" href="{% url schema_nodetype_create graph.slug %}">{% trans "New Type" %}</a>.
     {% trans "There are no types defined yet" %}.
+    <br>
+    <br>
+    <span class="buttonLinkOption">
+        <a id="schemaImport" class="button" href="{% url schema_import graph.slug %}">{% trans "Import Schema" %}</a>
+    </span>
 {% endif %}
-</span>
+{% if node_types %}
+    <span class="buttonLinkOption">
+        <a id="allowedRelations" href="{% url schema_relationshiptype_create graph.slug %}">{% trans "Allowed Relationship" %}</a>
+        {% trans "or" %}
+        <a id="schemaExport" href="{% url schema_export graph.slug %}">{% trans "Export" %}</a>.
+    </span>
+{% else %}
+    <span class="buttonLinkOption">
+        {% trans "or" %}
+        <a id="schemaNewType" href="{% url schema_nodetype_create graph.slug %}" class="button">{% trans "New Type" %}</a>
+    </span>
+{% endif %}
 
 <!-- Features Tour -->
 <ol id="tour" class="hidden">
@@ -199,7 +205,6 @@
         </li>
     {% endif %}
 </ol>
-
 {% endblock %}
 
 {% block extra_links %}

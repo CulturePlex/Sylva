@@ -327,10 +327,12 @@
             </tbody>
         </table>
     {% else %}
+        <span>{% trans "There are no types defined yet" %}.</span>
+        <br>
+        <br>
         <a class="button" href="{% url schema_nodetype_create graph.slug %}">{% trans "New Type" %}</a>
-        <span class="buttonLinkOption">
-        {% trans "There are no types defined yet" %}.
-        </span>
+        <br>
+        <br>
     {% endif %}
     {% if graph.data.total_nodes == 0 and graph.data.total_relationships == 0 and graph.relaxed %}
         <a class="button" href="{% url tool_import graph.slug %}">{% trans "Import" %}</a>
@@ -360,7 +362,8 @@
                     <a href="?page={{ nodes.next_page_number }}"><span class="symbol-medium">→</span></a>
                 {% endif %}
             </span>
-        {% else %}
+        {% elif nodes %}
+            <br>
             {% blocktrans with count=nodes.paginator.count name=node_type.name %}
                 Showing {{ count }} elements {{ name }}.
             {% endblocktrans %}

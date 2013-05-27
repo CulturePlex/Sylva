@@ -37,8 +37,10 @@
             {% endif %}
             </p>
         {% endfor %}
-        <input type="submit" value="{% trans "Save Type" %}"/>
-        <span class="buttonLinkOption">
+        <span class="buttonLinkOption buttonLinkLeft">
+            <input type="submit" value="{% trans "Save Type" %}"/>
+        </span>
+        <span class="buttonLinkOption buttonLinkRight">
             {% if item_type_id %}
                 {% if item_type == "relationship" %}
                 <a class="delete" href="{% url schema_relationshiptype_delete graph.slug item_type_id %}">{% trans "Remove" %}</a>
@@ -137,8 +139,9 @@
             {% endfor %}
             </tbody>
         </table>
-        <span class="buttonLinkOption" id="advancedMode">&nbsp;{% trans "or" %}
-            <a id="advancedModeButton" href="javascript:void(0)">{% trans "Advanced Mode" %}</a>.
+        <span id="advancedMode">
+            &nbsp;{% trans "or" %}&nbsp;
+            <a href="javascript:void(0)" id="advancedModeButton" class="bold">{% trans "Advanced Mode" %}</a>.
         </span>
     </div>
 <!--    <div class="content-divider"></div>-->

@@ -30,8 +30,10 @@
     <div class="content-main">
         <h2>{{ item_type_label }}: {{ item_type_name }}</h2>
         {{ form.as_p }}
-        <input type="submit" value="{% trans "Continue" %}"/>
-        <span class="buttonLinkOption">
+        <span class="buttonLinkOption buttonLinkLeft">
+          <input type="submit" value="{% trans "Continue" %}"/>
+        </span>
+        <span class="buttonLinkOption buttonLinkRight">
             {% trans "or" %} <a href="{% url schema_edit graph.slug %}">{% trans "Cancel" %}</a>.
         </span>
     </div>

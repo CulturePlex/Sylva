@@ -22,8 +22,10 @@
 <h2>{% trans "Import a Schema" %}</h2>
 <form method="POST" action="{% url schema_import graph.slug %}" enctype="multipart/form-data">{% csrf_token %}
   {{ form.as_p }}
-  <input type="submit" value="{% trans "Continue" %}">
-  <span class="buttonLinkOption">
+  <span class="buttonLinkOption buttonLinkLeft">
+    <input type="submit" value="{% trans "Continue" %}">
+  </span>
+  <span class="buttonLinkOption buttonLinkRight">
     {% trans "or" %} <a href="{{ graph.schema.get_absolute_url }}">{% trans "Cancel" %}</a>.
   </span>
 </form>
