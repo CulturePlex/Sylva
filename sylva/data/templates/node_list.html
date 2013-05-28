@@ -131,7 +131,12 @@
                 pagination.classList.add('hidden');
 
                 if (nodes.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="4">{% trans "Your search did not return any results" %}</td></tr>';
+                    tbody.innerHTML =
+                        '<tr>' +
+                            '<td colspan="4" style="padding-top: 10px; text-align: center;">' +
+                                '{% trans "Your search did not return any results" %}' +
+                            '</td>' +
+                        '</tr>';
                     return;
                 }
 
