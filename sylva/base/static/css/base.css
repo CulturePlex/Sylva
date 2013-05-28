@@ -1165,6 +1165,12 @@ ul.errorlist {
 }
 
 /* Schemas */
+
+.schema-wrapper {
+    float: left;
+    margin-bottom: 20px;
+}
+
 .indent10 {
     margin-left: 10px;
 }
@@ -1184,6 +1190,8 @@ div.indent label.relProps {
     font-size: 0.9em;
     font-weight: normal;
 }
+
+/* END Schemas */
 
 /* Menu buttons */
 nav.menu {
