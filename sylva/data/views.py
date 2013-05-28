@@ -39,7 +39,7 @@ def create_data(properties, data_list, add_edge_extras=False):
             row.append(element.target.display)
         for p in properties:
             row.append(element.get(p, ""))
-        row.append(element.id)
+        row.append(element.source.id)
         data.append(row)
     return data
 
