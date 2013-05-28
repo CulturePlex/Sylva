@@ -1505,9 +1505,11 @@ table.content-table {
 }
 
 div.relationships-box {
-  overflow: auto;
-  line-height: 17px;
-  max-height: 37px;
+    overflow: auto;
+    line-height: 17px;
+    max-height: 116px;
+    margin-bottom: 14px;
+    margin-top: 2px;
 }
 
 #searchBox p label {
