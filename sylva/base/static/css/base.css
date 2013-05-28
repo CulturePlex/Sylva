@@ -762,7 +762,8 @@ span.buttonLinkOption a {
     font-weight: bold;
 }
 
-span.buttonLinkLeft {
+span.buttonLinkLeft,
+span.buttonLinkRight {
     float: left;
 }
 
