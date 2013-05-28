@@ -1,3 +1,4 @@
+/* Resets *********************************************************************/
 html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,
 acronym,address,big,cite,code,del,dfn,em,img,ins,kbd,q,s,samp,small,strike,strong,
 sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,
@@ -11,7 +12,10 @@ audio,video {
     margin: 0;
     padding: 0;
 }
+/* END Resets *****************************************************************/
 
+
+/* Redefinitions **************************************************************/
 body {
     line-height: normal;
     font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
@@ -47,6 +51,10 @@ dd {
     margin-left: 10px;
 }
 
+ol, ul {
+    list-style: none;
+}
+
 blockquote, q {
     quotes: inherit;
     font-size: 95%;
@@ -56,7 +64,10 @@ blockquote, q {
     padding-left: 16px;
 }
 
-blockquote:before, blockquote:after, q:before, q:after {
+blockquote:before,
+blockquote:after,
+q:before,
+q:after {
     content: inherit;
 }
 
@@ -69,8 +80,15 @@ th {
     cursor: pointer;
     font-size: 115%;
     font-weight: bold;
-/*    display: inline-block;*/
-/*    margin-top: 10px;*/
+}
+
+form {
+    max-width: 321px;
+    display: inline;
+}
+
+form p {
+    padding-bottom: 15px;
 }
 
 fieldset {
@@ -87,7 +105,6 @@ label {
     font-size: 115%;
     font-weight: bold;
     display: inline-block;
-/*    margin-top: 10px;*/
 }
 
 button, input, select, textarea {
@@ -99,6 +116,84 @@ button {
     overflow: visible;
 }
 
+.button,
+button,
+input[type="text"],
+input[type="password"],
+input[type="email"],
+input[type="submit"],
+input[type="button"],
+textarea,
+select {
+    border-radius: 4px;
+    -moz-border-radius: 4px;
+    -webkit-border-radius: 4px;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.9);
+    -webkit-box-shadow: 0 1px 1px rgba(0, 0, 0, 0.9);
+    -moz-box-shadow: 0 1px 1px rgba(0, 0, 0, 0.9);
+    display: block;
+    font-size: 100%;
+    text-decoration: none;
+    padding: 5px 8px 5px 8px;
+    margin: 2px 0px 2px 0px;
+    background-color: white;
+    border: none;
+    border-top: solid 1px #DADADA;
+    font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;
+    width: 300px;
+    vertical-align: middle;
+}
+
+select {
+    border: solid 1px #DADADA;
+    width: 317px;
+}
+
+input[type="checkbox"],
+input[type="radio"] {
+    display: initial;
+    width: auto;
+    margin-top: -4px;
+    display: inline;
+}
+
+.button,
+input[type="button"],
+input[type="submit"],
+button[type="submit"] {
+    font-size: 105%;
+    font-weight: 700;
+    color: #348E82;
+    text-decoration: none;
+    width: auto;
+    margin: auto;
+    display: inline-block;
+    background-color: #D6E7DF;
+    cursor: pointer;
+}
+
+.button:hover,
+input[type="button"]:hover,
+input[type="submit"]:hover,
+button[type="submit"]:hover,
+input:active,
+textarea:active,
+select:active {
+    box-shadow: 0 1px 5px rgba(52,142,130,0.75);
+    -webkit-box-shadow: 0 1px 5px rgba(52,142,130,0.75);
+    -moz-box-shadow: 0 1px 5px rgba(52,142,130,0.75);
+    text-decoration: none;
+}
+
+.button:active,
+input[type="button"]:active,
+input[type="submit"]:active {
+    box-shadow: 0 0 5px rgba(52,142,130,0.75);
+    -webkit-box-shadow: 0 0 5px rgba(52,142,130,0.75);
+    -moz-box-shadow: 0 0 5px rgba(52,142,130,0.75);
+    padding: 6px 7px 4px 9px;
+}
+
 abbr {
     border-bottom: .1em dotted;
     cursor: help;
@@ -106,6 +201,33 @@ abbr {
 
 strong, b {
     font-weight: bold;
+}
+
+a {
+    color: #348E82;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+a.disabled,
+a.disabled:hover {
+    cursor: default;
+    color: #B0B0B0;
+    font-style: italic;
+    text-decoration: none;
+}
+
+/* END Redefinitions **********************************************************/
+
+
+/* Class utils ****************************************************************/
+.stronger {
+    font-weight: bold;
+    font-size: 1.2em;
 }
 
 .clear {
@@ -152,13 +274,6 @@ strong, b {
     text-align: left;
 }
 
-a.disabled,a.disabled:hover {
-    cursor: default;
-    color: #B0B0B0;
-    font-style: italic;
-    text-decoration: none;
-}
-
 .clearfix:after {
     clear: both;
     content: ' ';
@@ -169,6 +284,32 @@ a.disabled,a.disabled:hover {
     width: 0;
     height: 0;
 }
+
+.addButton {
+    font-size: 105%;
+    font-weight: 700;
+    text-decoration: none;
+    width: auto;
+    display: inline-block;
+    cursor: pointer;
+    background: transparent url(../img/add-item_16.png) no-repeat left center;
+    padding-left: 18px;
+}
+
+p.slogan {
+    text-align: center;
+    font-size: 15px;
+    font-family: Georgia;
+    font-style: italic;
+    font-weight: bold;
+    color: #A19C60;
+    text-shadow:0 1px 1px rgba(175,203,188,0.8);
+}
+
+/* END Class utils ************************************************************/
+
+
+/* Layout *********************************************************************/
 
 * html .clearfix, :first-child+html .clearfix {
     zoom: 1;
@@ -275,7 +416,7 @@ span.all-relationships label {
     margin-left: 10px;
 }
 
-/* Home lings */
+/* Home links */
 a.signup {
     background: #FFF url(../img/shut-down.png) no-repeat 0 center;
 }
@@ -512,10 +653,6 @@ ul#box-nav li {
     display: block;
 }
 
-ol, ul {
-    list-style: none;
-}
-
 #main header.global nav.main,#main #footer.global .inside .top {
     float: right;
 }
@@ -589,7 +726,6 @@ ol, ul {
     text-align:left;
 }
 
-/* three column area, vertical dotted divider */
 .content-divider {
     background: url(../img/content-divider.gif) no-repeat top center;
     width: 1px;
@@ -606,42 +742,13 @@ ol, ul {
     padding: 0px 10px 0px 10px;
     margin-top: 0;
 }
-/* end divider */
 
-/* end content 2 */
+/* END Layout *****************************************************************/
+
 
 #element-info {
     overflow: hidden;
     width: 180px;
-}
-
-/*
-    Paragraph customs
-*/
-p.slogan {
-    text-align: center;
-    font-size: 15px;
-    font-family: Georgia;
-    font-style: italic;
-    font-weight: bold;
-    color: #A19C60;
-    text-shadow:0 1px 1px rgba(175,203,188,0.8);
-}
-
-.stronger {
-    font-weight: bold;
-    font-size: 1.2em;
-}
-
-/* Links */
-a {
-    color: #348E82;
-    text-decoration: none;
-}
-
-a:hover {
-    text-decoration: underline;
-    cursor: pointer;
 }
 
 span.buttonLinkOption {
@@ -669,59 +776,6 @@ p.forgot-password {
     display: inline-block;
     margin-top: 17px;
     margin-left: 2px;
-}
-
-/* Defaults */
-.button,
-button,
-input[type="text"],
-input[type="password"],
-input[type="email"],
-input[type="submit"],
-input[type="button"],
-textarea,
-select {
-    border-radius: 4px;
-    -moz-border-radius: 4px;
-    -webkit-border-radius: 4px;
-    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.9);
-    -webkit-box-shadow: 0 1px 1px rgba(0, 0, 0, 0.9);
-    -moz-box-shadow: 0 1px 1px rgba(0, 0, 0, 0.9);
-    display: block;
-    font-size: 100%;
-    text-decoration: none;
-    padding: 5px 8px 5px 8px;
-    margin: 2px 0px 2px 0px;
-    background-color: white;
-    border: none;
-    border-top: solid 1px #DADADA;
-    font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;
-    width: 300px;
-    vertical-align: middle;
-}
-
-.addButton {
-    font-size: 105%;
-    font-weight: 700;
-    text-decoration: none;
-    width: auto;
-    display: inline-block;
-    cursor: pointer;
-    background: transparent url(../img/add-item_16.png) no-repeat left center;
-    padding-left: 18px;
-}
-
-input[type="checkbox"],
-input[type="radio"] {
-    display: initial;
-    width: auto;
-    margin-top: -4px;
-    display: inline;
-}
-
-form {
-    max-width: 321px;
-    display: inline;
 }
 
 #content2 form {
@@ -907,52 +961,6 @@ div.initial p:last-child {
 
 .content2-first ul.errorlist li {
     margin-right: 26px;
-}
-
-form p {
-    padding-bottom: 15px;
-}
-
-select {
-    border: solid 1px #DADADA;
-    width: 317px;
-}
-
-.button,
-input[type="button"],
-input[type="submit"],
-button[type="submit"] {
-    font-size: 105%;
-    font-weight: 700;
-    color: #348E82;
-    text-decoration: none;
-    width: auto;
-    margin: auto;
-    display: inline-block;
-    background-color: #D6E7DF;
-    cursor: pointer;
-}
-
-.button:hover,
-input[type="button"]:hover,
-input[type="submit"]:hover,
-button[type="submit"]:hover,
-input:active,
-textarea:active,
-select:active {
-    box-shadow: 0 1px 5px rgba(52,142,130,0.75);
-    -webkit-box-shadow: 0 1px 5px rgba(52,142,130,0.75);
-    -moz-box-shadow: 0 1px 5px rgba(52,142,130,0.75);
-    text-decoration: none;
-}
-
-.button:active,
-input[type="button"]:active,
-input[type="submit"]:active {
-    box-shadow: 0 0 5px rgba(52,142,130,0.75);
-    -webkit-box-shadow: 0 0 5px rgba(52,142,130,0.75);
-    -moz-box-shadow: 0 0 5px rgba(52,142,130,0.75);
-    padding: 6px 7px 4px 9px;
 }
 
 .inFormsets {
