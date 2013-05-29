@@ -107,6 +107,8 @@ def nodes_lookup(request, graph_slug, with_properties=False, page_size=10):
 def nodes_list_full(request, graph_slug, node_type_id):
     graph = get_object_or_404(Graph, slug=graph_slug)
     node_type = get_object_or_404(NodeType, id=node_type_id)
+    if not node_type.schema.graph == graph:
+        raise Http404(_("Mismatch in requested graph and node type's graph."))
     nodes = node_type.all()
     page = request.GET.get('page')
     page_size = request.GET.get('size', settings.DATA_PAGE_SIZE)
@@ -152,6 +154,8 @@ def nodes_list_full(request, graph_slug, node_type_id):
 def nodes_create(request, graph_slug, node_type_id):
     graph = get_object_or_404(Graph, slug=graph_slug)
     nodetype = get_object_or_404(NodeType, id=node_type_id)
+    if not nodetype.schema.graph == graph:
+        raise Http404(_("Mismatch in requested graph and node type's graph."))
     if request.POST:
         data = request.POST.copy()
         mediafile_formset = MediaFileFormSet(data=data, files=request.FILES,
@@ -577,8 +581,10 @@ def relationships_list(request, graph_slug):
                      return_403=True)
 def relationships_list_full(request, graph_slug, relationship_type_id):
     graph = get_object_or_404(Graph, slug=graph_slug)
-    type_element = get_object_or_404(RelationshipType,
-                                     id=relationship_type_id)
+    type_element = get_object_or_404(RelationshipType, id=relationship_type_id)
+    if not type_element.schema.graph == graph:
+        raise Http404(_("Mismatch in requested graph and relationship "
+                        "type's graph."))
     data_preview = []
     properties = [p.key for p in type_element.properties.all()]
     data = create_data(properties, type_element.all(), True)
