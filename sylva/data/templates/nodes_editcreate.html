@@ -221,39 +221,41 @@
         $(function() {
             // Outgoing
             {% for prefix, outgoing_formset in outgoing_formsets.items %}
-            var init_{{ prefix }} = function() {
-                $("div#{{ prefix }}").formset({
-                    prefix: "{{ prefix }}",
-                    addCssClass: "addButton inFormsets",
-                    addText: "{% trans "Add" %} {{ outgoing_formset.itemtype.name }} ({{ outgoing_formset.itemtype.target.name }})",
-                    extraClasses: ["row1", "row2"],
-                    added: function(row) {$("#{{prefix}} p:last label").hide(); nodeAutocomplete(row.find("input.autocomplete"));},
-                    deleteCssClass: "delete-rowup{% if outgoing_formset.itemtype.properties.count %}Props{% endif %}",
-                    deleteText: "&nbsp;"
-                });
-            };
-            $("#{{ prefix }} p:last label").hide();
-            init_{{ prefix }}();
-            $("#{{ prefix }} p:last label").hide();
+                var init_{{ prefix }} = function() {
+                    $("div#{{ prefix }}").formset({
+                        prefix: "{{ prefix }}",
+                        addCssClass: "addButton inFormsets",
+                        addText: "{% trans "Add" %} {{ outgoing_formset.itemtype.name }} ({{ outgoing_formset.itemtype.target.name }})",
+                        extraClasses: ["row1", "row2"],
+                        added: function(row) {$("#{{prefix}} p:last label").hide(); nodeAutocomplete(row.find("input.autocomplete"));},
+                        deleteCssClass: "delete-rowup{% if outgoing_formset.itemtype.properties.count %}Props{% endif %}",
+                        deleteText: "&nbsp;"
+                    });
+                };
+                $("#{{ prefix }} p:last label").hide();
+                init_{{ prefix }}();
+                $("#{{ prefix }} p:last label").hide();
             {% endfor %}
+
             // Incoming
             {% for prefix, incoming_formset in incoming_formsets.items %}
-            var init_{{ prefix }} = function() {
-                var label = "{% if incoming_formset.itemtype.inverse %}{{ incoming_formset.itemtype.inverse }}{% else %}{{ incoming_formset.itemtype.name }}{% endif %}";
-                $("div#{{ prefix }}").formset({
-                    prefix: "{{ prefix }}",
-                    addCssClass: "addButton inFormsets",
-                    addText: "{% trans "Add" %} "+ label,  // +" ({{ incoming_formset.itemtype.source.name }})",
-                    extraClasses: ["row1", "row2"],
-                    added: function(row) {$("#{{prefix}} p:last label").hide(); nodeAutocomplete(row.find("input.autocomplete"));},
-                    deleteCssClass: "delete-rowup{% if incoming_formset.itemtype.properties.count %}Props{% endif %}",
-                    deleteText: "&nbsp;"
-                });
-            };
-            $("#{{ prefix }} p:last label").hide();
-            init_{{ prefix }}();
-            $("#{{ prefix }} p:last label").hide();
+                var init_{{ prefix }} = function() {
+                    var label = "{% if incoming_formset.itemtype.inverse %}{{ incoming_formset.itemtype.inverse }}{% else %}{{ incoming_formset.itemtype.name }}{% endif %}";
+                    $("div#{{ prefix }}").formset({
+                        prefix: "{{ prefix }}",
+                        addCssClass: "addButton inFormsets",
+                        addText: "{% trans "Add" %} "+ label,  // +" ({{ incoming_formset.itemtype.source.name }})",
+                        extraClasses: ["row1", "row2"],
+                        added: function(row) {$("#{{prefix}} p:last label").hide(); nodeAutocomplete(row.find("input.autocomplete"));},
+                        deleteCssClass: "delete-rowup{% if incoming_formset.itemtype.properties.count %}Props{% endif %}",
+                        deleteText: "&nbsp;"
+                    });
+                };
+                $("#{{ prefix }} p:last label").hide();
+                init_{{ prefix }}();
+                $("#{{ prefix }} p:last label").hide();
             {% endfor %}
+
             // Files
             var init{{ mediafile_formset.prefix }} = function() {
                 $("div#{{ mediafile_formset.prefix }}").formset({
@@ -268,6 +270,7 @@
             };
             $("#{{ mediafile_formset.prefix }} p:last label").hide();
             init{{ mediafile_formset.prefix }}();
+
             // Links
             var init{{ medialink_formset.prefix }} = function() {
                 $("div#{{ medialink_formset.prefix }}").formset({
@@ -282,6 +285,7 @@
             };
             $("#{{ medialink_formset.prefix }} p:last label").hide();
             init{{ medialink_formset.prefix }}();
+
             // Enable the deletion of initial forms
             $(".initial-form").on("click", function(e) {
                 // $(this).siblings("p:last").children("input[type='checkbox']").attr("checked", "checked");
@@ -292,10 +296,12 @@
                 $this.hide();
                 $parent.hide();
             });
+
             // For old browsers
             $(".initial-form").parents("div.initial").each(function(i, form) {
                 $(form).children("p:last").hide();
             });
+
             // For the properties of the relationships
             $(".toggleProperties").live("click", function (e) {
                 $(this).parents("p").siblings("p").toggle();
@@ -304,6 +310,7 @@
                     last.hide();
                 }
             });
+
             // Enabling autocomplete for nodes
             var nodeAutocomplete = function(input) {
                 var params = {}, $input = $(input);
