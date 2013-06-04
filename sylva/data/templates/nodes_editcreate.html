@@ -215,6 +215,9 @@
 <script type="text/javascript" src="{{ STATIC_PREFIX }}js/jquery.tokeninput.js"></script>
 <script type="text/javascript">
     (function($) {
+
+        "use strict";
+
         $(function() {
             // Outgoing
             {% for prefix, outgoing_formset in outgoing_formsets.items %}
@@ -266,7 +269,7 @@
             $("#{{ mediafile_formset.prefix }} p:last label").hide();
             init{{ mediafile_formset.prefix }}();
             // Links
-            init{{ medialink_formset.prefix }} = function() {
+            var init{{ medialink_formset.prefix }} = function() {
                 $("div#{{ medialink_formset.prefix }}").formset({
                     prefix: "{{ medialink_formset.prefix }}",
                     addCssClass: "addButton inFormsets",
