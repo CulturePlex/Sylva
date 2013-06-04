@@ -301,7 +301,7 @@
             // });
 
             // For the properties of the relationships
-            $(".toggleProperties").live("click", function (e) {
+            $(".relationships").on("click", ".toggleProperties", function (e) {
                 $(this).parents("p").siblings("p").toggle();
                 var last = $(this).parents("p").siblings("p:last");
                 if (last.parent().hasClass("initial") || last.parent().hasClass("dynamic-form")) {
