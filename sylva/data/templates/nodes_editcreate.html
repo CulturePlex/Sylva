@@ -288,8 +288,6 @@
 
             // Enable the deletion of initial forms
             $(".initial-form").on("click", function(e) {
-                // $(this).siblings("p:last").children("input[type='checkbox']").attr("checked", "checked");
-                // $(this).parents("div.initial").hide();
                 var $this = $(this);
                 var $parent = $this.parent();
                 $parent.find("input:checkbox[id $= -DELETE]").val("on").attr("checked", "checked");
@@ -297,10 +295,10 @@
                 $parent.hide();
             });
 
-            // For old browsers
-            $(".initial-form").parents("div.initial").each(function(i, form) {
-                $(form).children("p:last").hide();
-            });
+            // // For old browsers
+            // $(".initial-form").parents("div.initial").each(function(i, form) {
+            //     $(form).children("p:last").hide();
+            // });
 
             // For the properties of the relationships
             $(".toggleProperties").live("click", function (e) {
