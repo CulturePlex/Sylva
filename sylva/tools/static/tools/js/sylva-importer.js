@@ -193,7 +193,6 @@
       Importer.counterMax = Object.keys(Importer.nodes).length + Importer.edges.length;
       $(Importer.progressBarId).attr('max', Importer.counterMax);
 
-
       Importer.nodesBuffer = [];
 
       $.each(Importer.nodes, function(index, value){
@@ -206,7 +205,6 @@
       // start nodes importing
       var node = Importer.nodesBuffer.pop();
       Importer.addNode(node.index, node.value);
-
 
       Importer.edgesBuffer = [];
 
@@ -255,7 +253,6 @@
 
         // Store nodeType attributes selectors
         Importer.matching.nodeAttributeWidgets[item] = nodeAttributes.clone();
-
       });
 
 
@@ -340,8 +337,8 @@
               Importer.matching.nodeAttributes[item][attribute] = selectedAttribute;
             }
           });
-
         });
+
         if (validates) {
           $('#check-schema-btn').unbind();
           $('body').trigger($.Event('nodesValidated'));
@@ -375,7 +372,6 @@
 
         // Store edgeType attributes selectors
         Importer.matching.edgeAttributeWidgets[item] = edgeAttributes.clone();
-
       });
 
       // Draw allowedEdges matching selectors
@@ -435,7 +431,6 @@
           var optionValue = edgeType + ' ' + edgeProperty;
           $select.val($select.children('option[value="' + optionValue + '"]').text());
         }
-
       });
 
       $('#check-schema-btn').text('Validate relationship types matching');
@@ -484,10 +479,10 @@
               attributes[attribute] = selectedAttribute;
             }
           });
+
           Importer.matching.edgeAttributes.push(attributes);
-
-
         });
+
         if (validates) {
           $('#check-schema-btn').unbind();
           $('body').trigger($.Event('edgesValidated'));
