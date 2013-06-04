@@ -200,11 +200,27 @@
 <script type="text/javascript" src="{{ STATIC_PREFIX }}js/jquery.formsets.1.2.min.js"></script>
 <script type="text/javascript">
     (function($) {
+
+        "use strict";
+
         $(function() {
+
+            $("#itemType table.itemtype-properties-table tbody.dynamic").append($("#advancedMode"));
+
+            var showAdvancedMode = function($elements) {
+                $elements.show();
+                $(".itemtype-properties-table textarea").addClass("expand");
+            };
+
+            var hideAdvancedMode = function($elements) {
+                $elements.hide();
+                $(".itemtype-properties-table textarea").removeClass("expand");
+            };
+
             var rowAdded = function(row) {
                 var $hiddens = $(".formset .hidden");
                 if ($hiddens.is(":visible")) {
-                    $hiddens.show();
+                    showAdvancedMode($hiddens);
                 }
             };
 
@@ -217,18 +233,15 @@
                 added: rowAdded
             });
 
-            $("#itemType table.itemtype-properties-table tbody.dynamic").append($("#advancedMode"));
-
             $("#advancedModeButton").click(function() {
                 var $hiddens = $(".formset .hidden");
+
                 if ($hiddens.is(":visible")) {
+                    hideAdvancedMode($hiddens);
                     $(this).html("{% trans "Advanced Mode" %}");
-                    $hiddens.hide();
-                    $(".itemtype-properties-table textarea").removeClass("expand");
                 } else {
+                    showAdvancedMode($hiddens);
                     $(this).html("{% trans "Regular Mode" %}");
-                    $hiddens.show();
-                    $(".itemtype-properties-table textarea").addClass("expand");
                 }
             });
         });
