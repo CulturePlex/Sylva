@@ -309,6 +309,12 @@
                 }
             });
 
+            // Expand properties box in case of form errors
+            if ($('.errorlist').length > 0) {
+                $('.toggleProperties').click();
+                $('.delete-rowupProps').last().click();
+            }
+
             // Enabling autocomplete for nodes
             var nodeAutocomplete = function(input) {
                 var params = {}, $input = $(input);
