@@ -487,12 +487,17 @@
       $.each(edges, function(index, item) {
         var edgeLabel = nodes[item.source].type + "_" + item[_edgeTypeLabel] +
                         "_" + nodes[item.target].type;
+        var edgeProperties = {};
+        $.each(item.properties, function(pIndex, pValue) {
+            edgeProperties[pIndex] = {};
+        });
+
         if (!edgeTypes.hasOwnProperty(edgeLabel)) {
           edgeTypes[edgeLabel] = {
             source: nodes[item.source][_nodeTypeLabel],
             label: item[_edgeTypeLabel],
             target: nodes[item.target][_nodeTypeLabel],
-            properties: item.properties
+            properties: edgeProperties
           };
         }
       });

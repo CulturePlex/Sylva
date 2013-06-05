@@ -136,27 +136,22 @@
 
     // Import edges recursively, checking if the AJAX request is successfully finished
     addEdge: function(sourceName, edgeLabel, targetName, edgeData){
-      var edgeType;
-      $.each(Importer.matching.edgeTypes, function(index, item){
-        if (item.label[0] === edgeLabel) {
-          edgeType = index;
-          return false;
-        }
-      });
-
-      if (edgeType !== undefined) {
+      if (edgeData) {
         var properties = {};
 
-        $.each(Importer.matching.edgeAttributes[edgeType], function(index, value){
-          if (value !== ""){
-            properties[index] = edgeData[value];
+        $.each(edgeData, function(key, value){
+          if (value !== "" && key !== "[Schema] Allowed Relationship" &&
+                key !== "[Schema] Allowed Relationship Id") {
+            // remove relationship label from property key
+            var cleanKey = key.slice(key.indexOf(')') + 1).trim();
+            properties[cleanKey] = value;
           }
         });
 
         $.ajax({
           url: Importer.addRelationshipURL,
           data: {
-            type: Importer.matching.edgeTypes[edgeType].label[1],
+            type: edgeLabel,
             sourceId: Importer.nodes[sourceName]._id,
             targetId: Importer.nodes[targetName]._id,
             properties: JSON.stringify(properties)
@@ -332,7 +327,7 @@
               // alert("ERROR: " + item + " attribute is required: " + attribute);
               // validates = false;
               // return false;
-              return true;
+              return;
             } else {
               Importer.matching.nodeAttributes[item][attribute] = selectedAttribute;
             }
@@ -396,7 +391,7 @@
         $.each(value.properties, function(attribute, att_properties){
           if (attribute === '[Schema] Allowed Relationship' ||
               attribute === '[Schema] Allowed Relationship Id') {
-            return false;
+            return;  // same as 'continue' in for loops
           }
           var selectedAtttributeId = slugify(attribute) + '_' + selectId;
           elementDiv = $('<div>').addClass('import-property-matcher');
@@ -422,14 +417,14 @@
           $selects = $(query).html(widget.html());  // append <option> elements to each <select>
         }
 
-        var edgeType = $('label[for="' + selectId + '"]').text().match(/\([^\(\)]+\)/g).pop();
+        // var edgeType = $('label[for="' + selectId + '"]').text().match(/\([^\(\)]+\)/g).pop();
 
         // set default value for edge attributes' form select
         for (var i = 0, l = $selects.length; i < l; i++) {
           var $select = $selects.eq(i);
           var edgeProperty = $select.prev().text().split(':').pop();
-          var optionValue = edgeType + ' ' + edgeProperty;
-          $select.val($select.children('option[value="' + optionValue + '"]').text());
+          // var optionValue = edgeType + ' ' + edgeProperty;
+          $select.val(edgeProperty);
         }
       });
 
@@ -456,31 +451,33 @@
                               */
             var graphItem = Importer.graphSchema.allowedEdges[selectedValue];
             Importer.matching.edgeTypes.push({
-              label: [graphItem.label, value.label.trim()],
-              source: [graphItem.source, value.source.trim()],
-              target: [graphItem.target, value.target.trim()]
+              label: graphItem.label,
+              source: graphItem.source,
+              target: graphItem.target
             });
           }
 
-          // Attributes
-          var attributes = {};
-          $.each(value.properties, function(attribute, att_properties){
+          // Edge attributes
+          var edgeAttributes = {};
+          $.each(value.properties, function(attribute, value){
             if (attribute === '[Schema] Allowed Relationship' ||
                 attribute === '[Schema] Allowed Relationship Id') {
-              return false;
+              return;  // same as 'continue' in for loops
             }
+
             var attSelector = slugify(attribute) + '_' + itemId;
             selectedAttribute = $('[id="' + attSelector + '"]').val();
-            if (att_properties.required && selectedAttribute === ""){
+
+            if (value.required && selectedAttribute === ""){
               alert("ERROR: " + item + " attribute is required: " + attribute);
               validates = false;
               return false;
             } else {
-              attributes[attribute] = selectedAttribute;
+                edgeAttributes[selectedAttribute] = {};
             }
           });
 
-          Importer.matching.edgeAttributes.push(attributes);
+          Importer.matching.edgeAttributes.push(edgeAttributes);
         });
 
         if (validates) {
