@@ -2,7 +2,7 @@
 from django import forms
 from django.conf import settings
 from django.core.exceptions import ValidationError
-from django.core.urlresolvers import reverse
+# from django.core.urlresolvers import reverse
 # from django.forms.extras import widgets
 from django.forms.formsets import BaseFormSet, DELETION_FIELD_NAME
 from django.forms.models import inlineformset_factory
@@ -222,9 +222,9 @@ class RelationshipForm(ItemForm):
                 if not settings.ENABLE_AUTOCOMPLETE_NODES:
                     choices = [(n.id, n.display)
                                for n in itemtype.target.all()]
-                url_create = reverse("nodes_create",
-                                     args=[itemtype.schema.graph.slug,
-                                           itemtype.target.id])
+                # url_create = reverse("nodes_create",
+                #                      args=[itemtype.schema.graph.slug,
+                #                            itemtype.target.id])
             else:
                 direction = u"source"
                 label = u"← (%s) %s" % (getattr(itemtype, direction).name,
@@ -232,9 +232,9 @@ class RelationshipForm(ItemForm):
                 if not settings.ENABLE_AUTOCOMPLETE_NODES:
                     choices = [(n.id, n.display)
                                for n in itemtype.source.all()]
-                url_create = reverse("nodes_create",
-                                     args=[itemtype.schema.graph.slug,
-                                           itemtype.source.id])
+                # url_create = reverse("nodes_create",
+                #                      args=[itemtype.schema.graph.slug,
+                #                            itemtype.source.id])
             # We swap the help_text just to the properties
             #if itemtype.properties.count() == 0:
             #    help_text = _("%s of the relationship. "
