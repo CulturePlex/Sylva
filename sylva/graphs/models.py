@@ -87,7 +87,7 @@ class Graph(models.Model, GraphMixin):
                               plural_name=nt.plural_name,
                               description=nt.description,
                               order=nt.order,
-                              total=nt.total,
+                              total=0,
                               validation=nt.validation)
             new_nt.save()
             nodetypes_map[nt.id] = new_nt.id
@@ -117,7 +117,7 @@ class Graph(models.Model, GraphMixin):
                                       plural_name=rt.plural_name,
                                       description=rt.description,
                                       order=rt.order,
-                                      total=rt.total,
+                                      total=0,
                                       validation=rt.validation,
                                       inverse=rt.inverse,
                                       plural_inverse=rt.plural_inverse,
