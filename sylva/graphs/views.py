@@ -262,9 +262,9 @@ def graph_collaborators(request, graph_slug):
     #users = [u for u in users if u != graph.owner and u not in collaborators]
     return render_to_response('graphs_collaborators.html',
                               {"graph": graph,
-                                  "permissions": permissions_list,
-                                  "permissions_table": permissions_table,
-                                  "form": form},
+                               "permissions": permissions_list,
+                               "permissions_table": permissions_table,
+                               "form": form},
                               context_instance=RequestContext(request))
 
 
