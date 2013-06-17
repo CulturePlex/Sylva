@@ -6,54 +6,7 @@
 {% endblock %}
 
 {% block extra_links %}
-  <link rel="stylesheet" type="text/css" href="{{ STATIC_PREFIX }}tools/css/tools.css" />
-{% endblock %}
-
-{% block extra_scripts %}
-  <script>
-    sylv.sylvaSchema = {{ sylva_schema|safe }};
-  </script>
-
-  <script src="{{ STATIC_PREFIX }}graphs/js/graph-editor.js"></script>
-  <script src="{{ STATIC_PREFIX }}tools/js/sylva-importer.js"></script>
-
-  <script>
-    sylv.Importer.addNodeURL = "{% url ajax_node_create graph.slug %}";
-    sylv.Importer.addRelationshipURL = "{% url ajax_relationship_create graph.slug %}";
-
-    (function($) {
-      $(function()  {
-        // Events linking
-        $('#schema-link').on('click', function() {
-          sylv.GraphEditor.loadSchema();
-        });
-
-        // CSV files
-        $('#load-csv').on('click', function() {
-          sylv.Importer.doneWithFiles();
-        });
-
-        // Progress bar
-        $('#progress-bar').hide();
-
-        // GraphEditor object configuration
-        sylv.GraphEditor.USES_DRAWER = false;
-        sylv.GraphEditor.init();
-
-        // First step
-        sylv.Importer.loadFileStep();
-
-        // Second step
-        sylv.Importer.validateSchemasStep();
-
-        // Node Types matching validation
-        sylv.Importer.nodeTypesMatchingStep();
-
-        // Relationship Types matching validation
-        sylv.Importer.relationshipTypesMatchingStep();
-      });
-    }(jQuery));
-  </script>
+  <link rel="stylesheet" type="text/css" href="{{ STATIC_PREFIX }}tools/css/tools.css">
 {% endblock %}
 
 {% block menu_buttons %}
@@ -66,92 +19,48 @@
 {% endblock %}
 
 {% block content %}
-  <div class="import-tool">
+  <div class="data-import">
     <div id="content2">
       <div class="content2-first">
-        <div id="first-step">
-          <p class="sylva-info">{% trans "This tool allows to import data from a Gephi (GEXF) file into Sylva. Load the file with the widget below this text to get started." %}</p>
-          <label for="gexf-file">{% trans "Import GEXF" %}</label>
-          <input type="file" id="files" name="files[]" multiple>
-          <div id="progress-bar">
-            <strong>{% trans "Please wait while your graph data is loaded..." %}</strong>
-          </div>
-          <div class="hidden">
-            <p class="sylva-info">{% trans "Or use the experimental CSV support providing nodes and edges in separate files." %}</p>
-            <div>
-              <label for="csv-nodes">{% trans "Node file" %}</label>
-              <input type="file" id="csv-nodes" name="csv-nodes" />
-              <div id="csv-nodes-progress-bar" style="display: none;">
-                <strong>{% trans "Please wait while your nodes are loaded..." %}</strong>
-              </div>
-            </div>
-            <div>
-              <label for="csv-edges">{% trans "Edge file" %}</label>
-              <input type="file" id="csv-edges" name="csv-edges" />
-              <div id="csv-edges-progress-bar" style="display: none;">
-                <strong>{% trans "Please wait while your edges are loaded..." %}</strong>
-              </div>
-            </div>
-            <button id="load-csv" class="button">{% trans "Load CSVs" %}</button>
-          </div>
+        <div class="info">
+          <p>
+            {% blocktrans %}This tool allows to import data into your graph. You can use <a href="http://gexf.net/format/"><abbr title="Graph Exchange XML Format">GEXF (Gephi)</abbr></a> or <a href="http://en.wikipedia.org/wiki/Comma-separated_values"><abbr title="Comma-separated values">CSV</abbr></a> as file formats:{% endblocktrans %}
+          </p>
         </div>
-        <div id="validation-controls">
-          <div id="import-controller">
-            <div class="hidden">
-              <label for="node-type-label">{% trans "Node type label" %}</label>
-              <input id="node-type-label" value="type" type="text" />
-              <label for="edge-type-label">{% trans "Relationship type label" %}</label>
-              <input id="edge-type-label" value="type" type="text" />
-            </div>
-          </div>
-          <button id="check-schema-btn" class="button">{% trans "Validate schema" %}</button>
+        <div class="options">
+          <label class="option">
+            <input type="radio" name="format" id="gexf-radio" value="gexf">
+            {% trans "Load GEXF" %}
+          </label>
+          <label class="option">
+            <input type="radio" name="format" id="csv-radio" value="csv">
+            {% trans "Load CSV" %}
+          </label>
         </div>
       </div>
       <div class="content-divider"></div>
       <div class="content2-second">
-        <div id="import-gexf">
-          <div id="second-step">
-            <p id="second-step-info" class="sylva-info"></p>
-            <div style="float:left">
-              <h2>{% trans "Your graph schema" %}</h2>
-              <span class="graph-title">{% trans "Node Types" %}</span>
-              <ul id="graph-schema-nodes" class="summary"></ul>
-              <span class="graph-title">{% trans "Edge Types" %}</span>
-              <ul id="graph-schema-edges" class="summary"></ul>
-            </div>
-            <div style="float:right">
-              <h2>{% trans "Sylva graph schema" %}</h2>
-              <div id="sylva-schema"></div>
-              <span class="graph-title">{% trans "Node Types" %}</span>
-              <ul id="sylva-schema-nodes" class="summary"></ul>
-              <span class="graph-title">{% trans "Edge Types" %}</span>
-              <ul id="sylva-schema-edges" class="summary"></ul>
-            </div>
+        <div class="uploader-wrapper">
+          <div class="files-container">
+            <span class="helptext">
+              <p>{% trans "Drop your files here" %}</p>
+            </span>
           </div>
-          <div id="third-step">
-            <div class="progress-wrapper">
-              <progress id="import-progress-bar"></progress>
-              <p id="import-progress-text"></p>
-              <a href="{{ graph.get_absolute_url }}" id="import-finish" class="button" style="display: none;">{% trans "Continue" %}</a>
-            </div>
-            <div id="summary" style="display: none;">
-              <h2>{% trans "Data Summary" %}</h2>
-              <h4>{% trans "Nodes" %}</h4>
-              <ul id="node-list"></ul>
-              <h4>{% trans "Relationships" %}</h4>
-              <ol id="edge-list"></ol>
-            </div>
+          <div class="next-step">
+            <button class="button">{% trans "Next" %}</button>
           </div>
-        </div>
-        <div id="sec-debug" style="display: none;">
-          <h3>{% trans "Graph Nodes Debug" %}</h3>
-          <textarea id="id_graph_nodes" rows="10" cols="80" name="graph_nodes">{}</textarea>
-          <h3>{% trans "Graph Edges Debug" %}</h3>
-          <textarea id="id_graph_edges" rows="10" cols="80" name="graph_edges">[]</textarea>
-          <h3>{% trans "Graph Schema Debug" %}</h3>
-          <textarea id="id_graph_schema" rows="10" cols="80" name="graph_schema">{}</textarea>
         </div>
       </div>
     </div>
   </div>
+{% endblock %}
+
+{% block extra_scripts %}
+  <script>
+    sylv.sylvaSchema = JSON.parse("{{ sylva_schema|escapejs }}");
+    sylv.nodesCreateURL = "{% url ajax_node_create graph.slug %}";
+    sylv.edgesCreateURL = "{% url ajax_relationship_create graph.slug %}";
+  </script>
+  <script src="{{ STATIC_PREFIX }}tools/js/data-importer.js"></script>
+  <script src="{{ STATIC_PREFIX }}tools/js/tools.js"></script>
 {% endblock %}

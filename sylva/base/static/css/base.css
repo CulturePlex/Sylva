@@ -2275,41 +2275,6 @@ body :hover > a.headerlink {
 
 /* END User subscriptions */
 
-
-/* END Import tool */
-
-.import-tool label {
-    margin-bottom: 5px;
-}
-
-.import-tool input,
-.import-tool select {
-    margin-bottom: 10px;
-}
-
-.import-tool .summary {
-    margin-bottom: 10px;
-}
-
-.import-tool .progress-wrapper {
-    position: absolute;
-    top: 110px;
-    left: 475px;
-}
-
-.import-tool .progress-wrapper progress {
-    height: 25px;
-    width: 270px;
-    margin-bottom: 5px;
-}
-
-.import-tool .progress-wrapper a {
-    margin-left: 95px;
-}
-
-/* END Import tool */
-
-
 /* Queries */
 
 .visual-search {

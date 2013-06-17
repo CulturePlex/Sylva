@@ -1,11 +1,44 @@
-.import-property-matcher {
-  margin-left: 30px
+/* Data import ****************************************************************/
+
+.data-import .info p {
+  line-height: 18px;
 }
 
-.import-property-matcher label {
-  font-weight: normal
+.data-import .options {
+  padding-left: 120px;
+  margin-top: 10px;
 }
 
-.import-property-matcher select {
-  width: 287px;
+.data-import .options label {
+  display: block;
+  margin-bottom: 14px;
+  color: #348E82;
+  font-size: 13px;
 }
+
+.data-import .files-container {
+  height: 340px;
+  border-color: lightgray;
+  border-width: 2px;
+  border-style: dashed;
+}
+
+.data-import .helptext {
+  position: relative;
+  top: 145px;
+  left: 260px;
+  font-size: 24px
+}
+
+.data-import .next-step {
+  text-align: center;
+  padding-top: 20px;
+}
+
+.data-import .next-step .button {
+  height: 40px;
+  width: 140px;
+  font-size: 16px
+}
+
+/* END data import ************************************************************/
