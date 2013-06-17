@@ -39,7 +39,7 @@ def graph_import_tool(request, graph_slug):
                      return_403=True)
 def ajax_node_create(request, graph_slug):
     graph = get_object_or_404(Graph, slug=graph_slug)
-    data = request.GET.copy()
+    data = request.POST.copy()
     properties = simplejson.loads(data["properties"])
     label = graph.schema.nodetype_set.get(name=data["type"])
     node = graph.nodes.create(str(label.id), properties)
@@ -50,7 +50,7 @@ def ajax_node_create(request, graph_slug):
                      return_403=True)
 def ajax_relationship_create(request, graph_slug):
     graph = get_object_or_404(Graph, slug=graph_slug)
-    data = request.GET.copy()
+    data = request.POST.copy()
     source = graph.nodes.get(data["sourceId"])
     target = graph.nodes.get(data["targetId"])
     label = graph.schema.relationshiptype_set.get(name=data["type"],
