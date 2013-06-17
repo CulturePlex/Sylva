@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
-import simplejson
+try:
+    import ujson as json
+except ImportError:
+    import json  # NOQA
 
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
@@ -31,7 +34,7 @@ def graph_import_tool(request, graph_slug):
     schema = graph.schema.export()  # Schema jsonification
     return render_to_response('graph_import_tool.html',
                               {"graph": graph,
-                               "sylva_schema": simplejson.dumps(schema)},
+                               "sylva_schema": json.dumps(schema)},
                               context_instance=RequestContext(request))
 
 
@@ -40,10 +43,10 @@ def graph_import_tool(request, graph_slug):
 def ajax_node_create(request, graph_slug):
     graph = get_object_or_404(Graph, slug=graph_slug)
     data = request.POST.copy()
-    properties = simplejson.loads(data["properties"])
+    properties = json.loads(data["properties"])
     label = graph.schema.nodetype_set.get(name=data["type"])
     node = graph.nodes.create(str(label.id), properties)
-    return HttpResponse(simplejson.dumps({"id": node.id}))
+    return HttpResponse(json.dumps({"id": node.id}))
 
 
 @permission_required("data.change_data", (Data, "graph__slug", "graph_slug"),
@@ -58,9 +61,9 @@ def ajax_relationship_create(request, graph_slug):
                                                   target=target.label)
     properties = data.get("properties", {})
     if properties:
-        properties = simplejson.loads(properties)
+        properties = json.loads(properties)
     graph.relationships.create(source, target, str(label.id), properties)
-    return HttpResponse(simplejson.dumps({}))
+    return HttpResponse(json.dumps({}))
 
 
 @permission_required("data.view_data", (Data, "graph__slug", "graph_slug"),
