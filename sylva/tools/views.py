@@ -42,28 +42,27 @@ def graph_import_tool(request, graph_slug):
                      return_403=True)
 def ajax_node_create(request, graph_slug):
     graph = get_object_or_404(Graph, slug=graph_slug)
-    data = request.POST.copy()
-    properties = json.loads(data["properties"])
+    data = request.POST
     label = graph.schema.nodetype_set.get(name=data["type"])
+    properties = json.loads(data.get("properties", "{}"))
     node = graph.nodes.create(str(label.id), properties)
-    return HttpResponse(json.dumps({"id": node.id}))
+    return HttpResponse(json.dumps({"id": node.id}),
+                        mimetype='application/json')
 
 
 @permission_required("data.change_data", (Data, "graph__slug", "graph_slug"),
                      return_403=True)
 def ajax_relationship_create(request, graph_slug):
     graph = get_object_or_404(Graph, slug=graph_slug)
-    data = request.POST.copy()
+    data = request.POST
     source = graph.nodes.get(data["sourceId"])
     target = graph.nodes.get(data["targetId"])
     label = graph.schema.relationshiptype_set.get(name=data["type"],
                                                   source=source.label,
                                                   target=target.label)
-    properties = data.get("properties", {})
-    if properties:
-        properties = json.loads(properties)
+    properties = json.loads(data.get("properties", "{}"))
     graph.relationships.create(source, target, str(label.id), properties)
-    return HttpResponse(json.dumps({}))
+    return HttpResponse(json.dumps({}), mimetype='application/json')
 
 
 @permission_required("data.view_data", (Data, "graph__slug", "graph_slug"),
