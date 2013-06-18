@@ -17,28 +17,34 @@
 }
 
 .data-import .files-container {
-  height: 340px;
+  height: 417px;
   border-color: lightgray;
   border-width: 2px;
   border-style: dashed;
-}
-
-.data-import .helptext {
-  position: relative;
-  top: 145px;
-  left: 260px;
-  font-size: 24px
-}
-
-.data-import .next-step {
+  color: #969696;
+  font-size: 24px;
+  font-style: italic;
   text-align: center;
-  padding-top: 20px;
+  line-height: 417px;
 }
 
-.data-import .next-step .button {
-  height: 40px;
-  width: 140px;
-  font-size: 16px
+.loading-message {
+  text-align: center;
+  display: block;
+  line-height: 417px;
+  font-size: 18px;
+}
+
+.progress-bar {
+  display: block;
+  position: relative;
+  margin: 200px auto auto;
+  height: 25px;
+  width: 380px;
+}
+
+.dragenter {
+  background-color: #D6E7DF;
 }
 
 /* END data import ************************************************************/

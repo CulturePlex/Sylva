@@ -35,6 +35,9 @@
   // Edges to import.
   sylv.DataImporter.edges = [];
 
+  // Number of nodes to import.
+  sylv.DataImporter.nodesLength = 0;
+
   // A dictionary mapping imported nodes and recently created nodes on the
   // server.
   sylv.DataImporter.serverNodes = {};
@@ -47,6 +50,7 @@
         type: type,
         properties: properties
       };
+      sylv.DataImporter.nodesLength++;
     }
   };
 
@@ -271,9 +275,7 @@
       return self.sendEdges(edgesUrl, edges);
     });
 
-    promiseEdges.done(function() {
-      console.log('Ok! Graph sent.');
-    });
+    return promiseEdges;
   };
 
 

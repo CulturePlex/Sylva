@@ -41,14 +41,10 @@
       <div class="content-divider"></div>
       <div class="content2-second">
         <div class="uploader-wrapper">
-          <div id="files-container" class="files-container">
-            <span class="helptext">
-              <p>{% trans "Drop your files here" %}</p>
-            </span>
-          </div>
-          <div class="next-step">
-            <button class="button">{% trans "Next" %}</button>
-          </div>
+          <div id="files-container" class="files-container" style="display: none;"></div>
+          <div id="files-container2" class="files-container" style="display: none;"></div>
+          <span id="loading-message" class="loading-message" style="display: none;"></span>
+          <progress id="progress-bar" class="progress-bar" style="display: none;"></progress>
         </div>
       </div>
     </div>

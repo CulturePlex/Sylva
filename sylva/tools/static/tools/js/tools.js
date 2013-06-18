@@ -1,15 +1,12 @@
 // jQuery stuff.
 
 /* jshint strict: true, undef: true, unused: true, eqeqeq: true, maxlen: 80 */
-/* global jQuery, console */
+/* global window, document, jQuery, console */
 
 ;(function($, window, document, undefined) {
 
   'use strict';
 
-
-  // Django i18n.
-  var gettext = window.gettext || String;
 
   // Sylva global namespace.
   var sylv = window.sylv || {};
@@ -22,47 +19,152 @@
   // Shortcut to data importer library.
   var DI = sylv.DataImporter;
 
+  // Django i18n.
+  var gettext = window.gettext || String;
+
+  // Fading out/in duration.
+  var FADING_DURATION = 1000;
+
+  // The type of file currently selected: GEXF, CSV nodes, CSV edges, ...
+  var currentFileType = '';
+
+  // Nodes and edges FileLists
+  var CSVFileLists = {};
+
+  // Drag and Drop help texts.
+  var helpTexts = {
+    'gexf': 'Drop your file here',
+    'csv-nodes': 'Drop your nodes files here',
+    'csv-edges': 'Now drop your edges files',
+    'csv-steps': 'Nodes files loaded. Loading edges files...',
+    'file-loaded': 'Data loaded. Uploading to the server...',
+    'graph-uploaded': 'OK! Data uploaded.',
+    'validation-error': 'Sorry, your data does not match your graph schema.'
+  };
+
+
+  // Show CSS animations and run validating and uploading steps.
+  var runLastSteps = function(promise, $container) {
+    var promise1,
+        promise2,
+        promise3,
+        promise4;
+
+    promise1 = promise.then(function() {
+      return $container
+               .fadeOut(FADING_DURATION / 4)
+               .promise();
+    });
+
+    promise2 = promise1.then(function() {
+      return $('#loading-message')
+               .text(gettext(helpTexts['file-loaded']))
+               .fadeIn(FADING_DURATION / 2)
+               .delay(FADING_DURATION * 3)
+               .fadeOut(FADING_DURATION / 2)
+               .promise();
+    });
+
+    promise3 = promise2.then(function() {
+      var sendPromise = $.Deferred();
+
+      if (validateData()) {
+        $('#progress-bar')
+          .attr('max', DI.edges.length + DI.nodesLength)
+          .fadeIn(FADING_DURATION);
+        // Finally, send graph data to the server.
+        sendPromise = sendData();
+      } else {
+        $('#progress-bar').hide();
+        $('#loading-message')
+          .text(gettext(helpTexts['validation-error']))
+          .fadeIn(FADING_DURATION / 2);
+      }
+
+      return sendPromise;
+    });
+
+    promise4 = promise3.then(function() {
+      return $('#progress-bar')
+               .fadeOut(FADING_DURATION / 2)
+               .promise();
+    });
+
+    promise4.then(function() {
+      $('#loading-message')
+        .text(gettext(helpTexts['graph-uploaded']))
+        .fadeIn(FADING_DURATION / 2);
+    });
+  };
+
+
+  // Show CSS animations beetween CSV nodes and CSV edges loading steps.
+  var showEdgesContainer = function(promise) {
+    var promise1,
+        promise2;
+
+    promise1 = promise.then(function() {
+      return $('#files-container')
+               .fadeOut(FADING_DURATION / 4)
+               .promise();
+    });
+
+    promise2 = promise1.then(function() {
+      return $('#loading-message')
+               .text(gettext(helpTexts['csv-steps']))
+               .fadeIn(FADING_DURATION / 2)
+               .delay(FADING_DURATION * 3)
+               .fadeOut(FADING_DURATION / 2)
+               .promise();
+    });
+
+    promise2.done(function() {
+      $('#files-container2')
+        .text(gettext(helpTexts[currentFileType]))
+        .fadeIn(FADING_DURATION / 2);
+    });
+  };
+
+
+  // File handlers.
+  var fileHandlers = {
+    // Handle GEXF file.
+    'gexf': function(files) {
+      var promiseGEXF = DI.loadGEXF(files[0]);
+      runLastSteps(promiseGEXF, $('#files-container'));
+    },
+
+    // Handle CSV nodes files.
+    'csv-nodes': function(nodesFiles) {
+      CSVFileLists['nodes'] = nodesFiles;
+      currentFileType = 'csv-edges';
+      showEdgesContainer($.Deferred().resolve());
+    },
+
+    // Handle CSV edges files.
+    'csv-edges': function(edgesFiles) {
+      var promiseCSV = DI.loadCSV(CSVFileLists.nodes, edgesFiles);
+      runLastSteps(promiseCSV, $('#files-container2'));
+    }
+  };
+
 
   // Validate graph and print message.
   var validateData = function() {
-    var isValid = DI.validateGraph(DI.nodes, DI.edges, DI.schemaNodes,
-                                   DI.schemaEdges);
-
-    if (isValid) {
-      console.log('Ok! Data is valid.');
-    } else {
-      console.log('Sorry, data is not valid.');
-    }
-
-    return isValid;
+    return DI.validateGraph(DI.nodes, DI.edges, DI.schemaNodes, DI.schemaEdges);
   };
 
 
   // Send data to the server.
   var sendData = function() {
-    if (validateData()) {
-      DI.sendGraph(DI.nodes, DI.edges, sylv.nodesCreateURL,sylv.edgesCreateURL);
-    }
+    return DI.sendGraph(DI.nodes, DI.edges, sylv.nodesCreateURL,
+                        sylv.edgesCreateURL);
   };
 
 
-  // Handle GEXF file input.
-  var handleGEXF = function($gexf) {
-    var promiseGEXF = DI.loadGEXF($gexf);
-
-    promiseGEXF.done(function() {
-      console.log('Ok! Gephi loaded.');
-    });
-  };
-
-
-  // Handle CSV file inputs.
-  var handleCSV = function($nodes, $edges) {
-    var promiseCSV = DI.loadCSV($nodes, $edges);
-
-    promiseCSV.done(function() {
-      console.log('Ok! CSV loaded.');
-    });
+  // Dinamically call a file handler depending of the current file type.
+  var loadFiles = function(files) {
+    fileHandlers[currentFileType](files);
   };
 
 
@@ -70,7 +172,23 @@
   var handleDragOver = function(evt) {
     evt.stopPropagation();
     evt.preventDefault();
-    evt.dataTransfer.dropEffect = 'copy';
+    evt.originalEvent.dataTransfer.dropEffect = 'copy';
+  };
+
+
+  // Handle 'dragenter' event.
+  var handleDragEnter = function(evt) {
+    evt.stopPropagation();
+    evt.preventDefault();
+    $(this).addClass('dragenter');
+  };
+
+
+  // Handle 'dragleave' event.
+  var handleDragLeave = function(evt) {
+    evt.stopPropagation();
+    evt.preventDefault();
+    $(this).removeClass('dragenter');
   };
 
 
@@ -78,24 +196,47 @@
   var handleDrop = function(evt) {
     evt.stopPropagation();
     evt.preventDefault();
-
-    var files = evt.dataTransfer.files;
+    var files = evt.originalEvent.dataTransfer.files;
+    loadFiles(files);
   };
 
 
-  // Handle files Drag and Drop.
-  var handleDragAndDrop = function($dropzone) {
-    $dropzone.on({
-      'dragover': handleDragOver,
-      'drop': handleDrop
-    });
+  // Handle radio inputs for file format selection.
+  var handleRadioInputs = function(evt) {
+    evt.stopPropagation();
+    evt.preventDefault();
+
+    // set current file type and setup drag and drop container.
+    if (evt.target.value === 'gexf') {
+      currentFileType = 'gexf';
+      $('#files-container').text(gettext(helpTexts[currentFileType]));
+    } else if (evt.target.value === 'csv') {
+      currentFileType = 'csv-nodes';
+      $('#files-container').text(gettext(helpTexts[currentFileType]));
+    }
+
+    // Show files container.
+    $('#files-container').fadeIn(FADING_DURATION);
   };
 
 
   // DOM ready.
   $(function() {
-    // handleGEXF();
-    // handleCSV();
+
+    // Drag and drop events handlers mapping.
+    var eventsHandlers = {
+      'dragover': handleDragOver,
+      'dragenter': handleDragEnter,
+      'dragleave': handleDragLeave,
+      'drop': handleDrop
+    };
+
+    // Drag and Drop events.
+    $('#files-container').on(eventsHandlers);
+    $('#files-container2').on(eventsHandlers);
+
+    // Radio inputs for file format selection.
+    $('.option').on('change', handleRadioInputs);
   });
 
 }(jQuery, window, document));
