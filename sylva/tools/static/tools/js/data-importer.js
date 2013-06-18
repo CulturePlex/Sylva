@@ -278,17 +278,57 @@
 
 
   // CSV import.
-  sylv.DataImporter.loadCSV = function($nodes, $edges) {
+  sylv.DataImporter.loadCSV = function(nodesFiles, edgesFiles) {
     var deferredNodes = $.Deferred(),
         deferredEdges = $.Deferred(),
         self = this;
 
-    $nodes.on('change', loadNodes);
-    $edges.on('change', loadEdges);
+    function getRows(csv) {
+      var rows = csv.split(/^[ \t]*"(?!")/gm);
 
-    function loadNodes(event) {
-      var files = event.target.files,
-          deferredsQueue = [];
+      rows.shift();
+
+      for (var i = 0, li = rows.length; i < li; i++) {
+        rows[i] = ('"' + rows[i]).trim();
+      }
+
+      return rows;
+    }
+
+    function getColumns(row) {
+      var columns,
+          columnsLength,
+          column,
+          last,
+          cleanedRow,
+          cleanedColumns = [];
+
+      // Replace blank fields: "field1",,"field3" → "field1","","field3"
+      cleanedRow = row.replace(/",,(\s*$|(?="[^"]))/g, '","",');
+      if (cleanedRow.charAt(cleanedRow.length - 1) === ',') {
+        cleanedRow += '""';
+      }
+
+      // Every field must be enclosed in double quotes.
+      columns = cleanedRow.split(/"\s*,\s*((?=""\s*$)|(?=""\s*,)|(?="[^"]))/g);
+      columnsLength = columns.length;
+      last = columns[columnsLength - 1];
+
+      for (var i = 0; i < columnsLength - 1; i++) {
+        column = columns[i];
+
+        if (column !== "") {
+          cleanedColumns.push(column.trim().substring(1).trim());
+        }
+      }
+
+      cleanedColumns.push(last.trim().slice(1, -1).trim());
+
+      return cleanedColumns;
+    }
+
+    function loadNodes(files) {
+      var deferredsQueue = [];
 
       for (var i = 0, li = files.length; i < li; i++) {
         deferredsQueue.push(loadNodesFile(files[i]));
@@ -335,9 +375,8 @@
       }
     }
 
-    function loadEdges(event) {
-      var files = event.target.files,
-          deferredsQueue = [];
+    function loadEdges(files) {
+      var deferredsQueue = [];
 
       for (var i = 0, li = files.length; i < li; i++) {
         deferredsQueue.push(loadEdgesFile(files[i]));
@@ -386,66 +425,22 @@
       }
     }
 
-    function getRows(csv) {
-      var rows = csv.split(/^[ \t]*"(?!")/gm);
-
-      rows.shift();
-
-      for (var i = 0, li = rows.length; i < li; i++) {
-        rows[i] = ('"' + rows[i]).trim();
-      }
-
-      return rows;
-    }
-
-    function getColumns(row) {
-      var columns,
-          columnsLength,
-          column,
-          last,
-          cleanedRow,
-          cleanedColumns = [];
-
-      // Replace blank fields: "field1",,"field3" → "field1","","field3"
-      cleanedRow = row.replace(/",,(\s*$|(?="[^"]))/g, '","",');
-      if (cleanedRow.charAt(cleanedRow.length - 1) === ',') {
-        cleanedRow += '""';
-      }
-
-      // Every field must be enclosed in double quotes.
-      columns = cleanedRow.split(/"\s*,\s*((?=""\s*$)|(?=""\s*,)|(?="[^"]))/g);
-      columnsLength = columns.length;
-      last = columns[columnsLength - 1];
-
-      for (var i = 0; i < columnsLength - 1; i++) {
-        column = columns[i];
-
-        if (column !== "") {
-          cleanedColumns.push(column.trim().substring(1).trim());
-        }
-      }
-
-      cleanedColumns.push(last.trim().slice(1, -1).trim());
-
-      return cleanedColumns;
-    }
+    loadNodes(nodesFiles);
+    loadEdges(edgesFiles);
 
     return deferredEdges.promise();
   };
 
 
   // Gephi import.
-  sylv.DataImporter.loadGEXF = function($el) {
+  sylv.DataImporter.loadGEXF = function(file) {
     var deferred = $.Deferred();
 
-    $el.on('change', loadFile);
-
-    function loadFile(event) {
-      var files = event.target.files,
-          reader = new FileReader();
+    function loadFile(file) {
+      var reader = new FileReader();
 
       reader.onload = processGEXF;
-      reader.readAsText(files[0]);
+      reader.readAsText(file);
 
       function processGEXF(event) {
         var parser = new DOMParser();
@@ -582,6 +577,8 @@
         deferred.resolve();
       }
     }
+
+    loadFile(file);
 
     return deferred.promise();
   };
