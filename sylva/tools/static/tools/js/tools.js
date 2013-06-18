@@ -66,6 +66,32 @@
   };
 
 
+  // Handle 'dragover' event.
+  var handleDragOver = function(evt) {
+    evt.stopPropagation();
+    evt.preventDefault();
+    evt.dataTransfer.dropEffect = 'copy';
+  };
+
+
+  // Handle 'drop' event.
+  var handleDrop = function(evt) {
+    evt.stopPropagation();
+    evt.preventDefault();
+
+    var files = evt.dataTransfer.files;
+  };
+
+
+  // Handle files Drag and Drop.
+  var handleDragAndDrop = function($dropzone) {
+    $dropzone.on({
+      'dragover': handleDragOver,
+      'drop': handleDrop
+    });
+  };
+
+
   // DOM ready.
   $(function() {
     // handleGEXF();
