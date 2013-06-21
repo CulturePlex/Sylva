@@ -8,20 +8,19 @@
   'use strict';
 
 
-  // Django i18n.
-  // var gettext = window.gettext || String;
-
   // Sylva global namespace.
   var sylv = window.sylv || {};
-
-  // Data import library namespace.
-  sylv.DataImporter = {};
-
 
   if (!sylv.sylvaSchema) {
     console.log("Error: graph schema not found.");
     return;
   }
+
+  // Django i18n.
+  // var gettext = window.gettext || String;
+
+  // Data import library namespace.
+  sylv.DataImporter = {};
 
   // Nodes schema.
   sylv.DataImporter.schemaNodes = sylv.sylvaSchema.nodeTypes;
@@ -282,7 +281,7 @@
   // CSV import.
   sylv.DataImporter.loadCSV = function(nodesFiles, edgesFiles) {
     var deferredNodes = $.Deferred(),
-        deferredEdges = $.Deferred(),
+        deferredCSV = $.Deferred(),
         self = this;
 
     function getRows(csv) {
@@ -336,9 +335,15 @@
         deferredsQueue.push(loadNodesFile(files[i]));
       }
 
-      $.when.apply(window, deferredsQueue).done(function() {
-        deferredNodes.resolve();
-      });
+      $.when.apply(window, deferredsQueue)
+        .done(function() {
+          deferredNodes.resolve();
+        })
+        .fail(function() {
+          deferredNodes.reject();
+          deferredCSV.reject();
+          console.log("Error: nodes not found.");
+        });
 
       function loadNodesFile(file) {
         var deferredFile = $.Deferred(),
@@ -357,20 +362,27 @@
           console.log('Processing nodes...');
 
           rows = getRows(event.target.result);
-          csvHeader = getColumns(rows[0]);
 
-          for (i = 1, li = rows.length; i < li; i++) {
-            columns = getColumns(rows[i]);
+          if (rows.length > 0) {
+            csvHeader = getColumns(rows[0]);
 
-            properties = {};
-            for (j = 2, lj = columns.length; j < lj; j++) {
-              properties[csvHeader[j]] = columns[j];
+            for (i = 1, li = rows.length; i < li; i++) {
+              columns = getColumns(rows[i]);
+
+              properties = {};
+              for (j = 2, lj = columns.length; j < lj; j++) {
+                properties[csvHeader[j]] = columns[j];
+              }
+
+              self.addNode(columns[0], columns[1], properties);
             }
-
-            self.addNode(columns[0], columns[1], properties);
           }
 
-          deferredFile.resolve();
+          if (sylv.DataImporter.nodesLength > 0) {
+            deferredFile.resolve();
+          } else {
+            deferredFile.reject();
+          }
         }
 
         return deferredFile.promise();
@@ -385,7 +397,7 @@
       }
 
       $.when.apply(window, deferredsQueue).done(function() {
-        deferredEdges.resolve();
+        deferredCSV.resolve();
       });
 
       function loadEdgesFile(file) {
@@ -430,7 +442,7 @@
     loadNodes(nodesFiles);
     loadEdges(edgesFiles);
 
-    return deferredEdges.promise();
+    return deferredCSV.promise();
   };
 
 
@@ -576,7 +588,12 @@
           }
         }
 
-        deferred.resolve();
+        if (sylv.DataImporter.nodesLength > 0) {
+          deferred.resolve();
+        } else {
+          deferred.reject();
+          console.log("Error: nodes not found.");
+        }
       }
     }
 
