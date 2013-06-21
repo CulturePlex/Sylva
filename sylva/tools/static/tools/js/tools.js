@@ -38,7 +38,7 @@
     'csv-edges': 'Now drop your edges files',
     'csv-steps': 'Nodes files loaded. Loading edges files...',
     'file-loaded': 'Data loaded. Uploading to the server...',
-    'graph-uploaded': 'OK! Data uploaded.',
+    'graph-uploaded': 'Ok! Data uploaded.',
     'validation-error': 'Sorry, your data does not match your graph schema.',
     'loading-error': 'Sorry, your data can not be loaded.'
   };
@@ -90,39 +90,49 @@
 
   // Show CSS animations and run validating and uploading steps.
   var runLastSteps = function(promise, $container) {
-    var promise1,
-        promise2,
-        promise3,
-        promise4;
+    var promiseContainer,
+        promiseMessage,
+        promiseSend,
+        promiseFinish;
 
-    promise1 = fadeoutContainer(promise, $container);
+    promiseContainer = fadeoutContainer(promise, $container);
 
-    promise2 = fadeinLoadedMessage(promise1, 'file-loaded');
+    promiseMessage = fadeinLoadedMessage(promiseContainer, 'file-loaded');
 
-    promise3 = promise2.then(function() {
-      var sendPromise = $.Deferred();
-
+    promiseSend = promiseMessage.then(function() {
       if (validateData()) {
         $('#progress-bar')
           .attr('max', DI.edges.length + DI.nodesLength)
+          .parent()
           .fadeIn(FADING_DURATION / 4);
-        // Finally, send graph data to the server.
-        sendPromise = sendData();
+        return sendData();
       } else {
-        $('#progress-bar').hide();
+        $('#progress-wrapper').hide();
         setMessage('validation-error');
+        return $.Deferred().reject();
       }
-
-      return sendPromise;
     });
 
-    promise4 = promise3.then(function() {
+    promiseSend.progress(function() {
+      var max, value, percentage;
+      max = parseInt($('#progress-bar').attr('max'), 10);
+      value = parseInt($('#progress-bar').attr('value'), 10);
+      percentage = ((value / max) * 100).toFixed();
+      $('#progress-bar').attr('value', value + 1);
+      $('#percentage').text(percentage + '%');
+    });
+
+    promiseFinish = promiseSend.then(function() {
+      var value = parseInt($('#progress-bar').attr('value'), 10);
+      $('#progress-bar').attr('value', value + 2);
+      $('#percentage').text('100%');
       return $('#progress-bar')
+               .parent()
                .fadeOut(FADING_DURATION / 4)
                .promise();
     });
 
-    promise4.then(function() {
+    promiseFinish.done(function() {
       setMessage('graph-uploaded');
     });
   };
@@ -130,14 +140,14 @@
 
   // Show CSS animations beetween CSV nodes and CSV edges loading steps.
   var runCSVSteps = function(promise, $container) {
-    var promise1,
-        promise2;
+    var promiseContainer,
+        promiseMessage;
 
-    promise1 = fadeoutContainer(promise, $container);
+    promiseContainer = fadeoutContainer(promise, $container);
 
-    promise2 = fadeinLoadedMessage(promise1, 'csv-steps');
+    promiseMessage = fadeinLoadedMessage(promiseContainer, 'csv-steps');
 
-    promise2.done(function() {
+    promiseMessage.done(function() {
       $('#files-container2')
         .text(gettext(helpTexts['csv-edges']))
         .fadeIn(FADING_DURATION / 4);

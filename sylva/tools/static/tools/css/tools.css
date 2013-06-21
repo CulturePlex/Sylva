@@ -43,6 +43,14 @@
   width: 380px;
 }
 
+.percentage {
+  display: block;
+  position: relative;
+  text-align: center;
+  margin-top: 6px;
+  font-weight: bold;
+}
+
 .dragenter {
   background-color: #D6E7DF;
 }

@@ -224,6 +224,7 @@
           if (response) {
             self.serverNodes[obj.id] = response.id;
             processQueue(self, url, queue, deferred);
+            deferred.notify();  // update progress bar
           }
         });
       } else {
@@ -252,6 +253,7 @@
 
         jqxhr.done(function() {
           processQueue(self, url, queue, deferred);
+          deferred.notify();  // update progress bar
         });
       } else {
         deferred.resolve();
@@ -264,17 +266,17 @@
 
   // Send nodes and edges to the server.
   sylv.DataImporter.sendGraph = function(nodes, edges, nodesUrl, edgesUrl) {
-    var promiseNodes,
-        promiseEdges,
+    var promiseGraph,
+        promiseNodes,
         self = this;
 
     promiseNodes = this.sendNodes(nodesUrl, nodes);
 
-    promiseEdges = promiseNodes.then(function() {
+    promiseGraph = promiseNodes.then(function() {
       return self.sendEdges(edgesUrl, edges);
     });
 
-    return promiseEdges;
+    return promiseGraph;
   };
 
 
