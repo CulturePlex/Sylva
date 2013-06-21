@@ -117,24 +117,41 @@
 
 
   // Show CSS animations beetween CSV nodes and CSV edges loading steps.
-  var showEdgesContainer = function(promise) {
+  var finishCSVSteps = function(promise) {
     var promise1,
         promise2;
 
-    promise1 = promise.then(function() {
-      return $('#files-container')
-               .fadeOut(FADING_DURATION / 4)
-               .promise();
-    });
+    promise1 = promise.then(
+      // done filter
+      function() {
+        return $('#files-container')
+                 .fadeOut(FADING_DURATION / 4)
+                 .promise();
+      },
+      // fail filter
+      function() {
+        $('#files-container').hide();
+        return promise;
+      }
+    );
 
-    promise2 = promise1.then(function() {
-      return $('#loading-message')
-               .text(gettext(helpTexts['csv-steps']))
-               .fadeIn(FADING_DURATION / 4)
-               .delay(FADING_DURATION * 3)
-               .fadeOut(FADING_DURATION / 4)
-               .promise();
-    });
+    promise2 = promise1.then(
+      // done filter
+      function() {
+        return $('#loading-message')
+                 .text(gettext(helpTexts['csv-steps']))
+                 .fadeIn(FADING_DURATION / 4)
+                 .delay(FADING_DURATION * 3)
+                 .fadeOut(FADING_DURATION / 4)
+                 .promise();
+      },
+      // fail filter
+      function() {
+        $('#loading-message')
+          .text(gettext(helpTexts['loading-error']))
+          .fadeIn(FADING_DURATION / 2);
+      }
+    );
 
     promise2.done(function() {
       $('#files-container2')
@@ -154,9 +171,25 @@
 
     // Handle CSV nodes files.
     'csv-nodes': function(nodesFiles) {
-      CSVFileLists['nodes'] = nodesFiles;
-      currentFileType = 'csv-edges';
-      showEdgesContainer($.Deferred().resolve());
+      var isValid = true,
+          file,
+          i, li;
+
+      for (i = 0, li = nodesFiles.length; i < li; i++) {
+        file = nodesFiles[i];
+        if (file.type !== 'text/csv') {
+          isValid = false;
+          break;
+        }
+      }
+
+      if (isValid) {
+        CSVFileLists['nodes'] = nodesFiles;
+        currentFileType = 'csv-edges';
+        finishCSVSteps($.Deferred().resolve());
+      } else {
+        finishCSVSteps($.Deferred().reject());
+      }
     },
 
     // Handle CSV edges files.
