@@ -28,7 +28,7 @@
   // The type of file currently selected: GEXF, CSV nodes, CSV edges, ...
   var currentFileType = '';
 
-  // Nodes and edges FileLists
+  // CSV nodes and edges FileLists.
   var CSVFileLists = {};
 
   // Drag and Drop help texts.
@@ -59,9 +59,9 @@
     promise2 = promise1.then(function() {
       return $('#loading-message')
                .text(gettext(helpTexts['file-loaded']))
-               .fadeIn(FADING_DURATION / 2)
+               .fadeIn(FADING_DURATION / 4)
                .delay(FADING_DURATION * 3)
-               .fadeOut(FADING_DURATION / 2)
+               .fadeOut(FADING_DURATION / 4)
                .promise();
     });
 
@@ -71,14 +71,14 @@
       if (validateData()) {
         $('#progress-bar')
           .attr('max', DI.edges.length + DI.nodesLength)
-          .fadeIn(FADING_DURATION);
+          .fadeIn(FADING_DURATION / 4);
         // Finally, send graph data to the server.
         sendPromise = sendData();
       } else {
         $('#progress-bar').hide();
         $('#loading-message')
           .text(gettext(helpTexts['validation-error']))
-          .fadeIn(FADING_DURATION / 2);
+          .fadeIn(FADING_DURATION / 4);
       }
 
       return sendPromise;
@@ -86,14 +86,14 @@
 
     promise4 = promise3.then(function() {
       return $('#progress-bar')
-               .fadeOut(FADING_DURATION / 2)
+               .fadeOut(FADING_DURATION / 4)
                .promise();
     });
 
     promise4.then(function() {
       $('#loading-message')
         .text(gettext(helpTexts['graph-uploaded']))
-        .fadeIn(FADING_DURATION / 2);
+        .fadeIn(FADING_DURATION / 4);
     });
   };
 
@@ -112,16 +112,16 @@
     promise2 = promise1.then(function() {
       return $('#loading-message')
                .text(gettext(helpTexts['csv-steps']))
-               .fadeIn(FADING_DURATION / 2)
+               .fadeIn(FADING_DURATION / 4)
                .delay(FADING_DURATION * 3)
-               .fadeOut(FADING_DURATION / 2)
+               .fadeOut(FADING_DURATION / 4)
                .promise();
     });
 
     promise2.done(function() {
       $('#files-container2')
         .text(gettext(helpTexts[currentFileType]))
-        .fadeIn(FADING_DURATION / 2);
+        .fadeIn(FADING_DURATION / 4);
     });
   };
 
@@ -206,7 +206,6 @@
     evt.stopPropagation();
     evt.preventDefault();
 
-    // set current file type and setup drag and drop container.
     if (evt.target.value === 'gexf') {
       currentFileType = 'gexf';
       $('#files-container').text(gettext(helpTexts[currentFileType]));
@@ -215,7 +214,6 @@
       $('#files-container').text(gettext(helpTexts[currentFileType]));
     }
 
-    // Show files container.
     $('#files-container').fadeIn(FADING_DURATION);
   };
 
@@ -223,7 +221,7 @@
   // DOM ready.
   $(function() {
 
-    // Drag and drop events handlers mapping.
+    // Drag and drop events handlers.
     var eventsHandlers = {
       'dragover': handleDragOver,
       'dragenter': handleDragEnter,
@@ -231,11 +229,11 @@
       'drop': handleDrop
     };
 
-    // Drag and Drop events.
+    // Drag and Drop containers.
     $('#files-container').on(eventsHandlers);
     $('#files-container2').on(eventsHandlers);
 
-    // Radio inputs for file format selection.
+    // Radio inputs for file type selection.
     $('.option').on('change', handleRadioInputs);
   });
 
