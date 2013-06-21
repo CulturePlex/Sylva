@@ -231,8 +231,12 @@
   var handleDrop = function(evt) {
     evt.stopPropagation();
     evt.preventDefault();
+
     var files = evt.originalEvent.dataTransfer.files;
     loadFiles(files);
+
+    // Disable radio buttons.
+    $('.option input').attr('disabled', 'disabled');
   };
 
 
