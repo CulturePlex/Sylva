@@ -44,14 +44,9 @@
   };
 
 
-  // Show CSS animations and run validating and uploading steps.
-  var runLastSteps = function(promise, $container) {
-    var promise1,
-        promise2,
-        promise3,
-        promise4;
-
-    promise1 = promise.then(
+  // Hide drag and drop container.
+  var fadeoutContainer = function(promise, $container) {
+    return promise.then(
       // done filter
       function() {
         return $container
@@ -64,12 +59,16 @@
         return promise;
       }
     );
+  };
 
-    promise2 = promise1.then(
+
+  // Show message when data is loaded into the browser.
+  var fadeinLoadedMessage = function(promise, messageType) {
+    return promise.then(
       // done filter
       function() {
         return $('#loading-message')
-                 .text(gettext(helpTexts['file-loaded']))
+                 .text(gettext(helpTexts[messageType]))
                  .fadeIn(FADING_DURATION / 4)
                  .delay(FADING_DURATION * 3)
                  .fadeOut(FADING_DURATION / 4)
@@ -82,6 +81,19 @@
           .fadeIn(FADING_DURATION / 2);
       }
     );
+  };
+
+
+  // Show CSS animations and run validating and uploading steps.
+  var runLastSteps = function(promise, $container) {
+    var promise1,
+        promise2,
+        promise3,
+        promise4;
+
+    promise1 = fadeoutContainer(promise, $container);
+
+    promise2 = fadeinLoadedMessage(promise1, 'file-loaded');
 
     promise3 = promise2.then(function() {
       var sendPromise = $.Deferred();
@@ -117,41 +129,13 @@
 
 
   // Show CSS animations beetween CSV nodes and CSV edges loading steps.
-  var finishCSVSteps = function(promise) {
+  var finishCSVSteps = function(promise, $container) {
     var promise1,
         promise2;
 
-    promise1 = promise.then(
-      // done filter
-      function() {
-        return $('#files-container')
-                 .fadeOut(FADING_DURATION / 4)
-                 .promise();
-      },
-      // fail filter
-      function() {
-        $('#files-container').hide();
-        return promise;
-      }
-    );
+    promise1 = fadeoutContainer(promise, $container);
 
-    promise2 = promise1.then(
-      // done filter
-      function() {
-        return $('#loading-message')
-                 .text(gettext(helpTexts['csv-steps']))
-                 .fadeIn(FADING_DURATION / 4)
-                 .delay(FADING_DURATION * 3)
-                 .fadeOut(FADING_DURATION / 4)
-                 .promise();
-      },
-      // fail filter
-      function() {
-        $('#loading-message')
-          .text(gettext(helpTexts['loading-error']))
-          .fadeIn(FADING_DURATION / 2);
-      }
-    );
+    promise2 = fadeinLoadedMessage(promise1, 'csv-steps');
 
     promise2.done(function() {
       $('#files-container2')
@@ -186,9 +170,9 @@
       if (isValid) {
         CSVFileLists['nodes'] = nodesFiles;
         currentFileType = 'csv-edges';
-        finishCSVSteps($.Deferred().resolve());
+        finishCSVSteps($.Deferred().resolve(), $('#files-container'));
       } else {
-        finishCSVSteps($.Deferred().reject());
+        finishCSVSteps($.Deferred().reject(), $('#files-container'));
       }
     },
 
