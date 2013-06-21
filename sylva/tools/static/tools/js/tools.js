@@ -39,7 +39,8 @@
     'csv-steps': 'Nodes files loaded. Loading edges files...',
     'file-loaded': 'Data loaded. Uploading to the server...',
     'graph-uploaded': 'OK! Data uploaded.',
-    'validation-error': 'Sorry, your data does not match your graph schema.'
+    'validation-error': 'Sorry, your data does not match your graph schema.',
+    'loading-error': 'Sorry, your data can not be loaded.'
   };
 
 
@@ -50,20 +51,37 @@
         promise3,
         promise4;
 
-    promise1 = promise.then(function() {
-      return $container
-               .fadeOut(FADING_DURATION / 4)
-               .promise();
-    });
+    promise1 = promise.then(
+      // done filter
+      function() {
+        return $container
+                 .fadeOut(FADING_DURATION / 4)
+                 .promise();
+      },
+      // fail filter
+      function() {
+        $container.hide();
+        return promise;
+      }
+    );
 
-    promise2 = promise1.then(function() {
-      return $('#loading-message')
-               .text(gettext(helpTexts['file-loaded']))
-               .fadeIn(FADING_DURATION / 4)
-               .delay(FADING_DURATION * 3)
-               .fadeOut(FADING_DURATION / 4)
-               .promise();
-    });
+    promise2 = promise1.then(
+      // done filter
+      function() {
+        return $('#loading-message')
+                 .text(gettext(helpTexts['file-loaded']))
+                 .fadeIn(FADING_DURATION / 4)
+                 .delay(FADING_DURATION * 3)
+                 .fadeOut(FADING_DURATION / 4)
+                 .promise();
+      },
+      // fail filter
+      function() {
+        $('#loading-message')
+          .text(gettext(helpTexts['loading-error']))
+          .fadeIn(FADING_DURATION / 2);
+      }
+    );
 
     promise3 = promise2.then(function() {
       var sendPromise = $.Deferred();
