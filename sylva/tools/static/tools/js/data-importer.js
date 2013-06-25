@@ -359,6 +359,7 @@
               columns,
               csvHeader,
               properties,
+              propKey,
               i, li, j, lj;
 
           console.log('Processing nodes...');
@@ -373,7 +374,10 @@
 
               properties = {};
               for (j = 2, lj = columns.length; j < lj; j++) {
-                properties[csvHeader[j]] = columns[j];
+                propKey = csvHeader[j];
+                if (propKey.charAt(0) !== '_') {
+                  properties[propKey] = columns[j];
+                }
               }
 
               self.addNode(columns[0], columns[1], properties);
@@ -415,6 +419,7 @@
                 columns,
                 csvHeader,
                 properties,
+                propKey,
                 i, li, j, lj;
 
             console.log('Processing edges...');
@@ -427,7 +432,10 @@
 
               properties = {};
               for (j = 3, lj = columns.length; j < lj; j++) {
-                properties[csvHeader[j]] = columns[j];
+                propKey = csvHeader[j];
+                if (propKey.charAt(0) !== '_') {
+                  properties[propKey] = columns[j];
+                }
               }
 
               self.addEdge(columns[0], columns[1], columns[2], properties);
@@ -537,9 +545,11 @@
                 attribute = nodesAttributes[attributeId];
 
                 if (attribute !== undefined) {
-                  attributeTitle = attribute.title;
-                  nodeAttributes[attributeTitle] =
-                      attvalueNode.getAttribute('value');
+                  attributeTitle = attribute.title.trim();
+                  if (attributeTitle.charAt(0) !== '_') {
+                    nodeAttributes[attributeTitle] =
+                        attvalueNode.getAttribute('value').trim();
+                  }
                 }
               }
             }
@@ -578,9 +588,11 @@
                 attribute = edgesAttributes[attributeId];
 
                 if (attribute !== undefined) {
-                  attributeTitle = attribute.title;
-                  edgeAttributes[attributeTitle] =
-                      attvalueEdge.getAttribute('value');
+                  attributeTitle = attribute.title.trim();
+                  if (attributeTitle.charAt(0) !== '_') {
+                    edgeAttributes[attributeTitle] =
+                        attvalueEdge.getAttribute('value').trim();
+                  }
                 }
               }
             }
