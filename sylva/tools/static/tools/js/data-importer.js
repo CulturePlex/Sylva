@@ -376,7 +376,7 @@
               for (j = 2, lj = columns.length; j < lj; j++) {
                 propKey = csvHeader[j];
                 if (propKey.charAt(0) !== '_') {
-                  properties[propKey] = columns[j];
+                  properties[propKey] = cleanValue(columns[j]);
                 }
               }
 
@@ -434,7 +434,7 @@
               for (j = 3, lj = columns.length; j < lj; j++) {
                 propKey = csvHeader[j];
                 if (propKey.charAt(0) !== '_') {
-                  properties[propKey] = columns[j];
+                  properties[propKey] = cleanValue(columns[j]);
                 }
               }
 
@@ -475,7 +475,7 @@
         var attributesNodes = gexf.getElementsByTagName('attributes');
 
         var id, title, type;
-        var attribute, attributeId, attributeTitle;
+        var attribute, attributeId, attributeTitle, attributeValue;
         var i, j, k, li, lj, lk;
 
         // Loop through attributes elements and store attributes for
@@ -547,8 +547,8 @@
                 if (attribute !== undefined) {
                   attributeTitle = attribute.title.trim();
                   if (attributeTitle.charAt(0) !== '_') {
-                    nodeAttributes[attributeTitle] =
-                        attvalueNode.getAttribute('value').trim();
+                    attributeValue = attvalueNode.getAttribute('value').trim();
+                    nodeAttributes[attributeTitle] = cleanValue(attributeValue);
                   }
                 }
               }
@@ -590,8 +590,8 @@
                 if (attribute !== undefined) {
                   attributeTitle = attribute.title.trim();
                   if (attributeTitle.charAt(0) !== '_') {
-                    edgeAttributes[attributeTitle] =
-                        attvalueEdge.getAttribute('value').trim();
+                    attributeValue = attvalueEdge.getAttribute('value').trim();
+                    edgeAttributes[attributeTitle] = cleanValue(attributeValue);
                   }
                 }
               }
@@ -615,5 +615,133 @@
 
     return deferred.promise();
   };
+
+
+  // Utils.
+
+
+  // Try to convert `value` into a valid type for Sylva.
+  function cleanValue(value) {
+     return cleanBoolean(cleanDate(cleanQuotes(value)));
+  }
+
+
+  // Remove escaped double quotes (see CSV standard).
+  function cleanQuotes(str) {
+    return str.replace(/\"\"/g, '"');
+  }
+
+
+  // Change `date` to match the pattern: yyyy-mm-dd.
+  function cleanDate(date) {
+    var cleanedDate,
+        matches,
+        day,
+        month,
+        year,
+        aux,
+        isCleaned = false;
+
+    // match dd/mm/yyyy or mm/dd/yyyy?
+    matches = date.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+    if (matches !== null) {
+      day = parseInt(matches[1], 10);
+      month = parseInt(matches[2], 10);
+      year = matches[3];
+
+      if (month > 12) {
+        aux = day;
+        day = month;
+        month = aux;
+      }
+
+      isCleaned = true;
+    }
+
+    if (!isCleaned) {
+      // match yyyy/mm/dd or yyyy/dd/mm?
+      matches = date.match(/(\d{4})\/(\d{1,2})\/(\d{1,2})/);
+      if (matches !== null) {
+        day = parseInt(matches[3], 10);
+        month = parseInt(matches[2], 10);
+        year = matches[1];
+
+        if (month > 12) {
+          aux = day;
+          day = month;
+          month = aux;
+        }
+
+        isCleaned = true;
+      }
+    }
+
+    if (!isCleaned) {
+      // match dd-mm-yyyy or mm-dd-yyyy?
+      matches = date.match(/(\d{1,2})-(\d{1,2})-(\d{4})/);
+      if (matches !== null) {
+        day = parseInt(matches[1], 10);
+        month = parseInt(matches[2], 10);
+        year = matches[3];
+
+        if (month > 12) {
+          aux = day;
+          day = month;
+          month = aux;
+        }
+
+        isCleaned = true;
+      }
+    }
+
+    if (!isCleaned) {
+      // match yyyy-dd-mm?
+      matches = date.match(/(\d{4})-(\d{1,2})-(\d{1,2})/);
+      if (matches !== null) {
+        day = parseInt(matches[3], 10);
+        month = parseInt(matches[2], 10);
+        year = matches[1];
+
+        if (month > 12) {
+          aux = day;
+          day = month;
+          month = aux;
+        }
+
+        isCleaned = true;
+      }
+    }
+
+    if (isCleaned) {
+      cleanedDate = year + '-' + month + '-' + day;
+    } else {
+      cleanedDate = date;
+    }
+
+    return cleanedDate;
+  }
+
+
+  // Change `bool` to match Python booleans: True/False.
+  function cleanBoolean(bool) {
+    var cleanedBoolean,
+        isCleaned = false;
+
+    cleanedBoolean = bool.toLowerCase();
+
+    if (cleanedBoolean === 'true') {
+      cleanedBoolean = 'True';
+      isCleaned = true;
+    } else if (cleanedBoolean === 'false') {
+      cleanedBoolean = 'False';
+      isCleaned = true;
+    }
+
+    if (!isCleaned) {
+      cleanedBoolean = bool;
+    }
+
+    return cleanedBoolean;
+  }
 
 }(jQuery, window, document));
