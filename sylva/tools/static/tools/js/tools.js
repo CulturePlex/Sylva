@@ -38,7 +38,7 @@
     'csv-edges': 'Now drop your edges files',
     'csv-steps': 'Nodes files loaded. Loading edges files...',
     'file-loaded': 'Data loaded. Uploading to the server...',
-    'graph-uploaded': 'Ok! Data uploaded.',
+    'graph-uploaded': 'Data uploaded.',
     'validation-error': 'Sorry, your data does not match your graph schema.',
     'loading-error': 'Sorry, your data can not be loaded.'
   };

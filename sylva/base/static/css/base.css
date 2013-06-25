@@ -221,6 +221,26 @@ a.disabled:hover {
     text-decoration: none;
 }
 
+progress {
+    display: block;
+    position: relative;
+    height: 18px;
+    width: 198px;
+    background: #D6E7DF;
+    border: 1px solid #348E82;
+    color: #348E82;
+    -moz-appearance: none;
+    -webkit-appearance: none;
+}
+
+/* Firefox */
+progress::-moz-progress-bar { background: #348E82; }
+
+/* Chrome */
+progress::-webkit-progress-bar { background: #D6E7DF; }
+progress::-webkit-progress-value { background: #348E82; }
+
+
 /* END Redefinitions **********************************************************/
 
 
