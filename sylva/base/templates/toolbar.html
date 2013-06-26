@@ -82,7 +82,7 @@
         {% if not graph.is_empty %}
             <tr>
                 <td class="dataActions">
-                    <a class="dataOption list" href="{% url tool_export graph.slug %}" title="{% trans "Export graph data as a Gephi file" %}">
+                    <a class="dataOption list" href="{% url graph_export_gexf graph.slug %}" title="{% trans "Export graph data as a Gephi file" %}">
                         {% trans "Export data" %}
                     </a>
                 </td>

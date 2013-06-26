@@ -12,7 +12,7 @@ urlpatterns = patterns('tools.views',
     url(r'^(?P<graph_slug>[\w-]+)/ajax-relationships/create/$',
         'ajax_relationships_create', name="ajax_relationships_create"),
 
-    # export tool
-    url(r'^(?P<graph_slug>[\w-]+)/export/$', 'graph_export_tool',
-        name="tool_export"),
+    # export GEXF (Gephi)
+    url(r'^(?P<graph_slug>[\w-]+)/export/gexf/$', 'graph_export_gexf',
+        name="graph_export_gexf"),
 )

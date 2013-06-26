@@ -79,7 +79,7 @@ def ajax_relationships_create(request, graph_slug):
 
 @permission_required("data.view_data", (Data, "graph__slug", "graph_slug"),
                      return_403=True)
-def graph_export_tool(request, graph_slug):
+def graph_export_gexf(request, graph_slug):
     graph = get_object_or_404(Graph, slug=graph_slug)
     if graph.is_empty():
         messages.error(request, _("You are trying to export data from an "

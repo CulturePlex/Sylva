@@ -23,7 +23,7 @@
 {% block content %}
 <form method="post" action="." id="graphsDelete" name="graphs_delete">
 {% csrf_token %}
-{% url tool_export graph.slug as data_export %}
+{% url graph_export_gexf graph.slug as data_export %}
 {% url schema_export graph.slug as schema_export %}
 {{ form.as_p }}
 <div>
