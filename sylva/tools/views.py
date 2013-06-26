@@ -4,6 +4,7 @@ try:
 except ImportError:
     import json  # NOQA
 
+from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
@@ -35,37 +36,43 @@ def graph_import_tool(request, graph_slug):
     schema = graph.schema.export()  # Schema jsonification
     return render_to_response('graph_import_tool.html',
                               {"graph": graph,
-                               "sylva_schema": json.dumps(schema)},
+                               "sylva_schema": json.dumps(schema),
+                               "IMPORT_MAX_SIZE": settings.IMPORT_MAX_SIZE},
                               context_instance=RequestContext(request))
 
 
 @permission_required("data.change_data", (Data, "graph__slug", "graph_slug"),
                      return_403=True)
-def ajax_node_create(request, graph_slug):
+def ajax_nodes_create(request, graph_slug):
     if request.is_ajax():
         graph = get_object_or_404(Graph, slug=graph_slug)
-        data = request.POST
-        label = graph.schema.nodetype_set.get(name=data["type"])
-        properties = json.loads(data.get("properties", "{}"))
-        node = graph.nodes.create(str(label.id), properties)
-        return HttpResponse(json.dumps({"id": node.id}),
-                            mimetype='application/json')
+        elements = json.loads(request.POST['data'])
+        ids_dict = {}
+        for elem in elements:
+            elem_data = elem['data']
+            elem_id = elem['id']
+            label = graph.schema.nodetype_set.get(name=elem_data['type'])
+            properties = elem_data.get('properties', '{}')
+            node = graph.nodes.create(str(label.id), properties)
+            ids_dict[elem_id] = node.id
+        return HttpResponse(json.dumps(ids_dict), mimetype='application/json')
     raise Http404(_("Error: Invalid request (expected an AJAX request)"))
 
 
 @permission_required("data.change_data", (Data, "graph__slug", "graph_slug"),
                      return_403=True)
-def ajax_relationship_create(request, graph_slug):
+def ajax_relationships_create(request, graph_slug):
     if request.is_ajax():
         graph = get_object_or_404(Graph, slug=graph_slug)
-        data = request.POST
-        source = graph.nodes.get(data["sourceId"])
-        target = graph.nodes.get(data["targetId"])
-        label = graph.schema.relationshiptype_set.get(name=data["type"],
-                                                      source=source.label,
-                                                      target=target.label)
-        properties = json.loads(data.get("properties", "{}"))
-        graph.relationships.create(source, target, str(label.id), properties)
+        elements = json.loads(request.POST["data"])
+        for elem in elements:
+            source = graph.nodes.get(elem["sourceId"])
+            target = graph.nodes.get(elem["targetId"])
+            label = graph.schema.relationshiptype_set.get(name=elem["type"],
+                                                          source=source.label,
+                                                          target=target.label)
+            properties = elem.get("properties", "{}")
+            graph.relationships.create(source, target, str(label.id), properties)
         return HttpResponse(json.dumps({}), mimetype='application/json')
     raise Http404(_("Error: Invalid request (expected an AJAX request)"))
 

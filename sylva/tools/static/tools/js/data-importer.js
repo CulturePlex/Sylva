@@ -170,31 +170,29 @@
   };
 
 
-  // Send a node to the server.
-  sylv.DataImporter.sendNode = function(url, node) {
-    var data;
-
-    data = {
-      type: node.type,
-      properties: JSON.stringify(node.properties)
-    };
-
-    return this.sendData(url, data);
+  // Send a list of nodes to the server.
+  sylv.DataImporter.sendNodesList = function(url, nodes) {
+    return this.sendData(url, {data: JSON.stringify(nodes)});
   };
 
 
-  // Send an edge to the server.
-  sylv.DataImporter.sendEdge = function(url, edge) {
-    var data;
+  // Send a list of edges to the server.
+  sylv.DataImporter.sendEdgesList = function(url, edges) {
+    var data = [],
+        edge,
+        i, li;
 
-    data = {
-      sourceId: this.serverNodes[edge.sourceId],
-      targetId: this.serverNodes[edge.targetId],
-      type: edge.label,
-      properties: JSON.stringify(edge.properties)
-    };
+    for (i = 0, li = edges.length; i < li; i++) {
+      edge = edges[i];
+      data.push({
+        sourceId: this.serverNodes[edge.sourceId],
+        targetId: this.serverNodes[edge.targetId],
+        type: edge.label,
+        properties: edge.properties
+      });
+    }
 
-    return this.sendData(url, data);
+    return this.sendData(url, {data: JSON.stringify(data)});
   };
 
 
@@ -206,26 +204,30 @@
     for (var nodeId in nodes) {
       queue.push({
         id: nodeId,
-        node: nodes[nodeId]
+        data: nodes[nodeId]
       });
     }
 
     processQueue(this, url, queue, deferred);
 
     function processQueue(self, url, queue, deferred) {
-      var obj,
-          jqxhr;
+      var elements,
+          jqxhr,
+          MAX_SIZE = sylv.IMPORT_MAX_SIZE;
 
       if (queue.length > 0) {
-        obj = queue.pop();
-        jqxhr = self.sendNode(url, obj.node);
+        elements = queue.splice(0, MAX_SIZE);
+        jqxhr = self.sendNodesList(url, elements);
 
-        jqxhr.done(function(response) {
-          if (response) {
-            self.serverNodes[obj.id] = response.id;
-            processQueue(self, url, queue, deferred);
-            deferred.notify();  // update progress bar
+        jqxhr.done(function(ids) {
+          var id;
+
+          for (id in ids) {
+            self.serverNodes[id] = ids[id];
           }
+
+          deferred.notify(elements.length);  // update progress bar
+          processQueue(self, url, queue, deferred);
         });
       } else {
         deferred.resolve();
@@ -244,16 +246,17 @@
     processQueue(this, url, queue, deferred);
 
     function processQueue(self, url, queue, deferred) {
-      var edge,
-          jqxhr;
+      var elements,
+          jqxhr,
+          MAX_SIZE = sylv.IMPORT_MAX_SIZE;
 
       if (queue.length > 0) {
-        edge = queue.pop();
-        jqxhr = self.sendEdge(url, edge);
+        elements = queue.splice(0, MAX_SIZE);
+        jqxhr = self.sendEdgesList(url, elements);
 
         jqxhr.done(function() {
+          deferred.notify(elements.length);  // update progress bar
           processQueue(self, url, queue, deferred);
-          deferred.notify();  // update progress bar
         });
       } else {
         deferred.resolve();
@@ -271,7 +274,6 @@
         self = this;
 
     promiseNodes = this.sendNodes(nodesUrl, nodes);
-
     promiseGraph = promiseNodes.then(function() {
       return self.sendEdges(edgesUrl, edges);
     });

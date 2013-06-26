@@ -113,18 +113,16 @@
       }
     });
 
-    promiseSend.progress(function() {
-      var max, value, percentage;
-      max = parseInt($('#progress-bar').attr('max'), 10);
-      value = parseInt($('#progress-bar').attr('value'), 10);
-      percentage = ((value / max) * 100).toFixed();
-      $('#progress-bar').attr('value', value + 1);
+    promiseSend.progress(function(sentCount) {
+      var max = parseInt($('#progress-bar').attr('max'), 10),
+          value = parseInt($('#progress-bar').attr('value'), 10) + sentCount,
+          percentage = ((value / max) * 100).toFixed();
+
+      $('#progress-bar').attr('value', value);
       $('#percentage').text(percentage + '%');
     });
 
     promiseFinish = promiseSend.then(function() {
-      var value = parseInt($('#progress-bar').attr('value'), 10);
-      $('#progress-bar').attr('value', value + 2);
       $('#percentage').text('100%');
       return $('#progress-bar')
                .parent()
