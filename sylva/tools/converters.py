@@ -1,6 +1,4 @@
 import datetime
-# import simplejson
-
 from django.template.defaultfilters import force_escape as escape
 
 # from schemas.models import NodeType, RelationshipType
@@ -20,14 +18,13 @@ class BaseConverter(object):
         self.graph = graph
 
     def encode_html(self, value):
-#        if isinstance(value, basestring):
-#            for replacement in self.html_codes:
-#                value = value.replace(replacement[0], replacement[1])
         return escape(value)
 
 
 class GEXFConverter(BaseConverter):
-    " Converts a Sylva neo4j graph to GEXF 1.2"
+    """
+    Converts a Sylva neo4j graph to GEXF 1.2
+    """
 
     header = u"""<?xml version="1.0" encoding="UTF-8"?>
 <gexf xmlns="http://www.gexf.net/1.2draft" xmlns:viz="http://www.gexf.net/1.2draft/viz" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.gexf.net/1.2draft http://www.gexf.net/1.2draft/gexf.xsd" version="1.2">
@@ -143,8 +140,6 @@ class GEXFConverter(BaseConverter):
 
         # Nodes
         yield '<nodes>'
-        # node_attributes = {}
-        # edge_attributes = {}
         for node in self.graph.nodes.iterator():
             node_text = u"""
                 <node id="%s" label="%s" type="%s">
@@ -183,7 +178,6 @@ class GEXFConverter(BaseConverter):
         yield '</nodes><edges>'
 
         # Edges
-        # edges = ''
         for edge in self.graph.relationships.iterator():
             edge_text = u"""
                 <edge id="%s" source="%s" target="%s" label="%s">
