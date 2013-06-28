@@ -15,4 +15,7 @@ urlpatterns = patterns('tools.views',
     # export GEXF (Gephi)
     url(r'^(?P<graph_slug>[\w-]+)/export/gexf/$', 'graph_export_gexf',
         name="graph_export_gexf"),
+    # export CSV
+    url(r'^(?P<graph_slug>[\w-]+)/export/csv/$', 'graph_export_csv',
+        name="graph_export_csv"),
 )

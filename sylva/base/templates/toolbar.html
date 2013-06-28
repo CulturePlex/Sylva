@@ -78,12 +78,26 @@
                     </a>
                 </td>
             </tr>
+            <tr>
+                <td class="dataActions">
+                    <a class="dataOption list" href="{% url graph_export_csv graph.slug %}" title="{% trans "Export a CSV template for graph data importing" %}">
+                        {% trans "Export CSV template" %}
+                    </a>
+                </td>
+            </tr>
         {% endif %}
         {% if not graph.is_empty %}
             <tr>
                 <td class="dataActions">
-                    <a class="dataOption list" href="{% url graph_export_gexf graph.slug %}" title="{% trans "Export graph data as a Gephi file" %}">
-                        {% trans "Export data" %}
+                    <a class="dataOption list" href="{% url graph_export_gexf graph.slug %}" title="{% trans "Export graph data as GEXF (Gephi)" %}">
+                        {% trans "Export data as GEXF" %}
+                    </a>
+                </td>
+            </tr>
+            <tr>
+                <td class="dataActions">
+                    <a class="dataOption list" href="{% url graph_export_csv graph.slug %}" title="{% trans "Export graph data as CSV" %}">
+                        {% trans "Export data as CSV" %}
                     </a>
                 </td>
             </tr>

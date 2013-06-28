@@ -1,7 +1,11 @@
 import datetime
-from django.template.defaultfilters import force_escape as escape
+import csv
+import os
+import zipfile
+import tempfile
+import settings
 
-# from schemas.models import NodeType, RelationshipType
+from django.template.defaultfilters import force_escape as escape
 
 
 class BaseConverter(object):
@@ -220,3 +224,85 @@ class GEXFConverter(BaseConverter):
         yield u"""
     </graph>
 </gexf>"""
+
+
+class CSVConverter(BaseConverter):
+    """
+    Converts a Sylva neo4j graph into CSV files.
+    """
+
+    def export(self):
+        graph = self.graph
+
+        csv_dir_path = tempfile.mkdtemp(dir=settings.TMP_ROOT)
+
+        os.mkdir(os.path.join(csv_dir_path, 'nodes'))
+        os.mkdir(os.path.join(csv_dir_path, 'edges'))
+
+        csv_nodes_path = os.path.join(csv_dir_path, 'nodes')
+        csv_edges_path = os.path.join(csv_dir_path, 'edges')
+
+        node_types = graph.schema.nodetype_set.all()
+        rel_types = graph.schema.relationshiptype_set.all()
+
+        for node_type in node_types:
+            csv_filename = node_type.slug + '.csv'
+            with open(os.path.join(csv_dir_path, 'nodes', csv_filename),
+                      'w+') as csvfile:
+                csvwriter = csv.writer(csvfile, delimiter=',', quotechar='"',
+                                       quoting=csv.QUOTE_ALL)
+                csv_header = ['id', 'type']
+                for node_type_prop in node_type.properties.all():
+                    csv_header.append(node_type_prop.key.encode('utf-8'))
+                csvwriter.writerow(csv_header)
+                node_type_properties = [node_type_prop.key for node_type_prop
+                                        in node_type.properties.all()]
+                nodes = node_type.all()
+                for node in nodes:
+                    node_properties = [node.id, node_type.name.encode('utf-8')]
+                    for node_type_prop in node_type_properties:
+                        if node_type_prop in node.properties:
+                            node_prop = unicode(node.properties[node_type_prop])
+                            node_properties.append(node_prop.encode('utf-8'))
+                        else:
+                            node_properties.append('')
+                    csvwriter.writerow(node_properties)
+
+        for rel_type in rel_types:
+            csv_filename = rel_type.slug + '.csv'
+            with open(os.path.join(csv_dir_path, 'edges', csv_filename),
+                      'w+') as csvfile:
+                csvwriter = csv.writer(csvfile, delimiter=',', quotechar='"',
+                                       quoting=csv.QUOTE_ALL)
+                csv_header = ['sourceId', 'targetId', 'label']
+                for rel_type_prop in rel_type.properties.all():
+                    csv_header.append(rel_type_prop.key.encode('utf-8'))
+                csvwriter.writerow(csv_header)
+                rel_type_properties = [rel_type_prop.key for rel_type_prop in
+                                       rel_type.properties.all()]
+                rels = rel_type.all()
+                for rel in rels:
+                    rel_properties = [rel.source.id, rel.target.id,
+                                      rel_type.name.encode('utf-8')]
+                    for rel_type_prop in rel_type_properties:
+                        if rel_type_prop in rel.properties:
+                            rel_prop = unicode(rel.properties[rel_type_prop])
+                            rel_properties.append(rel_prop.encode('utf-8'))
+                        else:
+                            rel_properties.append('')
+                    csvwriter.writerow(rel_properties)
+
+        zipfile_name = graph.slug + '.zip'
+        zipfile_path = os.path.join(csv_dir_path, zipfile_name)
+
+        with zipfile.ZipFile(zipfile_path, 'w', zipfile.ZIP_DEFLATED) as _zip:
+            for root, dirs, files in os.walk(csv_nodes_path):
+                for _file in files:
+                    _zip.write(os.path.join(root, _file),
+                               os.path.join('nodes', _file))
+            for root, dirs, files in os.walk(csv_edges_path):
+                for _file in files:
+                    _zip.write(os.path.join(root, _file),
+                               os.path.join('edges', _file))
+
+        return zipfile_name, zipfile_path

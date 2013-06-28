@@ -19,7 +19,7 @@ from guardian.decorators import permission_required
 from data.models import Data
 from graphs.models import Graph
 
-from converters import GEXFConverter
+from converters import GEXFConverter, CSVConverter
 
 
 @login_required()
@@ -90,4 +90,15 @@ def graph_export_gexf(request, graph_slug):
                             mimetype='application/xml')
     attachment = 'attachment; filename=%s.gexf' % graph_slug.replace("-", "_")
     response['Content-Disposition'] = attachment
+    return response
+
+
+@permission_required("data.view_data", (Data, "graph__slug", "graph_slug"),
+                     return_403=True)
+def graph_export_csv(request, graph_slug):
+    graph = get_object_or_404(Graph, slug=graph_slug)
+    converter = CSVConverter(graph)
+    zipfile_name, zipfile_path = converter.export()
+    response = HttpResponse(open(zipfile_path), content_type='application/zip')
+    response['Content-Disposition'] = 'attachment; filename="%s"' % zipfile_name
     return response
