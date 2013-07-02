@@ -73,15 +73,15 @@
         {% if not graph.schema.is_empty and graph.is_empty %}
             <tr>
                 <td class="dataActions">
-                    <a class="dataOption list" href="{% url tool_import graph.slug %}" title="{% trans "Import graph data from a Gephi file" %}">
-                        {% trans "Import data" %}
+                    <a class="dataOption list" href="{% url graph_export_csv graph.slug %}" title="{% trans "Export a CSV template for graph data importing" %}">
+                        {% trans "Export CSV template" %}
                     </a>
                 </td>
             </tr>
             <tr>
                 <td class="dataActions">
-                    <a class="dataOption list" href="{% url graph_export_csv graph.slug %}" title="{% trans "Export a CSV template for graph data importing" %}">
-                        {% trans "Export CSV template" %}
+                    <a class="dataOption list" href="{% url tool_import graph.slug %}" title="{% trans "Import graph data" %}">
+                        {% trans "Import data" %}
                     </a>
                 </td>
             </tr>
