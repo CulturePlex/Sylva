@@ -98,7 +98,7 @@ def graph_export_gexf(request, graph_slug):
 def graph_export_csv(request, graph_slug):
     graph = get_object_or_404(Graph, slug=graph_slug)
     converter = CSVConverter(graph)
-    zipfile_name, zipfile_path = converter.export()
-    response = HttpResponse(open(zipfile_path), content_type='application/zip')
-    response['Content-Disposition'] = 'attachment; filename="%s"' % zipfile_name
+    zip_data, zip_name = converter.export()
+    response = HttpResponse(zip_data, content_type='application/zip')
+    response['Content-Disposition'] = 'attachment; filename="%s"' % zip_name
     return response

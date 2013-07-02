@@ -2,8 +2,10 @@ import datetime
 import csv
 import os
 import zipfile
-import tempfile
-import settings
+try:
+    from cStringIO import StringIO
+except ImportError:
+    from StringIO import StringIO  # NOQA
 
 from django.template.defaultfilters import force_escape as escape
 
@@ -233,76 +235,67 @@ class CSVConverter(BaseConverter):
 
     def export(self):
         graph = self.graph
-
-        csv_dir_path = tempfile.mkdtemp(dir=settings.TMP_ROOT)
-
-        os.mkdir(os.path.join(csv_dir_path, 'nodes'))
-        os.mkdir(os.path.join(csv_dir_path, 'edges'))
-
-        csv_nodes_path = os.path.join(csv_dir_path, 'nodes')
-        csv_edges_path = os.path.join(csv_dir_path, 'edges')
-
         node_types = graph.schema.nodetype_set.all()
         rel_types = graph.schema.relationshiptype_set.all()
 
-        for node_type in node_types:
-            csv_filename = node_type.slug + '.csv'
-            with open(os.path.join(csv_dir_path, 'nodes', csv_filename),
-                      'w+') as csvfile:
-                csvwriter = csv.writer(csvfile, delimiter=',', quotechar='"',
-                                       quoting=csv.QUOTE_ALL)
+        zip_buffer = StringIO()
+
+        with zipfile.ZipFile(zip_buffer, 'w', zipfile.ZIP_DEFLATED) as zip_file:
+            for node_type in node_types:
+                csv_name = os.path.join('nodes', node_type.slug + '.csv')
+                csv_buffer = StringIO()
+                csv_writer = csv.writer(csv_buffer, delimiter=',',
+                                        quotechar='"', quoting=csv.QUOTE_ALL)
                 csv_header = ['id', 'type']
-                for node_type_prop in node_type.properties.all():
-                    csv_header.append(node_type_prop.key.encode('utf-8'))
-                csvwriter.writerow(csv_header)
-                node_type_properties = [node_type_prop.key for node_type_prop
-                                        in node_type.properties.all()]
+                node_type_properties = node_type.properties.all()
+                node_properties_keys = [node_type_prop.key for node_type_prop
+                                        in node_type_properties]
+                for prop_key in node_properties_keys:
+                    csv_header.append(prop_key.encode('utf-8'))
+                csv_writer.writerow(csv_header)
                 nodes = node_type.all()
                 for node in nodes:
-                    node_properties = [node.id, node_type.name.encode('utf-8')]
-                    for node_type_prop in node_type_properties:
-                        if node_type_prop in node.properties:
-                            node_prop = unicode(node.properties[node_type_prop])
-                            node_properties.append(node_prop.encode('utf-8'))
+                    csv_properties = [node.id, node_type.name.encode('utf-8')]
+                    node_properties = node.properties
+                    for prop_key in node_properties_keys:
+                        if prop_key in node_properties:
+                            prop_value = unicode(node_properties[prop_key])
+                            csv_properties.append(prop_value.encode('utf-8'))
                         else:
-                            node_properties.append('')
-                    csvwriter.writerow(node_properties)
+                            csv_properties.append('')
+                    csv_writer.writerow(csv_properties)
+                zip_file.writestr(csv_name, csv_buffer.getvalue())
+                csv_buffer.close()
 
-        for rel_type in rel_types:
-            csv_filename = rel_type.slug + '.csv'
-            with open(os.path.join(csv_dir_path, 'edges', csv_filename),
-                      'w+') as csvfile:
-                csvwriter = csv.writer(csvfile, delimiter=',', quotechar='"',
-                                       quoting=csv.QUOTE_ALL)
-                csv_header = ['sourceId', 'targetId', 'label']
-                for rel_type_prop in rel_type.properties.all():
-                    csv_header.append(rel_type_prop.key.encode('utf-8'))
-                csvwriter.writerow(csv_header)
-                rel_type_properties = [rel_type_prop.key for rel_type_prop in
-                                       rel_type.properties.all()]
+            for rel_type in rel_types:
+                csv_name = os.path.join('edges', rel_type.slug + '.csv')
+                csv_buffer = StringIO()
+                csv_writer = csv.writer(csv_buffer, delimiter=',',
+                                        quotechar='"', quoting=csv.QUOTE_ALL)
+                csv_header = ['source id', 'target id', 'label']
+                rel_type_properties = rel_type.properties.all()
+                rel_properties_keys = [rel_type_prop.key for rel_type_prop in
+                                       rel_type_properties]
+                for prop_key in rel_properties_keys:
+                    csv_header.append(prop_key.encode('utf-8'))
+                csv_writer.writerow(csv_header)
                 rels = rel_type.all()
                 for rel in rels:
-                    rel_properties = [rel.source.id, rel.target.id,
+                    csv_properties = [rel.source.id, rel.target.id,
                                       rel_type.name.encode('utf-8')]
-                    for rel_type_prop in rel_type_properties:
-                        if rel_type_prop in rel.properties:
-                            rel_prop = unicode(rel.properties[rel_type_prop])
-                            rel_properties.append(rel_prop.encode('utf-8'))
+                    rel_properties = rel.properties
+                    for prop_key in rel_properties_keys:
+                        if prop_key in rel_properties:
+                            prop_value = unicode(rel_properties[prop_key])
+                            csv_properties.append(prop_value.encode('utf-8'))
                         else:
-                            rel_properties.append('')
-                    csvwriter.writerow(rel_properties)
+                            csv_properties.append('')
+                    csv_writer.writerow(csv_properties)
+                zip_file.writestr(csv_name, csv_buffer.getvalue())
+                csv_buffer.close()
 
-        zipfile_name = graph.slug + '.zip'
-        zipfile_path = os.path.join(csv_dir_path, zipfile_name)
+        zip_data = zip_buffer.getvalue()
+        zip_buffer.close()
+        zip_name = graph.slug + '.zip'
 
-        with zipfile.ZipFile(zipfile_path, 'w', zipfile.ZIP_DEFLATED) as _zip:
-            for root, dirs, files in os.walk(csv_nodes_path):
-                for _file in files:
-                    _zip.write(os.path.join(root, _file),
-                               os.path.join('nodes', _file))
-            for root, dirs, files in os.walk(csv_edges_path):
-                for _file in files:
-                    _zip.write(os.path.join(root, _file),
-                               os.path.join('edges', _file))
-
-        return zipfile_name, zipfile_path
+        return zip_data, zip_name
