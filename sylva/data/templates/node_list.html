@@ -2,386 +2,382 @@
 {% load i18n graphs graph_filters %}
 
 {% block navigation_buttons %}
-{{ block.super }}
+  {{ block.super }}
 {% endblock %}
 
 {% block title %}
-{{ graph.name }}
+  {{ graph.name }}
 {% endblock %}
 
 {% block extra_links %}
-<link rel="stylesheet" href="{{ STATIC_PREFIX }}visualsearch/visualsearch-modified.css">
-<link rel="stylesheet" href="{{ STATIC_PREFIX }}visualsearch/visualsearch-datauri-modified.css">
+  <link rel="stylesheet" href="{{ STATIC_PREFIX }}visualsearch/visualsearch-modified.css">
+  <link rel="stylesheet" href="{{ STATIC_PREFIX }}visualsearch/visualsearch-datauri-modified.css">
 {% endblock %}
 
 {% block extra_scripts %}
-{{ block.super }}
-<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.2/jquery-ui.min.js"></script>
-<script src="{{ STATIC_PREFIX }}visualsearch/vendor/underscore-1.4.3.js"></script>
-<script src="{{ STATIC_PREFIX }}visualsearch/vendor/backbone-0.9.10.js"></script>
-<script src="{{ STATIC_PREFIX }}visualsearch/visualsearch-modified.js"></script>
-<script>
+  {{ block.super }}
+  <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.2/jquery-ui.min.js"></script>
+  <script src="{{ STATIC_PREFIX }}visualsearch/vendor/underscore-1.4.3.js"></script>
+  <script src="{{ STATIC_PREFIX }}visualsearch/vendor/backbone-0.9.10.js"></script>
+  <script src="{{ STATIC_PREFIX }}visualsearch/visualsearch-modified.js"></script>
+  <script>
     (function($) {
 
-        "use strict";
+      "use strict";
 
-        $(function() {
-            var facets = JSON.parse('{{ property_keys|escapejs }}');
-            var facet_values = JSON.parse('{{ property_values|escapejs }}');
+      $(function() {
+        var facets = JSON.parse('{{ property_keys|escapejs }}');
+        var facet_values = JSON.parse('{{ property_values|escapejs }}');
 
-            var $table_rows = $('#content_table tbody tr');
-            var $table_rows_filtered = $table_rows;
-            var query_facets = {};
-            var pagination_content = '';
+        var $table_rows = $('#content_table tbody tr');
+        var $table_rows_filtered = $table_rows;
+        var query_facets = {};
+        var pagination_content = '';
 
-            var searching = false;
+        var searching = false;
 
-            var visualSearch = VS.init({
-                container: $('#search-query'),
-                query: '',
-                autosearch: true,
-                showFacets: true,
-                remainder: 'search',
-                callbacks: {
-                    facetMatches: function(callback) {
-                        callback(facets);
-                    },
-                    valueMatches: function(facet, searchTerm, callback) {
-                        callback(facet_values[facet]);
-                    },
-                    search: function(query, searchCollection) {
-                        var collection_facets = searchCollection.facets();
-                        for (var i = 0, l = collection_facets.length; i < l; i++) {
-                            var collection_facet = collection_facets[i];
-                            for (var facet in collection_facet) {
-                                if (collection_facet.hasOwnProperty(facet)) {
-                                    $table_rows_filtered = $table_rows_filtered.filter(':contains("' + collection_facet[facet] + '")');
-                                    query_facets[facet] = collection_facet[facet];
-                                }
-                            }
-                        }
-                        // Show only faceted results.
-                        $table_rows.not($table_rows_filtered).hide();
-
-                        // Update pagination info.
-                        var $pag_info = $('.pagination-info');
-                        pagination_content = $pag_info.parent().html();
-                        var info_list = $pag_info.text().trim().split(' ');
-                        var results_count = $table_rows.filter(':visible').length;
-                        info_list[1] = results_count;
-                        $pag_info.text(info_list.join(' '));
-
-                        // In other case, run a full search.
-                        if (!$table_rows.is(':visible')) {
-                            searching = true;
-                            var node_type_id = {{ node_type.id }};
-                            var data_query = {};
-                            data_query[node_type_id] = JSON.stringify(query_facets);
-                            $.ajax({
-                                url: "{% url nodes_lookup_full graph.slug %}",
-                                data: data_query,
-                                success: add_search_results
-                            });
-                        }
-                    },
-                    clearSearch: function(actualClearSearch) {
-                        if (!searching) {
-                            update_pagination_info(pagination_content);
-                        }
-                        actualClearSearch();
-                        $table_rows.show();
-                        $table_rows_filtered = $table_rows;
-                    },
-                    removedFacet: function (facet, query, options) {
-                        if (!searching) {
-                            update_pagination_info(pagination_content);
-                        }
-                        delete query_facets[facet.attributes.category];
-                        $table_rows_filtered = $table_rows;
-                        var is_empty = true;
-                        for (var prop in query_facets) {
-                            if (query_facets.hasOwnProperty(prop)) {
-                                is_empty = false;
-                                $table_rows_filtered = $table_rows_filtered.filter(':contains("' + query_facets[prop] + '")');
-                            }
-                        }
-                        if (is_empty) {
-                            $table_rows.show();
-                            $table_rows_filtered = $table_rows;
-                        } else {
-                            $table_rows.show()
-                                       .not($table_rows_filtered)
-                                       .hide();
-                        }
-                    }
+        var visualSearch = VS.init({
+          container: $('#search-query'),
+          query: '',
+          autosearch: true,
+          showFacets: true,
+          remainder: 'search',
+          callbacks: {
+            facetMatches: function(callback) {
+              callback(facets);
+            },
+            valueMatches: function(facet, searchTerm, callback) {
+              callback(facet_values[facet]);
+            },
+            search: function(query, searchCollection) {
+              var collection_facets = searchCollection.facets();
+              for (var i = 0, l = collection_facets.length; i < l; i++) {
+                var collection_facet = collection_facets[i];
+                for (var facet in collection_facet) {
+                  if (collection_facet.hasOwnProperty(facet)) {
+                    $table_rows_filtered = $table_rows_filtered.filter(':contains("' + collection_facet[facet] + '")');
+                    query_facets[facet] = collection_facet[facet];
+                  }
                 }
-            });
+              }
+              // Show only faceted results.
+              $table_rows.not($table_rows_filtered).hide();
 
-            var update_pagination_info = function(content) {
-                document.querySelector('.pagination').innerHTML = content;
-            };
+              // Update pagination info.
+              var $pag_info = $('.pagination-info');
+              pagination_content = $pag_info.parent().html();
+              var info_list = $pag_info.text().trim().split(' ');
+              var results_count = $table_rows.filter(':visible').length;
+              info_list[1] = results_count;
+              $pag_info.text(info_list.join(' '));
 
-            // Show search results as table rows.
-            var add_search_results = function(nodes) {
-                var i, j, l1, l2;
-
-                var tbody = document.querySelector('#content_table tbody');
-                tbody.innerHTML = '';
-                var pagination = document.querySelector('.pagination');
-                pagination.classList.add('hidden');
-
-                if (nodes.length === 0) {
-                    tbody.innerHTML =
-                        '<tr>' +
-                            '<td colspan="4" style="padding-top: 10px; text-align: center;">' +
-                                '{% trans "Your search did not return any results" %}' +
-                            '</td>' +
-                        '</tr>';
-                    return;
-                }
-
-                var properties = facets;
-
-                var tr_elements = document.createDocumentFragment();
-
-                for (i = 0, l1 = nodes.length; i < l1; i++) {
-                    var tr_node = document.createElement('tr');
-                    var tr_rel = document.createElement('tr');
-
-                    if (i % 2 === 0) {
-                        tr_node.className = 'row-even';
-                        tr_rel.className = 'row-even';
-                    } else {
-                        tr_node.className = 'row-odd';
-                        tr_rel.className = 'row-odd';
-                    }
-
-                    var td_dataList = document.createElement('td');
-                    td_dataList.className = 'dataList';
-
-                    var link_toggle = document.createElement('a');
-                    link_toggle.href = 'javascript:void(0)';
-                    link_toggle.dataset.node = nodes[i].id;
-                    link_toggle.className = 'rels';
-                    link_toggle.title = '{% trans "Toggle relationships" %}';
-                    link_toggle.innerHTML = '&nbsp';
-
-                    td_dataList.appendChild(link_toggle);
-
-                    var link_edit = document.createElement('a');
-                    var link_edit_url = '{% url nodes_edit graph.slug 0 %}';
-                    link_edit.href = link_edit_url.replace('/0/', '/' + nodes[i].id + '/');
-                    link_edit.className = 'edit';
-                    link_edit.title = '{% trans "Edit node" %}';
-                    link_edit.innerHTML = '&nbsp';
-
-                    td_dataList.appendChild(link_edit);
-                    tr_node.appendChild(td_dataList);
-                    tr_elements.appendChild(tr_node);
-
-                    var node_properties = nodes[i].properties;
-                    for (j = 0, l2 = properties.length; j < l2; j++) {
-                        var prop = properties[j];
-                        var td_prop = document.createElement('td');
-
-                        if (node_properties.hasOwnProperty(prop)) {
-                            if (node_properties[prop] === '') {
-                                var span_empty = document.createElement('span');
-                                span_empty.className = 'helptext';
-                                span_empty.innerText = '(Empty)';
-
-                                td_prop.appendChild(span_empty);
-                            } else if (node_properties[prop] === 'True' || node_properties[prop] === 'False') {
-                                td_prop.appendChild(document.createTextNode(node_properties[prop]));
-                            } else {
-                                var link_prop = document.createElement('a');
-                                var link_prop_url = '{% url nodes_view graph.slug 0 %}';
-                                link_prop.href = link_prop_url.replace('/0/', '/' + nodes[i].id + '/');
-                                link_prop.title = '{% trans "View node" %}';
-                                link_prop.innerText = node_properties[prop];
-
-                                td_prop.appendChild(link_prop);
-                            }
-                        } else {
-                            var span_empty = document.createElement('span');
-                            span_empty.className = 'helptext';
-                            span_empty.innerText = '(Empty)';
-
-                            td_prop.appendChild(span_empty);
-                        }
-
-                        tr_node.appendChild(td_prop);
-                    }
-
-                    var td_rel = document.createElement('td');
-                    td_rel.colSpan = properties.length + 1;
-                    td_rel.id = 'td' + nodes[i].id;
-                    td_rel.className = 'hidden retrieve-relationships';
-                    td_rel.dataset.node = nodes[i].id;
-                    td_rel.dataset.display = nodes[i].display;
-                    var rel_url = '{% url node_relationships graph.slug 0 %}';
-                    td_rel.dataset.nodeRels= rel_url.replace('/0/', '/' + nodes[i].id + '/');
-
-                    var span_loading = document.createElement('span');
-                    span_loading.className = 'helptext';
-                    span_loading.innerText = '{% trans "Loading" %}...';
-
-                    td_rel.appendChild(span_loading);
-                    tr_rel.appendChild(td_rel);
-                    tr_elements.appendChild(tr_rel);
-                }
-
-                tbody.appendChild(tr_elements);
-
-                pagination.innerHTML = '<span class="pagination-info">' +
-                                           '{% trans "Showing" %}' + ' ' + nodes.length + ' ' + '{% trans "results" %}' +
-                                       '</span>';
-                pagination.classList.remove('hidden');
-            };
-
-            // Bind events to data toggle controls to start the fetching of relationships.
-            $('#content_table').on('click', '.rels', function() {
-                var $this = $(this);
-                var nodeId = $this.data("node");
-                $("#td" + nodeId).toggle(0, function () {
-                    var element = $(this);
-                    element.parent().show();
-                    var url = element.data("node-rels");
-                    var display = element.data("display");
-                    // Fetch elements that are not already loaded and are visible
-                    if (!element.hasClass('is-loaded')) {
-                        element.addClass('is-loaded');
-                        retrieveRelationships(element, url, nodeId, display);
-                    }
-                });
-            });
-
-            var retrieveRelationships = function(element, url, elementId, elemendDisplay) {
+              // In other case, run a full search.
+              if (!$table_rows.is(':visible')) {
+                searching = true;
+                var node_type_id = {{ node_type.id }};
+                var data_query = {};
+                data_query[node_type_id] = JSON.stringify(query_facets);
                 $.ajax({
-                    url: url,
-                    success: function(data){
-                        var label, html;
-                        var relationships = JSON.parse(data);
-                        var divs = [];
-                        $.each(relationships, function(direction, rels) {
-                            html = $('<div>');
-                            html.addClass('indent');
-                            html.addClass('relationships-box');
-                            if (rels != false){
-                                html.append($('<span>').text(''));
-                            }
-                            $.each(rels, function(index, item){
-                                if (direction == "outgoing") {
-                                  label = '<span class="symbol-medium">→</span> '+ elemendDisplay  +' <span class="bold">'+ item.label +'</span> '+ item.node_display;
-                                } else {
-                                  label = ' <span class="symbol-medium">←</span> '+ item.node_display +' <span class="bold">'+ item.label +'</span> '+ elemendDisplay;
-                                }
-                                html.append($('<span>')
-                                      .append(label))
-                                        .append(' <br/> ');
-                            });
-                            divs.push(html);
-                        });
-                        element.html(divs);
-                    },
-                    error: function(error){
-                        console.log("ERROR: ", error);
-                    }
+                  url: "{% url nodes_lookup_full graph.slug %}",
+                  data: data_query,
+                  success: add_search_results
                 });
-            };
+              }
+            },
+            clearSearch: function(actualClearSearch) {
+              if (!searching) {
+                update_pagination_info(pagination_content);
+              }
+              actualClearSearch();
+              $table_rows.show();
+              $table_rows_filtered = $table_rows;
+            },
+            removedFacet: function (facet, query, options) {
+              if (!searching) {
+                update_pagination_info(pagination_content);
+              }
+              delete query_facets[facet.attributes.category];
+              $table_rows_filtered = $table_rows;
+              var is_empty = true;
+              for (var prop in query_facets) {
+                if (query_facets.hasOwnProperty(prop)) {
+                  is_empty = false;
+                  $table_rows_filtered = $table_rows_filtered.filter(':contains("' + query_facets[prop] + '")');
+                }
+              }
+              if (is_empty) {
+                $table_rows.show();
+                $table_rows_filtered = $table_rows;
+              } else {
+                $table_rows.show()
+                           .not($table_rows_filtered)
+                           .hide();
+              }
+            }
+          }
         });
+
+        var update_pagination_info = function(content) {
+          document.querySelector('.pagination').innerHTML = content;
+        };
+
+        // Show search results as table rows.
+        var add_search_results = function(nodes) {
+          var i, j, l1, l2;
+
+          var tbody = document.querySelector('#content_table tbody');
+          tbody.innerHTML = '';
+          var pagination = document.querySelector('.pagination');
+          pagination.classList.add('hidden');
+
+          if (nodes.length === 0) {
+            tbody.innerHTML =
+              '<tr>' +
+                '<td colspan="4" style="padding-top: 10px; text-align: center;">' +
+                  '{% trans "Your search did not return any results" %}' +
+                '</td>' +
+              '</tr>';
+            return;
+          }
+
+          var properties = facets;
+
+          var tr_elements = document.createDocumentFragment();
+
+          for (i = 0, l1 = nodes.length; i < l1; i++) {
+            var tr_node = document.createElement('tr');
+            var tr_rel = document.createElement('tr');
+
+            if (i % 2 === 0) {
+              tr_node.className = 'row-even';
+              tr_rel.className = 'row-even';
+            } else {
+              tr_node.className = 'row-odd';
+              tr_rel.className = 'row-odd';
+            }
+
+            var td_dataList = document.createElement('td');
+            td_dataList.className = 'dataList';
+
+            var link_toggle = document.createElement('a');
+            link_toggle.href = 'javascript:void(0)';
+            link_toggle.dataset.node = nodes[i].id;
+            link_toggle.className = 'rels';
+            link_toggle.title = '{% trans "Toggle relationships" %}';
+            link_toggle.innerHTML = '&nbsp';
+
+            td_dataList.appendChild(link_toggle);
+
+            var link_edit = document.createElement('a');
+            var link_edit_url = '{% url nodes_edit graph.slug 0 %}';
+            link_edit.href = link_edit_url.replace('/0/', '/' + nodes[i].id + '/');
+            link_edit.className = 'edit';
+            link_edit.title = '{% trans "Edit node" %}';
+            link_edit.innerHTML = '&nbsp';
+
+            td_dataList.appendChild(link_edit);
+            tr_node.appendChild(td_dataList);
+            tr_elements.appendChild(tr_node);
+
+            var node_properties = nodes[i].properties;
+            for (j = 0, l2 = properties.length; j < l2; j++) {
+              var prop = properties[j];
+              var td_prop = document.createElement('td');
+
+              if (node_properties.hasOwnProperty(prop)) {
+                if (node_properties[prop] === '') {
+                  var span_empty = document.createElement('span');
+                  span_empty.className = 'helptext';
+                  span_empty.innerText = '(Empty)';
+
+                  td_prop.appendChild(span_empty);
+                } else if (node_properties[prop] === 'True' || node_properties[prop] === 'False') {
+                  td_prop.appendChild(document.createTextNode(node_properties[prop]));
+                } else {
+                  var link_prop = document.createElement('a');
+                  var link_prop_url = '{% url nodes_view graph.slug 0 %}';
+                  link_prop.href = link_prop_url.replace('/0/', '/' + nodes[i].id + '/');
+                  link_prop.title = '{% trans "View node" %}';
+                  link_prop.innerText = node_properties[prop];
+
+                  td_prop.appendChild(link_prop);
+                }
+              } else {
+                var span_empty = document.createElement('span');
+                span_empty.className = 'helptext';
+                span_empty.innerText = '(Empty)';
+
+                td_prop.appendChild(span_empty);
+              }
+
+              tr_node.appendChild(td_prop);
+            }
+
+            var td_rel = document.createElement('td');
+            td_rel.colSpan = properties.length + 1;
+            td_rel.id = 'td' + nodes[i].id;
+            td_rel.className = 'hidden retrieve-relationships';
+            td_rel.dataset.node = nodes[i].id;
+            td_rel.dataset.display = nodes[i].display;
+            var rel_url = '{% url node_relationships graph.slug 0 %}';
+            td_rel.dataset.nodeRels= rel_url.replace('/0/', '/' + nodes[i].id + '/');
+
+            var span_loading = document.createElement('span');
+            span_loading.className = 'helptext';
+            span_loading.innerText = '{% trans "Loading" %}...';
+
+            td_rel.appendChild(span_loading);
+            tr_rel.appendChild(td_rel);
+            tr_elements.appendChild(tr_rel);
+          }
+
+          tbody.appendChild(tr_elements);
+
+          pagination.innerHTML = '<span class="pagination-info">' +
+                                 '{% trans "Showing" %}' + ' ' + nodes.length + ' ' + '{% trans "results" %}' +
+                                 '</span>';
+          pagination.classList.remove('hidden');
+        };
+
+        // Bind events to data toggle controls to start the fetching of relationships.
+        $('#content_table').on('click', '.rels', function() {
+          var $this = $(this);
+          var nodeId = $this.data("node");
+          $("#td" + nodeId).toggle(0, function () {
+            var element = $(this);
+            element.parent().show();
+            var url = element.data("node-rels");
+            var display = element.data("display");
+            // Fetch elements that are not already loaded and are visible
+            if (!element.hasClass('is-loaded')) {
+              element.addClass('is-loaded');
+              retrieveRelationships(element, url, nodeId, display);
+            }
+          });
+        });
+
+        var retrieveRelationships = function(element, url, elementId, elemendDisplay) {
+          $.ajax({
+            url: url,
+            success: function(data){
+              var label, html;
+              var relationships = JSON.parse(data);
+              var divs = [];
+              $.each(relationships, function(direction, rels) {
+                html = $('<div>');
+                html.addClass('indent');
+                html.addClass('relationships-box');
+                if (rels != false){
+                  html.append($('<span>').text(''));
+                }
+                $.each(rels, function(index, item){
+                  if (direction == "outgoing") {
+                    label = '<span class="symbol-medium">→</span> '+ elemendDisplay  +' <span class="bold">'+ item.label +'</span> '+ item.node_display;
+                  } else {
+                    label = ' <span class="symbol-medium">←</span> '+ item.node_display +' <span class="bold">'+ item.label +'</span> '+ elemendDisplay;
+                  }
+                  html.append($('<span>')
+                    .append(label))
+                    .append(' <br/> ');
+                });
+                divs.push(html);
+              });
+              element.html(divs);
+            },
+            error: function(error){
+              console.log("ERROR: ", error);
+            }
+          });
+        };
+      });
     }(jQuery));
-</script>
+  </script>
 {% endblock %}
 
 {% block menu_buttons %}
-{% toolbar on="nodes" %}
+  {% toolbar on="nodes" %}
 {% endblock %}
 
 {% block content_title %}
-{% breadcrumb graph graph.data node_type %}
+  {% breadcrumb graph graph.data node_type %}
 {% endblock %}
 
 {% block content %}
-<div id="content2">
+  <div id="content2">
     {% if nodes %}
-        <div id="search-query" class="visual-search"></div>
-        <table id="content_table" class="content-table text-left">
-            <thead>
-            <tr>
-                <th>{% trans "#" %}</th>
-                {% for prop in properties %}
-                    <th>{{ prop.key }}</th>
-                {% endfor %}
-            </tr>
-            </thead>
-            <tbody>
-            {% for node in nodes %}
-                <tr class="{% cycle 'row-even' 'row-odd' %}">
-                    <td class="dataList">
-                        <a href="javascript:void(0)" data-node="{{ node.id }}" class="rels" alt="{% trans "Toggle relationships" %}" title="{% trans "Toggle relationships" %}">&nbsp;</a>
-                        <a href="{% url nodes_edit graph.slug node.id %}" class="edit" alt="{% trans "Edit node" %}" title="{% trans "Edit node" %}"><!-- {{ node.id }}  -->&nbsp;</a>
-                    </td>
-                    {% for prop in properties %}
-                        {% if prop.display %}
-                        <td><a href="{% url nodes_view graph.slug node.id %}" title="{% trans "View node" %}">{{ node|get:prop.key|default:none_label }}</a></td>
-                        {% else %}
-                        <td>{{ node|get:prop.key|default:none_label }}</td>
-                        {% endif %}
-                    {% endfor %}
-                </tr>
-                <tr class="{% cycle 'row-even' 'row-odd' %}">
-                    <td colspan="{{ properties_count }}" id="td{{ node.id }}" class="hidden retrieve-relationships" data-node="{{ node.id }}" data-display="{{ node.display }}" data-node-rels="{% url node_relationships graph.slug node.id %}">
-                        <span class="helptext">{% trans "Loading" %}...</span>
-                    </td>
-                </tr>
+      <div id="search-query" class="visual-search"></div>
+      <table id="content_table" class="content-table text-left">
+        <thead>
+          <tr>
+            <th>{% trans "#" %}</th>
+            {% for prop in properties %}
+              <th>{{ prop.key }}</th>
             {% endfor %}
-            </tbody>
-        </table>
+          </tr>
+        </thead>
+        <tbody>
+          {% for node in nodes %}
+            <tr class="{% cycle 'row-even' 'row-odd' %}">
+              <td class="dataList">
+                <a href="javascript:void(0)" data-node="{{ node.id }}" class="rels" alt="{% trans "Toggle relationships" %}" title="{% trans "Toggle relationships" %}">&nbsp;</a>
+                <a href="{% url nodes_edit graph.slug node.id %}" class="edit" alt="{% trans "Edit node" %}" title="{% trans "Edit node" %}"><!-- {{ node.id }}  -->&nbsp;</a>
+              </td>
+              {% for prop in properties %}
+                {% if prop.display %}
+                <td><a href="{% url nodes_view graph.slug node.id %}" title="{% trans "View node" %}">{{ node|get:prop.key|default:none_label }}</a></td>
+                {% else %}
+                <td>{{ node|get:prop.key|default:none_label }}</td>
+                {% endif %}
+              {% endfor %}
+            </tr>
+            <tr class="{% cycle 'row-even' 'row-odd' %}">
+              <td colspan="{{ properties_count }}" id="td{{ node.id }}" class="hidden retrieve-relationships" data-node="{{ node.id }}" data-display="{{ node.display }}" data-node-rels="{% url node_relationships graph.slug node.id %}">
+                <span class="helptext">{% trans "Loading" %}...</span>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
     {% else %}
-        <span>{% trans "There are no types defined yet" %}.</span>
-        <br>
-        <br>
-        <a class="button" href="{% url schema_nodetype_create graph.slug %}">{% trans "New Type" %}</a>
-        <br>
-        <br>
+      <p>{% trans "There are no types defined yet." %}</p>
+      <a class="button" href="{% url schema_nodetype_create graph.slug %}">{% trans "New Type" %}</a>
     {% endif %}
     {% if graph.data.total_nodes == 0 and graph.data.total_relationships == 0 and graph.relaxed %}
-        <a class="button" href="{% url tool_import graph.slug %}">{% trans "Import" %}</a>
-        <span class="buttonLinkOption">
-            {% trans "Import a graph in GEXF format, or nodes and relationships in CSV format" %}.
-        </span>
+      <a class="button" href="{% url tool_import graph.slug %}">{% trans "Import" %}</a>
+      <span class="buttonLinkOption">
+        {% trans "Import a graph in GEXF format, or nodes and relationships in CSV format." %}
+      </span>
     {% else %}
-    <div class="pagination">
+      <div class="pagination">
         {% if nodes.paginator.per_page < nodes.paginator.count %}
-            <span class='pagination-info'>
-                {% blocktrans with per_page=nodes.paginator.per_page count=nodes.paginator.count name=node_type.name %}
-                    Showing {{ per_page }} of {{ count }} {{ name }}.
-                {% endblocktrans %}
-            </span>
-            <span class="step-links">
-                {% if nodes.has_previous %}
-                    <a href="?page={{ nodes.previous_page_number }}"><span class="symbol-medium">←</span></a>
-                {% endif %}
+          <span class='pagination-info'>
+            {% blocktrans with per_page=nodes.paginator.per_page count=nodes.paginator.count name=node_type.name %}
+              Showing {{ per_page }} of {{ count }} {{ name }}.
+            {% endblocktrans %}
+          </span>
+          <span class="step-links">
+            {% if nodes.has_previous %}
+              <a href="?page={{ nodes.previous_page_number }}"><span class="symbol-medium">←</span></a>
+            {% endif %}
 
-                <span class="current">
-                    {% blocktrans with number=nodes.number num_pages=nodes.paginator.num_pages %}
-                        Page {{ number }} of {{ num_pages }}.
-                    {% endblocktrans %}
-                </span>
-
-                {% if nodes.has_next %}
-                    <a href="?page={{ nodes.next_page_number }}"><span class="symbol-medium">→</span></a>
-                {% endif %}
+            <span class="current">
+              {% blocktrans with number=nodes.number num_pages=nodes.paginator.num_pages %}
+                Page {{ number }} of {{ num_pages }}.
+              {% endblocktrans %}
             </span>
+
+            {% if nodes.has_next %}
+              <a href="?page={{ nodes.next_page_number }}"><span class="symbol-medium">→</span></a>
+            {% endif %}
+          </span>
         {% elif nodes %}
-            <span class="pagination-info">
-                {% blocktrans with count=nodes.paginator.count name=node_type.name %}
-                    Showing {{ count }} elements {{ name }}.
-                {% endblocktrans %}
-            </span>
+          <span class="pagination-info">
+            {% blocktrans with count=nodes.paginator.count name=node_type.name %}
+              Showing {{ count }} elements {{ name }}.
+            {% endblocktrans %}
+          </span>
         {% endif %}
-    </div>
+      </div>
     {% endif %}
-</div>
+  </div>
 {% endblock %}

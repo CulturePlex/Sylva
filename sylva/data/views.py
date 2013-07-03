@@ -573,7 +573,7 @@ def relationships_list(request, graph_slug):
                              type_element.id])
     return render_to_response('relationships_list.html',
                               {"graph": graph,
-                                  "option_list": data_preview},
+                               "option_list": data_preview},
                               context_instance=RequestContext(request))
 
 

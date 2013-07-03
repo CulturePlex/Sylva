@@ -2,46 +2,49 @@
 {% load i18n graphs %}
 
 {% block content_title %}
-{% breadcrumb graph graph.data %}
-<!--<h2>{% trans "Graphs" %} » {{ graph.name|truncatewords_html:5 }} » {% trans "Relationships" %}</h2>-->
+  {% breadcrumb graph graph.data %}
+  <!--<h2>{% trans "Graphs" %} » {{ graph.name|truncatewords_html:5 }} » {% trans "Relationships" %}</h2>-->
 {% endblock %}
 
 {% block menu_buttons %}
-{% toolbar on="relationships" %}
+  {% toolbar on="relationships" %}
 {% endblock %}
 
 {% block content_bottom_bar %}
-    {% if option.3 %}
-        <span class="buttonLinkOption buttonLinkLeft">
-            <a class="button addButton">
-                {% blocktrans with relationship_type=option.0 %}
-                    Add {{ relationship_type }}
-                {% endblocktrans %}
-            </a>
-        </span>
-        <span class="buttonLinkOption buttonLinkRight">
-            <a href="javascript:;" onclick="divId='lc_'+{{forloop.counter}};if(document.getElementById(divId).style.display == 'none'){ document.getElementById(divId).style.display = 'block'; }else{ document.getElementById(divId).style.display = 'none'; }">
-            {% trans "Preview" %}
-            </a>
-            {% trans "or" %}
-            <a href="{% url relationships_list_full graph.slug option.3 %}">
-                {% blocktrans with relationship_type=option.0 %}
-                    Show all
-                {% endblocktrans %}
-            </a>
-        </span>
-    {% endif %}
+  {% if option.3 %}
+    <span class="buttonLinkOption buttonLinkLeft">
+      <a class="button addButton">
+        {% blocktrans with relationship_type=option.0 %}
+          Add {{ relationship_type }}
+        {% endblocktrans %}
+      </a>
+    </span>
+    <span class="buttonLinkOption buttonLinkRight">
+      <a href="javascript:;" onclick="divId='lc_'+{{forloop.counter}};if(document.getElementById(divId).style.display == 'none'){ document.getElementById(divId).style.display = 'block'; }else{ document.getElementById(divId).style.display = 'none'; }">
+      {% trans "Preview" %}
+      </a>
+      {% trans "or" %}
+      <a href="{% url relationships_list_full graph.slug option.3 %}">
+        {% blocktrans with relationship_type=option.0 %}
+          Show all
+        {% endblocktrans %}
+      </a>
+    </span>
+  {% endif %}
 {% endblock %}
 
 {% block empty_for %}
-    <div>
-        {% trans "There are no types or no allowed relationships defined yet" %}.
-        <br><br>
-        <span class="buttonLinkOption buttonLinkLeft">
-            <a class="button" href="{% url schema_nodetype_create graph.slug %}">{% trans "New Type" %}</a>
-        </span>
-        <span class="buttonLinkOption buttonLinkRight">
-            {% trans "or" %} <a href="{% url schema_relationshiptype_create graph.slug %}">{% trans "Allowed Relationship" %}</a>
-        </span>
-    </div>
+  <div>
+    <p style="margin-bottom: 10px;">{% trans "There are no types or no allowed relationships defined yet." %}</p>
+    <span class="buttonLinkOption">
+      <a id="schemaNewType" class="button" href="{% url schema_nodetype_create graph.slug %}">
+        {% trans "New Type" %}
+      </a>
+    </span>
+    <span class="buttonLinkOption">
+      <a id="allowedRelations" class="button" href="{% url schema_relationshiptype_create graph.slug %}">
+        {% trans "New allowed Relationship" %}
+      </a>
+    </span>
+  </div>
 {% endblock %}

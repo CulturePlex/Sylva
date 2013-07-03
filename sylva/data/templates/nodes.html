@@ -2,48 +2,48 @@
 {% load i18n graphs graph_filters %}
 
 {% block navigation_buttons %}
-{{ block.super }}
+  {{ block.super }}
 {% endblock %}
 
 {% block title %}
-{{ graph.name }}
+  {{ graph.name }}
 {% endblock %}
 
 {% block menu_buttons %}
-{% toolbar on="nodes" %}
+  {% toolbar on="nodes" %}
 {% endblock %}
 
 {% block content_title %}
-{% breadcrumb graph graph.data %}
+  {% breadcrumb graph graph.data %}
 {% endblock %}
 
 {% block content %}
-<div id="content2">
+  <div id="content2">
     {% for type in types %}
-        <h2 >{{ type.name }}</h2>
-        <div class="indent">
-            <div>
-                {% blocktrans with type.count as count %}
-                    Nodes: {{ count }}
-                {% endblocktrans %}
-            </div>
-            <div>
-                {% blocktrans with type.properties.count as properties_count %}
-                    Properties: {{ properties_count }}
-                {% endblocktrans %}
-            </div>
-            <a class="button" href="{% url nodes_create graph.slug type.id %}">
-                {% blocktrans with type.name as name %}
-                    New {{ name }}
-                {% endblocktrans %}</a>
-            </a>
-            {% trans "or" %}
-            <a class="bold" href="{% url nodes_list_full graph.slug type.id %}">
-                {% blocktrans %}
-                    View list
-                {% endblocktrans %}</a>
-            </span>
+      <h2 >{{ type.name }}</h2>
+      <div class="indent">
+        <div>
+          {% blocktrans with type.count as count %}
+            Nodes: {{ count }}
+          {% endblocktrans %}
         </div>
+        <div>
+          {% blocktrans with type.properties.count as properties_count %}
+            Properties: {{ properties_count }}
+          {% endblocktrans %}
+        </div>
+        <a class="button" href="{% url nodes_create graph.slug type.id %}">
+          {% blocktrans with type.name as name %}
+            New {{ name }}
+          {% endblocktrans %}</a>
+        </a>
+        {% trans "or" %}
+        <a class="bold" href="{% url nodes_list_full graph.slug type.id %}">
+          {% blocktrans %}
+            View list
+          {% endblocktrans %}</a>
+        </span>
+      </div>
     {% endfor %}
-</div>
+  </div>
 {% endblock %}

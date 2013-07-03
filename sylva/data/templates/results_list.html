@@ -2,98 +2,100 @@
 {% load i18n graphs %}
 
 {% block navigation_buttons %}
-{{ block.super }}
+  {{ block.super }}
 {% endblock %}
 
 {% block title %}
-{{ graph.name }}
+  {{ graph.name }}
 {% endblock %}
 
 {% block extra_scripts %}
-{{ block.super }}
-<script type="text/javascript">
-    var toggleColumn = function(selectId){
-        var value = $('#'+selectId).val();
-        var columnClass = selectId.replace('toggle_', '') + '_' + value;
-        $('.'+columnClass).toggle();
-        $('#'+selectId).val(0);
-    }
-</script>
+  {{ block.super }}
+  <script type="text/javascript">
+    var toggleColumn = function(selectId) {
+      var value = $('#' + selectId).val();
+      var columnClass = selectId.replace('toggle_', '') + '_' + value;
+      $('.' + columnClass).toggle();
+      $('#' + selectId).val(0);
+    };
+  </script>
 {% endblock %}
 
 {% block menu_buttons %}
-{% toolbar on="nodes" %}
+  {% toolbar on="nodes" %}
 {% endblock %}
 
 {% block content_title %}
-<h2>{% trans "Graphs" %} » {{ graph.name|truncatewords_html:5 }} » {% trans "Results" %}</h2>
+  <h2>{% trans "Graphs" %} » {{ graph.name|truncatewords_html:5 }} » {% trans "Results" %}</h2>
 {% endblock %}
 
 {% block content %}
-{% for option in option_list %}
+  {% for option in option_list %}
     <h2 >{{ option.0 }}</h2>
-        {% if option.3 %}
-            <div id="lc_{{ forloop.counter }}" class="list_content" style="display:none">
-        {% else %}
-            <div id="lc_{{ forloop.counter }}" class="list_content">
-        {% endif %}
-            <table id="content_table" class="content-table text-center">
-                <tr>
-                    <th>
-                        <select id="toggle_{{ option.0|slugify }}" onChange="toggleColumn('toggle_{{ option.0|slugify }}')">
-                            <option disabled="disabled" value="0">{% trans "Toggle column" %}:</option>
-                            {% for key in option.1 %}
-                                <option value="{{ forloop.counter }}">{{ key }}</option>
-                            {% endfor %}
-                        </select>
-                    </th>
-                    {% for key in option.1 %}
-                    <th class="{{ option.0|slugify }}_{{ forloop.counter }}">{{ key }}</th>
-                    {% endfor %}
-                    <th>
-                        {% block last_row_element_title %}
-                        {% endblock %}
-                    </th>
-                </tr>
-                {% for row in option.2 %}
-                    <tr>
-                        <td>
-                            <a href="{% url nodes_edit graph.slug row|last %}">
-                            {{ forloop.counter }}
-                            </a>
-                        </td>
-                        {% for cell in row %}
-                            {% if forloop.last %}
-                            <td>
-                                {% block last_row_element %}{% endblock %}
-                            </td>
-                            {% else %}
-                            <td class="{{ option.0|slugify }}_{{ forloop.counter }}">
-                            <a id="rel_edit_{{ cell }}" href="{% url nodes_edit graph.slug row|last %}">
-                            {{ cell }}
-                            </a>
-                            </td>
-                            {% endif %}
-                        {% endfor %}
-                    </tr>
-                {% endfor %}
-            </table>
-        </div>
-        <div id="list_bottombar">
-            {% block content_bottom_bar %}{% endblock %}
-        </div>
-{% empty %}
-    {% block empty_for %}
-        <a class="button" href="{% url schema_nodetype_create graph.slug %}">{% trans "New Type" %}</a>
-        <span class="buttonLinkOption">
-        {% trans "There are no types defined yet" %}.
-        </span>
-    {% endblock %}
-{% endfor %}
-    {% if graph.data.total_nodes == 0 and graph.data.total_relationships == 0 and option_list or graph.relaxed %}
-        <a class="button" href="{% url tool_import graph.slug %}">{% trans "Import" %}</a>
-        <span class="buttonLinkOption">
-            {% trans "Import a graph in GEXF format, or nodes and relationships in CSV format" %}.
-        </span>
+    {% if option.3 %}
+      <div id="lc_{{ forloop.counter }}" class="list_content" style="display:none;">
+    {% else %}
+      <div id="lc_{{ forloop.counter }}" class="list_content">
     {% endif %}
+        <table id="content_table" class="content-table text-center">
+          <tr>
+            <th>
+              <select id="toggle_{{ option.0|slugify }}" onChange="toggleColumn('toggle_{{ option.0|slugify }}')">
+                <option disabled="disabled" value="0">{% trans "Toggle column" %}:</option>
+                {% for key in option.1 %}
+                  <option value="{{ forloop.counter }}">{{ key }}</option>
+                {% endfor %}
+              </select>
+            </th>
+            {% for key in option.1 %}
+              <th class="{{ option.0|slugify }}_{{ forloop.counter }}">{{ key }}</th>
+            {% endfor %}
+            <th>
+              {% block last_row_element_title %}
+              {% endblock %}
+            </th>
+          </tr>
+          {% for row in option.2 %}
+            <tr>
+              <td>
+                <a href="{% url nodes_edit graph.slug row|last %}">
+                  {{ forloop.counter }}
+                </a>
+              </td>
+              {% for cell in row %}
+                {% if forloop.last %}
+                  <td>
+                    {% block last_row_element %}{% endblock %}
+                  </td>
+                {% else %}
+                  <td class="{{ option.0|slugify }}_{{ forloop.counter }}">
+                    <a id="rel_edit_{{ cell }}" href="{% url nodes_edit graph.slug row|last %}">
+                      {{ cell }}
+                    </a>
+                  </td>
+                {% endif %}
+              {% endfor %}
+            </tr>
+          {% endfor %}
+        </table>
+      </div>
+      <div id="list_bottombar">
+        {% block content_bottom_bar %}{% endblock %}
+      </div>
+  {% empty %}
+    {% block empty_for %}
+      <a class="button" href="{% url schema_nodetype_create graph.slug %}">{% trans "New Type" %}</a>
+      <span class="buttonLinkOption">
+      {% trans "There are no types defined yet." %}
+      </span>
+    {% endblock %}
+  {% endfor %}
+  {% if graph.data.total_nodes == 0 and graph.data.total_relationships == 0 and option_list or graph.relaxed %}
+    <a class="button" href="{% url tool_import graph.slug %}">
+      {% trans "Import" %}
+    </a>
+    <span class="buttonLinkOption">
+      {% trans "Import a graph in GEXF format, or nodes and relationships in CSV format." %}
+    </span>
+  {% endif %}
 {% endblock %}
