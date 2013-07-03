@@ -55,7 +55,7 @@
         {% if graph.schema.is_empty %}
             <tr>
                 <td class="dataActions">
-                    <a class="dataOption list" href="{% url schema_import graph.slug %}" title="{% trans "Import graph schema from a JSON file" %}">
+                    <a class="dataOption list" href="{% url schema_import graph.slug %}" title="{% trans "Load graph schema from a JSON file" %}">
                         {% trans "Import schema" %}
                     </a>
                 </td>
@@ -64,7 +64,7 @@
         {% if not graph.schema.is_empty %}
             <tr>
                 <td class="dataActions">
-                    <a class="dataOption list" href="{% url schema_export graph.slug %}" title="{% trans "Export graph schema as a JSON file" %}">
+                    <a class="dataOption list" href="{% url schema_export graph.slug %}" title="{% trans "Save graph schema as a JSON file" %}">
                         {% trans "Export schema" %}
                     </a>
                 </td>
@@ -73,14 +73,14 @@
         {% if not graph.schema.is_empty and graph.is_empty %}
             <tr>
                 <td class="dataActions">
-                    <a class="dataOption list" href="{% url graph_export_csv graph.slug %}" title="{% trans "Export a CSV template for graph data importing" %}">
-                        {% trans "Export CSV template" %}
+                    <a class="dataOption list" href="{% url graph_export_csv graph.slug %}" title="{% trans "Save CSV templates (useful for filling in data from spreadsheets)" %}">
+                        {% trans "Export CSV templates" %}
                     </a>
                 </td>
             </tr>
             <tr>
                 <td class="dataActions">
-                    <a class="dataOption list" href="{% url tool_import graph.slug %}" title="{% trans "Import graph data" %}">
+                    <a class="dataOption list" href="{% url tool_import graph.slug %}" title="{% trans "Load graph data from different sources" %}">
                         {% trans "Import data" %}
                     </a>
                 </td>
@@ -89,14 +89,14 @@
         {% if not graph.is_empty %}
             <tr>
                 <td class="dataActions">
-                    <a class="dataOption list" href="{% url graph_export_gexf graph.slug %}" title="{% trans "Export graph data as GEXF (Gephi)" %}">
+                    <a class="dataOption list" href="{% url graph_export_gexf graph.slug %}" title="{% trans "Save graph data as a GEXF (Gephi) file" %}">
                         {% trans "Export data as GEXF" %}
                     </a>
                 </td>
             </tr>
             <tr>
                 <td class="dataActions">
-                    <a class="dataOption list" href="{% url graph_export_csv graph.slug %}" title="{% trans "Export graph data as CSV" %}">
+                    <a class="dataOption list" href="{% url graph_export_csv graph.slug %}" title="{% trans "Save graph data as CSV files" %}">
                         {% trans "Export data as CSV" %}
                     </a>
                 </td>
