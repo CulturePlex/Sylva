@@ -44,6 +44,15 @@
           {% endblocktrans %}</a>
         </span>
       </div>
+    {% empty %}
+      <div>
+        <p>{% trans "There are no types defined yet." %}</p>
+        <span class="buttonLinkOption">
+          <a id="schemaNewType" class="button" href="{% url schema_nodetype_create graph.slug %}">
+            {% trans "New Type" %}
+          </a>
+        </span>
+      </div>
     {% endfor %}
   </div>
 {% endblock %}
