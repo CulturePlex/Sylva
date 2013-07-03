@@ -153,18 +153,20 @@
     </div> <!-- schema-wrapper -->
 
     <div class="schema-bottom">
-      <a id="schemaNewType" class="button" href="{% url schema_nodetype_create graph.slug %}">{% trans "New Type" %}</a>
       <span class="buttonLinkOption">
-        <a id="allowedRelations" href="{% url schema_relationshiptype_create graph.slug %}">{% trans "Allowed Relationship" %}</a>
-        {% trans "or" %}
-        <a id="schemaExport" href="{% url schema_export graph.slug %}">{% trans "Export" %}</a>.
+        <a id="schemaNewType" class="button" href="{% url schema_nodetype_create graph.slug %}">
+          {% trans "New Type" %}
+        </a>
+      </span>
+      <span class="buttonLinkOption">
+        <a id="allowedRelations" class="button" href="{% url schema_relationshiptype_create graph.slug %}">
+          {% trans "New allowed Relationship" %}
+        </a>
       </span>
     </div>
 
   {% else %}
-    {% trans "There are no types defined yet" %}.
-    <br>
-    <br>
+    <p style="margin-bottom: 10px;">{% trans "There are no types defined yet." %}</p>
     <span class="buttonLinkOption">
       <a id="schemaImport" class="button" href="{% url schema_import graph.slug %}">{% trans "Import Schema" %}</a>
     </span>
@@ -185,13 +187,9 @@
         <h2>{% trans "Allowed Relationship" %}</h2>
         <p>{% trans "Define the kind of relationships that are allowed in your graph." %}</p>
       </li>
-      <li data-id="schemaExport" data-button="{% trans "Next" %}" class="joyride-position-schema-export">
-        <h2>{% trans "Schema export" %}</h2>
-        <p>{% trans "You can export your database schema as a JSON file." %}</p>
-      </li>
       <li data-id="toolsMenu" data-button="{% trans "Next" %}" data-options="tipLocation:left;nubPosition:right" class="joyride-position-schema-tools">
         <h2>{% trans "Tools" %}</h2>
-        <p>{% trans "Also you can export your schema using this menu, as well as export your data or create a copy of your graph." %}</p>
+        <p>{% trans "You can export your schema using this menu, as well as export your data or create a copy of your graph." %}</p>
       </li>
       <li data-id="schemaOverview" data-button="{% trans "Next" %}" data-options="tipLocation:top;nubPosition:bottom" class="joyride-position-schema-overview">
         <h2>{% trans "Schema overview" %}</h2>
