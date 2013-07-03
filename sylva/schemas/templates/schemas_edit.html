@@ -16,7 +16,6 @@
 
 {% block content_title %}
   {% breadcrumb graph graph.schema %}
-  <!--<h2>{% trans "Graphs" %} » {{ graph.name|truncatewords_html:5 }} » {% trans "Schema" %}</h2>-->
 {% endblock %}
 
 {% block content %}
@@ -24,9 +23,6 @@
     <div class="schema-wrapper">
       <div id="schemaOverview" class="content2-first max600">
         {% for node_type in node_types.select_related %}
-          <!--
-          <h3>{{ node_type.name|capfirst }}</h3>
-          -->
           <div>
             <fieldset class="module aligned wide model" id="model_{{ node_type.slug }}">
               {% if node_type.name %}<h2><a href="{% url schema_nodetype_edit graph.slug node_type.id %}">{{ node_type.name|capfirst }}</a></h2>{% endif %}
@@ -35,7 +31,6 @@
                   <div>
                     <label {% if node_property.required %}class="required"{% endif %}>⌂ {{ node_property.key|capfirst }}</label>
                     {% if node_property.datatype != "u" %}[{{ node_property.get_datatype_display }}]{% endif %}
-                    <!-- <p class="help">{{ node_property.default }}</p>-->
                   </div>
                 </div>
               {% endfor %}
@@ -58,7 +53,6 @@
                           <div class="form-row indent">
                             <label class="relProps{% if relationship_property.required %} required{% endif %}">⌂ {{ relationship_property.key|capfirst }}</label>
                             {% if relationship_property.datatype != "u" %}[{{ relationship_property.get_datatype_display }}]{% endif %}
-                            <!-- <p class="help">{{ relationship_property.default }}</p>-->
                           </div>
                         {% endfor %}
                       {% endif %}
@@ -85,7 +79,6 @@
                           <div class="form-row indent">
                             <label class="relProps{% if relationship_property.required %} required{% endif %}">⌂ {{ relationship_property.key|capfirst }}</label>
                             {% if relationship_property.datatype != "u" %}[{{ relationship_property.get_datatype_display }}]{% endif %}
-                            <!-- <p class="help">{{ relationship_property.default }}</p>-->
                           </div>
                         {% endfor %}
                       {% endif %}
