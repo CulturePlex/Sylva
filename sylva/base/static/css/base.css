@@ -832,7 +832,7 @@ p.forgot-password {
     float: right;
     position: relative;
     width: 15px;
-    margin-top: -105px;
+    margin-top: -86px;
 }
 
 #content3 .delete-rowupLinks {
@@ -843,7 +843,7 @@ p.forgot-password {
     float: right;
     position: relative;
     width: 15px;
-    margin-top: -100px;
+    margin-top: -96px;
 }
 
 #content3 .linkDelete,
@@ -854,12 +854,12 @@ p.forgot-password {
 #content3 div.relationships a.delete-rowupProps {
     background: url(../img/recycle-full.png) no-repeat left -2px;
     height: 35px;
-    padding: 10px 0 0 30px;
+    padding: 10px 0 0 45px;
     font-weight: bold;
     float: right;
     position: relative;
     width: 15px;
-    margin-top: -61px;
+    margin-top: -56px;
 }
 
 #content3 div.relationships a.delete-rowup {
