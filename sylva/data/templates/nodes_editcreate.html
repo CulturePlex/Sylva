@@ -27,7 +27,7 @@
   <div id="content3">
     <form action="." method="POST" enctype="multipart/form-data">
       {% csrf_token %}
-      <div class="content{% if outgoing_formsets or incoming_formsets %}3-block{% else %}2-first{% endif %}">
+      <div class="content3-block">
         <h2 id="propertiesTitle">{% trans "Properties" %}</h2>
         {% for field in node_form %}
           <p {% if field.name in fields_to_hide and not field.value %}class="hidden"{% endif %}>
@@ -140,7 +140,7 @@
         </div>
       {% endif %}
       <div class="content-divider"></div>
-      <div class="content{% if outgoing_formsets or incoming_formsets %}3-block{% else %}2-second{% endif %}">
+      <div class="content3-block">
         <h2 id="filesTitle">{% trans "Files" %}</h2>
         {{ mediafile_formset.management_form }}
         {% for mediafile_form in mediafile_formset.forms %}
