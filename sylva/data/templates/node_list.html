@@ -339,8 +339,8 @@
         </tbody>
       </table>
     {% else %}
-      <p>{% trans "There are no types defined yet." %}</p>
-      <a class="button" href="{% url schema_nodetype_create graph.slug %}">{% trans "New Type" %}</a>
+      <p>{% trans "There are no data added to this type yet." %}</p>
+      <a class="button" href="{% url nodes_create graph.slug node_type.id %}">{% trans "Add data" %}</a>
     {% endif %}
     {% if graph.data.total_nodes == 0 and graph.data.total_relationships == 0 and graph.relaxed %}
       <a class="button" href="{% url tool_import graph.slug %}">{% trans "Import" %}</a>
