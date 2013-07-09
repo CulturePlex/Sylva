@@ -95,7 +95,7 @@
 
               <img src="{{ STATIC_PREFIX }}img/docs/get_started/simple_property_graph.png" alt="{% trans "simple property graph" %}">
 
-              <p>{% trans "In this graph there are three nodes representing two kind of entities: the entity <strong>Person</strong> and the entity <strong>Group</strong>. As you can see, each node has a set of properties with information about the entity. Also, there are relationships between all the nodes. And only two relationships have properties. Easy!" %}</p>
+              <p>{% trans "In this graph there are three nodes representing two kind of entities: the entity <strong>Person</strong> and the entity <strong>Group</strong>. As you can see, each node has a set of properties with information about the entity. Also, there are six relationships between the nodes, but only two relationships have properties. Easy!" %}</p>
 
               <p>{% trans "A graph is a flexible and powerful tool for describing relations between elements of any kind. For this reason, graph databases are often faster than traditional databases for associative data sets with highly complex relationships. They can scale more naturally as they do not typically require expensive database operations. Also, they are suitable to manage ad-hoc and changing data as they depend less on a rigid <em>schema</em> to describe relations between elements." %}</p>
 
@@ -152,7 +152,7 @@
                 <a class="headerlink" id="creating-a-schema" href="#creating-a-schema" title="{% trans "Permalink to this headline" %}">¶</a>
               </h3>
 
-              <p>{% trans "A schema is the place where you describe how is organized your data, the structure of your database. In a graph database you use the schema to define <strong>Types</strong>: the kind of data you can store in your nodes. Also, you describe the relationships between the nodes. This is what we call the <em>strict schema</em> of a graph." %}</p>
+              <p>{% trans "A schema is the place where you describe how is organized your data, the structure of your database. In a graph database you use the schema to define <strong>Types</strong>: the kind of data you can store in your nodes. Also, to define the <strong>allowed relationships</strong> between the nodes." %}</p>
 
               <p>{% trans "So, clicking on" %} <img class="inline" src="{{ STATIC_PREFIX }}img/docs/get_started/schema_link.png" alt="{% trans "strict schema" %}"> {% trans "you will see there isn't any Type defined yet. Let's create a new Type." %}</p>
 
@@ -160,27 +160,47 @@
 
               <img class="border" src="{{ STATIC_PREFIX }}img/docs/get_started/schema_new_type.png" alt="{% trans "New Type" %}">
 
-              <p>{% trans "You should see Types as data <em>entities</em>. For example: a book, a person, an album, etc. Here we are defining a Type to represent an <strong>Album</strong> entity." %}</p>
+              <p>{% trans "You should see Types as data <em>entities</em>. For example: a book, a person, an album, etc. Here we are creating a Type to represent an <strong>Album</strong> entity." %}</p>
 
-              <p>{% trans "Then, we define the <strong>properties</strong> of the Type. We need to think what are the most relevant information about a music album. For example, we would store: <em>title</em>, <em>duration</em>, <em>number of tracks</em> and <em>release date</em>. Those are what we call the <strong>keys</strong>." %}</p>
+              <p>{% trans "Then, we define the <strong>properties</strong> of the Type. We need to think what are the most relevant information about a music album. For example, we would store: <em>Title</em>, <em>Duration</em>, <em>Number of tracks</em> and <em>Release date</em>. Those are what we call the <strong>keys</strong>. So, clicking on" %} <img class="inline" src="{{ STATIC_PREFIX }}img/docs/get_started/schema_add_property_link.png" alt="{% trans "add property" %}"> {% trans "we can get something like this:" %}</p>
 
               <img class="border" src="{{ STATIC_PREFIX }}img/docs/get_started/schema_type_properties.png" alt="{% trans "Type properties" %}">
 
-              <p>{% trans "Note that we have marked the property <em>Title</em> as the <strong>label</strong> of this Type. This way, we will use this property to identify each node when we visualize the graph." %}</p>
+              <p>{% trans "Note that we have marked the property <em>Title</em> as the <strong>label</strong> of this Type. This way, we will use this property to identify each node." %}</p>
 
-              <p>{% trans "We finish clicking on" %} <img class="inline" src="{{ STATIC_PREFIX }}img/docs/get_started/schema_save_type.png" alt="{% trans "Save Type" %}">. {% trans "You will see an overview of our schema:" %}</p>
+              <p>{% trans "We finish clicking on" %} <img class="inline" src="{{ STATIC_PREFIX }}img/docs/get_started/schema_save_type.png" alt="{% trans "Save Type" %}">. {% trans "Then you will see an overview of our schema:" %}</p>
 
               <img class="border" src="{{ STATIC_PREFIX }}img/docs/get_started/schema_diagram.png" alt="{% trans "Schema diagram" %}">
 
-              <p>{% trans "Also we want to represent entities like <strong>Artist</strong> and <strong>Concert</strong>, so move to the bottom of the page and click <em>New Type</em>." %}</p>
+              <p>{% trans "Also, we want to create the Type <strong>Artist</strong>, so move to the bottom of the page and click <em>New Type</em>." %}</p>
 
               <img class="border" src="{{ STATIC_PREFIX }}img/docs/get_started/schema_more_types.png" alt="{% trans "More Types" %}">
 
-              <p>{% trans "Now, repeating the steps to create Types for <em>Artist</em> and <em>Concert</em>, we get:" %}</p>
+              <p>{% trans "We will define three properties for the Type <strong>Artist</strong>: <em>Active</em>, <em>Name</em> and <em>Size</em>. Note that <em>Name</em> will be the label." %}</p>
+
+              <img class="border" src="{{ STATIC_PREFIX }}img/docs/get_started/schema_artist_properties.png" alt="{% trans "Artist properties" %}">
+
+              <p>{% trans "By default, properties are defined as <em>strings</em>, but sometimes we'll want to restrict the kind of data we would want to store: a <em>number</em>, a <em>date</em>, a <em>boolean</em>, ... In those cases, we can define the <em>type</em> of a property using the <strong>Advanced Mode</strong> tool. So, clicking on <em>Advanced Mode</em>, you will see a set of fields for each property:" %}</p>
+
+              <img class="border" src="{{ STATIC_PREFIX }}img/docs/get_started/schema_advanced_mode.png" alt="{% trans "Advanced Mode" %}">
+
+              <p>{% trans "We are interested in using just the <strong>Data type</strong> field. So, clicking on that field, you will see a list of property types. Now select the type <em>Boolean</em> for the property <em>Active</em> and <em>Number</em> for the property <em>Size</em>. This way, we are limiting the possible values of the <em>Active</em> property to be just <em>True</em> or <em>False</em> (visualized as a check box), and the possible values of the <em>Size</em> property to be just <em>numbers</em>, avoiding possible errors and mistakes when storing data." %}</p>
+
+              <p>{% trans "We finish clicking on" %} <img class="inline" src="{{ STATIC_PREFIX }}img/docs/get_started/schema_save_type.png" alt="{% trans "Save Type" %}"></p>
+
+              <img class="border" src="{{ STATIC_PREFIX }}img/docs/get_started/schema_album_artist_overview.png" alt="{% trans "Album-Artist schema overview" %}">
+
+              <p>{% trans "Now it's time to fix the Type <strong>Album</strong> updating the types of its properties using the <em>Advanced Mode</em> tool. This time, we want to use the type <em>Date</em> for the property <em>Release Date</em> and the type <em>Number</em> for the property <em>Number of tracks</em>." %}</p>
+
+              <p>{% trans "After clicking on <em>Save Type</em>, you will be asked to choose what to do with the updated properties. Select the first option and click <em>Continue</em>:" %}</p>
+
+              <img class="border" src="{{ STATIC_PREFIX }}img/docs/get_started/schema_type_changed.png" alt="{% trans "Schema type changed" %}" width="90%">
+
+              <p>{% trans "Finally, repeating the steps to create also the Type <strong>Concert</strong>, we get the following schema:" %}</p>
 
               <img class="border" src="{{ STATIC_PREFIX }}img/docs/get_started/schema_types_listed.png" alt="{% trans "Types listed" %}">
 
-              <p>{% trans "We have defined three types in our schema: <strong>Artist</strong>, <strong>Album</strong> and <strong>Concert</strong>, so we can already create nodes in our graph using these Types. But, this way, our graph will contain only nodes without any relation between them. And we think there is some sort of connection between these three entities, so, we need to also define <strong>Relationships</strong> in our schema." %}</p>
+              <p>{% trans "We have defined three Types in our schema: <strong>Artist</strong>, <strong>Album</strong> and <strong>Concert</strong>, so we can already create nodes in our graph using these Types. But, this way, our graph will contain only nodes without any relation between them. And we think there is some sort of connection between these three entities, so, we need to also define <strong>Relationships</strong> in our schema." %}</p>
 
               <p>{% trans "Here you can see the relationships we want to create:" %}</p>
 
@@ -196,17 +216,17 @@
 
               <img class="border" src="{{ STATIC_PREFIX }}img/docs/get_started/schema_artist_concert_relationship_name.png" alt="{% trans "Artist-Concert relationship name" %}">
 
-              <p>{% trans "We also want to add some properties to this relationship. We want to store the <em>date</em> and the <em>city</em> in these relationships:" %}</p>
+              <p>{% trans "We also want to add some properties to this relationship. We want to store the <em>Date</em> and the <em>City</em> in these relationships:" %}</p>
 
               <img class="border" src="{{ STATIC_PREFIX }}img/docs/get_started/schema_artist_concert_relationship_properties.png" alt="{% trans "Artist-Concert relationship properties" %}">
 
-              <p>{% trans "As you can see, we have marked the property <em>date</em> as the <strong>label</strong> of the relationship. This way, we will use this property to identify each relationship when we visualize the graph." %}</p>
+              <p>{% trans "As you can see, we have marked the property <em>Date</em> as the <strong>label</strong> of the relationship. This way, we will use this property to identify each relationship when we visualize the graph." %}</p>
 
               <p>{% trans "After clicking <em>Save Type</em>, you will see that a new relationship has been created in the Schema diagram (you can drag the boxes to see the schema better):" %}</p>
 
               <img class="border" src="{{ STATIC_PREFIX }}img/docs/get_started/schema_artist_concert_diagram.png" alt="{% trans "Artist-Concert diagram" %}">
 
-              <p>{% trans "When you create a relationship in the schema between two Types, you will not see the links <em>incoming</em> nor <em>outgoing</em> anymore. So, you will need to use the link <strong>Allowed Relationship</strong> at the bottom of the page if you want to create more relationships using either of these Types." %}</p>
+              <p>{% trans "When you create a relationship in the schema between two Types, you will not see the links <em>incoming</em> nor <em>outgoing</em> anymore. So, you will need to use the link <strong>New Allowed Relationship</strong> at the bottom of the page if you want to create more relationships using either of these Types." %}</p>
 
               <img class="border" src="{{ STATIC_PREFIX }}img/docs/get_started/schema_more_types.png" alt="{% trans "More Types" %}">
 
@@ -228,7 +248,7 @@
                 <a class="headerlink" id="creating-nodes" href="#creating-nodes" title="{% trans "Permalink to this headline" %}">¶</a>
               </h3>
 
-              <p>{% trans "In order to store some data in our graph, we need to create nodes. So, move to the top menu at the right corner of the screen:" %}</p>
+              <p>{% trans "In order to store some data in our graph, we need to create <em>nodes</em>. So, move to the top menu at the right corner of the screen:" %}</p>
 
               <img class="border" src="{{ STATIC_PREFIX }}img/docs/get_started/data_dropdown_menu.png" alt="{% trans "Data menu" %}">
 
@@ -245,11 +265,21 @@
                 <li>{% trans "Links" %}</li>
               </ul>
 
-              <p>{% trans "The <strong>Properties</strong> section represent the properties we defined in the schema for the <em>type</em> <strong>Artist</strong>. For example, we will add information about <em>Led Zeppelin</em>:" %}</p>
+              <p>{% trans "The <strong>Properties</strong> section represent the properties we defined in the schema for the Type <strong>Artist</strong>. For example, we will add information about <em>Led Zeppelin</em>:" %}</p>
 
               <img class="border" src="{{ STATIC_PREFIX }}img/docs/get_started/data_properties_section.png" alt="{% trans "Data properties section" %}">
 
-              <p>{% trans "We will see the rest of form sections later. So, let's save the <em>artist</em> clicking on the <em>save</em> button. You will see a data summary with the <em>nodes</em> for the <em>type</em> <strong>Artist</strong>." %}</p>
+              <p>{% trans "We will see the rest of form sections later. So, let's save the <em>artist</em> clicking on the <em>save</em> button. You will see a data summary with the nodes for this <em>entity</em>. Currently, this list only shows one node." %}</p>
+
+              <p>{% trans "You can change the order of properties listed using the field <em>Order</em> from the <em>Advanced Mode</em> tool we saw before in the Schema definition. So, let's return to the schema definition for <strong>Artist</strong> and activate the <em>Advanced Mode</em> tool. You simply use numbers to indicate the order:" %}</p>
+
+              <img class="border" src="{{ STATIC_PREFIX }}img/docs/get_started/schema_properties_ordered.png" alt="{% trans "Schema properties ordered" %}">
+
+              <p>{% trans "After clicking on <em>Save Type</em>, you will be asked to choose what to do with the updated properties. Select the first option and click <em>Continue</em>." %}</p>
+
+              <p>{% trans "Now, the properties are listed in the order we set:" %}</p>
+
+              <img class="border" src="{{ STATIC_PREFIX }}img/docs/get_started/data_properties_section_ordered.png" alt="{% trans "Data properties section ordered" %}">
 
               <p>{% trans "Let's add some information about an <strong>Album</strong>. Again, move to the top menu and click on the '+' icon:" %}</p>
 
@@ -263,14 +293,14 @@
 
               <img class="border" src="{{ STATIC_PREFIX }}img/docs/get_started/data_concert_properties.png" alt="{% trans "Data Concert properties" %}">
 
-              <p>{% trans "We have just created three nodes in our graph for the <em>types</em> <strong>Artist</strong>, <strong>Album</strong> and <strong>Concert</strong>." %}</p>
+              <p>{% trans "We have just created three nodes in our graph for the types <strong>Artist</strong>, <strong>Album</strong> and <strong>Concert</strong>." %}</p>
 
               <h3>
                 {% trans "Creating relationships" %}
                 <a class="headerlink" id="creating-relationships" href="#creating-relationships" title="{% trans "Permalink to this headline" %}">¶</a>
               </h3>
 
-              <p>{% trans "After saving the <strong>Concert</strong>, you will see a data summary with the <em>nodes</em> for this <em>entity</em>. Currently, this list only shows one <em>node</em>." %}</p>
+              <p>{% trans "After saving the <strong>Concert</strong>, you will see a data summary with the nodes for this <em>entity</em>. Currently, this list only shows one node." %}</p>
 
               <img class="border" src="{{ STATIC_PREFIX }}img/docs/get_started/data_concert_list.png" alt="{% trans "Data Concert list" %}">
 
@@ -320,8 +350,6 @@
               <p>{% trans "The <strong>whole graph</strong> view is the best option when you want to visualize big graphs (graphs with more than 50 nodes). It also provides some useful tools to improve the analysis and visualization of your graph:" %}</p>
 
               <img class="border" src="{{ STATIC_PREFIX }}img/docs/get_started/visualization_whole_graph.png" alt="{% trans "Visualization whole graph" %}">
-
-
 
             </div>
           </div>
