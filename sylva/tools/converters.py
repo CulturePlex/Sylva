@@ -268,7 +268,7 @@ class CSVConverter(BaseConverter):
                 csv_buffer.close()
 
             for rel_type in rel_types:
-                csv_name = os.path.join('edges', rel_type.slug + '.csv')
+                csv_name = os.path.join('relationships', rel_type.slug + '.csv')
                 csv_buffer = StringIO()
                 csv_writer = csv.writer(csv_buffer, delimiter=',',
                                         quotechar='"', quoting=csv.QUOTE_ALL)
