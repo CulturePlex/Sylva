@@ -190,7 +190,7 @@
 
               <img class="border" src="{{ STATIC_PREFIX }}img/docs/get_started/schema_type_properties.png" alt="{% trans "Type properties" %}">
 
-              <p>{% trans "Note that we have marked the property <em>Title</em> as the <strong>label</strong> of this Type. This way, we will use this property to identify each node." %}</p>
+              <p>{% trans "You can see that we have marked the property <em>Title</em> as the <strong>label</strong> of this Type. This way, we will use this property to identify each node." %}</p>
 
               <p>{% blocktrans %}We finish clicking on <img class="inline" src="{{ STATIC_PREFIX }}img/docs/get_started/schema_save_type.png">. Then you will see an overview of our schema:{% endblocktrans %}</p>
 
@@ -248,7 +248,7 @@
 
               <img class="border" src="{{ STATIC_PREFIX }}img/docs/get_started/schema_artist_album_diagram.png" alt="{% trans "Artist-Album diagram" %}">
 
-              <p>{% trans "When you create a relationship in the schema between two Types, you will not see the links <em>incoming</em> nor <em>outgoing</em> anymore. So, you will need to use the link <strong>New Allowed Relationship</strong> at the bottom of the page if you want to create more relationships using either of these Types." %}</p>
+              <p>{% trans "When you create a relationship in the schema between two Types, you will not see the links <em>incoming</em> nor <em>outgoing</em> anymore. So, you will need to use the link <strong>New allowed Relationship</strong> at the bottom of the page if you want to create more relationships using either of these Types." %}</p>
 
               <img class="border" src="{{ STATIC_PREFIX }}img/docs/get_started/schema_more_types.png" alt="{% trans "More Types" %}">
 
@@ -381,7 +381,7 @@
               <a class="headerlink" id="exporting-graphs" href="#exporting-graphs" title="{% trans "Permalink to this headline" %}">¶</a>
             </h2>
 
-            <p>{% blocktrans %}You can back up your graphs using the <em>Export tools</em>. In order to export a graph, you need to save the <strong>graph schema</strong> and the <strong>graph data</strong> (nodes and relationships). You have two ways of saving your graph data: using <a href="http://gexf.net/format/"><abbr title="Graph Exchange XML Format">GEXF (Gephi)</abbr></a> or using <a href="http://en.wikipedia.org/wiki/Comma-separated_values"><abbr title="Comma-separated values">CSV</abbr></a> as file formats.{% endblocktrans %}</p>
+            <p>{% blocktrans %}You can back up your graphs using the <em>Export tools</em>. In order to export a graph, you need to save the <strong>graph schema</strong> and the <strong>graph data</strong> (nodes and relationships). You have two ways of saving your graph data: using <a href="http://gexf.net/format/"><abbr title="Graph Exchange XML Format">GEXF (Gephi)</abbr></a> or using <a href="http://en.wikipedia.org/wiki/Comma-separated_values"><abbr title="Comma-separated values">CSV</abbr></a> as file formats. Unfortunately, you can't save your attachments nor links at the moment.{% endblocktrans %}</p>
 
             <img class="border" src="{{ STATIC_PREFIX }}img/docs/get_started/export_tools.png" alt="{% trans "Export tools" %}">
 
@@ -479,29 +479,29 @@
 
               <p>{% blocktrans %}Since a <a href="http://en.wikipedia.org/wiki/Comma-separated_values"><abbr title="Comma-separated values">CSV</abbr></a> file is just a <a href="http://en.wikipedia.org/wiki/Plain_text">plain text</a> file, you can open it with any simple text editor (please, avoid Microsoft Word-like programs). Although the most common way for dealing with CSV files is using a spreadsheet software like <a href="http://en.wikipedia.org/wiki/LibreOffice_Calc">LibreOffice Calc</a> or <a href="http://en.wikipedia.org/wiki/Microsoft_Excel">Microsoft Excel</a>. In the next example, we will use LibreOffice Calc.{% endblocktrans %}</p>
 
-              <p>{% blocktrans %}Try opening the example for the node <em>type</em> <strong>Album</strong> with LibreOffice Calc, you will see the following window:{% endblocktrans %}</p>
+              <p>{% blocktrans %}Try opening the example for the node <em>type</em> <strong>Album</strong> with LibreOffice Calc. You will see a window like the following:{% endblocktrans %}</p>
 
               <img class="border" src="{{ STATIC_PREFIX }}img/docs/get_started/spreadsheet_csv_import.png" alt="{% trans "Importing a CSV in a LibreOffice Calc" %}">
 
-              <p>{% blocktrans %}After clicking "OK", you will get your CSV imported:{% endblocktrans %}</p>
+              <p>{% blocktrans %}Note that you must select the same options as shown in the "Separator options" and "Other options" sections from the above window. After clicking "OK", you will get your CSV imported:{% endblocktrans %}</p>
 
               <img class="border" src="{{ STATIC_PREFIX }}img/docs/get_started/spreadsheet_csv_rows.png" alt="{% trans "CSV imported in LibreOffice Calc" %}">
 
               <p>{% blocktrans %}Remember that in SylvaDB is mandatory to have every field enclosed by double quotes. This way, all the fields are interpreted as text, even the numbers. Note that fields are enclosed by double quotes only after saving the spreadsheet as a CSV file. So, you will not see the fields enclosed by double quotes while working in the spreadsheet.{% endblocktrans %}</p>
 
-              <p>{% blocktrans %}So, before adding data to the CSV, we must configure this sheet in order to process the numbers as text fields. Select all the rows (go to "Edit" menu and click "Select All"). Then open the "Format Cells" menu (go to "Format menu" and click "Cells..."). Finally, in the "Category" column, select "text":{% endblocktrans %}</p>
+              <p>{% blocktrans %}So, before adding data to the CSV, we must configure this sheet in order to process the numbers as text fields. Select all the rows (go to "Edit" menu and click "Select All"). Then open the "Format Cells" menu (go to "Format menu" and click "Cells..."). Finally, in the "Category" section, select "text":{% endblocktrans %}</p>
 
               <img class="border" src="{{ STATIC_PREFIX }}img/docs/get_started/spreadsheet_csv_configuration.png" alt="{% trans "Configuring the spreadsheet" %}">
 
               <p>{% blocktrans %}After clicking "OK", numbers will be processed as text, and enclosed by double quotes when saving the spreadsheet as a CSV file.{% endblocktrans %}</p>
 
-              <p>{% blocktrans %}Now we are adding a few more albums to this spreadsheet:{% endblocktrans %}</p>
+              <p>{% blocktrans %}We are adding a few more albums to this spreadsheet:{% endblocktrans %}</p>
 
               <img class="border" src="{{ STATIC_PREFIX }}img/docs/get_started/spreadsheet_csv_add_data.png" alt="{% trans "Adding a few albums in the spreadsheet" %}">
 
               <p>{% blocktrans %}Finally save the spreadsheet as "Text CSV" format.{% endblocktrans %}</p>
 
-              <p>{% blocktrans %}If you open this CSV file with a simple text editor, you will see something like the following:{% endblocktrans %}</p>
+              <p>{% blocktrans %}Now, if you open this CSV file with a simple text editor, you will see something like the following:{% endblocktrans %}</p>
 
               <pre>
                 <strong>"id","type","Duration","Name","Number of tracks","Release date"</strong>
@@ -511,9 +511,9 @@
                 "5","Album","33:04","Coda","12","1982-11-19"
               </pre>
 
-              <p>{% blocktrans %}Note that all the fields have been enclosed by double quotes, even the ID numbers. Also, if you have some embedded double quote literal inside any field, LibreOffice Calc will escape it using a pair of double quotes, so you don't have to handle this by hand.{% endblocktrans %}</p>
+              <p>{% blocktrans %}You can see that all the fields have been enclosed by double quotes, even the ID numbers. Also, if you have some embedded double quote literal inside any field, LibreOffice Calc will escape it using a pair of double quotes, so you don't have to handle this by hand.{% endblocktrans %}</p>
 
-              <p>{% blocktrans %}Finally, if you plan to add some data to a blank graph using CSV files, you can get a set of <em>CSV templates</em> using the <em>Export CSV templates</em> tool. This tool is only available in graphs with no data (just the schema):{% endblocktrans %}</p>
+              <p>{% blocktrans %}If you plan to add some data to a blank graph using CSV files, you can get a set of <em>CSV templates</em> using the <em>Export CSV templates</em> tool. Note that this tool is only available in graphs with no data (just the schema):{% endblocktrans %}</p>
 
               <img class="border" src="{{ STATIC_PREFIX }}img/docs/get_started/export_csv_templates.png" alt="{% trans "Exporting CSV templates" %}">
 
