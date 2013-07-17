@@ -1,7 +1,7 @@
 // JSHint options
 
 /*global window:true, document:true, setTimeout:true, console:true, jQuery:true,
-sylv:true, prompt:true, alert:true, FileReader:true, Processing:true, sigma:true,
+sylva:true, prompt:true, alert:true, FileReader:true, Processing:true, sigma:true,
 gettext */
 
 
@@ -9,19 +9,19 @@ gettext */
  * Visualization utils
  ****************************************************************************/
 
-;(function(sylv, $, window, document, undefined) {
+;(function(sylva, $, window, document, undefined) {
 
   var Utils = {
 
     // Update node legend frame.
     updateNodeLegend: function(nodeId, nodeTitle, domId, html) {
       var htmlContent = (typeof html === "undefined") ? '' : html;
-      var nodeEditURL = sylv.nodeEditURL.replace(/nodes\/0\/edit/, 'nodes/' + nodeId + '/edit');
-      var nodeViewURL = sylv.nodeViewURL.replace(/nodes\/0\/view/, 'nodes/' + nodeId + '/view');
+      var nodeEditURL = sylva.nodeEditURL.replace(/nodes\/0\/edit/, 'nodes/' + nodeId + '/edit');
+      var nodeViewURL = sylva.nodeViewURL.replace(/nodes\/0\/view/, 'nodes/' + nodeId + '/view');
       var title = (nodeTitle.length < 22) ? nodeTitle : nodeTitle.substring(0,16) + "...";
       $('#' + domId).html(
         '<h2 title="' + nodeTitle + '" style="font-size: 18px;">' + title + '</h2>' +
-        '<a href="' + sylv.graphViewURL + 'nodes/' + nodeId + '">' +
+        '<a href="' + sylva.graphViewURL + 'nodes/' + nodeId + '">' +
           '<i class="sylva-icon-connections16"></i> ' + gettext('View related nodes') +
         '</a>' +
         '<br>' +
@@ -38,6 +38,6 @@ gettext */
   };
 
   // Reveal module.
-  window.sylv.Utils = Utils;
+  window.sylva.Utils = Utils;
 
-})(sylv, jQuery, window, document);
+})(sylva, jQuery, window, document);

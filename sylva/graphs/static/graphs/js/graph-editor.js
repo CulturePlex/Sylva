@@ -1,8 +1,8 @@
 // JSHint options
 
-/*global window:true, document:true, setTimeout:true, console:true, jQuery:true, sylv:true, prompt:true, alert:true, FileReader:true, Processing:true, DOMParser:true */
+/*global window:true, document:true, setTimeout:true, console:true, jQuery:true, sylva:true, prompt:true, alert:true, FileReader:true, Processing:true, DOMParser:true */
 
-;(function(sylv, $, window, document, undefined) {
+;(function(sylva, $, window, document, undefined) {
 
   "use strict";
 
@@ -12,7 +12,7 @@
     USES_DRAWER: undefined,
     USES_TYPES: undefined,
 
-    PDE_URL: sylv.PDE_URL,
+    PDE_URL: sylva.PDE_URL,
 
     // This parameter should be set to true with long batch
     // operations (loading from GEXF) and set to false again
@@ -595,6 +595,6 @@
     }
   };
 
-  window.sylv.GraphEditor = GraphEditor;
+  window.sylva.GraphEditor = GraphEditor;
 
-})(sylv, jQuery, window, document);
+})(sylva, jQuery, window, document);

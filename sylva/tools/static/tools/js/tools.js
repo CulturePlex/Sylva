@@ -9,15 +9,15 @@
 
 
   // Sylva global namespace.
-  var sylv = window.sylv || {};
+  var sylva = window.sylva || {};
 
-  if (!sylv.DataImporter) {
+  if (!sylva.DataImporter) {
     console.log("Error: Sylva DataImporter library not found.");
     return;
   }
 
   // Shortcut to data importer library.
-  var DI = sylv.DataImporter;
+  var DI = sylva.DataImporter;
 
   // Django i18n.
   var gettext = window.gettext || String;
@@ -220,8 +220,8 @@
 
   // Send data to the server.
   var sendData = function() {
-    return DI.sendGraph(DI.nodes, DI.edges, sylv.nodesCreateURL,
-                        sylv.edgesCreateURL);
+    return DI.sendGraph(DI.nodes, DI.edges, sylva.nodesCreateURL,
+                        sylva.edgesCreateURL);
   };
 
 

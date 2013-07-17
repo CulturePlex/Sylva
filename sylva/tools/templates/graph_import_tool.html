@@ -59,10 +59,10 @@
 
 {% block extra_scripts %}
   <script>
-    sylv.sylvaSchema = JSON.parse("{{ sylva_schema|escapejs }}");
-    sylv.nodesCreateURL = "{% url ajax_nodes_create graph.slug %}";
-    sylv.edgesCreateURL = "{% url ajax_relationships_create graph.slug %}";
-    sylv.IMPORT_MAX_SIZE = {{ IMPORT_MAX_SIZE }};
+    sylva.sylvaSchema = JSON.parse("{{ sylva_schema|escapejs }}");
+    sylva.nodesCreateURL = "{% url ajax_nodes_create graph.slug %}";
+    sylva.edgesCreateURL = "{% url ajax_relationships_create graph.slug %}";
+    sylva.IMPORT_MAX_SIZE = {{ IMPORT_MAX_SIZE }};
   </script>
   <script src="{{ STATIC_PREFIX }}tools/js/data-importer.js"></script>
   <script src="{{ STATIC_PREFIX }}tools/js/tools.js"></script>

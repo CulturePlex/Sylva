@@ -9,9 +9,9 @@
 
 
   // Sylva global namespace.
-  var sylv = window.sylv || {};
+  var sylva = window.sylva || {};
 
-  if (!sylv.sylvaSchema) {
+  if (!sylva.sylvaSchema) {
     console.log("Error: graph schema not found.");
     return;
   }
@@ -20,42 +20,42 @@
   // var gettext = window.gettext || String;
 
   // Data import library namespace.
-  sylv.DataImporter = {};
+  sylva.DataImporter = {};
 
   // Nodes schema.
-  sylv.DataImporter.schemaNodes = sylv.sylvaSchema.nodeTypes;
+  sylva.DataImporter.schemaNodes = sylva.sylvaSchema.nodeTypes;
 
   // Relationships schema.
-  sylv.DataImporter.schemaEdges = sylv.sylvaSchema.allowedEdges;
+  sylva.DataImporter.schemaEdges = sylva.sylvaSchema.allowedEdges;
 
   // Nodes to import.
-  sylv.DataImporter.nodes = {};
+  sylva.DataImporter.nodes = {};
 
   // Edges to import.
-  sylv.DataImporter.edges = [];
+  sylva.DataImporter.edges = [];
 
   // Number of nodes to import.
-  sylv.DataImporter.nodesLength = 0;
+  sylva.DataImporter.nodesLength = 0;
 
   // A dictionary mapping imported nodes and recently created nodes on the
   // server.
-  sylv.DataImporter.serverNodes = {};
+  sylva.DataImporter.serverNodes = {};
 
 
   // Save a node in browser memory.
-  sylv.DataImporter.addNode = function(id, type, properties) {
+  sylva.DataImporter.addNode = function(id, type, properties) {
     if (type) {
       this.nodes[id] = {
         type: type,
         properties: properties
       };
-      sylv.DataImporter.nodesLength++;
+      sylva.DataImporter.nodesLength++;
     }
   };
 
 
   // Save an edge in browser memory.
-  sylv.DataImporter.addEdge = function(sourceId, targetId, label, properties) {
+  sylva.DataImporter.addEdge = function(sourceId, targetId, label, properties) {
     if (label) {
       this.edges.push({
         sourceId: sourceId,
@@ -68,7 +68,7 @@
 
 
   // Check if a node matches the schema.
-  sylv.DataImporter.matchNodeSchema = function(node, schemaNodes) {
+  sylva.DataImporter.matchNodeSchema = function(node, schemaNodes) {
     var isValid = true;
 
     if (schemaNodes.hasOwnProperty(node.type)) {
@@ -87,7 +87,7 @@
 
 
   // Check if an edge matches the schema.
-  sylv.DataImporter.matchEdgeSchema = function(edge, schemaEdges, nodes) {
+  sylva.DataImporter.matchEdgeSchema = function(edge, schemaEdges, nodes) {
     var isValid = false;
 
     for (var i = 0, l = schemaEdges.length; i < l; i++) {
@@ -119,7 +119,7 @@
 
 
   // Check if all nodes match the schema.
-  sylv.DataImporter.validateNodes = function(nodes, schemaNodes) {
+  sylva.DataImporter.validateNodes = function(nodes, schemaNodes) {
     var isValid = true;
 
     for (var nodeId in nodes) {
@@ -135,7 +135,7 @@
 
 
   // Check if all edges match the schema.
-  sylv.DataImporter.validateEdges = function(edges, schemaEdges, nodes) {
+  sylva.DataImporter.validateEdges = function(edges, schemaEdges, nodes) {
     var isValid = true;
 
     for (var i = 0, l = edges.length; i < l; i++) {
@@ -151,7 +151,7 @@
 
 
   // Check if the graph matches the schema.
-  sylv.DataImporter.validateGraph = function(nodes, edges, schemaNodes,
+  sylva.DataImporter.validateGraph = function(nodes, edges, schemaNodes,
       schemaEdges) {
     return this.validateNodes(nodes, schemaNodes) &&
       this.validateEdges(edges, schemaEdges, nodes);
@@ -159,7 +159,7 @@
 
 
   // Send data to the server.
-  sylv.DataImporter.sendData = function(url, data) {
+  sylva.DataImporter.sendData = function(url, data) {
     // $.ajax() implements the Promise interface.
     return $.ajax({
       url: url,
@@ -171,13 +171,13 @@
 
 
   // Send a list of nodes to the server.
-  sylv.DataImporter.sendNodesList = function(url, nodes) {
+  sylva.DataImporter.sendNodesList = function(url, nodes) {
     return this.sendData(url, {data: JSON.stringify(nodes)});
   };
 
 
   // Send a list of edges to the server.
-  sylv.DataImporter.sendEdgesList = function(url, edges) {
+  sylva.DataImporter.sendEdgesList = function(url, edges) {
     var data = [],
         edge,
         i, li;
@@ -197,7 +197,7 @@
 
 
   // Send nodes to the server.
-  sylv.DataImporter.sendNodes = function(url, nodes) {
+  sylva.DataImporter.sendNodes = function(url, nodes) {
     var queue = [],
         deferred = $.Deferred();
 
@@ -213,7 +213,7 @@
     function processQueue(self, url, queue, deferred) {
       var elements,
           jqxhr,
-          MAX_SIZE = sylv.IMPORT_MAX_SIZE,
+          MAX_SIZE = sylva.IMPORT_MAX_SIZE,
           errorCounter = 0,
           MAX_ERRORS = 10;
 
@@ -256,7 +256,7 @@
 
 
   // Send edges to the server.
-  sylv.DataImporter.sendEdges = function(url, edges) {
+  sylva.DataImporter.sendEdges = function(url, edges) {
     var queue = edges.slice(0),
         deferred = $.Deferred();
 
@@ -265,7 +265,7 @@
     function processQueue(self, url, queue, deferred) {
       var elements,
           jqxhr,
-          MAX_SIZE = sylv.IMPORT_MAX_SIZE,
+          MAX_SIZE = sylva.IMPORT_MAX_SIZE,
           errorCounter = 0,
           MAX_ERRORS = 10;
 
@@ -302,7 +302,7 @@
 
 
   // Send nodes and edges to the server.
-  sylv.DataImporter.sendGraph = function(nodes, edges, nodesUrl, edgesUrl) {
+  sylva.DataImporter.sendGraph = function(nodes, edges, nodesUrl, edgesUrl) {
     var promiseGraph,
         promiseNodes,
         self = this;
@@ -317,7 +317,7 @@
 
 
   // CSV import.
-  sylv.DataImporter.loadCSV = function(nodesFiles, edgesFiles) {
+  sylva.DataImporter.loadCSV = function(nodesFiles, edgesFiles) {
     var deferredNodes = $.Deferred(),
         deferredCSV = $.Deferred(),
         self = this;
@@ -420,7 +420,7 @@
             }
           }
 
-          if (sylv.DataImporter.nodesLength > 0) {
+          if (sylva.DataImporter.nodesLength > 0) {
             deferredFile.resolve();
           } else {
             deferredFile.reject();
@@ -493,7 +493,7 @@
 
 
   // Gephi import.
-  sylv.DataImporter.loadGEXF = function(file) {
+  sylva.DataImporter.loadGEXF = function(file) {
     var deferred = $.Deferred();
 
     function loadFile(file) {
@@ -590,7 +590,7 @@
               }
             }
 
-            sylv.DataImporter.addNode(nodeId, nodeType, nodeAttributes);
+            sylva.DataImporter.addNode(nodeId, nodeType, nodeAttributes);
           }
         }
 
@@ -633,12 +633,12 @@
               }
             }
 
-            sylv.DataImporter.addEdge(edgeSource, edgeTarget, edgeLabel,
+            sylva.DataImporter.addEdge(edgeSource, edgeTarget, edgeLabel,
                                       edgeAttributes);
           }
         }
 
-        if (sylv.DataImporter.nodesLength > 0) {
+        if (sylva.DataImporter.nodesLength > 0) {
           deferred.resolve();
         } else {
           deferred.reject();

@@ -1,28 +1,28 @@
 // JSHint options
 
 /*global window:true, document:true, setTimeout:true, console:true, jQuery:true,
-sylv:true, alert:true */
+sylva:true, alert:true */
 
 /****************************************************************************
  * Visualizations
  ****************************************************************************/
 
-;(function(sylv, $, window, document, undefined) {
+;(function(sylva, $, window, document, undefined) {
 
   var visualizations = {
 
     processing: function() {
-      sylv.Sigma.stop();
+      sylva.Sigma.stop();
       $('#sigma-wrapper').hide();
       $('.sigma-checkbox').hide();
       $('.pause').hide();
       $('#canvas-box').show();
       $('#element-info').html('Click any node to interact');
-      sylv.Processing.start();
+      sylva.Processing.start();
     },
 
     sigma: function() {
-      sylv.Processing.stop();
+      sylva.Processing.stop();
       $('#canvas-box')
         .hide()
         .append('<canvas id="graphcanvas">Your browser does not support graph visualization</canvas>');
@@ -30,7 +30,7 @@ sylv:true, alert:true */
       $('.pause').show();
       $('#element-info').html('Click any node to interact');
       $('.sigma-checkbox').css('display', 'inline-block');
-      sylv.Sigma.start();
+      sylva.Sigma.start();
     }
 
   };
@@ -65,24 +65,24 @@ sylv:true, alert:true */
                                  '</div>');
 
     // Graph rendering
-    var jqxhr = $.getJSON(sylv.ajax_url, function(data) {
+    var jqxhr = $.getJSON(sylva.ajax_url, function(data) {
       $('#graph-loading').remove();
       spinner.stop();
 
       // partial graph (Processing.js)
-      sylv.nodes = data.nodes;
-      sylv.edges = data.edges;
+      sylva.nodes = data.nodes;
+      sylva.edges = data.edges;
 
       // full graph (Sigma.js and others)
-      sylv.total_nodes = data.total_nodes;
-      sylv.total_edges = data.total_edges;
+      sylva.total_nodes = data.total_nodes;
+      sylva.total_edges = data.total_edges;
 
-      sylv.size = data.size;
-      sylv.disableProcessing = data.size > sylv.MAX_SIZE;
+      sylva.size = data.size;
+      sylva.disableProcessing = data.size > sylva.MAX_SIZE;
 
-      if (sylv.disableProcessing) {
+      if (sylva.disableProcessing) {
         $('#visualization-processing').remove();
-        sylv.Processing.init();
+        sylva.Processing.init();
         $('#graphcanvas').on('graph_init', function(e) {
           e.stopPropagation();
           visualizations.sigma();
@@ -92,11 +92,11 @@ sylv:true, alert:true */
       }
 
       var msg = '';
-      if (sylv.is_schema_empty) {
+      if (sylva.is_schema_empty) {
         msg += gettext("Your Schema is empty.");
         msg += '<br>';
         msg += gettext("You need to define a Schema before adding data to your graph.");
-      } else if (sylv.is_graph_empty) {
+      } else if (sylva.is_graph_empty) {
         msg += gettext("Your graph is empty.");
         msg += '<br>';
         msg += gettext("You haven't added any data to your graph yet.");
@@ -124,4 +124,4 @@ sylv:true, alert:true */
       visualizations[type]();
     });
   });
-})(sylv, jQuery, window, document);
+})(sylva, jQuery, window, document);
