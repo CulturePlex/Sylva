@@ -213,24 +213,41 @@
     function processQueue(self, url, queue, deferred) {
       var elements,
           jqxhr,
-          MAX_SIZE = sylv.IMPORT_MAX_SIZE;
+          MAX_SIZE = sylv.IMPORT_MAX_SIZE,
+          errorCounter = 0,
+          MAX_ERRORS = 10;
 
       if (queue.length > 0) {
         elements = queue.splice(0, MAX_SIZE);
         jqxhr = self.sendNodesList(url, elements);
-
-        jqxhr.done(function(ids) {
-          var id;
-
-          for (id in ids) {
-            self.serverNodes[id] = ids[id];
-          }
-
-          deferred.notify(elements.length);  // update progress bar
-          processQueue(self, url, queue, deferred);
-        });
+        jqxhr.done(doneFilter);
+        jqxhr.fail(failFilter);
       } else {
         deferred.resolve();
+      }
+
+      function doneFilter(ids) {
+        var id;
+
+        for (id in ids) {
+          self.serverNodes[id] = ids[id];
+        }
+
+        deferred.notify(elements.length);  // update progress bar
+        processQueue(self, url, queue, deferred);
+      }
+
+      function failFilter() {
+        if (errorCounter < MAX_ERRORS) {
+          errorCounter++;
+          window.setTimeout(function() {
+            jqxhr = self.sendNodesList(url, elements);
+            jqxhr.done(doneFilter);
+            jqxhr.fail(failFilter);
+          }, 1000 * errorCounter);
+        } else {
+          deferred.reject();
+        }
       }
     }
 
@@ -248,18 +265,35 @@
     function processQueue(self, url, queue, deferred) {
       var elements,
           jqxhr,
-          MAX_SIZE = sylv.IMPORT_MAX_SIZE;
+          MAX_SIZE = sylv.IMPORT_MAX_SIZE,
+          errorCounter = 0,
+          MAX_ERRORS = 10;
 
       if (queue.length > 0) {
         elements = queue.splice(0, MAX_SIZE);
         jqxhr = self.sendEdgesList(url, elements);
-
-        jqxhr.done(function() {
-          deferred.notify(elements.length);  // update progress bar
-          processQueue(self, url, queue, deferred);
-        });
+        jqxhr.done(doneFilter);
+        jqxhr.fail(failFilter);
       } else {
         deferred.resolve();
+      }
+
+      function doneFilter() {
+        deferred.notify(elements.length);  // update progress bar
+        processQueue(self, url, queue, deferred);
+      }
+
+      function failFilter() {
+        if (errorCounter < MAX_ERRORS) {
+          errorCounter++;
+          window.setTimeout(function() {
+            jqxhr = self.sendEdgesList(url, elements);
+            jqxhr.done(doneFilter);
+            jqxhr.fail(failFilter);
+          }, 1000 * errorCounter);
+        } else {
+          deferred.reject();
+        }
       }
     }
 

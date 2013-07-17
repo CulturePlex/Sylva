@@ -40,7 +40,9 @@
     'file-loaded': 'Data loaded. Uploading to the server...',
     'graph-uploaded': 'Data uploaded.',
     'validation-error': 'Sorry, your data does not match your graph schema.',
-    'loading-error': 'Sorry, your data can not be loaded.'
+    'loading-error': 'Sorry, your data can not be loaded.',
+    'uploading-error': 'Sorry, something went wrong on the server. Please, ' +
+                       'try again in a few minutes.'
   };
 
 
@@ -122,17 +124,35 @@
       $('#percentage').text(percentage + '%');
     });
 
-    promiseFinish = promiseSend.then(function() {
-      $('#percentage').text('100%');
+    promiseFinish = promiseSend.then(
+      // done filter
+      function() {
+        $('#percentage').text('100%');
+        fadeoutProgressBar();
+      },
+      // fail filter
+      function() {
+        fadeoutProgressBar();
+      }
+    );
+
+    promiseFinish.then(
+      // done filter
+      function() {
+        setMessage('graph-uploaded');
+      },
+      // fail filter
+      function() {
+        setMessage('uploading-error');
+      }
+    );
+
+    function fadeoutProgressBar() {
       return $('#progress-bar')
                .parent()
                .fadeOut(FADING_DURATION / 4)
                .promise();
-    });
-
-    promiseFinish.done(function() {
-      setMessage('graph-uploaded');
-    });
+    }
   };
 
 
