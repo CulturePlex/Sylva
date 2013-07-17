@@ -1919,6 +1919,8 @@ body :hover > a.headerlink {
 .doc .fixed-sidebar-nav {
     position: fixed;
     width: 326px;
+    max-height: 630px;
+    overflow-y: auto;
 }
 
 /* END documentation */
