@@ -865,7 +865,7 @@ p.forgot-password {
 #content3 div.relationships a.delete-rowup {
     background: url(../img/recycle-full.png) no-repeat left -2px;
     height: 35px;
-    padding: 10px 0 0 30px;
+    padding: 10px 0 0 45px;
     font-weight: bold;
     float: right;
     position: relative;
@@ -876,7 +876,7 @@ p.forgot-password {
 #content3 div.relationships a.delete-row {
     background: url(../img/recycle-full.png) no-repeat left -2px;
     height: 35px;
-    padding: 10px 0 0 30px;
+    padding: 10px 0 0 45px;
     font-weight: bold;
     float: right;
     position: relative;

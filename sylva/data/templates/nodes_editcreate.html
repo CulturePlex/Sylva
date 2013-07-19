@@ -228,7 +228,7 @@
               extraClasses: ["row1", "row2"],
               added: function(row) {$("#{{prefix}} p:last label").hide(); nodeAutocomplete(row.find("input.autocomplete"));},
               deleteCssClass: "delete-rowup{% if outgoing_formset.itemtype.properties.count %}Props{% endif %}",
-              deleteText: "&nbsp;"
+              deleteText: ""
             });
           };
           $("#{{ prefix }} p:last label").hide();
@@ -247,7 +247,7 @@
               extraClasses: ["row1", "row2"],
               added: function(row) {$("#{{prefix}} p:last label").hide(); nodeAutocomplete(row.find("input.autocomplete"));},
               deleteCssClass: "delete-rowup{% if incoming_formset.itemtype.properties.count %}Props{% endif %}",
-              deleteText: "&nbsp;"
+              deleteText: ""
             });
           };
           $("#{{ prefix }} p:last label").hide();
@@ -264,7 +264,7 @@
             extraClasses: ["row1", "row2"],
             added: function(row) {$("#{{ mediafile_formset.prefix }} p:last label").hide();},
             deleteCssClass: "delete-rowupFiles",
-            deleteText: "&nbsp;"
+            deleteText: ""
           });
         };
         $("#{{ mediafile_formset.prefix }} p:last label").hide();
@@ -279,7 +279,7 @@
             extraClasses: ["row1", "row2"],
             added: function(row) {$("#{{ medialink_formset.prefix }} p:last label").hide();},
             deleteCssClass: "delete-rowupLinks",
-            deleteText: "&nbsp;"
+            deleteText: ""
           });
         };
         $("#{{ medialink_formset.prefix }} p:last label").hide();
