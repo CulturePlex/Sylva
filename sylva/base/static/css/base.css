@@ -999,9 +999,15 @@ div.initial p:nth-child(3) {
     display: block;
 }
 
-ul.errorlist {
+.errorlist {
     position: relative;
     width: 317px;
+    display: inline-block;
+}
+
+.all-relationships .errorlist {
+    width: 280px;
+    margin-left: 20px;
 }
 
 .errorlist li {
@@ -1012,7 +1018,6 @@ ul.errorlist {
     -webkit-box-shadow: 0 1px 1px rgba(255, 0, 0, 0.9);
     -moz-box-shadow: 0 1px 1px rgba(255, 0, 0, 0.9);
     display: block;
-/*    margin: 2px 0px 2px 0px;*/
     font-size: 90%;
     text-decoration: none;
     padding: 0px 5px 0px 5px;
@@ -1020,7 +1025,6 @@ ul.errorlist {
     border: none;
     border-top: solid 1px red;
     font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
-/*    width: 175px;*/
     vertical-align: middle;
     font-style: italic;
 }
