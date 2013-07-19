@@ -264,6 +264,11 @@ progress::-webkit-progress-value { background: #348E82; }
     display: none;
 }
 
+.floating {
+    float: right;
+    position: relative;
+}
+
 .bold {
     font-weight: bold;
 }
@@ -910,11 +915,18 @@ p.forgot-password {
     padding-left: 5px;
 }
 
-div.dynamic-form,div.initial {
-    margin-bottom: 0px;  /* 15px */
+div.dynamic-form,
+div.initial {
+    margin-bottom: 0px;
 }
 
-/* Formsets relationships */
+div.initial p:nth-child(3) {
+    display: none;
+}
+
+
+/* Formsets relationships *****************************************************/
+
 .relationships div.initial p {
     display: none;
     margin-left: 20px;
@@ -969,16 +981,7 @@ div.dynamic-form,div.initial {
     width: 300px;
 }
 
-.floating {
-    float: right;
-    position: relative;
-/*    width: 15px;*/
-}
-
-/* End */
-div.initial p:last-child {
-    display: none;
-}
+/* END Formsets relationships *************************************************/
 
 .content2-first ul.errorlist li {
     margin-right: 26px;
