@@ -80,8 +80,8 @@ class ElementTypeChangedForm(forms.Form):
 
     option = forms.ChoiceField(label=_("You have renamed this property in the "
                                        "schema, but we have not modified the "
-                                       "related elements yet. What do you want "
-                                       "to do with them?"),
+                                       "related data elements yet. What do you "
+                                       "want to do with them?"),
                                required=True,
                                widget=forms.RadioSelect())
     key = forms.CharField(widget=forms.HiddenInput())
@@ -90,28 +90,28 @@ class ElementTypeChangedForm(forms.Form):
     def __init__(self, *args, **kwargs):
         super(ElementTypeChangedForm, self).__init__(*args, **kwargs)
         self.fields['option'].choices = (
-            ("rename", _("Rename this property in all related elements using "
-                         "the new property name: \"%s\"")
+            ("rename", _("Rename this property in all related data elements "
+                         "using the new property name: \"%s\".")
                        % self.initial.get('new_key')),
-            ("keep", _("Keep this property name in all related elements, but "
-                       "don't show it, and start using the new property name "
-                       "for the new elements")),
+            ("keep", _("Keep this property in all related data elements, "
+                       "but don't show it, and start using the new property "
+                       "name when adding new data elements.")),
         )
-        self.fields['option'].initial = "keep"
+        self.fields['option'].initial = "rename"
 
 
 class ElementTypeDeletedForm(forms.Form):
 
     CHOICES = (
-        ("delete", _("Delete this property in all related elements")),
-        ("keep", _("Keep this property in all related elements, but don't show "
-                   "it")),
+        ("delete", _("Delete this property in all related data elements.")),
+        ("keep", _("Keep this property in all related data elements, but don't "
+                   "show it.")),
     )
 
     option = forms.ChoiceField(label=_("You have deleted this property in the "
                                        "schema, but we have not modified the "
-                                       "related elements yet. What do you want "
-                                       "to do with them?"),
+                                       "related data elements yet. What do you "
+                                       "want to do with them?"),
                                choices=CHOICES,
                                required=True,
                                widget=forms.RadioSelect())

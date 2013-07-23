@@ -1,9 +1,13 @@
 import datetime
-import simplejson
+import csv
+import os
+import zipfile
+try:
+    from cStringIO import StringIO
+except ImportError:
+    from StringIO import StringIO  # NOQA
 
 from django.template.defaultfilters import force_escape as escape
-
-from schemas.models import NodeType, RelationshipType
 
 
 class BaseConverter(object):
@@ -15,26 +19,25 @@ class BaseConverter(object):
         (u'"', u'&quot;'),
         (u"'", u'&#39;'),
     )
-    
+
     def __init__(self, graph):
         self.graph = graph
 
-
     def encode_html(self, value):
-#        if isinstance(value, basestring):
-#            for replacement in self.html_codes:
-#                value = value.replace(replacement[0], replacement[1])
         return escape(value)
 
-class GEXFConverter(BaseConverter):
-    " Converts a Sylva neo4j graph to GEXF 1.2"
 
-    header = u"""<?xml version="1.0" encoding="UTF-8"?> 
-<gexf xmlns="http://www.gexf.net/1.2draft" xmlns:viz="http://www.gexf.net/1.2draft/viz" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.gexf.net/1.2draft http://www.gexf.net/1.2draft/gexf.xsd" version="1.2"> 
-    <meta lastmodifieddate="%s"> 
-        <creator>Sylva</creator> 
-        <description>A Sylva exported file</description> 
-    </meta> 
+class GEXFConverter(BaseConverter):
+    """
+    Converts a Sylva neo4j graph to GEXF 1.2
+    """
+
+    header = u"""<?xml version="1.0" encoding="UTF-8"?>
+<gexf xmlns="http://www.gexf.net/1.2draft" xmlns:viz="http://www.gexf.net/1.2draft/viz" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.gexf.net/1.2draft http://www.gexf.net/1.2draft/gexf.xsd" version="1.2">
+    <meta lastmodifieddate="%s">
+        <creator>Sylva</creator>
+        <description>A Sylva exported file</description>
+    </meta>
     <graph mode="static" defaultedgetype="directed">"""
 
     def export(self):
@@ -63,7 +66,7 @@ class GEXFConverter(BaseConverter):
         for edge in self.graph.relationships.all():
             edges += u"""
                 <edge id="%s" source="%s" target="%s" type="%s">
-                <attvalues>""" % (edge.id, 
+                <attvalues>""" % (edge.id,
                         edge.source.id,
                         edge.target.id,
                         edge.label)
@@ -95,10 +98,10 @@ class GEXFConverter(BaseConverter):
             %s
         </attributes>
         <nodes>%s
-        </nodes> 
+        </nodes>
         <edges>%s
-        </edges> 
-    </graph> 
+        </edges>
+    </graph>
 </gexf>""" % (self.header, date, node_attributes_xml,
                 edge_attributes_xml, nodes, edges)
         return gephi_format
@@ -109,7 +112,7 @@ class GEXFConverter(BaseConverter):
         # Node attributes
         node_attributes_xml = u"""
             <attribute id="NodeType" title="[Schema] Type" type="string"/>"
-            <attribute id="NodeTypeId" title="[Schema] Type Id" type="string"/>""" 
+            <attribute id="NodeTypeId" title="[Schema] Type Id" type="string"/>"""
         for node_type in self.graph.schema.nodetype_set.all():
                 for property_name in node_type.properties.all():
                     namespace_name = u"(%s) %s" % (self.encode_html(node_type.name),
@@ -127,7 +130,7 @@ class GEXFConverter(BaseConverter):
         # Edge attributes
         edge_attributes_xml = u"""
             <attribute id="RelationshipType" title="[Schema] Allowed Relationship" type="string"/>"
-            <attribute id="RelationshipTypeId" title="[Schema] Allowed Relationship Id" type="string"/>""" 
+            <attribute id="RelationshipTypeId" title="[Schema] Allowed Relationship Id" type="string"/>"""
         for relationship_type in self.graph.schema.relationshiptype_set.all():
                 for property_name in relationship_type.properties.all():
                     namespace_name = u"(%s) %s" % (self.encode_html(relationship_type.name),
@@ -141,11 +144,8 @@ class GEXFConverter(BaseConverter):
         </attributes>
         """ % (edge_attributes_xml)
 
-
         # Nodes
         yield '<nodes>'
-        node_attributes = {}
-        edge_attributes = {}
         for node in self.graph.nodes.iterator():
             node_text = u"""
                 <node id="%s" label="%s" type="%s">
@@ -184,11 +184,10 @@ class GEXFConverter(BaseConverter):
         yield '</nodes><edges>'
 
         # Edges
-        edges = ''
         for edge in self.graph.relationships.iterator():
             edge_text = u"""
                 <edge id="%s" source="%s" target="%s" label="%s">
-                <attvalues>""" % (edge.id, 
+                <attvalues>""" % (edge.id,
                         edge.source.id,
                         edge.target.id,
                         self.encode_html(edge.label_display))
@@ -225,5 +224,78 @@ class GEXFConverter(BaseConverter):
         """
 
         yield u"""
-    </graph> 
-</gexf>""" 
+    </graph>
+</gexf>"""
+
+
+class CSVConverter(BaseConverter):
+    """
+    Converts a Sylva neo4j graph into CSV files.
+    """
+
+    def export(self):
+        graph = self.graph
+        node_types = graph.schema.nodetype_set.all()
+        rel_types = graph.schema.relationshiptype_set.all()
+
+        zip_buffer = StringIO()
+
+        with zipfile.ZipFile(zip_buffer, 'w', zipfile.ZIP_DEFLATED) as zip_file:
+            for node_type in node_types:
+                csv_name = os.path.join('nodes', node_type.slug + '.csv')
+                csv_buffer = StringIO()
+                csv_writer = csv.writer(csv_buffer, delimiter=',',
+                                        quotechar='"', quoting=csv.QUOTE_ALL)
+                csv_header = ['id', 'type']
+                node_type_properties = node_type.properties.all()
+                node_properties_keys = [node_type_prop.key for node_type_prop
+                                        in node_type_properties]
+                for prop_key in node_properties_keys:
+                    csv_header.append(prop_key.encode('utf-8'))
+                csv_writer.writerow(csv_header)
+                nodes = node_type.all()
+                for node in nodes:
+                    csv_properties = [node.id, node_type.name.encode('utf-8')]
+                    node_properties = node.properties
+                    for prop_key in node_properties_keys:
+                        if prop_key in node_properties:
+                            prop_value = unicode(node_properties[prop_key])
+                            csv_properties.append(prop_value.encode('utf-8'))
+                        else:
+                            csv_properties.append('')
+                    csv_writer.writerow(csv_properties)
+                zip_file.writestr(csv_name, csv_buffer.getvalue())
+                csv_buffer.close()
+
+            for rel_type in rel_types:
+                csv_name = os.path.join('relationships', rel_type.slug + '.csv')
+                csv_buffer = StringIO()
+                csv_writer = csv.writer(csv_buffer, delimiter=',',
+                                        quotechar='"', quoting=csv.QUOTE_ALL)
+                csv_header = ['source id', 'target id', 'label']
+                rel_type_properties = rel_type.properties.all()
+                rel_properties_keys = [rel_type_prop.key for rel_type_prop in
+                                       rel_type_properties]
+                for prop_key in rel_properties_keys:
+                    csv_header.append(prop_key.encode('utf-8'))
+                csv_writer.writerow(csv_header)
+                rels = rel_type.all()
+                for rel in rels:
+                    csv_properties = [rel.source.id, rel.target.id,
+                                      rel_type.name.encode('utf-8')]
+                    rel_properties = rel.properties
+                    for prop_key in rel_properties_keys:
+                        if prop_key in rel_properties:
+                            prop_value = unicode(rel_properties[prop_key])
+                            csv_properties.append(prop_value.encode('utf-8'))
+                        else:
+                            csv_properties.append('')
+                    csv_writer.writerow(csv_properties)
+                zip_file.writestr(csv_name, csv_buffer.getvalue())
+                csv_buffer.close()
+
+        zip_data = zip_buffer.getvalue()
+        zip_buffer.close()
+        zip_name = graph.slug + '.zip'
+
+        return zip_data, zip_name

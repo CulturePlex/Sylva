@@ -210,17 +210,15 @@ class NodesManager(BaseManager):
     def delete(self, **options):
         if "label" in options:
             label = options.get("label")
-            eltos = self.gdb.get_nodes_by_label(label,
-                                                include_properties=False)
+            eltos = self.gdb.get_nodes_by_label(label, include_properties=False)
             nodes_id = []
-            # We have first to remove the relationships
-            for node_id, props in eltos:
+            for node_id, n_props, n_label in eltos:
                 for relationship in self.get(node_id).relationships.all():
                     relationship.delete()
                 nodes_id.append(node_id)
             count = self.gdb.delete_nodes(nodes_id)
             with transaction.commit_on_success():
-                self.data.total_relationships -= count
+                self.data.total_nodes -= count
                 self.data.save()
                 if self.schema:
                     schema = self.schema
@@ -349,10 +347,13 @@ class RelationshipsManager(BaseManager):
     def delete(self, **options):
         if "label" in options:
             label = options.get("label")
-            eltos = self.gdb.get_relationships_by_label(label,
-                                                    include_properties=False)
-            count = self.gdb.delete_relationships([relationship_id
-                                       for relationship_id, props in eltos])
+            eltos = self.gdb.get_relationships_by_label(
+                label,
+                include_properties=False
+            )
+            count = self.gdb.delete_relationships(
+                [relationship_id for relationship_id, r_props, r_label in eltos]
+            )
             with transaction.commit_on_success():
                 self.data.total_relationships -= count
                 self.data.save()

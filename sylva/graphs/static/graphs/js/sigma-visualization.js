@@ -1,7 +1,7 @@
 // JSHint options
 
 /*global window:true, document:true, setTimeout:true, console:true, jQuery:true,
-sylv:true, prompt:true, alert:true, FileReader:true, Processing:true, sigma:true,
+sylva:true, prompt:true, alert:true, FileReader:true, Processing:true, sigma:true,
 clearTimeout */
 
 
@@ -9,7 +9,7 @@ clearTimeout */
  * Sigma.js visualization
  ****************************************************************************/
 
-;(function(sylv, sigma, $, window, document, undefined) {
+;(function(sylva, sigma, $, window, document, undefined) {
 
   // Layout algorithm state.
   var isDrawing = false;
@@ -22,12 +22,12 @@ clearTimeout */
     init: function() {
       var that = this;
       // Nodes and edges.
-      var sylv_nodes = sylv.total_nodes;
-      var sylv_edges = sylv.total_edges;
+      var sylv_nodes = sylva.total_nodes;
+      var sylv_edges = sylva.total_edges;
       // Node info.
       var $tooltip;
       // Graph size.
-      var size = sylv.size;
+      var size = sylva.size;
 
       // Instanciate Sigma.js and customize rendering.
       var sigInst = sigma.init(document.getElementById('sigma-container')).drawingProperties({
@@ -51,7 +51,7 @@ clearTimeout */
         sigInst.addNode(n, {
           x: Math.random(),
           y: Math.random(),
-          color: sylv.colors[sylv_nodes[n].type]
+          color: sylva.colors[sylv_nodes[n].type]
         });
       }
 
@@ -116,7 +116,7 @@ clearTimeout */
         }
 
         // Update node legend.
-        sylv.Utils.updateNodeLegend(sylv_nodes[nodePK].id, nodePK, 'element-info');
+        sylva.Utils.updateNodeLegend(sylv_nodes[nodePK].id, nodePK, 'element-info');
 
       });
 
@@ -232,6 +232,6 @@ clearTimeout */
   };
 
   // Reveal module.
-  window.sylv.Sigma = Sigma;
+  window.sylva.Sigma = Sigma;
 
-})(sylv, sigma, jQuery, window, document);
+})(sylva, sigma, jQuery, window, document);

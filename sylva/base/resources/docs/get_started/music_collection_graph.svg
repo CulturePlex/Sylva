@@ -13,7 +13,7 @@
    height="297mm"
    id="svg2"
    version="1.1"
-   inkscape:version="0.47 r22583"
+   inkscape:version="0.48.3.1 r9886"
    sodipodi:docname="music_collection_graph.svg">
   <defs
      id="defs4">
@@ -392,15 +392,15 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="0.98994949"
-     inkscape:cx="521.12034"
-     inkscape:cy="823.92356"
+     inkscape:cx="552.49439"
+     inkscape:cy="771.92347"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
-     inkscape:window-width="1024"
-     inkscape:window-height="723"
+     inkscape:window-width="1280"
+     inkscape:window-height="1000"
      inkscape:window-x="0"
-     inkscape:window-y="0"
+     inkscape:window-y="24"
      inkscape:window-maximized="1"
      inkscape:snap-bbox="true" />
   <metadata
@@ -422,7 +422,7 @@
     <g
        id="g10069"
        transform="matrix(1.0095873,0,0,1.0095779,-3.6526097,-1.9436331)"
-       inkscape:export-filename="/home/sergio/proyectos/cultureplex/docs/sylva/help_system/get_started/img/path2816-4.png"
+       inkscape:export-filename="/home/sergio/descargas/salida.png"
        inkscape:export-xdpi="90"
        inkscape:export-ydpi="90">
       <path
@@ -446,7 +446,7 @@
     <g
        id="g9957"
        transform="translate(-2,6)"
-       inkscape:export-filename="/home/sergio/proyectos/cultureplex/docs/sylva/help_system/get_started/img/path2816-4.png"
+       inkscape:export-filename="/home/sergio/descargas/salida.png"
        inkscape:export-xdpi="90"
        inkscape:export-ydpi="90">
       <path
@@ -493,7 +493,7 @@
     <g
        id="g9965"
        transform="translate(-12,0)"
-       inkscape:export-filename="/home/sergio/proyectos/cultureplex/docs/sylva/help_system/get_started/img/path2816-4.png"
+       inkscape:export-filename="/home/sergio/descargas/salida.png"
        inkscape:export-xdpi="90"
        inkscape:export-ydpi="90">
       <path
@@ -540,7 +540,7 @@
     <g
        id="g9973"
        transform="translate(-2,-6)"
-       inkscape:export-filename="/home/sergio/proyectos/cultureplex/docs/sylva/help_system/get_started/img/path2816-4.png"
+       inkscape:export-filename="/home/sergio/descargas/salida.png"
        inkscape:export-xdpi="90"
        inkscape:export-ydpi="90">
       <path
@@ -590,7 +590,7 @@
     <g
        transform="matrix(-1.0072536,-0.05964276,0.05959805,-1.0080092,844.55497,479.69939)"
        id="g10069-5"
-       inkscape:export-filename="/home/sergio/proyectos/cultureplex/docs/sylva/help_system/get_started/img/path2816-4.png"
+       inkscape:export-filename="/home/sergio/descargas/salida.png"
        inkscape:export-xdpi="90"
        inkscape:export-ydpi="90">
       <path
@@ -614,7 +614,7 @@
     <g
        transform="matrix(-0.35504072,0.94449095,-0.94522594,-0.35522162,669.05165,-93.046907)"
        id="g10069-5-4"
-       inkscape:export-filename="/home/sergio/proyectos/cultureplex/docs/sylva/help_system/get_started/img/path2816-4.png"
+       inkscape:export-filename="/home/sergio/descargas/salida.png"
        inkscape:export-xdpi="90"
        inkscape:export-ydpi="90">
       <path
@@ -638,7 +638,7 @@
     <g
        transform="matrix(0.68765741,0.85570711,-0.97430072,0.54570519,291.95619,-359.50369)"
        id="g10069-5-2"
-       inkscape:export-filename="/home/sergio/proyectos/cultureplex/docs/sylva/help_system/get_started/img/path2816-4.png"
+       inkscape:export-filename="/home/sergio/descargas/salida.png"
        inkscape:export-xdpi="90"
        inkscape:export-ydpi="90">
       <path
@@ -665,7 +665,7 @@
        x="358.63657"
        y="105.14985"
        id="text10295-3"
-       inkscape:export-filename="/home/sergio/proyectos/cultureplex/docs/sylva/help_system/get_started/img/path2816-4.png"
+       inkscape:export-filename="/home/sergio/descargas/salida.png"
        inkscape:export-xdpi="90"
        inkscape:export-ydpi="90"><tspan
          sodipodi:role="line"
@@ -679,22 +679,22 @@
        x="356.04889"
        y="-155.85657"
        id="text10295-3-9"
-       inkscape:export-filename="/home/sergio/proyectos/cultureplex/docs/sylva/help_system/get_started/img/path2816-4.png"
+       inkscape:export-filename="/home/sergio/descargas/salida.png"
        inkscape:export-xdpi="90"
        inkscape:export-ydpi="90"
        transform="matrix(0.53329581,0.84592882,-0.84592882,0.53329581,0,0)"><tspan
          sodipodi:role="line"
          x="356.04889"
          y="-155.85657"
-         style="font-size:13.00000007;text-align:center;text-anchor:middle"
-         id="tspan10299-4-3">record</tspan></text>
+         style="font-size:13px;text-align:center;text-anchor:middle"
+         id="tspan10299-4-3">records</tspan></text>
     <text
        xml:space="preserve"
        style="font-size:40px;font-style:normal;font-weight:normal;text-align:center;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Bitstream Vera Sans"
        x="54.941719"
        y="455.37277"
        id="text10295-3-0-9"
-       inkscape:export-filename="/home/sergio/proyectos/cultureplex/docs/sylva/help_system/get_started/img/path2816-4.png"
+       inkscape:export-filename="/home/sergio/descargas/salida.png"
        inkscape:export-xdpi="90"
        inkscape:export-ydpi="90"
        transform="matrix(0.57216602,-0.82013782,0.82013782,0.57216602,0,0)"><tspan
@@ -709,7 +709,7 @@
        x="68.892021"
        y="514.83112"
        id="text10295-3-0-9-7"
-       inkscape:export-filename="/home/sergio/proyectos/cultureplex/docs/sylva/help_system/get_started/img/path2816-4.png"
+       inkscape:export-filename="/home/sergio/descargas/salida.png"
        inkscape:export-xdpi="90"
        inkscape:export-ydpi="90"
        transform="matrix(0.57216602,-0.82013782,0.82013782,0.57216602,0,0)"><tspan
@@ -718,5 +718,15 @@
          y="514.83112"
          style="font-size:13.00000001;text-align:center;text-anchor:middle"
          id="tspan10299-4-0-6-7">includes songs from</tspan></text>
-  </g>
+    <flowRoot
+       xml:space="preserve"
+       id="flowRoot3078"
+       style="fill:black;stroke:none;stroke-opacity:1;stroke-width:1px;stroke-linejoin:miter;stroke-linecap:butt;fill-opacity:1;font-family:Sans;font-style:normal;font-weight:normal;font-size:40px;line-height:125%;letter-spacing:0px;word-spacing:0px"><flowRegion
+         id="flowRegion3080"><rect
+           id="rect3082"
+           width="368.70569"
+           height="331.33005"
+           x="185.86807"
+           y="57.361923" /></flowRegion><flowPara
+         id="flowPara3084"></flowPara></flowRoot>  </g>
 </svg>

@@ -1,8 +1,10 @@
 // JSHint options
 
-/*global window:true, document:true, setTimeout:true, console:true, jQuery:true, sylv:true, prompt:true, alert:true, FileReader:true, Processing:true, DOMParser:true */
+/*global window:true, document:true, setTimeout:true, console:true, jQuery:true, sylva:true, prompt:true, alert:true, FileReader:true, Processing:true, DOMParser:true */
 
-;(function(sylv, $, window, document, undefined) {
+;(function(sylva, $, window, document, undefined) {
+
+  "use strict";
 
   var GraphEditor = {
     DEBUG: true,
@@ -10,7 +12,7 @@
     USES_DRAWER: undefined,
     USES_TYPES: undefined,
 
-    PDE_URL: sylv.PDE_URL,
+    PDE_URL: sylva.PDE_URL,
 
     // This parameter should be set to true with long batch
     // operations (loading from GEXF) and set to false again
@@ -453,54 +455,62 @@
       });
     },
 
-    loadSchema: function(nodeTypeLabel, edgeTypeLabel){
+    loadSchema: function(nodeTypeLabel, edgeTypeLabel) {
       var _nodeTypeLabel = (nodeTypeLabel === undefined) ? "type" : nodeTypeLabel;
       var _edgeTypeLabel = (edgeTypeLabel === undefined) ? "type" : edgeTypeLabel;
-      // Introspect graph schema
       var nodes = this.getGraphNodesJSON();
+      var edges = this.getGraphEdgesJSON();
       var nodeTypes = {};
+      var edgeTypes = {};
       var nodeTypeProperties;
-      $.each(nodes, function(index, item){
 
+      // Nodes
+      $.each(nodes, function(index, item) {
         // Node properties
         nodeTypeProperties = {_nameLabel: {}};
-        $.each(item, function(pIndex, pValue){
-          if (pIndex !== _nodeTypeLabel && pIndex !== "position"){
+        $.each(item, function(pIndex, pValue) {
+          if (pIndex !== _nodeTypeLabel && pIndex !== "position") {
             nodeTypeProperties[pIndex] = {};
           }
         });
+
         if (!nodeTypes.hasOwnProperty(item[_nodeTypeLabel])) {
           nodeTypes[item[_nodeTypeLabel]] = nodeTypeProperties;
         } else {
-          $.each(nodeTypeProperties, function(pIndex, pValue){
+          $.each(nodeTypeProperties, function(pIndex, pValue) {
             nodeTypes[item[_nodeTypeLabel]][pIndex] = {};
           });
         }
       });
-      var edgeTypes = {};
-      var edges = this.getGraphEdgesJSON();
-      $.each(edges, function(index, item){
-        var edgeLabel = nodes[item.source].type + "_" +
-            item[_edgeTypeLabel] +
-            "_" + nodes[item.target].type;
-        if (!edgeTypes.hasOwnProperty(edgeLabel)){
+
+      // Edges
+      $.each(edges, function(index, item) {
+        var edgeLabel = nodes[item.source].type + "_" + item[_edgeTypeLabel] +
+                        "_" + nodes[item.target].type;
+        var edgeProperties = {};
+        $.each(item.properties, function(pIndex, pValue) {
+            edgeProperties[pIndex] = {};
+        });
+
+        if (!edgeTypes.hasOwnProperty(edgeLabel)) {
           edgeTypes[edgeLabel] = {
             source: nodes[item.source][_nodeTypeLabel],
             label: item[_edgeTypeLabel],
             target: nodes[item.target][_nodeTypeLabel],
-            properties: item.properties
+            properties: edgeProperties
           };
         }
       });
+
       var schema = {
         nodeTypes: nodeTypes,
         allowedEdges: edgeTypes
       };
+
       this.schema = schema;
-      this.schemaToList('graph-schema-nodes',
-                        'graph-schema-edges',
-                        schema);
+      this.schemaToList('graph-schema-nodes', 'graph-schema-edges', schema);
       $('#id_graph_schema').val(JSON.stringify(schema));
+
       return schema;
     },
 
@@ -585,6 +595,6 @@
     }
   };
 
-  window.sylv.GraphEditor = GraphEditor;
+  window.sylva.GraphEditor = GraphEditor;
 
-})(sylv, jQuery, window, document);
+})(sylva, jQuery, window, document);

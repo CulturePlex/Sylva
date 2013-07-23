@@ -7,12 +7,15 @@ urlpatterns = patterns('tools.views',
         name="tool_import"),
 
     # ajax creation methods
-    url(r'^(?P<graph_slug>[\w-]+)/ajax-node/create/$',
-        'ajax_node_create', name="ajax_node_create"),
-    url(r'^(?P<graph_slug>[\w-]+)/ajax-relationship/create/$',
-        'ajax_relationship_create', name="ajax_relationship_create"),
+    url(r'^(?P<graph_slug>[\w-]+)/ajax-nodes/create/$',
+        'ajax_nodes_create', name="ajax_nodes_create"),
+    url(r'^(?P<graph_slug>[\w-]+)/ajax-relationships/create/$',
+        'ajax_relationships_create', name="ajax_relationships_create"),
 
-    # export tool
-    url(r'^(?P<graph_slug>[\w-]+)/export/$', 'graph_export_tool',
-        name="tool_export"),
+    # export GEXF (Gephi)
+    url(r'^(?P<graph_slug>[\w-]+)/export/gexf/$', 'graph_export_gexf',
+        name="graph_export_gexf"),
+    # export CSV
+    url(r'^(?P<graph_slug>[\w-]+)/export/csv/$', 'graph_export_csv',
+        name="graph_export_csv"),
 )

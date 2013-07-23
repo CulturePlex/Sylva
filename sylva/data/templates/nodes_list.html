@@ -2,110 +2,104 @@
 {% load i18n graphs %}
 
 {% block content_title %}
-{% breadcrumb graph graph.data %}
-<!--<h2>{% trans "Graphs" %} » {{ graph.name|truncatewords_html:5 }} » {% trans "Nodes" %}</h2>-->
+  {% breadcrumb graph graph.data %}
 {% endblock %}
 
 {% block extra_scripts %}
-{{ block.super }}
-<script type="text/javascript">
+  {{ block.super }}
+
+  <script type="text/javascript">
     var retrieveRelationships = function(url, elementId){
-        $.ajax({
-            url: url,
-            success: function(data){
-                var label;
-                var relationships = JSON.parse(data);
-                var divs = [];
-                $.each(relationships, function(direction, rels){
-                    html = $('<div>');
-                    html.addClass('relationships-box');
-                    if (rels != false){
-                        html.append($('<span>').text(''));
-                    }
-                    $.each(rels, function(index, item){
-                        if (direction == "outgoing") {
-                          label = item.label + ' ' + item.node_display;
-                        } else {
-                          label = item.node_display + ' ' + item.label;
-                        }
-                        html.append($('<span>')
-                              .append(label))
-                                .append(' <br/> ');
-                    });
-                    divs.push(html);
-                });
-                $('#'+elementId).parent().next()
-                  .replaceWith(divs[1])
-                    .addClass('is-loaded');
-                $('#'+elementId)
-                  .replaceWith(divs[0])
-                    .addClass('is-loaded');
-            },
-            error: function(error){
-                console.log("ERROR: ", error);
+      $.ajax({
+        url: url,
+        success: function(data){
+          var label;
+          var relationships = JSON.parse(data);
+          var divs = [];
+          $.each(relationships, function(direction, rels){
+            html = $('<div>');
+            html.addClass('relationships-box');
+            if (rels != false){
+              html.append($('<span>').text(''));
             }
-        });
+            $.each(rels, function(index, item){
+              if (direction == "outgoing") {
+                label = item.label + ' ' + item.node_display;
+              } else {
+                label = item.node_display + ' ' + item.label;
+              }
+              html.append($('<span>')
+                  .append(label))
+                  .append(' <br/> ');
+            });
+            divs.push(html);
+          });
+          $('#'+elementId).parent().next()
+            .replaceWith(divs[1])
+            .addClass('is-loaded');
+          $('#'+elementId)
+            .replaceWith(divs[0])
+            .addClass('is-loaded');
+        },
+        error: function(error){
+          console.log("ERROR: ", error);
+        }
+      });
     };
 
     // Bind events to data toggle controls to start the auto fetching of relationships
     $('.data-preview-toggle').live('click', function(){
-        $.each($('.retrieve-relationships'), function(index){
-          var element = $(this);
-          // Fetch elements that are not already loaded and are visible
-          if (!element.hasClass('is-loaded') && element.closest('div').css('display') == "block") {
-            element.click();
-          }
-        });
+      $.each($('.retrieve-relationships'), function(index){
+        var element = $(this);
+        // Fetch elements that are not already loaded and are visible
+        if (!element.hasClass('is-loaded') && element.closest('div').css('display') == "block") {
+          element.click();
+        }
+      });
     });
-</script>
+  </script>
 {% endblock %}
 
 {% block last_row_element %}
-<td>
-  <a class="retrieve-relationships" id="rel_{{ cell }}"
-  onClick="retrieveRelationships('{% url node_relationships graph.slug cell %}', 'rel_{{ cell }}')">
-    {% trans "Retrieve relationships" %}
-  </a>
-</td>
-<td>
-  -
-</td>
+  <td>
+    <a class="retrieve-relationships" id="rel_{{ cell }}" onClick="retrieveRelationships('{% url node_relationships graph.slug cell %}', 'rel_{{ cell }}')">
+      {% trans "Retrieve relationships" %}
+    </a>
+  </td>
+  <td>
+    -
+  </td>
 {% endblock %}
 
 {% block last_row_element_title %}
-<th>
-{% trans "Outgoing relationships" %}
-</th>
-<th>
-{% trans "Incoming relationships" %}
-</th>
+  <th>{% trans "Outgoing relationships" %}</th>
+  <th>{% trans "Incoming relationships" %}</th>
 {% endblock %}
 
-
 {% block content_bottom_bar %}
-    {% if option.3 or node_type %}
-        {% if node_type %}
-            <a class="button" href="{% url nodes_create graph.slug node_type.id %}">
-        {% else %}
-            <a class="button" href="{% url nodes_create graph.slug option.3 %}">
-        {% endif %}
-        {% blocktrans with node_type=option.0 %}
-            New {{ node_type }}
-        {% endblocktrans %}</a>
-        <span class="buttonLinkOption">
-            {% if not node_type %}
-                <a class="data-preview-toggle" href="javascript:;" onClick="divId='lc_'+{{forloop.counter}};if(document.getElementById(divId).style.display == 'none'){ document.getElementById(divId).style.display = 'block'; }else{ document.getElementById(divId).style.display = 'none'; }">
-                {% trans "Preview" %}
-                </a>
-                {% trans "or" %}
-                <a href="{% url nodes_list_full graph.slug option.3 %}">
-                    {% blocktrans with node_type=option.0 %}
-                        Show all
-                    {% endblocktrans %}
-                </a>
-            {% else %}
-                {% trans "Showing" %} {{ node_type.count }} {% trans "total elements" %}
-            {% endif %}
-        </span>
+  {% if option.3 or node_type %}
+    {% if node_type %}
+      <a class="button" href="{% url nodes_create graph.slug node_type.id %}">
+    {% else %}
+      <a class="button" href="{% url nodes_create graph.slug option.3 %}">
     {% endif %}
+    {% blocktrans with node_type=option.0 %}
+      New {{ node_type }}
+    {% endblocktrans %}</a>
+    <span class="buttonLinkOption">
+      {% if not node_type %}
+        <a class="data-preview-toggle" href="javascript:;" onClick="divId='lc_'+{{forloop.counter}};if(document.getElementById(divId).style.display == 'none'){ document.getElementById(divId).style.display = 'block'; }else{ document.getElementById(divId).style.display = 'none'; }">
+          {% trans "Preview" %}
+        </a>
+        {% trans "or" %}
+        <a href="{% url nodes_list_full graph.slug option.3 %}">
+          {% blocktrans with node_type=option.0 %}
+            Show all
+          {% endblocktrans %}
+        </a>
+      {% else %}
+        {% trans "Showing" %} {{ node_type.count }} {% trans "total elements" %}
+      {% endif %}
+    </span>
+  {% endif %}
 {% endblock %}

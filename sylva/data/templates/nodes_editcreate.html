@@ -3,360 +3,366 @@
 {% load string_filters %}
 
 {% block extra_links %}
-    <link href="{{ STATIC_PREFIX }}css/token.input.css" type="text/css" rel="stylesheet" />
+  <link href="{{ STATIC_PREFIX }}css/token.input.css" type="text/css" rel="stylesheet" />
 {% endblock %}
 
 {% block navigation_buttons %}
-{{ block.super }}
+  {{ block.super }}
 {% endblock %}
 
 {% block title %}
-{{ graph.name }}
+  {{ graph.name }}
 {% endblock %}
 
 {% block menu_buttons %}
-{% toolbar on="nodes" %}
+  {% toolbar on="nodes" %}
 {% endblock %}
 
 {% block content_title %}
-{% breadcrumb graph graph.data nodetype action %}
-<!--<h2>{% trans "Graphs" %} » {{ graph.name|truncatewords_html:5 }} » {% trans "Nodes" %} » {{ action }} {{ nodetype.name }}</h2>-->
+  {% breadcrumb graph graph.data nodetype action %}
+  <!--<h2>{% trans "Graphs" %} » {{ graph.name|truncatewords_html:5 }} » {% trans "Nodes" %} » {{ action }} {{ nodetype.name }}</h2>-->
 {% endblock %}
 
 {% block content %}
-<div id="content3">
-<form action="." method="POST" enctype="multipart/form-data">
-{% csrf_token %}
-    <div class="content{% if outgoing_formsets or incoming_formsets %}3-block{% else %}2-first{% endif %}">
+  <div id="content3">
+    <form action="." method="POST" enctype="multipart/form-data">
+      {% csrf_token %}
+      <div class="content3-block">
         <h2 id="propertiesTitle">{% trans "Properties" %}</h2>
         {% for field in node_form %}
-            <p {% if field.name in fields_to_hide and not field.value %}class="hidden"{% endif %}>
-            {{ field.errors }}
-            {{ field.label_tag }}
-            {{ field }}
-            {% if field.help_text %}
-                <span class="helptext">
-                {{ field.help_text }}
-                </span>
-            {% endif %}
-            </p>
+          <p {% if field.name in fields_to_hide and not field.value %}class="hidden"{% endif %}>
+          {{ field.errors }}
+          {{ field.label_tag }}
+          {{ field }}
+          {% if field.help_text %}
+            <span class="helptext">
+            {{ field.help_text }}
+            </span>
+          {% endif %}
+          </p>
         {% endfor %}
         <span class="buttonLinkOption buttonLinkLeft">
-            <input type="submit" value="{% trans "Save" %} {{ nodetype.name|capfirst }}"/>
+          <input type="submit" value="{% trans "Save" %} {{ nodetype.name|capfirst }}"/>
         </span>
         <span class="buttonLinkOption buttonLinkRight">
-            {% if delete %}
-            <a href="{% url nodes_delete graph.slug node.id %}">{% trans "Remove" %}</a>
+          {% if delete %}
+          <a href="{% url nodes_delete graph.slug node.id %}">{% trans "Remove" %}</a>
+          {% endif %}
+          {% trans "or" %}
+          <a href="{% url nodes_list graph.slug %}">{% trans "Cancel" %}</a>.</span>
+      </div>
+      {% if outgoing_formsets or incoming_formsets %}
+        <div class="content-divider"></div>
+        <div class="content3-block relationships">
+          <select id="h2-relationships">
+            <option value="all">{% trans "All Relationships" %}</option>
+            {% if incoming_formsets %}
+            <option value="incoming">{% trans "Incoming" %}</option>
             {% endif %}
-            {% trans "or" %}
-            <a href="{% url nodes_list graph.slug %}">{% trans "Cancel" %}</a>.</span>
-    </div>
-    {% if outgoing_formsets or incoming_formsets %}
-    <div class="content-divider"></div>
-    <div class="content3-block relationships">
-    <select id="h2-relationships">
-        <option value="all">{% trans "All Relationships" %}</option>
-        {% if incoming_formsets %}
-        <option value="incoming">{% trans "Incoming" %}</option>
-        {% endif %}
-        {% if outgoing_formsets %}
-        <option value="outgoing">{% trans "Outgoing" %}</option>
-        {% endif %}
-        {% for p in prefixes %}
-            <option value="{{ p.key }}">{{ p.value }}</option>
-        {% endfor %}
-    </select>
-    {% if outgoing_formsets %}
+            {% if outgoing_formsets %}
+            <option value="outgoing">{% trans "Outgoing" %}</option>
+            {% endif %}
+            {% for p in prefixes %}
+              <option value="{{ p.key }}">{{ p.value }}</option>
+            {% endfor %}
+          </select>
+          {% if outgoing_formsets %}
             {% for prefix, outgoing_formset in outgoing_formsets.items %}
-            <span class="all-relationships outgoing-relationships {{ prefix }}-relationships">
+              <span class="all-relationships outgoing-relationships {{ prefix }}-relationships">
                 {{ outgoing_formset.management_form }}
                 <label>
                 <span class="symbol-medium">→</span> {{ outgoing_formset.itemtype.name }} ({{ outgoing_formset.itemtype.target.name }})
                 </label>
                 <span class="helptext">
-                    {% trans "Target of the relationship" %}
-                    <a href="{% url nodes_create outgoing_formset.itemtype.schema.graph.slug outgoing_formset.itemtype.target.id %}">
-                        {% trans "Add" %} {{ outgoing_formset.itemtype.target.name }}
-                    </a>
+                  {% trans "Target of the relationship" %}
+                  <a href="{% url nodes_create outgoing_formset.itemtype.schema.graph.slug outgoing_formset.itemtype.target.id %}">
+                    {% trans "Add" %} {{ outgoing_formset.itemtype.target.name }}
+                  </a>
                 </span>
                 {% for outgoing_form in outgoing_formset %}
-                    <span>
-                    {% if forloop.last %}
-                        <div id="{{ prefix }}">
-                        {{ outgoing_form.as_p }}
-                        </div>
-                    {% else %}
-                        <a class="delete-row initial-form floating" href="javascript:void(0)">
-                            <!-- {% trans "Remove" %} {{ outgoing_formset.itemtype.name }} -->
-                        </a>
-                        <div class="initial" id="{{ prefix }}-form-{{ forloop.counter0 }}">
-                        {{ outgoing_form.as_p }}
-                        </div>
-                    {% endif %}
-                    </span>
+                  <span>
+                  {% if forloop.last %}
+                    <div id="{{ prefix }}">
+                    {{ outgoing_form.as_p }}
+                    </div>
+                  {% else %}
+                    <a class="delete-row initial-form floating" href="javascript:void(0)">
+                      <!-- {% trans "Remove" %} {{ outgoing_formset.itemtype.name }} -->
+                    </a>
+                    <div class="initial" id="{{ prefix }}-form-{{ forloop.counter0 }}">
+                    {{ outgoing_form.as_p }}
+                    </div>
+                  {% endif %}
+                  </span>
                 {% endfor %}
-            </span>
+              </span>
             {% endfor %}
-    {% endif %}
-    {% if incoming_formsets %}
+          {% endif %}
+          {% if incoming_formsets %}
             {% for prefix, incoming_formset in incoming_formsets.items %}
-            <span class="all-relationships incoming-relationships {{ prefix }}-relationships">
+              <span class="all-relationships incoming-relationships {{ prefix }}-relationships">
                 {{ incoming_formset.management_form }}
                 <label>
                 <span class="symbol-medium">←</span> {{ incoming_formset.itemtype.name }} ({{ incoming_formset.itemtype.source.name }})
                 </label>
                 <span class="helptext">
-                    {% trans "Source of the relationship" %}
-                    <a href="{% url nodes_create incoming_formset.itemtype.schema.graph.slug incoming_formset.itemtype.source.id %}">
-                        {% trans "Add" %} {{ incoming_formset.itemtype.source.name }}
-                    </a>
+                  {% trans "Source of the relationship" %}
+                  <a href="{% url nodes_create incoming_formset.itemtype.schema.graph.slug incoming_formset.itemtype.source.id %}">
+                    {% trans "Add" %} {{ incoming_formset.itemtype.source.name }}
+                  </a>
                 </span>
                 {% for incoming_form in incoming_formset %}
-                    <span>
-                    {% if forloop.last %}
-                        <div id="{{ prefix }}">
-                        {{ incoming_form.as_p }}
-                        </div>
-                    {% else %}
-                        <a class="delete-row initial-form floating" href="javascript:void(0)">
-                            <!--
-                            {% trans "Remove" %}
-                            {% if incoming_formset.itemtype.inverse %}
-                                {{ incoming_formset.itemtype.inverse }}
-                            {% else %}
-                                {{ incoming_formset.itemtype.name }}
-                            {% endif %}
-                            -->
-                        </a>
-                        <div class="initial" id="{{ prefix }}-form-{{ forloop.counter0 }}">
-                        {{ incoming_form.as_p }}
-                        </div>
-                    {% endif %}
-                    </span>
+                  <span>
+                  {% if forloop.last %}
+                    <div id="{{ prefix }}">
+                    {{ incoming_form.as_p }}
+                    </div>
+                  {% else %}
+                    <a class="delete-row initial-form floating" href="javascript:void(0)">
+                      <!--
+                      {% trans "Remove" %}
+                      {% if incoming_formset.itemtype.inverse %}
+                        {{ incoming_formset.itemtype.inverse }}
+                      {% else %}
+                        {{ incoming_formset.itemtype.name }}
+                      {% endif %}
+                      -->
+                    </a>
+                    <div class="initial" id="{{ prefix }}-form-{{ forloop.counter0 }}">
+                    {{ incoming_form.as_p }}
+                    </div>
+                  {% endif %}
+                  </span>
                 {% endfor %}
-            </span>
+              </span>
             {% endfor %}
-        {% endif %}
-    </div>
-    {% endif %}
-    <div class="content-divider"></div>
-    <div class="content{% if outgoing_formsets or incoming_formsets %}3-block{% else %}2-second{% endif %}">
+          {% endif %}
+        </div>
+      {% endif %}
+      <div class="content-divider"></div>
+      <div class="content3-block">
         <h2 id="filesTitle">{% trans "Files" %}</h2>
         {{ mediafile_formset.management_form }}
         {% for mediafile_form in mediafile_formset.forms %}
-            {% if forloop.last %}
-                <div id="{{ mediafile_formset.prefix }}">
-                {{ mediafile_form.as_p }}
-                </div>
-            {% else %}
-                <div class="initial" id="{{ mediafile_formset.prefix }}-form-{{ forloop.counter0 }}">
-                    {{ mediafile_form.as_p }}
-                    <a class="fileDelete delete-rowupFiles initial-form" href="javascript:void(0)"></a>
-                </div>
-            {% endif %}
+          {% if forloop.last %}
+            <div id="{{ mediafile_formset.prefix }}">
+            {{ mediafile_form.as_p }}
+            </div>
+          {% else %}
+            <div class="initial" id="{{ mediafile_formset.prefix }}-form-{{ forloop.counter0 }}">
+              {{ mediafile_form.as_p }}
+              <a class="fileDelete delete-rowupFiles initial-form" href="javascript:void(0)"></a>
+            </div>
+          {% endif %}
         {% endfor %}
         <h2 id="linksTitle">{% trans "Links" %}</h2>
         {{ medialink_formset.management_form }}
         {% for medialink_form in medialink_formset.forms %}
-            {% if forloop.last %}
-                <div id="{{ medialink_formset.prefix }}">
-                {{ medialink_form.as_p }}
-                </div>
-            {% else %}
-                <div class="initial" id="{{ medialink_formset.prefix }}-form-{{ forloop.counter0 }}">
-                    {{ medialink_form.as_p }}
-                    <a class="linkDelete delete-rowupLinks initial-form" href="javascript:void(0)"></a>
-                </div>
-            {% endif %}
+          {% if forloop.last %}
+            <div id="{{ medialink_formset.prefix }}">
+            {{ medialink_form.as_p }}
+            </div>
+          {% else %}
+            <div class="initial" id="{{ medialink_formset.prefix }}-form-{{ forloop.counter0 }}">
+              {{ medialink_form.as_p }}
+              <a class="linkDelete delete-rowupLinks initial-form" href="javascript:void(0)"></a>
+            </div>
+          {% endif %}
         {% endfor %}
-    </div>
-</form>
-</div>
+      </div>
+    </form>
+  </div>
 
-<!-- Features Tour -->
-<ol id="tour" class="hidden">
-  <li data-id="propertiesTitle" data-button="{% trans "Next" %}" class="joyride-position-data-properties">
-    <h2>{% trans "Properties" %}</h2>
-    <p>{% trans "The properties fields of this Type." %}</p>
-  </li>
-  <li data-id="h2-relationships" data-button="{% trans "Next" %}" class="joyride-position-data-relationships">
-    <h2>{% trans "Relationships" %}</h2>
-    <p>{% trans "By default, all the allowed relationships are showed. Clicking on this box, you can filter by other criteria." %}</p>
-  </li>
-  <li data-class="token-input-input-token" data-button="{% trans "Next" %}" class="joyride-position-data-relationship-input">
-    <h2>{% trans "Create relationship" %}</h2>
-    <p>{% trans "Start typing the label of a node to show it." %}</p>
-  </li>
-  <li data-class="addButton" data-button="{% trans "Next" %}" class="joyride-position-data-more-relationships">
-    <h2>{% trans "More relationships" %}</h2>
-    <p>{% trans "You can create more relationships of this type." %}</p>
-  </li>
-  <li data-id="filesTitle" data-button="{% trans "Next" %}" class="joyride-position-data-files">
-    <h2>{% trans "Files" %}</h2>
-    <p>{% trans "You can add files to this Type." %}</p>
-  </li>
-  <li data-id="linksTitle" data-button="{% trans "Finish" %}" class="joyride-position-data-links">
-    <h2>{% trans "Links" %}</h2>
-    <p>{% trans "Also you can add links." %}</p>
-  </li>
-</ol>
-
+  <!-- Features Tour -->
+  <ol id="tour" class="hidden">
+    <li data-id="propertiesTitle" data-button="{% trans "Next" %}" class="joyride-position-data-properties">
+      <h2>{% trans "Properties" %}</h2>
+      <p>{% trans "The properties fields of this Type." %}</p>
+    </li>
+    <li data-id="h2-relationships" data-button="{% trans "Next" %}" class="joyride-position-data-relationships">
+      <h2>{% trans "Relationships" %}</h2>
+      <p>{% trans "By default, all the allowed relationships are showed. Clicking on this box, you can filter by other criteria." %}</p>
+    </li>
+    <li data-class="token-input-input-token" data-button="{% trans "Next" %}" class="joyride-position-data-relationship-input">
+      <h2>{% trans "Create relationship" %}</h2>
+      <p>{% trans "Start typing the label of a node to show it." %}</p>
+    </li>
+    <li data-class="addButton" data-button="{% trans "Next" %}" class="joyride-position-data-more-relationships">
+      <h2>{% trans "More relationships" %}</h2>
+      <p>{% trans "You can create more relationships of this type." %}</p>
+    </li>
+    <li data-id="filesTitle" data-button="{% trans "Next" %}" class="joyride-position-data-files">
+      <h2>{% trans "Files" %}</h2>
+      <p>{% trans "You can add files to this Type." %}</p>
+    </li>
+    <li data-id="linksTitle" data-button="{% trans "Finish" %}" class="joyride-position-data-links">
+      <h2>{% trans "Links" %}</h2>
+      <p>{% trans "Also you can add links." %}</p>
+    </li>
+  </ol>
 {% endblock %}
 
 {% block extra_scripts %}
-    {{ node_form.media }}
-    {% for prefix, outgoing_formset in outgoing_formsets.items %}
-        {{ outgoing_formset.media }}
-    {% endfor %}
-    {% for prefix, incoming_formset in incoming_formsets.items %}
-        {{ incoming_formset.media }}
-    {% endfor %}
-<script type="text/javascript" src="{{ STATIC_PREFIX }}js/jquery.formsets.1.2.min.js"></script>
-<script type="text/javascript" src="{{ STATIC_PREFIX }}js/jquery.tokeninput.js"></script>
-<script type="text/javascript">
+  {{ node_form.media }}
+  {% for prefix, outgoing_formset in outgoing_formsets.items %}
+    {{ outgoing_formset.media }}
+  {% endfor %}
+  {% for prefix, incoming_formset in incoming_formsets.items %}
+    {{ incoming_formset.media }}
+  {% endfor %}
+  <script src="{{ STATIC_PREFIX }}js/jquery.formsets.1.2.min.js"></script>
+  <script src="{{ STATIC_PREFIX }}js/jquery.tokeninput.js"></script>
+  <script>
     (function($) {
 
-        "use strict";
+      "use strict";
 
-        $(function() {
-            // Outgoing
-            {% for prefix, outgoing_formset in outgoing_formsets.items %}
-                var init_{{ prefix }} = function() {
-                    $("div#{{ prefix }}").formset({
-                        prefix: "{{ prefix }}",
-                        addCssClass: "addButton inFormsets",
-                        addText: "{% trans "Add" %} {{ outgoing_formset.itemtype.name }} ({{ outgoing_formset.itemtype.target.name }})",
-                        extraClasses: ["row1", "row2"],
-                        added: function(row) {$("#{{prefix}} p:last label").hide(); nodeAutocomplete(row.find("input.autocomplete"));},
-                        deleteCssClass: "delete-rowup{% if outgoing_formset.itemtype.properties.count %}Props{% endif %}",
-                        deleteText: "&nbsp;"
-                    });
-                };
-                $("#{{ prefix }} p:last label").hide();
-                init_{{ prefix }}();
-                $("#{{ prefix }} p:last label").hide();
-            {% endfor %}
-
-            // Incoming
-            {% for prefix, incoming_formset in incoming_formsets.items %}
-                var init_{{ prefix }} = function() {
-                    var label = "{% if incoming_formset.itemtype.inverse %}{{ incoming_formset.itemtype.inverse }}{% else %}{{ incoming_formset.itemtype.name }}{% endif %}";
-                    $("div#{{ prefix }}").formset({
-                        prefix: "{{ prefix }}",
-                        addCssClass: "addButton inFormsets",
-                        addText: "{% trans "Add" %} "+ label,  // +" ({{ incoming_formset.itemtype.source.name }})",
-                        extraClasses: ["row1", "row2"],
-                        added: function(row) {$("#{{prefix}} p:last label").hide(); nodeAutocomplete(row.find("input.autocomplete"));},
-                        deleteCssClass: "delete-rowup{% if incoming_formset.itemtype.properties.count %}Props{% endif %}",
-                        deleteText: "&nbsp;"
-                    });
-                };
-                $("#{{ prefix }} p:last label").hide();
-                init_{{ prefix }}();
-                $("#{{ prefix }} p:last label").hide();
-            {% endfor %}
-
-            // Files
-            var init{{ mediafile_formset.prefix }} = function() {
-                $("div#{{ mediafile_formset.prefix }}").formset({
-                    prefix: "{{ mediafile_formset.prefix }}",
-                    addCssClass: "addButton inFormsets",
-                    addText: "{% trans "Add File" %}",
-                    extraClasses: ["row1", "row2"],
-                    added: function(row) {$("#{{ mediafile_formset.prefix }} p:last label").hide();},
-                    deleteCssClass: "delete-rowupFiles",
-                    deleteText: "&nbsp;"
-                });
-            };
-            $("#{{ mediafile_formset.prefix }} p:last label").hide();
-            init{{ mediafile_formset.prefix }}();
-
-            // Links
-            var init{{ medialink_formset.prefix }} = function() {
-                $("div#{{ medialink_formset.prefix }}").formset({
-                    prefix: "{{ medialink_formset.prefix }}",
-                    addCssClass: "addButton inFormsets",
-                    addText: "{% trans "Add Link" %}",
-                    extraClasses: ["row1", "row2"],
-                    added: function(row) {$("#{{ medialink_formset.prefix }} p:last label").hide();},
-                    deleteCssClass: "delete-rowupLinks",
-                    deleteText: "&nbsp;"
-                });
-            };
-            $("#{{ medialink_formset.prefix }} p:last label").hide();
-            init{{ medialink_formset.prefix }}();
-
-            // Enable the deletion of initial forms
-            $(".initial-form").on("click", function(e) {
-                var $this = $(this);
-                var $parent = $this.parent();
-                $parent.find("input:checkbox[id $= -DELETE]").val("on").attr("checked", "checked");
-                $this.hide();
-                $parent.hide();
+      $(function() {
+        // Outgoing
+        {% for prefix, outgoing_formset in outgoing_formsets.items %}
+          var init_{{ prefix }} = function() {
+            $("div#{{ prefix }}").formset({
+              prefix: "{{ prefix }}",
+              addCssClass: "addButton inFormsets",
+              addText: "{% trans "Add" %} {{ outgoing_formset.itemtype.name }} ({{ outgoing_formset.itemtype.target.name }})",
+              extraClasses: ["row1", "row2"],
+              added: function(row) {$("#{{prefix}} p:last label").hide(); nodeAutocomplete(row.find("input.autocomplete"));},
+              deleteCssClass: "delete-rowup{% if outgoing_formset.itemtype.properties.count %}Props{% endif %}",
+              deleteText: ""
             });
+          };
+          $("#{{ prefix }} p:last label").hide();
+          init_{{ prefix }}();
+          $("#{{ prefix }} p:last label").hide();
+        {% endfor %}
 
-            // // For old browsers
-            // $(".initial-form").parents("div.initial").each(function(i, form) {
-            //     $(form).children("p:last").hide();
-            // });
-
-            // For the properties of the relationships
-            $(".relationships").on("click", ".toggleProperties", function (e) {
-                $(this).parents("p").siblings("p").toggle();
-                var last = $(this).parents("p").siblings("p:last");
-                if (last.parent().hasClass("initial") || last.parent().hasClass("dynamic-form")) {
-                    last.hide();
-                }
+        // Incoming
+        {% for prefix, incoming_formset in incoming_formsets.items %}
+          var init_{{ prefix }} = function() {
+            var label = "{% if incoming_formset.itemtype.inverse %}{{ incoming_formset.itemtype.inverse }}{% else %}{{ incoming_formset.itemtype.name }}{% endif %}";
+            $("div#{{ prefix }}").formset({
+              prefix: "{{ prefix }}",
+              addCssClass: "addButton inFormsets",
+              addText: "{% trans "Add" %} "+ label,  // +" ({{ incoming_formset.itemtype.source.name }})",
+              extraClasses: ["row1", "row2"],
+              added: function(row) {$("#{{prefix}} p:last label").hide(); nodeAutocomplete(row.find("input.autocomplete"));},
+              deleteCssClass: "delete-rowup{% if incoming_formset.itemtype.properties.count %}Props{% endif %}",
+              deleteText: ""
             });
+          };
+          $("#{{ prefix }} p:last label").hide();
+          init_{{ prefix }}();
+          $("#{{ prefix }} p:last label").hide();
+        {% endfor %}
 
-            // Expand properties box in case of form errors
-            if ($('.errorlist').length > 0) {
-                $('.toggleProperties').click();
-                $('.delete-rowupProps').last().click();
-            }
+        // Files
+        var init{{ mediafile_formset.prefix }} = function() {
+          $("div#{{ mediafile_formset.prefix }}").formset({
+            prefix: "{{ mediafile_formset.prefix }}",
+            addCssClass: "addButton inFormsets",
+            addText: "{% trans "Add File" %}",
+            extraClasses: ["row1", "row2"],
+            added: function(row) {$("#{{ mediafile_formset.prefix }} p:last label").hide();},
+            deleteCssClass: "delete-rowupFiles",
+            deleteText: ""
+          });
+        };
+        $("#{{ mediafile_formset.prefix }} p:last label").hide();
+        init{{ mediafile_formset.prefix }}();
 
-            // Enabling autocomplete for nodes
-            var nodeAutocomplete = function(input) {
-                var params = {}, $input = $(input);
-                if ($input.attr("class")) {
-                    if ($input.attr("class").indexOf(" ") > 0) {
-                        params = {
-                            queryParam: $input.attr("data-type"),
-                            minChars: 2,
-                            propertyToSearch: "display",
-                            tokenLimit: 1,
-                            preventDuplicates: true,
-                            tokenValue: "id",
-                            prePopulate: [{
-                                id: $input.val(),
-                                display: $input.attr("class").split(" ").slice(1).join(" ")
-                            }]
-                        };
-                    } else {
-                        params = {
-                            queryParam: $input.attr("data-type"),
-                            minChars: 2,
-                            propertyToSearch: "display",
-                            tokenLimit: 1,
-                            preventDuplicates: true,
-                            tokenValue: "id"
-                        };
-                    }
-                    $input.tokenInput("{% url nodes_lookup graph.slug %}", params);
-                }
-            };
+        // Links
+        var init{{ medialink_formset.prefix }} = function() {
+          $("div#{{ medialink_formset.prefix }}").formset({
+            prefix: "{{ medialink_formset.prefix }}",
+            addCssClass: "addButton inFormsets",
+            addText: "{% trans "Add Link" %}",
+            extraClasses: ["row1", "row2"],
+            added: function(row) {$("#{{ medialink_formset.prefix }} p:last label").hide();},
+            deleteCssClass: "delete-rowupLinks",
+            deleteText: ""
+          });
+        };
+        $("#{{ medialink_formset.prefix }} p:last label").hide();
+        init{{ medialink_formset.prefix }}();
 
-            $(".autocomplete").each(function(i, input) {
-                nodeAutocomplete(input);
-            });
-
-            // Selecting the type of relationships to show
-            $("#h2-relationships").change(function(e) {
-                var val = $(this).val();
-                $(".all-relationships").hide();
-                $("."+ val +"-relationships").show();
-            });
+        // Enable the deletion of initial forms
+        $(".initial-form").on("click", function(e) {
+          var $this = $(this);
+          var $parent = $this.parent();
+          $parent.find("input:checkbox[id $= -DELETE]").val("on").attr("checked", "checked");
+          $this.hide();
+          $parent.hide();
         });
+
+        // // For old browsers
+        // $(".initial-form").parents("div.initial").each(function(i, form) {
+        //     $(form).children("p:last").hide();
+        // });
+
+        // For the properties of the relationships
+        $(".relationships").on("click", ".toggleProperties", function (e) {
+          $(this).parents("p").siblings("p").toggle();
+          var last = $(this).parents("p").siblings("p:last");
+          if (last.parent().hasClass("initial") || last.parent().hasClass("dynamic-form")) {
+            last.hide();
+          }
+        });
+
+        // Expand properties box in case of form errors
+        if ($('.errorlist').length > 0) {
+          $('.toggleProperties').click();
+          $('.delete-rowupProps').last().click();
+        }
+
+        // Enabling autocomplete for nodes
+        var nodeAutocomplete = function(input) {
+          var params = {}, $input = $(input);
+          if ($input.attr("class")) {
+            if ($input.attr("class").indexOf(" ") > 0) {
+              params = {
+                queryParam: $input.attr("data-type"),
+                minChars: 2,
+                propertyToSearch: "display",
+                tokenLimit: 1,
+                preventDuplicates: true,
+                tokenValue: "id",
+                prePopulate: [{
+                  id: $input.val(),
+                  display: $input.attr("class").split(" ").slice(1).join(" ")
+                }]
+              };
+            } else {
+              params = {
+                queryParam: $input.attr("data-type"),
+                minChars: 2,
+                propertyToSearch: "display",
+                tokenLimit: 1,
+                preventDuplicates: true,
+                tokenValue: "id"
+              };
+            }
+            $input.tokenInput("{% url nodes_lookup graph.slug %}", params);
+          }
+        };
+
+        $(".autocomplete").each(function(i, input) {
+          nodeAutocomplete(input);
+        });
+
+        // Selecting the type of relationships to show
+        $("#h2-relationships").change(function(e) {
+          var val = $(this).val();
+          $(".all-relationships").hide();
+          $("."+ val +"-relationships").show();
+        });
+
+        // Make file attachment links downloadable.
+        $('label[for$="-media_file"]').siblings('a').each(function() {
+          var $link = $(this);
+          $link.attr('download', $link.text().split('/').pop());
+        });
+
+      });
     }(jQuery));
-</script>
+  </script>
 {% endblock %}

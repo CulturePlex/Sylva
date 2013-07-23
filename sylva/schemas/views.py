@@ -123,16 +123,17 @@ def schema_nodetype_editcreate(request, graph_slug, nodetype_id=None):
                 if formset.deleted_objects:
                     schema_modified = True
                     deleted_props = []
-                    for obj_prop in formset.deleted_objects:
-                        deleted_props.append({'key': obj_prop.key})
+                    for prop_type in formset.deleted_objects:
+                        deleted_props.append({'key': prop_type.key})
                     request.session['schema_deleted_props'] = deleted_props
                 if formset.changed_objects:
-                    schema_modified = True
                     changed_props = []
-                    for obj_prop, prop in formset.changed_objects:
-                        for data in formset.cleaned_data:
-                            if 'key' in data and data['key'] == obj_prop.key:
-                                if 'id' in data:
+                    for prop_type, prop_dict in formset.changed_objects:
+                        if 'key' in prop_dict:
+                            schema_modified = True
+                            for data in formset.cleaned_data:
+                                if 'key' in data and 'id' in data and \
+                                        data['key'] == prop_type.key:
                                     changed_props.append({
                                         'key': data['id'].key,
                                         'new_key': data['key']
@@ -225,16 +226,17 @@ def schema_relationshiptype_editcreate(request, graph_slug,
                 if formset.deleted_objects:
                     schema_modified = True
                     deleted_props = []
-                    for obj_prop in formset.deleted_objects:
-                        deleted_props.append({'key': obj_prop.key})
+                    for prop_type in formset.deleted_objects:
+                        deleted_props.append({'key': prop_type.key})
                     request.session['schema_deleted_props'] = deleted_props
                 if formset.changed_objects:
-                    schema_modified = True
                     changed_props = []
-                    for obj_prop, prop in formset.changed_objects:
-                        for data in formset.cleaned_data:
-                            if 'key' in data and data['key'] == obj_prop.key:
-                                if 'id' in data:
+                    for prop_type, prop_dict in formset.changed_objects:
+                        if 'key' in prop_dict:
+                            schema_modified = True
+                            for data in formset.cleaned_data:
+                                if 'key' in data and 'id' in data and \
+                                        data['key'] == prop_type.key:
                                     changed_props.append({
                                         'key': data['id'].key,
                                         'new_key': data['key']

@@ -19,6 +19,7 @@ from django.template import RequestContext
 from guardian import shortcuts as guardian
 from guardian.decorators import permission_required
 
+from base.decorators import is_enabled
 from data.models import Data
 from graphs.forms import (GraphForm, GraphDeleteConfirmForm, GraphCloneForm,
                           AddCollaboratorForm)
@@ -168,6 +169,7 @@ def graph_create(request):
                               context_instance=RequestContext(request))
 
 
+@is_enabled(settings.ENABLE_CLONING)
 @login_required
 @permission_required("schemas.view_schema", (Schema, "graph__slug",
                                              "graph_slug"),
@@ -177,8 +179,6 @@ def graph_create(request):
 @permission_required("graphs.view_graph", (Graph, "slug", "graph_slug"),
                      return_403=True)
 def graph_clone(request, graph_slug):
-    if not settings.ENABLE_CLONING:
-        return redirect(reverse('dashboard'))
     graph = get_object_or_404(Graph, slug=graph_slug)
     form = GraphCloneForm(user=request.user)
     if request.POST:
@@ -262,9 +262,9 @@ def graph_collaborators(request, graph_slug):
     #users = [u for u in users if u != graph.owner and u not in collaborators]
     return render_to_response('graphs_collaborators.html',
                               {"graph": graph,
-                                  "permissions": permissions_list,
-                                  "permissions_table": permissions_table,
-                                  "form": form},
+                               "permissions": permissions_list,
+                               "permissions_table": permissions_table,
+                               "form": form},
                               context_instance=RequestContext(request))
 
 

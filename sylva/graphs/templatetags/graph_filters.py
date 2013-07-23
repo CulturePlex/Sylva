@@ -6,4 +6,4 @@ register = template.Library()
 
 @register.filter
 def get(value, key, default=None):
-    return value.get(key, default)
+    return unicode(value.get(key, default))

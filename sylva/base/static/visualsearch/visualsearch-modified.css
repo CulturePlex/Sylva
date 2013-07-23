@@ -156,11 +156,11 @@ Source: http://meyerweb.com/eric/thoughts/2007/05/01/reset-reloaded/
     -webkit-border-radius: 16px;
     -moz-border-radius: 16px;
     border-radius: 16px;
-    background-color: #d2e6fd;
-    background-image: -moz-linear-gradient(top, #d2e6fd, #b0d1f9); /* FF3.6 */
-    background-image: -webkit-gradient(linear, left top, left bottom, from(#d2e6fd), to(#b0d1f9)); /* Saf4+, Chrome */
-    background-image: linear-gradient(top, #d2e6fd, #b0d1f9);
-    border: 1px solid #6eadf5;
+    background-color: #D6E7DF;
+    background-image: -moz-linear-gradient(top, #D6E7DF, #D6E7DF); /* FF3.6 */
+    background-image: -webkit-gradient(linear, left top, left bottom, from(#D6E7DF), to(#D6E7DF)); /* Saf4+, Chrome */
+    background-image: linear-gradient(top, #D6E7DF, #D6E7DF);
+    border: 1px solid #348E82;
   }
   .VS-search .search_facet .category {
     float: left;

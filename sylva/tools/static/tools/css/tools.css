@@ -1,0 +1,56 @@
+/* Data import ****************************************************************/
+
+.data-import .info p {
+  line-height: 18px;
+}
+
+.data-import .options {
+  padding-left: 120px;
+  margin-top: 10px;
+}
+
+.data-import .options label {
+  display: block;
+  margin-bottom: 14px;
+  color: #348E82;
+  font-size: 13px;
+}
+
+.data-import .files-container {
+  height: 417px;
+  border-color: lightgray;
+  border-width: 2px;
+  border-style: dashed;
+  color: #969696;
+  font-size: 24px;
+  font-style: italic;
+  text-align: center;
+  line-height: 417px;
+}
+
+.data-import .loading-message {
+  text-align: center;
+  display: block;
+  line-height: 417px;
+  font-size: 18px;
+}
+
+.data-import progress {
+  margin: 200px auto auto;
+  height: 25px;
+  width: 380px;
+}
+
+.data-import .percentage {
+  display: block;
+  position: relative;
+  text-align: center;
+  margin-top: 6px;
+  font-weight: bold;
+}
+
+.data-import .dragenter {
+  background-color: #D6E7DF;
+}
+
+/* END data import ************************************************************/

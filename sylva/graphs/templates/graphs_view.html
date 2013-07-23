@@ -124,18 +124,18 @@
 
 {% block extra_scripts %}
 <script type="text/javascript">
-  sylv.colors = {};
-  sylv.nodeTypesLegend = {};
-  sylv.PDE_URL = "{{ STATIC_PREFIX }}graphs/js/graphdrawer.pde";
-  sylv.expandNodeLinkURL = "{% url expand_node graph.slug 0 %}";
-  sylv.nodeViewURL = "{% url nodes_view graph.slug 0 %}";
-  sylv.nodeEditURL = "{% url nodes_edit graph.slug 0 %}";
-  sylv.graphViewURL = "{% url graph_view graph.slug %}";
-  sylv.disableProcessing = false;
-  sylv.is_graph_empty = {{ is_graph_empty|slugify }};
-  sylv.is_schema_empty = {{ is_schema_empty|slugify }};
-  sylv.MAX_SIZE = {{ MAX_SIZE }};
-  sylv.ajax_url = "{{ ajax_url }}";
+  sylva.colors = {};
+  sylva.nodeTypesLegend = {};
+  sylva.PDE_URL = "{{ STATIC_PREFIX }}graphs/js/graphdrawer.pde";
+  sylva.expandNodeLinkURL = "{% url expand_node graph.slug 0 %}";
+  sylva.nodeViewURL = "{% url nodes_view graph.slug 0 %}";
+  sylva.nodeEditURL = "{% url nodes_edit graph.slug 0 %}";
+  sylva.graphViewURL = "{% url graph_view graph.slug %}";
+  sylva.disableProcessing = false;
+  sylva.is_graph_empty = {{ is_graph_empty|slugify }};
+  sylva.is_schema_empty = {{ is_schema_empty|slugify }};
+  sylva.MAX_SIZE = {{ MAX_SIZE }};
+  sylva.ajax_url = "{{ ajax_url }}";
 </script>
 <script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/processing-1.3.6.min.js"></script>
 <script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/sigma/sigma-0.1.js"></script>

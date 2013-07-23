@@ -221,6 +221,26 @@ a.disabled:hover {
     text-decoration: none;
 }
 
+progress {
+    display: block;
+    position: relative;
+    height: 18px;
+    width: 198px;
+    background: #D6E7DF;
+    border: 1px solid #348E82;
+    color: #348E82;
+    -moz-appearance: none;
+    -webkit-appearance: none;
+}
+
+/* Firefox */
+progress::-moz-progress-bar { background: #348E82; }
+
+/* Chrome */
+progress::-webkit-progress-bar { background: #D6E7DF; }
+progress::-webkit-progress-value { background: #348E82; }
+
+
 /* END Redefinitions **********************************************************/
 
 
@@ -242,6 +262,11 @@ a.disabled:hover {
 
 .hidden {
     display: none;
+}
+
+.floating {
+    float: right;
+    position: relative;
 }
 
 .bold {
@@ -812,7 +837,7 @@ p.forgot-password {
     float: right;
     position: relative;
     width: 15px;
-    margin-top: -105px;
+    margin-top: -86px;
 }
 
 #content3 .delete-rowupLinks {
@@ -823,7 +848,7 @@ p.forgot-password {
     float: right;
     position: relative;
     width: 15px;
-    margin-top: -100px;
+    margin-top: -96px;
 }
 
 #content3 .linkDelete,
@@ -834,18 +859,18 @@ p.forgot-password {
 #content3 div.relationships a.delete-rowupProps {
     background: url(../img/recycle-full.png) no-repeat left -2px;
     height: 35px;
-    padding: 10px 0 0 30px;
+    padding: 10px 0 0 45px;
     font-weight: bold;
     float: right;
     position: relative;
     width: 15px;
-    margin-top: -61px;
+    margin-top: -56px;
 }
 
 #content3 div.relationships a.delete-rowup {
     background: url(../img/recycle-full.png) no-repeat left -2px;
     height: 35px;
-    padding: 10px 0 0 30px;
+    padding: 10px 0 0 45px;
     font-weight: bold;
     float: right;
     position: relative;
@@ -856,7 +881,7 @@ p.forgot-password {
 #content3 div.relationships a.delete-row {
     background: url(../img/recycle-full.png) no-repeat left -2px;
     height: 35px;
-    padding: 10px 0 0 30px;
+    padding: 10px 0 0 45px;
     font-weight: bold;
     float: right;
     position: relative;
@@ -890,11 +915,18 @@ p.forgot-password {
     padding-left: 5px;
 }
 
-div.dynamic-form,div.initial {
-    margin-bottom: 0px;  /* 15px */
+div.dynamic-form,
+div.initial {
+    margin-bottom: 0px;
 }
 
-/* Formsets relationships */
+div.initial p:nth-child(3) {
+    display: none;
+}
+
+
+/* Formsets relationships *****************************************************/
+
 .relationships div.initial p {
     display: none;
     margin-left: 20px;
@@ -949,16 +981,7 @@ div.dynamic-form,div.initial {
     width: 300px;
 }
 
-.floating {
-    float: right;
-    position: relative;
-/*    width: 15px;*/
-}
-
-/* End */
-div.initial p:last-child {
-    display: none;
-}
+/* END Formsets relationships *************************************************/
 
 .content2-first ul.errorlist li {
     margin-right: 26px;
@@ -976,9 +999,15 @@ div.initial p:last-child {
     display: block;
 }
 
-ul.errorlist {
+.errorlist {
     position: relative;
     width: 317px;
+    display: inline-block;
+}
+
+.all-relationships .errorlist {
+    width: 280px;
+    margin-left: 20px;
 }
 
 .errorlist li {
@@ -989,7 +1018,6 @@ ul.errorlist {
     -webkit-box-shadow: 0 1px 1px rgba(255, 0, 0, 0.9);
     -moz-box-shadow: 0 1px 1px rgba(255, 0, 0, 0.9);
     display: block;
-/*    margin: 2px 0px 2px 0px;*/
     font-size: 90%;
     text-decoration: none;
     padding: 0px 5px 0px 5px;
@@ -997,7 +1025,6 @@ ul.errorlist {
     border: none;
     border-top: solid 1px red;
     font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
-/*    width: 175px;*/
     vertical-align: middle;
     font-style: italic;
 }
@@ -1899,6 +1926,8 @@ body :hover > a.headerlink {
 .doc .fixed-sidebar-nav {
     position: fixed;
     width: 326px;
+    max-height: 630px;
+    overflow-y: auto;
 }
 
 /* END documentation */
@@ -2001,10 +2030,6 @@ body :hover > a.headerlink {
 .joyride-position-new-graph-public {
     margin-left: -31px;
     margin-top: 16px;
-}
-
-.joyride-position-schema-export {
-    margin-left: -15px;
 }
 
 .joyride-position-schema-overview {
@@ -2274,41 +2299,6 @@ body :hover > a.headerlink {
 }
 
 /* END User subscriptions */
-
-
-/* END Import tool */
-
-.import-tool label {
-    margin-bottom: 5px;
-}
-
-.import-tool input,
-.import-tool select {
-    margin-bottom: 10px;
-}
-
-.import-tool .summary {
-    margin-bottom: 10px;
-}
-
-.import-tool .progress-wrapper {
-    position: absolute;
-    top: 110px;
-    left: 475px;
-}
-
-.import-tool .progress-wrapper progress {
-    height: 25px;
-    width: 270px;
-    margin-bottom: 5px;
-}
-
-.import-tool .progress-wrapper a {
-    margin-left: 95px;
-}
-
-/* END Import tool */
-
 
 /* Queries */
 

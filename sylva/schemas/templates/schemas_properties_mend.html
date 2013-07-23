@@ -2,51 +2,47 @@
 {% load i18n graphs %}
 
 {% block navigation_buttons %}
-    {{ block.super }}
+  {{ block.super }}
 {% endblock %}
 
 {% block title %}
-    {{ graph.name }}
+  {{ graph.name }}
 {% endblock %}
 
 {% block menu_buttons %}
-    {% toolbar on="schema" %}
+  {% toolbar on="schema" %}
 {% endblock %}
 
 {% block content_title %}
-    {% trans "New" as label %}
-    {% breadcrumb graph graph.schema item_type_label element_type.name %}
-    <!--<h2>{% trans "Graphs" %} » {{ graph.name|truncatewords_html:5 }} » {% trans "Schema" %} » {% trans "New" %} {{ item_type_label }}</h2>-->
+  {% trans "New" as label %}
+  {% breadcrumb graph graph.schema item_type_label element_type.name %}
+  <!--<h2>{% trans "Graphs" %} » {{ graph.name|truncatewords_html:5 }} » {% trans "Schema" %} » {% trans "New" %} {{ item_type_label }}</h2>-->
 {% endblock %}
 
 {% block content %}
-
-<div id="content2" class="medium-width">
+  <div id="content2" class="medium-width">
     <p class="stronger">{% trans "Your changes in the schema have been saved, but we haven't applied these changes in your data yet. Please, choose what to do with the following properties:" %}</p>
     <form action="." method="POST">{% csrf_token %}
-        {% if deleted_props %}
-            {{ deleted_formset.management_form }}
-            {% for form in deleted_formset %}
-                <h2>{% trans "Property" %}: {{ form.initial.key }}</h2>
-                {{ form.as_p }}
-            {% endfor %}
-        {% endif %}
-        {% if changed_props %}
-            {{ changed_formset.management_form }}
-            {% for form in changed_formset %}
-                <h2>{% trans "Property" %}: {{ form.initial.key }} <span class="symbol-medium">→</span> {{ form.initial.new_key }}</h2>
-                {{ form.as_p }}
-            {% endfor %}
-        {% endif %}
-        <br>
-        <span class="buttonLinkOption buttonLinkLeft">
-            <input type="submit" value="{% trans "Continue" %}"/>
-        </span>
-        <span class="buttonLinkOption buttonLinkRight">
-            {% trans "or" %} <a href="{% url schema_edit graph.slug %}" title="{% trans "keep all options as default" %}">{% trans "Cancel" %}</a>.
-        </span>
+      {% if deleted_props %}
+        {{ deleted_formset.management_form }}
+        {% for form in deleted_formset %}
+          <h2>{% trans "Property" %}: {{ form.initial.key }}</h2>
+          {{ form.as_p }}
+        {% endfor %}
+      {% endif %}
+      {% if changed_props %}
+        {{ changed_formset.management_form }}
+        {% for form in changed_formset %}
+          <h2>{% trans "Property" %}: {{ form.initial.key }} <span class="symbol-medium">→</span> {{ form.initial.new_key }}</h2>
+          {{ form.as_p }}
+        {% endfor %}
+      {% endif %}
+      <br>
+      <span class="buttonLinkOption buttonLinkLeft">
+        <input type="submit" value="{% trans "Continue" %}"/>
+      </span>
     </form>
-</div>
+  </div>
 {% endblock %}
 
 {% block extra_scripts %}

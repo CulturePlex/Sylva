@@ -1,7 +1,7 @@
 // JSHint options
 
 /*global window:true, document:true, setTimeout:true, console:true, jQuery:true,
-sylv:true, prompt:true, alert:true, FileReader:true, Processing:true,
+sylva:true, prompt:true, alert:true, FileReader:true, Processing:true,
 clearTimeout:true */
 
 
@@ -9,7 +9,7 @@ clearTimeout:true */
  * Processing.js visualization
  ****************************************************************************/
 
-;(function(sylv, $, window, document, undefined) {
+;(function(sylva, $, window, document, undefined) {
 
   // setTimeout id.
   var timeout_id = 0;
@@ -21,9 +21,9 @@ clearTimeout:true */
 
     var expandNode = function(){
       var edgeId;
-      var edgeIds = $.map(sylv.edges, function(e) { return e.id; });
+      var edgeIds = $.map(sylva.edges, function(e) { return e.id; });
 
-      var expandNodeLinkURL = sylv.expandNodeLinkURL;
+      var expandNodeLinkURL = sylva.expandNodeLinkURL;
       expandNodeLinkURL = expandNodeLinkURL.replace('0/expand/', nodeId + '/expand/');
 
       $.ajax({
@@ -34,17 +34,17 @@ clearTimeout:true */
           var newEdges = parsedResult.edges;
 
           $.each(newNodes, function(i, node){
-            if (!sylv.nodes.hasOwnProperty(i)) {
-              sylv.GraphEditor.addNode(i, node);
-              sylv.nodes[i] = node;
+            if (!sylva.nodes.hasOwnProperty(i)) {
+              sylva.GraphEditor.addNode(i, node);
+              sylva.nodes[i] = node;
             }
           });
 
           $.each(newEdges, function(i, edge){
             edgeId = edge.id;
             if ($.inArray(edgeId, edgeIds) === -1) {
-              sylv.edges.push(edge);
-              sylv.GraphEditor.addEdge(edge.source, edge.type, edge.target, edge);
+              sylva.edges.push(edge);
+              sylva.GraphEditor.addEdge(edge.source, edge.type, edge.target, edge);
             }
           });
 
@@ -58,7 +58,7 @@ clearTimeout:true */
       var selectedNodeName;
       var indexesToDelete = [];
 
-      $.each(sylv.nodes, function(i, node) {
+      $.each(sylva.nodes, function(i, node) {
         if (node.id == nodeId) {
           selectedNode = node;
           selectedNodeName = i;
@@ -68,17 +68,17 @@ clearTimeout:true */
 
       if (selectedNode === undefined) { return false; }
 
-      $.each(sylv.edges, function(i, edge) {
+      $.each(sylva.edges, function(i, edge) {
         if (edge.source === selectedNodeName || edge.target === selectedNodeName) {
           indexesToDelete.push(i);
         }
       });
       $.each(indexesToDelete, function(i, index) {
-          sylv.edges.splice(index,1);
-          sylv.GraphEditor.deleteEdge(index);
+          sylva.edges.splice(index,1);
+          sylva.GraphEditor.deleteEdge(index);
       });
-      sylv.GraphEditor.deleteNode(selectedNodeName);
-      delete sylv.nodes[selectedNodeName];
+      sylva.GraphEditor.deleteNode(selectedNodeName);
+      delete sylva.nodes[selectedNodeName];
 
       return false;
     };
@@ -101,7 +101,7 @@ clearTimeout:true */
       .append(hideNodeLink);
 
     // Update node legend.
-    sylv.Utils.updateNodeLegend(nodeId, nodeName, 'element-info', htmlContent);
+    sylva.Utils.updateNodeLegend(nodeId, nodeName, 'element-info', htmlContent);
     $('#element-info div').hide();
 
   }
@@ -116,13 +116,13 @@ clearTimeout:true */
 
   function init() {
     $('#sec-debug').hide();  // Comment this line to Debug the graph creation
-    sylv.GraphEditor.PDE_URL = sylv.PDE_URL;
-    sylv.GraphEditor.USES_DRAWER = true;
+    sylva.GraphEditor.PDE_URL = sylva.PDE_URL;
+    sylva.GraphEditor.USES_DRAWER = true;
 
-    sylv.GraphEditor.init();
+    sylva.GraphEditor.init();
 
-    $('#id_graph_nodes').val(JSON.stringify(sylv.nodes));
-    $('#id_graph_edges').val(JSON.stringify(sylv.edges));
+    $('#id_graph_nodes').val(JSON.stringify(sylva.nodes));
+    $('#id_graph_edges').val(JSON.stringify(sylva.edges));
 
     // Attach the nodeSelect event from the canvas to update the node info box
     $('body').bind('nodeSelected', updateInfo);
@@ -135,8 +135,8 @@ clearTimeout:true */
       var iterator = colors.entrySet().iterator();
       while (iterator.hasNext()) {
         var element = iterator.next();
-        sylv.nodeTypesLegend[element.getKey()] = '#' + element.getValue();
-        sylv.colors[element.getKey()] = sylv.nodeTypesLegend[element.getKey()];
+        sylva.nodeTypesLegend[element.getKey()] = '#' + element.getValue();
+        sylva.colors[element.getKey()] = sylva.nodeTypesLegend[element.getKey()];
       }
       $('#node-type-legend').empty();
       var list = $('#node-type-legend').append($('<ul>'));
@@ -144,7 +144,7 @@ clearTimeout:true */
         listStyleType: 'none',
         marginTop: "5px"
       });
-      $.each(sylv.nodeTypesLegend, function(type, color){
+      $.each(sylva.nodeTypesLegend, function(type, color){
         if (type !== "notype"){
           list
             .append($('<li>')
@@ -161,7 +161,7 @@ clearTimeout:true */
     });
 
     // Stop layout algoritm after `timeout` ms.
-    var size = sylv.size;
+    var size = sylva.size;
     var timeout;
     if (size <= 20) {
       timeout = 10000;
@@ -204,7 +204,7 @@ clearTimeout:true */
   }
 
   // reveal module
-  window.sylv.Processing = {
+  window.sylva.Processing = {
     updateInfo: updateInfo,
     updateInfoRelationship: updateInfoRelationship,
     init: init,
@@ -212,4 +212,4 @@ clearTimeout:true */
     stop: stop
   };
 
-})(sylv, jQuery, window, document);
+})(sylva, jQuery, window, document);

@@ -290,6 +290,7 @@ ACCOUNT_FREE = {
     "storage": 100 * 1024 * 1024,
     "queries": 10,
 }
+
 ENABLE_INSTANCES = False
 ENABLE_INHERITANCE = False
 ENABLE_AUTOCOMPLETE_NODES = True
@@ -302,9 +303,14 @@ ENABLE_PAYMENTS = False
 ENABLE_QUERIES = False
 ACTIVATION_EMAIL_BETA_MESSAGE = True
 MAINTENANCE_MODE = False
-DATA_PAGE_SIZE = 100  # Page size in nodes lists
+
+DATA_PAGE_SIZE = 100  # Page size in nodes lists.
 PREVIEW_NODES = 200  # Size of the graph preview in the graph screen
-MAX_SIZE = 300  # Disable graph preview (Processing) nodes number is above this value
+MAX_SIZE = 300  # If the number of nodes is above this value, Processing is
+                # disabled for graph visualization.
+IMPORT_MAX_SIZE = 10  # The maximum number of nodes/edges to send in every
+                      # AJAX request from the import tool.
+
 # OPTIONS is a dictionary made available in templates
 OPTIONS = {
     "ACCOUNT_FREE": ACCOUNT_FREE,
