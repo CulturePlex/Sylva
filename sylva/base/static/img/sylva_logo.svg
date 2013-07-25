@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="744.09448819"
+   height="1052.3622047"
+   id="svg2"
+   version="1.1"
+   inkscape:version="0.48.0 r9654"
+   sodipodi:docname="sylva_logo.svg">
+  <defs
+     id="defs4">
+    <linearGradient
+       inkscape:collect="always"
+       id="linearGradient3847">
+      <stop
+         style="stop-color:#8f3541;stop-opacity:1"
+         offset="0"
+         id="stop3849" />
+      <stop
+         style="stop-color:#f48787;stop-opacity:1"
+         offset="1"
+         id="stop3851" />
+    </linearGradient>
+    <linearGradient
+       id="linearGradient3822">
+      <stop
+         style="stop-color:#ededed;stop-opacity:1"
+         offset="0"
+         id="stop3832" />
+      <stop
+         style="stop-color:#c3c3c3;stop-opacity:1"
+         offset="1"
+         id="stop3826" />
+    </linearGradient>
+    <radialGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient3822"
+       id="radialGradient3828"
+       cx="367.69553"
+       cy="529.10315"
+       fx="367.69553"
+       fy="529.10315"
+       r="373.73615"
+       gradientTransform="matrix(1,0,0,1.4162388,0,-220.23325)"
+       gradientUnits="userSpaceOnUse" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient3847"
+       id="linearGradient3853"
+       x1="380.82751"
+       y1="550.52209"
+       x2="380.82751"
+       y2="469.89529"
+       gradientUnits="userSpaceOnUse"
+       spreadMethod="pad"
+       gradientTransform="translate(6,0)" />
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="1.4"
+     inkscape:cx="369.15642"
+     inkscape:cy="516.43638"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     inkscape:snap-page="false"
+     showguides="false"
+     inkscape:guide-bbox="true"
+     inkscape:window-width="1366"
+     inkscape:window-height="698"
+     inkscape:window-x="0"
+     inkscape:window-y="23"
+     inkscape:window-maximized="1">
+    <sodipodi:guide
+       orientation="0,1"
+       position="572.85715,528.57143"
+       id="guide3767" />
+    <sodipodi:guide
+       orientation="0,1"
+       position="170.84205,560.31899"
+       id="guide3789" />
+    <sodipodi:guide
+       orientation="1,0"
+       position="146.85093,549.64925"
+       id="guide3791" />
+  </sodipodi:namedview>
+  <metadata
+     id="metadata7">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <rect
+       style="fill:url(#radialGradient3828);stroke:#ffffff;stroke-width:4;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;fill-opacity:1.0"
+       id="rect3820"
+       width="743.47229"
+       height="1054.5992"
+       x="-4.0406103"
+       y="1.8035377" />
+    <text
+       sodipodi:linespacing="125%"
+       id="text3776"
+       y="559.14014"
+       x="377.3862"
+       style="font-size:90.65847777999999835px;font-style:normal;font-weight:normal;text-align:center;line-height:125%;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#8f8335;fill-opacity:1;stroke:none;font-family:Sans;opacity:0.75"
+       xml:space="preserve"><tspan
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;text-anchor:middle;font-family:DYLOVASTUFF;-inkscape-font-specification:DYLOVASTUFF;fill:#8f8335;fill-opacity:1"
+         y="559.14014"
+         x="377.3862"
+         id="tspan3778"
+         sodipodi:role="line">SYLVA</tspan></text>
+    <text
+       sodipodi:linespacing="125%"
+       y="555.14014"
+       x="373.50549"
+       style="font-size:90.65847777999999835px;font-style:normal;font-weight:normal;text-align:center;line-height:125%;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:#dedede;stroke-width:4;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;font-family:Sans"
+       xml:space="preserve"
+       id="text3780"><tspan
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;text-anchor:middle;stroke:#dedede;stroke-width:4;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;font-family:DYLOVASTUFF;-inkscape-font-specification:DYLOVASTUFF;fill:#000000;fill-opacity:1"
+         y="555.14014"
+         x="373.50549"
+         id="tspan3782"
+         sodipodi:role="line">SYLVA</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:90.65847777999999835px;font-style:normal;font-weight:normal;text-align:center;line-height:125%;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#348e82;fill-opacity:1;stroke:none;font-family:Sans"
+       x="373.50549"
+       y="555.14014"
+       id="text2985"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan2987"
+         x="373.50549"
+         y="555.14014"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;text-anchor:middle;fill:#348e82;fill-opacity:1;font-family:DYLOVASTUFF;-inkscape-font-specification:DYLOVASTUFF">·SYLVA·</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#8f8335;fill-opacity:1;stroke:none;font-family:Sans;stroke-opacity:1;opacity:0.75"
+       x="335.2081"
+       y="464.15817"
+       id="text2989"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan2991"
+         x="335.2081"
+         y="464.15817"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;letter-spacing:0px;font-family:Deftone Stylus;-inkscape-font-specification:Deftone Stylus;fill:#8f8335;fill-opacity:1;stroke:none;stroke-opacity:1"
+         dx="0"
+         rotate="0 0 0 0"
+         dy="0">The</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#8f8335;fill-opacity:1;stroke:none;font-family:Sans;opacity:0.75"
+       x="307.79935"
+       y="612.44763"
+       id="text2993"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan2995"
+         x="307.79935"
+         y="612.44763"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Deftone Stylus;-inkscape-font-specification:Deftone Stylus;fill:#8f8335;fill-opacity:1">Project</tspan></text>
+    <path
+       style="fill:none;stroke:#8f8335;stroke-width:2;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:2, 4;stroke-dashoffset:0;fill-opacity:1;opacity:0.75"
+       d="m 274.95752,477.96982 193.94928,0"
+       id="path3771"
+       inkscape:connector-curvature="0" />
+    <path
+       inkscape:connector-curvature="0"
+       id="path3773"
+       d="m 274.95752,568.87601 193.94928,0"
+       style="fill:none;stroke:#8f8335;stroke-width:2;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:2, 4;stroke-dashoffset:0;fill-opacity:1;opacity:0.75" />
+  </g>
+</svg>
