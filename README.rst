@@ -66,13 +66,13 @@ Graph Database
 --------------
 
 The last piece to make Sylva works is the Neo4j_ graph database. You can download
-the most current version (1.8.M03_ as today). After downloading, we need to unzip
+the most current version (1.9.2_ as today). After downloading, we need to unzip
 and setup some parameters::
 
   $ cd git/sylva
-  $ wget http://neo4j.org/download-thanks/?edition=community&release=1.8.M03
-  $ tar -zxvf neo4j-community-1.8.M03-unix.tar.gz
-  $ mv neo4j-community-1.8.M03-unix neo4j
+  $ wget dist.neo4j.org/neo4j-community-1.9.2-unix.tar.gz
+  $ tar -zxvf neo4j-community-1.9.2-unix.tar.gz
+  $ mv neo4j-community-1.9.2-unix neo4j
 
 Now, as indicated in `settings.py` in section `GRAPHDATABASES`, you need to edit
 the file `neo4j/conf/neo4j-server.properties` and set the next properies (the
@@ -87,7 +87,7 @@ And then you are ready to run the Neo4j_ server::
 
 .. _Sylva: http://www.sylvadb.com
 .. _Neo4j: http://neo4j.org
-.. _1.8.M03: http://dist.neo4j.org/neo4j-community-1.8.M03-unix.tar.gz
+.. _1.9.2: http://dist.neo4j.org/neo4j-community-1.9.2-unix.tar.gz
 .. _Django: https://www.djangoproject.com/
 .. _pip: http://pypi.python.org/pypi/pip
 .. _virtualenv: http://pypi.python.org/pypi/virtualenv
