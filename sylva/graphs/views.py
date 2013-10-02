@@ -221,14 +221,15 @@ def graph_clone(request, graph_slug):
                                                      "graph_slug"),
                      return_403=True)
 def graph_collaborators(request, graph_slug):
-    # Only graph owner should be able to do this
     graph = get_object_or_404(Graph, slug=graph_slug)
-    if request.user != graph.owner:
-        return redirect('%s?next=%s' % (reverse("signin"), request.path))
+    # Only graph owner was able to change collaborators
+    # if request.user != graph.owner:
+    #     return redirect('%s?next=%s' % (reverse("signin"), request.path))
     # users = User.objects.all().exclude(pk=settings.ANONYMOUS_USER_ID)
     all_collaborators = guardian.get_users_with_perms(graph)
-    collaborators = all_collaborators.exclude(id__in=[request.user.id,
-                                              settings.ANONYMOUS_USER_ID])
+    collaborators = all_collaborators.exclude(
+        id__in=[graph.owner.id, request.user.id, settings.ANONYMOUS_USER_ID]
+    )
     collaborators = list(collaborators)
     if request.POST:
         data = request.POST.copy()
