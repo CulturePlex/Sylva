@@ -69,6 +69,8 @@ urlpatterns += patterns('django.contrib.flatpages.views',
 
 if settings.DEBUG:
     urlpatterns += patterns('',
+        # login as any user
+        url(r"^su/", include("django_su.urls")),
 
         # static server
         url(r'^static/(?P<path>.*)$', 'django.views.static.serve',
