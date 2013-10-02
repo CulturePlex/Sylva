@@ -10,6 +10,7 @@ django-picklefield==0.2.1
 django-s3-folder-storage==0.1
 django-ses==0.4.1
 django-storages==1.1.5
+django-su==0.2
 django-tinymce==1.5.1b4
 django-userena==1.1.2
 easy-thumbnails==1.1
