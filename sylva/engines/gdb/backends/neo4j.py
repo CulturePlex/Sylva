@@ -422,17 +422,18 @@ class GraphDatabase(BlueprintsGraphDatabase):
                     results_list.append(result)
         results = u", ".join(results_list)
         patterns_list = []
-        for pattern_dict in query_dict["patterns"]:
-            source = pattern_dict["source"]["alias"]
-            target = pattern_dict["target"]["alias"]
-            relation = pattern_dict["relation"]["alias"]
-            relation_type = pattern_dict["relation"]["type"].id
-            pattern = u"({source})-[{rel}:`{rel_type}`]-(target)".format(
-                source=source,
-                rel=relation,
-                rel_type=relation_type,
-                target=target,
-            )
+        if "patterns" in query_dict:
+            for pattern_dict in query_dict["patterns"]:
+                source = pattern_dict["source"]["alias"]
+                target = pattern_dict["target"]["alias"]
+                relation = pattern_dict["relation"]["alias"]
+                relation_type = pattern_dict["relation"]["type"].id
+                pattern = u"({source})-[{rel}:`{rel_type}`]-(target)".format(
+                    source=source,
+                    rel=relation,
+                    rel_type=relation_type,
+                    target=target,
+                )
             patterns_list.append(pattern)
         if patterns_list:
             patterns = ", ".join(patterns_list)

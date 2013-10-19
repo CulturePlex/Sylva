@@ -13,7 +13,7 @@ from django.shortcuts import (get_object_or_404, render_to_response,
 from guardian.decorators import permission_required
 
 from base.decorators import is_enabled
-from graphs.models import Graph
+from graphs.models import Data, Graph
 from operators.grammar import QueryParser
 from schemas.models import NodeType, RelationshipType
 
@@ -22,7 +22,7 @@ from schemas.models import NodeType, RelationshipType
 
 @is_enabled(settings.ENABLE_QUERIES)
 @login_required
-@permission_required("data.view_data", (Graph, "slug", "graph_slug"),
+@permission_required("data.view_data", (Data, "graph__slug", "graph_slug"),
                      return_403=True)
 def operator_builder(request, graph_slug):
     graph = get_object_or_404(Graph, slug=graph_slug)
@@ -37,7 +37,7 @@ def operator_builder(request, graph_slug):
 
 @is_enabled(settings.ENABLE_QUERIES)
 @login_required
-@permission_required("data.view_data", (Graph, "slug", "graph_slug"),
+@permission_required("data.view_data", (Data, "graph__slug", "graph_slug"),
                      return_403=True)
 def operator_query(request, graph_slug):
     graph = get_object_or_404(Graph, slug=graph_slug)
@@ -48,7 +48,7 @@ def operator_query(request, graph_slug):
 
 @is_enabled(settings.ENABLE_QUERIES)
 @login_required
-@permission_required("data.view_data", (Graph, "slug", "graph_slug"),
+@permission_required("data.view_data", (Data, "graph__slug", "graph_slug"),
                      return_403=True)
 def operator_query_results(request, graph_slug):
     query = request.POST.get("query", "").strip()
@@ -56,7 +56,7 @@ def operator_query_results(request, graph_slug):
         graph = get_object_or_404(Graph, slug=graph_slug)
         query_parser = QueryParser(graph)
         # query = "notas of autor with notas that start with lista"
-        query_dict = query_parser.parse(query)
+        query_dict = query_parser.parse(unicode(query))
         results = graph.query(query_dict)
         # TODO: Try to make the response streamed
         return HttpResponse(json.dumps([r for r in results]),
