@@ -10,11 +10,16 @@ class SchemaMixin(object):
         self._node_names = {}
 
     def get_displays(self, label):
+        from schemas.models import NodeType
         if label not in self._displays:
-            nodetype = self.nodetype_set.get(pk=label)
-            self._displays[label] = nodetype.properties.filter(display=True)
-            if not self._displays[label]:
-                self._displays[label] = nodetype.properties.all()[:2]
+            try:
+                nodetype = self.nodetype_set.get(pk=label)
+                nodetype_properties = nodetype.properties.filter(display=True)
+                self._displays[label] = nodetype_properties
+                if not self._displays[label]:
+                    self._displays[label] = nodetype.properties.all()[:2]
+            except NodeType.DoesNotExist:
+                self._displays[label] = []
         return self._displays[label]
 
     def get_relationship_name(self, label):
