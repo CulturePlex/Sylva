@@ -5,7 +5,7 @@ before_install:
   - sudo service neo4j stop || true
   - sleep 3
   - ./download_and_install_neo4j.sh
-  - ./neo4j/bin/neo4j start
+  - ./neo4j/bin/neo4j console &
   - sleep 7
 install: pip install --use-mirrors -r requirements.txt
 env:
