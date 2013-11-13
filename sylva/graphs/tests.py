@@ -16,14 +16,16 @@ class GraphTest(TestCase):
     def setUp(self):
         # If label is not a number, it fires an exception
         self.label = "1"
+        self.properties = {"property": "value with spaces"}
         self.unicode_label = u"1"
+        self.unicode_properties = {u"property": u"value with spaces"}
         self.graphName = "graphTest"
-        u = User.objects.create()
+        self.u = User.objects.create()
         mySchema = Schema.objects.create()
         nt = NodeType(id=1, name="test", schema=mySchema)
         nt.save()
         self.graph = Graph.objects.create(name=self.graphName,
-            schema=mySchema, owner=u)
+            schema=mySchema, owner=self.u)
 
     def test_graph_creation(self):
         """
@@ -86,4 +88,82 @@ class GraphTest(TestCase):
         elem = self.graph.nodes.delete(label=self.label)
         self.assertIsNone(elem)
 
+    def test_nodes_create_properties(self):
+        """
+        Tests node creation
+        """
+        n = self.graph.nodes.create(label=self.label,
+                                    properties=self.properties)
+        self.assertIsNotNone(n)
+        self.assertEqual(n.label, self.label)
+        self.assertEqual(n.properties, self.properties)
+        for key, value in self.properties.items():
+            self.assertIn(key, n)
+            self.assertEqual(n[key], value)
+        for key, value in n.properties.iteritems():
+            self.assertIn(key, self.properties)
+            self.assertEqual(self.properties[key], value)
 
+    def test_nodes_set_properties(self):
+        """
+        Tests node creation
+        """
+        n = self.graph.nodes.create(label=self.label)
+        self.assertIsNotNone(n)
+        self.assertEqual(n.label, self.label)
+        n.properties = self.properties
+        self.assertEqual(n.properties, self.properties)
+        for key, value in self.properties.items():
+            self.assertIn(key, n)
+            self.assertEqual(n[key], value)
+        for key, value in n.properties.iteritems():
+            self.assertIn(key, self.properties)
+            self.assertEqual(self.properties[key], value)
+
+    def test_nodes_create_properties_unicode(self):
+        """
+        Tests node creation
+        """
+        n = self.graph.nodes.create(label=self.unicode_label,
+                                    properties=self.unicode_properties)
+        self.assertIsNotNone(n)
+        self.assertEqual(n.label, self.unicode_label)
+        self.assertEqual(n.properties, self.unicode_properties)
+        for key, value in self.unicode_properties.items():
+            self.assertIn(key, n)
+            self.assertEqual(n[key], value)
+        for key, value in n.properties.iteritems():
+            self.assertIn(key, self.unicode_properties)
+            self.assertEqual(self.unicode_properties[key], value)
+
+    def test_nodes_set_properties_unicode(self):
+        """
+        Tests node creation
+        """
+        n = self.graph.nodes.create(label=self.unicode_label)
+        self.assertIsNotNone(n)
+        self.assertEqual(n.label, self.unicode_label)
+        n.properties = self.unicode_properties
+        self.assertEqual(n.properties, self.unicode_properties)
+        for key, value in self.unicode_properties.items():
+            self.assertIn(key, n)
+            self.assertEqual(n[key], value)
+        for key, value in n.properties.iteritems():
+            self.assertIn(key, self.unicode_properties)
+            self.assertEqual(self.unicode_properties[key], value)
+
+    def test_graph_clone(self):
+        """
+        Tests graph clonation
+        """
+        cloneGraphName = "graphCloneTest"
+        mySchema_clone = Schema.objects.create()
+        nt = NodeType(id=2, name="test", schema=mySchema_clone)
+        nt.save()
+        clone_graph = Graph.objects.create(name=cloneGraphName,
+            schema=mySchema_clone, owner=self.u)
+        self.assertIsNotNone(clone_graph)
+        self.assertNotEqual(self.graph.name, clone_graph.name)
+        self.graph.clone(clone_graph, clone_data=True)
+        #self.assertEqual(self.graph, self.clone_graph)
+        #self.assertEqual(self.graph.name, clone_graph.name)

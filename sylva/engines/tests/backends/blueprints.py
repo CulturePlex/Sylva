@@ -2,26 +2,31 @@
 #-*- coding:utf8 -*-
 
 from django.test import TestCase
-from engines.gdb.backends import NodeDoesNotExist, RelationshipDoesNotExist
+from engines.gdb.backends import NodeDoesNotExist, RelationshipDoesNotExist, BaseGraphDatabase
+from engines.gdb.backends.neo4j import GraphDatabase
+from engines.models import Instance
 from graphs.models import Graph, User
 from data.models import Data
 
 
 class BlueprintsEngineTestSuite(TestCase):
-   
+
     def setUp(self):
-        u = User(username="Diego")
-        u.save()
+        self.u = User(username="Diego")
+        self.u.save()
         d = Data()
         d.save()
-        self.sylva_graph = Graph(name="mygraph", data=d, owner=u)
+        self.sylva_graph = Graph(name="mygraph", data=d, owner=self.u)
         self.sylva_graph.save()
 
     def tearDown(self):
         pass
 
     def returnBlueprintsGraph(self):
-        raise NotImplementedError
+        bgdb = GraphDatabase('http://localhost:7373/db/sylva/',
+         params={}, graph=self.sylva_graph)
+        return bluePrint
+        #raise NotImplementedError
 
     def testCreateDeleteNode(self):
         g = self.returnBlueprintsGraph()
@@ -69,7 +74,7 @@ class BlueprintsEngineTestSuite(TestCase):
                 (node2_id, None))
         self.assertEqual(g.get_node_relationships(node1_id),
                 [(relationship_id, None)])
-        self.assertEqual(g.get_node_relationships(node1_id, 
+        self.assertEqual(g.get_node_relationships(node1_id,
                                                 include_properties=True),
                         [(relationship_id, {'p1': 'v1'})])
         g.delete_relationship(relationship_id)
@@ -120,7 +125,7 @@ class BlueprintsEngineTestSuite(TestCase):
         node_structure = {}
         node_structure = node_structure.fromkeys(node_ids, properties)
         self.assertEqual(result, node_structure)
-        g.delete_nodes(node_ids) 
+        g.delete_nodes(node_ids)
 
     def testGetAllNodes(self):
         g = self.returnBlueprintsGraph()
@@ -144,7 +149,7 @@ class BlueprintsEngineTestSuite(TestCase):
                             (node5_id, {"p1": "v1"})]
         for element in expected_result:
             self.assertIn(element, result)
-        g.delete_nodes(node_ids) 
+        g.delete_nodes(node_ids)
 
     def testGetAllRelationships(self):
         g = self.returnBlueprintsGraph()
@@ -175,4 +180,4 @@ class BlueprintsEngineTestSuite(TestCase):
         for element in expected_result:
             self.assertIn(element, result)
         g.delete_relationships(rel_ids)
-        g.delete_nodes(node_ids) 
+        g.delete_nodes(node_ids)
