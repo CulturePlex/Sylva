@@ -7,10 +7,24 @@ Replace this with more appropriate tests for your application.
 
 from django.test import TestCase
 
+from schemas.models import Schema
 
-class SimpleTest(TestCase):
-    def test_basic_addition(self):
+
+class SchemaTest(TestCase):
+    """
+    A set of tests for testing Schemas.
+    """
+
+    def test_schema_creation(self):
         """
-        Tests that 1 + 1 always equals 2.
+        Tets Schema creation.
         """
-        self.assertEqual(1 + 1, 2)
+        schema = Schema()
+        self.assertIsNotNone(schema)
+        self.assertIsNone(schema.id)
+
+        schema.save()
+        self.assertIsNotNone(schema.id)
+
+        schema.set_option('boolean', True)
+        self.assertEquals(schema.get_option('boolean'), True)

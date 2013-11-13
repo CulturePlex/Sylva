@@ -5,6 +5,6 @@ install:
   - pip install -U -r requirements.txt --use-mirrors
 #  - pip install coveralls --use-mirrors
 script:
-  - python sylva/manage.py test accounts
+  - python sylva/manage.py test accounts schemas
 after_success:
 #  - coveralls

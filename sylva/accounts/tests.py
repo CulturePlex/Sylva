@@ -13,14 +13,14 @@ from datetime import date
 from accounts.models import Account, UserProfile
 
 
-class AccountsTest(TestCase):
+class UserAccountTest(TestCase):
     """
-    A set of tests for testing Users, Accounts and UserProfiles
+    A set of tests for testing Users, Accounts and UserProfiles.
     """
 
     def setUp(self):
         """
-        Sets up a few attributes for the new objects we'll create
+        Sets up a few attributes for the new objects we'll create.
         """
         self.username = 'bob'
         self.password = 'bob_secret'
@@ -28,7 +28,7 @@ class AccountsTest(TestCase):
 
     def test_user_creation(self):
         """
-        Tests User creation
+        Tests User creation.
         """
         user = User.objects.create(
             username=self.username,
@@ -41,7 +41,7 @@ class AccountsTest(TestCase):
 
     def test_account_creation(self):
         """
-        Tests Account and UserProfile through User creation
+        Tests Account and UserProfile through User creation.
         """
         user = User.objects.create(
             username=self.username,
@@ -57,7 +57,7 @@ class AccountsTest(TestCase):
 
     def test_account_edition(self):
         """
-        Tests Account and UserProfile edition
+        Tests Account and UserProfile edition.
         """
         user = User.objects.create(
             username=self.username,
@@ -85,7 +85,7 @@ class AccountsTest(TestCase):
 
     def test_account_deletion(self):
         """
-        Tests User and UserProfile deletion
+        Tests User and UserProfile deletion.
         """
         user = User.objects.create(
             username=self.username,
