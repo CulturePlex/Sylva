@@ -2,7 +2,7 @@ language: python
 python:
   - "2.7"
 before_install:
-  - service --status-all
+  - sudo service neo4j stop || true
   - ./download_and_install_neo4j.sh
   - ./neo4j/bin/neo4j start
   - sleep 7
