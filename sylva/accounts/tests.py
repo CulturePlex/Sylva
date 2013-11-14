@@ -25,83 +25,67 @@ class UserAccountTest(TestCase):
         self.username = 'bob'
         self.password = 'bob_secret'
         self.email = 'bob@cultureplex.ca'
+        self.default_type = 1
+        self.new_type = 2
+        self.gender = 1
+        self.website = 'bob.cultureplex.ca'
+        self.birth_date = date(1988, 12, 14)
 
-    def test_user_creation(self):
-        """
-        Tests User creation.
-        """
-        user = User.objects.create(
+        self.user = User.objects.create(
             username=self.username,
             password=self.password,
             email=self.email)
+        self.user_profile = UserProfile.objects.get(user__id=self.user.id)
 
-        self.assertIsNotNone(user)
-        self.assertIsNotNone(user.id)
-        self.assertEqual(user.email, self.email)
+    def test_user_creation(self):
+        """
+        Tests User creation from the setUp() method.
+        """
+        self.assertIsNotNone(self.user)
+        self.assertIsNotNone(self.user.id)
+        self.assertEqual(self.user.email, self.email)
 
     def test_account_creation(self):
         """
         Tests Account and UserProfile through User creation.
         """
-        user = User.objects.create(
-            username=self.username,
-            password=self.password,
-            email=self.email)
-
-        user_profile = UserProfile.objects.get(user__id=user.id)
-        account = user_profile.account
-
-        self.assertIsNotNone(user_profile)
-        self.assertIsNotNone(account)
-        self.assertEqual(account.type, 1)
+        self.assertIsNotNone(self.user_profile.account)
+        self.assertEqual(self.user_profile.account.type, self.default_type)
+        self.assertIsNotNone(self.user_profile)
+        self.assertIsNone(self.user_profile.gender)
+        self.assertEqual(self.user_profile.website, '')
+        self.assertIsNone(self.user_profile.birth_date)
 
     def test_account_edition(self):
         """
         Tests Account and UserProfile edition.
         """
-        user = User.objects.create(
-            username=self.username,
-            password=self.password,
-            email=self.email)
+        self.user_profile.account = Account.objects.filter(
+            type=self.new_type)[0]
+        self.user_profile.gender = self.gender
+        self.user_profile.website = self.website
+        self.user_profile.birth_date = self.birth_date
+        self.user_profile.save()
 
-        user_profile = UserProfile.objects.get(user__id=user.id)
-
-        self.assertIsNone(user_profile.gender)
-        self.assertEqual(user_profile.website, '')
-        self.assertIsNone(user_profile.birth_date)
-
-        user_profile.account = Account.objects.filter(type=2)[0]
-        user_profile.gender = 1
-        user_profile.website = 'bob.cultureplex.ca'
-        user_profile.birth_date = date(1988, 12, 14)
-        user_profile.save()
-
-        account = user_profile.account
-
-        self.assertEqual(account.type, 2)
-        self.assertEqual(user_profile.gender, 1)
-        self.assertEqual(user_profile.website, 'bob.cultureplex.ca')
-        self.assertEqual(user_profile.birth_date.year, 1988)
+        self.assertEqual(self.user_profile.account.type, self.new_type)
+        self.assertEqual(self.user_profile.gender, self.gender)
+        self.assertEqual(self.user_profile.website, self.website)
+        self.assertEqual(
+            self.user_profile.birth_date.year, self.birth_date.year)
 
     def test_account_deletion(self):
         """
         Tests User and UserProfile deletion.
         """
-        user = User.objects.create(
-            username=self.username,
-            password=self.password,
-            email=self.email)
-        user_profile = UserProfile.objects.get(user__id=user.id)
-
-        user.is_active = False
-        user.save()
-        user_profile.delete()
+        self.user.is_active = False
+        self.user.save()
+        self.user_profile.delete()
 
         try:
-            UserProfile.objects.get(id=user.id)
+            UserProfile.objects.get(id=self.user.id)
             exist = True
         except UserProfile.DoesNotExist:
             exist = False
 
-        self.assertEquals(user.is_active, False)
+        self.assertEquals(self.user.is_active, False)
         self.assertEquals(exist, False)
