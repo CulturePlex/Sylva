@@ -1,10 +1,4 @@
 #-*- coding:utf8 -*-
-"""
-This file demonstrates writing tests using the unittest module. These will pass
-when you run "manage.py test".
-
-Replace this with more appropriate tests for your application.
-"""
 
 from django.test import TestCase
 from django.contrib.auth.models import User
@@ -61,6 +55,14 @@ class RelationshipTest(TestCase):
         """
         Test Relationship edition from the created one.
         """
+        try:
+            self.relationship.get(self.property_key)
+            exist = True
+        except KeyError:
+            exist = False
+
+        self.assertEqual(exist, False)
+
         self.relationship.set(self.property_key, self.property_value)
         self.assertEqual(self.relationship.get(
             self.property_key), self.property_value)
