@@ -11,6 +11,6 @@ install: pip install --use-mirrors -r requirements.txt
 env:
   - NEO4J_VERSION="1.9.2"
 script:
-  python sylva/manage.py test data graphs schemas
+  python sylva/manage.py test data engines graphs schemas
 after_success:
   - ./neo4j/bin/neo4j stop

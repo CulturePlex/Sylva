@@ -178,5 +178,5 @@ class GraphTest(TestCase):
         self.assertIsNotNone(clone_graph)
         self.assertNotEqual(self.graph.name, clone_graph.name)
         self.graph.clone(clone_graph, clone_data=True)
-        #self.assertEqual(self.graph, self.clone_graph)
+        #self.assertEqual(self.graph, clone_graph)
         #self.assertEqual(self.graph.name, clone_graph.name)
