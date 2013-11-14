@@ -52,6 +52,7 @@ class UserAccountTest(TestCase):
         self.assertIsNotNone(self.user_profile.account)
         self.assertEqual(self.user_profile.account.type, self.default_type)
         self.assertIsNotNone(self.user_profile)
+        self.assertIsNotNone(self.user_profile.id)
         self.assertIsNone(self.user_profile.gender)
         self.assertEqual(self.user_profile.website, '')
         self.assertIsNone(self.user_profile.birth_date)

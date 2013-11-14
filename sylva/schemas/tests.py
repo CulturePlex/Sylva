@@ -1,3 +1,4 @@
+#-*- coding:utf8 -*-
 """
 This file demonstrates writing tests using the unittest module. These will pass
 when you run "manage.py test".
@@ -8,7 +9,8 @@ Replace this with more appropriate tests for your application.
 from django.test import TestCase
 from datetime import date, time
 
-from schemas.models import Schema, NodeType, RelationshipType, NodeProperty, RelationshipProperty
+from schemas.models import (Schema, NodeType, RelationshipType, NodeProperty,
+                            RelationshipProperty)
 
 
 class SchemaTest(TestCase):
@@ -57,7 +59,11 @@ class NodePropertyTest(TestCase):
     """
     A set of tests for testing NodeProperty.
     """
+
     def setUp(self):
+        """
+        Sets up a few objects for the tets we'll run.
+        """
         property_pre_setUp(self)
         self.node_type = NodeType.objects.create(
             name='bob_node', schema=self.schema)
@@ -74,6 +80,9 @@ class NodePropertyTest(TestCase):
             self.node_type.properties.count(), len(self.properties))
 
         for node_property in self.node_type.properties.all():
+            self.assertIsNotNone(node_property)
+            self.assertIsNotNone(node_property.id)
+
             k = node_property.key
             properties = self.properties[k]
 
@@ -106,7 +115,11 @@ class RelationshipPropertyTest(TestCase):
     """
     A set of tests for testing RelationshipProperties.
     """
+
     def setUp(self):
+        """
+        Sets up a few objects for the tets we'll run.
+        """
         property_pre_setUp(self)
         self.relationship_type = RelationshipType.objects.create(
             name='bob_relationship', schema=self.schema)
@@ -124,9 +137,13 @@ class RelationshipPropertyTest(TestCase):
             self.relationship_type.properties.count(), len(self.properties))
 
         for relationship_property in self.relationship_type.properties.all():
+            self.assertIsNotNone(relationship_property)
+            self.assertIsNotNone(relationship_property.id)
+
             k = relationship_property.key
             properties = self.properties[k]
 
+            self.assertIsNotNone(relationship_property.id)
             self.assertEqual(relationship_property.datatype, properties[0])
             self.assertEqual(relationship_property.value, str(properties[1]))
             self.assertEqual(
