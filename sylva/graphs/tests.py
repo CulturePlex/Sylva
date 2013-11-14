@@ -10,6 +10,7 @@ from django.test import TestCase
 
 from graphs.models import Graph, User
 from schemas.models import Schema, NodeType
+from graphs.mixins import NodeDoesNotExist
 
 
 class GraphTest(TestCase):
@@ -40,8 +41,14 @@ class GraphTest(TestCase):
         """
         elem = self.graph
         self.assertIsNotNone(elem)
-        elem = self.graph.delete()
-        self.assertIsNone(elem)
+        graph_id = self.graph.id
+        self.graph.delete()
+        try:
+            Graph.objects.get(pk=graph_id)
+            exists = True
+        except Graph.DoesNotExist:
+            exists = False
+        self.assertEqual(exists, False)
 
     def test_nodes_create(self):
         """
@@ -85,8 +92,14 @@ class GraphTest(TestCase):
         """
         n = self.graph.nodes.create(label=self.label)
         self.assertIsNotNone(n)
-        elem = self.graph.nodes.delete(label=self.label)
-        self.assertIsNone(elem)
+        n_id = n._id
+        self.graph.nodes.delete(label=self.label)
+        try:
+            self.graph.nodes._get(n_id)
+            exists = True
+        except NodeDoesNotExist:
+            exists = False
+        self.assertEqual(exists, False)
 
     def test_nodes_create_properties(self):
         """

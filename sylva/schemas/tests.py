@@ -44,8 +44,13 @@ class NodeTypesTest(TestCase):
             schema=self.mySchema)
         id_nt = nt.id
         self.assertIsNotNone(nt)
-        elem = NodeType.objects.get(pk=id_nt).delete()
-        self.assertIsNone(elem)
+        NodeType.objects.get(pk=id_nt).delete()
+        try:
+            NodeType.objects.get(pk=id_nt)
+            exists = True
+        except NodeType.DoesNotExist:
+            exists = False
+        self.assertEqual(exists, False)
 
 
 class RelationshipTypesTest(TestCase):
@@ -82,5 +87,10 @@ class RelationshipTypesTest(TestCase):
             schema=self.mySchema)
         id_rt = rt.id
         self.assertIsNotNone(rt)
-        elem = RelationshipType.objects.get(pk=id_rt).delete()
-        self.assertIsNone(elem)
+        RelationshipType.objects.get(pk=id_rt).delete()
+        try:
+            RelationshipType.objects.get(pk=id_rt)
+            exists = True
+        except RelationshipType.DoesNotExist:
+            exists = False
+        self.assertEqual(exists, False)

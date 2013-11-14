@@ -128,7 +128,7 @@ class Instance(models.Model):
                 "password": self.password,
                 "query": self.query,
                 "fragment": self.fragment,
-                "key_file": self.key_cert and self.key_cert.file,
+                "key_file": self.key_file and self.key_file.file,
                 "cert_file": self.cert_file and self.cert_file.file,
                 "options": self.options,
             }
