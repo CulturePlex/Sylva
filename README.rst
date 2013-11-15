@@ -1,7 +1,8 @@
-.. image:: https://travis-ci.org/josemazo/Sylva.png?branch=master   :target: https://travis-ci.org/josemazo/Sylva
+.. image:: https://travis-ci.org/CulturePlex/Sylva.png?branch=master   :target: https://travis-ci.org/CulturePlex/Sylva
 
-.. image:: https://coveralls.io/repos/josemazo/Sylva/badge.png?branch=master
-  :target: https://coveralls.io/r/josemazo/Sylva?branch=master
+
+.. image:: https://coveralls.io/repos/CulturePlex/Sylva/badge.png?branch=master
+  :target: https://coveralls.io/r/CulturePlex/Sylva?branch=master
 
 Sylva
 ==========
