@@ -17,10 +17,8 @@ class RelationshipTest(TestCase):
         """
         Sets up a few attributes and and objects for the tests we'll run.
         """
-        self.node_1_label = '1'
-        self.node_2_label = '2'
-        self.relationship_label = '3'
-        self.new_relationship_label = '19'
+        self.node_label = '1'
+        self.relationship_label = '2'
         self.property_key = 'location'
         self.property_value = "Bob's house"
         user = User.objects.create(
@@ -29,16 +27,14 @@ class RelationshipTest(TestCase):
             email='bob@cultureplex.ca')
         schema = Schema.objects.create()
         NodeType.objects.create(
-            id=self.node_1_label, name="Bob's node type 1", schema=schema)
-        NodeType.objects.create(
-            id=self.node_2_label, name="Bob's node type 2", schema=schema)
+            id=self.node_label, name="Bob's node type 1", schema=schema)
         RelationshipType.objects.create(
             id=self.relationship_label, name="Bob's relationship type",
             schema=schema)
         self.graph = Graph.objects.create(
             name="Bob's graph", schema=schema, owner=user)
-        node_1 = self.graph.nodes.create(label=self.node_1_label)
-        node_2 = self.graph.nodes.create(label=self.node_2_label)
+        node_1 = self.graph.nodes.create(label=self.node_label)
+        node_2 = self.graph.nodes.create(label=self.node_label)
         self.relationship = self.graph.relationships.create(
             node_1, node_2, self.relationship_label)
         self.relationship_id = self.relationship.id
@@ -71,7 +67,7 @@ class RelationshipTest(TestCase):
         """
         Test Relationship deletion from the edition one.
         """
-        self.graph.relationships.delete(label=self.relationship_label)
+        self.graph.relationships.delete(id=self.relationship_id)
 
         try:
             self.graph.relationships._get(self.relationship_id)

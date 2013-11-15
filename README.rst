@@ -1,3 +1,8 @@
+.. image:: https://travis-ci.org/josemazo/Sylva.png?branch=master   :target: https://travis-ci.org/josemazo/Sylva
+
+.. image:: https://coveralls.io/repos/josemazo/Sylva/badge.png?branch=master
+  :target: https://coveralls.io/r/josemazo/Sylva?branch=master
+
 Sylva
 ==========
 Sylva_ is a Relaxed-Schema Graph Database Management System.
@@ -8,8 +13,8 @@ Installation:
 Just in case, first thing you need is to have installed pip_ and virtualenv_ in your machine::
 
   $ sudo apt-get install python-pip python-dev build-essential python-profiler libpq-dev
-  $ sudo pip install --upgrade pip 
-  $ sudo pip install --upgrade virtualenv 
+  $ sudo pip install --upgrade pip
+  $ sudo pip install --upgrade virtualenv
 
 Then, it's a good option to use virtualenvwrapper_::
 
