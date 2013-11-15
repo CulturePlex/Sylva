@@ -7,24 +7,32 @@ Replace this with more appropriate tests for your application.
 """
 
 from django.test import TestCase
+from django.contrib.auth import authenticate, login
+from django.test.client import Client, RequestFactory
 
 from graphs.models import Graph, User
 from schemas.models import Schema, NodeType
 from graphs.mixins import NodeDoesNotExist
 
+import tools.views
+import graphs.models
 
 class GraphTest(TestCase):
     def setUp(self):
+        self.factory = RequestFactory()
+        self.c = Client()
+        self.u = User.objects.create(username='john', password='doe',is_active=True, is_staff=True)
+        self.u.set_password('hello')
+        self.u.save()
+        mySchema = Schema.objects.create()
+        nt = NodeType(id=1, name="test", schema=mySchema)
+        nt.save()
         # If label is not a number, it fires an exception
         self.label = "1"
         self.properties = {"property": "value with spaces"}
         self.unicode_label = u"1"
         self.unicode_properties = {u"property": u"value with spaces"}
         self.graphName = "graphTest"
-        self.u = User.objects.create()
-        mySchema = Schema.objects.create()
-        nt = NodeType(id=1, name="test", schema=mySchema)
-        nt.save()
         self.graph = Graph.objects.create(name=self.graphName,
             schema=mySchema, owner=self.u)
 
@@ -180,3 +188,37 @@ class GraphTest(TestCase):
         self.graph.clone(clone_graph, clone_data=True)
         self.assertNotEqual(self.graph, clone_graph)
         self.assertEqual(self.graph.nodes.count(), clone_graph.nodes.count())
+
+    def test_graph_import(self):
+        """
+        Tests graph imported
+        """
+        user = authenticate(username='john', password='hello')
+        login = self.c.login(username='john', password='hello')
+        self.assertTrue(login)
+        response = self.c.get('/accounts/signin/')
+        self.assertIsNotNone(response.content)
+        response = self.c.post('/accounts/signin/', {'username': 'john', 'password': 'hello'})
+        self.assertEqual(response.status_code, 200)
+        request = self.factory.get('/import/')
+        request.user = self.u
+        self.assertIsNotNone(tools.views.graph_import_tool(request,self.graph.slug))
+
+    def test_graph_export(self):
+        """
+        Tests graph exported
+        """
+        user = authenticate(username='john', password='hello')
+        login = self.c.login(username='john', password='hello')
+        self.assertTrue(login)
+        response = self.c.get('/accounts/signin/')
+        self.assertIsNotNone(response.content)
+        response = self.c.post('/accounts/signin/', {'username': 'john', 'password': 'hello'})
+        self.assertEqual(response.status_code, 200)
+        """
+        self.u.user_permissions.add(graphs.models.PERMISSIONS['data']['view_data'])
+        request = self.factory.get('/export/')
+        request.user = self.u
+        self.assertIsNotNone(tools.views.graph_export_gexf(request,self.graph.slug))
+        self.assertIsNotNone(tools.views.graph_export_csv(request,self.graph.slug))
+        """

@@ -8,31 +8,25 @@ import os
 import shutil
 
 from django.test import TestCase
+from django.core.files.storage import default_storage
 
 from data.models import Data, MediaNode, MediaFile
 
 
 class MediaFileTest(TestCase):
     def setUp(self):
-        # We create the "media" directory to store
-        # the media file
-        try:
-            os.makedirs("sylva/media")
-        except OSError:
-            if not os.path.isdir("sylva/media"):
-                raise
-        if os.path.exists("sylva/media/example.txt"):
-            f = file("sylva/media/example.txt", "r+")
-        else:
-            f = file("sylva/media/example.txt", "w")
+        # We modify the default storage path to store
+        # the media file in our test directory
+        self._old_default_storage_location = default_storage.location
+        default_storage.location = 'data/fixtures/'
         self.media_label = "test"
-        self.media_file = "example.txt"
+        self.media_file = "lorem.json"
         self.data = Data.objects.create()
         self.mediaNode = MediaNode.objects.create(data=self.data)
 
     def tearDown(self):
-        # We remove the directory after execute the tests
-        shutil.rmtree('sylva/media')
+        # We restart the default storage value after execute the tests
+        default_storage.location = self._old_default_storage_location
 
     def test_mediaFile_creation(self):
         """
