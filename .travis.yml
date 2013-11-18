@@ -2,18 +2,15 @@ language: python
 python:
   - "2.7"
 before_install:
-  - sudo service neo4j stop || true
-  - sleep 3
-  - ./download_and_install_neo4j.sh
-  - ./neo4j/bin/neo4j console &
-  - sleep 7
+  - ./download_and_install_neo4j.sh $NEO4J_VERSION
+  - ./neo4j/bin/neo4j start
 install:
   - pip install -U -r requirements.txt --use-mirrors
   - pip install coveralls --use-mirrors
 env:
   - NEO4J_VERSION="1.9.2"
 script:
-  coverage run --source=sylva sylva/manage.py test data engines graphs schemas
+  - coverage run --source=sylva sylva/manage.py test accounts data engines graphs schemas data
 after_success:
   - ./neo4j/bin/neo4j stop
   - coveralls

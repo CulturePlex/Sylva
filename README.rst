@@ -1,5 +1,9 @@
-[![Build Status](https://travis-ci.org/gabmunrio/Sylva.png?branch=master)](https://travis-ci.org/gabmunrio/Sylva)
-[![Coverage Status](https://coveralls.io/repos/gabmunrio/Sylva/badge.png?branch=master)](https://coveralls.io/r/gabmunrio/Sylva?branch=master)
+.. image:: https://travis-ci.org/CulturePlex/Sylva.png?branch=master
+  :target: https://travis-ci.org/CulturePlex/Sylva
+
+.. image:: https://coveralls.io/repos/CulturePlex/Sylva/badge.png?branch=master
+  :target: https://coveralls.io/r/CulturePlex/Sylva?branch=master
+
 
 Sylva
 ==========
