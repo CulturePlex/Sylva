@@ -247,5 +247,3 @@ class RelationshipTypesTest(TestCase):
         except RelationshipType.DoesNotExist:
             exists = False
         self.assertEqual(exists, False)
-        for relationship_property in self.relationship_type.properties.all():
-            self.assertEqual(relationship_property.value, self.new_value)
