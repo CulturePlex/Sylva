@@ -72,15 +72,21 @@ class UserAccountTest(TestCase):
         """
         Tests User and UserProfile deletion.
         """
-        self.user.is_active = False
-        self.user.save()
-        self.user_profile.delete()
+        user_id = self.user.id
+        user_profile_id = self.user_profile.id
+        self.user.delete()
 
         try:
-            UserProfile.objects.get(id=self.user.id)
-            exist = True
-        except UserProfile.DoesNotExist:
-            exist = False
+            User.objects.get(id=user_id)
+            exist_user = True
+        except User.DoesNotExist:
+            exist_user = False
 
-        self.assertEquals(self.user.is_active, False)
-        self.assertEquals(exist, False)
+        try:
+            UserProfile.objects.get(id=user_profile_id)
+            exist_user_profile = True
+        except UserProfile.DoesNotExist:
+            exist_user_profile = False
+
+        self.assertEquals(exist_user, False)
+        self.assertEquals(exist_user_profile, False)
