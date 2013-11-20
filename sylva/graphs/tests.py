@@ -1,11 +1,225 @@
 #-*- coding:utf8 -*-
 
 from django.test import TestCase
+
+from django.contrib.auth import authenticate, login
+from django.test.client import Client, RequestFactory
 from django.contrib.auth.models import User
 
-from graphs.models import Graph
+from graphs.models import Graph, User
 from graphs.mixins import RelationshipDoesNotExist
+from graphs.mixins import NodeDoesNotExist
 from schemas.models import Schema, NodeType, RelationshipType
+
+import tools.views
+import graphs.models
+
+
+class GraphTest(TestCase):
+    def setUp(self):
+        self.factory = RequestFactory()
+        self.c = Client()
+        self.u = User.objects.create(username='john', password='doe',is_active=True, is_staff=True)
+        self.u.set_password('hello')
+        self.u.save()
+        mySchema = Schema.objects.create()
+        nt = NodeType(id=1, name="test", schema=mySchema)
+        nt.save()
+        # If label is not a number, it fires an exception
+        self.label = "1"
+        self.properties = {"property": "value with spaces"}
+        self.unicode_label = u"1"
+        self.unicode_properties = {u"property": u"value with spaces"}
+        self.graphName = "graphTest"
+        self.graph = Graph.objects.create(name=self.graphName,
+            schema=mySchema, owner=self.u)
+
+    def test_graph_creation(self):
+        """
+        Tests that a graph is created.
+        """
+        self.assertIsNotNone(self.graph)
+        self.assertEqual(self.graph.name, self.graphName)
+
+    def test_graph_deletion(self):
+        """
+        Tests that a graph is created.
+        """
+        elem = self.graph
+        self.assertIsNotNone(elem)
+        graph_id = self.graph.id
+        self.graph.delete()
+        try:
+            Graph.objects.get(pk=graph_id)
+            exists = True
+        except Graph.DoesNotExist:
+            exists = False
+        self.assertEqual(exists, False)
+
+    def test_nodes_create(self):
+        """
+        Tests node creation
+        """
+        n = self.graph.nodes.create(label=self.label)
+        self.assertIsNotNone(n)
+        self.assertEqual(n.label, self.label)
+
+    def test_nodes_create_unicode(self):
+        """
+        Tests node creation with unicode label
+        """
+        n = self.graph.nodes.create(label=self.unicode_label)
+        self.assertIsNotNone(n)
+        self.assertEqual(n.label, self.unicode_label)
+
+    def test_nodes_edition(self):
+        """
+        Tests node edition
+        """
+        n = self.graph.nodes.create(label=self.label)
+        self.assertIsNotNone(n)
+        self.assertEqual(n.label, self.label)
+        n._label = "2"
+        self.assertNotEqual(n.label, self.label)
+
+    def test_nodes_edition_unicode(self):
+        """
+        Tests node edition with unicode label
+        """
+        n = self.graph.nodes.create(label=self.label)
+        self.assertIsNotNone(n)
+        self.assertEqual(n.label, self.label)
+        n._label= u"2"
+        self.assertNotEqual(n.label, self.label)
+
+    def test_nodes_deletion(self):
+        """
+        Tests node deletion
+        """
+        n = self.graph.nodes.create(label=self.label)
+        self.assertIsNotNone(n)
+        n_id = n._id
+        self.graph.nodes.delete(label=self.label)
+        try:
+            self.graph.nodes._get(n_id)
+            exists = True
+        except NodeDoesNotExist:
+            exists = False
+        self.assertEqual(exists, False)
+
+    def test_nodes_create_properties(self):
+        """
+        Tests node creation
+        """
+        n = self.graph.nodes.create(label=self.label,
+                                    properties=self.properties)
+        self.assertIsNotNone(n)
+        self.assertEqual(n.label, self.label)
+        self.assertEqual(n.properties, self.properties)
+        for key, value in self.properties.items():
+            self.assertIn(key, n)
+            self.assertEqual(n[key], value)
+        for key, value in n.properties.iteritems():
+            self.assertIn(key, self.properties)
+            self.assertEqual(self.properties[key], value)
+
+    def test_nodes_set_properties(self):
+        """
+        Tests node creation
+        """
+        n = self.graph.nodes.create(label=self.label)
+        self.assertIsNotNone(n)
+        self.assertEqual(n.label, self.label)
+        n.properties = self.properties
+        self.assertEqual(n.properties, self.properties)
+        for key, value in self.properties.items():
+            self.assertIn(key, n)
+            self.assertEqual(n[key], value)
+        for key, value in n.properties.iteritems():
+            self.assertIn(key, self.properties)
+            self.assertEqual(self.properties[key], value)
+
+    def test_nodes_create_properties_unicode(self):
+        """
+        Tests node creation
+        """
+        n = self.graph.nodes.create(label=self.unicode_label,
+                                    properties=self.unicode_properties)
+        self.assertIsNotNone(n)
+        self.assertEqual(n.label, self.unicode_label)
+        self.assertEqual(n.properties, self.unicode_properties)
+        for key, value in self.unicode_properties.items():
+            self.assertIn(key, n)
+            self.assertEqual(n[key], value)
+        for key, value in n.properties.iteritems():
+            self.assertIn(key, self.unicode_properties)
+            self.assertEqual(self.unicode_properties[key], value)
+
+    def test_nodes_set_properties_unicode(self):
+        """
+        Tests node creation
+        """
+        n = self.graph.nodes.create(label=self.unicode_label)
+        self.assertIsNotNone(n)
+        self.assertEqual(n.label, self.unicode_label)
+        n.properties = self.unicode_properties
+        self.assertEqual(n.properties, self.unicode_properties)
+        for key, value in self.unicode_properties.items():
+            self.assertIn(key, n)
+            self.assertEqual(n[key], value)
+        for key, value in n.properties.iteritems():
+            self.assertIn(key, self.unicode_properties)
+            self.assertEqual(self.unicode_properties[key], value)
+
+    def test_graph_clone(self):
+        """
+        Tests graph clonation
+        """
+        cloneGraphName = "graphCloneTest"
+        mySchema_clone = Schema.objects.create()
+        nt = NodeType(id=2, name="test", schema=mySchema_clone)
+        nt.save()
+        clone_graph = Graph.objects.create(name=cloneGraphName,
+            schema=mySchema_clone, owner=self.u)
+        self.assertIsNotNone(clone_graph)
+        self.assertNotEqual(self.graph.name, clone_graph.name)
+        self.graph.clone(clone_graph, clone_data=True)
+        self.assertNotEqual(self.graph, clone_graph)
+        self.assertEqual(self.graph.nodes.count(), clone_graph.nodes.count())
+
+    def test_graph_import(self):
+        """
+        Tests graph imported
+        """
+        user = authenticate(username='john', password='hello')
+        login = self.c.login(username='john', password='hello')
+        self.assertTrue(login)
+        response = self.c.get('/accounts/signin/')
+        self.assertIsNotNone(response.content)
+        response = self.c.post('/accounts/signin/', {'username': 'john', 'password': 'hello'})
+        self.assertEqual(response.status_code, 200)
+        request = self.factory.get('/import/')
+        request.user = self.u
+        self.assertIsNotNone(tools.views.graph_import_tool(request,self.graph.slug))
+
+    def test_graph_export(self):
+        """
+        Tests graph exported
+        """
+        user = authenticate(username='john', password='hello')
+        login = self.c.login(username='john', password='hello')
+        self.assertTrue(login)
+        response = self.c.get('/accounts/signin/')
+        self.assertIsNotNone(response.content)
+        response = self.c.post('/accounts/signin/', {'username': 'john', 'password': 'hello'})
+        self.assertEqual(response.status_code, 200)
+        """
+        self.u.user_permissions.add(graphs.models.PERMISSIONS['data']['view_data'])
+        request = self.factory.get('/export/')
+        request.user = self.u
+        self.assertIsNotNone(tools.views.graph_export_gexf(request,self.graph.slug))
+        self.assertIsNotNone(tools.views.graph_export_csv(request,self.graph.slug))
+        """
 
 
 class RelationshipTest(TestCase):

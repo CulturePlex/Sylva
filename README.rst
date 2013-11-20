@@ -4,6 +4,7 @@
 .. image:: https://coveralls.io/repos/CulturePlex/Sylva/badge.png?branch=master
   :target: https://coveralls.io/r/CulturePlex/Sylva?branch=master
 
+
 Sylva
 ==========
 Sylva_ is a Relaxed-Schema Graph Database Management System.

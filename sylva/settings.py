@@ -346,3 +346,8 @@ STRIPE_PLANS = {
         'account_type': 3
     }
 }
+
+# email backend
+
+EMAIL_BACKEND = 'django.core.mail.backends.dummy.EmailBackend'
+# EMAIL_FILE_PATH = '/tmp/app-messages' # change this to a proper location
