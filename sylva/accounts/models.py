@@ -8,7 +8,6 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.utils.translation import gettext as _
 
-from guardian.shortcuts import assign
 from userena.models import UserenaLanguageBaseProfile
 
 
@@ -63,6 +62,13 @@ class UserProfile(UserenaLanguageBaseProfile):
     account = models.ForeignKey(Account, verbose_name=_('account'),
                                 related_name="users")
 
+    class Meta:
+        permissions = (
+            ('view_profile', _('View profile')),
+            ('change_profile', _('Change profile')),
+            ('delete_profile', _('Delete profile')),
+        )
+
     @property
     def age(self):
         if not self.birth_date:
@@ -96,13 +102,3 @@ def create_profile_account(*args, **kwargs):
             else:
                 account = accounts[0]
             UserProfile.objects.create(user=user, account=account)
-
-
-@receiver(post_save, sender=User, dispatch_uid='user.created')
-def add_change_profile_perm(sender, instance, created, raw, using, **kwargs):
-    """ Adds 'change_profile' permission to created user objects """
-    if created:
-        try:
-            assign('change_profile', instance, instance.get_profile())
-        except:
-            pass  # Anonymous user
