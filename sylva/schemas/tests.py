@@ -162,3 +162,88 @@ class RelationshipPropertyTest(TestCase):
             self.relationship_type.properties.count(), len(self.properties))
         self.relationship_type.properties.all().delete()
         self.assertEqual(self.relationship_type.properties.count(), 0)
+
+
+class NodeTypesTest(TestCase):
+    def setUp(self):
+        self.mySchema = Schema.objects.create()
+
+    def test_nodeType_creation(self):
+        """
+        Tests that a node type is created.
+        """
+        nodeTypeName = "nodeType"
+        nt = NodeType.objects.create(name=nodeTypeName, schema=self.mySchema)
+        self.assertIsNotNone(nt)
+        self.assertEqual(nt.name, nodeTypeName)
+
+    def test_nodeType_edition(self):
+        """
+        Tests that a node type is edited.
+        """
+        nodeTypeName = "nodeTypeExample"
+        nt = NodeType.objects.create(name=nodeTypeName,
+            schema=self.mySchema)
+        self.assertEqual(nt.name, nodeTypeName)
+        nt.name = 'nodeType'
+        self.assertEqual(nt.name, 'nodeType')
+
+    def test_nodeType_deletion(self):
+        """
+        Tests that a node type is deleted.
+        """
+        nodeTypeName = "nodeTypeExample"
+        nt = NodeType.objects.create(name=nodeTypeName,
+            schema=self.mySchema)
+        id_nt = nt.id
+        self.assertIsNotNone(nt)
+        NodeType.objects.get(pk=id_nt).delete()
+        try:
+            NodeType.objects.get(pk=id_nt)
+            exists = True
+        except NodeType.DoesNotExist:
+            exists = False
+        self.assertEqual(exists, False)
+
+
+class RelationshipTypesTest(TestCase):
+    def setUp(self):
+        self.mySchema = Schema.objects.create()
+
+    def test_relationshipType_creation(self):
+        """
+        Tests that a relationship type is created.
+        """
+        relationshipTypeName = "relationshipTypeExample"
+        rt = RelationshipType.objects.create(name=relationshipTypeName,
+            schema=self.mySchema)
+        self.assertIsNotNone(rt)
+        self.assertEqual(rt.name, relationshipTypeName)
+
+    def test_relationshipType_edition(self):
+        """
+        Tests that a relationship type is edited.
+        """
+        relationshipTypeName = "relationshipTypeExample"
+        rt = RelationshipType.objects.create(name=relationshipTypeName,
+            schema=self.mySchema)
+        self.assertEqual(rt.name, relationshipTypeName)
+        rt.name = 'relationshipType'
+        self.assertEqual(rt.name, 'relationshipType')
+
+    def test_relationshipType_deletion(self):
+        """
+        Tests that a relationship type is deleted.
+        """
+        relationshipTypeName = "relationshipTypeExample"
+        rt = RelationshipType.objects.create(name=relationshipTypeName,
+            schema=self.mySchema)
+        id_rt = rt.id
+        self.assertIsNotNone(rt)
+        RelationshipType.objects.get(pk=id_rt).delete()
+        try:
+            RelationshipType.objects.get(pk=id_rt)
+            exists = True
+        except RelationshipType.DoesNotExist:
+            exists = False
+        self.assertEqual(exists, False)
