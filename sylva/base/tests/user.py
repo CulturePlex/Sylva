@@ -47,58 +47,60 @@ class UserTestCase(LiveServerTestCase):
         self.assertEquals(self.browser.find_by_css('.body-inside').first.value, 'Thank you for signing up with us!\nYou can now use the supplied credentials to signin.')
         self.assertEquals(self.browser.title, 'SylvaDB - Signup almost done!')
 
-    def test_splinter_signin(self):
+    def test_user_signin(self):
         signin(self)
         self.assertEquals(self.browser.title, 'SylvaDB - Dashboard')
 
-    def test_splinter_logout(self):
+    def test_user_logout(self):
         signin(self)
         logout(self)
         self.assertEquals(self.browser.title, 'SylvaDB - Signed out')
         self.assertEquals(self.browser.find_by_css('.body-inside').first.value, 'You have been signed out. Till we meet again.')
 
-"""
     def test_user_details(self):
         signin(self)
-        self.browser.visit(self.live_server_url + '/accounts/bob/edit/')
+        self.assertEquals(self.browser.title, 'SylvaDB - Dashboard')
+        self.browser.find_link_by_href('/accounts/bob/').first.click()
+        self.assertEquals(self.browser.title, 'SylvaDB - bob\'s profile.')
+        self.browser.find_link_by_href('/accounts/bob/edit/').first.click()
         self.assertEquals(self.browser.title, 'SylvaDB - Account setup')
         self.browser.find_by_name('first_name').fill('Bob')
         self.browser.find_by_name('last_name').fill('Doe')
-        self.browser.find_by_name('mugshot').fill('') # Is a type file
-        self.browser.find_by_name('language').fill('') # Is a select field
-        self.browser.find_by_name('gender').fill('') # Is a select field
-        self.browser.find_by_name('website').fill('')
-        self.browser.find_by_name('location').fill('')
-        self.browser.find_by_name('birth_date').fill('')
-        self.browser.find_by_name('about_me').fill('')
-        self.browser.find_by_name('instituion').fill('')
-        self.browser.find_by_name('company').fill('')
-        self.browser.find_by_name('lab').fill('')
+        self.browser.attach_file('mugshot', 'http://www.gravatar.com/avatar/3d4bcca5d9c3a56a0282f308f9acda07?s=90')
+        self.browser.select('language', 'en')
+        self.browser.select('gender', '1')
+        self.browser.find_by_name('website').fill('http://www.bobweb.com')
+        self.browser.find_by_name('location').fill('London, Ontario')
+        self.browser.find_by_name('birth_date').fill('01/01/1975')
+        self.browser.find_by_name('about_me').fill('I am a very nice guy')
+        self.browser.find_by_name('instituion').fill('University')
+        self.browser.find_by_name('company').fill('CulturePlex')
+        self.browser.find_by_name('lab').fill('CulturePlex')
         self.browser.find_by_value('Save changes').first.click()
+        self.assertEquals(self.browser.title, 'SylvaDB - bob\'s profile.')
 
     def test_user_pass(self):
-        self.browser.visit(self.live_server_url + '/accounts/signin/')
-        self.assertEquals(self.browser.title, 'SylvaDB - Signin')
-        self.browser.find_by_name('identification').fill('bob')
-        self.browser.find_by_name('password').fill('bob_password')
-        self.browser.find_by_value('Signin').first.click()
+        signin(self)
         self.assertEquals(self.browser.title, 'SylvaDB - Dashboard')
-        self.browser.visit(self.live_server_url + '/accounts/bob/password/')
-        self.assertEquals(self.browser.title, 'SylvaDB - Change pasword')
-        self.browser.find_by_name('old_password').fill('bob_password')
-        self.browser.find_by_name('new_password1').fill('')
-        self.browser.find_by_name('new_password2').fill('')
+        self.browser.find_link_by_href('/accounts/bob/').first.click()
+        self.assertEquals(self.browser.title, 'SylvaDB - bob\'s profile.')
+        self.browser.find_link_by_href('/accounts/bob/password/').first.click()
+        self.assertEquals(self.browser.title, 'SylvaDB - Change password')
+        self.browser.find_by_name('old_password').fill('bob_secret')
+        self.browser.find_by_name('new_password1').fill('bob_password')
+        self.browser.find_by_name('new_password2').fill('bob_password')
         self.browser.find_by_value('Change password').first.click()
+        self.assertEquals(self.browser.title, 'SylvaDB - Password changed')
 
+    """
     def test_user_mail_change(self):
-        self.browser.visit(self.live_server_url + '/accounts/signin/')
-        self.assertEquals(self.browser.title, 'SylvaDB - Signin')
-        self.browser.find_by_name('identification').fill('bob')
-        self.browser.find_by_name('password').fill('bob_password')
-        self.browser.find_by_value('Signin').first.click()
+        signin(self)
         self.assertEquals(self.browser.title, 'SylvaDB - Dashboard')
-        self.browser.visit(self.live_server_url + '/accounts/bob/email/')
+        self.browser.find_link_by_href('/accounts/bob/').first.click()
+        self.assertEquals(self.browser.title, 'SylvaDB - bob\'s profile.')
+        self.browser.find_link_by_href('/accounts/bob/email/').first.click()
         self.assertEquals(self.browser.title, 'SylvaDB - Welcome to The Sylva Project')
-        self.browser.find_by_name('email').fill('')
+        self.browser.find_by_name('email').fill('bobnew@cultureplex.ca')
         self.browser.find_by_value('Change email').first.click()
-"""
+        self.assertEquals(self.browser.title, '')
+    """
