@@ -275,6 +275,9 @@ USERENA_MUGSHOT_DEFAULT = "mm"
 USERENA_MUGSHOT_SIZE = 100
 USERENA_USE_MESSAGES = False
 
+# Add to do the tests correctly, check mail is not necessary by now
+USERENA_ACTIVATION_REQUIRED = False
+
 # Guardian
 GUARDIAN_RENDER_403 = True
 GUARDIAN_TEMPLATE_403 = '403.html'
@@ -346,8 +349,3 @@ STRIPE_PLANS = {
         'account_type': 3
     }
 }
-
-# email backend
-
-EMAIL_BACKEND = 'django.core.mail.backends.dummy.EmailBackend'
-# EMAIL_FILE_PATH = '/tmp/app-messages' # change this to a proper location

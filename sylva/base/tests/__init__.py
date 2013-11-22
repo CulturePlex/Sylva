@@ -1,1 +1,1 @@
-from tests import SplinterTestCase
+from user import UserTestCase
