@@ -44,26 +44,27 @@ class UserTestCase(LiveServerTestCase):
 
     def test_user_signup(self):
         signup(self)
-        self.assertEquals(self.browser.find_by_css('.body-inside').first.value, 'Thank you for signing up with us!\nYou can now use the supplied credentials to signin.')
-        self.assertEquals(self.browser.title, 'SylvaDB - Signup almost done!')
+        self.assertEqual(self.browser.find_by_css('.body-inside').first.value, 'Thank you for signing up with us!\nYou can now use the supplied credentials to signin.')
+        self.assertEqual(self.browser.title, 'SylvaDB - Signup almost done!')
 
     def test_user_signin(self):
         signin(self)
-        self.assertEquals(self.browser.title, 'SylvaDB - Dashboard')
+        self.assertEqual(self.browser.title, 'SylvaDB - Dashboard')
+        logout(self)
 
     def test_user_logout(self):
         signin(self)
         logout(self)
-        self.assertEquals(self.browser.title, 'SylvaDB - Signed out')
-        self.assertEquals(self.browser.find_by_css('.body-inside').first.value, 'You have been signed out. Till we meet again.')
+        self.assertEqual(self.browser.title, 'SylvaDB - Signed out')
+        self.assertEqual(self.browser.find_by_css('.body-inside').first.value, 'You have been signed out. Till we meet again.')
 
     def test_user_details(self):
         signin(self)
-        self.assertEquals(self.browser.title, 'SylvaDB - Dashboard')
+        self.assertEqual(self.browser.title, 'SylvaDB - Dashboard')
         self.browser.find_link_by_href('/accounts/bob/').first.click()
-        self.assertEquals(self.browser.title, 'SylvaDB - bob\'s profile.')
+        self.assertEqual(self.browser.title, 'SylvaDB - bob\'s profile.')
         self.browser.find_link_by_href('/accounts/bob/edit/').first.click()
-        self.assertEquals(self.browser.title, 'SylvaDB - Account setup')
+        self.assertEqual(self.browser.title, 'SylvaDB - Account setup')
         self.browser.find_by_name('first_name').fill('Bob')
         self.browser.find_by_name('last_name').fill('Doe')
         self.browser.attach_file('mugshot', 'http://www.gravatar.com/avatar/3d4bcca5d9c3a56a0282f308f9acda07?s=90')
@@ -77,30 +78,32 @@ class UserTestCase(LiveServerTestCase):
         self.browser.find_by_name('company').fill('CulturePlex')
         self.browser.find_by_name('lab').fill('CulturePlex')
         self.browser.find_by_value('Save changes').first.click()
-        self.assertEquals(self.browser.title, 'SylvaDB - bob\'s profile.')
+        self.assertEqual(self.browser.title, 'SylvaDB - bob\'s profile.')
+        logout(self)
 
     def test_user_pass(self):
         signin(self)
-        self.assertEquals(self.browser.title, 'SylvaDB - Dashboard')
+        self.assertEqual(self.browser.title, 'SylvaDB - Dashboard')
         self.browser.find_link_by_href('/accounts/bob/').first.click()
-        self.assertEquals(self.browser.title, 'SylvaDB - bob\'s profile.')
+        self.assertEqual(self.browser.title, 'SylvaDB - bob\'s profile.')
         self.browser.find_link_by_href('/accounts/bob/password/').first.click()
-        self.assertEquals(self.browser.title, 'SylvaDB - Change password')
+        self.assertEqual(self.browser.title, 'SylvaDB - Change password')
         self.browser.find_by_name('old_password').fill('bob_secret')
         self.browser.find_by_name('new_password1').fill('bob_password')
         self.browser.find_by_name('new_password2').fill('bob_password')
         self.browser.find_by_value('Change password').first.click()
-        self.assertEquals(self.browser.title, 'SylvaDB - Password changed')
+        self.assertEqual(self.browser.title, 'SylvaDB - Password changed')
+        logout(self)
 
     """
     def test_user_mail_change(self):
         signin(self)
-        self.assertEquals(self.browser.title, 'SylvaDB - Dashboard')
+        self.assertEqual(self.browser.title, 'SylvaDB - Dashboard')
         self.browser.find_link_by_href('/accounts/bob/').first.click()
-        self.assertEquals(self.browser.title, 'SylvaDB - bob\'s profile.')
+        self.assertEqual(self.browser.title, 'SylvaDB - bob\'s profile.')
         self.browser.find_link_by_href('/accounts/bob/email/').first.click()
-        self.assertEquals(self.browser.title, 'SylvaDB - Welcome to The Sylva Project')
+        self.assertEqual(self.browser.title, 'SylvaDB - Welcome to The Sylva Project')
         self.browser.find_by_name('email').fill('bobnew@cultureplex.ca')
         self.browser.find_by_value('Change email').first.click()
-        self.assertEquals(self.browser.title, '')
+        self.assertEqual(self.browser.title, '')
     """
