@@ -5,7 +5,9 @@ from engines.tests import InstanceNeo4jTestSuite, InstanceRexsterTestSuite
 from graphs.tests import GraphTest, RelationshipTest
 from schemas.tests import (SchemaTest, NodePropertyTest,
     RelationshipPropertyTest, NodeTypesTest, RelationshipTypesTest)
-"""
 
-#from user import UserTestCase
+
+from user import UserTestCase
 from dashboard import DashboardTestCase
+"""
+from schema import SchemaTestCase
