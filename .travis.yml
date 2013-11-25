@@ -10,7 +10,7 @@ install:
 before_script:
   - ./neo4j/bin/neo4j start
 script:
-  - coverage run --source=sylva sylva/manage.py base
+  - coverage run --source=sylva sylva/manage.py test base
 after_success:
   - coveralls
 after_script:
