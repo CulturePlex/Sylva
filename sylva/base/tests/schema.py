@@ -6,6 +6,24 @@ from user import signin, logout
 from dashboard import create_graph, create_schema, create_type
 
 
+def create_allowed_rel(test):
+    create_graph(test)
+    test.assertEqual(test.browser.title, 'SylvaDB - Dashboard')
+    create_schema(test)
+    create_type(test)
+    test.assertEqual(test.browser.title, "SylvaDB - Bob's graph")
+    test.browser.find_by_id('allowedRelations').first.click()
+    test.browser.select('source', '1')
+    test.browser.find_by_name('name').fill('Bob\'s rel')
+    test.browser.select('target', '1')
+    test.browser.find_by_id('id_description').fill('This the allowed relationship for Bob\'s graph')
+    test.browser.find_by_value('Save Type').first.click()
+    test.assertEqual(test.browser.title, "SylvaDB - Bob's graph")
+    text = test.browser.find_by_xpath(
+        "//div[@class='form-row indent']/label").first.value
+    test.assertNotEqual(text.find('Bob\'s rel'), -1)
+
+
 class SchemaTestCase(LiveServerTestCase):
 
     def setUp(self):
@@ -18,7 +36,6 @@ class SchemaTestCase(LiveServerTestCase):
 
     """
     def test_export_schema(self):
-        signin(self)
         self.assertEqual(self.browser.title, 'SylvaDB - Dashboard')
         create_graph()
         create_schema()
@@ -28,8 +45,6 @@ class SchemaTestCase(LiveServerTestCase):
     """
 
     def test_import_schema(self):
-        signin(self)
-        self.assertEqual(self.browser.title, 'SylvaDB - Dashboard')
         create_graph(self)
         self.assertEqual(self.browser.title, 'SylvaDB - Dashboard')
         self.browser.find_link_by_href('/graphs/bobs-graph/').first.click()
@@ -67,8 +82,8 @@ class SchemaTestCase(LiveServerTestCase):
         text = self.browser.find_by_xpath(
             "//div[@class='content2-first']/h2").first.value
         self.assertEqual(text, 'Type')
-        self.browser.find_by_name('name').first.fill("Bob's type")
         self.browser.find_by_id('advancedModeButton').first.click()
+        self.browser.find_by_name('name').first.fill("Bob's type")
         self.browser.find_by_name('properties-0-key').first.fill('Name')
         self.browser.find_by_name('properties-0-display').first.check()
         self.browser.find_by_name('properties-0-required').first.check()
@@ -83,42 +98,10 @@ class SchemaTestCase(LiveServerTestCase):
         self.assertEqual(text, "Name")
 
     def test_schema_allowed_rel_addition(self):
-        signin(self)
-        self.assertEqual(self.browser.title, 'SylvaDB - Dashboard')
-        create_graph(self)
-        self.assertEqual(self.browser.title, 'SylvaDB - Dashboard')
-        create_schema(self)
-        create_type(self)
-        self.assertEqual(self.browser.title, "SylvaDB - Bob's graph")
-        self.browser.find_by_id('allowedRelations').first.click()
-        self.browser.select('source', '1')
-        self.browser.find_by_name('name').fill('Bob\'s rel')
-        self.browser.select('target', '1')
-        self.browser.find_by_id('id_description').fill('This the allowed relationship for Bob\'s graph')
-        self.browser.find_by_value('Save Type').first.click()
-        self.assertEqual(self.browser.title, "SylvaDB - Bob's graph")
-        text = self.browser.find_by_xpath(
-            "//div[@class='form-row indent']/label").first.value
-        self.assertNotEqual(text.find('Bob\'s rel'), -1)
+        create_allowed_rel(self)
 
     def test_schema_allowed_rel_addition_deletion(self):
-        signin(self)
-        self.assertEqual(self.browser.title, 'SylvaDB - Dashboard')
-        create_graph(self)
-        self.assertEqual(self.browser.title, 'SylvaDB - Dashboard')
-        create_schema(self)
-        create_type(self)
-        self.assertEqual(self.browser.title, "SylvaDB - Bob's graph")
-        self.browser.find_by_id('allowedRelations').first.click()
-        self.browser.select('source', '1')
-        self.browser.find_by_name('name').fill('Bob\'s rel')
-        self.browser.select('target', '1')
-        self.browser.find_by_id('id_description').fill('This the allowed relationship for Bob\'s graph')
-        self.browser.find_by_value('Save Type').first.click()
-        self.assertEqual(self.browser.title, "SylvaDB - Bob's graph")
-        text = self.browser.find_by_xpath(
-            "//div[@class='form-row indent']/label").first.value
-        self.assertNotEqual(text.find('Bob\'s rel'), -1)
+        create_allowed_rel(self)
         self.browser.find_by_xpath("//div[@class='form-row indent']/div[@class='form-row indent']/a").first.click()
         self.browser.find_by_xpath("//span[@class='buttonLinkOption buttonLinkRight']/a[@class='delete']").first.click()
         self.browser.choose('confirm', '1')
