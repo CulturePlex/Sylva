@@ -64,21 +64,10 @@ def create_data(test):
     text = test.browser.find_by_id('propertiesTitle').first.value
     test.assertEqual(text, 'Properties')
     test.browser.find_by_name('Name').first.fill("Bob's node")
-    test.browser.find_by_xpath("//span[@class='buttonLinkOption buttonLinkLeft']/input").first.click()
+    test.browser.find_by_value("Save Bob's type").first.click()
     text = test.browser.find_by_xpath("//div[@class='pagination']/span[@class='pagination-info']").first.value
     # The next line must be more 'specific' when we can destroy Neo4j DBs
     test.assertNotEqual(text.find(" elements Bob's type."), -1)
-    test.browser.find_link_by_href('/graphs/bobs-graph/').first.click()
-    test.browser.find_by_id('visualization-type').first.click()
-    test.browser.find_by_id('visualization-sigma').first.click()
-    exist = test.browser.is_element_present_by_xpath(
-        "//div[@id='sigma-wrapper' and @style='display: block; ']")
-    test.assertEqual(exist, True)
-    """
-    Another way to do the last 3 lines is:
-    sigma = self.browser.find_by_id('sigma-wrapper').first
-    self.assertEqual(sigma['style'], 'display: block; ')
-    """
 
 
 class DashboardTestCase(LiveServerTestCase):
@@ -100,8 +89,30 @@ class DashboardTestCase(LiveServerTestCase):
     def test_dashboard_new_graph(self):
         create_graph(self)
 
-    def test_dashboard_add_schema(self):
+    def test_dashboard_graph_preview(self):
         create_graph(self)
         create_schema(self)
         create_type(self)
         create_data(self)
+        self.browser.find_link_by_href('/graphs/bobs-graph/').first.click()
+        self.browser.find_by_id('visualization-type').first.click()
+        self.browser.find_by_id('visualization-sigma').first.click()
+        sigma = self.browser.find_by_id('sigma-wrapper').first
+        self.assertEqual(sigma['style'], 'display: block; ')
+        js_code = '''
+            var instanceId = '0';
+            for (key in sigma.instances) {
+                instanceId = key;
+                break;
+            }
+            var instance = sigma.instances[instanceId];
+            var nodeId = '0';
+            for (key in sylva.total_nodes) {
+                nodeId = key;
+                break;
+            }
+            sigma.test_node_id = instance.getNodes(nodeId).id;
+            '''
+        self.browser.execute_script(js_code)
+        text = self.browser.evaluate_script('sigma.test_node_id')
+        self.assertNotEqual(text.find("Bob's node"), -1)
