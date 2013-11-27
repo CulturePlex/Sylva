@@ -1,1 +1,1 @@
-{"allowedEdges": [], "nodeTypes": {"Bob's type": {"Name": {"datatype": "u", "validation": null, "description": "", "default": "", "required": false, "slug": "name-57", "value": "", "display": false}}}}
+{"allowedEdges": [], "nodeTypes": {"Bob's type": {"Name": {"datatype": "u", "validation": null, "description": "", "default": "", "required": false, "slug": "name", "value": "", "display": true}}}}

@@ -88,7 +88,6 @@ class UserTestCase(LiveServerTestCase):
         self.assertEqual(self.browser.title, 'SylvaDB - Password changed')
         logout(self)
 
-    """
     def test_user_mail_change(self):
         signin(self)
         self.assertEqual(self.browser.title, 'SylvaDB - Dashboard')
@@ -98,5 +97,4 @@ class UserTestCase(LiveServerTestCase):
         self.assertEqual(self.browser.title, 'SylvaDB - Welcome to The Sylva Project')
         self.browser.find_by_name('email').fill('bobnew@cultureplex.ca')
         self.browser.find_by_value('Change email').first.click()
-        self.assertEqual(self.browser.title, '')
-    """
+        self.assertEqual(self.browser.title, 'SylvaDB - Email verification')
