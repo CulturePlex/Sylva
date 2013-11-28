@@ -1,3 +1,5 @@
+import requests
+
 from django.test import LiveServerTestCase
 
 from splinter import Browser
@@ -34,7 +36,7 @@ class DataNodeTestCase(LiveServerTestCase):
         create_schema(self)
         create_type(self)
         create_data(self)
-        # Testear el nombre del nodo
+        # Check the node name
         self.browser.find_by_xpath("//td[@class='dataList']/a[@class='edit']").first.click()
         text = self.browser.find_by_id('propertiesTitle').first.value
         self.assertEqual(text, 'Properties')
@@ -84,3 +86,36 @@ class DataNodeTestCase(LiveServerTestCase):
         self.browser.find_by_id('visualization-sigma').first.click()
         text = self.browser.find_by_xpath("//div[@class='flags-block']/span[@class='graph-relationships']").first.value
         self.assertEqual(text, "0 relationships")
+
+    def test_graph_export_gexf(self):
+        create_graph(self)
+        create_schema(self)
+        create_type(self)
+        create_data(self)
+        self.browser.find_by_id('toolsMenu').first.click()
+        cookies = {self.browser.cookies.all()[0]["name"]: self.browser.cookies.all()[0]["value"], self.browser.cookies.all()[1]["name"]: self.browser.cookies.all()[1]["value"]}
+        result = requests.get(self.live_server_url + '/tools/bobs-graph/export/gexf/', cookies=cookies)
+        self.assertEqual(result.headers['content-type'], 'application/xml')
+        self.assertEqual(self.browser.status_code.is_success(), True)
+        f = open('sylva/base/tests/bobs-graph.gexf')
+        xmlFile = ""
+        for line in f:
+            xmlFile += line
+        f.close()
+        # import ipdb; ipdb.set_trace();
+        self.assertEqual(xmlFile, result.content + "\n")
+
+    def test_graph_export_csv(self):
+        create_graph(self)
+        create_schema(self)
+        create_type(self)
+        create_data(self)
+        self.browser.find_by_id('toolsMenu').first.click()
+        cookies = {self.browser.cookies.all()[0]["name"]: self.browser.cookies.all()[0]["value"], self.browser.cookies.all()[1]["name"]: self.browser.cookies.all()[1]["value"]}
+        result = requests.get(self.live_server_url + '/tools/bobs-graph/export/csv/', cookies=cookies)
+        self.assertEqual(result.headers['content-type'], 'application/zip')
+        self.assertEqual(self.browser.status_code.is_success(), True)
+        # import ipdb; ipdb.set_trace();
+        f = open('sylva/base/tests/bobs-graph.zip')
+        # We need to check the zip format
+        self.assertEqual(f.read(), result.content)
