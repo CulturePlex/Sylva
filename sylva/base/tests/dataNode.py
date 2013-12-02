@@ -1,4 +1,6 @@
 import requests
+from zipfile import ZipFile
+from StringIO import StringIO
 
 from django.test import LiveServerTestCase
 
@@ -102,7 +104,6 @@ class DataNodeTestCase(LiveServerTestCase):
         for line in f:
             xmlFile += line
         f.close()
-        # import ipdb; ipdb.set_trace();
         self.assertEqual(xmlFile, result.content + "\n")
 
     def test_graph_export_csv(self):
@@ -115,7 +116,12 @@ class DataNodeTestCase(LiveServerTestCase):
         result = requests.get(self.live_server_url + '/tools/bobs-graph/export/csv/', cookies=cookies)
         self.assertEqual(result.headers['content-type'], 'application/zip')
         self.assertEqual(self.browser.status_code.is_success(), True)
-        # import ipdb; ipdb.set_trace();
-        f = open('sylva/base/tests/bobs-graph.zip')
-        # We need to check the zip format
-        self.assertEqual(f.read(), result.content)
+        test_file = StringIO(result.content)
+        csv_zip = ZipFile(test_file)
+        for name in csv_zip.namelist():
+            f = open('sylva/base/tests/' + name)
+            csvFile = ""
+            for line in f:
+                csvFile += line
+            f.close()
+            self.assertEqual(csv_zip.read(name), csvFile)

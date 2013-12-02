@@ -5,12 +5,12 @@ before_install:
   - ./download_and_install_neo4j.sh $NEO4J_VERSION
   - ./neo4j/bin/neo4j start
 install:
-  - pip install -U -r requirements.txt --use-mirrors
+  - pip install -U -r requirements_test.txt --use-mirrors
   - pip install coveralls --use-mirrors
 env:
   - NEO4J_VERSION="1.9.2"
 script:
-  - coverage run --source=sylva sylva/manage.py test accounts data engines graphs schemas
+  - coverage run --source=sylva sylva/manage.py test accounts data engines graphs schemas base.SchemaTestCase base.UserTestCase base.DashboardTestCase
 after_success:
   - ./neo4j/bin/neo4j stop
   - coveralls
