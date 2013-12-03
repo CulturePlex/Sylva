@@ -3,20 +3,19 @@ from django.test import LiveServerTestCase
 from splinter import Browser
 
 
-def signup(test):
+def signup(test, username, email, password):
     test.browser.visit(test.live_server_url + '/accounts/signup/')
-    test.browser.find_by_name('username').fill('bob')
-    test.browser.find_by_name('email').fill('bob@cultureplex.ca')
-    test.browser.find_by_name('password1').fill('bob_secret')
-    test.browser.find_by_name('password2').fill('bob_secret')
+    test.browser.find_by_name('username').fill(username)
+    test.browser.find_by_name('email').fill(email)
+    test.browser.find_by_name('password1').fill(password)
+    test.browser.find_by_name('password2').fill(password)
     test.browser.find_by_value('Signup').first.click()
 
 
-def signin(test):
-    signup(test)
+def signin(test, username, password):
     test.browser.visit(test.live_server_url + '/accounts/signin/')
-    test.browser.find_by_name('identification').fill('bob')
-    test.browser.find_by_name('password').fill('bob_secret')
+    test.browser.find_by_name('identification').fill(username)
+    test.browser.find_by_name('password').fill(password)
     test.browser.find_by_value('Signin').first.click()
 
 
@@ -26,7 +25,9 @@ def logout(test):
 
 class UserTestCase(LiveServerTestCase):
     """
-    A set of tests for testing Users, Accounts and UserProfiles.
+    A set of tests for testing Users, Accounts and UserProfiles. Also, we
+    check the patterns for the required fields for signup, signin, the menu of
+    user details, the change password view and the change email view.
     """
 
     def setUp(self):
@@ -36,7 +37,7 @@ class UserTestCase(LiveServerTestCase):
         self.browser.quit()
 
     def test_user_signup(self):
-        signup(self)
+        signup(self, 'bob', 'bob@cultureplex.ca', 'bob_secret')
         self.assertEqual(self.browser.find_by_css('.body-inside').first.value, 'Thank you for signing up with us!\nYou can now use the supplied credentials to signin.')
         self.assertEqual(self.browser.title, 'SylvaDB - Signup almost done!')
 
@@ -91,12 +92,13 @@ class UserTestCase(LiveServerTestCase):
         self.assertEqual(text, 'The two password fields didn\'t match.')
 
     def test_user_signin(self):
-        signin(self)
+        signup(self, 'bob', 'bob@cultureplex.ca', 'bob_secret')
+        signin(self, 'bob', 'bob_secret')
         self.assertEqual(self.browser.title, 'SylvaDB - Dashboard')
         logout(self)
 
     def test_user_signin_empty_user(self):
-        signup(self)
+        signup(self, 'bob', 'bob@cultureplex.ca', 'bob_secret')
         self.browser.visit(self.live_server_url + '/accounts/signin/')
         self.browser.find_by_name('identification').fill('')
         self.browser.find_by_name('password').fill('bob_secret')
@@ -105,7 +107,7 @@ class UserTestCase(LiveServerTestCase):
         self.assertEqual(text, 'Either supply us with your email or username.')
 
     def test_user_signin_bad_user(self):
-        signup(self)
+        signup(self, 'bob', 'bob@cultureplex.ca', 'bob_secret')
         self.browser.visit(self.live_server_url + '/accounts/signin/')
         self.browser.find_by_name('identification').fill('john')
         self.browser.find_by_name('password').fill('bob_secret')
@@ -114,7 +116,7 @@ class UserTestCase(LiveServerTestCase):
         self.assertEqual(text, 'Please enter a correct username or email and password. Note that both fields are case-sensitive.')
 
     def test_user_signin_empty_password(self):
-        signup(self)
+        signup(self, 'bob', 'bob@cultureplex.ca', 'bob_secret')
         self.browser.visit(self.live_server_url + '/accounts/signin/')
         self.browser.find_by_name('identification').fill('bob')
         self.browser.find_by_name('password').fill('')
@@ -123,7 +125,7 @@ class UserTestCase(LiveServerTestCase):
         self.assertEqual(text, 'This field is required.')
 
     def test_user_signin_bad_password(self):
-        signup(self)
+        signup(self, 'bob', 'bob@cultureplex.ca', 'bob_secret')
         self.browser.visit(self.live_server_url + '/accounts/signin/')
         self.browser.find_by_name('identification').fill('bob')
         self.browser.find_by_name('password').fill('john_secret')
@@ -132,13 +134,15 @@ class UserTestCase(LiveServerTestCase):
         self.assertEqual(text, 'Please enter a correct username or email and password. Note that both fields are case-sensitive.')
 
     def test_user_logout(self):
-        signin(self)
+        signup(self, 'bob', 'bob@cultureplex.ca', 'bob_secret')
+        signin(self, 'bob', 'bob_secret')
         logout(self)
         self.assertEqual(self.browser.title, 'SylvaDB - Signed out')
         self.assertEqual(self.browser.find_by_css('.body-inside').first.value, 'You have been signed out. Till we meet again.')
 
     def test_user_details(self):
-        signin(self)
+        signup(self, 'bob', 'bob@cultureplex.ca', 'bob_secret')
+        signin(self, 'bob', 'bob_secret')
         self.assertEqual(self.browser.title, 'SylvaDB - Dashboard')
         self.browser.find_link_by_href('/accounts/bob/').first.click()
         self.assertEqual(self.browser.title, 'SylvaDB - bob\'s profile.')
@@ -161,7 +165,8 @@ class UserTestCase(LiveServerTestCase):
         logout(self)
 
     def test_user_details_bad_website(self):
-        signin(self)
+        signup(self, 'bob', 'bob@cultureplex.ca', 'bob_secret')
+        signin(self, 'bob', 'bob_secret')
         self.assertEqual(self.browser.title, 'SylvaDB - Dashboard')
         self.browser.find_link_by_href('/accounts/bob/').first.click()
         self.assertEqual(self.browser.title, 'SylvaDB - bob\'s profile.')
@@ -185,7 +190,8 @@ class UserTestCase(LiveServerTestCase):
         logout(self)
 
     def test_user_details_bad_birthdate(self):
-        signin(self)
+        signup(self, 'bob', 'bob@cultureplex.ca', 'bob_secret')
+        signin(self, 'bob', 'bob_secret')
         self.assertEqual(self.browser.title, 'SylvaDB - Dashboard')
         self.browser.find_link_by_href('/accounts/bob/').first.click()
         self.assertEqual(self.browser.title, 'SylvaDB - bob\'s profile.')
@@ -209,7 +215,8 @@ class UserTestCase(LiveServerTestCase):
         logout(self)
 
     def test_user_change_pass(self):
-        signin(self)
+        signup(self, 'bob', 'bob@cultureplex.ca', 'bob_secret')
+        signin(self, 'bob', 'bob_secret')
         self.assertEqual(self.browser.title, 'SylvaDB - Dashboard')
         self.browser.find_link_by_href('/accounts/bob/').first.click()
         self.assertEqual(self.browser.title, 'SylvaDB - bob\'s profile.')
@@ -223,7 +230,8 @@ class UserTestCase(LiveServerTestCase):
         logout(self)
 
     def test_user_change_pass_empty(self):
-        signin(self)
+        signup(self, 'bob', 'bob@cultureplex.ca', 'bob_secret')
+        signin(self, 'bob', 'bob_secret')
         self.assertEqual(self.browser.title, 'SylvaDB - Dashboard')
         self.browser.find_link_by_href('/accounts/bob/').first.click()
         self.assertEqual(self.browser.title, 'SylvaDB - bob\'s profile.')
@@ -238,7 +246,8 @@ class UserTestCase(LiveServerTestCase):
         logout(self)
 
     def test_user_change_pass_incorrectly(self):
-        signin(self)
+        signup(self, 'bob', 'bob@cultureplex.ca', 'bob_secret')
+        signin(self, 'bob', 'bob_secret')
         self.assertEqual(self.browser.title, 'SylvaDB - Dashboard')
         self.browser.find_link_by_href('/accounts/bob/').first.click()
         self.assertEqual(self.browser.title, 'SylvaDB - bob\'s profile.')
@@ -253,7 +262,8 @@ class UserTestCase(LiveServerTestCase):
         logout(self)
 
     def test_user_change_new_pass_empty(self):
-        signin(self)
+        signup(self, 'bob', 'bob@cultureplex.ca', 'bob_secret')
+        signin(self, 'bob', 'bob_secret')
         self.assertEqual(self.browser.title, 'SylvaDB - Dashboard')
         self.browser.find_link_by_href('/accounts/bob/').first.click()
         self.assertEqual(self.browser.title, 'SylvaDB - bob\'s profile.')
@@ -268,7 +278,8 @@ class UserTestCase(LiveServerTestCase):
         logout(self)
 
     def test_user_change_new_pass_unmatched(self):
-        signin(self)
+        signup(self, 'bob', 'bob@cultureplex.ca', 'bob_secret')
+        signin(self, 'bob', 'bob_secret')
         self.assertEqual(self.browser.title, 'SylvaDB - Dashboard')
         self.browser.find_link_by_href('/accounts/bob/').first.click()
         self.assertEqual(self.browser.title, 'SylvaDB - bob\'s profile.')
@@ -283,7 +294,8 @@ class UserTestCase(LiveServerTestCase):
         logout(self)
 
     def test_user_change_mail(self):
-        signin(self)
+        signup(self, 'bob', 'bob@cultureplex.ca', 'bob_secret')
+        signin(self, 'bob', 'bob_secret')
         self.assertEqual(self.browser.title, 'SylvaDB - Dashboard')
         self.browser.find_link_by_href('/accounts/bob/').first.click()
         self.assertEqual(self.browser.title, 'SylvaDB - bob\'s profile.')
@@ -294,7 +306,8 @@ class UserTestCase(LiveServerTestCase):
         self.assertEqual(self.browser.title, 'SylvaDB - Email verification')
 
     def test_user_change_mail_empty(self):
-        signin(self)
+        signup(self, 'bob', 'bob@cultureplex.ca', 'bob_secret')
+        signin(self, 'bob', 'bob_secret')
         self.assertEqual(self.browser.title, 'SylvaDB - Dashboard')
         self.browser.find_link_by_href('/accounts/bob/').first.click()
         self.assertEqual(self.browser.title, 'SylvaDB - bob\'s profile.')
@@ -306,7 +319,8 @@ class UserTestCase(LiveServerTestCase):
         self.assertEqual(text, 'This field is required.')
 
     def test_user_change_bad(self):
-        signin(self)
+        signup(self, 'bob', 'bob@cultureplex.ca', 'bob_secret')
+        signin(self, 'bob', 'bob_secret')
         self.assertEqual(self.browser.title, 'SylvaDB - Dashboard')
         self.browser.find_link_by_href('/accounts/bob/').first.click()
         self.assertEqual(self.browser.title, 'SylvaDB - bob\'s profile.')

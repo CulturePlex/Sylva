@@ -1,11 +1,5 @@
-from accounts.tests import UserAccountTest
-from data.tests import MediaFileTest, MediaLinkTest
-from engines.tests import InstanceNeo4jTestSuite, InstanceRexsterTestSuite
-from graphs.tests import GraphTest, RelationshipTest
-from schemas.tests import (SchemaTest, NodePropertyTest,
-    RelationshipPropertyTest, NodeTypesTest, RelationshipTypesTest)
-
-from user import UserTestCase
+from collaborator import CollaboratorTestCase
 from dashboard import DashboardTestCase
+from data_node import DataNodeTestCase
 from schema import SchemaTestCase
-from dataNode import DataNodeTestCase
+from user import UserTestCase

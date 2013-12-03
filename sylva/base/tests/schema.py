@@ -4,30 +4,20 @@ from django.test import LiveServerTestCase
 
 from splinter import Browser
 
-from user import signin, logout
+from user import signup, signin, logout
 from dashboard import create_graph, create_schema, create_type
 
 
-def create_allowed_rel(test):
-    create_graph(test)
-    test.assertEqual(test.browser.title, 'SylvaDB - Dashboard')
-    create_schema(test)
-    create_type(test)
-    test.assertEqual(test.browser.title, "SylvaDB - Bob's graph")
-    test.browser.find_by_id('allowedRelations').first.click()
-    test.browser.select('source', '1')
-    test.browser.find_by_name('name').fill('Bob\'s rel')
-    test.browser.select('target', '1')
-    test.browser.find_by_id('id_description').fill('This the allowed relationship for Bob\'s graph')
-    test.browser.find_by_value('Save Type').first.click()
-    test.assertEqual(test.browser.title, "SylvaDB - Bob's graph")
-
-
 class SchemaTestCase(LiveServerTestCase):
+    """
+    A set of tests for testing export schema, import schema and everything
+    related to advanced types (patterns, options, etc.).
+    """
 
     def setUp(self):
         self.browser = Browser('phantomjs')
-        signin(self)
+        signup(self, 'bob', 'bob@cultureplex.ca', 'bob_secret')
+        signin(self, 'bob', 'bob_secret')
 
     def tearDown(self):
         logout(self)
@@ -42,7 +32,7 @@ class SchemaTestCase(LiveServerTestCase):
         result = requests.get(self.live_server_url + '/schemas/bobs-graph/export/', cookies=cookies)
         self.assertEqual(result.headers['content-type'], 'application/json')
         self.assertEqual(self.browser.status_code.is_success(), True)
-        f = open('sylva/base/tests/bobs-graph_schema.json')
+        f = open('sylva/base/tests/files/bobs-graph_schema.json')
         self.assertEqual(f.read().split("\n")[0], result.content)
 
     def test_import_schema(self):
@@ -53,7 +43,7 @@ class SchemaTestCase(LiveServerTestCase):
         self.browser.find_link_by_href('/schemas/bobs-graph/').first.click()
         self.assertEqual(self.browser.title, "SylvaDB - Bob's graph")
         self.browser.find_by_id('schemaImport').first.click()
-        self.browser.attach_file('file', 'sylva/base/tests/bobs-graph_schema.json')
+        self.browser.attach_file('file', 'sylva/base/tests/files/bobs-graph_schema.json')
         self.browser.find_by_value('Continue').first.click()
         self.assertEqual(self.browser.title, "SylvaDB - Bob's graph")
         text = self.browser.find_by_id('diagramBoxField_bobs-graph.bobs-type.undefined').first.value
