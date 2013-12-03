@@ -25,7 +25,9 @@ def logout(test):
 
 class UserTestCase(LiveServerTestCase):
     """
-    A set of tests for testing Users, Accounts and UserProfiles.
+    A set of tests for testing Users, Accounts and UserProfiles. Also, we
+    check the patterns for the required fields for signup, signin, the menu of
+    user details, the change password view and the change email view.
     """
 
     def setUp(self):

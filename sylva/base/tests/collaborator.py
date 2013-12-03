@@ -19,7 +19,7 @@ CREATE_COLLAB = GRAPH_VIEW
 
 def create_collaborator(test, username):
     """
-    Improve comment. For use it inside change_permission().
+    It creates a collaborator. For use it inside change_permission().
     """
     test.browser.find_by_xpath(
         "//div[@id='id_new_collaborator_chzn']/a").first.click()
@@ -31,6 +31,9 @@ def create_collaborator(test, username):
 
 
 def add_permission(test, username, permission):
+    """
+    Add the pemission to the referenced use in the graph that we are viewing.
+    """
     test.browser.find_by_xpath(
         "//nav[@class='menu']/ul/li[4]/a").first.click()
     if permission is CREATE_COLLAB:
@@ -41,17 +44,19 @@ def add_permission(test, username, permission):
 
 class CollaboratorTestCase(LiveServerTestCase):
     """
-    Improve comment. On these tests, is the developer who must keep the logic
-    of the permissions. If he/she wants to give any permission to an user
-    he/she must first creates the usar and then creates the collaboration
-    adding the basic perrmission: 'chk_graph_view_graph'.
+    These tests check the permissions system creating two users: one creates a
+    graph and gives permissions to the other, the other tests the permissions
+    given.
+    On these tests, is the developer who must keep the logic of the
+    permissions. If he/she wants to give any permission to an user he/she must
+    first creates the usar and then creates the collaboration adding the basic
+    perrmission: 'chk_graph_view_graph'.
+    The name of the tests self-explain the behaviour of them.
     """
     def setUp(self):
         self.browser = Browser('phantomjs')
-        # signin(self)  # Don't know if we must use it here
 
     def tearDown(self):
-        # logout(self)  # Don't know if we must use it here
         logout(self)
         self.browser.quit()
 

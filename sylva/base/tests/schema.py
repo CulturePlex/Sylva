@@ -9,6 +9,10 @@ from dashboard import create_graph, create_schema, create_type
 
 
 class SchemaTestCase(LiveServerTestCase):
+    """
+    A set of tests for testing export schema, import schema and everything
+    related to advanced types (patterns, options, etc.).
+    """
 
     def setUp(self):
         self.browser = Browser('phantomjs')

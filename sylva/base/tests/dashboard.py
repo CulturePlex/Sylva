@@ -24,6 +24,9 @@ def create_graph(test):
 
 
 def create_schema(test):
+    """
+    This function only navigates to the schema section of the graph.
+    """
     test.browser.find_link_by_href(
         '/graphs/bobs-graph/').first.click()
     test.assertEqual(test.browser.title, "SylvaDB - Bob's graph")
@@ -36,7 +39,7 @@ def create_schema(test):
 
 def create_type(test):
     """
-    Improve comment. For use it after create_schema().
+    For use it after create_schema(). It creates a simple type in the schema.
     """
     test.browser.find_link_by_href(
         '/schemas/bobs-graph/types/create/').first.click()
@@ -56,7 +59,8 @@ def create_type(test):
 
 def create_data(test):
     """
-    Improve comment. For use it after create_type().
+    For use it after create_type(). It cretes a simple node with schema created
+    previously.
     """
     test.browser.find_by_id('dataMenu').first.click()
     test.browser.find_by_xpath(
@@ -71,6 +75,9 @@ def create_data(test):
 
 
 class DashboardTestCase(LiveServerTestCase):
+    """
+    These tests check basic functions of Sylva's dashboard.
+    """
 
     def setUp(self):
         self.browser = Browser('phantomjs')
@@ -91,6 +98,12 @@ class DashboardTestCase(LiveServerTestCase):
         create_graph(self)
 
     def test_dashboard_graph_preview(self):
+        """
+        This tests, after create a graph with data, checks the Sigma
+        visualization running a simple JavaScript code. This code gets the
+        current instance of Sigma and checks the data with Sylva JavaScript
+        object.
+        """
         create_graph(self)
         create_schema(self)
         create_type(self)
