@@ -2,7 +2,7 @@ from django.test import LiveServerTestCase
 
 from splinter import Browser
 
-from user import signin, logout
+from user import signup, signin, logout
 
 
 def create_graph(test):
@@ -13,7 +13,7 @@ def create_graph(test):
     test.assertEqual(text, 'Create New Graph')
     test.browser.find_by_name('name').first.fill("Bob's graph")
     test.browser.find_by_xpath(
-        "//form[@name='graphs_create']/p/textarea[@name='description']").first.fill('The loved type')
+        "//form[@name='graphs_create']/p/textarea[@name='description']").first.fill('The loved graph')
     test.browser.find_by_name('addGraph').first.click()
     text = test.browser.find_by_xpath(
         "//header[@class='global']/h1").first.value
@@ -74,7 +74,8 @@ class DashboardTestCase(LiveServerTestCase):
 
     def setUp(self):
         self.browser = Browser('phantomjs')
-        signin(self)
+        signup(self, 'bob', 'bob@cultureplex.ca', 'bob_secret')
+        signin(self, 'bob', 'bob_secret')
 
     def tearDown(self):
         logout(self)
