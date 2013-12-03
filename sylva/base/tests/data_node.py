@@ -62,7 +62,7 @@ class DataNodeTestCase(LiveServerTestCase):
         create_schema(self)
         create_type(self)
         create_node(self, "Bob")
-        create_node(self, "John")
+        create_node(self, "Alice")
         # We create a allowed relation
         self.browser.find_link_by_href('/schemas/bobs-graph/').first.click()
         self.browser.find_by_id('allowedRelations').first.click()
@@ -76,7 +76,7 @@ class DataNodeTestCase(LiveServerTestCase):
         self.browser.find_by_id('dataMenu').first.click()
         self.browser.find_by_xpath("//td[@class='dataActions']/a[@class='dataOption list']").first.click()
         self.browser.find_by_xpath("//td[@class='dataList']/a[@class='edit']").first.click()
-        self.browser.find_by_xpath("//li[@class='token-input-input-token']/input").first.fill('John')
+        self.browser.find_by_xpath("//li[@class='token-input-input-token']/input").first.fill('Alice')
         self.browser.is_element_present_by_id("id_user_wait", 5)
         self.browser.find_by_xpath("//div[@class='token-input-dropdown']//li[@class='token-input-dropdown-item2 token-input-selected-dropdown-item']/b").first.click()
         self.browser.find_by_value('Save Bob\'s type').first.click()
