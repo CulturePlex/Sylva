@@ -168,9 +168,21 @@ class NodesManager(BaseManager):
             raise NodesLimitReachedException
 
     def all(self):
+        """
         return NodeSequence(graph=self.graph,
                             iterator_func=self.gdb.get_all_nodes,
                             include_properties=True)
+        """
+        nodes = []
+        node_types = self.graph.schema.nodetype_set.all()
+        node_labels = [str(node_type.id) for node_type in node_types]
+        for label in node_labels:
+            nodes.extend(NodeSequence(
+                graph=self.graph,
+                iterator_func=self.gdb.get_nodes_by_label,
+                label=label,
+                include_properties=True))
+        return nodes
 
     def filter(self, *lookups, **options):
         if "label" in options:
@@ -302,9 +314,23 @@ class RelationshipsManager(BaseManager):
             raise RelationshipsLimitReachedException
 
     def all(self):
+        """
         return RelationshipSequence(graph=self.graph,
                                 iterator_func=self.gdb.get_all_relationships,
                                 include_properties=True)
+        """
+        relationships = []
+        relationship_types = self.graph.schema.relationshiptype_set.all()
+        relationship_labels = [
+            str(relationship_type.id)
+            for relationship_type in relationship_types]
+        for label in relationship_labels:
+            relationships.extend(RelationshipSequence(
+                graph=self.graph,
+                iterator_func=self.gdb.get_relationships_by_label,
+                label=label,
+                include_properties=True))
+        return relationships
 
     def filter(self, *lookups, **options):
         if "label" in options:
@@ -423,8 +449,16 @@ class NodeRelationshipsManager(BaseManager):
 
     def all(self):
         relationships = []
-        eltos = self.gdb.get_node_relationships(self.node_id,
-                                                include_properties=True)
+        eltos = []
+        relationship_types = self.graph.schema.relationshiptype_set.all()
+        relationship_labels = [
+            str(relationship_type.id)
+            for relationship_type in relationship_types]
+        for label in relationship_labels:
+            eltos.extend(self.gdb.get_node_relationships(
+                self.node_id,
+                include_properties=True,
+                label=label))
         for relationship_id, relationship_properties in eltos:
             relationship = Relationship(relationship_id, self.graph,
                                         initial=relationship_properties)
