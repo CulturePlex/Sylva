@@ -311,7 +311,7 @@
           <tr>
             <th>{% trans "#" %}</th>
             {% for prop in properties %}
-              <th>{{ prop.key }}</th>
+                <th><a href="?order_by={{ prop.key }}">{{ prop.key }}</a></th>
             {% endfor %}
           </tr>
         </thead>
@@ -323,11 +323,7 @@
                 <a href="{% url nodes_edit graph.slug node.id %}" class="edit" alt="{% trans "Edit node" %}" title="{% trans "Edit node" %}"><!-- {{ node.id }}  -->&nbsp;</a>
               </td>
               {% for prop in properties %}
-                {% if prop.display %}
                 <td><a href="{% url nodes_view graph.slug node.id %}" title="{% trans "View node" %}">{{ node|get:prop.key|default:none_label }}</a></td>
-                {% else %}
-                <td>{{ node|get:prop.key|default:none_label }}</td>
-                {% endif %}
               {% endfor %}
             </tr>
             <tr class="{% cycle 'row-even' 'row-odd' %}">

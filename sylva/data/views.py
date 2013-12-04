@@ -109,7 +109,13 @@ def nodes_list_full(request, graph_slug, node_type_id):
     node_type = get_object_or_404(NodeType, id=node_type_id)
     if not node_type.schema.graph == graph:
         raise Http404(_("Mismatch in requested graph and node type's graph."))
-    nodes = node_type.all()
+    # THIS IS MY CODE
+    order_by = request.GET.get('order_by', 'default')
+    if order_by == 'default':
+        nodes = node_type.all()
+    else:
+        nodes = sorted(node_type.all(), key=lambda node: node.properties[order_by], reverse=False)
+    # HERE ENDS MY CODE
     page = request.GET.get('page')
     page_size = request.GET.get('size', settings.DATA_PAGE_SIZE)
     paginator = Paginator(nodes, page_size)
