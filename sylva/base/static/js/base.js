@@ -127,7 +127,7 @@
     $.cookie.json = true;
     tourIds = $.cookie('tour_ids');
     if (typeof tourIds != 'undefined') {
-      tourId = $('#tour').attr('tour-id');
+      tourId = $('#tour').attr('data-tour-id');
       index = $.inArray(tourId, tourIds);
       if (index != -1) {
         tourIds.splice(index, 1);
