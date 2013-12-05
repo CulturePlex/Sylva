@@ -66,11 +66,16 @@ class GraphDatabase(BlueprintsGraphDatabase):
         If "label" is provided, the number is calculated according the
         the label of the element.
         """
-        index = self.nidx
         if label:
-            script = """start n=node:`%s`('label:%s')""" % (index.name, label)
+            if isinstance(label, (list, tuple)):
+                label = """ OR """.join(['label:%s' % str(label_id) for label_id in label])
+                script = """start n=node:`%s`('%s') """ \
+                    % (self.nidx.name, label)
+            else:
+                script = """start n=node:`%s`('label:%s') """ \
+                    % (self.nidx.name, label)
         else:
-            script = """start n=node:`%s`('label:*')""" % (index.name)
+            script = """start n=node:`%s`('label:*')""" % (self.nidx.name)
         script = """%s return count(n)""" % script
         count = self.cypher(query=script)
         return self._clean_count(count)
@@ -81,11 +86,16 @@ class GraphDatabase(BlueprintsGraphDatabase):
         If "label" is provided, the number is calculated according the
         the label of the element.
         """
-        index = self.ridx
         if label:
-            script = """start r=rel:`%s`('label:%s')""" % (index.name, label)
+            if isinstance(label, (list, tuple)):
+                label = """ OR """.join(['label:%s' % str(label_id) for label_id in label])
+                script = """start r=rel:`%s`('%s') """ \
+                    % (self.ridx.name, label)
+            else:
+                script = """start r=rel:`%s`('label:%s') """ \
+                    % (self.ridx.name, label)
         else:
-            script = """start r=rel:`%s`('label:*')""" % (index.name)
+            script = """start r=rel:`%s`('label:*')""" % (self.ridx.name)
         script = """%s return count(r)""" % script
         count = self.cypher(query=script)
         return self._clean_count(count)
@@ -151,8 +161,13 @@ class GraphDatabase(BlueprintsGraphDatabase):
         # Using Cypher
         cypher = self.cypher
         if label:
-            script = """start n=node:`%s`('label:%s') """ \
-                     % (self.nidx.name, label)
+            if isinstance(label, (list, tuple)):
+                label = """ OR """.join(['label:%s' % str(label_id) for label_id in label])
+                script = """start n=node:`%s`('%s') """ \
+                    % (self.nidx.name, label)
+            else:
+                script = """start n=node:`%s`('label:%s') """ \
+                    % (self.nidx.name, label)
         else:
             script = """start n=node:`%s`('label:*') """ \
                      % self.nidx.name
@@ -219,8 +234,13 @@ class GraphDatabase(BlueprintsGraphDatabase):
         # Using Cypher
         cypher = self.cypher
         if label:
-            script = """start r=rel:`%s`('label:%s') """ % (self.ridx.name,
-                                                            label)
+            if isinstance(label, (list, tuple)):
+                label = """ OR """.join(['label:%s' % str(label_id) for label_id in label])
+                script = """start r=rel:`%s`('%s') """ \
+                    % (self.ridx.name, label)
+            else:
+                script = """start r=rel:`%s`('label:%s') """ \
+                    % (self.ridx.name, label)
         else:
             script = """start r=rel:`%s`('label:*') """ % self.ridx.name
         script = """%s match a-[r]->b """ % script
