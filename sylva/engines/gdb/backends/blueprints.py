@@ -208,35 +208,41 @@ class BlueprintsGraphDatabase(BaseGraphDatabase):
         else:
             edges = vertex.getBothEdges()
         if include_properties:
-            if label:
-                if isinstance(label, (list, tuple)):
+            if isinstance(label, (list, tuple)):
+                if label:
                     return [(e.getId(),
                                 self.get_relationship_properties(e.getId()))
                             for e in list(edges)
                             if str(e.getLabel()) in [str(label_id)
                             for label_id in label]]
                 else:
+                    return ()
+            else:
+                if label:
                     return [(e.getId(),
                                 self.get_relationship_properties(e.getId()))
                             for e in list(edges)
                             if str(label) == str(e.getLabel())]
-            else:
-                return [(e.getId(),
+                else:
+                    return [(e.getId(),
                           self.get_relationship_properties(e.getId()))
                         for e in list(edges)]
         else:
-            if label:
-                if isinstance(label, (list, tuple)):
+            if isinstance(label, (list, tuple)):
+                if label:
                     return [(e.getId(), None)
                             for e in list(edges)
                             if str(e.getLabel()) in [str(label_id)
                             for label_id in label]]
                 else:
+                    return ()
+            else:
+                if label:
                     return [(e.getId(), None)
                             for e in list(edges)
                             if str(label) == str(e.getLabel())]
-            else:
-                return [(e.getId(), None) for e in list(edges)]
+                else:
+                    return [(e.getId(), None) for e in list(edges)]
 
     def delete_node_relationships(self, id):
         relationships = self.get_node_relationships(id)

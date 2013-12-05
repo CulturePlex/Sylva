@@ -66,16 +66,20 @@ class GraphDatabase(BlueprintsGraphDatabase):
         If "label" is provided, the number is calculated according the
         the label of the element.
         """
-        if label:
-            if isinstance(label, (list, tuple)):
+        if isinstance(label, (list, tuple)):
+            if label:
                 label = """ OR """.join(['label:%s' % str(label_id) for label_id in label])
                 script = """start n=node:`%s`('%s') """ \
                     % (self.nidx.name, label)
             else:
+                return 0
+        else:
+            if label:
                 script = """start n=node:`%s`('label:%s') """ \
                     % (self.nidx.name, label)
-        else:
-            script = """start n=node:`%s`('label:*')""" % (self.nidx.name)
+            else:
+                script = """start n=node:`%s`('label:*') """ \
+                    % self.nidx.name
         script = """%s return count(n)""" % script
         count = self.cypher(query=script)
         return self._clean_count(count)
@@ -86,16 +90,19 @@ class GraphDatabase(BlueprintsGraphDatabase):
         If "label" is provided, the number is calculated according the
         the label of the element.
         """
-        if label:
-            if isinstance(label, (list, tuple)):
+        if isinstance(label, (list, tuple)):
+            if label:
                 label = """ OR """.join(['label:%s' % str(label_id) for label_id in label])
                 script = """start r=rel:`%s`('%s') """ \
                     % (self.ridx.name, label)
             else:
+                return 0
+        else:
+            if label:
                 script = """start r=rel:`%s`('label:%s') """ \
                     % (self.ridx.name, label)
-        else:
-            script = """start r=rel:`%s`('label:*')""" % (self.ridx.name)
+            else:
+                script = """start r=rel:`%s`('label:*') """ % self.ridx.name
         script = """%s return count(r)""" % script
         count = self.cypher(query=script)
         return self._clean_count(count)
@@ -160,17 +167,20 @@ class GraphDatabase(BlueprintsGraphDatabase):
                            limit=None, offset=None):
         # Using Cypher
         cypher = self.cypher
-        if label:
-            if isinstance(label, (list, tuple)):
+        if isinstance(label, (list, tuple)):
+            if label:
                 label = """ OR """.join(['label:%s' % str(label_id) for label_id in label])
                 script = """start n=node:`%s`('%s') """ \
                     % (self.nidx.name, label)
             else:
+                return
+        else:
+            if label:
                 script = """start n=node:`%s`('label:%s') """ \
                     % (self.nidx.name, label)
-        else:
-            script = """start n=node:`%s`('label:*') """ \
-                     % self.nidx.name
+            else:
+                script = """start n=node:`%s`('label:*') """ \
+                    % self.nidx.name
         where = None
         params = []
         if lookups:
@@ -233,16 +243,19 @@ class GraphDatabase(BlueprintsGraphDatabase):
                                    limit=None, offset=None):
         # Using Cypher
         cypher = self.cypher
-        if label:
-            if isinstance(label, (list, tuple)):
+        if isinstance(label, (list, tuple)):
+            if label:
                 label = """ OR """.join(['label:%s' % str(label_id) for label_id in label])
                 script = """start r=rel:`%s`('%s') """ \
                     % (self.ridx.name, label)
             else:
+                return
+        else:
+            if label:
                 script = """start r=rel:`%s`('label:%s') """ \
                     % (self.ridx.name, label)
-        else:
-            script = """start r=rel:`%s`('label:*') """ % self.ridx.name
+            else:
+                script = """start r=rel:`%s`('label:*') """ % self.ridx.name
         script = """%s match a-[r]->b """ % script
         where = None
         params = []
