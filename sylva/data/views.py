@@ -109,13 +109,17 @@ def nodes_list_full(request, graph_slug, node_type_id):
     node_type = get_object_or_404(NodeType, id=node_type_id)
     if not node_type.schema.graph == graph:
         raise Http404(_("Mismatch in requested graph and node type's graph."))
-    # THIS IS MY CODE
     order_by = request.GET.get('order_by', 'default')
+    order_dir = request.GET.get('dir', 'asc')
     if order_by == 'default':
         nodes = node_type.all()
     else:
-        nodes = sorted(node_type.all(), key=lambda node: node.properties[order_by], reverse=False)
-    # HERE ENDS MY CODE
+        if order_dir == 'desc':
+            nodes = sorted(node_type.all(), key=lambda node: node.properties[order_by], reverse=True)
+            order_dir = 'asc'
+        else:
+            nodes = sorted(node_type.all(), key=lambda node: node.properties[order_by], reverse=False)
+            order_dir = 'desc'
     page = request.GET.get('page')
     page_size = request.GET.get('size', settings.DATA_PAGE_SIZE)
     paginator = Paginator(nodes, page_size)
@@ -145,6 +149,7 @@ def nodes_list_full(request, graph_slug, node_type_id):
         property_values[key] = list(property_values[key])
     return render_to_response('node_list.html',
                               {"graph": graph,
+                               "dir": order_dir,
                                "nodes": paginated_nodes,
                                "node_type": node_type,
                                "none_label": none_label,

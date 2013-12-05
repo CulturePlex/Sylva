@@ -77,9 +77,6 @@ class UserProfile(UserenaLanguageBaseProfile):
             today = datetime.date.today()
             # Raised when birth date is February 29 and the current year is not
             # a leap year.
-            print "%%%%%%%%%%%%%%%%%%%%%"
-            print today
-            print "%%%%%%%%%%%%%%%%%%%%%"
             try:
                 birthday = self.birth_date.replace(year=today.year)
             except ValueError:

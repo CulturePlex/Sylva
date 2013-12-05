@@ -311,7 +311,7 @@
           <tr>
             <th>{% trans "#" %}</th>
             {% for prop in properties %}
-                <th><a href="?order_by={{ prop.key }}">{{ prop.key }}</a></th>
+                <th><a href="?order_by={{ prop.key }}&dir={{ dir }}">{{ prop.key }}</a> <a href="?order_by=default" title="Remove from sorting"><img src="{{ STATIC_PREFIX }}img/x.png" width="15px" heigth="15px" /></a></th>
             {% endfor %}
           </tr>
         </thead>
