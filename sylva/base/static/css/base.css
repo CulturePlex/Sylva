@@ -1974,6 +1974,27 @@ body :hover > a.headerlink {
     background-image: url(../img/nodes_16.png);
 }
 
+.remove_sorting {
+    background: url("../img/ui-icons_348e82_256x240.png") no-repeat -34px -194px;
+    width: 12px;
+    height: 12px;
+    display: inline-block;
+}
+
+.sorting_asc {
+    background: url("../img/ui-icons_348e82_256x240.png") no-repeat -98px -194px;
+    width: 12px;
+    height: 12px;
+    display: inline-block;
+}
+
+.sorting_desc {
+    background: url("../img/ui-icons_348e82_256x240.png") no-repeat -66px -194px;
+    width: 12px;
+    height: 12px;
+    display: inline-block;
+}
+
 /* END icons */
 
 /* UTF-8 symbols */

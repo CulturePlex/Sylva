@@ -311,7 +311,13 @@
           <tr>
             <th>{% trans "#" %}</th>
             {% for prop in properties %}
-                <th><a href="?order_by={{ prop.key }}&dir={{ dir }}">{{ prop.key }}</a> <a href="?order_by=default" title="Remove from sorting"><img src="{{ STATIC_PREFIX }}img/x.png" width="15px" heigth="15px" /></a></th>
+                <th><a href="?order_by={{ prop.key }}&dir={{ dir }}">{{ prop.key }}</a> <a class='remove_sorting' href="?order_by=default" title="Remove from sorting" /></a>
+                  {% if dir == 'desc' %}
+                    <a class='sorting_asc' href="?order_by={{ prop.key }}&dir={{ dir }}" title="Sorting ascending by {{ order_by }}" />
+                  {% else %}
+                    <a class='sorting_desc' href="?order_by={{ prop.key }}&dir={{ dir }}" title="Sorting descending by {{ order_by }}" />
+                  {% endif %}
+                </th>
             {% endfor %}
           </tr>
         </thead>

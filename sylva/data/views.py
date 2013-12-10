@@ -110,7 +110,7 @@ def nodes_list_full(request, graph_slug, node_type_id):
     if not node_type.schema.graph == graph:
         raise Http404(_("Mismatch in requested graph and node type's graph."))
     order_by = request.GET.get('order_by', 'default')
-    order_dir = request.GET.get('dir', 'asc')
+    order_dir = request.GET.get('dir', 'desc')
     if order_by == 'default':
         nodes = node_type.all()
     else:
@@ -150,6 +150,7 @@ def nodes_list_full(request, graph_slug, node_type_id):
     return render_to_response('node_list.html',
                               {"graph": graph,
                                "dir": order_dir,
+                               "order_by": order_by,
                                "nodes": paginated_nodes,
                                "node_type": node_type,
                                "none_label": none_label,
