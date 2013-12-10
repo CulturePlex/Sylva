@@ -45,7 +45,12 @@
           <input type="submit" value="{% trans "Save" %} {{ nodetype.name|capfirst }}"/>
         </span>
         <span class="buttonLinkOption buttonLinkRight">
+          {% if as_new %}
+          {% trans "or" %}
+          <a id="as-new">{% trans "Save as new" %} {{ nodetype.name|capfirst }}</a>
+          {% endif %}
           {% if delete %}
+          {% trans "or" %}
           <a href="{% url nodes_delete graph.slug node.id %}">{% trans "Remove" %}</a>
           {% endif %}
           {% trans "or" %}
@@ -360,6 +365,13 @@
         $('label[for$="-media_file"]').siblings('a').each(function() {
           var $link = $(this);
           $link.attr('download', $link.text().split('/').pop());
+        });
+
+        // Enabling "Save as new" listener
+        $("#as-new").click(function() {
+          var form = $('#content3').find('form');
+          form.attr("action", "{% url nodes_create graph.slug nodetype.id %}");
+          form.submit()
         });
 
       });

@@ -493,7 +493,8 @@ def nodes_edit(request, graph_slug, node_id):
                                "mediafile_formset": mediafile_formset,
                                "medialink_formset": medialink_formset,
                                "action": _("Edit"),
-                               "delete": True},
+                               "delete": True,
+                               "as_new": True},
                               context_instance=RequestContext(request))
 
 
