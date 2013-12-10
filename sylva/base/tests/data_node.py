@@ -211,6 +211,47 @@ class DataNodeTestCase(LiveServerTestCase):
         text = self.browser.find_by_xpath("//div[@class='flags-block']/span[@class='graph-relationships']").first.value
         self.assertEqual(text, "0 relationships")
 
+    def test_sigma_visualization_in_node_view(self):
+        create_graph(self)
+        create_schema(self)
+        create_type(self)
+        # Adding relationship to the type
+        self.browser.find_by_id('allowedRelations').first.click()
+        self.browser.select('source', '1')
+        self.browser.find_by_name('name').fill("Bob's rel")
+        self.browser.select('target', '1')
+        self.browser.find_by_id('id_description').fill(
+            'The loved relationship')
+        self.browser.find_by_value('Save Type').first.click()
+        text = self.browser.find_by_xpath(
+            "//div[@class='form-row indent']/label").first.value
+        self.assertNotEqual(text.find("Bob's rel"), -1)
+        # Creating nodes
+        create_node(self, 'Bob')
+        create_node(self, 'Alice')
+        # Creating relationship between nodes
+        self.browser.find_by_id('dataMenu').first.click()
+        self.browser.find_by_xpath("//td[@class='dataActions']/a[@class='dataOption list']").first.click()
+        self.browser.find_by_xpath("//td[@class='dataList']/a[@class='edit']").first.click()
+        self.browser.find_by_xpath("//li[@class='token-input-input-token']/input").first.fill('Alice')
+        self.browser.is_element_present_by_id("id_user_wait", wait_time=5)
+        self.browser.find_by_xpath("//div[@class='token-input-dropdown']//li[@class='token-input-dropdown-item2 token-input-selected-dropdown-item']/b").first.click()
+        self.browser.find_by_value('Save Bob\'s type').first.click()
+        # Checking
+        self.browser.find_by_xpath("//table[@id='content_table']/tbody/tr/td/a[@title='View node' and text()='Alice']").first.click()
+        js_code = '''
+            var instanceId = '0';
+            for (key in sigma.instances) {
+                instanceId = key;
+                break;
+            }
+            var instance = sigma.instances[instanceId];
+            sigma.test_node_count = instance.getNodesCount();
+            '''
+        self.browser.execute_script(js_code)
+        text = self.browser.evaluate_script('sigma.test_node_count')
+        self.assertEqual(text, 2)
+
     def test_graph_export_gexf(self):
         create_graph(self)
         create_schema(self)

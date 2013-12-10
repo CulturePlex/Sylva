@@ -99,7 +99,7 @@ class DashboardTestCase(LiveServerTestCase):
 
     def test_dashboard_graph_preview(self):
         """
-        This tests, after create a graph with data, checks the Sigma
+        This test, after create a graph with data, checks the Sigma
         visualization running a simple JavaScript code. This code gets the
         current instance of Sigma and checks the data with Sylva JavaScript
         object.
@@ -130,3 +130,16 @@ class DashboardTestCase(LiveServerTestCase):
         self.browser.execute_script(js_code)
         text = self.browser.evaluate_script('sigma.test_node_id')
         self.assertNotEqual(text.find("Bob's node"), -1)
+
+    def test_automatic_tour(self):
+        """
+        Thist test checks that the tour starts automatically after signup, only
+        once.
+        """
+        exist = self.browser.is_element_present_by_xpath(
+            "//div[@class='joyride-content-wrapper']")
+        self.assertEqual(exist, True)
+        self.browser.visit(self.live_server_url + '/dashboard/')
+        exist = self.browser.is_element_present_by_xpath(
+            "//div[@class='joyride-content-wrapper']")
+        self.assertNotEqual(exist, True)

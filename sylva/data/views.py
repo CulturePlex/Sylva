@@ -308,6 +308,7 @@ def nodes_view(request, graph_slug, node_id):
         if graph_relationships:
             incoming_relationships.append({"prefix": prefix,
                                            "relations": graph_relationships})
+    ajax_url = reverse('graphs.views.graph_data', args=[graph.slug, node_id])
     return render_to_response('nodes_view.html',
                               {"graph": graph,
                                "nodetype": nodetype,
@@ -318,7 +319,8 @@ def nodes_view(request, graph_slug, node_id):
                                "incoming_relationships": incoming_relationships,
                                "media_links": media_node.links.all(),
                                "media_files": media_node.files.all(),
-                               "action": _("View")},
+                               "action": _("View"),
+                               "ajax_url": ajax_url},
                               context_instance=RequestContext(request))
 
 

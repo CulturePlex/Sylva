@@ -149,11 +149,25 @@ clearTimeout:true */
           list
             .append($('<li>')
               .css({
-                backgroundColor: color,
+                //backgroundColor: color,
                 minHeight: "20px",
                 paddingLeft: "3px"
               })
-              .text(type)
+              .append($('<span>')
+                .css({
+                  backgroundColor: color,
+                  display: "inline-block",
+                  width: "15px",
+                  height: "15px",
+                  verticalAlign: "middle"
+                })
+                .after($('<span>')
+                  .css({
+                    paddingLeft: "0.3em"
+                  })
+                  .text(type)
+                )
+              )
             );
         }
       });
