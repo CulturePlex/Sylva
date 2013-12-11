@@ -365,11 +365,18 @@ p.slogan {
 #main header.global .nav-wrapper .inside {
     width: 1200px;
     height: 49px;
+    background-color: #D6E7DF;
+    margin: auto;
+}
+
+#link_logo {
+    width: 180px;
+    height: 100px;
+    display: inline-block;
     background-image: url(../img/sylva_logo_text_header.png);
     background-repeat: no-repeat;
     background-position: 10px 4px;
-    background-color: #D6E7DF;
-    margin: auto;
+    text-indent: -9999px;
 }
 
 #main header.global nav.contact {

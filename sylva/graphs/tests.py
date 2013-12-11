@@ -1,8 +1,8 @@
-#-*- coding:utf8 -*-
+#-*- coding:utf-8 -*-
 
 from django.test import TestCase
 
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate
 from django.test.client import Client, RequestFactory
 from django.contrib.auth.models import User
 

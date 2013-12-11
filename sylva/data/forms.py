@@ -297,13 +297,14 @@ class RelationshipForm(ItemForm):
             itemtype_id = unicode(getattr(self.itemtype, direction).id)
             if getattr(self, node_attr).label != itemtype_id:
                 itemtype_attr = getattr(self.itemtype, direction)
-                msg = _("The %s must be %s") \
-                      % (direction, itemtype_attr.name)
+                #msg = _("The %s must be %s") % (direction, itemtype_attr.name)
+                msg = _("The {0} must be {1}").format(direction, itemtype_attr.name)
                 self._errors[self.itemtype.id] = self.error_class([msg])
                 del cleaned_data[self.itemtype.id]
         else:
             itemtype_attr = getattr(self.itemtype, direction)
-            msg = _("The %s must be %s") % (direction, itemtype_attr.name)
+            #msg = _("The %s must be %s") % (direction, itemtype_attr.name)
+            msg = _("The {0} must be {1}").format(direction, itemtype_attr.name)
             self._errors[self.itemtype.id] = self.error_class([msg])
         # If there is no data, there is no relationship to add
         if (self.itemtype.id in self._errors

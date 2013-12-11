@@ -144,7 +144,7 @@ def nodes_list_full(request, graph_slug, node_type_id):
                 prop_value = node_properties[prop_key]
                 if prop_value == "":
                     prop_value = "(Empty)"
-                property_values[prop_key].add(prop_value)
+                property_values[prop_key].add(prop_value.__str__())
     for key in property_values:
         property_values[key] = list(property_values[key])
     return render_to_response('node_list.html',

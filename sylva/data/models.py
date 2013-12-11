@@ -33,14 +33,12 @@ class Data(models.Model, DataMixin):
     def __unicode__(self):
         try:
             if self.instance:
-                return _(u"Data for \"%s\" on instance \"%s\"") \
-                    % (self.graph.name, self.instance.name)
+                return _(u"Data for {0} on instance {1}").format(self.graph.name, self.instance.name)
             else:
-                return _(u"Data for \"%s\" on default instance") \
-                    % self.graph.name
+                return _(u"Data for {0} on default instance").format(self.graph.name)
         except ObjectDoesNotExist:
             if self.instance:
-                return _(u"Data on instance \"%s\"") % self.instance.name
+                return _(u"Data on instance {0}").format(self.instance.name)
             else:
                 return _(u"Data on default instance")
 
@@ -77,9 +75,7 @@ class MediaFile(models.Model):
     media_file = models.FileField(_("file"), upload_to=node_files)
 
     def __unicode__(self):
-        return _(u'%s (%s for %s)') % (self.media_label,
-                                       self.media_file.name,
-                                       self.media_node.node_id)
+        return _(u'{0} ({1} for {2})').format(self.media_label, self.media_file.name, self.media_node.node_id)
 
     class Meta:
         verbose_name_plural = _("Media files")
@@ -92,9 +88,7 @@ class MediaLink(models.Model):
     media_link = models.URLField(_('URL'), verify_exists=False)
 
     def __unicode__(self):
-        return _(u'%s (%s for %s)') % (self.media_label,
-                                       self.media_link,
-                                       self.media_node.node_id)
+        return _(u'{0} ({1} for {2})').format(self.media_label, self.media_link, self.media_node.node_id)
 
     class Meta:
         verbose_name_plural = _("Media links")

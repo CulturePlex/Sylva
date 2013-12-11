@@ -63,7 +63,7 @@ LANGUAGE_CODE = 'en-ca'
 # Supported translations
 LANGUAGES = (
     ('en', ugettext('English')),
-    # ('es', ugettext('Español')),
+    #('es', ugettext('Español')),
 )
 
 # I18n
