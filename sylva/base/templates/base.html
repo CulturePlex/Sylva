@@ -61,7 +61,7 @@
             <div class="inside clearfix">
               {% block contact_navigation %}{% endblock %}
               {% block main_navigation %}
-                <a href="{% url dashboard %}" id="link_logo">dashboard</a>
+                <a href="{% url dashboard %}" id="link_logo" title="{% trans "Go to the Dashboard" %}">dashboard</a>
                 <nav class="main">
                   <ul>
                     <li><a href="javascript:void(0)" id="toggleTour" class="text" style="display: none;"><span>{% trans "Take a tour" %}</span></a></li>
@@ -69,7 +69,7 @@
                     {% if request.user.is_authenticated %}
                       <li><a href="{% url userena.views.profile_detail request.user %}" class="link">{{ request.user }}</a></li>
                       {% block navigation_buttons %}
-                        <li><a href="{% url dashboard %}" class="link"><span>{% trans "Dashboard" %}</span></a></li>
+                        <li><a href="{% url dashboard %}" class="link" title="{% trans "Main view for the options of the user" %}"><span>{% trans "Dashboard" %}</span></a></li>
                       {% endblock %}
                       <li><a href="{{ LOGOUT_URL }}" class="link"><span>{% trans "Sign out" %}</span></a></li>
                     {% else %}

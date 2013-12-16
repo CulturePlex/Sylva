@@ -370,8 +370,8 @@ p.slogan {
 }
 
 #link_logo {
-    width: 180px;
-    height: 100px;
+    width: 140px;
+    height: 50px;
     display: inline-block;
     background-image: url(../img/sylva_logo_text_header.png);
     background-repeat: no-repeat;
@@ -1982,24 +1982,44 @@ body :hover > a.headerlink {
 }
 
 .remove_sorting {
-    background: url("../img/ui-icons_348e82_256x240.png") no-repeat -34px -194px;
-    width: 12px;
-    height: 12px;
+    background: url("../img/ui-icons_348e82_256x240.png") no-repeat -85px -133px;
+    width: 7px;
+    height: 7px;
     display: inline-block;
 }
 
 .sorting_asc {
-    background: url("../img/ui-icons_348e82_256x240.png") no-repeat -98px -194px;
-    width: 12px;
-    height: 12px;
+    background: url("../img/ui-icons_348e82_256x240.png") no-repeat -4px -22px;
+    width: 7px;
+    height: 4px;
     display: inline-block;
 }
 
 .sorting_desc {
-    background: url("../img/ui-icons_348e82_256x240.png") no-repeat -66px -194px;
-    width: 12px;
-    height: 12px;
+    background: url("../img/ui-icons_348e82_256x240.png") no-repeat -69px -22px;
+    width: 7px;
+    height: 4px;
     display: inline-block;
+}
+
+.type_list_true {
+    background-image: url("../img/ui-icons_348e82_256x240.png");
+    background-repeat: no-repeat;
+    background-position: -66px -148px;
+    width: 12px;
+    height: 9px;
+    display: inline-block;
+    text-indent: -9999px;
+}
+
+.type_list_false {
+    background-image: url("../img/ui-icons_348e82_256x240.png");
+    background-repeat: no-repeat;
+    background-position: -100px -132px;
+    width: 9px;
+    height: 9px;
+    display: inline-block;
+    text-indent: -9999px;
 }
 
 /* END icons */
