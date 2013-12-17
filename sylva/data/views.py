@@ -158,6 +158,14 @@ def nodes_create(request, graph_slug, node_type_id):
         raise Http404(_("Mismatch in requested graph and node type's graph."))
     if request.POST:
         data = request.POST.copy()
+        # import ipdb
+        # ipdb.set_trace()
+        # if 'as-new' in request.POST:
+        #     for key in data.keys():
+        #         if key.find(u'_ITEM_ID') >= 0:
+        #             del data[key]
+        #         elif key.find(u'INITIAL_FORMS') >= 0:
+        #             data[key] = u'0'
         mediafile_formset = MediaFileFormSet(data=data, files=request.FILES,
                                              prefix="__files")
         medialink_formset = MediaLinkFormSet(data=data, files=request.FILES,
@@ -389,8 +397,9 @@ def nodes_edit(request, graph_slug, node_id):
                                                   formset=TypeBaseFormSet,
                                                   can_delete=True,
                                                   extra=1)
-        relationship_slug = "o_%s%s_%s" % (relationship.name, relationship.id,
-                                           relationship.target.id)
+        # relationship_slug = "o_%s%s_%s" % (relationship.name, relationship.id,
+        #                                    relationship.target.id)
+        relationship_slug = "o_%s%s" % (relationship.name, relationship.id)
         formset_prefix = slugify(relationship_slug).replace("-", "_")
         prefixes.append({"key": formset_prefix,
                          "value": u"→ %s (%s)" % (relationship.name,
@@ -434,8 +443,9 @@ def nodes_edit(request, graph_slug, node_id):
                                                   formset=TypeBaseFormSet,
                                                   can_delete=True,
                                                   extra=1)
-        relationship_slug = "i_%s%s_%s" % (relationship.name, relationship.id,
-                                           relationship.source.id)
+        # relationship_slug = "i_%s%s_%s" % (relationship.name, relationship.id,
+        #                                    relationship.source.id)
+        relationship_slug = "i_%s%s" % (relationship.name, relationship.id)
         formset_prefix = slugify(relationship_slug).replace("-", "_")
         prefixes.append({"key": formset_prefix,
                          "value": u"← %s (%s)" % (relationship.name,

@@ -1,0 +1,153 @@
+Save as new
+===========
+<QueryDict: {
+    u'csrfmiddlewaretoken': [u'7bA0sGLmsbvYk3WKaT3jbHml6aUX6whK'],
+
+    u'_ITEM_ID': [u'2'], *** Remove
+    u'Name': [u'Awesome Bob'],
+
+    u'__files-INITIAL_FORMS': [u'0'],
+    u'__files-MAX_NUM_FORMS': [u''],
+    u'__files-TOTAL_FORMS': [u'1'],
+    u'__files-0-DELETE': [u''],
+    u'__files-0-media_label': [u''],
+    u'__files-0-media_node': [u''],
+    u'__files-0-media_file': [u''],
+    u'__files-0-id': [u''],
+
+    u'__links-INITIAL_FORMS': [u'0'],
+    u'__links-MAX_NUM_FORMS': [u''],
+    u'__links-TOTAL_FORMS': [u'1'],
+    u'__links-0-DELETE': [u''],
+    u'__links-0-media_link': [u''],
+    u'__links-0-media_node': [u''],
+    u'__links-0-id': [u''],
+    u'__links-0-media_label': [u''],
+
+    u'o_bro1_1-INITIAL_FORMS': [u'1'], *** Set to 0
+    u'o_bro1_1-MAX_NUM_FORMS': [u''],
+    u'o_bro1_1-TOTAL_FORMS': [u'2'],
+    u'o_bro1_1-0-_ITEM_ID': [u'1'], *** Remove
+    u'o_bro1_1-0-Kind of': [u'Family'],
+    u'o_bro1_1-0-1': [u'2'],
+    u'o_bro1_1-1-DELETE': [u''],
+    u'o_bro1_1-1-Kind of': [u''],
+    u'o_bro1_1-1-1': [u'']
+}>
+
+
+Other save as new
+=================
+<QueryDict: {
+    u'o_bro1_1-INITIAL_FORMS': [u'2'], *** Set to 0
+    u'o_bro1_1-MAX_NUM_FORMS': [u''],
+    u'o_bro1_1-TOTAL_FORMS': [u'3'],
+    u'o_bro1_1-0-_ITEM_ID': [u'7'], *** Remove
+    u'o_bro1_1-0-Kind of': [u'Bro small size'],
+    u'o_bro1_1-0-1': [u'3'],
+    u'o_bro1_1-1-_ITEM_ID': [u'8'],
+    u'o_bro1_1-1-Kind of': [u'Bro large size'],
+    u'o_bro1_1-1-1': [u'2'],
+    u'o_bro1_1-2-DELETE': [u''],
+    u'o_bro1_1-2-Kind of': [u''],
+    u'o_bro1_1-2-1': [u''],
+
+    u'_ITEM_ID': [u'1'],
+    u'__files-TOTAL_FORMS': [u'1'],
+    u'__files-0-DELETE': [u''],
+    u'__links-0-DELETE': [u''],
+    u'Name': [u'No Bob'],
+    u'__links-INITIAL_FORMS': [u'0'],
+    u'__files-MAX_NUM_FORMS': [u''],
+    u'csrfmiddlewaretoken': [u'7bA0sGLmsbvYk3WKaT3jbHml6aUX6whK'],
+    u'__links-MAX_NUM_FORMS': [u''],
+    u'__files-0-media_node': [u''],
+    u'__files-0-media_file': [u''],
+    u'__links-TOTAL_FORMS': [u'1'],
+    u'__links-0-media_link': [u''],
+    u'__files-0-id': [u''],
+    u'__links-0-media_node': [u''],
+    u'__files-INITIAL_FORMS': [u'0'],
+    u'__links-0-id': [u''],
+    u'__links-0-media_label': [u''],
+    u'__files-0-media_label': [u'']
+}>
+
+New
+===
+<QueryDict: {
+    u'csrfmiddlewaretoken': [u'7bA0sGLmsbvYk3WKaT3jbHml6aUX6whK'],
+
+    u'Name': [u'Medium Bob'],
+
+    u'__files-INITIAL_FORMS': [u'0'],
+    u'__files-MAX_NUM_FORMS': [u''],
+    u'__files-TOTAL_FORMS': [u'1'],
+    u'__files-0-DELETE': [u''],
+    u'__files-0-media_node': [u''],
+    u'__files-0-media_file': [u''],
+    u'__files-0-media_label': [u''],
+    u'__files-0-id': [u''],
+
+    u'__links-INITIAL_FORMS': [u'0'],
+    u'__links-MAX_NUM_FORMS': [u''],
+    u'__links-TOTAL_FORMS': [u'1'],
+    u'__links-0-DELETE': [u''],
+    u'__links-0-media_link': [u''],
+    u'__links-0-media_node': [u''],
+    u'__links-0-id': [u''],
+    u'__links-0-media_label': [u''],
+
+    u'o_bro1-INITIAL_FORMS': [u'0'],
+    u'o_bro1-MAX_NUM_FORMS': [u''],
+    u'o_bro1-TOTAL_FORMS': [u'1'],
+    u'o_bro1-0-DELETE': [u''],
+    u'o_bro1-0-Kind of': [u'Street'],
+    u'o_bro1-0-1': [u'3'],
+
+    u'i_bro1-INITIAL_FORMS': [u'0'],
+    u'i_bro1-MAX_NUM_FORMS': [u''],
+    u'i_bro1-TOTAL_FORMS': [u'1'],
+    u'i_bro1-0-DELETE': [u''],
+    u'i_bro1-0-Kind of': [u''],
+    u'i_bro1-0-1': [u'']
+}>
+
+Other new
+=========
+<QueryDict: {
+    u'o_bro1-INITIAL_FORMS': [u'0'],
+    u'o_bro1-MAX_NUM_FORMS': [u''],
+    u'o_bro1-TOTAL_FORMS': [u'2'],
+    u'o_bro1-0-DELETE': [u''],
+    u'o_bro1-0-Kind of': [u'Back'],
+    u'o_bro1-0-1': [u'2'],
+    u'o_bro1-1-Kind of': [u'Front'],
+    u'o_bro1-1-1': [u'3'],
+
+
+    u'__files-TOTAL_FORMS': [u'1'],
+    u'__files-0-media_label': [u''],
+    u'__files-0-DELETE': [u''],
+    u'__links-0-DELETE': [u''],
+    u'i_bro1-TOTAL_FORMS': [u'1'],
+    u'i_bro1-0-1': [u''],
+    u'__files-MAX_NUM_FORMS': [u''],
+    u'i_bro1-0-Kind of': [u''],
+    u'csrfmiddlewaretoken': [u'7bA0sGLmsbvYk3WKaT3jbHml6aUX6whK'],
+    u'__links-MAX_NUM_FORMS': [u''],
+    u'__files-0-media_node': [u''],
+    u'__files-0-media_file': [u''],
+    u'Name': [u'Gay Bob'],
+    u'__links-TOTAL_FORMS': [u'1'],
+    u'__links-0-media_link': [u''],
+    u'i_bro1-MAX_NUM_FORMS': [u''],
+    u'i_bro1-INITIAL_FORMS': [u'0'],
+    u'__files-0-id': [u''],
+    u'i_bro1-0-DELETE': [u''],
+    u'__links-0-media_node': [u''],
+    u'__files-INITIAL_FORMS': [u'0'],
+    u'__links-0-id': [u''],
+    u'__links-0-media_label': [u''],
+    u'__links-INITIAL_FORMS': [u'0']
+}>
