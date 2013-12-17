@@ -146,6 +146,18 @@ class NodeSequence(BaseSequence):
                 nodes.append(node)
         return nodes
 
+    def order_by(self, key, order):
+        if not self.elements:
+            self.__len__()
+        if order == 'desc':
+            nodes = sorted(self.elements, key=lambda node: node.properties[key], reverse=True)
+            return nodes
+        elif order == 'asc':
+            nodes = sorted(self.elements, key=lambda node: node.properties[key], reverse=False)
+            return nodes
+        else:
+            raise TypeError("You must write a direction.")
+
 
 class NodesManager(BaseManager):
     NodeDoesNotExist = NodeDoesNotExist
@@ -190,6 +202,8 @@ class NodesManager(BaseManager):
                                  lookups=lookups,
                                  iterator_func=self.gdb.get_filtered_nodes,
                                  include_properties=True)
+        # We call __len__() to create the list of elements
+        eltos.__len__()
         return eltos
 
     def iterator(self):

@@ -114,11 +114,10 @@ def nodes_list_full(request, graph_slug, node_type_id):
     if order_by == 'default':
         nodes = node_type.all()
     else:
+        nodes = node_type.all().order_by(order_by, order_dir)
         if order_dir == 'desc':
-            nodes = sorted(node_type.all(), key=lambda node: node.properties[order_by], reverse=True)
             order_dir = 'asc'
-        else:
-            nodes = sorted(node_type.all(), key=lambda node: node.properties[order_by], reverse=False)
+        elif order_dir == 'asc':
             order_dir = 'desc'
     page = request.GET.get('page')
     page_size = request.GET.get('size', settings.DATA_PAGE_SIZE)
