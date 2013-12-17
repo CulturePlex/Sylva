@@ -7,6 +7,10 @@ from engines.gdb.backends import NodeDoesNotExist, RelationshipDoesNotExist
 from schemas.models import NodeType, RelationshipType
 
 
+ASC = "asc"
+DESC = "desc"
+
+
 class LimitReachedException(Exception):
     pass
 
@@ -20,6 +24,9 @@ class RelationshipsLimitReachedException(LimitReachedException):
 
 
 class GraphMixin(object):
+
+    ASC = ASC
+    DESC = DESC
 
     def __init__(self, *args, **kwargs):
         super(GraphMixin, self).__init__(*args, **kwargs)
@@ -129,6 +136,29 @@ class BaseSequence(Sequence):
             return self.elements[key]
         else:
             raise TypeError("key must be a number or a slice")
+
+    def order_by(self, *orders):
+        """
+        Allow chaining order by to both NodeSequence and RelationshipSequence
+        :param orders: list of mixed 2-tuples, like ('property_name', ASC|DESC),
+                       and single property names (sorted ascending),
+                       like 'property_name'.
+        """
+        orders_by = []
+        for order in orders:
+            order_method = ASC
+            if isinstance(order, (list, tuple)):
+                property_name, order_method = order
+                if order_method not in (ASC, DESC):
+                    order_method = ASC
+            else:
+                property_name = order
+            orders_by.append((property_name, order_method))
+        self.kwargs.update({
+            "order_by": orders_by,
+        })
+        return self
+
 
 
 class NodeSequence(BaseSequence):
