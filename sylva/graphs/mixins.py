@@ -66,6 +66,14 @@ class GraphMixin(object):
     def query(self, query_dict):
         return self.gdb.query(query_dict)
 
+    def destroy(self):
+        """Delete nodes, relationships, internal indices, data, schema and
+        the object itself"""
+        self.gdb.destroy()
+        self.schema.delete()
+        self.data.delete()
+        self.delete()
+
 
 class BaseManager(object):
 

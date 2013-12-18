@@ -453,3 +453,15 @@ class GraphDatabase(BlueprintsGraphDatabase):
                                                           where, results)
         print q
         return q
+
+    def destroy(self):
+        """Delete nodes, relationships, and even indices"""
+        all_rels = self.get_all_relationships(include_properties=False)
+        for rel_id, props, label in all_rels:
+            self.delete_relationship(rel_id)
+        all_nodes = self.get_all_nodes(include_properties=False)
+        for node_id, props, label in all_nodes:
+            self.delete_node(node_id)
+        self.nidx.delete()
+        self.ridx.delete()
+        self = None
