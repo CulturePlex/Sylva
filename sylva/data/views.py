@@ -639,3 +639,30 @@ def node_relationships(request, graph_slug, node_id):
                         "label": label.name})
     result = {'incoming': incoming, 'outgoing': outgoing}
     return HttpResponse(json.dumps(result))
+
+
+@permission_required("data.view_data", (Data, "graph__slug", "graph_slug"),
+                     return_403=True)
+def collaborators_lookup(request, graph_slug):
+    graph = get_object_or_404(Graph, slug=graph_slug)
+    data = request.GET.copy()
+    if (request.is_ajax() or settings.DEBUG) and data:
+        almost_name = data.keys()[0]
+        q = data[almost_name]
+        json_collaborators = []
+        owner = graph.owner.username
+        if q in owner:
+            json_collaborators.append({
+                "id": owner,
+                "display": owner
+            })
+        json_collaborators.extend([
+            {
+                "id": collaborator.username,
+                "display": collaborator.username
+            } for collaborator in graph.get_collaborators()
+            if q in collaborator.username])
+        json_collaborators.sort()
+        return HttpResponse(json.dumps(json_collaborators),
+                            status=200, mimetype='application/json')
+    raise Http404(_("Mismatch criteria for matching the search."))

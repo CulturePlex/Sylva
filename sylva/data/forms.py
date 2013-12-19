@@ -104,20 +104,37 @@ class ItemForm(forms.Form):
                 field_attrs["widget"] = widget = forms.Textarea
                 field = forms.CharField(**field_attrs)
             elif item_property.datatype == datatype_dict["collaborator"]:
-                collaborators = [(u'', u'---------')]
-                owner = itemtype.schema.graph.owner.username
-                collaborators.append((owner, owner))
-                collaborators.extend(
-                    [(collab.username, collab.username)
-                        for collab
-                        in itemtype.schema.graph.get_collaborators()])
-                collaborators.sort()
-                field_attrs["choices"] = collaborators
-                field_attrs["initial"] = slugify(field_attrs["initial"] or "")
-                if initial and item_property.key in initial:
-                    slug_value = slugify(initial[item_property.key])
-                    initial[item_property.key] = slug_value
-                field = forms.ChoiceField(**field_attrs)
+                if settings.ENABLE_AUTOCOMPLETE_COLLABORATORS:
+                    if initial and item_property.key in initial:
+                        slug_value = slugify(initial[item_property.key])
+                        initial[item_property.key] = slug_value
+                        username = slug_value
+                        widget_class = u"user_autocomplete %s" % username
+                    else:
+                        widget_class = u"user_autocomplete"
+                    widget = forms.TextInput(
+                        attrs={
+                            "class": widget_class,
+                        })
+                    field_attrs["widget"] = widget
+                    field_attrs["initial"] = ""
+                    field = forms.CharField(**field_attrs)
+                else:
+                    collaborators = [(u'', NULL_OPTION)]
+                    owner = itemtype.schema.graph.owner.username
+                    collaborators.append((owner, owner))
+                    collaborators.extend(
+                        [(collaborator.username, collaborator.username)
+                            for collaborator
+                            in itemtype.schema.graph.get_collaborators()])
+                    collaborators.sort()
+                    field_attrs["choices"] = collaborators
+                    field_attrs["initial"] = slugify(field_attrs["initial"]
+                                                     or "")
+                    if initial and item_property.key in initial:
+                        slug_value = slugify(initial[item_property.key])
+                        initial[item_property.key] = slug_value
+                    field = forms.ChoiceField(**field_attrs)
             else:
                 field = forms.CharField(**field_attrs)
             self.fields[item_property.key] = field
@@ -275,10 +292,10 @@ class RelationshipForm(ItemForm):
             if settings.ENABLE_AUTOCOMPLETE_NODES:
                 if initial and itemtype.id in initial:
                     node = itemtype.schema.graph.nodes.get(initial.get(itemtype.id))
-                    widget_class = u"autocomplete %s" % node.display
+                    widget_class = u"node_autocomplete %s" % node.display
                 else:
                     node = None
-                    widget_class = u"autocomplete"
+                    widget_class = u"node_autocomplete"
                 field_attrs = {
                     "required": True,
                     "initial": "",
