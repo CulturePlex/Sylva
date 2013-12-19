@@ -375,17 +375,21 @@ def nodes_edit(request, graph_slug, node_id):
 #        initial.append(properties)
     prefixes = []
     outgoing_formsets = SortedDict()
-    allowed_outgoing_relationships = nodetype.outgoing_relationships.all()
+    allowed_outgoing_relationships = nodetype.get_outgoing_relationships(
+        reflexive=True
+    )
     for relationship in allowed_outgoing_relationships:
         initial = []
         graph_relationships = node.relationships.filter(label=relationship.id)
         for graph_relationship in graph_relationships:
-            properties = graph_relationship.properties
-            properties.update({
-                relationship.id: graph_relationship.target.id,
-                ITEM_FIELD_NAME: graph_relationship.id,
-            })
-            initial.append(properties)
+            # Only show outgoing relationships even if it is reflexive
+            if graph_relationship.target.id != node.id:
+                properties = graph_relationship.properties
+                properties.update({
+                    relationship.id: graph_relationship.target.id,
+                    ITEM_FIELD_NAME: graph_relationship.id,
+                })
+                initial.append(properties)
         arity = relationship.arity_target
         if arity > 0:
             RelationshipFormSet = formset_factory(RelationshipForm,
@@ -421,17 +425,21 @@ def nodes_edit(request, graph_slug, node_id):
 #        })
 #        initial.append(properties)
     incoming_formsets = SortedDict()
-    allowed_incoming_relationships = nodetype.get_incoming_relationships()
+    allowed_incoming_relationships = nodetype.get_incoming_relationships(
+        reflexive=True
+    )
     for relationship in allowed_incoming_relationships:
         initial = []
         graph_relationships = node.relationships.filter(label=relationship.id)
         for graph_relationship in graph_relationships:
-            properties = graph_relationship.properties
-            properties.update({
-                relationship.id: graph_relationship.source.id,
-                ITEM_FIELD_NAME: graph_relationship.id,
-            })
-            initial.append(properties)
+            # Only show incoming relationships even if it is reflexive
+            if graph_relationship.source.id != node.id:
+                properties = graph_relationship.properties
+                properties.update({
+                    relationship.id: graph_relationship.source.id,
+                    ITEM_FIELD_NAME: graph_relationship.id,
+                })
+                initial.append(properties)
         arity = relationship.arity_source
         if arity > 0:
             RelationshipFormSet = formset_factory(RelationshipForm,

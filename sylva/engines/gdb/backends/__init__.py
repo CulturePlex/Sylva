@@ -352,7 +352,7 @@ class BaseGraphDatabase(object):
 
     # Deleting the graph
 
-    def delete(self):
+    def destroy(self):
         """
         Delete the entire graph and all the information related: nodes,
         relationships, indices, etc.

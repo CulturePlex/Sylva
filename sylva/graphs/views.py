@@ -131,9 +131,7 @@ def graph_delete(request, graph_slug):
         if form.is_valid():
             confirm = bool(int(form.cleaned_data["confirm"]))
             if confirm:
-                graph.relationships.delete()
-                graph.nodes.delete()
-                graph.delete()
+                graph.destroy()
                 redirect_url = reverse("dashboard")
             else:
                 redirect_url = reverse("graph_view", args=[graph.slug])
