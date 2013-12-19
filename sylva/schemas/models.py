@@ -342,7 +342,7 @@ class BaseProperty(models.Model):
             (u't', _(u'Time')),
             (u'c', _(u'Choices')),
             (u'f', _(u'Float')),
-            (u'r', _(u'Collaborator')),
+            (u'o', _(u'Collaborator')),
         )),
         (_("Auto"), (
             (u'w', _(u'Auto now')),
@@ -394,11 +394,11 @@ class BaseProperty(models.Model):
             "choice": u"c",
             "text": u"x",
             "float": u"f",
+            "collaborator": u"o",
             "auto_now": u"w",
             "auto_now_add": u"a",
             "auto_increment": u"i",
-            "auto_user": u"e",
-            "user": u"r"
+            "auto_user": u"e"
         }
 
     def get_datatype(self):

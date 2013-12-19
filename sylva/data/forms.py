@@ -103,6 +103,21 @@ class ItemForm(forms.Form):
             elif item_property.datatype == datatype_dict["text"]:
                 field_attrs["widget"] = widget = forms.Textarea
                 field = forms.CharField(**field_attrs)
+            elif item_property.datatype == datatype_dict["collaborator"]:
+                collaborators = [(u'', u'---------')]
+                owner = itemtype.schema.graph.owner.username
+                collaborators.append((owner, owner))
+                collaborators.extend(
+                    [(collab.username, collab.username)
+                        for collab
+                        in itemtype.schema.graph.get_collaborators()])
+                collaborators.sort()
+                field_attrs["choices"] = collaborators
+                field_attrs["initial"] = slugify(field_attrs["initial"] or "")
+                if initial and item_property.key in initial:
+                    slug_value = slugify(initial[item_property.key])
+                    initial[item_property.key] = slug_value
+                field = forms.ChoiceField(**field_attrs)
             else:
                 field = forms.CharField(**field_attrs)
             self.fields[item_property.key] = field
