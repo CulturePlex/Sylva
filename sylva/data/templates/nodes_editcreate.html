@@ -316,7 +316,7 @@
 
         // Enabling autocomplete for nodes
         var nodeAutocomplete = function(input) {
-          var params = {}, $input = $(input);
+          var params = {}, $input = $(input), exclude=$input.attr("data-exclude-id");
           if ($input.attr("class")) {
             if ($input.attr("class").indexOf(" ") > 0) {
               params = {
@@ -341,7 +341,7 @@
                 tokenValue: "id"
               };
             }
-            $input.tokenInput("{% url nodes_lookup graph.slug %}", params);
+            $input.tokenInput("{% url nodes_lookup graph.slug %}?exclude="+ exclude, params);
           }
         };
 

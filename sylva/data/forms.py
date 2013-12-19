@@ -41,6 +41,8 @@ class ItemForm(forms.Form):
         }
 
     def __init__(self, itemtype, instance=None, *args, **kwargs):
+        # Only for relationships
+        self.related_node = kwargs.pop("related_node", None)
         super(ItemForm, self).__init__(label_suffix="", *args, **kwargs)
         self.populate_fields(itemtype, instance=instance,
                              initial=kwargs.get("initial", None))
@@ -264,15 +266,21 @@ class RelationshipForm(ItemForm):
                 else:
                     node = None
                     widget_class = u"autocomplete"
+                input_attrs = {
+                    "class": widget_class,
+                    "data-type": getattr(itemtype, direction).id,
+                }
+                if self.related_node and itemtype.source == itemtype.target:
+                    # If it's reflexive
+                    input_attrs.update({
+                        "data-exclude-id": self.related_node.id
+                    })
                 field_attrs = {
                     "required": True,
                     "initial": "",
                     "label": label,
                     "help_text": help_text,
-                    "widget": forms.TextInput(attrs={
-                        "class": widget_class,
-                        "data-type": getattr(itemtype, direction).id,
-                    }),
+                    "widget": forms.TextInput(attrs=input_attrs)
                 }
                 field = forms.CharField(**field_attrs)
             else:
@@ -312,6 +320,7 @@ class RelationshipForm(ItemForm):
         return cleaned_data
 
     def save(self, related_node=None, commit=True, *args, **kwargs):
+        related_node = related_node or self.related_node
         properties = None
         if hasattr(self, "cleaned_data"):
             properties = self.cleaned_data
@@ -362,9 +371,11 @@ def relationship_formset_factory(relationship, *args, **kwargs):
 
 class TypeBaseFormSet(BaseFormSet):
 
-    def __init__(self, itemtype, instance=None, *args, **kwargs):
+    def __init__(self, itemtype, instance=None, related_node=None,
+                 *args, **kwargs):
         self.itemtype = itemtype
         self.instance = instance
+        self.related_node = related_node
         super(TypeBaseFormSet, self).__init__(*args, **kwargs)
 
     def _construct_form(self, i, **kwargs):
@@ -385,7 +396,11 @@ class TypeBaseFormSet(BaseFormSet):
             defaults['empty_permitted'] = True
         defaults.update(kwargs)
         # This is the only line distinct to original implementation from django
-        form = self.form(self.itemtype, instance=self.instance, **defaults)
+        form = self.form(
+            self.itemtype,
+            instance=self.instance,
+            related_node=self.related_node,
+            **defaults)
         self.add_fields(form, i)
         return form
 
