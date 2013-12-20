@@ -2022,6 +2022,19 @@ body :hover > a.headerlink {
     text-indent: -9999px;
 }
 
+.shorten_text {
+    max-width: 100px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+p.shorten_text:hover {
+    max-width: 500px;
+    max-width: "";
+    text-overflow: "";
+}
+
 /* END icons */
 
 /* UTF-8 symbols */

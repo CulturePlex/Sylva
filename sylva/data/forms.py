@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+import datetime
+
 from django import forms
 from django.conf import settings
 from django.core.exceptions import ValidationError
@@ -41,6 +43,7 @@ class ItemForm(forms.Form):
         }
 
     def __init__(self, itemtype, instance=None, *args, **kwargs):
+        self.username = kwargs.pop('user')
         super(ItemForm, self).__init__(label_suffix="", *args, **kwargs)
         self.populate_fields(itemtype, instance=instance,
                              initial=kwargs.get("initial", None))
@@ -102,6 +105,23 @@ class ItemForm(forms.Form):
                 field = forms.ChoiceField(**field_attrs)
             elif item_property.datatype == datatype_dict["text"]:
                 field_attrs["widget"] = widget = forms.Textarea
+                field = forms.CharField(**field_attrs)
+            elif item_property.datatype == datatype_dict["auto_user"]:
+                field_attrs["initial"] = self.username
+                field = forms.CharField(**field_attrs)
+            elif item_property.datatype == datatype_dict["auto_now"]:
+                if not initial:
+                    field_attrs["initial"] = ""
+                field = forms.CharField(**field_attrs)
+            elif item_property.datatype == datatype_dict["auto_now_add"]:
+                if not initial:
+                    field_attrs["initial"] = ""
+                field = forms.CharField(**field_attrs)
+            elif item_property.datatype == datatype_dict["auto_increment"]:
+                if not item_property.default:
+                    field_attrs["initial"] = '1'
+                field = forms.CharField(**field_attrs)
+            elif item_property.datatype == datatype_dict["auto_increment_update"]:
                 field = forms.CharField(**field_attrs)
             else:
                 field = forms.CharField(**field_attrs)
@@ -185,6 +205,8 @@ class ItemForm(forms.Form):
                         properties.pop(field_key)
             # Assign to label the value of the identifier of the NodeType
             label = unicode(self.itemtype.id)
+            properties = self._set_now_attributes(properties)
+            properties = self._auto_increment(properties)
             if commit:
                 if self.item_id:
                     if self.delete:
@@ -198,6 +220,22 @@ class ItemForm(forms.Form):
                                                    properties=properties)
             else:
                 return (label, properties)
+
+    def _set_now_attributes(self, properties):
+        if self.item_id is None:
+            for prop in self.itemtype.properties.filter(datatype="a"):
+                properties[prop.key] = datetime.datetime.today()
+        for prop in self.itemtype.properties.filter(datatype="w"):
+            properties[prop.key] = datetime.datetime.today()
+        return properties
+
+    def _auto_increment(self, properties):
+        for prop in self.itemtype.properties.filter(datatype="i"):
+            number = int(properties[prop.key]) + 1
+            properties[prop.key] = '{}'.format(number)
+            import ipdb
+            ipdb.set_trace()
+        return properties
 
 
 class NodeForm(ItemForm):
@@ -325,6 +363,8 @@ class RelationshipForm(ItemForm):
                     if (field_key not in self.itemtype_properties):
                         properties.pop(field_key)
             label = unicode(self.itemtype.id)
+            properties = self._set_now_attributes(properties)
+            properties = self._auto_increment(properties)
             if commit and (self.item_id or related_node):
                 if self.item_id:
                     if self.delete:
@@ -366,6 +406,7 @@ class TypeBaseFormSet(BaseFormSet):
     def __init__(self, itemtype, instance=None, *args, **kwargs):
         self.itemtype = itemtype
         self.instance = instance
+        self.username = kwargs.pop('user')
         super(TypeBaseFormSet, self).__init__(*args, **kwargs)
 
     def _construct_form(self, i, **kwargs):
@@ -384,6 +425,7 @@ class TypeBaseFormSet(BaseFormSet):
         # Allow extra forms to be empty.
         if i >= self.initial_form_count():
             defaults['empty_permitted'] = True
+        defaults['user'] = self.username
         defaults.update(kwargs)
         # This is the only line distinct to original implementation from django
         form = self.form(self.itemtype, instance=self.instance, **defaults)

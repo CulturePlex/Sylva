@@ -18,6 +18,8 @@ from django.utils.datastructures import SortedDict
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 
+from django.contrib import messages
+
 from guardian.decorators import permission_required
 
 from data.models import Data, MediaNode
@@ -114,7 +116,10 @@ def nodes_list_full(request, graph_slug, node_type_id):
     if order_by == 'default':
         nodes = node_type.all()
     else:
-        nodes = node_type.all().order_by(order_by, order_dir)
+        orders = order_by, order_dir
+        nodes = node_type.all().order_by(orders)
+        if not nodes:
+            messages.error(request, _("Error: You are trying to sort a column with some none values"))
         if order_dir == 'desc':
             order_dir = 'asc'
         elif order_dir == 'asc':
@@ -177,7 +182,7 @@ def nodes_create(request, graph_slug, node_type_id):
         data = None
         mediafile_formset = MediaFileFormSet(prefix="__files")
         medialink_formset = MediaLinkFormSet(prefix="__links")
-    node_form = NodeForm(itemtype=nodetype, data=data)
+    node_form = NodeForm(itemtype=nodetype, data=data, user=request.user.username)
     outgoing_formsets = SortedDict()
     prefixes = []
     for relationship in nodetype.outgoing_relationships.all():
@@ -200,7 +205,8 @@ def nodes_create(request, graph_slug, node_type_id):
         outgoing_formset = RelationshipFormSet(itemtype=relationship,
                                                instance=nodetype,
                                                prefix=formset_prefix,
-                                               data=data)
+                                               data=data,
+                                               user=request.user.username)
         outgoing_formsets[formset_prefix] = outgoing_formset
     incoming_formsets = SortedDict()
     for relationship in nodetype.incoming_relationships.all():
@@ -223,7 +229,8 @@ def nodes_create(request, graph_slug, node_type_id):
         incoming_formset = RelationshipFormSet(itemtype=relationship,
                                                instance=nodetype,
                                                prefix=formset_prefix,
-                                               data=data)
+                                               data=data,
+                                               user=request.user.username)
         incoming_formsets[formset_prefix] = incoming_formset
     if (data and node_form.is_valid()
             and mediafile_formset.is_valid() and medialink_formset.is_valid()
@@ -363,7 +370,7 @@ def nodes_edit(request, graph_slug, node_id):
                                              data=data, prefix="__links")
     node_initial = node.properties.copy()
     node_initial.update({ITEM_FIELD_NAME: node.id})
-    node_form = NodeForm(itemtype=nodetype, initial=node_initial, data=data)
+    node_form = NodeForm(itemtype=nodetype, initial=node_initial, data=data, user=request.user.username)
     # Outgoing relationships
 #    initial = []
 #    for relationship in node.relationships.all():
@@ -408,7 +415,8 @@ def nodes_edit(request, graph_slug, node_id):
                                                instance=nodetype,
                                                prefix=formset_prefix,
                                                initial=initial,
-                                               data=data)
+                                               data=data,
+                                               user=request.user.username)
         outgoing_formsets[formset_prefix] = outgoing_formset
     # Incoming relationships
 #    initial = []
@@ -453,7 +461,8 @@ def nodes_edit(request, graph_slug, node_id):
                                                instance=nodetype,
                                                prefix=formset_prefix,
                                                initial=initial,
-                                               data=data)
+                                               data=data,
+                                               user=request.user.username)
         incoming_formsets[formset_prefix] = incoming_formset
     # Save forms and formsets
     if (data and node_form.is_valid()

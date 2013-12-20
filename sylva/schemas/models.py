@@ -342,6 +342,14 @@ class BaseProperty(models.Model):
             (u't', _(u'Time')),
             (u'c', _(u'Choices')),
             (u'f', _(u'Float')),
+            (u'r', _(u'Collaborator')),
+        )),
+        (_("Auto"), (
+            (u'w', _(u'Auto now')),
+            (u'a', _(u'Auto now add')),
+            (u'i', _(u'Auto increment')),
+            (u'o', _(u'Auto increment update')),
+            (u'e', _(u'Auto user')),
         )),
     )
     datatype = models.CharField(_('data type'),
@@ -386,7 +394,13 @@ class BaseProperty(models.Model):
             "time": u"t",
             "choice": u"c",
             "text": u"x",
-            "float": u"f"
+            "float": u"f",
+            "auto_now": u"w",
+            "auto_now_add": u"a",
+            "auto_increment": u"i",
+            "auto_increment_update": u"o",
+            "auto_user": u"e",
+            "user": u"r"
         }
 
     def get_datatype(self):

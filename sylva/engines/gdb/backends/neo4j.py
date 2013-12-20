@@ -90,7 +90,7 @@ class GraphDatabase(BlueprintsGraphDatabase):
         count = self.cypher(query=script)
         return self._clean_count(count)
 
-    def get_all_nodes(self, include_properties=False, limit=None, offset=None):
+    def get_all_nodes(self, include_properties=False, limit=None, offset=None, order_by=None):
         """
         Get an iterator for the list of tuples of all nodes, the first element
         is the id of the node and the third the node label.
@@ -99,12 +99,12 @@ class GraphDatabase(BlueprintsGraphDatabase):
         """
         nodes = self.get_filtered_nodes(lookups=None, label=None,
                                         include_properties=include_properties,
-                                        limit=limit, offset=offset)
+                                        limit=limit, offset=offset, order_by=order_by)
         for node in nodes:
             yield node
 
     def get_all_relationships(self, include_properties=False,
-                              limit=None, offset=None):
+                              limit=None, offset=None, order_by=None):
         """
         Get an iterator for the list of tuples of all relationships, the
         first element is the id of the node.
@@ -113,7 +113,7 @@ class GraphDatabase(BlueprintsGraphDatabase):
         """
         rels = self.get_filtered_relationships(lookups=None, label=None,
                                         include_properties=include_properties,
-                                        limit=limit, offset=offset)
+                                        limit=limit, offset=offset, order_by=order_by)
         for rel in rels:
             yield rel
 
@@ -141,13 +141,13 @@ class GraphDatabase(BlueprintsGraphDatabase):
         return self._clean_count(count)
 
     def get_nodes_by_label(self, label, include_properties=False,
-                           limit=None, offset=None):
+                           limit=None, offset=None, order_by=None):
         return self.get_filtered_nodes([], label=label,
                                        include_properties=include_properties,
-                                       limit=limit, offset=offset)
+                                       limit=limit, offset=offset, order_by=order_by)
 
     def get_filtered_nodes(self, lookups, label=None, include_properties=None,
-                           limit=None, offset=None):
+                           limit=None, offset=None, order_by=None):
         # Using Cypher
         cypher = self.cypher
         if label:
@@ -174,6 +174,8 @@ class GraphDatabase(BlueprintsGraphDatabase):
             script = u"%s id(n), n" % script
         else:
             script = u"%s id(n)" % script
+        if order_by:
+            script = u"%s order by n.%s %s " % (script, order_by[0][0], order_by[0][1])
         page = 1000
         skip = offset or 0
         limit = limit or page
@@ -208,14 +210,14 @@ class GraphDatabase(BlueprintsGraphDatabase):
                 break
 
     def get_relationships_by_label(self, label, include_properties=False,
-                                   limit=None, offset=None):
+                                   limit=None, offset=None, order_by=None):
         return self.get_filtered_relationships([], label=label,
                                         include_properties=include_properties,
-                                        limit=limit, offset=offset)
+                                        limit=limit, offset=offset, order_by=order_by)
 
     def get_filtered_relationships(self, lookups, label=None,
                                    include_properties=None,
-                                   limit=None, offset=None):
+                                   limit=None, offset=None, order_by=None):
         # Using Cypher
         cypher = self.cypher
         if label:
@@ -244,6 +246,8 @@ class GraphDatabase(BlueprintsGraphDatabase):
         else:
             script = u"%s return distinct id(r), %s, a, b" \
                      % (script, type_or_r)
+        if order_by:
+            script = u"%s order by n.%s %s " % (script, order_by[0][0], order_by[0][1])
         page = 1000
         skip = offset or 0
         limit = limit or page
@@ -295,7 +299,7 @@ class GraphDatabase(BlueprintsGraphDatabase):
     def lookup_builder(self):
         return q_lookup_builder
 
-    def query(self, query_dict, limit=None, offset=None):
+    def query(self, query_dict, limit=None, offset=None, order_by=None):
         script = self._query_generator(query_dict)
         cypher = self.cypher
         page = 1000
