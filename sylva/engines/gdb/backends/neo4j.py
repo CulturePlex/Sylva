@@ -90,7 +90,8 @@ class GraphDatabase(BlueprintsGraphDatabase):
         count = self.cypher(query=script)
         return self._clean_count(count)
 
-    def get_all_nodes(self, include_properties=False, limit=None, offset=None, order_by=None):
+    def get_all_nodes(self, include_properties=False, limit=None, offset=None,
+                      order_by=None):
         """
         Get an iterator for the list of tuples of all nodes, the first element
         is the id of the node and the third the node label.
@@ -99,7 +100,8 @@ class GraphDatabase(BlueprintsGraphDatabase):
         """
         nodes = self.get_filtered_nodes(lookups=None, label=None,
                                         include_properties=include_properties,
-                                        limit=limit, offset=offset, order_by=order_by)
+                                        limit=limit, offset=offset,
+                                        order_by=order_by)
         for node in nodes:
             yield node
 
@@ -113,7 +115,8 @@ class GraphDatabase(BlueprintsGraphDatabase):
         """
         rels = self.get_filtered_relationships(lookups=None, label=None,
                                         include_properties=include_properties,
-                                        limit=limit, offset=offset, order_by=order_by)
+                                        limit=limit, offset=offset,
+                                        order_by=order_by)
         for rel in rels:
             yield rel
 
@@ -144,7 +147,8 @@ class GraphDatabase(BlueprintsGraphDatabase):
                            limit=None, offset=None, order_by=None):
         return self.get_filtered_nodes([], label=label,
                                        include_properties=include_properties,
-                                       limit=limit, offset=offset, order_by=order_by)
+                                       limit=limit, offset=offset,
+                                       order_by=order_by)
 
     def get_filtered_nodes(self, lookups, label=None, include_properties=None,
                            limit=None, offset=None, order_by=None):
@@ -213,7 +217,8 @@ class GraphDatabase(BlueprintsGraphDatabase):
                                    limit=None, offset=None, order_by=None):
         return self.get_filtered_relationships([], label=label,
                                         include_properties=include_properties,
-                                        limit=limit, offset=offset, order_by=order_by)
+                                        limit=limit, offset=offset,
+                                        order_by=order_by)
 
     def get_filtered_relationships(self, lookups, label=None,
                                    include_properties=None,
@@ -452,3 +457,15 @@ class GraphDatabase(BlueprintsGraphDatabase):
                                                           where, results)
         print q
         return q
+
+    def destroy(self):
+        """Delete nodes, relationships, and even indices"""
+        all_rels = self.get_all_relationships(include_properties=False)
+        for rel_id, props, label in all_rels:
+            self.delete_relationship(rel_id)
+        all_nodes = self.get_all_nodes(include_properties=False)
+        for node_id, props, label in all_nodes:
+            self.delete_node(node_id)
+        self.nidx.delete()
+        self.ridx.delete()
+        self = None

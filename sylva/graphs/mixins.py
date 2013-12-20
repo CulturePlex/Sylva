@@ -66,6 +66,14 @@ class GraphMixin(object):
     def query(self, query_dict):
         return self.gdb.query(query_dict)
 
+    def destroy(self):
+        """Delete nodes, relationships, internal indices, data, schema and
+        the object itself"""
+        self.gdb.destroy()
+        self.schema.delete()
+        self.data.delete()
+        self.delete()
+
 
 class BaseManager(object):
 
@@ -140,8 +148,9 @@ class BaseSequence(Sequence):
     def order_by(self, *orders):
         """
         Allow chaining order by to both NodeSequence and RelationshipSequence
-        :param orders: list of mixed 2-tuples, like ('property_name', ASC|DESC)         , and single property names (sorted ascending)
-                     , like 'property_name'.
+        :param orders: list of mixed 2-tuples, like ('property_name', ASC|DESC),
+                       and single property names (sorted ascending),
+                       like 'property_name'.
         """
         orders_by = []
         for order in orders:
@@ -157,6 +166,7 @@ class BaseSequence(Sequence):
             "order_by": orders_by,
         })
         return self
+
 
 
 class NodeSequence(BaseSequence):

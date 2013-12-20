@@ -62,6 +62,7 @@ def nodes_list(request, graph_slug):
 def nodes_lookup(request, graph_slug, with_properties=False, page_size=10):
     graph = get_object_or_404(Graph, slug=graph_slug)
     data = request.GET.copy()
+    exclude = data.pop("exclude", [])
     if (request.is_ajax() or settings.DEBUG) and data:
         node_type_id = data.keys()[0]
         node_type = get_object_or_404(NodeType, id=node_type_id)
@@ -86,19 +87,22 @@ def nodes_lookup(request, graph_slug, with_properties=False, page_size=10):
                 query |= graph.Q(prop.key, icontains=q, nullable=True)
         nodes = node_type.filter(query)[:page_size]
         json_nodes = []
+        print exclude
         if with_properties:
             for node in nodes:
-                json_nodes.append({
-                    "id": node.id,
-                    "display": node.display,
-                    "properties": node.properties
-                })
+                if str(node.id) not in exclude:
+                    json_nodes.append({
+                        "id": node.id,
+                        "display": node.display,
+                        "properties": node.properties
+                    })
         else:
             for node in nodes:
-                json_nodes.append({
-                    "id": node.id,
-                    "display": node.display
-                })
+                if str(node.id) not in exclude:
+                    json_nodes.append({
+                        "id": node.id,
+                        "display": node.display
+                    })
         return HttpResponse(json.dumps(json_nodes),
                             status=200, mimetype='application/json')
     raise Http404(_("Mismatch criteria for matching the search."))
@@ -383,17 +387,21 @@ def nodes_edit(request, graph_slug, node_id):
 #        initial.append(properties)
     prefixes = []
     outgoing_formsets = SortedDict()
-    allowed_outgoing_relationships = nodetype.outgoing_relationships.all()
+    allowed_outgoing_relationships = nodetype.get_outgoing_relationships(
+        reflexive=True
+    )
     for relationship in allowed_outgoing_relationships:
         initial = []
         graph_relationships = node.relationships.filter(label=relationship.id)
         for graph_relationship in graph_relationships:
-            properties = graph_relationship.properties
-            properties.update({
-                relationship.id: graph_relationship.target.id,
-                ITEM_FIELD_NAME: graph_relationship.id,
-            })
-            initial.append(properties)
+            # Only show outgoing relationships even if it is reflexive
+            if graph_relationship.target.id != node.id:
+                properties = graph_relationship.properties
+                properties.update({
+                    relationship.id: graph_relationship.target.id,
+                    ITEM_FIELD_NAME: graph_relationship.id,
+                })
+                initial.append(properties)
         arity = relationship.arity_target
         if arity > 0:
             RelationshipFormSet = formset_factory(RelationshipForm,
@@ -413,6 +421,7 @@ def nodes_edit(request, graph_slug, node_id):
                                                     relationship.target.name)})
         outgoing_formset = RelationshipFormSet(itemtype=relationship,
                                                instance=nodetype,
+                                               related_node=node,
                                                prefix=formset_prefix,
                                                initial=initial,
                                                data=data,
@@ -429,17 +438,21 @@ def nodes_edit(request, graph_slug, node_id):
 #        })
 #        initial.append(properties)
     incoming_formsets = SortedDict()
-    allowed_incoming_relationships = nodetype.get_incoming_relationships()
+    allowed_incoming_relationships = nodetype.get_incoming_relationships(
+        reflexive=True
+    )
     for relationship in allowed_incoming_relationships:
         initial = []
         graph_relationships = node.relationships.filter(label=relationship.id)
         for graph_relationship in graph_relationships:
-            properties = graph_relationship.properties
-            properties.update({
-                relationship.id: graph_relationship.source.id,
-                ITEM_FIELD_NAME: graph_relationship.id,
-            })
-            initial.append(properties)
+            # Only show incoming relationships even if it is reflexive
+            if graph_relationship.source.id != node.id:
+                properties = graph_relationship.properties
+                properties.update({
+                    relationship.id: graph_relationship.source.id,
+                    ITEM_FIELD_NAME: graph_relationship.id,
+                })
+                initial.append(properties)
         arity = relationship.arity_source
         if arity > 0:
             RelationshipFormSet = formset_factory(RelationshipForm,
@@ -459,6 +472,7 @@ def nodes_edit(request, graph_slug, node_id):
                                                     relationship.source.name)})
         incoming_formset = RelationshipFormSet(itemtype=relationship,
                                                instance=nodetype,
+                                               related_node=node,
                                                prefix=formset_prefix,
                                                initial=initial,
                                                data=data,
