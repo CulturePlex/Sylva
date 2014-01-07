@@ -85,7 +85,7 @@ def nodes_lookup(request, graph_slug, with_properties=False, page_size=10):
                 query |= graph.Q(prop.key, icontains=q, nullable=True)
         nodes = node_type.filter(query)[:page_size]
         json_nodes = []
-        print exclude
+        # print exclude
         if with_properties:
             for node in nodes:
                 if str(node.id) not in exclude:

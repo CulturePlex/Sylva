@@ -60,11 +60,11 @@ class GraphDatabase(BlueprintsGraphDatabase):
         except IndexError:
             return 0
 
-    def _prepare_script(self, is_node=True, label=None):
+    def _prepare_script(self, for_node=True, label=None):
         """
         Creates part of the script for the cypher query.
         """
-        if is_node:
+        if for_node:
             var = 'n'
             type = 'node'
             index = self.nidx.name
@@ -97,7 +97,7 @@ class GraphDatabase(BlueprintsGraphDatabase):
         """
         if isinstance(label, (list, tuple)) and not label:
             return 0
-        script = self._prepare_script(is_node=True, label=label)
+        script = self._prepare_script(for_node=True, label=label)
         script = """%s return count(n)""" % script
         count = self.cypher(query=script)
         return self._clean_count(count)
@@ -110,7 +110,7 @@ class GraphDatabase(BlueprintsGraphDatabase):
         """
         if isinstance(label, (list, tuple)) and not label:
             return 0
-        script = self._prepare_script(is_node=False, label=label)
+        script = self._prepare_script(for_node=False, label=label)
         script = """%s return count(r)""" % script
         count = self.cypher(query=script)
         return self._clean_count(count)
@@ -181,7 +181,7 @@ class GraphDatabase(BlueprintsGraphDatabase):
         cypher = self.cypher
         if isinstance(label, (list, tuple)) and not label:
             return
-        script = self._prepare_script(is_node=True, label=label)
+        script = self._prepare_script(for_node=True, label=label)
         where = None
         params = []
         if lookups:
@@ -247,7 +247,7 @@ class GraphDatabase(BlueprintsGraphDatabase):
         cypher = self.cypher
         if isinstance(label, (list, tuple)) and not label:
             return
-        script = self._prepare_script(is_node=False, label=label)
+        script = self._prepare_script(for_node=False, label=label)
         script = """%s match a-[r]->b """ % script
         where = None
         params = []

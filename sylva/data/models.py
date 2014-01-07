@@ -58,13 +58,17 @@ class MediaNode(models.Model):
 
 
 def node_files(instance, filename):
+    # Getting the node ID
+    node_id = str(instance.media_node.node_id)
+    # Getting the filename
     if u"." in filename:
         filename_split = filename.rsplit(u".", 1)
         slug_filename = u"%s.%s" % (slugify(filename_split[0]),
                                     filename_split[1])
-        file_path = path.join(u"nodes", slug_filename)
+        file_path = path.join(u"nodes", node_id, slug_filename)
     else:
-        file_path = path.join("nodes", filename)
+        file_path = path.join("nodes", node_id, filename)
+    # Getting the graph name
     graph_slug = instance.media_node.data.graph.slug
     # TODO: Add users' storage linked to instances
     return path.join(graph_slug, file_path)
