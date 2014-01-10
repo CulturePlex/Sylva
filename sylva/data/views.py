@@ -24,7 +24,7 @@ from data.models import Data, MediaNode
 from data.forms import (NodeForm, RelationshipForm, TypeBaseFormSet,
                         MediaFileFormSet, MediaLinkFormSet,
                         ItemDeleteConfirmForm,
-                        ITEM_FIELD_NAME)
+                        ITEM_FIELD_NAME, SOURCE, TARGET)
 from graphs.models import Graph
 from schemas.models import NodeType, RelationshipType
 
@@ -200,6 +200,7 @@ def nodes_create(request, graph_slug, node_type_id):
                                                     relationship.target.name)})
         outgoing_formset = RelationshipFormSet(itemtype=relationship,
                                                instance=nodetype,
+                                               direction=TARGET,
                                                prefix=formset_prefix,
                                                data=data)
         outgoing_formsets[formset_prefix] = outgoing_formset
@@ -223,6 +224,7 @@ def nodes_create(request, graph_slug, node_type_id):
                                                     relationship.source.name)})
         incoming_formset = RelationshipFormSet(itemtype=relationship,
                                                instance=nodetype,
+                                               direction=SOURCE,
                                                prefix=formset_prefix,
                                                data=data)
         incoming_formsets[formset_prefix] = incoming_formset
@@ -415,6 +417,7 @@ def nodes_edit(request, graph_slug, node_id):
         outgoing_formset = RelationshipFormSet(itemtype=relationship,
                                                instance=nodetype,
                                                related_node=node,
+                                               direction=TARGET,
                                                prefix=formset_prefix,
                                                initial=initial,
                                                data=data)
@@ -466,6 +469,7 @@ def nodes_edit(request, graph_slug, node_id):
         incoming_formset = RelationshipFormSet(itemtype=relationship,
                                                instance=nodetype,
                                                related_node=node,
+                                               direction=SOURCE,
                                                prefix=formset_prefix,
                                                initial=initial,
                                                data=data)
@@ -591,7 +595,7 @@ def relationships_list(request, graph_slug):
     for type_element in graph.schema.relationshiptype_set.all():
         properties = [p.key for p in type_element.properties.all()]
         data = create_data(properties, type_element.all()[:5], True)
-        columns = ["source", "target"]
+        columns = [SOURCE, TARGET]
         columns.extend(properties)
         type_element_name = u"(%s) %s (%s)" % (type_element.source.name,
                                                type_element.name,
@@ -615,7 +619,7 @@ def relationships_list_full(request, graph_slug, relationship_type_id):
     data_preview = []
     properties = [p.key for p in type_element.properties.all()]
     data = create_data(properties, type_element.all(), True)
-    columns = ["source", "target"]
+    columns = [SOURCE, TARGET]
     columns.extend(properties)
     data_preview.append([type_element.name, columns, data])
     return render_to_response('nodes_list.html',

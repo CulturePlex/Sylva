@@ -14,6 +14,8 @@ from schemas.models import RelationshipType
 
 ITEM_FIELD_NAME = "_ITEM_ID"
 NULL_OPTION = u"---------"
+SOURCE = u"source"
+TARGET = u"target"
 
 
 class ItemDeleteConfirmForm(forms.Form):
@@ -43,6 +45,7 @@ class ItemForm(forms.Form):
     def __init__(self, itemtype, instance=None, *args, **kwargs):
         # Only for relationships
         self.related_node = kwargs.pop("related_node", None)
+        self.direction = kwargs.pop("direction", SOURCE)
         super(ItemForm, self).__init__(label_suffix="", *args, **kwargs)
         self.populate_fields(itemtype, instance=instance,
                              initial=kwargs.get("initial", None))
@@ -51,11 +54,6 @@ class ItemForm(forms.Form):
         self.delete = None
         self.instance = instance
         self.itemtype = itemtype
-        if hasattr(itemtype, "source"):
-            if instance == itemtype.source:
-                self.direction = "target"
-            else:
-                self.direction = "source"
         self.itemtype_properties = [prop["key"] for prop
                                     in itemtype.properties.all().values("key")
                                     if itemtype.id != prop["key"]]
@@ -249,8 +247,8 @@ class RelationshipForm(ItemForm):
                                          initial=None):
         # Relationship properties
         if isinstance(itemtype, RelationshipType):
-            if instance == itemtype.source:
-                direction = u"target"
+            direction = self.direction
+            if direction == TARGET:
                 label = u"→ %s (%s)" % (itemtype.name,
                                         getattr(itemtype, direction).name)
                 if not settings.ENABLE_AUTOCOMPLETE_NODES:
@@ -260,7 +258,6 @@ class RelationshipForm(ItemForm):
                 #                      args=[itemtype.schema.graph.slug,
                 #                            itemtype.target.id])
             else:
-                direction = u"source"
                 label = u"← (%s) %s" % (getattr(itemtype, direction).name,
                                         itemtype.inverse or itemtype.name)
                 if not settings.ENABLE_AUTOCOMPLETE_NODES:
@@ -377,7 +374,7 @@ class RelationshipForm(ItemForm):
                         setattr(rel, self.direction, self_node)
                         return rel
                 else:
-                    if self.instance == self.itemtype.source:
+                    if self.direction == TARGET:
                         # Direction →
                         return self.graph.relationships.create(
                             related_node.id,
@@ -404,10 +401,11 @@ def relationship_formset_factory(relationship, *args, **kwargs):
 class TypeBaseFormSet(BaseFormSet):
 
     def __init__(self, itemtype, instance=None, related_node=None,
-                 *args, **kwargs):
+                 direction=SOURCE, *args, **kwargs):
         self.itemtype = itemtype
         self.instance = instance
         self.related_node = related_node
+        self.direction = direction
         super(TypeBaseFormSet, self).__init__(*args, **kwargs)
 
     def _construct_form(self, i, **kwargs):
@@ -432,6 +430,7 @@ class TypeBaseFormSet(BaseFormSet):
             self.itemtype,
             instance=self.instance,
             related_node=self.related_node,
+            direction=self.direction,
             **defaults)
         self.add_fields(form, i)
         return form
