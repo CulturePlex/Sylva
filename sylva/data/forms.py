@@ -289,11 +289,18 @@ class RelationshipForm(ItemForm):
                               " class=\"toggleProperties\">"
                               "Toggle properties</a>.")
             if settings.ENABLE_AUTOCOMPLETE_NODES:
-                if initial and itemtype.id in initial:
+                data_name = "-".join([self.prefix, str(itemtype.id)])
+                node = None
+                if initial and itemtype.id in initial:  # Saved data
                     node = itemtype.schema.graph.nodes.get(initial.get(itemtype.id))
+                elif data_name in self.data:  # New data from the form
+                    node_id = self.data[data_name]
+                    if node_id.isdecimal():
+                        node_id = int(node_id)
+                        node = itemtype.schema.graph.nodes.get(node_id)
+                if node is not None:
                     widget_class = u"node_autocomplete %s" % node.display
                 else:
-                    node = None
                     widget_class = u"node_autocomplete"
                 input_attrs = {
                     "class": widget_class,
