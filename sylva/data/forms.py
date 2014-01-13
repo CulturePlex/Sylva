@@ -206,7 +206,7 @@ class ItemForm(forms.Form):
                 cleaned_data[key] = value
         return cleaned_data
 
-    def save(self, commit=True, *args, **kwargs):
+    def save(self, commit=True, as_new=False, *args, **kwargs):
         properties = self.cleaned_data
         if (properties and any([bool(unicode(v).strip()) for v
                 in properties.values()])):
@@ -218,7 +218,7 @@ class ItemForm(forms.Form):
             # Assign to label the value of the identifier of the NodeType
             label = unicode(self.itemtype.id)
             if commit:
-                if self.item_id:
+                if self.item_id and not as_new:
                     if self.delete:
                         return self.graph.nodes.delete(id=self.item_id)
                     else:
@@ -355,7 +355,8 @@ class RelationshipForm(ItemForm):
             self._errors.pop(self.itemtype.id)
         return cleaned_data
 
-    def save(self, related_node=None, commit=True, *args, **kwargs):
+    def save(self, related_node=None, as_new=False, commit=True, *args,
+             **kwargs):
         related_node = related_node or self.related_node
         properties = None
         if hasattr(self, "cleaned_data"):
@@ -370,7 +371,7 @@ class RelationshipForm(ItemForm):
                         properties.pop(field_key)
             label = unicode(self.itemtype.id)
             if commit and (self.item_id or related_node):
-                if self.item_id:
+                if self.item_id and not as_new:
                     if self.delete:
                         return self.graph.relationships.delete(id=self.item_id)
                     else:
@@ -380,7 +381,12 @@ class RelationshipForm(ItemForm):
                         self_node = getattr(self, node_attr)
                         setattr(rel, self.direction, self_node)
                         return rel
-                else:
+                elif not self.delete:
+                    '''
+                    The previous if (elif not self.delete:) prevents to save
+                    the relationship if it comes from a 'Save as new' form
+                    and the user wants to delete it
+                    '''
                     if self.direction == TARGET:
                         # Direction →
                         return self.graph.relationships.create(

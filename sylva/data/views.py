@@ -162,14 +162,6 @@ def nodes_create(request, graph_slug, node_type_id):
         raise Http404(_("Mismatch in requested graph and node type's graph."))
     if request.POST:
         data = request.POST.copy()
-        # import ipdb
-        # ipdb.set_trace()
-        # if 'as-new' in request.POST:
-        #     for key in data.keys():
-        #         if key.find(u'_ITEM_ID') >= 0:
-        #             del data[key]
-        #         elif key.find(u'INITIAL_FORMS') >= 0:
-        #             data[key] = u'0'
         mediafile_formset = MediaFileFormSet(data=data, files=request.FILES,
                                              prefix="__files")
         medialink_formset = MediaLinkFormSet(data=data, files=request.FILES,
@@ -407,8 +399,6 @@ def nodes_edit(request, graph_slug, node_id):
                                                   formset=TypeBaseFormSet,
                                                   can_delete=True,
                                                   extra=1)
-        # relationship_slug = "o_%s%s_%s" % (relationship.name, relationship.id,
-        #                                    relationship.target.id)
         relationship_slug = "o_%s%s" % (relationship.name, relationship.id)
         formset_prefix = slugify(relationship_slug).replace("-", "_")
         prefixes.append({"key": formset_prefix,
@@ -459,8 +449,6 @@ def nodes_edit(request, graph_slug, node_id):
                                                   formset=TypeBaseFormSet,
                                                   can_delete=True,
                                                   extra=1)
-        # relationship_slug = "i_%s%s_%s" % (relationship.name, relationship.id,
-        #                                    relationship.source.id)
         relationship_slug = "i_%s%s" % (relationship.name, relationship.id)
         formset_prefix = slugify(relationship_slug).replace("-", "_")
         prefixes.append({"key": formset_prefix,
@@ -481,24 +469,37 @@ def nodes_edit(request, graph_slug, node_id):
             and all([rf.is_valid() for rf in incoming_formsets.values()])):
         with transaction.commit_manually():
             try:
-                node = node_form.save()
+                as_new = 'as-new' in request.POST
+                node = node_form.save(as_new=as_new)
                 for outgoing_formset in outgoing_formsets.values():
                     for outgoing_form in outgoing_formset.forms:
-                        outgoing_form.save(related_node=node)
+                        outgoing_form.save(related_node=node, as_new=as_new)
                 for incoming_formset in incoming_formsets.values():
                     for incoming_form in incoming_formset.forms:
-                        incoming_form.save(related_node=node)
+                        incoming_form.save(related_node=node, as_new=as_new)
                 mediafiles = mediafile_formset.save(commit=False)
+                import ipdb
+                ipdb.set_trace()
+                if as_new:
+                    for medialink_form in medialink_formset.forms:
+                        if not medialink_form.cleaned_data['DELETE']:
+                            medialink_form.cleaned_data['id'] = None
+                            medialink_form.changed_data.append(1)
                 medialinks = medialink_formset.save(commit=False)
                 # Manage files and links
-                if not media_node.pk and (mediafiles or medialinks):
+                if (as_new or not media_node.pk) and \
+                        (mediafiles or medialinks):
                     media_node = MediaNode.objects.create(node_id=node.id,
                                                           data=graph.data)
                 for mediafile in mediafiles:
                     mediafile.media_node = media_node
+                    if as_new:
+                        mediafile.pk = None
                     mediafile.save()
                 for medialink in medialinks:
                     medialink.media_node = media_node
+                    if as_new:
+                        medialink.pk = None
                     medialink.save()
                 if media_node.pk and not media_node.files.exists() and \
                         not media_node.links.exists():
