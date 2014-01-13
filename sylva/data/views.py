@@ -477,14 +477,16 @@ def nodes_edit(request, graph_slug, node_id):
                 for incoming_formset in incoming_formsets.values():
                     for incoming_form in incoming_formset.forms:
                         incoming_form.save(related_node=node, as_new=as_new)
-                mediafiles = mediafile_formset.save(commit=False)
                 import ipdb
                 ipdb.set_trace()
                 if as_new:
-                    for medialink_form in medialink_formset.forms:
-                        if not medialink_form.cleaned_data['DELETE']:
-                            medialink_form.cleaned_data['id'] = None
-                            medialink_form.changed_data.append(1)
+                    '''
+                    Maybe the if statement must be like:
+                    if (not 'DELETE' in form.cleaned_data) or ('DELETE' in form.cleaned_data and not form.cleaned_data['DELETE']):
+                    '''
+                    mediafile_formset.forms = [modify_mediax_form(form) for form in mediafile_formset.forms if ('DELETE' in form.cleaned_data and not form.cleaned_data['DELETE'])]
+                    medialink_formset.forms = [modify_mediax_form(form) for form in medialink_formset.forms if ('DELETE' in form.cleaned_data and not form.cleaned_data['DELETE'])]
+                mediafiles = mediafile_formset.save(commit=False)
                 medialinks = medialink_formset.save(commit=False)
                 # Manage files and links
                 if (as_new or not media_node.pk) and \
@@ -525,6 +527,12 @@ def nodes_edit(request, graph_slug, node_id):
                                "delete": True,
                                "as_new": True},
                               context_instance=RequestContext(request))
+
+
+def modify_mediax_form(form):
+    form.cleaned_data['id'] = None
+    form.changed_data.append(1)
+    return form
 
 
 @permission_required("data.delete_data", (Data, "graph__slug", "graph_slug"),
