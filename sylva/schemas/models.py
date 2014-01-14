@@ -184,6 +184,7 @@ class BaseType(models.Model):
 #                                  """,
                                   help_text=_("Code in Javascript to "
                                               "validate all the properties"))
+    #total_count = models.IntegerField(_("total count"), default=0)
 
     class Meta:
         abstract = True
@@ -238,6 +239,16 @@ class NodeType(BaseType):
             return self.schema.graph.nodes.count(label=self.id)
         else:
             return 0
+
+    def auto_inc(self):
+        """
+        if self.total_count == 0:
+            self.total_count = 1
+        else:
+            self.total_count = self.total_count + 1
+        return self.total_count
+        """
+        return self.schema.graph.nodes.count(label=self.id)
 
     def all(self):
         if self.id:

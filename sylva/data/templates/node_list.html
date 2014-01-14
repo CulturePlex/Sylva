@@ -22,20 +22,6 @@
   <script src="{{ STATIC_PREFIX }}visualsearch/vendor/backbone-0.9.10.js"></script>
   <script src="{{ STATIC_PREFIX }}visualsearch/visualsearch-modified.js"></script>
   <script>
-    function hide_show(class_name, id_elem) {
-      var new_name = "";
-      name = document.getElementById(id_elem).innerHTML;
-      if(name == "hide".concat(" " + class_name)) {
-        new_name = "show".concat(" " + class_name);
-        document.getElementById(id_elem).innerHTML = new_name;
-        $('.' + class_name).css('display', 'none');
-      } else {
-        new_name = "hide".concat(" " + class_name);
-        document.getElementById(id_elem).innerHTML = new_name;
-        $('.' + class_name).css('display', '');
-      }
-    }
-
     (function($) {
 
       "use strict";
@@ -304,6 +290,23 @@
             }
           });
         };
+
+        $('.show-hide-button').hover(function() {
+          //$('.show-hide').css('display', 'block');
+          $('.dropdown').css('display', 'block');
+        }, function() {
+          //$('.show-hide').css('display', 'none');
+          $('.dropdown').css('display', 'none');
+        });
+
+        $('.show-hide').on('click', function() {
+          var $this = $(this);
+          var key = $this.data("key");
+          var classId = "." + key;
+          var imgId = ".show-hide-" + key;
+          $(classId).toggle();
+          $(imgId).toggle();
+        });
       });
     }(jQuery));
   </script>
@@ -321,18 +324,24 @@
   <div id="content2">
     {% if nodes %}
       <div id="search-query" class="visual-search"></div>
+      <div class="show-hide-button" style="float: right;">
+        <span>Hide & show columns: </span>
+        <ul class="dropdown">
+          {% for prop in properties %}
+            <li><a style="font-size:11px; margin-left: 5%;" href='javascript:void(0);' data-key="{{prop.slug}}" class="show-hide">{{prop.key}} <img src="{{ STATIC_PREFIX }}img/eye_16.png" class="show-hide-{{prop.slug}}" /></a></li>
+          {% endfor %}
+        </ul>
+      </div>
       <table id="content_table" class="content-table text-left">
         <thead>
           <tr>
             <th>{% trans "#" %}</th>
-            <span>Hide & show columns: </span>
             {% for prop in properties %}
-                <a style="padding-left:5em; font-size:11px;" href='javascript:void(0);' onclick='hide_show("{{prop.key}}", "{{prop.key}}hide");' id="{{prop.key}}hide">hide {{prop.key}}</a>
-                <th class="{{ prop.key }}"><a href="?order_by={{ prop.key }}&dir={{ dir }}" id="{{prop.key}}" ><p class="shorten_text">{{ prop.key }}</p></a> <a class='remove_sorting' href="?order_by=default" title="{% trans "Remove from sorting" %}" /></a>
+                <th class="{{ prop.slug }}"><a href="?order_by={{ prop.key }}&dir={{ dir }}" id="{{prop.slug}}"><p class="shorten-text">{{ prop.key }}</p></a> <a class='remove-sorting' href="?order_by=default" title="{% trans "Remove from sorting" %}" /></a>
                   {% if dir == 'desc' %}
-                    <a class='sorting_asc' href="?order_by={{ prop.key }}&dir={{ dir }}" title="{% trans "Sorting ascending by" %} {{ order_by }}" />
+                    <a class='sorting-asc' href="?order_by={{ prop.key }}&dir={{ dir }}" title="{% trans "Sorting ascending by" %} {{ order_by }}" />
                   {% else %}
-                    <a class='sorting_desc' href="?order_by={{ prop.key }}&dir={{ dir }}" title="{% trans "Sorting descending by " %} {{ order_by }}" />
+                    <a class='sorting-desc' href="?order_by={{ prop.key }}&dir={{ dir }}" title="{% trans "Sorting descending by " %} {{ order_by }}" />
                   {% endif %}
                 </th>
             {% endfor %}
@@ -347,11 +356,11 @@
               </td>
               {% for prop in properties %}
                 {% if node|get:prop.key == 'True' %}
-                  <td class="{{ prop.key }}"><a class="type_list_true" href="{% url nodes_view graph.slug node.id %}" title="{% trans "View node" %}">{{ node|get:prop.key|default:none_label }}</a></td>
+                  <td class="{{ prop.slug }} shorten-text"><a class="type-list-true" href="{% url nodes_view graph.slug node.id %}" title="{% trans "View node" %}">{{ node|get:prop.key|default:none_label }}</a></td>
                 {% elif node|get:prop.key == 'False' %}
-                  <td class="{{ prop.key }}"><a class="type_list_false" href="{% url nodes_view graph.slug node.id %}" title="{% trans "View node" %}">{{ node|get:prop.key|default:none_label }}</a></td>
+                  <td class="{{ prop.slug }} shorten-text"><a class="type-list-false" href="{% url nodes_view graph.slug node.id %}" title="{% trans "View node" %}">{{ node|get:prop.key|default:none_label }}</a></td>
                 {% else %}
-                  <td class="{{ prop.key }}"><a href="{% url nodes_view graph.slug node.id %}" title="{% trans "View node" %}">{{ node|get:prop.key|default:none_label }}</a></td>
+                  <td class="{{ prop.slug }}"><p class="shorten-text"><a href="{% url nodes_view graph.slug node.id %}" title="{% trans "View node" %}">{{ node|get:prop.key|default:none_label }}</a></p></td>
                 {% endif %}
               {% endfor %}
             </tr>
@@ -364,54 +373,8 @@
         </tbody>
       </table>
     {% else %}
-      {% if order_by|is_not_default %}
-        <div id="search-query" class="visual-search"></div>
-      <table id="content_table" class="content-table text-left">
-        <thead>
-          <tr>
-            <th>{% trans "#" %}</th>
-            <span>Hide & show columns: </span>
-            {% for prop in properties %}
-                <a style="padding-left:5em; font-size:11px;" href='javascript:void(0);' onclick='hide_show("{{prop.key}}", "{{prop.key}}hide");' id="{{prop.key}}hide">hide {{prop.key}}</a>
-                <th class="{{ prop.key }}"><a href="?order_by=default" id="{{prop.key}}" ><p class="shorten_text">{{ prop.key }}</p></a> <a class='remove_sorting' href="?order_by=default" title="{% trans "Remove from sorting" %}" /></a>
-                  {% if dir == 'desc' %}
-                    <a class='sorting_asc' href="?order_by={{ prop.key }}&dir={{ dir }}" title="{% trans "Sorting ascending by" %} {{ order_by }}" />
-                  {% else %}
-                    <a class='sorting_desc' href="?order_by={{ prop.key }}&dir={{ dir }}" title="{% trans "Sorting descending by " %} {{ order_by }}" />
-                  {% endif %}
-                </th>
-            {% endfor %}
-          </tr>
-        </thead>
-        <tbody>
-          {% for node in nodes %}
-            <tr class="{% cycle 'row-even' 'row-odd' %}">
-              <td class="dataList">
-                <a href="javascript:void(0)" data-node="{{ node.id }}" class="rels" alt="{% trans "Toggle relationships" %}" title="{% trans "Toggle relationships" %}">&nbsp;</a>
-                <a href="{% url nodes_edit graph.slug node.id %}" class="edit" alt="{% trans "Edit node" %}" title="{% trans "Edit node" %}"><!-- {{ node.id }}  -->&nbsp;</a>
-              </td>
-              {% for prop in properties %}
-                {% if node|get:prop.key == 'True' %}
-                  <td class="{{ prop.key }}"><a class="type_list_true" href="{% url nodes_view graph.slug node.id %}" title="{% trans "View node" %}">{{ node|get:prop.key|default:none_label }}</a></td>
-                {% elif node|get:prop.key == 'False' %}
-                  <td class="{{ prop.key }}"><a class="type_list_false" href="{% url nodes_view graph.slug node.id %}" title="{% trans "View node" %}">{{ node|get:prop.key|default:none_label }}</a></td>
-                {% else %}
-                  <td class="{{ prop.key }}"><a href="{% url nodes_view graph.slug node.id %}" title="{% trans "View node" %}">{{ node|get:prop.key|default:none_label }}</a></td>
-                {% endif %}
-              {% endfor %}
-            </tr>
-            <tr class="{% cycle 'row-even' 'row-odd' %}">
-              <td colspan="{{ properties_count }}" id="td{{ node.id }}" class="hidden retrieve-relationships" data-node="{{ node.id }}" data-display="{{ node.display }}" data-node-rels="{% url node_relationships graph.slug node.id %}">
-                <span class="helptext">{% trans "Loading" %}...</span>
-              </td>
-            </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-      {% else %}
         <p>{% trans "There are no data added to this type yet." %}</p>
         <a class="button" href="{% url nodes_create graph.slug node_type.id %}">{% trans "Add data" %}</a>
-      {% endif %}
     {% endif %}
     {% if graph.data.total_nodes == 0 and graph.data.total_relationships == 0 and graph.relaxed %}
       <a class="button" href="{% url tool_import graph.slug %}">{% trans "Import" %}</a>

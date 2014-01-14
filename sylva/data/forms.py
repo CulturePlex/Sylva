@@ -110,20 +110,32 @@ class ItemForm(forms.Form):
                 field = forms.CharField(**field_attrs)
             elif item_property.datatype == datatype_dict["auto_user"]:
                 field_attrs["initial"] = self.username
+                widget = forms.TextInput(attrs={"readonly": "readonly"})
+                field_attrs["widget"] = widget
                 field = forms.CharField(**field_attrs)
             elif item_property.datatype == datatype_dict["auto_now"]:
                 if not initial:
                     field_attrs["initial"] = ""
+                widget = forms.TextInput(attrs={"readonly": "readonly"})
+                field_attrs["widget"] = widget
                 field = forms.CharField(**field_attrs)
             elif item_property.datatype == datatype_dict["auto_now_add"]:
                 if not initial:
                     field_attrs["initial"] = ""
+                widget = forms.TextInput(attrs={"readonly": "readonly"})
+                field_attrs["widget"] = widget
                 field = forms.CharField(**field_attrs)
             elif item_property.datatype == datatype_dict["auto_increment"]:
                 if not item_property.default:
-                    field_attrs["initial"] = '1'
+                    field_attrs["initial"] = '0'
+                widget = forms.TextInput(attrs={"readonly": "readonly"})
+                field_attrs["widget"] = widget
                 field = forms.CharField(**field_attrs)
             elif item_property.datatype == datatype_dict["auto_increment_update"]:
+                if not item_property.default:
+                    field_attrs["initial"] = '0'
+                widget = forms.TextInput(attrs={"readonly": "readonly"})
+                field_attrs["widget"] = widget
                 field = forms.CharField(**field_attrs)
             else:
                 field = forms.CharField(**field_attrs)
@@ -208,7 +220,7 @@ class ItemForm(forms.Form):
             # Assign to label the value of the identifier of the NodeType
             label = unicode(self.itemtype.id)
             properties = self._set_now_attributes(properties)
-            properties = self._auto_increment(properties)
+            properties = self._auto_increment_update(properties)
             if commit:
                 if self.item_id:
                     if self.delete:
@@ -218,6 +230,7 @@ class ItemForm(forms.Form):
                         node.properties = properties
                     return node
                 else:
+                    properties = self._auto_increment(properties)
                     return self.graph.nodes.create(label=label,
                                                    properties=properties)
             else:
@@ -231,12 +244,20 @@ class ItemForm(forms.Form):
             properties[prop.key] = datetime.datetime.today()
         return properties
 
-    def _auto_increment(self, properties):
-        for prop in self.itemtype.properties.filter(datatype="i"):
+    def _auto_increment_update(self, properties):
+        for prop in self.itemtype.properties.filter(datatype="o"):
             number = int(properties[prop.key]) + 1
             properties[prop.key] = '{}'.format(number)
-            import ipdb
-            ipdb.set_trace()
+        return properties
+
+    def _auto_increment(self, properties):
+        #import ipdb
+        #ipdb.set_trace()
+        for prop in self.itemtype.properties.filter(datatype="i"):
+            # Aqui debemos ir almacenando el valor global
+            # Por ahora debemos cambiar el modelo del schema
+            number = self.graph.schema.nodetype_set.get(id=self.itemtype.id).auto_inc()
+            properties[prop.key] = '{}'.format(number)
         return properties
 
 
@@ -373,7 +394,7 @@ class RelationshipForm(ItemForm):
                         properties.pop(field_key)
             label = unicode(self.itemtype.id)
             properties = self._set_now_attributes(properties)
-            properties = self._auto_increment(properties)
+            properties = self._auto_increment_update(properties)
             if commit and (self.item_id or related_node):
                 if self.item_id:
                     if self.delete:

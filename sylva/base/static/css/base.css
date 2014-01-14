@@ -1981,28 +1981,28 @@ body :hover > a.headerlink {
     background-image: url(../img/nodes_16.png);
 }
 
-.remove_sorting {
+.remove-sorting {
     background: url("../img/ui-icons_348e82_256x240.png") no-repeat -85px -133px;
     width: 7px;
     height: 7px;
     display: inline-block;
 }
 
-.sorting_asc {
+.sorting-asc {
     background: url("../img/ui-icons_348e82_256x240.png") no-repeat -4px -22px;
     width: 7px;
     height: 4px;
     display: inline-block;
 }
 
-.sorting_desc {
+.sorting-desc {
     background: url("../img/ui-icons_348e82_256x240.png") no-repeat -69px -22px;
     width: 7px;
     height: 4px;
     display: inline-block;
 }
 
-.type_list_true {
+.type-list-true {
     background-image: url("../img/ui-icons_348e82_256x240.png");
     background-repeat: no-repeat;
     background-position: -66px -148px;
@@ -2012,7 +2012,7 @@ body :hover > a.headerlink {
     text-indent: -9999px;
 }
 
-.type_list_false {
+.type-list-false {
     background-image: url("../img/ui-icons_348e82_256x240.png");
     background-repeat: no-repeat;
     background-position: -100px -132px;
@@ -2022,17 +2022,27 @@ body :hover > a.headerlink {
     text-indent: -9999px;
 }
 
-.shorten_text {
+.shorten-text {
     max-width: 100px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
 }
 
-p.shorten_text:hover {
+.shorten-text:hover {
     max-width: 500px;
-    max-width: "";
-    text-overflow: "";
+}
+
+.dropdown {
+    position: absolute;
+    background-color: #FFFFFF;
+    box-shadow: 5px 5px 2px #888888;
+    padding: 3px;
+    display: none;
+    width: 10%;
+    border: 1px solid #888888;
+    border-radius: 5px;
+    -moz-border-radius: 5px;
 }
 
 /* END icons */

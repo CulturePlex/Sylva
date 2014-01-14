@@ -124,6 +124,7 @@ def nodes_list_full(request, graph_slug, node_type_id):
         nodes = node_type.all().order_by(orders)
         if not nodes:
             messages.error(request, _("Error: You are trying to sort a column with some none values"))
+            nodes = node_type.all()
         if order_dir == 'desc':
             order_dir = 'asc'
         elif order_dir == 'asc':
