@@ -5,6 +5,7 @@ except ImportError:
     import json  # NOQA
 
 from django.db import transaction
+from django.core.files import File
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.core.urlresolvers import reverse
 from django.conf import settings
@@ -477,15 +478,9 @@ def nodes_edit(request, graph_slug, node_id):
                 for incoming_formset in incoming_formsets.values():
                     for incoming_form in incoming_formset.forms:
                         incoming_form.save(related_node=node, as_new=as_new)
-                import ipdb
-                ipdb.set_trace()
                 if as_new:
-                    '''
-                    Maybe the if statement must be like:
-                    if (not 'DELETE' in form.cleaned_data) or ('DELETE' in form.cleaned_data and not form.cleaned_data['DELETE']):
-                    '''
-                    mediafile_formset.forms = [modify_mediax_form(form) for form in mediafile_formset.forms if ('DELETE' in form.cleaned_data and not form.cleaned_data['DELETE'])]
-                    medialink_formset.forms = [modify_mediax_form(form) for form in medialink_formset.forms if ('DELETE' in form.cleaned_data and not form.cleaned_data['DELETE'])]
+                    mediafile_formset.forms = [modify_mediax_form(form) for form in mediafile_formset.forms if (hasattr(form, 'cleaned_data') and 'DELETE' in form.cleaned_data and not form.cleaned_data['DELETE'])]
+                    medialink_formset.forms = [modify_mediax_form(form) for form in medialink_formset.forms if (hasattr(form, 'cleaned_data') and 'DELETE' in form.cleaned_data and not form.cleaned_data['DELETE'])]
                 mediafiles = mediafile_formset.save(commit=False)
                 medialinks = medialink_formset.save(commit=False)
                 # Manage files and links
@@ -493,11 +488,17 @@ def nodes_edit(request, graph_slug, node_id):
                         (mediafiles or medialinks):
                     media_node = MediaNode.objects.create(node_id=node.id,
                                                           data=graph.data)
+
                 for mediafile in mediafiles:
                     mediafile.media_node = media_node
-                    if as_new:
+                    if as_new and mediafile.pk is not None:
                         mediafile.pk = None
-                    mediafile.save()
+                        original_path = mediafile.media_file.url
+                        filename = original_path.rsplit('/', 1)[1]
+                        f = open(mediafile.media_file.path)
+                        mediafile.media_file.save(filename, File(f), save=True)
+                    else:
+                        mediafile.save()
                 for medialink in medialinks:
                     medialink.media_node = media_node
                     if as_new:
@@ -531,8 +532,26 @@ def nodes_edit(request, graph_slug, node_id):
 
 def modify_mediax_form(form):
     form.cleaned_data['id'] = None
-    form.changed_data.append(1)
+    form.changed_data.append('Dummy data for ')
     return form
+
+
+def mediax_save_as_new_condition(form):
+    '''
+    Maybe the conditions must be:
+    (not 'DELETE' in form.cleaned_data) or ('DELETE' in
+    form.cleaned_data and not form.cleaned_data['DELETE']):
+    '''
+    exist_delete = 'DELETE' in form.cleaned_data
+    delete = form.cleaned_data['DELETE']
+    return exist_delete and not delete
+    # return (not exist_delete) or (exist_delete and not delete)
+
+
+def mediax_save_as_new_condition(form):
+    if (hasattr(form, 'cleaned_data') and 'DELETE' in form.cleaned_data and not form.cleaned_data['DELETE']):
+        return True
+    return False
 
 
 @permission_required("data.delete_data", (Data, "graph__slug", "graph_slug"),
