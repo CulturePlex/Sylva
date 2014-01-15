@@ -220,6 +220,10 @@ class ItemForm(forms.Form):
             if commit:
                 if self.item_id and not as_new:
                     if self.delete:
+                        '''
+                        It will never pass by here because the nodes are not
+                        deleted with the save method
+                        '''
                         return self.graph.nodes.delete(id=self.item_id)
                     else:
                         node = self.graph.nodes.get(self.item_id)
@@ -292,8 +296,15 @@ class RelationshipForm(ItemForm):
                 data_name = "-".join([self.prefix, str(itemtype.id)])
                 node = None
                 if initial and itemtype.id in initial:  # Saved data
-                    node = itemtype.schema.graph.nodes.get(initial.get(itemtype.id))
+                    node = itemtype.schema.graph.nodes.get(initial.get(
+                        itemtype.id))
                 elif data_name in self.data:  # New data from the form
+                    '''
+                    This is a special case. It is used when you introduce a new
+                    relationship and the form have validation errors. So, we
+                    don't have a `initial` object with "original" data, but we
+                    DO have new data to show in the form with errors.
+                    '''
                     node_id = self.data[data_name]
                     if node_id.isdecimal():
                         node_id = int(node_id)
@@ -361,8 +372,8 @@ class RelationshipForm(ItemForm):
         properties = None
         if hasattr(self, "cleaned_data"):
             properties = self.cleaned_data
-        if (properties and any([bool(unicode(v).strip()) for v
-                in properties.values()])):
+        if (properties and
+                any([bool(unicode(v).strip()) for v in properties.values()])):
             node_id = properties.pop(self.itemtype.id)
             if not self.graph.relaxed:
                 properties_items = properties.items()
@@ -381,12 +392,7 @@ class RelationshipForm(ItemForm):
                         self_node = getattr(self, node_attr)
                         setattr(rel, self.direction, self_node)
                         return rel
-                elif not self.delete:
-                    '''
-                    The previous if (elif not self.delete:) prevents to save
-                    the relationship if it comes from a 'Save as new' form
-                    and the user wants to delete it
-                    '''
+                else:
                     if self.direction == TARGET:
                         # Direction →
                         return self.graph.relationships.create(

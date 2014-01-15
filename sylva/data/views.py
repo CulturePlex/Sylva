@@ -296,8 +296,8 @@ def nodes_view(request, graph_slug, node_id):
                                            relationship.target.id)
         prefix = slugify(relationship_slug).replace("-", "_")
         prefixes.append({"key": prefix,
-                         "value": u"→ %s (%s)" % (relationship.name,
-                                                  relationship.target.name)})
+                         "value": u"→ %s (%s)" %
+                        (relationship.name, relationship.target.name)})
         graph_relationships = node.relationships.filter(label=relationship.id)
         if graph_relationships:
             outgoing_relationships.append({"prefix": prefix,
@@ -309,8 +309,8 @@ def nodes_view(request, graph_slug, node_id):
                                            relationship.target.id)
         prefix = slugify(relationship_slug).replace("-", "_")
         prefixes.append({"key": prefix,
-                         "value": u"← %s (%s)" % (relationship.name,
-                                                  relationship.source.name)})
+                         "value": u"← %s (%s)" %
+                        (relationship.name, relationship.source.name)})
         graph_relationships = node.relationships.filter(label=relationship.id)
         if graph_relationships:
             incoming_relationships.append({"prefix": prefix,
@@ -474,38 +474,45 @@ def nodes_edit(request, graph_slug, node_id):
                 node = node_form.save(as_new=as_new)
                 for outgoing_formset in outgoing_formsets.values():
                     for outgoing_form in outgoing_formset.forms:
-                        outgoing_form.save(related_node=node, as_new=as_new)
+                        if not (outgoing_form.delete and as_new):
+                            # The if statement saves execution time
+                            outgoing_form.save(related_node=node,
+                                               as_new=as_new)
                 for incoming_formset in incoming_formsets.values():
                     for incoming_form in incoming_formset.forms:
-                        incoming_form.save(related_node=node, as_new=as_new)
+                        if not (incoming_form.delete and as_new):
+                            # The if statement saves execution time
+                            incoming_form.save(related_node=node,
+                                               as_new=as_new)
                 if as_new:
-                    mediafile_formset.forms = [modify_mediax_form(form) for form in mediafile_formset.forms if (hasattr(form, 'cleaned_data') and 'DELETE' in form.cleaned_data and not form.cleaned_data['DELETE'])]
-                    medialink_formset.forms = [modify_mediax_form(form) for form in medialink_formset.forms if (hasattr(form, 'cleaned_data') and 'DELETE' in form.cleaned_data and not form.cleaned_data['DELETE'])]
+                    mediafile_formset.forms = [
+                        modify_media_form(form)
+                        for form in mediafile_formset.forms
+                        if can_media_save_as_new(form)]
+                    medialink_formset.forms = [
+                        modify_media_form(form)
+                        for form in medialink_formset.forms
+                        if can_media_save_as_new(form)]
                 mediafiles = mediafile_formset.save(commit=False)
                 medialinks = medialink_formset.save(commit=False)
                 # Manage files and links
-                if (as_new or not media_node.pk) and \
-                        (mediafiles or medialinks):
+                if ((as_new or not media_node.pk) and
+                        (mediafiles or medialinks)):
                     media_node = MediaNode.objects.create(node_id=node.id,
                                                           data=graph.data)
-
                 for mediafile in mediafiles:
                     mediafile.media_node = media_node
-                    if as_new and mediafile.pk is not None:
+                    if as_new and mediafile.pk:
                         mediafile.pk = None
-                        original_path = mediafile.media_file.url
-                        filename = original_path.rsplit('/', 1)[1]
-                        f = open(mediafile.media_file.path)
-                        mediafile.media_file.save(filename, File(f), save=True)
-                    else:
-                        mediafile.save()
+                        clone_file(mediafile)
+                    mediafile.save()
                 for medialink in medialinks:
                     medialink.media_node = media_node
-                    if as_new:
+                    if as_new and medialink.pk:
                         medialink.pk = None
                     medialink.save()
-                if media_node.pk and not media_node.files.exists() and \
-                        not media_node.links.exists():
+                if (media_node.pk and not media_node.files.exists() and
+                        not media_node.links.exists()):
                     media_node.delete()
             except:
                 transaction.rollback()
@@ -530,28 +537,24 @@ def nodes_edit(request, graph_slug, node_id):
                               context_instance=RequestContext(request))
 
 
-def modify_mediax_form(form):
+def can_media_save_as_new(form):
+    if (hasattr(form, 'cleaned_data') and 'DELETE' in form.cleaned_data and
+            not form.cleaned_data['DELETE']):
+        return True
+    return False
+
+
+def modify_media_form(form):
     form.cleaned_data['id'] = None
-    form.changed_data.append('Dummy data for ')
+    form.changed_data.append('Dummy data for perform "save as new" operation')
     return form
 
 
-def mediax_save_as_new_condition(form):
-    '''
-    Maybe the conditions must be:
-    (not 'DELETE' in form.cleaned_data) or ('DELETE' in
-    form.cleaned_data and not form.cleaned_data['DELETE']):
-    '''
-    exist_delete = 'DELETE' in form.cleaned_data
-    delete = form.cleaned_data['DELETE']
-    return exist_delete and not delete
-    # return (not exist_delete) or (exist_delete and not delete)
-
-
-def mediax_save_as_new_condition(form):
-    if (hasattr(form, 'cleaned_data') and 'DELETE' in form.cleaned_data and not form.cleaned_data['DELETE']):
-        return True
-    return False
+def clone_file(mediafile):
+    original_path = mediafile.media_file.url
+    filename = original_path.rsplit('/', 1)[1]
+    f = open(mediafile.media_file.path)
+    mediafile.media_file.save(filename, File(f), save=False)
 
 
 @permission_required("data.delete_data", (Data, "graph__slug", "graph_slug"),
