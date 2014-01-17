@@ -745,6 +745,12 @@ ul#box-nav li {
     padding-left: 30px;
 }
 
+.content2-equal {
+    width: 540px;
+    float: left;
+    padding-right: 15px;
+}
+
 .content2-block p {
     width:365px;
     float:left;
@@ -757,6 +763,16 @@ ul#box-nav li {
     min-height: 400px;
     float: left;
     padding: 0px 10px 0px 10px;
+}
+
+.content-divider-equal {
+    background: url(../img/content-divider.gif) repeat-y top center;
+    width: 1px;
+    min-height: 420px;
+    float: left;
+    padding: 0px 10px 0px 10px;
+    margin-right: 15px;
+    margin-top: 0;
 }
 
 #content2 .content-divider {
@@ -788,13 +804,18 @@ span.buttonLinkOption a {
 }
 
 span.buttonLinkLeft,
-span.buttonLinkRight {
+span.buttonLinkRight,
+span.buttonLinkDown {
     float: left;
 }
 
 span.buttonLinkRight {
     padding-top: 6px;
     padding-left: 4px;
+}
+
+span.buttonLinkDown {
+    clear: both;
 }
 
 p.forgot-password {

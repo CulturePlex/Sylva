@@ -356,8 +356,8 @@ def graph_data(request, graph_slug, node_id=None):
         else:
             nodes_list = graph.nodes.all()
             relations_list = graph.relationships.all()
-        total_nodes, total_edges, nodes, edges = _jsonify_graph(nodes_list,
-                                                                relations_list)
+        total_nodes, total_edges, nodes, edges = \
+            _jsonify_graph(nodes_list, relations_list)
         size = len(nodes_list)
         json_data = {
             'total_nodes': total_nodes,

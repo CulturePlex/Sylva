@@ -20,25 +20,43 @@
 {% endblock %}
 
 {% block content %}
-  <div id="content2" class="medium-width">
+  {% if deleted_props and changed_props %}
+    <div id="content2">
+  {% else %}
+    <div id="content2" class="medium-width">
+  {% endif %}
     <p class="stronger">{% trans "Your changes in the schema have been saved, but we haven't applied these changes in your data yet. Please, choose what to do with the following properties:" %}</p>
     <form action="." method="POST">{% csrf_token %}
       {% if deleted_props %}
+        {% if deleted_props and changed_props %}
+          <div class="content2-equal">
+        {% else %}
+          <div>
+        {% endif %}
         {{ deleted_formset.management_form }}
         {% for form in deleted_formset %}
           <h2>{% trans "Property" %}: {{ form.initial.key }}</h2>
           {{ form.as_p }}
         {% endfor %}
+        </div>
+      {% endif %}
+      {% if deleted_props and changed_props %}
+        <div class="content-divider-equal"></div>
       {% endif %}
       {% if changed_props %}
+        {% if deleted_props and changed_props %}
+          <div class="content2-equal">
+        {% else %}
+          <div>
+        {% endif %}
         {{ changed_formset.management_form }}
         {% for form in changed_formset %}
           <h2>{% trans "Property" %}: {{ form.initial.key }} <span class="symbol-medium">→</span> {{ form.initial.new_key }}</h2>
           {{ form.as_p }}
         {% endfor %}
+        </div>
       {% endif %}
-      <br>
-      <span class="buttonLinkOption buttonLinkLeft">
+      <span class="buttonLinkOption buttonLinkDown">
         <input type="submit" value="{% trans "Continue" %}"/>
       </span>
     </form>
