@@ -33,9 +33,18 @@
         {% else %}
           <div>
         {% endif %}
+        <h2><b>{% trans "Deleted properties" %}</b></h2>
+        <div class="bigger">
+          <p>{% trans "You have deleted these properties in the schema, but we have not modified the related data elements yet. You have two options:" %}</p>
+          <ul>
+            <li>{% trans "Delete the properties in all related data elements." %}</li>
+            <li>{% trans "Keep the properties in all related data elements, but don't show them." %}</li>
+          </ul>
+          <p>{% trans "What do you want to do with them?" %}</p>
+        </div>
         {{ deleted_formset.management_form }}
         {% for form in deleted_formset %}
-          <h2>{% trans "Deleted property" %}: {{ form.initial.key }}</h2>
+          <h2>{{ form.initial.key }}</h2>
           {{ form.as_p }}
         {% endfor %}
         </div>
@@ -49,9 +58,18 @@
         {% else %}
           <div>
         {% endif %}
+        <h2><b>{% trans "Modified properties" %}</b></h2>
+        <div class="bigger">
+          <p>{% trans "You have renamed these properties in the schema, but we have not modified the related data elements yet. You have two options:" %}</p>
+          <ul>
+            <li>{% trans "Rename the properties in all related data elements using the new properties names." %}</li>
+            <li>{% trans "Keep the properties in all related data elements but don't show them, and start using the new properties names when adding new data elements." %}</li>
+          </ul>
+          <p>{% trans "What do you want to do with them?" %}</p>
+        </div>
         {{ changed_formset.management_form }}
         {% for form in changed_formset %}
-          <h2>{% trans "Modified property" %}: {{ form.initial.key }} <span class="symbol-medium">→</span> {{ form.initial.new_key }}</h2>
+          <h2>{{ form.initial.key }} <span class="symbol-medium">→</span> {{ form.initial.new_key }}</h2>
           {{ form.as_p }}
         {% endfor %}
         </div>

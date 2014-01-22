@@ -250,6 +250,11 @@ progress::-webkit-progress-value { background: #348E82; }
     font-size: 1.2em;
 }
 
+.bigger {
+    font-size: 115%;
+    margin-top: 5px;
+}
+
 .clear {
     clear: both;
     display: block;
@@ -329,6 +334,15 @@ p.slogan {
     font-weight: bold;
     color: #A19C60;
     text-shadow:0 1px 1px rgba(175,203,188,0.8);
+}
+
+.bigger p, li {
+    padding-bottom: 5px !important;
+}
+
+.bigger ul {
+    list-style-type: disc;
+    padding-left: 40px;
 }
 
 /* END Class utils ************************************************************/
