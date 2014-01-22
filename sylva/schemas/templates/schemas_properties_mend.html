@@ -35,7 +35,7 @@
         {% endif %}
         {{ deleted_formset.management_form }}
         {% for form in deleted_formset %}
-          <h2>{% trans "Property" %}: {{ form.initial.key }}</h2>
+          <h2>{% trans "Deleted property" %}: {{ form.initial.key }}</h2>
           {{ form.as_p }}
         {% endfor %}
         </div>
@@ -51,7 +51,7 @@
         {% endif %}
         {{ changed_formset.management_form }}
         {% for form in changed_formset %}
-          <h2>{% trans "Property" %}: {{ form.initial.key }} <span class="symbol-medium">→</span> {{ form.initial.new_key }}</h2>
+          <h2>{% trans "Modified property" %}: {{ form.initial.key }} <span class="symbol-medium">→</span> {{ form.initial.new_key }}</h2>
           {{ form.as_p }}
         {% endfor %}
         </div>
