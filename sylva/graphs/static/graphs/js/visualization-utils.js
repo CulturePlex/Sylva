@@ -15,7 +15,6 @@ gettext */
 
     // Update node legend frame.
     updateNodeLegend: function(nodeId, nodeTitle, domId, html) {
-      debugger;
       var htmlContent = (typeof html === "undefined") ? '' : html;
       var nodeEditURL = sylva.nodeEditURL.replace(/nodes\/0\/edit/, 'nodes/' + nodeId + '/edit');
       var nodeViewURL = sylva.nodeViewURL.replace(/nodes\/0\/view/, 'nodes/' + nodeId + '/view');

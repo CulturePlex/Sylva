@@ -37,6 +37,8 @@ clearTimeout */
       // Nodes and edges.
       var sylv_nodes = sylva.nodes;
       var sylv_edges = sylva.edges;
+      // Node types with their nodes.
+      var nodetypes = {};
       // Node info.
       var $tooltip;
       // Graph size.
@@ -61,13 +63,18 @@ clearTimeout */
 
       // Add nodes and create colors.
       for (var n in sylv_nodes) {
-        if (!(sylv_nodes[n].type in sylva.colors)) {
-          sylva.colors[sylv_nodes[n].type] = colors[Object.keys(sylva.colors).length];
+        type = sylv_nodes[n].type;
+        if (!(type in nodetypes)) {
+          nodetypes[type] = [];
+        }
+        nodetypes[type].push(n);
+        if (!(type in sylva.colors)) {
+          sylva.colors[type] = colors[Object.keys(sylva.colors).length];
         }
         sigInst.addNode(n, {
           x: Math.random(),
           y: Math.random(),
-          color: sylva.colors[sylv_nodes[n].type]
+          color: sylva.colors[type]
         });
       }
 
@@ -84,13 +91,21 @@ clearTimeout */
         listStyleType: 'none',
         marginTop: "5px"
       });
-      $.each(sylva.colors, function(type, color){
+      $.each(sylva.colors, function(type, color) {
         if (type !== "notype") {
           list.append($('<li>')
             .css({
               minHeight: "20px",
               paddingLeft: "3px"
             })
+            .append($('<i>')
+              .addClass("icon-eye-open")
+              .addClass("show-hide-nodes")
+              .attr("data-action", "hide")
+              .attr("data-nodetype", type)
+              .css({
+                paddingRight: "3px"
+              }))
             .append($('<span>')
               .css({
                 backgroundColor: color,
@@ -98,13 +113,12 @@ clearTimeout */
                 width: "15px",
                 height: "15px",
                 verticalAlign: "middle"
+              }))
+            .append($('<span>')
+              .css({
+                paddingLeft: "0.3em"
               })
-              .after($('<span>')
-                .css({
-                  paddingLeft: "0.3em"
-                })
-                .text(type)
-              )
+              .text(type)
             )
           );
         }
@@ -207,6 +221,39 @@ clearTimeout */
       $('#sigma-export-image').on('mouseover', function() {
         that.stop();
       });
+
+      // Hide/show nodes by type.
+      $('.show-hide-nodes').on('click', function() {
+        var type = $(this).attr('data-nodetype');
+        var action = $(this).attr('data-action');
+        if (action == "hide") {
+          $(this).attr('data-action', 'show');
+          $(this).removeClass('icon-eye-open');
+          $(this).addClass('icon-eye-close');
+          hide(type);
+        } else {
+          $(this).attr('data-action', 'hide');
+          $(this).removeClass('icon-eye-close');
+          $(this).addClass('icon-eye-open');
+          show(type);
+        }
+      });
+
+      function hide(type) {
+        var nodesToHide = sigInst.getNodes(nodetypes[type]);
+        for (var i = 0; i < nodesToHide.length; i++) {
+          nodesToHide[i].hidden = true;
+        }
+        sigInst.draw();
+      }
+
+      function show(type) {
+        var nodesToShow = sigInst.getNodes(nodetypes[type]);
+        for (var i = 0; i < nodesToShow.length; i++) {
+          nodesToHide[i].hidden = false;
+        }
+        sigInst.draw();
+      }
 
       // Save as a PNG image.
       $('#sigma-export-image').on('click', function() {
