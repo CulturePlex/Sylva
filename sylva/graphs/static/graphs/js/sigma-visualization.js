@@ -16,14 +16,27 @@ clearTimeout */
   // setTimeout id.
   var timeout_id = 0;
 
+  colors = ['#F70000', '#B9264F', '#990099', '#74138C', '#0000CE',
+        '#1F88A7', '#4A9586', '#FF2626', '#D73E68', '#B300B3', '#8D18AB',
+        '#5B5BFF', '#25A0C5', '#5EAE9E', '#FF5353', '#DD597D', '#CA00CA',
+        '#A41CC6', '#7373FF', '#29AFD6', '#74BAAC', '#FF7373', '#E37795',
+        '#D900D9', '#BA21E0', '#8282FF', '#4FBDDD', '#8DC7BB', '#FF8E8E',
+        '#E994AB', '#FF2DFF', '#CB59E8', '#9191FF', '#67C7E2', '#A5D3CA',
+        '#FFA4A4', '#EDA9BC', '#F206FF', '#CB59E8', '#A8A8FF', '#8ED6EA',
+        '#C0E0DA', '#FFB5B5', '#F0B9C8', '#FF7DFF', '#D881ED', '#B7B7FF',
+        '#A6DEEE', '#CFE7E2', '#FFC8C8', '#F4CAD6', '#FFA8FF', '#EFCDF8',
+        '#C6C6FF', '#C0E7F3', '#DCEDEA', '#FFEAEA', '#F8DAE2', '#FFC4FF',
+        '#EFCDF8', '#DBDBFF', '#D8F0F8', '#E7F3F1', '#FFEAEA', '#FAE7EC',
+        '#FFE3FF', '#F8E9FC', '#EEEEFF', '#EFF9FC', '#F2F9F8', '#FFFDFD',
+        '#FEFAFB', '#FFFDFF', '#FFFFFF', '#FDFDFF', '#FAFDFE', '#F7FBFA'];
 
   var Sigma = {
 
     init: function() {
       var that = this;
       // Nodes and edges.
-      var sylv_nodes = sylva.total_nodes;
-      var sylv_edges = sylva.total_edges;
+      var sylv_nodes = sylva.nodes;
+      var sylv_edges = sylva.edges;
       // Node info.
       var $tooltip;
       // Graph size.
@@ -46,8 +59,11 @@ clearTimeout */
         maxRatio: 32
       });
 
-      // Add nodes.
+      // Add nodes and create colors.
       for (var n in sylv_nodes) {
+        if (!(sylv_nodes[n].type in sylva.colors)) {
+          sylva.colors[sylv_nodes[n].type] = colors[Object.keys(sylva.colors).length];
+        }
         sigInst.addNode(n, {
           x: Math.random(),
           y: Math.random(),
@@ -59,6 +75,40 @@ clearTimeout */
       for (var e in sylv_edges) {
         sigInst.addEdge(sylv_edges[e].id, sylv_edges[e].source, sylv_edges[e].target);
       }
+
+      // Create the legend.
+      sylva.colors["notype"] = colors[Object.keys(sylva.colors).length];
+      $('#node-type-legend').empty();
+      var list = $('#node-type-legend').append($('<ul>'));
+      list.css({
+        listStyleType: 'none',
+        marginTop: "5px"
+      });
+      $.each(sylva.colors, function(type, color){
+        if (type !== "notype") {
+          list.append($('<li>')
+            .css({
+              minHeight: "20px",
+              paddingLeft: "3px"
+            })
+            .append($('<span>')
+              .css({
+                backgroundColor: color,
+                display: "inline-block",
+                width: "15px",
+                height: "15px",
+                verticalAlign: "middle"
+              })
+              .after($('<span>')
+                .css({
+                  paddingLeft: "0.3em"
+                })
+                .text(type)
+              )
+            )
+          );
+        }
+      });
 
       // Show node info and hide the rest of nodes and edges.
       sigInst.bind('overnodes', function(event) {

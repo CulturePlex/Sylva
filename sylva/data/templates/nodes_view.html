@@ -208,16 +208,11 @@
 {% block extra_scripts %}
     <script type="text/javascript">
         sylva.colors = {};
-        sylva.nodeTypesLegend = {};
-        sylva.PDE_URL = "{{ STATIC_PREFIX }}graphs/js/graphdrawer.pde";
-        sylva.expandNodeLinkURL = "{% url expand_node graph.slug 0 %}";
         sylva.nodeViewURL = "{% url nodes_view graph.slug 0 %}";
         sylva.nodeEditURL = "{% url nodes_edit graph.slug 0 %}";
         sylva.graphViewURL = "{% url graph_view graph.slug %}";
-        sylva.disableProcessing = false;
         sylva.is_graph_empty = false;
         sylva.is_schema_empty = false;
-        sylva.MAX_SIZE = 0;
         sylva.ajax_url = "{{ ajax_url }}";
 
         (function($) {
@@ -246,14 +241,11 @@
             });
         })(jQuery);
     </script>
-    <script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/processing-1.3.6.min.js"></script>
     <script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/sigma/sigma-0.1.js"></script>
     <script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/sigma/plugins/sigma.fisheye.js"></script>
     <script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/sigma/plugins/sigma.forceatlas2.js"></script>
     <script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/sigma/plugins/sigma.parseGexf.js"></script>
-    <script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/graph-editor.js"></script>
     <script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/visualization-utils.js"></script>
-    <script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/processing-visualization.js"></script>
     <script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/sigma-visualization.js"></script>
     <script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/visualizations.js"></script>
 {% endblock extra_scripts %}

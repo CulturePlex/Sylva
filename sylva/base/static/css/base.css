@@ -1496,15 +1496,6 @@ table.content-table {
     height: 36px;
 }
 
-#visualization-type {
-    width: 150px;
-    height: 34px;
-    margin-top: 0px;
-    border: 3px solid #D8E8DE;
-    color: #555;
-    display: inline-block;
-}
-
 .sigma-checkbox {
     display: inline-block;
     position: relative;
@@ -1512,7 +1503,7 @@ table.content-table {
 }
 
 .sigma-checkbox input[type="checkbox"] {
-    margin-top: -2px;
+    margin-top: 5px;
 }
 
 .sigma-checkbox label {

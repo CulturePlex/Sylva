@@ -11,21 +11,7 @@ sylva:true, alert:true */
 
   var visualizations = {
 
-    processing: function() {
-      sylva.Sigma.stop();
-      $('#sigma-wrapper').hide();
-      $('.sigma-checkbox').hide();
-      $('.pause').hide();
-      $('#canvas-box').show();
-      $('#element-info').html('Click any node to interact');
-      sylva.Processing.start();
-    },
-
     sigma: function() {
-      sylva.Processing.stop();
-      $('#canvas-box')
-        .hide()
-        .append('<canvas id="graphcanvas">Your browser does not support graph visualization</canvas>');
       $('#sigma-wrapper').show();
       $('.pause').show();
       $('#element-info').html('Click any node to interact');
@@ -69,27 +55,13 @@ sylva:true, alert:true */
       $('#graph-loading').remove();
       spinner.stop();
 
-      // partial graph (Processing.js)
-      sylva.nodes = data.nodes;
-      sylva.edges = data.edges;
-
       // full graph (Sigma.js and others)
-      sylva.total_nodes = data.total_nodes;
-      sylva.total_edges = data.total_edges;
+      sylva.nodes = data.total_nodes;
+      sylva.edges = data.total_edges;
 
       sylva.size = data.size;
-      sylva.disableProcessing = data.size > sylva.MAX_SIZE;
 
-      if (sylva.disableProcessing) {
-        $('#visualization-processing').remove();
-        sylva.Processing.init();
-        $('#graphcanvas').on('graph_init', function(e) {
-          e.stopPropagation();
-          visualizations.sigma();
-        });
-      } else {
-        visualizations.processing();
-      }
+      visualizations.sigma();
 
       var msg = '';
       if (sylva.is_schema_empty) {
@@ -108,7 +80,6 @@ sylva:true, alert:true */
         $('#sigma-container').html('<div class="graph-empty-message">' + msg + '</div>');
       }
 
-
     });
 
     // Error handling.
@@ -116,12 +87,5 @@ sylva:true, alert:true */
       alert(gettext("Oops! Something went wrong with the server. Please, reload the page."));
     });
 
-    // Select box bindings
-    var $visualization_select = $('#visualization-type');
-    $visualization_select.children().first().attr('selected', 'selected');
-    $visualization_select.change(function() {
-      var type = $(this).find('option:selected').data('type');
-      visualizations[type]();
-    });
   });
 })(sylva, jQuery, window, document);
