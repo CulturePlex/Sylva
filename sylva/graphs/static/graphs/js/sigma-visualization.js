@@ -37,12 +37,14 @@ clearTimeout */
       // Nodes and edges.
       var sylv_nodes = sylva.nodes;
       var sylv_edges = sylva.edges;
-      // Node types with their nodes.
-      var nodetypes = {};
       // Node info.
       var $tooltip;
       // Graph size.
       var size = sylva.size;
+      // Objects for play with them for show and hide nodes.
+      var nodesInTypes = {};  // Group the nodes by type.
+      var nodesHidden = {}  // Hidden nodes by selecting theirs types.
+      var nodesToShow = [];  // For show the nodes after the "outnodes" event.
 
       // Instanciate Sigma.js and customize rendering.
       var sigInst = sigma.init(document.getElementById('sigma-container')).drawingProperties({
@@ -64,10 +66,10 @@ clearTimeout */
       // Add nodes and create colors.
       for (var n in sylv_nodes) {
         type = sylv_nodes[n].type;
-        if (!(type in nodetypes)) {
-          nodetypes[type] = [];
+        if (!(type in nodesInTypes)) {
+          nodesInTypes[type] = {};
         }
-        nodetypes[type].push(n);
+        nodesInTypes[type][n] = "";
         if (!(type in sylva.colors)) {
           sylva.colors[type] = colors[Object.keys(sylva.colors).length];
         }
@@ -104,19 +106,24 @@ clearTimeout */
               .attr("data-action", "hide")
               .attr("data-nodetype", type)
               .css({
-                paddingRight: "3px"
+                paddingRight: "3px",
+                width: "1em",
+                height: "1em",
+                cursor: "pointer",
+                verticalAlign: "-2px"
               }))
             .append($('<span>')
               .css({
                 backgroundColor: color,
                 display: "inline-block",
-                width: "15px",
-                height: "15px",
+                width: "16px",
+                height: "16px",
                 verticalAlign: "middle"
               }))
             .append($('<span>')
               .css({
-                paddingLeft: "0.3em"
+                paddingLeft: "0.3em",
+                verticalAlign: "middle"
               })
               .text(type)
             )
@@ -170,8 +177,10 @@ clearTimeout */
           if (isOrphan) {
             neighbors[nodePK] = true;
           }
+          var nodesHiddenAsArray = Object.keys(nodesHidden);
           sigInst.iterNodes(function(n) {
-            if (!neighbors[n.id]) {
+            if (!neighbors[n.id] && $.inArray(n.id, nodesHiddenAsArray) < 0) {
+              nodesToShow.push(n.id);  // Used for only show these nodes in the "outnodes" event.
               n.hidden = true;
             }
           });
@@ -190,12 +199,10 @@ clearTimeout */
         $('.node-info').remove();
         var showRelatedNodes = $('#sigma-related-nodes').prop('checked');
         if (showRelatedNodes) {
-          // Show nodes and edges.
-          sigInst.iterEdges(function(e) {
-            e.hidden = false;
-          }).iterNodes(function(n) {
+          sigInst.iterNodes(function(n) {
             n.hidden = false;
-          }).draw();
+          }, nodesToShow).draw();
+          nodesToShow = [];
         }
       });
 
@@ -230,30 +237,24 @@ clearTimeout */
           $(this).attr('data-action', 'show');
           $(this).removeClass('icon-eye-open');
           $(this).addClass('icon-eye-close');
-          hide(type);
+          sigInst.iterNodes(function(n) {
+            n.hidden = true;
+          }, Object.keys(nodesInTypes[type])).draw();
+          // Adding the nodes to a dictionary to know which nodes hide in the "overnodes" event.
+          $.extend(nodesHidden, nodesInTypes[type]);
         } else {
           $(this).attr('data-action', 'hide');
           $(this).removeClass('icon-eye-close');
           $(this).addClass('icon-eye-open');
-          show(type);
+          sigInst.iterNodes(function(n) {
+            n.hidden = false;
+          }, Object.keys(nodesInTypes[type])).draw();
+          // Deleting the nodes from a dictionary to know which nodes hide in the "overnodes" event.
+          $.each(nodesInTypes[type], function(key, value) {
+            delete nodesHidden[key];
+          });
         }
       });
-
-      function hide(type) {
-        var nodesToHide = sigInst.getNodes(nodetypes[type]);
-        for (var i = 0; i < nodesToHide.length; i++) {
-          nodesToHide[i].hidden = true;
-        }
-        sigInst.draw();
-      }
-
-      function show(type) {
-        var nodesToShow = sigInst.getNodes(nodetypes[type]);
-        for (var i = 0; i < nodesToShow.length; i++) {
-          nodesToHide[i].hidden = false;
-        }
-        sigInst.draw();
-      }
 
       // Save as a PNG image.
       $('#sigma-export-image').on('click', function() {
