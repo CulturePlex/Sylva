@@ -188,6 +188,7 @@ INSTALLED_APPS = (
     'zebra',
     'payments',
     'south',
+    'reports'
 )
 
 AUTHENTICATION_BACKENDS = (
