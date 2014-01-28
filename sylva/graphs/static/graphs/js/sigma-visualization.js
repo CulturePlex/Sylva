@@ -15,6 +15,8 @@ clearTimeout */
   var isDrawing = false;
   // setTimeout id.
   var timeout_id = 0;
+  // True when the "Go fullscreen" button is clicked.
+  var isFullscreenByButton = false;
 
   colors = ['#F70000', '#B9264F', '#990099', '#74138C', '#0000CE',
         '#1F88A7', '#4A9586', '#FF2626', '#D73E68', '#B300B3', '#8D18AB',
@@ -274,6 +276,64 @@ clearTimeout */
         $(this).attr('href', img_data.replace('image/png', 'image/octet-stream'));
         $canvas.remove();
       });
+
+      // Go fullscren.
+      $('#sigma-go-fullscreen').on('click', function() {
+        var elem = $('#body')[0];
+        if (elem.requestFullscreen) {
+          elem.requestFullscreen();
+        } else if (elem.mozRequestFullScreen) {
+          elem.mozRequestFullScreen();
+        } else if (elem.webkitRequestFullscreen) {
+          elem.webkitRequestFullscreen();
+        } else if (elem.webkitRequestFullScreen) {
+          elem.webkitRequestFullScreen();
+        } else if (elem.msRequestFullscreen) {
+          elem.msRequestFullscreen();
+        }
+      });
+
+      // Exit fullscren.
+      $('#sigma-exit-fullscreen').on('click', function() {
+        if (document.exitFullscreen) {
+          document.exitFullscreen();
+        } else if (document.mozCancelFullScreen) {
+          document.mozCancelFullScreen();
+        } else if (document.webkitExitFullscreen) {
+          document.webkitExitFullscreen();
+        } else if (document.webkitCancelFullScreen) {
+          document.webkitCancelFullScreen();
+        } else if (document.msExitFullscreen) {
+          document.msExitFullscreen();
+        }
+      });
+
+      function handleFullscreen() {
+        console.log('vamos pepe');
+        if(isFullscreenByButton) {
+          isFullscreenByButton = false;
+          stopFullscreen();
+        } else {
+          isFullscreenByButton = true;
+          goFullscreen();
+        }
+      }
+
+      function goFullscreen() {
+        $('#sigma-go-fullscreen').hide();
+        $('#sigma-exit-fullscreen').show();
+      }
+
+      function stopFullscreen() {
+        $('#sigma-exit-fullscreen').hide();
+        $('#sigma-go-fullscreen').show();
+      }
+
+      // Listeners for handle the "fullscreen" events.
+      $(document).on('fullscreenchange', handleFullscreen);
+      $(document).on('mozfullscreenchange', handleFullscreen);
+      $(document).on('webkitfullscreenchange', handleFullscreen);
+      $(document).on('MSFullscreenChange', handleFullscreen);
 
       sigInst.startForceAtlas2();
       isDrawing = true;
