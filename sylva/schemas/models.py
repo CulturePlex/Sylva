@@ -34,13 +34,14 @@ class Schema(models.Model, SchemaMixin):
 
         def get_property_fields(n):
             return {'required': n.required,
-                'slug': n.slug,
-                'default': n.default,
-                'value': n.value,
-                'datatype': n.datatype,
-                'display': n.display,
-                'description': n.description,
-                'validation': n.validation}
+                    'slug': n.slug,
+                    'default': n.default,
+                    'value': n.value,
+                    'datatype': n.datatype,
+                    'display': n.display,
+                    'description': n.description,
+                    'validation': n.validation,
+                    'auto': n.auto}
 
         schema = {}
         schema["node_types"] = []
@@ -184,7 +185,6 @@ class BaseType(models.Model):
 #                                  """,
                                   help_text=_("Code in Javascript to "
                                               "validate all the properties"))
-    #total_count = models.IntegerField(_("total count"), default=0)
 
     class Meta:
         abstract = True
@@ -239,16 +239,6 @@ class NodeType(BaseType):
             return self.schema.graph.nodes.count(label=self.id)
         else:
             return 0
-
-    def auto_inc(self):
-        """
-        if self.total_count == 0:
-            self.total_count = 1
-        else:
-            self.total_count = self.total_count + 1
-        return self.total_count
-        """
-        return self.schema.graph.nodes.count(label=self.id)
 
     def all(self):
         if self.id:
@@ -382,6 +372,7 @@ class BaseProperty(models.Model):
                                   help_text=_("Code in Javascript to "
                                               "validate the property"))
     order = models.IntegerField(_('order'), blank=True, null=True)
+    auto = models.IntegerField(_('auto'), blank=True, null=True)
 
     class Meta:
         abstract = True
@@ -390,6 +381,8 @@ class BaseProperty(models.Model):
     def save(self, *args, **kwargs):
         if self.key:
             self.key = self.key.strip()
+        #if not self.auto or self.auto < 1:
+        #    self.auto = 0
         super(BaseProperty, self).save(*args, **kwargs)
 
     def __unicode__(self):

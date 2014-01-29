@@ -303,9 +303,13 @@
           var $this = $(this);
           var key = $this.data("key");
           var classId = "." + key;
-          var imgId = ".show-hide-" + key;
+          var imgId = "#show-hide-" + key;
           $(classId).toggle();
-          $(imgId).toggle();
+          if ($(imgId).attr('class') == 'icon-eye-open'){
+            $(imgId).attr('class','icon-eye-close');
+          } else {
+            $(imgId).attr('class','icon-eye-open');
+          }
         });
       });
     }(jQuery));
@@ -325,10 +329,10 @@
     {% if nodes %}
       <div id="search-query" class="visual-search"></div>
       <div class="show-hide-button" style="float: right;">
-        <span>Hide & show columns: </span>
+        <a href="#">{% trans "Hide & show property" %}: </a>
         <ul class="dropdown">
           {% for prop in properties %}
-            <li><a style="font-size:11px; margin-left: 5%;" href='javascript:void(0);' data-key="{{prop.slug}}" class="show-hide">{{prop.key}} <img src="{{ STATIC_PREFIX }}img/eye_16.png" class="show-hide-{{prop.slug}}" /></a></li>
+            <li><i class="icon-eye-open" id="show-hide-{{prop.slug}}"></i><a style="font-size:11px; margin-left: 5%;" href='javascript:void(0);' data-key="{{prop.slug}}" class="show-hide">{{prop.key}}</a></li>
           {% endfor %}
         </ul>
       </div>

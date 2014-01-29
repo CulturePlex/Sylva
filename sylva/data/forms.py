@@ -115,19 +115,25 @@ class ItemForm(forms.Form):
                 field = forms.CharField(**field_attrs)
             elif item_property.datatype == datatype_dict["auto_now"]:
                 if not initial:
-                    field_attrs["initial"] = ""
+                    field_attrs["initial"] = datetime.datetime.today()
+                else:
+                    field_attrs["initial"] = item_property.value
                 widget = forms.TextInput(attrs={"readonly": "readonly"})
                 field_attrs["widget"] = widget
                 field = forms.CharField(**field_attrs)
             elif item_property.datatype == datatype_dict["auto_now_add"]:
                 if not initial:
-                    field_attrs["initial"] = ""
+                    field_attrs["initial"] = datetime.datetime.today()
+                else:
+                    field_attrs["initial"] = item_property.value
                 widget = forms.TextInput(attrs={"readonly": "readonly"})
                 field_attrs["widget"] = widget
                 field = forms.CharField(**field_attrs)
             elif item_property.datatype == datatype_dict["auto_increment"]:
-                if not item_property.default:
-                    field_attrs["initial"] = '0'
+                if not item_property.auto:
+                    field_attrs["initial"] = 0
+                else:
+                    field_attrs["initial"] = item_property.auto
                 widget = forms.TextInput(attrs={"readonly": "readonly"})
                 field_attrs["widget"] = widget
                 field = forms.CharField(**field_attrs)
@@ -251,13 +257,18 @@ class ItemForm(forms.Form):
         return properties
 
     def _auto_increment(self, properties):
-        #import ipdb
-        #ipdb.set_trace()
         for prop in self.itemtype.properties.filter(datatype="i"):
-            # Aqui debemos ir almacenando el valor global
-            # Por ahora debemos cambiar el modelo del schema
-            number = self.graph.schema.nodetype_set.get(id=self.itemtype.id).auto_inc()
-            properties[prop.key] = '{}'.format(number)
+            if not prop.auto:
+                prop.auto = 0
+                number = prop.auto + 1
+                prop.auto = number
+                prop.save()
+                properties[prop.key] = number
+            else:
+                number = prop.auto + 1
+                prop.auto = number
+                prop.save()
+                properties[prop.key] = number
         return properties
 
 
@@ -409,6 +420,7 @@ class RelationshipForm(ItemForm):
                 else:
                     if self.instance == self.itemtype.source:
                         # Direction →
+                        properties = self._auto_increment(properties)
                         return self.graph.relationships.create(
                             related_node.id,
                             node_id,
@@ -417,6 +429,7 @@ class RelationshipForm(ItemForm):
                         )
                     else:
                         # Direction ←
+                        properties = self._auto_increment(properties)
                         return self.graph.relationships.create(
                             node_id,
                             related_node.id,
