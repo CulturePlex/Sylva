@@ -255,7 +255,8 @@ class CollaboratorTestCase(LiveServerTestCase):
         self.browser.find_link_by_href('/graphs/bobs-graph/').first.click()
         self.browser.find_by_xpath("//a[@id='dataMenu']").first.click()
         self.browser.find_by_xpath("//div[@id='dataBrowse']/table/tbody/tr/td/a[@class='dataOption list']").first.click()
-        text = self.browser.find_by_xpath("//table[@id='content_table']/tbody/tr[1]/td[2]/a").first.value
+        #text = self.browser.find_by_xpath("//table[@id='content_table']/tbody/tr[1]/td[2]/a").first.value
+        text = self.browser.find_by_xpath("//table[@id='content_table']/tbody/tr/td")[1].value
         self.assertEqual(text, "Bob's node")
         Graph.objects.get(name="Bob's graph").destroy()
 
@@ -304,7 +305,8 @@ class CollaboratorTestCase(LiveServerTestCase):
         self.browser.find_by_xpath(
             "//input[@id='id_Name']").first.fill("Alice's node")
         self.browser.find_by_xpath("//input[@type='submit']").first.click()
-        text = self.browser.find_by_xpath("//table[@id='content_table']/tbody/tr[1]/td[2]/a").first.value
+        #text = self.browser.find_by_xpath("//table[@id='content_table']/tbody/tr[1]/td[2]/a").first.value
+        text = self.browser.find_by_xpath("//table[@id='content_table']/tbody/tr/td")[1].value
         self.assertEqual(text, "Alice's node")
         Graph.objects.get(name="Bob's graph").destroy()
 
@@ -349,7 +351,8 @@ class CollaboratorTestCase(LiveServerTestCase):
         self.browser.find_by_xpath(
             "//input[@id='id_Name']").first.fill("Alice's node")
         self.browser.find_by_xpath("//input[@type='submit']").first.click()
-        text = self.browser.find_by_xpath("//table[@id='content_table']/tbody/tr[1]/td[2]/a").first.value
+        #text = self.browser.find_by_xpath("//table[@id='content_table']/tbody/tr[1]/td[2]/a").first.value
+        text = self.browser.find_by_xpath("//table[@id='content_table']/tbody/tr/td")[1].value
         self.assertEqual(text, "Alice's node")
         Graph.objects.get(name="Bob's graph").destroy()
 

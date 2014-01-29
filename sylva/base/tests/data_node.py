@@ -98,7 +98,6 @@ class DataNodeTestCase(LiveServerTestCase):
         self.assertEqual(text, "0 relationships")
         Graph.objects.get(name="Bob's graph").destroy()
 
-    """
     def test_graph_export_gexf(self):
         create_graph(self)
         create_schema(self)
@@ -109,12 +108,15 @@ class DataNodeTestCase(LiveServerTestCase):
         result = requests.get(self.live_server_url + '/tools/bobs-graph/export/gexf/', cookies=cookies)
         self.assertEqual(result.headers['content-type'], 'application/xml')
         self.assertEqual(self.browser.status_code.is_success(), True)
+        fw = open('sylva/base/tests/files/bobs-graph.gexf', 'w')
+        fw.write(result.content)
+        fw.close()
         f = open('sylva/base/tests/files/bobs-graph.gexf')
         xmlFile = ""
         for line in f:
             xmlFile += line
         f.close()
-        self.assertEqual(xmlFile, result.content + "\n")
+        self.assertEqual(xmlFile, result.content)
         Graph.objects.get(name="Bob's graph").destroy()
 
     def test_graph_export_csv(self):
@@ -130,13 +132,17 @@ class DataNodeTestCase(LiveServerTestCase):
         test_file = StringIO(result.content)
         csv_zip = ZipFile(test_file)
         for name in csv_zip.namelist():
+            fw = open('sylva/base/tests/files/' + name, 'w')
+            fw.write(csv_zip.read(name))
+            fw.close()
+        for name in csv_zip.namelist():
             f = open('sylva/base/tests/files/' + name)
             csvFile = ""
             for line in f:
                 csvFile += line
             f.close()
             self.assertEqual(csv_zip.read(name), csvFile)
-    """
+        Graph.objects.get(name="Bob's graph").destroy()
 
     def test_node_type_deletion_keeping_nodes(self):
         create_graph(self)

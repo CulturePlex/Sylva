@@ -370,6 +370,144 @@ class SchemaTestCase(LiveServerTestCase):
             'diagramBoxField_bobs-graph.bobs-type.undefined').first.value
         self.assertEqual(text, "float name")
 
+    def test_new_advanced_type_collaborator(self):
+        create_graph(self)
+        create_schema(self)
+        self.browser.find_link_by_href(
+            '/schemas/bobs-graph/types/create/').first.click()
+        text = self.browser.find_by_xpath(
+            "//div[@class='content2-first']/h2").first.value
+        self.assertEqual(text, 'Type')
+        self.browser.find_by_name('name').first.fill("Bob's type")
+        self.browser.find_by_id('advancedModeButton').first.click()
+        self.browser.find_by_name('properties-0-key').first.fill('collaborator name')
+        self.browser.find_by_name('properties-0-display').first.check()
+        self.browser.find_by_name('properties-0-required').first.check()
+        self.browser.find_by_xpath("//select[@id='id_properties-0-datatype']").first.click()
+        self.browser.find_by_xpath("//optgroup[@label='Advanced']/option[@value='r']").first.click()
+        self.browser.find_by_name('properties-0-order').first.fill('1')
+        self.browser.find_by_name('properties-0-description').first.fill(
+            "The name of the this Bob's node")
+        self.browser.find_by_value('Save Type').first.click()
+        text = self.browser.find_by_id(
+            'diagramBoxField_bobs-graph.bobs-type.undefined').first.value
+        self.assertEqual(text, "collaborator name")
+
+    def test_new_advanced_type_auto_now(self):
+        create_graph(self)
+        create_schema(self)
+        self.browser.find_link_by_href(
+            '/schemas/bobs-graph/types/create/').first.click()
+        text = self.browser.find_by_xpath(
+            "//div[@class='content2-first']/h2").first.value
+        self.assertEqual(text, 'Type')
+        self.browser.find_by_name('name').first.fill("Bob's type")
+        self.browser.find_by_id('advancedModeButton').first.click()
+        self.browser.find_by_name('properties-0-key').first.fill('auto now name')
+        self.browser.find_by_name('properties-0-display').first.check()
+        self.browser.find_by_name('properties-0-required').first.check()
+        self.browser.find_by_xpath("//select[@id='id_properties-0-datatype']").first.click()
+        self.browser.find_by_xpath("//optgroup[@label='Auto']/option[@value='w']").first.click()
+        self.browser.find_by_name('properties-0-order').first.fill('1')
+        self.browser.find_by_name('properties-0-description').first.fill(
+            "The name of the this Bob's node")
+        self.browser.find_by_value('Save Type').first.click()
+        text = self.browser.find_by_id(
+            'diagramBoxField_bobs-graph.bobs-type.undefined').first.value
+        self.assertEqual(text, "auto now name")
+
+    def test_new_advanced_type_auto_now_add(self):
+        create_graph(self)
+        create_schema(self)
+        self.browser.find_link_by_href(
+            '/schemas/bobs-graph/types/create/').first.click()
+        text = self.browser.find_by_xpath(
+            "//div[@class='content2-first']/h2").first.value
+        self.assertEqual(text, 'Type')
+        self.browser.find_by_name('name').first.fill("Bob's type")
+        self.browser.find_by_id('advancedModeButton').first.click()
+        self.browser.find_by_name('properties-0-key').first.fill('auto now add name')
+        self.browser.find_by_name('properties-0-display').first.check()
+        self.browser.find_by_name('properties-0-required').first.check()
+        self.browser.find_by_xpath("//select[@id='id_properties-0-datatype']").first.click()
+        self.browser.find_by_xpath("//optgroup[@label='Auto']/option[@value='a']").first.click()
+        self.browser.find_by_name('properties-0-order').first.fill('1')
+        self.browser.find_by_name('properties-0-description').first.fill(
+            "The name of the this Bob's node")
+        self.browser.find_by_value('Save Type').first.click()
+        text = self.browser.find_by_id(
+            'diagramBoxField_bobs-graph.bobs-type.undefined').first.value
+        self.assertEqual(text, "auto now add name")
+
+    def test_new_advanced_type_auto_increment(self):
+        create_graph(self)
+        create_schema(self)
+        self.browser.find_link_by_href(
+            '/schemas/bobs-graph/types/create/').first.click()
+        text = self.browser.find_by_xpath(
+            "//div[@class='content2-first']/h2").first.value
+        self.assertEqual(text, 'Type')
+        self.browser.find_by_name('name').first.fill("Bob's type")
+        self.browser.find_by_id('advancedModeButton').first.click()
+        self.browser.find_by_name('properties-0-key').first.fill('auto increment name')
+        self.browser.find_by_name('properties-0-display').first.check()
+        self.browser.find_by_name('properties-0-required').first.check()
+        self.browser.find_by_xpath("//select[@id='id_properties-0-datatype']").first.click()
+        self.browser.find_by_xpath("//optgroup[@label='Auto']/option[@value='i']").first.click()
+        self.browser.find_by_name('properties-0-order').first.fill('1')
+        self.browser.find_by_name('properties-0-description').first.fill(
+            "The name of the this Bob's node")
+        self.browser.find_by_value('Save Type').first.click()
+        text = self.browser.find_by_id(
+            'diagramBoxField_bobs-graph.bobs-type.undefined').first.value
+        self.assertEqual(text, "auto increment name")
+
+    def test_new_advanced_type_auto_increment_update(self):
+        create_graph(self)
+        create_schema(self)
+        self.browser.find_link_by_href(
+            '/schemas/bobs-graph/types/create/').first.click()
+        text = self.browser.find_by_xpath(
+            "//div[@class='content2-first']/h2").first.value
+        self.assertEqual(text, 'Type')
+        self.browser.find_by_name('name').first.fill("Bob's type")
+        self.browser.find_by_id('advancedModeButton').first.click()
+        self.browser.find_by_name('properties-0-key').first.fill('auto increment update')
+        self.browser.find_by_name('properties-0-display').first.check()
+        self.browser.find_by_name('properties-0-required').first.check()
+        self.browser.find_by_xpath("//select[@id='id_properties-0-datatype']").first.click()
+        self.browser.find_by_xpath("//optgroup[@label='Auto']/option[@value='o']").first.click()
+        self.browser.find_by_name('properties-0-order').first.fill('1')
+        self.browser.find_by_name('properties-0-description').first.fill(
+            "The name of the this Bob's node")
+        self.browser.find_by_value('Save Type').first.click()
+        text = self.browser.find_by_id(
+            'diagramBoxField_bobs-graph.bobs-type.undefined').first.value
+        self.assertEqual(text, "auto increment update")
+
+    def test_new_advanced_type_auto_user(self):
+        create_graph(self)
+        create_schema(self)
+        self.browser.find_link_by_href(
+            '/schemas/bobs-graph/types/create/').first.click()
+        text = self.browser.find_by_xpath(
+            "//div[@class='content2-first']/h2").first.value
+        self.assertEqual(text, 'Type')
+        self.browser.find_by_name('name').first.fill("Bob's type")
+        self.browser.find_by_id('advancedModeButton').first.click()
+        self.browser.find_by_name('properties-0-key').first.fill('auto user name')
+        self.browser.find_by_name('properties-0-display').first.check()
+        self.browser.find_by_name('properties-0-required').first.check()
+        self.browser.find_by_xpath("//select[@id='id_properties-0-datatype']").first.click()
+        self.browser.find_by_xpath("//optgroup[@label='Auto']/option[@value='e']").first.click()
+        self.browser.find_by_name('properties-0-order').first.fill('1')
+        self.browser.find_by_name('properties-0-description').first.fill(
+            "The name of the this Bob's node")
+        self.browser.find_by_value('Save Type').first.click()
+        text = self.browser.find_by_id(
+            'diagramBoxField_bobs-graph.bobs-type.undefined').first.value
+        self.assertEqual(text, "auto user name")
+
     def test_schema_allowed_rel_addition(self):
         create_graph(self)
         self.assertEqual(self.browser.title, 'SylvaDB - Dashboard')
