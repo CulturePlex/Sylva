@@ -1,10 +1,93 @@
 {% extends "base.html" %}
+{# load i18n graphs static #}
+{# get_static_prefix as STATIC_PREFIX #}
+
 {% block navigation_buttons %}
   {{ block.super }}
 {% endblock %}
+
+{% block title %}
+  Some Graph
+{% endblock %}
+<!-- This will happen when I hook up a graph to the reports  see base/templatetags/graphs.py and pretty much
+any view (how bout schemas/views.py)-->
+{# block menu_buttons #}
+  {# toolbar on="reports" #}
+{# endblock #}
+
+
+
+{% block content_title %}
+    Some Graph: Reports
+{% endblock %}
+
 {% block content %}
 
+    <div ng-app="reports" ng-controller="reportsListCtrl" resize>
+        <div class="content2-first">
+            <span class="buttonLinkOption">
+                <a class="button" ng-click="newReport()">New Report</a>
+            </span>
+            <div ng-repeat="report in reports">
+                <h2>{[{report.name}]}</h2>
+            </div>
+        </div>  
 
+        <div class="content2-second">
 
+            <div style="float:left; width:40%">
+                <div ng-repeat="query in queries">
+                    <div id="{[{ query.name }]}" draggable>
+                        <h2>{[{query.name}]}</h2>
+                        Details:    
+                    </div>
+                </div>
+            </div>
 
+            <div style="float:left; width:60%">
+                New Report
+                <form>
+                    <div>
+                        <input type="text" ng-model="report.name" placeholder="Report Name">
+                    </div>
+                    
+                    <span class="buttonLinkOption">
+                        <a class="button" ng-click="processForm()">Save report</a>
+                    </span>
+                </form>
+                <div class="bin" id="bin" droppable drop="handleDrop" bin="bin">
+                    <div ng-repeat="drop in dropped track by $index">
+                        <form>
+                            <h2>{[{drop}]}</h2>
+                            <a href="" ng-click="removeQuery($index)">remove</a>
+                            <div>
+                                <select ng-model="formData.country" class="form-control" id="country-select"> 
+                                    <option value="">Chart Type</option>
+                                    <option value="bar"> Bar </option>
+                                    <option value="pie"> Pie </option>
+                                    <option value="scatter"> Scatter </option>
+                                </select>                        
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% block extra_links %}
+         <link rel="stylesheet" type="text/css" href="{{ STATIC_PREFIX }}css/reports.css" />
+    {% endblock %}
+    {% block scripts %}
+    
+    {% endblock %}
+    {% block extra_scripts %}
+        <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.0/angular.min.js"></script>
+        <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.0/angular-sanitize.js"></script>
+        <script type="text/javascript" src="{{ STATIC_PREFIX }}js/app.js" ></script>
+        <script type="text/javascript" src="{{ STATIC_PREFIX }}js/controllers.js" ></script>
+        <script type="text/javascript" src="{{ STATIC_PREFIX }}js/services.js" ></script>
+        <script type="text/javascript" src="{{ STATIC_PREFIX }}js/directives.js" ></script>
+        <script type="text/javascript" src="{{ STATIC_PREFIX }}js/thirdparty/angular-dragdrop.js" ></script>
+    {% endblock %}
 {% endblock %}
