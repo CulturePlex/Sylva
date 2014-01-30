@@ -12,11 +12,16 @@ reportsControllers.controller('reportsListCtrl', ['$scope', '$timeout', function
 
     $scope.dropped = []
     $scope.namePlaceholder = 'Report Name'
+    $scope.reportName = ''
     //$scope.reportForm = true;
     console.log($scope.reportForm)
+    
     $scope.newReport = function () {
         console.log('click')
         $scope.reportForm = true;
+        $scope.dropped = []
+        $scope.reportName = ''
+        $scope.namePlaceholder = 'Report Name'
     };  
 
     $scope.removeQuery = function (index) {
@@ -31,7 +36,7 @@ reportsControllers.controller('reportsListCtrl', ['$scope', '$timeout', function
 
     $scope.processForm = function (reportName) {
         var newReport = {
-            name: reportName.name,
+            name: reportName,
             queries: $scope.dropped
         };
         $scope.reports.push(newReport)
@@ -46,6 +51,7 @@ reportsControllers.controller('reportsListCtrl', ['$scope', '$timeout', function
         });
         console.log('applying', report[0].queries)
         $scope.dropped = report[0].queries
-        $scope.namePlaceholder = report[0].name
+        $scope.namePlaceholder = ''
+        $scope.reportName = report[0].name
     };
 }]);

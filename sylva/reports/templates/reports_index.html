@@ -48,10 +48,10 @@ any view (how bout schemas/views.py)-->
                 New Report
                 <form>
                     <div>
-                        <input type="text" ng-model="report.name" placeholder="{$ namePlaceholder $}">
+                        <input type="text" ng-model="reportName" placeholder="{$ namePlaceholder $}">
                     </div>
                     <span class="buttonLinkOption">
-                        <a class="button" ng-click="processForm(report)">Save report</a>
+                        <a class="button" ng-click="processForm(reportName)">Save report</a>
                     </span>
                 </form>
                 <div class="bin" id="bin" droppable drop="handleDrop" bin="bin">
