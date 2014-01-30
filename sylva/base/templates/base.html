@@ -61,6 +61,9 @@
             <div class="inside clearfix">
               {% block contact_navigation %}{% endblock %}
               {% block main_navigation %}
+                {% if graph %}
+                  <div class="title-graph-name">{% trans "Graph:" %} {{ graph.name }}</div>
+                {% endif %}
                 <nav class="main">
                   <ul>
                     <li><a href="javascript:void(0)" id="toggleTour" class="text" style="display: none;"><span>{% trans "Take a tour" %}</span></a></li>
@@ -74,6 +77,7 @@
                     {% else %}
                       <li><a href="{% url index %}" class="link-home" id="loginFormButton"><span>{% trans "Home" %}</span></a></li>
                     {% endif %}
+                    <li style="display: none; margin-top: -35px; margin-right: 5px;"><a id="sigma-exit-fullscreen" class="link" title="{% trans "Exit fullscreen" %}">{% trans "Exit fullscreen" %}</a></li>
                   </ul>
                 </nav>
               {% endblock %}

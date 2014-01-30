@@ -277,9 +277,9 @@ clearTimeout */
         $canvas.remove();
       });
 
-      // Go fullscren.
+      // Go fullscreen.
       $('#sigma-go-fullscreen').on('click', function() {
-        var elem = $('#body')[0];
+        var elem = $('body')[0];
         if (elem.requestFullscreen) {
           elem.requestFullscreen();
         } else if (elem.mozRequestFullScreen) {
@@ -293,7 +293,7 @@ clearTimeout */
         }
       });
 
-      // Exit fullscren.
+      // Exit fullscreen.
       $('#sigma-exit-fullscreen').on('click', function() {
         if (document.exitFullscreen) {
           document.exitFullscreen();
@@ -308,8 +308,8 @@ clearTimeout */
         }
       });
 
+      // Handle the fullscreen changes.
       function handleFullscreen() {
-        console.log('vamos pepe');
         if(isFullscreenByButton) {
           isFullscreenByButton = false;
           stopFullscreen();
@@ -319,14 +319,83 @@ clearTimeout */
         }
       }
 
-      function goFullscreen() {
-        $('#sigma-go-fullscreen').hide();
-        $('#sigma-exit-fullscreen').show();
+      // Update some sizes in fullscreen mode.
+      function updateSizes() {
+          var height = $(window).height();
+          var width = $(window).width();
+
+          $('header').width(width);
+          $('#main').width(width);
+          $('div.inside.clearfix').width(width);
+          $('#body').width(width);
+
+          var trueHeaderHeight =  $('div.inside.clearfix').height();
+          $('#body').height(height - trueHeaderHeight);
+
+          // The new height will be: screenHeight - header - whiteSpace - (border + padding from canvasInfo) - whiteSpace
+          $('#canvas-info').height(height - 103);
+
+          $('.graph-controls').css({marginRight: "40px"});
+          $('#sigma-wrapper').css({marginRight: "40px"});
+
+          // The new width will be: screenWidth - leftWhiteSpace - canvasInfo- rightWhiteSpace - sigmaWrapperBorder - (safeSpace between canvasInfo and canvas)
+          $('#sigma-wrapper').width(width - 248);
+
+          // The new height will be: screenHeight - header - whiteSpace - graphControls - (border + padding from canvasInfo) - whiteSpace
+          $('#sigma-wrapper').height(height - 133);
+
+          var top = height - 101;
+          var left = width - 52;
+          $('#sigma-pause').css({top: top + "px", left: left + "px"});
+
+          sigInst.resize();
       }
 
+      // Restore some size when exit fullscreen mode.
+      function restoreSizes() {
+        $('#sigma-pause').removeAttr('style');
+        $('#sigma-wrapper').removeAttr('style');
+        $('.graph-controls').removeAttr('style');
+        $('#canvas-info').removeAttr('style');
+        $('#body').removeAttr('style');
+        $('div.inside.clearfix').removeAttr('style');
+        $('#main').removeAttr('style');
+        $('header').removeAttr('style');
+
+        sigInst.resize();
+      }
+
+      // Perform the 'real' fullscreen action.
+      function goFullscreen() {
+        $('#sigma-go-fullscreen').hide();
+        $('nav.main li').hide();
+        $('header.global h2').hide();
+        $('nav.menu').hide();
+        $('div.graph-item').hide();
+        $('div#footer').hide();
+
+        $('.title-graph-name').show();
+        $('#sigma-exit-fullscreen').parent().show();
+
+        updateSizes();
+
+        $(window).on('resize', updateSizes);
+      }
+
+      // Perform the cancelation of the fullscreen mode.
       function stopFullscreen() {
-        $('#sigma-exit-fullscreen').hide();
         $('#sigma-go-fullscreen').show();
+        $('nav.main li').show();
+        $('header.global h2').show();
+        $('nav.menu').show();
+        $('div.graph-item').show();
+        $('div#footer').show();
+
+        $('.title-graph-name').hide();
+        $('#sigma-exit-fullscreen').parent().hide();
+
+        $(window).unbind('resize');
+        restoreSizes();
       }
 
       // Listeners for handle the "fullscreen" events.

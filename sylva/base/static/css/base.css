@@ -345,6 +345,14 @@ p.slogan {
     padding-left: 40px;
 }
 
+.title-graph-name {
+    display: none;
+    font-size: 150%;
+    color: #348E82;
+    padding-top: 12px;
+    text-align: center;
+}
+
 /* END Class utils ************************************************************/
 
 
