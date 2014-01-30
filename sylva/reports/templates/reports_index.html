@@ -29,7 +29,7 @@ any view (how bout schemas/views.py)-->
                 <a class="button" ng-click="newReport()">New Report</a>
             </span>
             <div ng-repeat="report in reports">
-                <h2>{[{report.name}]}</h2>
+                <h2><a href="" ng-click="getReport(report.name)">{$report.name$}</a></h2>
             </div>
         </div>  
 
@@ -37,8 +37,8 @@ any view (how bout schemas/views.py)-->
 
             <div style="float:left; width:40%">
                 <div ng-repeat="query in queries">
-                    <div id="{[{ query.name }]}" draggable>
-                        <h2>{[{query.name}]}</h2>
+                    <div id="{$ query.name $}" draggable>
+                        <h2>{$ query.name $}</h2>
                         Details:    
                     </div>
                 </div>
@@ -48,27 +48,16 @@ any view (how bout schemas/views.py)-->
                 New Report
                 <form>
                     <div>
-                        <input type="text" ng-model="report.name" placeholder="Report Name">
+                        <input type="text" ng-model="report.name" placeholder="{$ namePlaceholder $}">
                     </div>
-                    
                     <span class="buttonLinkOption">
-                        <a class="button" ng-click="processForm()">Save report</a>
+                        <a class="button" ng-click="processForm(report)">Save report</a>
                     </span>
                 </form>
                 <div class="bin" id="bin" droppable drop="handleDrop" bin="bin">
                     <div ng-repeat="drop in dropped track by $index">
-                        <form>
-                            <h2>{[{drop}]}</h2>
-                            <a href="" ng-click="removeQuery($index)">remove</a>
-                            <div>
-                                <select ng-model="formData.country" class="form-control" id="country-select"> 
-                                    <option value="">Chart Type</option>
-                                    <option value="bar"> Bar </option>
-                                    <option value="pie"> Pie </option>
-                                    <option value="scatter"> Scatter </option>
-                                </select>                        
-                            </div>
-                        </form>
+                        <h2>{$ drop $}</h2>
+                        <a href="" ng-click="removeQuery($index)">remove</a>
                     </div>
                 </div>
             </div>
@@ -83,11 +72,19 @@ any view (how bout schemas/views.py)-->
     {% endblock %}
     {% block extra_scripts %}
         <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.0/angular.min.js"></script>
-        <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.0/angular-sanitize.js"></script>
+        <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.0/angular-cookies.js"></script>
         <script type="text/javascript" src="{{ STATIC_PREFIX }}js/app.js" ></script>
         <script type="text/javascript" src="{{ STATIC_PREFIX }}js/controllers.js" ></script>
         <script type="text/javascript" src="{{ STATIC_PREFIX }}js/services.js" ></script>
         <script type="text/javascript" src="{{ STATIC_PREFIX }}js/directives.js" ></script>
-        <script type="text/javascript" src="{{ STATIC_PREFIX }}js/thirdparty/angular-dragdrop.js" ></script>
     {% endblock %}
 {% endblock %}
+
+                            <!--<div>
+                                <select ng-model="formData.country" class="form-control" id="country-select"> 
+                                    <option value="">Chart Type</option>
+                                    <option value="bar"> Bar </option>
+                                    <option value="pie"> Pie </option>
+                                    <option value="scatter"> Scatter </option>
+                                </select>                        
+                            </div>-->
