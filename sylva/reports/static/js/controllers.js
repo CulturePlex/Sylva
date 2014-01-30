@@ -30,9 +30,6 @@ reportsControllers.controller('reportsListCtrl', ['$scope', '$timeout', function
 	}; 
 
 	$scope.processForm = function (reportName) {
-		var report = $scope.reports.filter(function (element) {
-			return element.name === reportSlug;
-		});
 		var newReport = {
 			name: reportName.name,
 			queries: $scope.dropped
