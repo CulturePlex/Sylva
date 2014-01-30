@@ -1,0 +1,9 @@
+*.log
+*.pot
+*.pyc
+*~
+*.db
+local_settings.py
+api_key.py
+__pycache__
+neo4j/*
