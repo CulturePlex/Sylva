@@ -51,7 +51,7 @@ class UserProfile(UserenaLanguageBaseProfile):
     location = models.CharField(_('location'), max_length=255, blank=True)
     birth_date = models.DateField(_('birth date'), blank=True, null=True)
     about_me = models.TextField(_('about me'), blank=True)
-    instituion = models.CharField(_('instituion'), blank=True, null=True,
+    institution = models.CharField(_('institution'), blank=True, null=True,
                                   max_length=150)
     company = models.CharField(_('company'), blank=True, null=True,
                                max_length=150)

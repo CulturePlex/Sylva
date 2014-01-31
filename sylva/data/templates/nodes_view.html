@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load i18n graphs %}
+{% load data_filters %}
 
 {% block navigation_buttons %}
     {{ block.super }}
@@ -77,7 +78,7 @@
             {% if node_properties %}
                 <dl class="node-properties">
                     {% for prop in node_properties %}
-                        {% if prop.value %}
+                        {% if prop.value|is_not_none %}
                             <dt>{{ prop.key }}</dt>
                             <dd>
                                 {% if prop.type == "Boolean" %}

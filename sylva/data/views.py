@@ -19,6 +19,8 @@ from django.utils.datastructures import SortedDict
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 
+from django.contrib import messages
+
 from guardian.decorators import permission_required
 
 from data.models import Data, MediaNode
@@ -114,7 +116,20 @@ def nodes_list_full(request, graph_slug, node_type_id):
     node_type = get_object_or_404(NodeType, id=node_type_id)
     if not node_type.schema.graph == graph:
         raise Http404(_("Mismatch in requested graph and node type's graph."))
-    nodes = node_type.all()
+    order_by = request.GET.get('order_by', 'default')
+    order_dir = request.GET.get('dir', 'desc')
+    if order_by == 'default':
+        nodes = node_type.all()
+    else:
+        orders = order_by, order_dir
+        nodes = node_type.all().order_by(orders)
+        if not nodes:
+            messages.error(request, _("Error: You are trying to sort a column with some none values"))
+            nodes = node_type.all()
+        if order_dir == 'desc':
+            order_dir = 'asc'
+        elif order_dir == 'asc':
+            order_dir = 'desc'
     page = request.GET.get('page')
     page_size = request.GET.get('size', settings.DATA_PAGE_SIZE)
     paginator = Paginator(nodes, page_size)
@@ -139,11 +154,13 @@ def nodes_list_full(request, graph_slug, node_type_id):
                 prop_value = node_properties[prop_key]
                 if prop_value == "":
                     prop_value = "(Empty)"
-                property_values[prop_key].add(prop_value)
+                property_values[prop_key].add(prop_value.__str__())
     for key in property_values:
         property_values[key] = list(property_values[key])
     return render_to_response('node_list.html',
                               {"graph": graph,
+                               "dir": order_dir,
+                               "order_by": order_by,
                                "nodes": paginated_nodes,
                                "node_type": node_type,
                                "none_label": none_label,
@@ -171,7 +188,7 @@ def nodes_create(request, graph_slug, node_type_id):
         data = None
         mediafile_formset = MediaFileFormSet(prefix="__files")
         medialink_formset = MediaLinkFormSet(prefix="__links")
-    node_form = NodeForm(itemtype=nodetype, data=data)
+    node_form = NodeForm(itemtype=nodetype, data=data, user=request.user.username)
     outgoing_formsets = SortedDict()
     prefixes = []
     for relationship in nodetype.outgoing_relationships.all():
@@ -195,7 +212,8 @@ def nodes_create(request, graph_slug, node_type_id):
                                                instance=nodetype,
                                                direction=TARGET,
                                                prefix=formset_prefix,
-                                               data=data)
+                                               data=data,
+                                               user=request.user.username)
         outgoing_formsets[formset_prefix] = outgoing_formset
     incoming_formsets = SortedDict()
     for relationship in nodetype.incoming_relationships.all():
@@ -219,7 +237,8 @@ def nodes_create(request, graph_slug, node_type_id):
                                                instance=nodetype,
                                                direction=SOURCE,
                                                prefix=formset_prefix,
-                                               data=data)
+                                               data=data,
+                                               user=request.user.username)
         incoming_formsets[formset_prefix] = incoming_formset
     if (data and node_form.is_valid()
             and mediafile_formset.is_valid() and medialink_formset.is_valid()
@@ -361,7 +380,7 @@ def nodes_edit(request, graph_slug, node_id):
                                              data=data, prefix="__links")
     node_initial = node.properties.copy()
     node_initial.update({ITEM_FIELD_NAME: node.id})
-    node_form = NodeForm(itemtype=nodetype, initial=node_initial, data=data)
+    node_form = NodeForm(itemtype=nodetype, initial=node_initial, data=data, user=request.user.username)
     # Outgoing relationships
 #    initial = []
 #    for relationship in node.relationships.all():
@@ -411,7 +430,8 @@ def nodes_edit(request, graph_slug, node_id):
                                                direction=TARGET,
                                                prefix=formset_prefix,
                                                initial=initial,
-                                               data=data)
+                                               data=data,
+                                               user=request.user.username)
         outgoing_formsets[formset_prefix] = outgoing_formset
     # Incoming relationships
 #    initial = []
@@ -461,7 +481,8 @@ def nodes_edit(request, graph_slug, node_id):
                                                direction=SOURCE,
                                                prefix=formset_prefix,
                                                initial=initial,
-                                               data=data)
+                                               data=data,
+                                               user=request.user.username)
         incoming_formsets[formset_prefix] = incoming_formset
     # Save forms and formsets
     if (data and node_form.is_valid()

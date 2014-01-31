@@ -232,6 +232,8 @@ class NodesManager(BaseManager):
                                  lookups=lookups,
                                  iterator_func=self.gdb.get_filtered_nodes,
                                  include_properties=True)
+        # We call __len__() to create the list of elements
+        # eltos.__len__()
         return eltos
 
     def iterator(self):

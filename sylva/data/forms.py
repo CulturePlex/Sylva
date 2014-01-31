@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+import datetime
+
 from django import forms
 from django.conf import settings
 from django.core.exceptions import ValidationError
@@ -43,6 +45,7 @@ class ItemForm(forms.Form):
         }
 
     def __init__(self, itemtype, instance=None, *args, **kwargs):
+        self.username = kwargs.pop('user')
         # Only for relationships
         self.related_node = kwargs.pop("related_node", None)
         self.direction = kwargs.pop("direction", SOURCE)
@@ -102,6 +105,41 @@ class ItemForm(forms.Form):
                 field = forms.ChoiceField(**field_attrs)
             elif item_property.datatype == datatype_dict["text"]:
                 field_attrs["widget"] = widget = forms.Textarea
+                field = forms.CharField(**field_attrs)
+            elif item_property.datatype == datatype_dict["auto_user"]:
+                field_attrs["initial"] = self.username
+                widget = forms.TextInput(attrs={"readonly": "readonly"})
+                field_attrs["widget"] = widget
+                field = forms.CharField(**field_attrs)
+            elif item_property.datatype == datatype_dict["auto_now"]:
+                if not initial:
+                    field_attrs["initial"] = datetime.datetime.today()
+                else:
+                    field_attrs["initial"] = item_property.value
+                widget = forms.TextInput(attrs={"readonly": "readonly"})
+                field_attrs["widget"] = widget
+                field = forms.CharField(**field_attrs)
+            elif item_property.datatype == datatype_dict["auto_now_add"]:
+                if not initial:
+                    field_attrs["initial"] = datetime.datetime.today()
+                else:
+                    field_attrs["initial"] = item_property.value
+                widget = forms.TextInput(attrs={"readonly": "readonly"})
+                field_attrs["widget"] = widget
+                field = forms.CharField(**field_attrs)
+            elif item_property.datatype == datatype_dict["auto_increment"]:
+                if not item_property.auto:
+                    field_attrs["initial"] = 0
+                else:
+                    field_attrs["initial"] = item_property.auto
+                widget = forms.TextInput(attrs={"readonly": "readonly"})
+                field_attrs["widget"] = widget
+                field = forms.CharField(**field_attrs)
+            elif item_property.datatype == datatype_dict["auto_increment_update"]:
+                if not item_property.default:
+                    field_attrs["initial"] = '0'
+                widget = forms.TextInput(attrs={"readonly": "readonly"})
+                field_attrs["widget"] = widget
                 field = forms.CharField(**field_attrs)
             elif item_property.datatype == datatype_dict["collaborator"]:
                 if settings.ENABLE_AUTOCOMPLETE_COLLABORATORS:
@@ -217,6 +255,8 @@ class ItemForm(forms.Form):
                         properties.pop(field_key)
             # Assign to label the value of the identifier of the NodeType
             label = unicode(self.itemtype.id)
+            properties = self._set_now_attributes(properties)
+            properties = self._auto_increment_update(properties)
             if commit:
                 if self.item_id and not as_new:
                     if self.delete:
@@ -230,10 +270,40 @@ class ItemForm(forms.Form):
                         node.properties = properties
                     return node
                 else:
+                    properties = self._auto_increment(properties)
                     return self.graph.nodes.create(label=label,
                                                    properties=properties)
             else:
                 return (label, properties)
+
+    def _set_now_attributes(self, properties):
+        if self.item_id is None:
+            for prop in self.itemtype.properties.filter(datatype="a"):
+                properties[prop.key] = datetime.datetime.today()
+        for prop in self.itemtype.properties.filter(datatype="w"):
+            properties[prop.key] = datetime.datetime.today()
+        return properties
+
+    def _auto_increment_update(self, properties):
+        for prop in self.itemtype.properties.filter(datatype="o"):
+            number = int(properties[prop.key]) + 1
+            properties[prop.key] = '{}'.format(number)
+        return properties
+
+    def _auto_increment(self, properties):
+        for prop in self.itemtype.properties.filter(datatype="i"):
+            if not prop.auto:
+                prop.auto = 0
+                number = prop.auto + 1
+                prop.auto = number
+                prop.save()
+                properties[prop.key] = number
+            else:
+                number = prop.auto + 1
+                prop.auto = number
+                prop.save()
+                properties[prop.key] = number
+        return properties
 
 
 class NodeForm(ItemForm):
@@ -352,13 +422,12 @@ class RelationshipForm(ItemForm):
             itemtype_id = unicode(getattr(self.itemtype, direction).id)
             if getattr(self, node_attr).label != itemtype_id:
                 itemtype_attr = getattr(self.itemtype, direction)
-                msg = _("The %s must be %s") \
-                      % (direction, itemtype_attr.name)
+                msg = _("The {0} must be {1}").format(direction, itemtype_attr.name)
                 self._errors[self.itemtype.id] = self.error_class([msg])
                 del cleaned_data[self.itemtype.id]
         else:
             itemtype_attr = getattr(self.itemtype, direction)
-            msg = _("The %s must be %s") % (direction, itemtype_attr.name)
+            msg = _("The {0} must be {1}").format(direction, itemtype_attr.name)
             self._errors[self.itemtype.id] = self.error_class([msg])
         # If there is no data, there is no relationship to add
         if (self.itemtype.id in self._errors
@@ -381,6 +450,8 @@ class RelationshipForm(ItemForm):
                     if (field_key not in self.itemtype_properties):
                         properties.pop(field_key)
             label = unicode(self.itemtype.id)
+            properties = self._set_now_attributes(properties)
+            properties = self._auto_increment_update(properties)
             if commit and (self.item_id or related_node):
                 if self.item_id and not as_new:
                     if self.delete:
@@ -395,6 +466,7 @@ class RelationshipForm(ItemForm):
                 else:
                     if self.direction == TARGET:
                         # Direction →
+                        properties = self._auto_increment(properties)
                         return self.graph.relationships.create(
                             related_node.id,
                             node_id,
@@ -403,6 +475,7 @@ class RelationshipForm(ItemForm):
                         )
                     else:
                         # Direction ←
+                        properties = self._auto_increment(properties)
                         return self.graph.relationships.create(
                             node_id,
                             related_node.id,
@@ -423,6 +496,7 @@ class TypeBaseFormSet(BaseFormSet):
                  direction=SOURCE, *args, **kwargs):
         self.itemtype = itemtype
         self.instance = instance
+        self.username = kwargs.pop('user')
         self.related_node = related_node
         self.direction = direction
         super(TypeBaseFormSet, self).__init__(*args, **kwargs)
@@ -443,6 +517,7 @@ class TypeBaseFormSet(BaseFormSet):
         # Allow extra forms to be empty.
         if i >= self.initial_form_count():
             defaults['empty_permitted'] = True
+        defaults['user'] = self.username
         defaults.update(kwargs)
         # This is the only line distinct to original implementation from django
         form = self.form(

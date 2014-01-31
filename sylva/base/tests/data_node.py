@@ -8,6 +8,7 @@ from splinter import Browser
 
 from user import signup, signin, logout
 from dashboard import create_graph, create_schema, create_type, create_data
+from graphs.models import Graph
 
 
 def create_node(test, name):
@@ -55,6 +56,7 @@ class DataNodeTestCase(LiveServerTestCase):
         self.browser.choose('confirm', '1')
         self.browser.find_by_value('Continue').first.click()
         text = self.browser.find_by_xpath("//div[@class='indent']/div").first.value
+        Graph.objects.get(name="Bob's graph").destroy()
         self.assertEqual(text, 'Nodes: 0')
 
     def test_data_node_addition_rel_add_del(self):
@@ -89,13 +91,61 @@ class DataNodeTestCase(LiveServerTestCase):
         self.browser.find_by_id('dataMenu').first.click()
         self.browser.find_by_xpath("//td[@class='dataActions']/a[@class='dataOption list']").first.click()
         self.browser.find_by_xpath("//td[@class='dataList']/a[@class='edit']").first.click()
-        self.browser.find_by_xpath("//span[@class='all-relationships outgoing-relationships o_bobs_rel1_1-relationships']//a[@class='delete-row initial-form floating']").first.click()
+        #self.browser.find_by_xpath("//span[@class='all-relationships outgoing-relationships o_bobs_rel1_1-relationships']//a[@class='delete-row initial-form floating']").first.click()
+        self.browser.find_by_xpath("//span[@class='all-relationships incoming-relationships i_bobs_rel1_1-relationships']//a[@class='delete-row initial-form floating']").first.click()
         self.browser.find_by_value('Save Bob\'s type').first.click()
         self.browser.find_link_by_href('/graphs/bobs-graph/').first.click()
         self.browser.find_by_id('visualization-type').first.click()
         self.browser.find_by_id('visualization-sigma').first.click()
         text = self.browser.find_by_xpath("//div[@class='flags-block']/span[@class='graph-relationships']").first.value
         self.assertEqual(text, "0 relationships")
+        Graph.objects.get(name="Bob's graph").destroy()
+
+    def test_graph_export_gexf(self):
+        create_graph(self)
+        create_schema(self)
+        create_type(self)
+        create_data(self)
+        self.browser.find_by_id('toolsMenu').first.click()
+        cookies = {self.browser.cookies.all()[0]["name"]: self.browser.cookies.all()[0]["value"], self.browser.cookies.all()[1]["name"]: self.browser.cookies.all()[1]["value"]}
+        result = requests.get(self.live_server_url + '/tools/bobs-graph/export/gexf/', cookies=cookies)
+        self.assertEqual(result.headers['content-type'], 'application/xml')
+        self.assertEqual(self.browser.status_code.is_success(), True)
+        fw = open('sylva/base/tests/files/bobs-graph.gexf', 'w')
+        fw.write(result.content)
+        fw.close()
+        f = open('sylva/base/tests/files/bobs-graph.gexf')
+        xmlFile = ""
+        for line in f:
+            xmlFile += line
+        f.close()
+        self.assertEqual(xmlFile, result.content)
+        Graph.objects.get(name="Bob's graph").destroy()
+
+    def test_graph_export_csv(self):
+        create_graph(self)
+        create_schema(self)
+        create_type(self)
+        create_data(self)
+        self.browser.find_by_id('toolsMenu').first.click()
+        cookies = {self.browser.cookies.all()[0]["name"]: self.browser.cookies.all()[0]["value"], self.browser.cookies.all()[1]["name"]: self.browser.cookies.all()[1]["value"]}
+        result = requests.get(self.live_server_url + '/tools/bobs-graph/export/csv/', cookies=cookies)
+        self.assertEqual(result.headers['content-type'], 'application/zip')
+        self.assertEqual(self.browser.status_code.is_success(), True)
+        test_file = StringIO(result.content)
+        csv_zip = ZipFile(test_file)
+        for name in csv_zip.namelist():
+            fw = open('sylva/base/tests/files/' + name, 'w')
+            fw.write(csv_zip.read(name))
+            fw.close()
+        for name in csv_zip.namelist():
+            f = open('sylva/base/tests/files/' + name)
+            csvFile = ""
+            for line in f:
+                csvFile += line
+            f.close()
+            self.assertEqual(csv_zip.read(name), csvFile)
+        Graph.objects.get(name="Bob's graph").destroy()
 
     def test_node_type_deletion_keeping_nodes(self):
         create_graph(self)
@@ -159,7 +209,8 @@ class DataNodeTestCase(LiveServerTestCase):
             '''
         self.browser.execute_script(js_code)
         text = self.browser.evaluate_script('sigma.test_node_count')
-        self.assertEqual(text, 0)
+        self.assertEqual(text, 2)
+        Graph.objects.get(name="Bob's graph").destroy()
 
     def test_node_type_deletion_deleting_nodes(self):
         create_graph(self)
@@ -252,39 +303,3 @@ class DataNodeTestCase(LiveServerTestCase):
         text = self.browser.evaluate_script('sigma.test_node_count')
         self.assertEqual(text, 2)
 
-    def test_graph_export_gexf(self):
-        create_graph(self)
-        create_schema(self)
-        create_type(self)
-        create_data(self)
-        self.browser.find_by_id('toolsMenu').first.click()
-        cookies = {self.browser.cookies.all()[0]["name"]: self.browser.cookies.all()[0]["value"], self.browser.cookies.all()[1]["name"]: self.browser.cookies.all()[1]["value"]}
-        result = requests.get(self.live_server_url + '/tools/bobs-graph/export/gexf/', cookies=cookies)
-        self.assertEqual(result.headers['content-type'], 'application/xml')
-        self.assertEqual(self.browser.status_code.is_success(), True)
-        f = open('sylva/base/tests/files/bobs-graph.gexf')
-        xmlFile = ""
-        for line in f:
-            xmlFile += line
-        f.close()
-        self.assertEqual(xmlFile, result.content + "\n")
-
-    def test_graph_export_csv(self):
-        create_graph(self)
-        create_schema(self)
-        create_type(self)
-        create_data(self)
-        self.browser.find_by_id('toolsMenu').first.click()
-        cookies = {self.browser.cookies.all()[0]["name"]: self.browser.cookies.all()[0]["value"], self.browser.cookies.all()[1]["name"]: self.browser.cookies.all()[1]["value"]}
-        result = requests.get(self.live_server_url + '/tools/bobs-graph/export/csv/', cookies=cookies)
-        self.assertEqual(result.headers['content-type'], 'application/zip')
-        self.assertEqual(self.browser.status_code.is_success(), True)
-        test_file = StringIO(result.content)
-        csv_zip = ZipFile(test_file)
-        for name in csv_zip.namelist():
-            f = open('sylva/base/tests/files/' + name)
-            csvFile = ""
-            for line in f:
-                csvFile += line
-            f.close()
-            self.assertEqual(csv_zip.read(name), csvFile)

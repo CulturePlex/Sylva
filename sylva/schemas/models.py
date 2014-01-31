@@ -34,13 +34,14 @@ class Schema(models.Model, SchemaMixin):
 
         def get_property_fields(n):
             return {'required': n.required,
-                'slug': n.slug,
-                'default': n.default,
-                'value': n.value,
-                'datatype': n.datatype,
-                'display': n.display,
-                'description': n.description,
-                'validation': n.validation}
+                    'slug': n.slug,
+                    'default': n.default,
+                    'value': n.value,
+                    'datatype': n.datatype,
+                    'display': n.display,
+                    'description': n.description,
+                    'validation': n.validation,
+                    'auto': n.auto}
 
         schema = {}
         schema["node_types"] = []
@@ -342,12 +343,13 @@ class BaseProperty(models.Model):
             (u't', _(u'Time')),
             (u'c', _(u'Choices')),
             (u'f', _(u'Float')),
-            (u'o', _(u'Collaborator')),
+            (u'r', _(u'Collaborator')),
         )),
         (_("Auto"), (
             (u'w', _(u'Auto now')),
             (u'a', _(u'Auto now add')),
             (u'i', _(u'Auto increment')),
+            (u'o', _(u'Auto increment update')),
             (u'e', _(u'Auto user')),
         )),
     )
@@ -370,6 +372,7 @@ class BaseProperty(models.Model):
                                   help_text=_("Code in Javascript to "
                                               "validate the property"))
     order = models.IntegerField(_('order'), blank=True, null=True)
+    auto = models.IntegerField(_('auto'), blank=True, null=True)
 
     class Meta:
         abstract = True
@@ -394,11 +397,12 @@ class BaseProperty(models.Model):
             "choice": u"c",
             "text": u"x",
             "float": u"f",
-            "collaborator": u"o",
+            "collaborator": u"r",
             "auto_now": u"w",
             "auto_now_add": u"a",
             "auto_increment": u"i",
-            "auto_user": u"e"
+            "auto_increment_update": u"o",
+            "auto_user": u"e",
         }
 
     def get_datatype(self):

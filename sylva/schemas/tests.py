@@ -1,4 +1,4 @@
-#-*- coding:utf8 -*-
+#-*- coding:utf-8 -*-
 
 from django.test import TestCase
 from datetime import date, time
@@ -44,7 +44,13 @@ def property_pre_setUp(property_test):
         'date': (u'd', date(1988, 12, 14)),
         'time': (u't', time(19, 30, 55)),
         'choices': (u'c', ((1, 'one'), (2, 'two'))),
-        'float': (u'f', 1.9)}
+        'float': (u'f', 1.9),
+        'collaborator': (u'r', ""),
+        'auto now': (u'w', ""),
+        'auto now add': (u'a', ""),
+        'auto increment': (u'i', ""),
+        'auto increment update': (u'o', ""),
+        'auto user': (u'e', "")}
     property_test.new_value = u"Bob's fake property value"
     property_test.schema = Schema.objects.create()
 

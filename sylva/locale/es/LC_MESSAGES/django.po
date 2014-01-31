@@ -1,0 +1,3341 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2013-12-10 14:02+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1)\n"
+
+#: settings.py:65
+msgid "English"
+msgstr ""
+
+#: settings.py:66
+msgid "Español"
+msgstr ""
+
+#: accounts/models.py:15 engines/models.py:21 graphs/models.py:38
+#: schemas/models.py:167
+msgid "name"
+msgstr ""
+
+#: accounts/models.py:17
+#: payments/templates/payments/subscription_plans.html:21
+#: payments/templates/payments/subscription_plans.html:81
+msgid "Free"
+msgstr ""
+
+#: accounts/models.py:18 schemas/models.py:334
+msgid "Basic"
+msgstr ""
+
+#: accounts/models.py:19
+msgid "Premium"
+msgstr ""
+
+#: accounts/models.py:21 engines/models.py:62
+msgid "type"
+msgstr ""
+
+#: accounts/models.py:25
+msgid "graphs"
+msgstr ""
+
+#: accounts/models.py:26 graphs/templates/graphs_info.html:17
+msgid "nodes"
+msgstr ""
+
+#: accounts/models.py:27 graphs/templates/graphs_info.html:21
+msgid "relationships"
+msgstr ""
+
+#: accounts/models.py:29
+msgid "storage"
+msgstr ""
+
+#: accounts/models.py:30
+msgid "bytes"
+msgstr ""
+
+#: accounts/models.py:31
+msgid "queries"
+msgstr ""
+
+#: accounts/models.py:32
+msgid "Queries per day"
+msgstr ""
+
+#: accounts/models.py:33
+msgid "privacy"
+msgstr ""
+
+#: accounts/models.py:35
+msgid "Can change graphs' privacy?"
+msgstr ""
+
+#: accounts/models.py:43
+msgid "Male"
+msgstr ""
+
+#: accounts/models.py:44
+msgid "Female"
+msgstr ""
+
+#: accounts/models.py:46
+msgid "gender"
+msgstr ""
+
+#: accounts/models.py:50
+msgid "website"
+msgstr ""
+
+#: accounts/models.py:51
+msgid "location"
+msgstr ""
+
+#: accounts/models.py:52
+msgid "birth date"
+msgstr ""
+
+#: accounts/models.py:53
+msgid "about me"
+msgstr ""
+
+#: accounts/models.py:54
+msgid "institution"
+msgstr ""
+
+#: accounts/models.py:56
+msgid "company"
+msgstr ""
+
+#: accounts/models.py:58
+msgid "laboratoy"
+msgstr ""
+
+#: accounts/models.py:60 data/models.py:25 engines/models.py:54
+#: graphs/models.py:53 schemas/models.py:17
+msgid "options"
+msgstr ""
+
+#: accounts/models.py:61
+msgid "user"
+msgstr ""
+
+#: accounts/models.py:62
+msgid "account"
+msgstr ""
+
+#: accounts/models.py:67
+msgid "View profile"
+msgstr ""
+
+#: accounts/models.py:68
+msgid "Change profile"
+msgstr ""
+
+#: accounts/models.py:69
+msgid "Delete profile"
+msgstr ""
+
+#: base/templates/403.html:5
+msgid "Forbidden"
+msgstr ""
+
+#: base/templates/403.html:32
+msgid "Sorry, you don't have permission to access this page."
+msgstr ""
+
+#: base/templates/404.html:5
+msgid "Page not found"
+msgstr ""
+
+#: base/templates/404.html:32
+msgid "Sorry, that page doesn't exist!"
+msgstr ""
+
+#: base/templates/404.html:35
+msgid "The page you are looking for has not been found."
+msgstr ""
+
+#: base/templates/500.html:5 base/templates/503.html:5
+msgid "Server error"
+msgstr ""
+
+#: base/templates/500.html:31
+msgid "Oops! Something went wrong..."
+msgstr ""
+
+#: base/templates/500.html:34
+msgid ""
+"It seems like we are having some problem at the server. Please, come back in "
+"a few minutes."
+msgstr ""
+
+#: base/templates/503.html:31
+msgid "Temporarily Down for Maintenance"
+msgstr ""
+
+#: base/templates/503.html:34
+msgid ""
+"We are performing scheduled maintenance. We should be back online shortly. "
+"Meanwhile, keep an eye on Twitter to check our updates."
+msgstr ""
+
+#: base/templates/base.html:9
+msgid "Welcome to The Sylva Project"
+msgstr ""
+
+#: base/templates/base.html:41 base/templates/base.html.py:72
+#: base/templates/dashboard.html:10 base/templates/dashboard.html.py:14
+#: graphs/templates/graphs_create.html:5
+msgid "Dashboard"
+msgstr ""
+
+#: base/templates/base.html:43 base/templates/base.html.py:74
+#: base/templates/index.html:78
+msgid "Sign out"
+msgstr ""
+
+#: base/templates/base.html:67
+msgid "Take a tour"
+msgstr ""
+
+#: base/templates/base.html:68
+msgid "Help"
+msgstr ""
+
+#: base/templates/base.html:76
+msgid "Home"
+msgstr ""
+
+#: base/templates/base.html:108
+msgid "All rights reserved"
+msgstr ""
+
+#: base/templates/breadcrumb.html:2 base/templates/dashboard.html:28
+#: base/templates/dashboard.html.py:93 data/templates/nodes_delete.html:22
+#: data/templates/nodes_editcreate.html:23 data/templates/nodes_view.html:18
+#: data/templates/relationships_list.html:6
+#: data/templates/results_list.html:29 graphs/templates/graphs_create.html:11
+#: graphs/templates/graphs_delete.html:16 graphs/templates/graphs_edit.html:16
+#: schemas/templates/schemas_item_delete.html:23
+#: schemas/templates/schemas_item_edit.html:19
+#: schemas/templates/schemas_properties_mend.html:19
+msgid "Graphs"
+msgstr ""
+
+#: base/templates/dashboard.html:26
+msgid "New Graph"
+msgstr ""
+
+#: base/templates/dashboard.html:27
+msgid "Filter"
+msgstr ""
+
+#: base/templates/dashboard.html:33
+msgid "There're no graphs yet."
+msgstr ""
+
+#: base/templates/dashboard.html:42
+msgid "Buy an own instance"
+msgstr ""
+
+#: base/templates/dashboard.html:43
+msgid "Instances"
+msgstr ""
+
+#: base/templates/dashboard.html:51
+msgid "There're no instances yet."
+msgstr ""
+
+#: base/templates/dashboard.html:60 base/templates/dashboard.html.py:97
+msgid "Collaborations"
+msgstr ""
+
+#: base/templates/dashboard.html:66
+msgid "There're no graphs in collaboration yet."
+msgstr ""
+
+#: base/templates/dashboard.html:75
+msgid "Statistics"
+msgstr ""
+
+#: base/templates/dashboard.html:77
+msgid "Relationships (Y axe), Nodes (X axe), Storage (bubble size)."
+msgstr ""
+
+#: base/templates/dashboard.html:80
+msgid "There're no statistics yet."
+msgstr ""
+
+#: base/templates/dashboard.html:88 base/templates/dashboard.html.py:92
+#: base/templates/dashboard.html:96 data/templates/nodes_editcreate.html:178
+#: data/templates/nodes_editcreate.html:182
+#: data/templates/nodes_editcreate.html:186
+#: data/templates/nodes_editcreate.html:190
+#: data/templates/nodes_editcreate.html:194 data/templates/nodes_view.html:139
+#: data/templates/nodes_view.html.py:143 data/templates/nodes_view.html:147
+#: graphs/templates/graphs_collaborators.html:112
+#: graphs/templates/graphs_collaborators.html:116
+#: graphs/templates/graphs_create.html:28
+#: graphs/templates/graphs_create.html:32 graphs/templates/graphs_view.html:91
+#: graphs/templates/graphs_view.html:102
+#: schemas/templates/schemas_edit.html:174
+#: schemas/templates/schemas_edit.html:179
+#: schemas/templates/schemas_edit.html:183
+#: schemas/templates/schemas_edit.html:187
+#: schemas/templates/schemas_item_edit.html:156
+#: schemas/templates/schemas_item_edit.html:160
+#: schemas/templates/schemas_item_edit.html:164
+#: schemas/templates/schemas_item_edit.html:168
+#: schemas/templates/schemas_item_edit.html:172
+#: schemas/templates/schemas_item_edit.html:176
+#: schemas/templates/schemas_item_edit.html:180
+msgid "Next"
+msgstr ""
+
+#: base/templates/dashboard.html:89
+msgid "Create a graph"
+msgstr ""
+
+#: base/templates/dashboard.html:90
+msgid "You can start creating a graph clicking on this button."
+msgstr ""
+
+#: base/templates/dashboard.html:94
+msgid "Your personal graphs are listed in this section."
+msgstr ""
+
+#: base/templates/dashboard.html:98
+msgid "The graphs where you are a collaborator are listed here."
+msgstr ""
+
+#: base/templates/dashboard.html:100 data/templates/nodes_editcreate.html:198
+#: data/templates/nodes_view.html:151 graphs/templates/graphs_create.html:36
+#: graphs/templates/graphs_view.html:117
+#: schemas/templates/schemas_edit.html:191
+#: schemas/templates/schemas_edit.html:196
+#: schemas/templates/schemas_item_edit.html:191
+msgid "Finish"
+msgstr ""
+
+#: base/templates/dashboard.html:101 search/forms.py:7 search/forms.py:10
+#: search/templates/search_results.html:5
+#: search/templates/search_results.html:13
+msgid "Search"
+msgstr ""
+
+#: base/templates/dashboard.html:102
+msgid "You can quickly filter all your graphs with just typing the name."
+msgstr ""
+
+#: base/templates/get_started.html:10
+msgid "Getting Started with SylvaDB"
+msgstr ""
+
+#: base/templates/get_started.html:14
+msgid "Getting Started"
+msgstr ""
+
+#: base/templates/get_started.html:25 base/templates/get_started.html.py:97
+msgid "Introduction"
+msgstr ""
+
+#: base/templates/get_started.html:30 base/templates/get_started.html:102
+msgid "What is a graph database"
+msgstr ""
+
+#: base/templates/get_started.html:31 base/templates/get_started.html:125
+msgid "Why use SylvaDB"
+msgstr ""
+
+#: base/templates/get_started.html:34 base/templates/get_started.html:134
+msgid "An overview"
+msgstr ""
+
+#: base/templates/get_started.html:39 base/templates/get_started.html:139
+msgid "The Dashboard"
+msgstr ""
+
+#: base/templates/get_started.html:42 base/templates/get_started.html:155
+msgid "Designing the graph"
+msgstr ""
+
+#: base/templates/get_started.html:47 base/templates/get_started.html:160
+msgid "Creating a graph"
+msgstr ""
+
+#: base/templates/get_started.html:48 base/templates/get_started.html:175
+msgid "Creating a schema"
+msgstr ""
+
+#: base/templates/get_started.html:51 base/templates/get_started.html:265
+msgid "Adding data"
+msgstr ""
+
+#: base/templates/get_started.html:56 base/templates/get_started.html:270
+msgid "Creating nodes"
+msgstr ""
+
+#: base/templates/get_started.html:57 base/templates/get_started.html:320
+msgid "Creating relationships"
+msgstr ""
+
+#: base/templates/get_started.html:58 base/templates/get_started.html:345
+msgid "Adding multimedia"
+msgstr ""
+
+#: base/templates/get_started.html:61 base/templates/get_started.html:357
+msgid "Visualizing the graph"
+msgstr ""
+
+#: base/templates/get_started.html:66 base/templates/get_started.html:362
+msgid "Graph visualization"
+msgstr ""
+
+#: base/templates/get_started.html:69 base/templates/get_started.html:380
+msgid "Exporting graphs"
+msgstr ""
+
+#: base/templates/get_started.html:74 base/templates/get_started.html:390
+msgid "Exporting the schema"
+msgstr ""
+
+#: base/templates/get_started.html:75 base/templates/get_started.html:397
+msgid "Exporting data as GEXF (Gephi)"
+msgstr ""
+
+#: base/templates/get_started.html:76 base/templates/get_started.html:404
+msgid "Exporting data as CSV"
+msgstr ""
+
+#: base/templates/get_started.html:79 base/templates/get_started.html:414
+msgid "Importing graphs"
+msgstr ""
+
+#: base/templates/get_started.html:84 base/templates/get_started.html:422
+msgid "Importing the schema"
+msgstr ""
+
+#: base/templates/get_started.html:85
+msgid "Importing data from GEXF (Gephi)"
+msgstr ""
+
+#: base/templates/get_started.html:86
+msgid "Importing data from CSV"
+msgstr ""
+
+#: base/templates/get_started.html:87 base/templates/get_started.html:449
+msgid "Editing CSV files"
+msgstr ""
+
+#: base/templates/get_started.html:93
+msgid "Getting started with SylvaDB"
+msgstr ""
+
+#: base/templates/get_started.html:98 base/templates/get_started.html:103
+#: base/templates/get_started.html:126 base/templates/get_started.html:135
+#: base/templates/get_started.html:140 base/templates/get_started.html:156
+#: base/templates/get_started.html:161 base/templates/get_started.html:176
+#: base/templates/get_started.html:266 base/templates/get_started.html:271
+#: base/templates/get_started.html:321 base/templates/get_started.html:346
+#: base/templates/get_started.html:358 base/templates/get_started.html:363
+#: base/templates/get_started.html:381 base/templates/get_started.html:391
+#: base/templates/get_started.html:398 base/templates/get_started.html:405
+#: base/templates/get_started.html:415 base/templates/get_started.html:423
+#: base/templates/get_started.html:432 base/templates/get_started.html:441
+#: base/templates/get_started.html:450
+msgid "Permalink to this headline"
+msgstr ""
+
+#: base/templates/get_started.html:106
+msgid ""
+"A graph database stores data in a graph, the most generic of data "
+"structures, capable of elegantly representing any kind of data in a highly "
+"accessible way. Basically, a graph states that something is related to "
+"something else. It's a natural way of specifying relationships among a "
+"collection of items."
+msgstr ""
+
+#: base/templates/get_started.html:108
+msgid ""
+"A graph uses <strong>nodes</strong>, <strong>edges</strong> and "
+"<strong>properties</strong> to represent the data. Typically, nodes are "
+"represented as circles and edges as arrows."
+msgstr ""
+
+#: base/templates/get_started.html:110
+msgid "This is an example of a simple graph:"
+msgstr ""
+
+#: base/templates/get_started.html:112
+msgid "simple graph"
+msgstr ""
+
+#: base/templates/get_started.html:114
+msgid ""
+"<strong>Nodes</strong> represent <em>entities</em> such as people, books, "
+"songs, or any other item you might want to keep track of. <strong>Edges</"
+"strong> represent the relationship between the nodes. And properties are "
+"pertinent information that relate to nodes or relationships. But in the "
+"above graph there isn't any property... yet."
+msgstr ""
+
+#: base/templates/get_started.html:116
+msgid "This is an example of a simple graph with some properties:"
+msgstr ""
+
+#: base/templates/get_started.html:118
+msgid "simple property graph"
+msgstr ""
+
+#: base/templates/get_started.html:120
+msgid ""
+"In this graph there are three nodes representing two kind of entities: the "
+"entity <strong>Person</strong> and the entity <strong>Group</strong>. As you "
+"can see, each node has a set of properties with information about the "
+"entity. Also, there are six relationships between the nodes, but only two "
+"relationships have properties. Easy!"
+msgstr ""
+
+#: base/templates/get_started.html:122
+msgid ""
+"A graph is a flexible and powerful tool for describing relations between "
+"elements of any kind. For this reason, graph databases are often faster than "
+"traditional databases for associative data sets with highly complex "
+"relationships. They can scale more naturally as they do not typically "
+"require expensive database operations. Also, they are suitable to manage ad-"
+"hoc and changing data as they depend less on a rigid <em>schema</em> to "
+"describe relations between elements."
+msgstr ""
+
+#: base/templates/get_started.html:128
+msgid ""
+"SylvaDB is an easy-to-use, flexible, and scalable graph database management "
+"system that helps you collect, collaborate, visualize and query large data "
+"sets. It provides all the benefits of using a graph database. And the best "
+"thing is that you will need no programming knowledge to use it."
+msgstr ""
+
+#: base/templates/get_started.html:143
+msgid ""
+"This is the panel where you manage your graphs in SylvaDB. It's divided in "
+"three columns: Graphs, Collaborations and Statistics."
+msgstr ""
+
+#: base/templates/get_started.html:145
+msgid "the dashboard"
+msgstr ""
+
+#: base/templates/get_started.html:147
+msgid ""
+"In <strong>Graphs</strong> you will find all the graphs you have created. "
+"<strong>Collaborations</strong> is for all those graphs where you are "
+"contributing as a collaborator. And <strong>Statistics</strong> shows some "
+"statistics about your graphs."
+msgstr ""
+
+#: base/templates/get_started.html:149
+msgid "We haven't created any graph yet... So, let's create a new one!"
+msgstr ""
+
+#: base/templates/get_started.html:164
+msgid ""
+"We are going to create a graph about music. So, first of all, we need to "
+"choose a <strong>name</strong> for our graph. We will call it <em>My music "
+"collection</em>. It's useful to also provide a <strong>description</strong>, "
+"although it's not required. Finally, we choose if our graph will be "
+"<strong>public</strong> or not (publicly available for other people)."
+msgstr ""
+
+#: base/templates/get_started.html:166
+msgid "new graph"
+msgstr ""
+
+#: base/templates/get_started.html:168
+msgid ""
+"After clicking on <em>Create new graph</em>, we will be redirected to the "
+"Dashboard, where we can see an overview of our new graph."
+msgstr ""
+
+#: base/templates/get_started.html:170
+msgid "graph overview"
+msgstr ""
+
+#: base/templates/get_started.html:172
+msgid ""
+"Some useful information is showed in this overview. For example, you can see "
+"the number of <em>nodes</em> and <em>relationships</em> of the graph, also "
+"the number of <em>collaborators</em>, and other information that we will see "
+"later, as <em>Strict Schema...</em> What does it mean? Let's see!"
+msgstr ""
+
+#: base/templates/get_started.html:179
+msgid ""
+"A schema is the place where you describe how is organized your data, the "
+"structure of your database. In a graph database you use the schema to define "
+"<strong>Types</strong>: the kind of data you can store in your nodes. Also, "
+"to define the <strong>allowed relationships</strong> between the nodes."
+msgstr ""
+
+#: base/templates/get_started.html:181
+msgid "So, clicking on"
+msgstr ""
+
+#: base/templates/get_started.html:181
+msgid "strict schema"
+msgstr ""
+
+#: base/templates/get_started.html:181
+msgid "you will see there isn't any Type defined yet. Let's create a new Type."
+msgstr ""
+
+#: base/templates/get_started.html:183
+msgid ""
+"After clicking on <em>New Type</em>, you will see a form where you can add a "
+"<strong>Name</strong> and a <strong>Description</strong> for your Type."
+msgstr ""
+
+#: base/templates/get_started.html:185 data/templates/nodes.html:52
+#: data/templates/relationships_list.html:41
+#: data/templates/results_list.html:87 schemas/templates/schemas_edit.html:151
+#: schemas/templates/schemas_edit.html:168
+#: schemas/templates/schemas_edit.html:175
+msgid "New Type"
+msgstr ""
+
+#: base/templates/get_started.html:187
+msgid ""
+"You should see Types as data <em>entities</em>. For example: a book, a "
+"person, an album, etc. Here we are creating a Type to represent an "
+"<strong>Album</strong> entity."
+msgstr ""
+
+#: base/templates/get_started.html:189
+#, python-format
+msgid ""
+"Then, we define the <strong>properties</strong> of the Type. We need to "
+"think what are the most relevant information about a music album. For "
+"example, we would store: <em>Title</em>, <em>Duration</em>, <em>Number of "
+"tracks</em> and <em>Release date</em>. Those are what we call the "
+"<strong>keys</strong>. So, clicking on <img class=\"inline\" src="
+"\"%(STATIC_PREFIX)simg/docs/get_started/schema_add_property_link.png\"> we "
+"can get something like this:"
+msgstr ""
+
+#: base/templates/get_started.html:191
+msgid "Type properties"
+msgstr ""
+
+#: base/templates/get_started.html:193
+msgid ""
+"You can see that we have marked the property <em>Title</em> as the "
+"<strong>label</strong> of this Type. This way, we will use this property to "
+"identify each node."
+msgstr ""
+
+#: base/templates/get_started.html:195
+#, python-format
+msgid ""
+"We finish clicking on <img class=\"inline\" src=\"%(STATIC_PREFIX)simg/docs/"
+"get_started/schema_save_type.png\">. Then you will see an overview of our "
+"schema:"
+msgstr ""
+
+#: base/templates/get_started.html:197 base/templates/get_started.html:257
+msgid "Schema diagram"
+msgstr ""
+
+#: base/templates/get_started.html:199
+msgid ""
+"Also, we want to create the Type <strong>Artist</strong>, so move to the "
+"bottom of the page and click <em>New Type</em>."
+msgstr ""
+
+#: base/templates/get_started.html:201 base/templates/get_started.html:253
+msgid "More Types"
+msgstr ""
+
+#: base/templates/get_started.html:203
+msgid ""
+"We will define three properties for the Type <strong>Artist</strong>: "
+"<em>Active</em>, <em>Name</em> and <em>Size</em>. Note that <em>Name</em> "
+"will be the label."
+msgstr ""
+
+#: base/templates/get_started.html:205
+msgid "Artist properties"
+msgstr ""
+
+#: base/templates/get_started.html:207
+msgid ""
+"By default, properties are defined as <em>strings</em>, but sometimes we'll "
+"want to restrict the kind of data we would want to store: a <em>number</em>, "
+"a <em>date</em>, a <em>boolean</em>, ... In those cases, we can define the "
+"<em>type</em> of a property using the <strong>Advanced Mode</strong> tool. "
+"So, clicking on <em>Advanced Mode</em>, you will see a set of fields for "
+"each property:"
+msgstr ""
+
+#: base/templates/get_started.html:209
+#: schemas/templates/schemas_item_edit.html:144
+#: schemas/templates/schemas_item_edit.html:181
+#: schemas/templates/schemas_item_edit.html:241
+msgid "Advanced Mode"
+msgstr ""
+
+#: base/templates/get_started.html:211
+msgid ""
+"We are interested in using just the <strong>Data type</strong> field. So, "
+"clicking on that field, you will see a list of property types. Now select "
+"the type <em>Boolean</em> for the property <em>Active</em> and <em>Number</"
+"em> for the property <em>Size</em>. This way, we are limiting the possible "
+"values of the <em>Active</em> property to be just <em>True</em> or "
+"<em>False</em> (visualized as a check box), and the possible values of the "
+"<em>Size</em> property to be just <em>numbers</em>, avoiding possible errors "
+"and mistakes when storing data."
+msgstr ""
+
+#: base/templates/get_started.html:213
+msgid "We finish clicking on"
+msgstr ""
+
+#: base/templates/get_started.html:213
+#: schemas/templates/schemas_item_edit.html:41
+msgid "Save Type"
+msgstr ""
+
+#: base/templates/get_started.html:215
+msgid "Album-Artist schema overview"
+msgstr ""
+
+#: base/templates/get_started.html:217
+msgid ""
+"So, it's time to change the Type <strong>Album</strong>, updating the types "
+"of its properties using the <em>Advanced Mode</em> tool. This time, we want "
+"to use the type <em>Date</em> for the property <em>Release Date</em> and the "
+"type <em>Number</em> for the property <em>Number of tracks</em>."
+msgstr ""
+
+#: base/templates/get_started.html:219
+msgid "Album change properties"
+msgstr ""
+
+#: base/templates/get_started.html:221
+msgid ""
+"Finally, repeating the steps to create also the Type <strong>Concert</"
+"strong>, we get the following schema:"
+msgstr ""
+
+#: base/templates/get_started.html:223
+msgid "Types listed"
+msgstr ""
+
+#: base/templates/get_started.html:225
+msgid ""
+"We have defined three Types in our schema: <strong>Artist</strong>, "
+"<strong>Album</strong> and <strong>Concert</strong>, so we can already "
+"create nodes in our graph using these Types. But, this way, our graph will "
+"contain only nodes without any relation between them. And we think there is "
+"some sort of connection between these three entities, so, we need to also "
+"define <strong>Relationships</strong> in our schema."
+msgstr ""
+
+#: base/templates/get_started.html:227
+msgid "Here you can see the relationships we want to create:"
+msgstr ""
+
+#: base/templates/get_started.html:229
+msgid "Music Collection schema graph"
+msgstr ""
+
+#: base/templates/get_started.html:231
+msgid ""
+"Note that we have two different relationships between <em>Album</em> and "
+"<em>Concert</em>."
+msgstr ""
+
+#: base/templates/get_started.html:233
+msgid ""
+"We start defining the relationship between <em>Artist</em> and <em>Album</"
+"em>. So, in the <em>Artist</em> section from the schema overview we saw "
+"before, we click on <strong>outgoing</strong>:"
+msgstr ""
+
+#: base/templates/get_started.html:235
+msgid "Artist-Album relationship"
+msgstr ""
+
+#: base/templates/get_started.html:237
+msgid ""
+"Then, we select <em>Album</em> as the <strong>target</strong> of the "
+"relationship:"
+msgstr ""
+
+#: base/templates/get_started.html:239
+msgid "Artist-Album relationship name"
+msgstr ""
+
+#: base/templates/get_started.html:241
+msgid ""
+"We also want to add some property to this relationship. We want to store the "
+"<em>Date</em>:"
+msgstr ""
+
+#: base/templates/get_started.html:243
+msgid "Artist-Album relationship properties"
+msgstr ""
+
+#: base/templates/get_started.html:245
+msgid ""
+"As you can see, we have marked the property <em>Date</em> as the "
+"<strong>label</strong> of the relationship. This way, we will use this "
+"property to identify each relationship when we visualize the graph."
+msgstr ""
+
+#: base/templates/get_started.html:247
+msgid ""
+"After clicking <em>Save Type</em>, you will see that a new relationship has "
+"been created in the Schema diagram (you can drag the boxes to see the schema "
+"better):"
+msgstr ""
+
+#: base/templates/get_started.html:249
+msgid "Artist-Album diagram"
+msgstr ""
+
+#: base/templates/get_started.html:251
+msgid ""
+"When you create a relationship in the schema between two Types, you will not "
+"see the links <em>incoming</em> nor <em>outgoing</em> anymore. So, you will "
+"need to use the link <strong>New allowed Relationship</strong> at the bottom "
+"of the page if you want to create more relationships using either of these "
+"Types."
+msgstr ""
+
+#: base/templates/get_started.html:255
+msgid ""
+"This time, we don't want to define any property in these relationships. So, "
+"repeating the process to create the rest of relationships, finally we get "
+"our database schema:"
+msgstr ""
+
+#: base/templates/get_started.html:259
+msgid ""
+"We have created a schema for the <em>Music Collection</em> graph. But, we "
+"haven't added any data yet, so in the next topics we will see how to add "
+"some <strong>nodes</strong> and <strong>relationships</strong> to the graph."
+msgstr ""
+
+#: base/templates/get_started.html:274
+msgid ""
+"In order to store some data in our graph, we need to create <em>nodes</em>. "
+"So, move to the top menu at the right corner of the screen:"
+msgstr ""
+
+#: base/templates/get_started.html:276
+msgid "Data menu"
+msgstr ""
+
+#: base/templates/get_started.html:278
+msgid "And add a new <em>Artist</em> clicking on the '+' symbol:"
+msgstr ""
+
+#: base/templates/get_started.html:280
+msgid "Data Artist new link"
+msgstr ""
+
+#: base/templates/get_started.html:282
+msgid ""
+"Yo will see a form to fill in with data about the Artist. This form is "
+"composed by four sections:"
+msgstr ""
+
+#: base/templates/get_started.html:285 data/templates/nodes_editcreate.html:31
+#: data/templates/nodes_editcreate.html:179 data/templates/nodes_view.html:25
+#: schemas/templates/schemas_item_edit.html:58
+#: schemas/templates/schemas_item_edit.html:165
+msgid "Properties"
+msgstr ""
+
+#: base/templates/get_started.html:286 base/templates/toolbar.html:39
+#: data/templates/nodes_editcreate.html:183 data/templates/nodes_view.html:144
+#: data/templates/relationships_list.html:6
+#: search/templates/search_results.html:37
+msgid "Relationships"
+msgstr ""
+
+#: base/templates/get_started.html:287
+#: data/templates/nodes_editcreate.html:144
+#: data/templates/nodes_editcreate.html:195 data/templates/nodes_view.html:113
+msgid "Files"
+msgstr ""
+
+#: base/templates/get_started.html:288
+#: data/templates/nodes_editcreate.html:158
+#: data/templates/nodes_editcreate.html:199 data/templates/nodes_view.html:125
+msgid "Links"
+msgstr ""
+
+#: base/templates/get_started.html:291
+msgid ""
+"The <strong>Properties</strong> section represent the properties we defined "
+"in the schema for the Type <strong>Artist</strong>. For example, we will add "
+"information about <em>Led Zeppelin</em>:"
+msgstr ""
+
+#: base/templates/get_started.html:293
+msgid "Data properties section"
+msgstr ""
+
+#: base/templates/get_started.html:295
+msgid ""
+"We will see the rest of form sections later. So, let's save the <em>artist</"
+"em> clicking on the <em>save</em> button. You will see a data summary with "
+"the nodes for this <em>entity</em>. Currently, this list only shows one node."
+msgstr ""
+
+#: base/templates/get_started.html:297
+msgid ""
+"You can change the order of properties listed using the field <em>Order</em> "
+"from the <em>Advanced Mode</em> tool we saw before in the Schema definition. "
+"So, let's return to the schema definition for <strong>Artist</strong> and "
+"activate the <em>Advanced Mode</em> tool. You simply use numbers to indicate "
+"the order:"
+msgstr ""
+
+#: base/templates/get_started.html:299
+msgid "Schema properties ordered"
+msgstr ""
+
+#: base/templates/get_started.html:301
+msgid "Now the properties are listed in the order we set:"
+msgstr ""
+
+#: base/templates/get_started.html:303
+msgid "Data properties section ordered"
+msgstr ""
+
+#: base/templates/get_started.html:305
+msgid ""
+"Let's add some information about an <strong>Album</strong>. Again, move to "
+"the top menu and click on the '+' icon:"
+msgstr ""
+
+#: base/templates/get_started.html:307
+msgid "Data Album new link"
+msgstr ""
+
+#: base/templates/get_started.html:309
+msgid ""
+"We repeat the same process filling in the properties for <em>Album</em>."
+msgstr ""
+
+#: base/templates/get_started.html:311
+msgid "Data Album properties"
+msgstr ""
+
+#: base/templates/get_started.html:313
+msgid "We also add some information about a <strong>Concert</strong>:"
+msgstr ""
+
+#: base/templates/get_started.html:315
+msgid "Data Concert properties"
+msgstr ""
+
+#: base/templates/get_started.html:317
+msgid ""
+"We have just created three nodes in our graph for the types <strong>Artist</"
+"strong>, <strong>Album</strong> and <strong>Concert</strong>."
+msgstr ""
+
+#: base/templates/get_started.html:324
+msgid ""
+"After saving the <strong>Concert</strong>, you will see a data summary with "
+"the nodes for this <em>entity</em>. Currently, this list only shows one node."
+msgstr ""
+
+#: base/templates/get_started.html:326
+msgid "Data Concert list"
+msgstr ""
+
+#: base/templates/get_started.html:328
+#, python-format
+msgid ""
+"Since we haven't added any relationship yet, clicking on the icon <img class="
+"\"inline\" src=\"%(STATIC_PREFIX)simg/docs/get_started/relationship_icon.png"
+"\"> will not show any relationship. So, let's add a relationship."
+msgstr ""
+
+#: base/templates/get_started.html:330
+#, python-format
+msgid ""
+"Clicking on the icon <img class=\"inline\" src=\"%(STATIC_PREFIX)simg/docs/"
+"get_started/edit_icon.png\"> the form for <strong>Concert</strong> will be "
+"showed again, but this time, we just want to add relationships:"
+msgstr ""
+
+#: base/templates/get_started.html:332 base/templates/get_started.html:338
+msgid "Data Concert relationships"
+msgstr ""
+
+#: base/templates/get_started.html:334
+msgid ""
+"Note that the little arrows show you the direction of the relationship. "
+"Also, you can see enclosed by parenthesis the <em>type</em> of the <em>node</"
+"em> at the <strong>source</strong> or <strong>target</strong> of the "
+"relationship."
+msgstr ""
+
+#: base/templates/get_started.html:336
+msgid ""
+"Adding a <em>target</em> or <em>source</em> to each relationship is really "
+"easy. Just start typing the <em>label</em> property of the node (remember "
+"you marked the label checkbox in some properties), and you will show a list "
+"with results matching the criteria."
+msgstr ""
+
+#: base/templates/get_started.html:340
+msgid ""
+"We don't need to fill in the relationship <strong>was recorded in</strong>, "
+"so we will remove it clicking on"
+msgstr ""
+
+#: base/templates/get_started.html:342
+msgid ""
+"Finally, we finish clicking on <strong>Save Concert</strong>. We can repeat "
+"the same process with the rest of nodes and relationships."
+msgstr ""
+
+#: base/templates/get_started.html:349
+msgid ""
+"In the previous form you can also add <strong>links</strong> and "
+"<strong>files</strong> to your node:"
+msgstr ""
+
+#: base/templates/get_started.html:351
+msgid "Data multimedia"
+msgstr ""
+
+#: base/templates/get_started.html:366
+msgid ""
+"Clicking on <strong>Graph</strong> from the top menu, you will visualize the "
+"graph. You can choose two kind of views from the select box: <strong>inspect "
+"graph</strong> and <strong>whole graph</strong>."
+msgstr ""
+
+#: base/templates/get_started.html:368
+msgid ""
+"With <strong>inspect graph</strong> view, you can get a more detailed view "
+"of your graph. This view is useful for small graphs:"
+msgstr ""
+
+#: base/templates/get_started.html:370
+msgid "Visualization inspect graph"
+msgstr ""
+
+#: base/templates/get_started.html:372
+msgid ""
+"The <strong>whole graph</strong> view is the best option when you want to "
+"visualize big graphs (graphs with more than 50 nodes). It also provides some "
+"useful tools to improve the analysis and visualization of your graph:"
+msgstr ""
+
+#: base/templates/get_started.html:374
+msgid "Visualization whole graph"
+msgstr ""
+
+#: base/templates/get_started.html:384
+msgid ""
+"You can back up your graphs using the <em>Export tools</em>. In order to "
+"export a graph, you need to save the <strong>graph schema</strong> and the "
+"<strong>graph data</strong> (nodes and relationships). You have two ways of "
+"saving your graph data: using <a href=\"http://gexf.net/format/\"><abbr "
+"title=\"Graph Exchange XML Format\">GEXF (Gephi)</abbr></a> or using <a href="
+"\"http://en.wikipedia.org/wiki/Comma-separated_values\"><abbr title=\"Comma-"
+"separated values\">CSV</abbr></a> as file formats. Unfortunately, you can't "
+"save your attachments nor links at the moment."
+msgstr ""
+
+#: base/templates/get_started.html:386
+msgid "Export tools"
+msgstr ""
+
+#: base/templates/get_started.html:394
+msgid ""
+"You can save your graph schema using the <em>Export schema</em> tool. This "
+"tool will save your graph schema as a <a href=\"http://en.wikipedia.org/wiki/"
+"JSON\"><abbr title=\"JavaScript Object Notation\">JSON</abbr></a> file."
+msgstr ""
+
+#: base/templates/get_started.html:401
+msgid ""
+"This is the preferred way of saving your graph data in SylvaDB. This tool "
+"will save your nodes and relationships as a <a href=\"http://gexf.net/format/"
+"\"><abbr title=\"Graph Exchange XML Format\">GEXF (Gephi)</abbr></a> file."
+msgstr ""
+
+#: base/templates/get_started.html:408
+msgid ""
+"You can also save your graph data as <a href=\"http://en.wikipedia.org/wiki/"
+"Comma-separated_values\"><abbr title=\"Comma-separated values\">CSV</abbr></"
+"a> files. This tool will save your nodes and relationships in separate CSV "
+"files (one file for each node <em>type</em> and relationship <em>type</em>)."
+msgstr ""
+
+#: base/templates/get_started.html:418
+msgid ""
+"You can import graphs in SylvaDB using the <em>Import tools</em>. You have "
+"to import the <strong>graph schema</strong> and optionally the <strong>graph "
+"data</strong>. If you want to import data, you can use two file formats: <a "
+"href=\"http://gexf.net/format/\"><abbr title=\"Graph Exchange XML Format"
+"\">GEXF (Gephi)</abbr></a> and <a href=\"http://en.wikipedia.org/wiki/Comma-"
+"separated_values\"><abbr title=\"Comma-separated values\">CSV</abbr></a>. "
+"Note that you need an empty graph in order to import the schema and data."
+msgstr ""
+
+#: base/templates/get_started.html:426
+msgid ""
+"After creating a new graph, open the <em>Tools</em> menu and click "
+"<em>Import schema</em>. Then select the <a href=\"http://en.wikipedia.org/"
+"wiki/JSON\"><abbr title=\"JavaScript Object Notation\">JSON</abbr></a> file "
+"that holds your graph schema."
+msgstr ""
+
+#: base/templates/get_started.html:428 base/templates/toolbar.html:59
+msgid "Import schema"
+msgstr ""
+
+#: base/templates/get_started.html:431
+msgid "Importing from GEXF (Gephi)"
+msgstr ""
+
+#: base/templates/get_started.html:435
+msgid ""
+"This is the preferred way of loading nodes and relationships into your "
+"graphs. Just move to the <em>Tools</em> menu and click <em>Import data</em>. "
+"Then select <em>Load GEXF</em>. Finally, you only have to drag the GEXF file "
+"into the box."
+msgstr ""
+
+#: base/templates/get_started.html:437
+msgid "Import gexf"
+msgstr ""
+
+#: base/templates/get_started.html:440
+msgid "Importing from CSV"
+msgstr ""
+
+#: base/templates/get_started.html:444
+msgid ""
+"You can also load nodes and relationships from <a href=\"http://en.wikipedia."
+"org/wiki/Comma-separated_values\"><abbr title=\"Comma-separated values"
+"\">CSV</abbr></a> files. Move to the <em>Tools</em> menu and click "
+"<em>Import data</em>. Then select <em>Load CSV</em>. Finally, select all "
+"your nodes (CSV files) and drag them into the box. Wait for instructions and "
+"repeat the same operation with your relationships. Remember that you need "
+"one CSV file for each node <em>type</em> and relationship <em>type</em>."
+msgstr ""
+
+#: base/templates/get_started.html:446
+msgid "CSV files"
+msgstr ""
+
+#: base/templates/get_started.html:453
+msgid ""
+"A <a href=\"http://en.wikipedia.org/wiki/Comma-separated_values\"><abbr "
+"title=\"Comma-separated values\">CSV</abbr></a> file contains any number of "
+"<strong>rows</strong>, where each row consists of <strong>fields</strong> "
+"separated by <strong>commas</strong> and enclosed by <strong>double quotes</"
+"strong> (this is mandatory in SylvaDB). A field can contains line breaks, "
+"commas and escaped double quotes (represented as a pair of double quotes). "
+"The first row of a CSV is the <strong>header</strong> of the CSV and "
+"contains a list of field names. The other rows are data, and in SylvaDB they "
+"represent <strong>nodes</strong> or <strong>relationships</strong>, "
+"depending of the CSV file."
+msgstr ""
+
+#: base/templates/get_started.html:455
+msgid ""
+"This is an example of CSV for the node <em>type</em> <strong>Artist</strong>:"
+msgstr ""
+
+#: base/templates/get_started.html:462
+msgid ""
+"This is an example of CSV for the node <em>type</em> <strong>Album</strong>:"
+msgstr ""
+
+#: base/templates/get_started.html:470
+msgid ""
+"This is an example of CSV for the relationship <em>type</em> <strong>Record</"
+"strong>:"
+msgstr ""
+
+#: base/templates/get_started.html:478
+msgid ""
+"As you can see in the examples, in the case of nodes, the CSV header must "
+"contain the field names (in this order): <strong>id</strong>, <strong>type</"
+"strong> and all the property names of the node <em>type</em>. In the case of "
+"relationships, the CSV header must contain the field names (in this order): "
+"<strong>source id</strong>, <strong>target id</strong>, <strong>label</"
+"strong> and all the property names of the relationship <em>type</em>. Note "
+"that <strong>source id</strong> and <strong>target id</strong> are the IDs "
+"of the <em>source node</em> and <em>target node</em> of the relationship, "
+"respectively."
+msgstr ""
+
+#: base/templates/get_started.html:480
+msgid ""
+"Since a <a href=\"http://en.wikipedia.org/wiki/Comma-separated_values"
+"\"><abbr title=\"Comma-separated values\">CSV</abbr></a> file is just a <a "
+"href=\"http://en.wikipedia.org/wiki/Plain_text\">plain text</a> file, you "
+"can open it with any simple text editor (please, avoid Microsoft Word-like "
+"programs). Although the most common way for dealing with CSV files is using "
+"a spreadsheet software like <a href=\"http://en.wikipedia.org/wiki/"
+"LibreOffice_Calc\">LibreOffice Calc</a> or <a href=\"http://en.wikipedia.org/"
+"wiki/Microsoft_Excel\">Microsoft Excel</a>. In the next example, we will use "
+"LibreOffice Calc."
+msgstr ""
+
+#: base/templates/get_started.html:482
+msgid ""
+"Try opening the example for the node <em>type</em> <strong>Album</strong> "
+"with LibreOffice Calc. You will see a window like the following:"
+msgstr ""
+
+#: base/templates/get_started.html:484
+msgid "Importing a CSV in a LibreOffice Calc"
+msgstr ""
+
+#: base/templates/get_started.html:486
+msgid ""
+"Note that you must select the same options as shown in the \"Separator "
+"options\" and \"Other options\" sections from the above window. After "
+"clicking \"OK\", you will get your CSV imported:"
+msgstr ""
+
+#: base/templates/get_started.html:488
+msgid "CSV imported in LibreOffice Calc"
+msgstr ""
+
+#: base/templates/get_started.html:490
+msgid ""
+"Remember that in SylvaDB is mandatory to have every field enclosed by double "
+"quotes. This way, all the fields are interpreted as text, even the numbers. "
+"Note that fields are enclosed by double quotes only after saving the "
+"spreadsheet as a CSV file. So, you will not see the fields enclosed by "
+"double quotes while working in the spreadsheet."
+msgstr ""
+
+#: base/templates/get_started.html:492
+msgid ""
+"So, before adding data to the CSV, we must configure this sheet in order to "
+"process the numbers as text fields. Select all the rows (go to \"Edit\" menu "
+"and click \"Select All\"). Then open the \"Format Cells\" menu (go to "
+"\"Format menu\" and click \"Cells...\"). Finally, in the \"Category\" "
+"section, select \"text\":"
+msgstr ""
+
+#: base/templates/get_started.html:494
+msgid "Configuring the spreadsheet"
+msgstr ""
+
+#: base/templates/get_started.html:496
+msgid ""
+"After clicking \"OK\", numbers will be processed as text, and enclosed by "
+"double quotes when saving the spreadsheet as a CSV file."
+msgstr ""
+
+#: base/templates/get_started.html:498
+msgid "We are adding a few more albums to this spreadsheet:"
+msgstr ""
+
+#: base/templates/get_started.html:500
+msgid "Adding a few albums in the spreadsheet"
+msgstr ""
+
+#: base/templates/get_started.html:502
+msgid "Finally save the spreadsheet as \"Text CSV\" format."
+msgstr ""
+
+#: base/templates/get_started.html:504
+msgid ""
+"Now, if you open this CSV file with a simple text editor, you will see "
+"something like the following:"
+msgstr ""
+
+#: base/templates/get_started.html:514
+msgid ""
+"You can see that all the fields have been enclosed by double quotes, even "
+"the ID numbers. Also, if you have some embedded double quote literal inside "
+"any field, LibreOffice Calc will escape it using a pair of double quotes, so "
+"you don't have to handle this by hand."
+msgstr ""
+
+#: base/templates/get_started.html:516
+msgid ""
+"If you plan to add some data to a blank graph using CSV files, you can get a "
+"set of <em>CSV templates</em> using the <em>Export CSV templates</em> tool. "
+"Note that this tool is only available in graphs with no data (just the "
+"schema):"
+msgstr ""
+
+#: base/templates/get_started.html:518
+msgid "Exporting CSV templates"
+msgstr ""
+
+#: base/templates/index.html:53
+msgid "A Flexible Way To Manage Your Graphs"
+msgstr ""
+
+#: base/templates/index.html:60
+msgid "Contact"
+msgstr ""
+
+#: base/templates/index.html:63
+msgid "Follow"
+msgstr ""
+
+#: base/templates/index.html:66
+msgid "Code"
+msgstr ""
+
+#: base/templates/index.html:75
+msgid "Coming soon!"
+msgstr ""
+
+#: base/templates/index.html:75
+msgid "Plans"
+msgstr ""
+
+#: base/templates/index.html:76
+msgid "Sign up"
+msgstr ""
+
+#: base/templates/index.html:80
+msgid "Sign in"
+msgstr ""
+
+#: base/templates/index.html:92
+msgid "Graph Databases"
+msgstr ""
+
+#: base/templates/index.html:94
+msgid "Made Easy For Everyone"
+msgstr ""
+
+#: base/templates/index.html:108
+msgid "You signed out. Come back soon!"
+msgstr ""
+
+#: base/templates/index.html:119
+msgid ""
+"\n"
+"            Sylva [\"silva\", a book to organize knowledge during the "
+"Renaissance] is an easy-to-use, flexible, and scalable database management "
+"system that helps you collect, collaborate, visualize and query large data "
+"sets. In Sylva, all your data is connected using a graph, and you will see "
+"the connections all the way through.\n"
+"            <br/><br/>\n"
+"            No programming knowledge is needed to use Sylva. We promise :)\n"
+"            <br/><br/>\n"
+"            In Sylva, data sets are stored according to the schemas (graphs) "
+"created by the user. Researchers have absolute freedom to grant different "
+"permits to collaborators and to import and export their schemas and data "
+"sets.\n"
+"            "
+msgstr ""
+
+#: base/templates/index.html:145
+msgid "Create graphs any time"
+msgstr ""
+
+#: base/templates/index.html:147
+msgid "Visualize and browse your data"
+msgstr ""
+
+#: base/templates/index.html:149
+msgid "Select the type for your data"
+msgstr ""
+
+#: base/templates/index.html:151
+msgid "Show statistics for your storage"
+msgstr ""
+
+#: base/templates/index.html:153
+msgid "List your data in regular tables"
+msgstr ""
+
+#: base/templates/index.html:155
+msgid "Automatic forms and media from your schema"
+msgstr ""
+
+#: base/templates/index.html:157
+msgid "Advanced definition for your schema"
+msgstr ""
+
+#: base/templates/index.html:159
+msgid "Manage as collaborators as you want"
+msgstr ""
+
+#: base/templates/index.html:176
+msgid "Model"
+msgstr ""
+
+#: base/templates/index.html:177
+msgid "Create a schema of your data and change it as many times as you need."
+msgstr ""
+
+#: base/templates/index.html:178
+msgid ""
+"Sylva gives you absolute flexibility for editing the schema again and again. "
+"You decide what happens with referential integrity and cascade deletions."
+msgstr ""
+
+#: base/templates/index.html:182
+msgid "Collect"
+msgstr ""
+
+#: base/templates/index.html:183
+msgid ""
+"Populate your database manually or import your data from an existing set."
+msgstr ""
+
+#: base/templates/index.html:184
+msgid ""
+"You can collaborate with your team in all phases of the process, no matter "
+"where they are. And since it is your data, you can export it whenever you "
+"need to."
+msgstr ""
+
+#: base/templates/index.html:188 operators/forms.py:7
+#: operators/templates/operators/operator_builder.html:76
+#: operators/templates/operators/operator_query.html:5
+#: operators/templates/operators/operator_query.html:13
+msgid "Query"
+msgstr ""
+
+#: base/templates/index.html:189
+msgid ""
+"Get all the knowledge out of your data with the powerful query system of "
+"Sylva."
+msgstr ""
+
+#: base/templates/index.html:190
+msgid ""
+"Do research on your connected data and discover new information. Setup an "
+"experiment, save it and share it with others."
+msgstr ""
+
+#: base/templates/index.html:191
+msgid "Coming soon..."
+msgstr ""
+
+#: base/templates/toolbar.html:3 graphs/templates/graphs_collaborators.html:81
+msgid "Graph"
+msgstr ""
+
+#: base/templates/toolbar.html:9 base/templatetags/graphs.py:40
+#: graphs/forms.py:69 graphs/templates/graphs_collaborators.html:83
+msgid "Data"
+msgstr ""
+
+#: base/templates/toolbar.html:20
+msgid "Count"
+msgstr ""
+
+#: base/templates/toolbar.html:22
+#: operators/templates/operators/operator_query.html:69
+msgid "List"
+msgstr ""
+
+#: base/templates/toolbar.html:25 data/views.py:270
+#: schemas/templates/schemas_edit.html:121
+#: schemas/templates/schemas_item_edit.html:17
+#: schemas/templates/schemas_item_edit.html:19
+#: schemas/templates/schemas_properties_mend.html:17
+#: schemas/templates/schemas_properties_mend.html:19
+msgid "New"
+msgstr ""
+
+#: base/templates/toolbar.html:33
+msgid "There is no schema defined yet"
+msgstr ""
+
+#: base/templates/toolbar.html:42 base/templatetags/graphs.py:42
+#: graphs/forms.py:68 graphs/templates/graphs_collaborators.html:82
+#: graphs/templates/graphs_info.html:29
+#: schemas/templates/schemas_item_delete.html:23
+#: schemas/templates/schemas_item_edit.html:19
+#: schemas/templates/schemas_properties_mend.html:19
+msgid "Schema"
+msgstr ""
+
+#: base/templates/toolbar.html:45
+#: operators/templates/operators/operator_builder.html:18
+msgid "Operators"
+msgstr ""
+
+#: base/templates/toolbar.html:48 graphs/models.py:22
+#: graphs/templates/graphs_collaborators.html:59
+#: graphs/templates/graphs_collaborators.html:113
+#: graphs/templates/graphs_info.html:44
+msgid "Collaborators"
+msgstr ""
+
+#: base/templates/toolbar.html:52 schemas/templates/schemas_edit.html:184
+msgid "Tools"
+msgstr ""
+
+#: base/templates/toolbar.html:58
+msgid "Load graph schema from a JSON file"
+msgstr ""
+
+#: base/templates/toolbar.html:67
+msgid "Save graph schema as a JSON file"
+msgstr ""
+
+#: base/templates/toolbar.html:68
+msgid "Export schema"
+msgstr ""
+
+#: base/templates/toolbar.html:76
+msgid "Save CSV templates (useful for filling in data from spreadsheets)"
+msgstr ""
+
+#: base/templates/toolbar.html:77
+msgid "Export CSV templates"
+msgstr ""
+
+#: base/templates/toolbar.html:83
+msgid "Load graph data from different sources"
+msgstr ""
+
+#: base/templates/toolbar.html:84
+msgid "Import data"
+msgstr ""
+
+#: base/templates/toolbar.html:92
+msgid "Save graph data as a GEXF (Gephi) file"
+msgstr ""
+
+#: base/templates/toolbar.html:93
+msgid "Export data as GEXF"
+msgstr ""
+
+#: base/templates/toolbar.html:99
+msgid "Save graph data as CSV files"
+msgstr ""
+
+#: base/templates/toolbar.html:100
+msgid "Export data as CSV"
+msgstr ""
+
+#: base/templates/toolbar.html:108
+msgid "Create a copy of this graph"
+msgstr ""
+
+#: base/templates/toolbar.html:109
+msgid "Clone graph"
+msgstr ""
+
+#: base/templates/user_guide.html:5 base/templates/user_guide.html.py:9
+msgid "User guide"
+msgstr ""
+
+#: base/templates/admin/base_site.html:4
+msgid "site admin"
+msgstr ""
+
+#: base/templates/admin/base_site.html:7
+msgid "Administration"
+msgstr ""
+
+#: base/templates/userena/emails/activation_email_message.txt:2
+#, python-format
+msgid "Dear %(username)s,"
+msgstr ""
+
+#: base/templates/userena/emails/activation_email_message.txt:4
+#, python-format
+msgid "Thank you for signing up at %(site)s."
+msgstr ""
+
+#: base/templates/userena/emails/activation_email_message.txt:6
+msgid "To activate your account you should click on the link below:"
+msgstr ""
+
+#: base/templates/userena/emails/activation_email_message.txt:10
+#, python-format
+msgid ""
+"Please, keep in mind that we are in beta mood and still improving %(name)s."
+msgstr ""
+
+#: base/templates/userena/emails/activation_email_message.txt:11
+msgid ""
+"You have signed up for a Free account. This means that you will enjoy up to:"
+msgstr ""
+
+#: base/templates/userena/emails/activation_email_message.txt:12
+#, python-format
+msgid "%(graphs)s graphs"
+msgstr ""
+
+#: base/templates/userena/emails/activation_email_message.txt:13
+#, python-format
+msgid "%(nodes)s nodes"
+msgstr ""
+
+#: base/templates/userena/emails/activation_email_message.txt:14
+#, python-format
+msgid "%(relationships)s relationships"
+msgstr ""
+
+#: base/templates/userena/emails/activation_email_message.txt:15
+#, python-format
+msgid "%(storage)s of storage"
+msgstr ""
+
+#: base/templates/userena/emails/activation_email_message.txt:16
+#, python-format
+msgid "%(queries)s saved queries"
+msgstr ""
+
+#: base/templates/userena/emails/activation_email_message.txt:18
+#, python-format
+msgid "We would like to hear from you about your experience with %(name)s."
+msgstr ""
+
+#: base/templates/userena/emails/activation_email_message.txt:18
+#, python-format
+msgid "Please, drop us a line at %(email)s\n"
+msgstr ""
+
+#: base/templates/userena/emails/activation_email_message.txt:20
+msgid "Thanks for using our site!"
+msgstr ""
+
+#: base/templates/userena/emails/activation_email_message.txt:22
+msgid "Sincerely"
+msgstr ""
+
+#: data/forms.py:21 graphs/forms.py:55 schemas/forms.py:44
+msgid "Yes"
+msgstr ""
+
+#: data/forms.py:22 graphs/forms.py:56 schemas/forms.py:45
+msgid "No"
+msgstr ""
+
+#: data/forms.py:24
+msgid ""
+"Are you sure you want to delete this? All related relationships will be "
+"removed"
+msgstr ""
+
+#: data/forms.py:159
+msgid "At least one field must be filled"
+msgstr ""
+
+#: data/forms.py:257
+msgid ""
+"<a href=\"javascript:void(0);\" class=\"toggleProperties\">Toggle "
+"properties</a>."
+msgstr ""
+
+#: data/forms.py:301 data/forms.py:307
+msgid "The {0} must be {1}"
+msgstr ""
+
+#: data/models.py:18
+msgid "Graph database instance"
+msgstr ""
+
+#: data/models.py:20
+msgid "total nodes"
+msgstr ""
+
+#: data/models.py:21
+msgid "total relationships"
+msgstr ""
+
+#: data/models.py:23
+msgid "total queries"
+msgstr ""
+
+#: data/models.py:24
+msgid "total storage"
+msgstr ""
+
+#: data/models.py:28 data/models.py:52 graphs/models.py:49
+msgid "data"
+msgstr ""
+
+#: data/models.py:30
+msgid "View nodes and relationships"
+msgstr ""
+
+#: data/models.py:36
+msgid "Data for {0} on instance {1}"
+msgstr ""
+
+#: data/models.py:38
+msgid "Data for {0} on default instance"
+msgstr ""
+
+#: data/models.py:41
+msgid "Data on instance {0}"
+msgstr ""
+
+#: data/models.py:43
+msgid "Data on default instance"
+msgstr ""
+
+#: data/models.py:51
+msgid "node identifier"
+msgstr ""
+
+#: data/models.py:72 data/models.py:85
+msgid "media node"
+msgstr ""
+
+#: data/models.py:74 data/models.py:87
+msgid "label"
+msgstr ""
+
+#: data/models.py:75
+msgid "file"
+msgstr ""
+
+#: data/models.py:78 data/models.py:91
+msgid "{0} ({1} for {2})"
+msgstr ""
+
+#: data/models.py:81
+msgid "Media files"
+msgstr ""
+
+#: data/models.py:88
+msgid "URL"
+msgstr ""
+
+#: data/models.py:94
+msgid "Media links"
+msgstr ""
+
+#: data/views.py:102
+msgid "Mismatch criteria for matching the search."
+msgstr ""
+
+#: data/views.py:111 data/views.py:170
+msgid "Mismatch in requested graph and node type's graph."
+msgstr ""
+
+#: data/views.py:134 data/templates/nodes_view.html:44
+#: data/templates/nodes_view.html.py:106
+msgid "Empty"
+msgstr ""
+
+#: data/views.py:333 graphs/models.py:21 graphs/models.py:26
+#: graphs/models.py:30
+msgid "View"
+msgstr ""
+
+#: data/views.py:505 data/templates/nodes_view.html:24
+#: data/templates/nodes_view.html.py:49 data/templates/nodes_view.html:112
+#: data/templates/nodes_view.html.py:124 graphs/templates/graphs_edit.html:14
+#: graphs/templates/graphs_edit.html:16
+msgid "Edit"
+msgstr ""
+
+#: data/views.py:558
+msgid "Node"
+msgstr ""
+
+#: data/views.py:566 data/templates/nodes_delete.html:22 graphs/models.py:32
+#: graphs/templates/graphs_delete.html:14
+#: graphs/templates/graphs_delete.html:16
+#: graphs/templates/graphs_delete.html:35 graphs/templates/graphs_edit.html:30
+#: schemas/templates/schemas_item_delete.html:21
+#: schemas/templates/schemas_item_delete.html:23
+msgid "Delete"
+msgstr ""
+
+#: data/views.py:598
+msgid "Mismatch in requested graph and relationship type's graph."
+msgstr ""
+
+#: data/templates/node_list.html:137
+msgid "Your search did not return any results"
+msgstr ""
+
+#: data/templates/node_list.html:166 data/templates/node_list.html.py:339
+msgid "Toggle relationships"
+msgstr ""
+
+#: data/templates/node_list.html:175 data/templates/node_list.html.py:340
+msgid "Edit node"
+msgstr ""
+
+#: data/templates/node_list.html:200 data/templates/node_list.html.py:343
+msgid "View node"
+msgstr ""
+
+#: data/templates/node_list.html:227 data/templates/node_list.html.py:348
+#: operators/templates/operators/operator_query.html:24
+msgid "Loading"
+msgstr ""
+
+#: data/templates/node_list.html:237 data/templates/nodes_list.html:101
+msgid "Showing"
+msgstr ""
+
+#: data/templates/node_list.html:237
+msgid "results"
+msgstr ""
+
+#: data/templates/node_list.html:312
+msgid "#"
+msgstr ""
+
+#: data/templates/node_list.html:355
+msgid "There are no data added to this type yet."
+msgstr ""
+
+#: data/templates/node_list.html:356
+msgid "Add data"
+msgstr ""
+
+#: data/templates/node_list.html:359 data/templates/results_list.html:95
+#: schemas/templates/schemas_import.html:17
+#: tools/templates/graph_import_tool.html:17
+msgid "Import"
+msgstr ""
+
+#: data/templates/node_list.html:361 data/templates/results_list.html:98
+msgid ""
+"Import a graph in GEXF format, or nodes and relationships in CSV format."
+msgstr ""
+
+#: data/templates/node_list.html:367
+#, python-format
+msgid ""
+"\n"
+"              Showing %(per_page)s of %(count)s %(name)s.\n"
+"            "
+msgstr ""
+
+#: data/templates/node_list.html:377
+#, python-format
+msgid ""
+"\n"
+"                Page %(number)s of %(num_pages)s.\n"
+"              "
+msgstr ""
+
+#: data/templates/node_list.html:388
+#, python-format
+msgid ""
+"\n"
+"              Showing %(count)s elements %(name)s.\n"
+"            "
+msgstr ""
+
+#: data/templates/nodes.html:26
+#, python-format
+msgid ""
+"\n"
+"            Nodes: %(count)s\n"
+"          "
+msgstr ""
+
+#: data/templates/nodes.html:31
+#, python-format
+msgid ""
+"\n"
+"            Properties: %(properties_count)s\n"
+"          "
+msgstr ""
+
+#: data/templates/nodes.html:36
+#, python-format
+msgid ""
+"\n"
+"            New %(name)s\n"
+"          "
+msgstr ""
+
+#: data/templates/nodes.html:40 data/templates/nodes_delete.html:36
+#: data/templates/nodes_editcreate.html:51 data/templates/nodes_list.html:94
+#: data/templates/relationships_list.html:26
+#: graphs/templates/graphs_clone.html:28
+#: graphs/templates/graphs_create.html:23
+#: graphs/templates/graphs_delete.html:37 graphs/templates/graphs_edit.html:32
+#: payments/templates/payments/subscription_list.html:66
+#: schemas/templates/schemas_edit.html:125
+#: schemas/templates/schemas_edit.html:167
+#: schemas/templates/schemas_import.html:29
+#: schemas/templates/schemas_item_delete.html:37
+#: schemas/templates/schemas_item_edit.html:52
+#: schemas/templates/schemas_item_edit.html:143
+msgid "or"
+msgstr ""
+
+#: data/templates/nodes.html:42
+msgid ""
+"\n"
+"            View list\n"
+"          "
+msgstr ""
+
+#: data/templates/nodes.html:49 data/templates/results_list.html:89
+#: schemas/templates/schemas_edit.html:162
+msgid "There are no types defined yet."
+msgstr ""
+
+#: data/templates/nodes_delete.html:22 data/templates/nodes_editcreate.html:23
+#: data/templates/nodes_view.html:18 graphs/templates/graphs_info.html:17
+#: search/templates/search_results.html:20
+msgid "Nodes"
+msgstr ""
+
+#: data/templates/nodes_delete.html:33
+#: payments/templates/payments/subscription_welcome.html:18
+#: schemas/templates/schemas_import.html:26
+#: schemas/templates/schemas_item_delete.html:34
+#: schemas/templates/schemas_properties_mend.html:42
+msgid "Continue"
+msgstr ""
+
+#: data/templates/nodes_delete.html:36 data/templates/nodes_editcreate.html:52
+#: graphs/templates/graphs_clone.html:28
+#: graphs/templates/graphs_create.html:23
+#: graphs/templates/graphs_delete.html:37 graphs/templates/graphs_edit.html:32
+#: schemas/templates/schemas_import.html:29
+#: schemas/templates/schemas_item_delete.html:37
+#: schemas/templates/schemas_item_edit.html:52
+msgid "Cancel"
+msgstr ""
+
+#: data/templates/nodes_editcreate.html:45
+#: graphs/templates/graphs_edit.html:27
+msgid "Save"
+msgstr ""
+
+#: data/templates/nodes_editcreate.html:49
+#: data/templates/nodes_editcreate.html:90
+#: data/templates/nodes_editcreate.html:123
+#: schemas/templates/schemas_item_edit.html:46
+#: schemas/templates/schemas_item_edit.html:49
+#: schemas/templates/schemas_item_edit.html:192
+#: schemas/templates/schemas_item_edit.html:231
+msgid "Remove"
+msgstr ""
+
+#: data/templates/nodes_editcreate.html:58 data/templates/nodes_view.html:51
+msgid "All Relationships"
+msgstr ""
+
+#: data/templates/nodes_editcreate.html:60 data/templates/nodes_view.html:53
+msgid "Incoming"
+msgstr ""
+
+#: data/templates/nodes_editcreate.html:63 data/templates/nodes_view.html:56
+msgid "Outgoing"
+msgstr ""
+
+#: data/templates/nodes_editcreate.html:77
+msgid "Target of the relationship"
+msgstr ""
+
+#: data/templates/nodes_editcreate.html:79
+#: data/templates/nodes_editcreate.html:111
+#: data/templates/nodes_editcreate.html:227
+#: data/templates/nodes_editcreate.html:246 graphs/models.py:29
+#: operators/templates/operators/operator_builder.html:34
+#: operators/templates/operators/operator_builder.html:43
+#: operators/templates/operators/operator_builder.html:57
+#: operators/templates/operators/operator_builder.html:66
+msgid "Add"
+msgstr ""
+
+#: data/templates/nodes_editcreate.html:109
+msgid "Source of the relationship"
+msgstr ""
+
+#: data/templates/nodes_editcreate.html:180
+msgid "The properties fields of this Type."
+msgstr ""
+
+#: data/templates/nodes_editcreate.html:184
+msgid ""
+"By default, all the allowed relationships are showed. Clicking on this box, "
+"you can filter by other criteria."
+msgstr ""
+
+#: data/templates/nodes_editcreate.html:187
+msgid "Create relationship"
+msgstr ""
+
+#: data/templates/nodes_editcreate.html:188
+msgid "Start typing the label of a node to show it."
+msgstr ""
+
+#: data/templates/nodes_editcreate.html:191
+msgid "More relationships"
+msgstr ""
+
+#: data/templates/nodes_editcreate.html:192
+msgid "You can create more relationships of this type."
+msgstr ""
+
+#: data/templates/nodes_editcreate.html:196
+msgid "You can add files to this Type."
+msgstr ""
+
+#: data/templates/nodes_editcreate.html:200
+msgid "Also you can add links."
+msgstr ""
+
+#: data/templates/nodes_editcreate.html:263
+msgid "Add File"
+msgstr ""
+
+#: data/templates/nodes_editcreate.html:278
+msgid "Add Link"
+msgstr ""
+
+#: data/templates/nodes_list.html:66
+msgid "Retrieve relationships"
+msgstr ""
+
+#: data/templates/nodes_list.html:75
+msgid "Outgoing relationships"
+msgstr ""
+
+#: data/templates/nodes_list.html:76
+msgid "Incoming relationships"
+msgstr ""
+
+#: data/templates/nodes_list.html:86
+#, python-format
+msgid ""
+"\n"
+"      New %(node_type)s\n"
+"    "
+msgstr ""
+
+#: data/templates/nodes_list.html:92 data/templates/relationships_list.html:24
+msgid "Preview"
+msgstr ""
+
+#: data/templates/nodes_list.html:96
+msgid ""
+"\n"
+"            Show all\n"
+"          "
+msgstr ""
+
+#: data/templates/nodes_list.html:101
+msgid "total elements"
+msgstr ""
+
+#: data/templates/nodes_view.html:33
+#, python-format
+msgid ""
+"\n"
+"                                        %(value)s\n"
+"                                    "
+msgstr ""
+
+#: data/templates/nodes_view.html:44
+msgid "Add property"
+msgstr ""
+
+#: data/templates/nodes_view.html:106
+msgid "Add relationship"
+msgstr ""
+
+#: data/templates/nodes_view.html:118
+msgid "Download"
+msgstr ""
+
+#: data/templates/nodes_view.html:140 schemas/models.py:415
+msgid "Node properties"
+msgstr ""
+
+#: data/templates/nodes_view.html:141
+msgid "Here is the list of properties of this node."
+msgstr ""
+
+#: data/templates/nodes_view.html:145
+msgid "Here is the list of relationships related to this node."
+msgstr ""
+
+#: data/templates/nodes_view.html:148
+msgid "Relationship details"
+msgstr ""
+
+#: data/templates/nodes_view.html:149
+msgid ""
+"Clicking on the relationship, you will see its properties (in case they "
+"exist)."
+msgstr ""
+
+#: data/templates/nodes_view.html:152
+msgid "Multimedia"
+msgstr ""
+
+#: data/templates/nodes_view.html:153
+msgid ""
+"You can also show the meta-contents stored in this node: files and links."
+msgstr ""
+
+#: data/templates/relationships_list.html:17
+#, python-format
+msgid ""
+"\n"
+"          Add %(relationship_type)s\n"
+"        "
+msgstr ""
+
+#: data/templates/relationships_list.html:28
+msgid ""
+"\n"
+"          Show all\n"
+"        "
+msgstr ""
+
+#: data/templates/relationships_list.html:38
+msgid "There are no types or no allowed relationships defined yet."
+msgstr ""
+
+#: data/templates/relationships_list.html:46
+#: schemas/templates/schemas_edit.html:156
+msgid "New allowed Relationship"
+msgstr ""
+
+#: data/templates/results_list.html:29
+msgid "Results"
+msgstr ""
+
+#: data/templates/results_list.html:44
+msgid "Toggle column"
+msgstr ""
+
+#: engines/models.py:22
+msgid "engine"
+msgstr ""
+
+#: engines/models.py:25
+msgid "Hypertext Transfer Protocol (http)"
+msgstr ""
+
+#: engines/models.py:26
+msgid "File URI scheme (file)"
+msgstr ""
+
+#: engines/models.py:27
+msgid "Hypertext Transfer Protocol Secure (https)"
+msgstr ""
+
+#: engines/models.py:29
+msgid "scheme"
+msgstr ""
+
+#: engines/models.py:31
+msgid "host"
+msgstr ""
+
+#: engines/models.py:33
+msgid "Host name or unit label"
+msgstr ""
+
+#: engines/models.py:34
+msgid "port"
+msgstr ""
+
+#: engines/models.py:36
+msgid "path"
+msgstr ""
+
+#: engines/models.py:37
+msgid "URL or absolute file system path"
+msgstr ""
+
+#: engines/models.py:38
+msgid "username"
+msgstr ""
+
+#: engines/models.py:40
+msgid "encrypted password"
+msgstr ""
+
+#: engines/models.py:43
+msgid "Agregated field"
+msgstr ""
+
+#: engines/models.py:44
+msgid "password"
+msgstr ""
+
+#: engines/models.py:47
+msgid "Type again to change"
+msgstr ""
+
+#: engines/models.py:48
+msgid "query"
+msgstr ""
+
+#: engines/models.py:49
+msgid "fragment"
+msgstr ""
+
+#: engines/models.py:50
+msgid "Key file"
+msgstr ""
+
+#: engines/models.py:52
+msgid "Cert file"
+msgstr ""
+
+#: engines/models.py:55 graphs/models.py:47
+msgid "owner"
+msgstr ""
+
+#: engines/models.py:58 graphs/templates/graphs_info.html:39
+msgid "Private"
+msgstr ""
+
+#: engines/models.py:59 graphs/templates/graphs_info.html:37
+msgid "Public"
+msgstr ""
+
+#: engines/models.py:60
+msgid "Shared"
+msgstr ""
+
+#: engines/models.py:64
+msgid "activation code"
+msgstr ""
+
+#: engines/models.py:66
+msgid "Blank if already activated"
+msgstr ""
+
+#: engines/models.py:67
+msgid "activated"
+msgstr ""
+
+#: graphs/forms.py:15
+msgid "No instances available"
+msgstr ""
+
+#: graphs/forms.py:40
+msgid "Choose your backend instance"
+msgstr ""
+
+#: graphs/forms.py:42
+#, python-format
+msgid "Buy a <a href='%s'>new instance</a>."
+msgstr ""
+
+#: graphs/forms.py:58
+msgid ""
+"This operation can't be undone. Are you sure you want to delete this whole "
+"graph?"
+msgstr ""
+
+#: graphs/forms.py:61
+msgid "This can take a few minutes"
+msgstr ""
+
+#: graphs/forms.py:75
+msgid "Which parts of the graph would you like to clone?"
+msgstr ""
+
+#: graphs/forms.py:77
+msgid "Note that your files will not be copied"
+msgstr ""
+
+#: graphs/forms.py:88
+msgid "Type the name"
+msgstr ""
+
+#: graphs/forms.py:89
+msgid "Type the name or e-mail"
+msgstr ""
+
+#: graphs/models.py:20 graphs/models.py:25 graphs/models.py:31
+msgid "Change"
+msgstr ""
+
+#: graphs/models.py:41 schemas/models.py:172 schemas/models.py:352
+msgid "description"
+msgstr ""
+
+#: graphs/models.py:42
+msgid "is public?"
+msgstr ""
+
+#: graphs/models.py:43
+msgid "It means publicly available to be browsed"
+msgstr ""
+
+#: graphs/models.py:45 schemas/models.py:174 schemas/models.py:365
+msgid "order"
+msgstr ""
+
+#: graphs/models.py:50 graphs/templates/graphs_info.html:29
+msgid "schema"
+msgstr ""
+
+#: graphs/models.py:52
+msgid "Is schema-relaxed?"
+msgstr ""
+
+#: graphs/models.py:59
+msgid "View graph"
+msgstr ""
+
+#: graphs/models.py:60
+msgid "Change collaborators"
+msgstr ""
+
+#: graphs/views.py:190
+msgid "[cloned]"
+msgstr ""
+
+#: graphs/views.py:373 tools/views.py:59 tools/views.py:77
+msgid "Error: Invalid request (expected an AJAX request)"
+msgstr ""
+
+#: graphs/templates/graphs_clone.html:14 graphs/templates/graphs_clone.html:26
+msgid "Clone"
+msgstr ""
+
+#: graphs/templates/graphs_collaborators.html:66
+msgid "Owner"
+msgstr ""
+
+#: graphs/templates/graphs_collaborators.html:70
+msgid "Add collaborator"
+msgstr ""
+
+#: graphs/templates/graphs_collaborators.html:77
+msgid "Permissions"
+msgstr ""
+
+#: graphs/templates/graphs_collaborators.html:80 payments/models.py:44
+msgid "User"
+msgstr ""
+
+#: graphs/templates/graphs_collaborators.html:114
+msgid ""
+"Adding collaborators is easy. Just click on the box and start typing the "
+"name, username or email. Then, click 'Add collaborator'."
+msgstr ""
+
+#: graphs/templates/graphs_collaborators.html:117
+msgid "Choose permissions"
+msgstr ""
+
+#: graphs/templates/graphs_collaborators.html:118
+msgid "Finally, select the right permissions for your collaborators."
+msgstr ""
+
+#: graphs/templates/graphs_create.html:9
+msgid "Create New Graph"
+msgstr ""
+
+#: graphs/templates/graphs_create.html:11
+msgid "Create"
+msgstr ""
+
+#: graphs/templates/graphs_create.html:22
+msgid "Create new graph"
+msgstr ""
+
+#: graphs/templates/graphs_create.html:29
+#: schemas/templates/schemas_item_edit.html:157
+msgid "Name"
+msgstr ""
+
+#: graphs/templates/graphs_create.html:30
+msgid ""
+"Choose a name for your graph. You will be able to change the name later."
+msgstr ""
+
+#: graphs/templates/graphs_create.html:33
+#: schemas/templates/schemas_item_edit.html:161
+msgid "Description"
+msgstr ""
+
+#: graphs/templates/graphs_create.html:34
+msgid ""
+"A short description would be useful. You also will be able to change it "
+"later."
+msgstr ""
+
+#: graphs/templates/graphs_create.html:37
+msgid "Public or private"
+msgstr ""
+
+#: graphs/templates/graphs_create.html:38
+msgid ""
+"If you mark this checkbox, your graph will be readable for other people."
+msgstr ""
+
+#: graphs/templates/graphs_delete.html:30
+#, python-format
+msgid ""
+"\n"
+"Before deleting your graph, remember you can also export the <a href="
+"\"%(data_export)s\">data</a> and the <a href=\"%(schema_export)s\">schema</"
+"a>, just in case.\n"
+msgstr ""
+
+#: graphs/templates/graphs_info.html:4
+msgid "Edit properties"
+msgstr ""
+
+#: graphs/templates/graphs_info.html:14
+msgid "By"
+msgstr ""
+
+#: graphs/templates/graphs_info.html:25
+msgid "Relaxed"
+msgstr ""
+
+#: graphs/templates/graphs_info.html:27
+msgid "Strict"
+msgstr ""
+
+#: graphs/templates/graphs_info.html:35
+msgid "Visibility"
+msgstr ""
+
+#: graphs/templates/graphs_info.html:44
+msgid "collaborators"
+msgstr ""
+
+#: graphs/templates/graphs_info.html:47
+msgid "No queries yet"
+msgstr ""
+
+#: graphs/templates/graphs_info.html:52
+msgid "on"
+msgstr ""
+
+#: graphs/templates/graphs_info.html:54
+msgid "Default storage instance"
+msgstr ""
+
+#: graphs/templates/graphs_info.html:54
+msgid "on default"
+msgstr ""
+
+#: graphs/templates/graphs_info.html:54
+msgid "instance"
+msgstr ""
+
+#: graphs/templates/graphs_info.html:59
+msgid "Owned"
+msgstr ""
+
+#: graphs/templates/graphs_info.html:59
+msgid "Collaboration"
+msgstr ""
+
+#: graphs/templates/graphs_view.html:28
+msgid "Click any node to interact"
+msgstr ""
+
+#: graphs/templates/graphs_view.html:35 graphs/templates/graphs_view.html:95
+msgid "Inspect graph"
+msgstr ""
+
+#: graphs/templates/graphs_view.html:36 graphs/templates/graphs_view.html:97
+msgid "Whole graph"
+msgstr ""
+
+#: graphs/templates/graphs_view.html:40
+msgid "Show node info"
+msgstr ""
+
+#: graphs/templates/graphs_view.html:40 graphs/templates/graphs_view.html:103
+msgid "Node info"
+msgstr ""
+
+#: graphs/templates/graphs_view.html:44
+msgid "Show only related nodes"
+msgstr ""
+
+#: graphs/templates/graphs_view.html:44
+msgid "Related nodes"
+msgstr ""
+
+#: graphs/templates/graphs_view.html:48
+msgid "Activate fisheye effect"
+msgstr ""
+
+#: graphs/templates/graphs_view.html:48
+msgid "FishEye"
+msgstr ""
+
+#: graphs/templates/graphs_view.html:51
+msgid "Save as a PNG image"
+msgstr ""
+
+#: graphs/templates/graphs_view.html:51
+msgid "Save as image"
+msgstr ""
+
+#: graphs/templates/graphs_view.html:57 graphs/templates/graphs_view.html:118
+msgid "Pause"
+msgstr ""
+
+#: graphs/templates/graphs_view.html:60
+msgid "Your browser does not support graph visualization"
+msgstr ""
+
+#: graphs/templates/graphs_view.html:92
+msgid "Visualization"
+msgstr ""
+
+#: graphs/templates/graphs_view.html:93
+msgid ""
+"You can choose from two different views in order to visualize the graph:"
+msgstr ""
+
+#: graphs/templates/graphs_view.html:96
+msgid "Choose this view to visualize small graphs in detail."
+msgstr ""
+
+#: graphs/templates/graphs_view.html:98
+msgid ""
+"This is the recommended view to visualize big/medium graphs (those with more "
+"than 50 nodes)."
+msgstr ""
+
+#: graphs/templates/graphs_view.html:104
+msgid ""
+"Clicking on a node, you will show some useful information inside this panel:"
+msgstr ""
+
+#: graphs/templates/graphs_view.html:106
+msgid "A color legend"
+msgstr ""
+
+#: graphs/templates/graphs_view.html:107
+msgid "Useful to identify the different types of node from the graph."
+msgstr ""
+
+#: graphs/templates/graphs_view.html:108
+msgid "View related nodes"
+msgstr ""
+
+#: graphs/templates/graphs_view.html:109
+msgid ""
+"Clicking on this link, you will show a partial graph with just the related "
+"nodes to the one selected."
+msgstr ""
+
+#: graphs/templates/graphs_view.html:110
+msgid "View node data"
+msgstr ""
+
+#: graphs/templates/graphs_view.html:111
+msgid "Show details for the selected node."
+msgstr ""
+
+#: graphs/templates/graphs_view.html:112
+msgid "Edit node data"
+msgstr ""
+
+#: graphs/templates/graphs_view.html:113
+msgid "Edit details for the selected node."
+msgstr ""
+
+#: graphs/templates/graphs_view.html:119
+msgid "You can use this button to pause/run the rendering of the graph."
+msgstr ""
+
+#: operators/forms.py:10
+msgid "Type your query"
+msgstr ""
+
+#: operators/templates/operators/operator_builder.html:28
+msgid "Types"
+msgstr ""
+
+#: operators/templates/operators/operator_builder.html:41
+msgid "Wildcard Type"
+msgstr ""
+
+#: operators/templates/operators/operator_builder.html:51
+msgid "Allowed Relationships"
+msgstr ""
+
+#: operators/templates/operators/operator_builder.html:64
+msgid "Wildcard Allowed Relationship"
+msgstr ""
+
+#: operators/templates/operators/operator_builder.html:84
+msgid "Run"
+msgstr ""
+
+#: operators/templates/operators/operator_query.html:43
+#: search/templates/search_results.html:33
+#: search/templates/search_results.html:51
+msgid "No results found"
+msgstr ""
+
+#: operators/templates/operators/operator_query.html:58
+msgid "Saved Queries"
+msgstr ""
+
+#: operators/templates/operators/operator_query.html:62
+msgid "No saved queries yet"
+msgstr ""
+
+#: operators/templates/operators/operator_query.html:68
+msgid "Type your query..."
+msgstr ""
+
+#: payments/forms.py:33
+msgid "This plan does not exist"
+msgstr ""
+
+#: payments/forms.py:46
+msgid ""
+"You need to cancel your {0} subscriptions before subscribing for a {1} plan"
+msgstr ""
+
+#: payments/models.py:49 payments/models.py:115
+msgid "StripeCustomer"
+msgstr ""
+
+#: payments/models.py:50
+msgid "StripeCustomers"
+msgstr ""
+
+#: payments/models.py:55 payments/models.py:156 payments/views.py:21
+msgid ""
+"Sorry, an error occurred while processing the card. Your payment could not "
+"be processed."
+msgstr ""
+
+#: payments/models.py:102
+msgid "Account"
+msgstr ""
+
+#: payments/models.py:106
+msgid "StripePlan"
+msgstr ""
+
+#: payments/models.py:107
+msgid "StripePlans"
+msgstr ""
+
+#: payments/models.py:117
+msgid "Plan"
+msgstr ""
+
+#: payments/models.py:120
+#: payments/templates/payments/subscription_list.html:31
+msgid "Instance"
+msgstr ""
+
+#: payments/models.py:125
+msgid "StripeSubscription"
+msgstr ""
+
+#: payments/models.py:126
+msgid "StripeSubscriptions"
+msgstr ""
+
+#: payments/models.py:146
+#, python-format
+msgid "You are already subscribed for a %s plan"
+msgstr ""
+
+#: payments/views.py:68
+msgid ""
+"Sorry, an error occurred while cancelling your subscription. Please, contact "
+"us and we will try to solve your problem as soon as possible."
+msgstr ""
+
+#: payments/views.py:84
+msgid "You have successfully unsubscribed"
+msgstr ""
+
+#: payments/templates/payments/subscription_cancel.html:5
+msgid "You are going to cancel your subscription"
+msgstr ""
+
+#: payments/templates/payments/subscription_cancel.html:8
+#: payments/templates/payments/subscription_list.html:70
+msgid "Unsubscribe"
+msgstr ""
+
+#: payments/templates/payments/subscription_cancel.html:17
+msgid "Unsubscribing..."
+msgstr ""
+
+#: payments/templates/payments/subscription_created.txt:2
+#, python-format
+msgid ""
+"\n"
+"\n"
+"congratulations, you have successfully subscribed for a SylvaDB "
+"%(plan_name)s account.\n"
+"\n"
+"Thanks for using SylvaDB,\n"
+"\n"
+"The SylvaDB team"
+msgstr ""
+
+#: payments/templates/payments/subscription_deleted.txt:3
+#, python-format
+msgid ""
+"\n"
+"you have successfully unsubscribed for your SylvaDB %(plan_name)s account.\n"
+"\n"
+"Thanks for using SylvaDB,\n"
+"\n"
+"The SylvaDB team"
+msgstr ""
+
+#: payments/templates/payments/subscription_edit_create.html:5
+#, python-format
+msgid "%(plan_name)s plan"
+msgstr ""
+
+#: payments/templates/payments/subscription_edit_create.html:11
+#: payments/templates/payments/subscription_list.html:58
+#, python-format
+msgid "Upgrade to %(plan_name)s"
+msgstr ""
+
+#: payments/templates/payments/subscription_edit_create.html:13
+#, python-format
+msgid "Add a new instance to your %(plan_name)s plan"
+msgstr ""
+
+#: payments/templates/payments/subscription_edit_create.html:15
+#: payments/templates/payments/subscription_list.html:48
+#, python-format
+msgid "Downgrade to %(plan_name)s"
+msgstr ""
+
+#: payments/templates/payments/subscription_edit_create.html:17
+#, python-format
+msgid "Subscribe for a %(plan_name)s plan"
+msgstr ""
+
+#: payments/templates/payments/subscription_edit_create.html:24
+msgid "You can trust us: we don't store your credit card."
+msgstr ""
+
+#: payments/templates/payments/subscription_edit_create.html:25
+msgid "We use <a href=\\"
+msgstr ""
+
+#: payments/templates/payments/subscription_list.html:10
+#: payments/templates/payments/subscription_list.html:14
+msgid "Subscriptions"
+msgstr ""
+
+#: payments/templates/payments/subscription_list.html:20
+#, python-format
+msgid "You are currently subscribed for a %(plan_name)s plan"
+msgstr ""
+
+#: payments/templates/payments/subscription_list.html:26
+#, python-format
+msgid "You have 1 instance"
+msgid_plural "You have %(num_instances)s instances"
+msgstr[0] ""
+msgstr[1] ""
+
+#: payments/templates/payments/subscription_list.html:33
+msgid "Destroy instance"
+msgstr ""
+
+#: payments/templates/payments/subscription_list.html:41
+msgid "You can "
+msgstr ""
+
+#: payments/templates/payments/subscription_list.html:43
+msgid "create new instance"
+msgstr ""
+
+#: payments/templates/payments/subscription_list.html:46
+msgid "You can also"
+msgstr ""
+
+#: payments/templates/payments/subscription_list.html:56
+msgid "You can"
+msgstr ""
+
+#: payments/templates/payments/subscription_list.html:60
+msgid "and"
+msgstr ""
+
+#: payments/templates/payments/subscription_list.html:62
+msgid "enjoy the benefits"
+msgstr ""
+
+#: payments/templates/payments/subscription_list.html:64
+#, python-format
+msgid "of a %(plan_name)s subscription"
+msgstr ""
+
+#: payments/templates/payments/subscription_list.html:68
+msgid "sadly, you can"
+msgstr ""
+
+#: payments/templates/payments/subscription_list.html:72
+msgid "and return to a Free account."
+msgstr ""
+
+#: payments/templates/payments/subscription_plans.html:10
+#: payments/templates/payments/subscription_plans.html:14
+msgid "Pricing Plans"
+msgstr ""
+
+#: payments/templates/payments/subscription_plans.html:24
+#: payments/templates/payments/subscription_plans.html:35
+#: payments/templates/payments/subscription_plans.html:58
+#: payments/templates/payments/subscription_plans.html:88
+msgid "Feature One"
+msgstr ""
+
+#: payments/templates/payments/subscription_plans.html:25
+#: payments/templates/payments/subscription_plans.html:36
+#: payments/templates/payments/subscription_plans.html:59
+#: payments/templates/payments/subscription_plans.html:94
+msgid "Feature Two"
+msgstr ""
+
+#: payments/templates/payments/subscription_plans.html:26
+#: payments/templates/payments/subscription_plans.html:37
+#: payments/templates/payments/subscription_plans.html:60
+#: payments/templates/payments/subscription_plans.html:100
+msgid "Feature Three"
+msgstr ""
+
+#: payments/templates/payments/subscription_plans.html:27
+#: payments/templates/payments/subscription_plans.html:38
+#: payments/templates/payments/subscription_plans.html:61
+#: payments/templates/payments/subscription_plans.html:106
+msgid "Feature Four"
+msgstr ""
+
+#: payments/templates/payments/subscription_plans.html:32
+#: payments/templates/payments/subscription_plans.html:55
+#: payments/templates/payments/subscription_plans.html:82
+#: payments/templates/payments/subscription_plans.html:83
+#, python-format
+msgid "%(name)s"
+msgstr ""
+
+#: payments/templates/payments/subscription_plans.html:42
+#: payments/templates/payments/subscription_plans.html:124
+msgid "Already subscribed"
+msgstr ""
+
+#: payments/templates/payments/subscription_plans.html:46
+#: payments/templates/payments/subscription_plans.html:128
+#, python-format
+msgid "Downgrade to %(name)s"
+msgstr ""
+
+#: payments/templates/payments/subscription_plans.html:48
+#: payments/templates/payments/subscription_plans.html:70
+#: payments/templates/payments/subscription_plans.html:130
+#: payments/templates/payments/subscription_plans.html:142
+msgid "Subscribe Now"
+msgstr ""
+
+#: payments/templates/payments/subscription_plans.html:66
+#: payments/templates/payments/subscription_plans.html:138
+#, python-format
+msgid "Upgrade to %(name)s"
+msgstr ""
+
+#: payments/templates/payments/subscription_plans.html:68
+#: payments/templates/payments/subscription_plans.html:140
+#, python-format
+msgid "Add %(name)s instance"
+msgstr ""
+
+#: payments/templates/payments/subscription_plans.html:112
+msgid "Feature Five"
+msgstr ""
+
+#: payments/templates/payments/subscription_welcome.html:5
+msgid "Congratulations"
+msgstr ""
+
+#: payments/templates/payments/subscription_welcome.html:9
+msgid "Congratulations!"
+msgstr ""
+
+#: payments/templates/payments/subscription_welcome.html:15
+#, python-format
+msgid "you are now subscribed for a <strong>%(account_name)s</strong> plan."
+msgstr ""
+
+#: schemas/forms.py:17
+msgid "Nothing, let them as they are"
+msgstr ""
+
+#: schemas/forms.py:18
+msgid "Delete all related elements"
+msgstr ""
+
+#: schemas/forms.py:20
+msgid "We found some elements of this type. What do you want to do with them?"
+msgstr ""
+
+#: schemas/forms.py:32
+#, python-format
+msgid "Delete %s related element"
+msgstr ""
+
+#: schemas/forms.py:37
+#, python-format
+msgid "Delete %s related elements"
+msgstr ""
+
+#: schemas/forms.py:47
+msgid "Are you sure you want to delete this?"
+msgstr ""
+
+#: schemas/forms.py:58 schemas/forms.py:138
+msgid "You need to provide a name."
+msgstr ""
+
+#: schemas/forms.py:81
+msgid ""
+"You have renamed this property in the schema, but we have not modified the "
+"related data elements yet. What do you want to do with them?"
+msgstr ""
+
+#: schemas/forms.py:93
+#, python-format
+msgid ""
+"Rename this property in all related data elements using the new property "
+"name: \"%s\"."
+msgstr ""
+
+#: schemas/forms.py:96
+msgid ""
+"Keep this property in all related data elements, but don't show it, and "
+"start using the new property name when adding new data elements."
+msgstr ""
+
+#: schemas/forms.py:106
+msgid "Delete this property in all related data elements."
+msgstr ""
+
+#: schemas/forms.py:107
+msgid "Keep this property in all related data elements, but don't show it."
+msgstr ""
+
+#: schemas/forms.py:111
+msgid ""
+"You have deleted this property in the schema, but we have not modified the "
+"related data elements yet. What do you want to do with them?"
+msgstr ""
+
+#: schemas/forms.py:167
+msgid "Choose a JSON file previously exported"
+msgstr ""
+
+#: schemas/models.py:21
+msgid "View schema"
+msgstr ""
+
+#: schemas/models.py:26
+#, python-format
+msgid "Schema for \"%s\""
+msgstr ""
+
+#: schemas/models.py:28
+#, python-format
+msgid "Schema \"%s\""
+msgstr ""
+
+#: schemas/models.py:170
+msgid "plural name"
+msgstr ""
+
+#: schemas/models.py:175
+msgid "total objects"
+msgstr ""
+
+#: schemas/models.py:176 schemas/models.py:353
+msgid "validation"
+msgstr ""
+
+#: schemas/models.py:185
+msgid "Code in Javascript to validate all the properties"
+msgstr ""
+
+#: schemas/models.py:199 schemas/models.py:264
+msgid "inheritance"
+msgstr ""
+
+#: schemas/models.py:200 schemas/models.py:265
+msgid "Choose the type which properties will be inherited from"
+msgstr ""
+
+#: schemas/models.py:256
+msgid "inverse name"
+msgstr ""
+
+#: schemas/models.py:258
+msgid "For example, if name is \"writes\", inverse is \"written by\""
+msgstr ""
+
+#: schemas/models.py:261
+msgid "plural inverse name"
+msgstr ""
+
+#: schemas/models.py:270
+msgid "source"
+msgstr ""
+
+#: schemas/models.py:271
+msgid "Source type of the allowed relationship"
+msgstr ""
+
+#: schemas/models.py:275
+msgid "target"
+msgstr ""
+
+#: schemas/models.py:276
+msgid "Target type of the allowed relationship"
+msgstr ""
+
+#: schemas/models.py:278
+msgid "Source arity"
+msgstr ""
+
+#: schemas/models.py:279 schemas/models.py:282
+msgid "Leave blank for infinite arity,or type with format min:max."
+msgstr ""
+
+#: schemas/models.py:281
+msgid "Target arity"
+msgstr ""
+
+#: schemas/models.py:326
+msgid "key"
+msgstr ""
+
+#: schemas/models.py:329
+msgid "default value"
+msgstr ""
+
+#: schemas/models.py:331
+msgid "value"
+msgstr ""
+
+#: schemas/models.py:333
+msgid "Default"
+msgstr ""
+
+#: schemas/models.py:335
+msgid "String"
+msgstr ""
+
+#: schemas/models.py:336
+msgid "Boolean"
+msgstr ""
+
+#: schemas/models.py:337
+msgid "Number"
+msgstr ""
+
+#: schemas/models.py:339
+msgid "Advanced"
+msgstr ""
+
+#: schemas/models.py:340
+msgid "Text"
+msgstr ""
+
+#: schemas/models.py:341
+msgid "Date"
+msgstr ""
+
+#: schemas/models.py:342
+msgid "Time"
+msgstr ""
+
+#: schemas/models.py:343
+msgid "Choices"
+msgstr ""
+
+#: schemas/models.py:344
+msgid "Float"
+msgstr ""
+
+#: schemas/models.py:347
+msgid "data type"
+msgstr ""
+
+#: schemas/models.py:350
+msgid "is required?"
+msgstr ""
+
+#: schemas/models.py:351
+msgid "use as label"
+msgstr ""
+
+#: schemas/models.py:363
+msgid "Code in Javascript to validate the property"
+msgstr ""
+
+#: schemas/models.py:411
+msgid "node"
+msgstr ""
+
+#: schemas/models.py:421
+msgid "relationship"
+msgstr ""
+
+#: schemas/models.py:425
+msgid "Relationship properties"
+msgstr ""
+
+#: schemas/views.py:72 schemas/views.py:151 schemas/views.py:423
+msgid "Type"
+msgstr ""
+
+#: schemas/views.py:143
+msgid "Your changes were saved"
+msgstr ""
+
+#: schemas/views.py:254 schemas/views.py:300
+#: schemas/templates/schemas_edit.html:180
+msgid "Allowed Relationship"
+msgstr ""
+
+#: schemas/views.py:324
+msgid "You are trying to export an empty schema!"
+msgstr ""
+
+#: schemas/views.py:338
+msgid "The schema already exists!"
+msgstr ""
+
+#: schemas/views.py:349
+msgid "An error occurred when processing the exported schema"
+msgstr ""
+
+#: schemas/templates/schemas_edit.html:43
+#: schemas/templates/schemas_edit.html:69
+#: schemas/templates/schemas_edit.html:98
+msgid "Add another"
+msgstr ""
+
+#: schemas/templates/schemas_edit.html:123
+msgid "incoming"
+msgstr ""
+
+#: schemas/templates/schemas_edit.html:127
+msgid "outgoing"
+msgstr ""
+
+#: schemas/templates/schemas_edit.html:129
+msgid "allowed relationship"
+msgstr ""
+
+#: schemas/templates/schemas_edit.html:139
+#: schemas/templates/schemas_edit.html:192
+msgid "Diagram"
+msgstr ""
+
+#: schemas/templates/schemas_edit.html:164
+msgid "Import Schema"
+msgstr ""
+
+#: schemas/templates/schemas_edit.html:176
+msgid "Define a new type of data in your database schema."
+msgstr ""
+
+#: schemas/templates/schemas_edit.html:181
+msgid "Define the kind of relationships that are allowed in your graph."
+msgstr ""
+
+#: schemas/templates/schemas_edit.html:185
+msgid ""
+"You can export your schema using this menu, as well as export your data or "
+"create a copy of your graph."
+msgstr ""
+
+#: schemas/templates/schemas_edit.html:188
+msgid "Schema overview"
+msgstr ""
+
+#: schemas/templates/schemas_edit.html:189
+msgid "An overview of your schema is showed in this column."
+msgstr ""
+
+#: schemas/templates/schemas_edit.html:193
+msgid ""
+"Here you can visualize a diagram of your schema. You can drag the boxes and "
+"reorder the diagram as you want."
+msgstr ""
+
+#: schemas/templates/schemas_edit.html:197
+msgid "Schema import"
+msgstr ""
+
+#: schemas/templates/schemas_edit.html:198
+msgid "You can import your database schema from a JSON file."
+msgstr ""
+
+#: schemas/templates/schemas_import.html:22
+msgid "Import a Schema"
+msgstr ""
+
+#: schemas/templates/schemas_item_edit.html:149
+msgid "Relationship"
+msgstr ""
+
+#: schemas/templates/schemas_item_edit.html:158
+msgid "Choose a name for your Type."
+msgstr ""
+
+#: schemas/templates/schemas_item_edit.html:162
+msgid "A description would be useful, too."
+msgstr ""
+
+#: schemas/templates/schemas_item_edit.html:166
+msgid "You can add as many properties as you want to your Types."
+msgstr ""
+
+#: schemas/templates/schemas_item_edit.html:169
+msgid "Property key"
+msgstr ""
+
+#: schemas/templates/schemas_item_edit.html:170
+msgid "Choose a name to identify each property."
+msgstr ""
+
+#: schemas/templates/schemas_item_edit.html:173
+msgid "Property description"
+msgstr ""
+
+#: schemas/templates/schemas_item_edit.html:174
+msgid "You can also add a description if you want."
+msgstr ""
+
+#: schemas/templates/schemas_item_edit.html:177
+msgid "Label"
+msgstr ""
+
+#: schemas/templates/schemas_item_edit.html:178
+msgid ""
+"Mark this checkbox if you want to use this property as the label of the "
+"Type. You will use the label to identify this Type in SylvaDB."
+msgstr ""
+
+#: schemas/templates/schemas_item_edit.html:182
+msgid "Clicking on this link, you can use advanced features like:"
+msgstr ""
+
+#: schemas/templates/schemas_item_edit.html:184
+msgid "Data type"
+msgstr ""
+
+#: schemas/templates/schemas_item_edit.html:185
+msgid ""
+"Limit the kind of data you can store in this property to the type selected."
+msgstr ""
+
+#: schemas/templates/schemas_item_edit.html:186
+msgid "Order"
+msgstr ""
+
+#: schemas/templates/schemas_item_edit.html:187
+msgid "Set the order of your properties."
+msgstr ""
+
+#: schemas/templates/schemas_item_edit.html:193
+msgid ""
+"Clicking on this icon you will remove the property. After saving, you will "
+"be asked what to do with the properties already stored in your graph."
+msgstr ""
+
+#: schemas/templates/schemas_item_edit.html:230
+msgid "Add Property"
+msgstr ""
+
+#: schemas/templates/schemas_item_edit.html:244
+msgid "Regular Mode"
+msgstr ""
+
+#: schemas/templates/schemas_properties_mend.html:24
+msgid ""
+"Your changes in the schema have been saved, but we haven't applied these "
+"changes in your data yet. Please, choose what to do with the following "
+"properties:"
+msgstr ""
+
+#: schemas/templates/schemas_properties_mend.html:29
+#: schemas/templates/schemas_properties_mend.html:36
+msgid "Property"
+msgstr ""
+
+#: tools/views.py:29
+msgid "You are trying to import data into a graph with an empty schema"
+msgstr ""
+
+#: tools/views.py:33
+msgid "You are trying to import data into a not empty graph"
+msgstr ""
+
+#: tools/views.py:85
+msgid "You are trying to export data from an empty graph"
+msgstr ""
+
+#: tools/templates/graph_import_tool.html:27
+msgid ""
+"This tool allows to import data into your graph. You can use <a href="
+"\"http://gexf.net/format/\"><abbr title=\"Graph Exchange XML Format\">GEXF "
+"(Gephi)</abbr></a> or <a href=\"http://en.wikipedia.org/wiki/Comma-"
+"separated_values\"><abbr title=\"Comma-separated values\">CSV</abbr></a> as "
+"file formats:"
+msgstr ""
+
+#: tools/templates/graph_import_tool.html:33
+msgid "Load GEXF"
+msgstr ""
+
+#: tools/templates/graph_import_tool.html:37
+msgid "Load CSV"
+msgstr ""
+
+#: tools/templates/graph_import_tool.html:38
+msgid "Learn how to import and edit CSV files"
+msgstr ""

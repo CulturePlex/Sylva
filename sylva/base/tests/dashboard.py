@@ -3,6 +3,7 @@ from django.test import LiveServerTestCase
 from splinter import Browser
 
 from user import signup, signin, logout
+from graphs.models import Graph
 
 
 def create_graph(test):
@@ -96,6 +97,7 @@ class DashboardTestCase(LiveServerTestCase):
 
     def test_dashboard_new_graph(self):
         create_graph(self)
+        Graph.objects.get(name="Bob's graph").destroy()
 
     def test_dashboard_graph_preview(self):
         """
@@ -129,6 +131,7 @@ class DashboardTestCase(LiveServerTestCase):
             '''
         self.browser.execute_script(js_code)
         text = self.browser.evaluate_script('sigma.test_node_id')
+        Graph.objects.get(name="Bob's graph").destroy()
         self.assertNotEqual(text.find("Bob's node"), -1)
 
     def test_automatic_tour(self):

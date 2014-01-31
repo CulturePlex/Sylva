@@ -43,10 +43,8 @@ class SubscriptionForm(StripePaymentForm):
                     subscription_updated = True
             elif len(customers) > 1 and plan_id == '2':
                 stripe_errors = True
-                error_message = _('You need to cancel your %s subscriptions '
-                                  'before subscribing for a %s plan' %
-                                        (settings.STRIPE_PLANS['3']['name'],
-                                         settings.STRIPE_PLANS['2']['name']))
+                error_message = _('You need to cancel your {0} subscriptions '
+                                  'before subscribing for a {1} plan'.format(settings.STRIPE_PLANS['3']['name'], settings.STRIPE_PLANS['2']['name']))
             if not stripe_errors and not subscription_updated:
                 try:
                     customer = StripeCustomer.objects.create(user=user,

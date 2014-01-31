@@ -63,7 +63,7 @@ LANGUAGE_CODE = 'en-ca'
 # Supported translations
 LANGUAGES = (
     ('en', ugettext('English')),
-    # ('es', ugettext('Español')),
+    #('es', ugettext('Español')),
 )
 
 # I18n
@@ -274,6 +274,9 @@ USERENA_MUGSHOT_GRAVATAR = True
 USERENA_MUGSHOT_DEFAULT = "mm"
 USERENA_MUGSHOT_SIZE = 100
 USERENA_USE_MESSAGES = False
+# Add to do the tests correctly, check mail is not necessary by now
+USERENA_ACTIVATION_REQUIRED = False
+
 # Add to do the tests correctly, check mail is not necessary by now
 USERENA_ACTIVATION_REQUIRED = False
 

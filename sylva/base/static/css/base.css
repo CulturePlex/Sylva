@@ -387,11 +387,18 @@ p.slogan {
 #main header.global .nav-wrapper .inside {
     width: 1200px;
     height: 49px;
+    background-color: #D6E7DF;
+    margin: auto;
+}
+
+#link_logo {
+    width: 140px;
+    height: 50px;
+    display: inline-block;
     background-image: url(../img/sylva_logo_text_header.png);
     background-repeat: no-repeat;
     background-position: 10px 4px;
-    background-color: #D6E7DF;
-    margin: auto;
+    text-indent: -9999px;
 }
 
 #main header.global nav.contact {
@@ -2006,6 +2013,70 @@ body :hover > a.headerlink {
 
 .sylva-icon-nodes16 {
     background-image: url(../img/nodes_16.png);
+}
+
+.remove-sorting {
+    background: url("../img/ui-icons_348e82_256x240.png") no-repeat -85px -133px;
+    width: 7px;
+    height: 7px;
+    display: inline-block;
+}
+
+.sorting-asc {
+    background: url("../img/ui-icons_348e82_256x240.png") no-repeat -4px -22px;
+    width: 7px;
+    height: 4px;
+    display: inline-block;
+}
+
+.sorting-desc {
+    background: url("../img/ui-icons_348e82_256x240.png") no-repeat -69px -22px;
+    width: 7px;
+    height: 4px;
+    display: inline-block;
+}
+
+.type-list-true {
+    background-image: url("../img/ui-icons_348e82_256x240.png");
+    background-repeat: no-repeat;
+    background-position: -66px -148px;
+    width: 12px;
+    height: 9px;
+    display: inline-block;
+    text-indent: -9999px;
+}
+
+.type-list-false {
+    background-image: url("../img/ui-icons_348e82_256x240.png");
+    background-repeat: no-repeat;
+    background-position: -100px -132px;
+    width: 9px;
+    height: 9px;
+    display: inline-block;
+    text-indent: -9999px;
+}
+
+.shorten-text {
+    max-width: 100px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.shorten-text:hover {
+    max-width: 500px;
+}
+
+.dropdown {
+    position: absolute;
+    background-color: #FFFFFF;
+    box-shadow: 5px 5px 2px #888888;
+    padding: 3px;
+    display: none;
+    width: 10%;
+    border: 1px solid #888888;
+    border-radius: 5px;
+    -moz-border-radius: 5px;
 }
 
 /* END icons */

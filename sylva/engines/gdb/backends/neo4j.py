@@ -200,6 +200,8 @@ class GraphDatabase(BlueprintsGraphDatabase):
             script = u"%s id(n), n" % script
         else:
             script = u"%s id(n)" % script
+        if order_by:
+            script = u"%s order by n.`%s` %s " % (script, order_by[0][0].replace('`', '\`'), order_by[0][1])
         page = 1000
         skip = offset or 0
         limit = limit or page
@@ -269,6 +271,8 @@ class GraphDatabase(BlueprintsGraphDatabase):
         else:
             script = u"%s return distinct id(r), %s, a, b" \
                      % (script, type_or_r)
+        if order_by:
+            script = u"%s order by n.`%s` %s " % (script, order_by[0][0].replace('`', '\`'), order_by[0][1])
         page = 1000
         skip = offset or 0
         limit = limit or page

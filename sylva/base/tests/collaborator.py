@@ -4,6 +4,7 @@ from splinter import Browser
 
 from user import signup, signin, logout
 from dashboard import create_graph, create_schema, create_type, create_data
+from graphs.models import Graph
 
 
 GRAPH_VIEW = 'chk_graph_view_graph'
@@ -74,6 +75,7 @@ class CollaboratorTestCase(LiveServerTestCase):
         text = self.browser.find_by_xpath(
             "//div[@class='heading']/h1").first.value
         self.assertNotEqual(text.find("403"), -1)
+        Graph.objects.get(name="Bob's graph").destroy()
 
     def test_graph_view_with_permissions(self):
         signup(self, 'alice', 'alice@cultureplex.ca', 'alice_secret')
@@ -89,6 +91,7 @@ class CollaboratorTestCase(LiveServerTestCase):
         self.browser.find_link_by_href('/graphs/bobs-graph/').first.click()
         text = self.browser.find_by_xpath("//div[@class='graph-item']/span[@class='graph-title']/a").first.value
         self.assertEqual(text, "Bob's graph")
+        Graph.objects.get(name="Bob's graph").destroy()
 
     def test_graph_change_without_permissions(self):
         signup(self, 'alice', 'alice@cultureplex.ca', 'alice_secret')
@@ -106,6 +109,7 @@ class CollaboratorTestCase(LiveServerTestCase):
         text = self.browser.find_by_xpath(
             "//div[@class='heading']/h1").first.value
         self.assertNotEqual(text.find("403"), -1)
+        Graph.objects.get(name="Bob's graph").destroy()
 
     def test_graph_change_with_permissions(self):
         signup(self, 'alice', 'alice@cultureplex.ca', 'alice_secret')
@@ -127,6 +131,7 @@ class CollaboratorTestCase(LiveServerTestCase):
             "//form/input[@type='submit']").first.click()
         text = self.browser.find_by_xpath("//div[@class='graph-item']/span[@class='graph-title']/a").first.value
         self.assertEqual(text, "Alice's graph")
+        Graph.objects.get(name="Alice's graph").destroy()
 
     def test_schema_view_without_permissions(self):
         signup(self, 'alice', 'alice@cultureplex.ca', 'alice_secret')
@@ -146,6 +151,7 @@ class CollaboratorTestCase(LiveServerTestCase):
         text = self.browser.find_by_xpath(
             "//div[@class='heading']/h1").first.value
         self.assertNotEqual(text.find("403"), -1)
+        Graph.objects.get(name="Bob's graph").destroy()
 
     def test_schema_view_with_permissions(self):
         signup(self, 'alice', 'alice@cultureplex.ca', 'alice_secret')
@@ -166,6 +172,7 @@ class CollaboratorTestCase(LiveServerTestCase):
         text = self.browser.find_by_xpath(
             "//fieldset[@class='module aligned wide model']/h2/a").first.value
         self.assertEqual(text, "Bob's type")
+        Graph.objects.get(name="Bob's graph").destroy()
 
     def test_schema_change_without_permissions(self):
         signup(self, 'alice', 'alice@cultureplex.ca', 'alice_secret')
@@ -187,6 +194,7 @@ class CollaboratorTestCase(LiveServerTestCase):
         text = self.browser.find_by_xpath(
             "//div[@class='heading']/h1").first.value
         self.assertNotEqual(text.find("403"), -1)
+        Graph.objects.get(name="Bob's graph").destroy()
 
     def test_schema_change_with_permissions(self):
         signup(self, 'alice', 'alice@cultureplex.ca', 'alice_secret')
@@ -212,6 +220,7 @@ class CollaboratorTestCase(LiveServerTestCase):
         text = self.browser.find_by_xpath(
             "//fieldset[@class='module aligned wide model']/h2/a").first.value
         self.assertEqual(text, "Alice's type")
+        Graph.objects.get(name="Bob's graph").destroy()
 
     def test_data_view_without_permissions(self):
         signup(self, 'alice', 'alice@cultureplex.ca', 'alice_secret')
@@ -232,6 +241,7 @@ class CollaboratorTestCase(LiveServerTestCase):
         text = self.browser.find_by_xpath(
             "//div[@class='heading']/h1").first.value
         self.assertNotEqual(text.find("403"), -1)
+        Graph.objects.get(name="Bob's graph").destroy()
 
     def test_data_view_with_permissions(self):
         signup(self, 'alice', 'alice@cultureplex.ca', 'alice_secret')
@@ -252,6 +262,7 @@ class CollaboratorTestCase(LiveServerTestCase):
         self.browser.find_by_xpath("//div[@id='dataBrowse']/table/tbody/tr/td/a[@class='dataOption list']").first.click()
         text = self.browser.find_by_xpath("//table[@id='content_table']/tbody/tr[1]/td[2]/a").first.value
         self.assertEqual(text, "Bob's node")
+        Graph.objects.get(name="Bob's graph").destroy()
 
     def test_data_change_without_permissions(self):
         signup(self, 'alice', 'alice@cultureplex.ca', 'alice_secret')
@@ -274,6 +285,7 @@ class CollaboratorTestCase(LiveServerTestCase):
         text = self.browser.find_by_xpath(
             "//div[@class='heading']/h1").first.value
         self.assertNotEqual(text.find("403"), -1)
+        Graph.objects.get(name="Bob's graph").destroy()
 
     def test_data_change_with_permissions(self):
         signup(self, 'alice', 'alice@cultureplex.ca', 'alice_secret')
@@ -299,6 +311,7 @@ class CollaboratorTestCase(LiveServerTestCase):
         self.browser.find_by_xpath("//input[@type='submit']").first.click()
         text = self.browser.find_by_xpath("//table[@id='content_table']/tbody/tr[1]/td[2]/a").first.value
         self.assertEqual(text, "Alice's node")
+        Graph.objects.get(name="Bob's graph").destroy()
 
     def test_data_add_without_permissions(self):
         signup(self, 'alice', 'alice@cultureplex.ca', 'alice_secret')
@@ -319,6 +332,7 @@ class CollaboratorTestCase(LiveServerTestCase):
         text = self.browser.find_by_xpath(
             "//div[@class='heading']/h1").first.value
         self.assertNotEqual(text.find("403"), -1)
+        Graph.objects.get(name="Bob's graph").destroy()
 
     def test_data_add_with_permissions(self):
         signup(self, 'alice', 'alice@cultureplex.ca', 'alice_secret')
@@ -342,6 +356,7 @@ class CollaboratorTestCase(LiveServerTestCase):
         self.browser.find_by_xpath("//input[@type='submit']").first.click()
         text = self.browser.find_by_xpath("//table[@id='content_table']/tbody/tr[1]/td[2]/a").first.value
         self.assertEqual(text, "Alice's node")
+        Graph.objects.get(name="Bob's graph").destroy()
 
     def test_data_delete_without_permissions(self):
         signup(self, 'alice', 'alice@cultureplex.ca', 'alice_secret')
@@ -366,6 +381,7 @@ class CollaboratorTestCase(LiveServerTestCase):
         text = self.browser.find_by_xpath(
             "//div[@class='heading']/h1").first.value
         self.assertNotEqual(text.find("403"), -1)
+        Graph.objects.get(name="Bob's graph").destroy()
 
     def test_data_delete_with_permissions(self):
         signup(self, 'alice', 'alice@cultureplex.ca', 'alice_secret')
@@ -393,3 +409,4 @@ class CollaboratorTestCase(LiveServerTestCase):
         text = self.browser.find_by_xpath(
             "//div[@id='content2']/div[@class='indent']").first.value
         self.assertNotEqual(text.find('Nodes: 0'), -1)
+        Graph.objects.get(name="Bob's graph").destroy()

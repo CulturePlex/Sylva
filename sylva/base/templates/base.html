@@ -61,6 +61,11 @@
             <div class="inside clearfix">
               {% block contact_navigation %}{% endblock %}
               {% block main_navigation %}
+                {% if request.user.is_authenticated %}
+                  <a href="{% url dashboard %}" id="link_logo" title="{% trans "Go to the Dashboard" %}">dashboard</a>
+                {% else %}
+                  <a href="{% url index %}" id="link_logo" title="{% trans "Go to the index page" %}">index</a>
+                {% endif %}
                 {% if graph %}
                   <div class="title-graph-name">{% trans "Graph:" %} {{ graph.name }}</div>
                 {% endif %}
@@ -71,7 +76,7 @@
                     {% if request.user.is_authenticated %}
                       <li><a href="{% url userena.views.profile_detail request.user %}" class="link">{{ request.user }}</a></li>
                       {% block navigation_buttons %}
-                        <li><a href="{% url dashboard %}" class="link"><span>{% trans "Dashboard" %}</span></a></li>
+                        <li><a href="{% url dashboard %}" class="link" title="{% trans "Main view for the options of the user" %}"><span>{% trans "Dashboard" %}</span></a></li>
                       {% endblock %}
                       <li><a href="{{ LOGOUT_URL }}" class="link"><span>{% trans "Sign out" %}</span></a></li>
                     {% else %}
@@ -123,7 +128,6 @@
     {% block scripts %}
       <script src="{% url django.views.i18n.javascript_catalog %}"></script>
       <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
-      <script src="{{ STATIC_PREFIX }}js/jquery.cookie.js"></script>
       <script src="{{ STATIC_PREFIX }}js/spin.1.2.7.js"></script>
       <script src="{{ STATIC_PREFIX }}joyride/jquery.joyride-2.0.3.js"></script>
       <script src="{{ STATIC_PREFIX }}js/base.js"></script>
