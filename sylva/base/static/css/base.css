@@ -353,6 +353,10 @@ p.slogan {
     text-align: center;
 }
 
+.title-graph-name span {
+    margin-left: -150px;
+}
+
 /* END Class utils ************************************************************/
 
 
@@ -391,10 +395,11 @@ p.slogan {
     margin: auto;
 }
 
-#link_logo {
+#link-logo {
     width: 140px;
     height: 50px;
     display: inline-block;
+    float: left;
     background-image: url(../img/sylva_logo_text_header.png);
     background-repeat: no-repeat;
     background-position: 10px 4px;

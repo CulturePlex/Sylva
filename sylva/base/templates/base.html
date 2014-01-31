@@ -62,12 +62,12 @@
               {% block contact_navigation %}{% endblock %}
               {% block main_navigation %}
                 {% if request.user.is_authenticated %}
-                  <a href="{% url dashboard %}" id="link_logo" title="{% trans "Go to the Dashboard" %}">dashboard</a>
+                  <a href="{% url dashboard %}" id="link-logo" title="{% trans "Go to the Dashboard" %}">dashboard</a>
                 {% else %}
-                  <a href="{% url index %}" id="link_logo" title="{% trans "Go to the index page" %}">index</a>
+                  <a href="{% url index %}" id="link-logo" title="{% trans "Go to the index page" %}">index</a>
                 {% endif %}
                 {% if graph %}
-                  <div class="title-graph-name">{% trans "Graph:" %} {{ graph.name }}</div>
+                  <div class="title-graph-name"><span>{% trans "Graph:" %} {{ graph.name }}</span></div>
                 {% endif %}
                 <nav class="main">
                   <ul>
@@ -128,6 +128,7 @@
     {% block scripts %}
       <script src="{% url django.views.i18n.javascript_catalog %}"></script>
       <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+      <script src="{{ STATIC_PREFIX }}js/jquery.cookie.js"></script>
       <script src="{{ STATIC_PREFIX }}js/spin.1.2.7.js"></script>
       <script src="{{ STATIC_PREFIX }}joyride/jquery.joyride-2.0.3.js"></script>
       <script src="{{ STATIC_PREFIX }}js/base.js"></script>

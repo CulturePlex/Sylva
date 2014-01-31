@@ -28,7 +28,7 @@ class SchemaTestCase(LiveServerTestCase):
         create_schema(self)
         create_type(self)
         self.browser.find_by_id('toolsMenu').first.click()
-        cookies = {self.browser.cookies.all()[0]["name"]: self.browser.cookies.all()[0]["value"], self.browser.cookies.all()[1]["name"]: self.browser.cookies.all()[1]["value"]}
+        cookies = {self.browser.cookies.all()[1]["name"]: self.browser.cookies.all()[1]["value"], self.browser.cookies.all()[2]["name"]: self.browser.cookies.all()[2]["value"]}
         result = requests.get(self.live_server_url + '/schemas/bobs-graph/export/', cookies=cookies)
         self.assertEqual(result.headers['content-type'], 'application/json')
         self.assertEqual(self.browser.status_code.is_success(), True)

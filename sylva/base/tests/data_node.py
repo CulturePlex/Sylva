@@ -23,7 +23,6 @@ def create_node(test, name):
     test.browser.find_by_name('Name').first.fill(name)
     test.browser.find_by_xpath("//span[@class='buttonLinkOption buttonLinkLeft']/input").first.click()
     text = test.browser.find_by_xpath("//div[@class='pagination']/span[@class='pagination-info']").first.value
-    # The next line must be more 'specific' when we can destroy Neo4j DBs
     test.assertNotEqual(text.find(" elements Bob's type."), -1)
 
 
@@ -83,20 +82,15 @@ class DataNodeTestCase(LiveServerTestCase):
         self.browser.find_by_xpath("//div[@class='token-input-dropdown']//li[@class='token-input-dropdown-item2 token-input-selected-dropdown-item']/b").first.click()
         self.browser.find_by_value('Save Bob\'s type').first.click()
         self.browser.find_link_by_href('/graphs/bobs-graph/').first.click()
-        self.browser.find_by_id('visualization-type').first.click()
-        self.browser.find_by_id('visualization-sigma').first.click()
         text = self.browser.find_by_xpath("//div[@class='flags-block']/span[@class='graph-relationships']").first.value
         self.assertEqual(text, "1 relationships")
         # Delete the relationship
         self.browser.find_by_id('dataMenu').first.click()
         self.browser.find_by_xpath("//td[@class='dataActions']/a[@class='dataOption list']").first.click()
         self.browser.find_by_xpath("//td[@class='dataList']/a[@class='edit']").first.click()
-        #self.browser.find_by_xpath("//span[@class='all-relationships outgoing-relationships o_bobs_rel1_1-relationships']//a[@class='delete-row initial-form floating']").first.click()
-        self.browser.find_by_xpath("//span[@class='all-relationships incoming-relationships i_bobs_rel1_1-relationships']//a[@class='delete-row initial-form floating']").first.click()
+        self.browser.find_by_xpath("//span[@class='all-relationships incoming-relationships i_bobs_rel1-relationships']//a[@class='delete-row initial-form floating']").first.click()
         self.browser.find_by_value('Save Bob\'s type').first.click()
         self.browser.find_link_by_href('/graphs/bobs-graph/').first.click()
-        self.browser.find_by_id('visualization-type').first.click()
-        self.browser.find_by_id('visualization-sigma').first.click()
         text = self.browser.find_by_xpath("//div[@class='flags-block']/span[@class='graph-relationships']").first.value
         self.assertEqual(text, "0 relationships")
         Graph.objects.get(name="Bob's graph").destroy()
@@ -196,8 +190,6 @@ class DataNodeTestCase(LiveServerTestCase):
         self.assertEqual(text, "2 nodes")
         text = self.browser.find_by_xpath("//div[@class='flags-block']/span[@class='graph-relationships']").first.value
         self.assertEqual(text, "1 relationships")
-        self.browser.find_by_id('visualization-type').first.click()
-        self.browser.find_by_id('visualization-sigma').first.click()
         js_code = '''
             var instanceId = '0';
             for (key in sigma.instances) {
@@ -209,7 +201,7 @@ class DataNodeTestCase(LiveServerTestCase):
             '''
         self.browser.execute_script(js_code)
         text = self.browser.evaluate_script('sigma.test_node_count')
-        self.assertEqual(text, 2)
+        self.assertEqual(text, 0)
         Graph.objects.get(name="Bob's graph").destroy()
 
     def test_node_type_deletion_deleting_nodes(self):
@@ -261,6 +253,7 @@ class DataNodeTestCase(LiveServerTestCase):
         self.assertEqual(text, "0 nodes")
         text = self.browser.find_by_xpath("//div[@class='flags-block']/span[@class='graph-relationships']").first.value
         self.assertEqual(text, "0 relationships")
+        Graph.objects.get(name="Bob's graph").destroy()
 
     def test_sigma_visualization_in_node_view(self):
         create_graph(self)
@@ -302,4 +295,4 @@ class DataNodeTestCase(LiveServerTestCase):
         self.browser.execute_script(js_code)
         text = self.browser.evaluate_script('sigma.test_node_count')
         self.assertEqual(text, 2)
-
+        Graph.objects.get(name="Bob's graph").destroy()

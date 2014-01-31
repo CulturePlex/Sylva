@@ -111,10 +111,6 @@ class DashboardTestCase(LiveServerTestCase):
         create_type(self)
         create_data(self)
         self.browser.find_link_by_href('/graphs/bobs-graph/').first.click()
-        self.browser.find_by_id('visualization-type').first.click()
-        self.browser.find_by_id('visualization-sigma').first.click()
-        sigma = self.browser.find_by_id('sigma-wrapper').first
-        self.assertEqual(sigma['style'], 'display: block; ')
         js_code = '''
             var instanceId = '0';
             for (key in sigma.instances) {
@@ -123,7 +119,7 @@ class DashboardTestCase(LiveServerTestCase):
             }
             var instance = sigma.instances[instanceId];
             var nodeId = '0';
-            for (key in sylva.total_nodes) {
+            for (key in sylva.nodes) {
                 nodeId = key;
                 break;
             }
