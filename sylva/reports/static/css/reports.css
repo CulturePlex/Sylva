@@ -5,9 +5,50 @@
 }
 .bin {
   @extend %content;
-  min-height: 300px;
-  min-width: 100%;
+  min-height: 200px;
+  width: 100%;
   float: left;
   border: 1px solid black;
   padding: 20px;
+  margin-top: 20px;
  }
+
+.content-col:hover {
+ 	overflow-y: auto;
+ 	height: 100%;
+ }
+
+ .query-col {
+ 	float:left; 
+ 	width:30%;
+  margin-top: 20px;
+ }
+
+ .report-col {
+ 	float:left;
+ 	width:60%
+ }
+
+h2 {
+    display: inline-block;
+}
+
+.report-button {
+  margin-left: 20px
+}
+
+.align-center {
+  text-align: center;
+}
+
+.content2-first {
+    width: 250px;
+    float: left;
+    padding-left: 2px;
+}
+
+.content2-second {
+    width: 837px;
+    float: left;
+    padding-left: 30px;
+}

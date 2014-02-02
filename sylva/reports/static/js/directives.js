@@ -32,6 +32,7 @@ reportsDirectives.directive('initReport', ['$timeout', function ($timeout) {
     }
 }]);
 
+
 reportsDirectives.directive('draggable', function() {
   return function(scope, element) {
     // this gives us the native JS object

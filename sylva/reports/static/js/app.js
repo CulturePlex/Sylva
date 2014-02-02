@@ -2,7 +2,8 @@ var reports = angular.module('reports', [
     'reportsControllers',
     'reportsServices',
     'reportsDirectives', 
-    'ngCookies'
+    'ngCookies',
+    'datePicker'
 ]);
 
 

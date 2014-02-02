@@ -7,70 +7,94 @@
 {% endblock %}
 
 {% block title %}
-  Some Graph
+  {{ graph_slug }}
 {% endblock %}
-<!-- This will happen when I hook up a graph to the reports  see base/templatetags/graphs.py and pretty much
-any view (how bout schemas/views.py)-->
+
+//<!-- not sure how to handle this-->
 {# block menu_buttons #}
   {# toolbar on="reports" #}
 {# endblock #}
 
-
-
+//<!-- don't think I should get the whole graph here -->
 {% block content_title %}
-    Some Graph: Reports
+    <header class="global">
+        <h2>{{ graph_slug }} &raquo; Reports</h2>
+    </header>
 {% endblock %}
 
 {% block content %}
 
     <div ng-app="reports" ng-controller="reportsListCtrl" resize graph="{{ graph_slug }}" init-report>
-        <div class="content2-first">
+        <div class="content2-first content-col">
             <span class="buttonLinkOption">
                 <a class="button" ng-click="newReport()">New Report</a>
             </span>
             <div ng-repeat="report in reports">
                 <h2><a href="" ng-click="showReport(report.slug)">{$report.name$}</a></h2>
+                
             </div>
         </div>  
-
-        <div class="content2-second">
-
-            <div style="float:left; width:40%">
-                <div ng-repeat="query in queries">
-                    <div id="{$ query.name $}" draggable>
-                        <h2>{$ query.name $}</h2>
-                        Details:    
-                    </div>
-                </div>
-            </div>
-
-            <div style="float:left; width:60%">
-                New Report
+        <div class="content-divider"></div>
+        <div class="content2-second content-col">
+            <div>
                 <form>
                     <div>
-                        <input type="text" ng-model="reportName" placeholder="{$ namePlaceholder $}">
+                        <h2>{$reportHeader$}</h2><a class="button report-button" ng-click="processForm(report)">Save report</a>
                     </div>
-                    <span class="buttonLinkOption">
-                        <a class="button" ng-click="processForm(reportName)">Save report</a>
-                    </span>
+                    <div>
+                        <label>Name:
+                            <input type="text" ng-model="report.name" placeholder="{$ namePlaceholder $}">
+                        </label>
+                    </div>
+                    <div>
+                        <label>Frequency:
+                            <select ng-model="report.frequency">
+                                <option value="daily">Daily</option>
+                                <option value="weekly">Weekly</option>
+                                <option value="monthly">Monthly</option>
+                            </select>  
+                        </label>                      
+                    </div>
+                    <div>
+                        <label> Start date:
+                            <input type="text" date-time ng-model="report.startTime" required="true" view="hours"> 
+                        </label>     
+                    </div> 
                 </form>
-                <div class="bin" id="bin" droppable drop="handleDrop" bin="bin">
+            </div>
+            <hr>
+            <div>
+                <div>
+                    <h2 class="align-center"> Add Queries </h2>
+                </div>
+                <div class="query-col">
+                    <div ng-repeat="query in queries">
+                        <div id="{$ query.name $}" draggable>
+                            <h2>{$ query.name $}</h2>
+                            Details:    
+                        </div>
+                    </div>
+                </div>
+                <div class="bin report-col" id="bin" droppable drop="handleDrop" bin="bin">
+                    <h2>Drag queries here:</h2>
                     <div ng-repeat="drop in dropped track by $index">
                         <h2>{$ drop $}</h2>
                         <a href="" ng-click="removeQuery($index)">remove</a>
                     </div>
-                </div>
+                </div> 
             </div>
         </div>
     </div>
 
     {% block extra_links %}
          <link rel="stylesheet" type="text/css" href="{{ STATIC_PREFIX }}css/reports.css" />
+         <link rel="stylesheet" type="text/css" href="{{ STATIC_PREFIX }}css/angular-datepicker.css" />
     {% endblock %}
     {% block scripts %}
     
     {% endblock %}
     {% block extra_scripts %}
+
         <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.0/angular.min.js"></script>
         <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.0/angular-cookies.js"></script>
         <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.0/angular-resource.js"></script>
@@ -78,14 +102,6 @@ any view (how bout schemas/views.py)-->
         <script type="text/javascript" src="{{ STATIC_PREFIX }}js/controllers.js" ></script>
         <script type="text/javascript" src="{{ STATIC_PREFIX }}js/services.js" ></script>
         <script type="text/javascript" src="{{ STATIC_PREFIX }}js/directives.js" ></script>
+        <script type="text/javascript" src="{{ STATIC_PREFIX }}js/thirdparty/angular-datepicker.js" ></script>
     {% endblock %}
 {% endblock %}
-
-                            <!--<div>
-                                <select ng-model="formData.country" class="form-control" id="country-select"> 
-                                    <option value="">Chart Type</option>
-                                    <option value="bar"> Bar </option>
-                                    <option value="pie"> Pie </option>
-                                    <option value="scatter"> Scatter </option>
-                                </select>                        
-                            </div>-->

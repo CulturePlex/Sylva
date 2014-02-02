@@ -23,11 +23,14 @@ def reports_index_view(request, graph_slug):
 def reports_endpoint(request, graph_slug):
     reports = [
         {'name': 'report1', 'slug': 'report1',
-         'queries': ['query1', 'query3']},
+         'queries': ['query1', 'query3'], 'frequency': 'weekly',
+         'start_time': 'Sun Feb 03 2014 09:25:00 GMT-0500 (EST)'},
         {'name': 'report2', 'slug': 'report2',
-         'queries': ['query5', 'query2']},
+         'queries': ['query5', 'query2'], 'frequency': 'daily',
+         'start_time': 'Sun Feb 04 2014 09:25:00 GMT-0500 (EST)'},
         {'name': 'report3', 'slug': 'report3',
-         'queries': ['query4', 'query5']},
+         'queries': ['query4', 'query5'], 'frequency': 'weekly',
+         'start_time': 'Sun Feb 05 2014 09:25:00 GMT-0500 (EST)'},
     ]
     if request.POST:
         post = json.loads(request.body)
