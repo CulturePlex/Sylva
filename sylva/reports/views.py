@@ -4,9 +4,11 @@ from django.shortcuts import (render_to_response, get_object_or_404,
                               HttpResponse)
 from django.template import RequestContext
 from django.core.context_processors import csrf
+from guardian.decorators import permission_required
 
 
-# @permission_required()
+#@permission_required('reports.view_report',
+                     #(Report, 'graph__slug', 'graph_slug'), return_403=True)
 def reports_index_view(request, graph_slug):
     c = {}
     c.update(csrf(request))
@@ -16,7 +18,8 @@ def reports_index_view(request, graph_slug):
     }))
 
 
-#@permission_required()
+#@permission_required('reports.view_report',
+                     #(Report, 'graph__slug', 'graph_slug'), return_403=True)
 def reports_endpoint(request, graph_slug):
     reports = [
         {'name': 'report1', 'slug': 'report1',
@@ -35,7 +38,8 @@ def reports_endpoint(request, graph_slug):
     return HttpResponse(json_data, mimetype='application/json')
 
 
-# @permission_required()
+#@permission_required('queries.view_query',
+                     #(Query, 'graph__slug', 'graph_slug'), return_403=True)
 def queries_endpoint(request, graph_slug):
     queries = [
         {'name': 'query1'},
