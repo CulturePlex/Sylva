@@ -13,9 +13,11 @@ reportsControllers.controller('reportsListCtrl', ['$scope', '$timeout', 'api',
 
         $scope.init = function (graphSlug) {
             console.log('init', graphSlug);
-            $scope.reports = api.reports.query({graphSlug: graphSlug});
-            $scope.queries = api.queries.query({graphSlug: graphSlug}); 
-            $scope.graphSlug = graphSlug;
+            $timeout(function () {
+                $scope.reports = api.reports.query({graphSlug: graphSlug});
+                $scope.queries = api.queries.query({graphSlug: graphSlug}); 
+                $scope.graphSlug = graphSlug;
+            });
         };
         
         $scope.newReport = function () {
@@ -40,7 +42,8 @@ reportsControllers.controller('reportsListCtrl', ['$scope', '$timeout', 'api',
                 name: report.name,
                 queries: $scope.dropped,
                 start_time: report.startTime,
-                frequency: report.frequency
+                frequency: report.frequency,
+                description: report.description
             };
             console.log('daat', report);
             var post = new api.reports();
@@ -68,6 +71,7 @@ reportsControllers.controller('reportsListCtrl', ['$scope', '$timeout', 'api',
             console.log('start', report[0].start_time)
             $scope.report.startTime = new Date(report[0].start_time);
             $scope.report.frequency = report[0].frequency;
+            $scope.report.description = report[0].description;
 
         };
     }]);

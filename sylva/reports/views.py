@@ -24,19 +24,22 @@ def reports_endpoint(request, graph_slug):
     reports = [
         {'name': 'report1', 'slug': 'report1',
          'queries': ['query1', 'query3'], 'frequency': 'weekly',
-         'start_time': 'Sun Feb 03 2014 09:25:00 GMT-0500 (EST)'},
+         'start_time': 'Sun Feb 03 2014 09:25:00 GMT-0500 (EST)',
+         'description': 'a report'},
         {'name': 'report2', 'slug': 'report2',
          'queries': ['query5', 'query2'], 'frequency': 'daily',
-         'start_time': 'Sun Feb 04 2014 09:25:00 GMT-0500 (EST)'},
+         'start_time': 'Sun Feb 04 2014 09:25:00 GMT-0500 (EST)',
+         'description': 'a report'},
         {'name': 'report3', 'slug': 'report3',
          'queries': ['query4', 'query5'], 'frequency': 'weekly',
-         'start_time': 'Sun Feb 05 2014 09:25:00 GMT-0500 (EST)'},
+         'start_time': 'Sun Feb 05 2014 09:25:00 GMT-0500 (EST)',
+         'description': 'a report'},
     ]
     if request.POST:
         post = json.loads(request.body)
         new_report = post['report']
         json_data = json.dumps(new_report)
-    elif request.GET:
+    else:
         json_data = json.dumps(reports)
     return HttpResponse(json_data, mimetype='application/json')
 

@@ -37,10 +37,6 @@ h2 {
   margin-left: 20px
 }
 
-.align-center {
-  text-align: center;
-}
-
 .content2-first {
     width: 250px;
     float: left;
@@ -52,3 +48,19 @@ h2 {
     float: left;
     padding-left: 30px;
 }
+
+.box {
+  display: table-row;
+}
+.box .column1 {
+    display: table-cell;
+} 
+
+.box .column2 {
+    display: table-cell;
+    padding-left: 20px;
+    vertical-align: bottom;
+}
+
+
+
