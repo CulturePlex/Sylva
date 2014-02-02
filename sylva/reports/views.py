@@ -18,7 +18,7 @@ def reports_index_view(request, graph_slug):
 
 
 #@permission_required()
-def reports_endpoint(request):
+def reports_endpoint(request, graph_slug):
     reports = [
         {'name': 'report1', 'slug': 'report1',
          'queries': ['query1', 'query3']},
@@ -32,13 +32,12 @@ def reports_endpoint(request):
         new_report = post['report']
         json_data = json.dumps(new_report)
     elif request.GET:
-        graph_slug = request.GET['graph']
         json_data = json.dumps(reports)
     return HttpResponse(json_data, mimetype='application/json')
 
 
 # @permission_required()
-def queries_endpoint(request):
+def queries_endpoint(request, graph_slug):
     queries = [
         {'name': 'query1'},
         {'name': 'query2'},
@@ -46,6 +45,5 @@ def queries_endpoint(request):
         {'name': 'query4'},
         {'name': 'query5'}
     ]
-    print request.GET['graph']
     json_data = json.dumps(queries)
     return HttpResponse(json_data, mimetype='application/json')
