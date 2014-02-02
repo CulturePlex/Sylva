@@ -8,10 +8,11 @@ reportsControllers.controller('reportsListCtrl', ['$scope', '$timeout', 'api',
         $scope.namePlaceholder = 'Report Name';
         $scope.reportName = '';
 
-        $scope.init = function (graph) {
-        console.log('init', graph);
-        $scope.reports = api.reports.query({graphSlug: graph});
-        $scope.queries = api.queries.query({graphSlug: graph}); 
+        $scope.init = function (graphSlug) {
+            console.log('init', graphSlug);
+            $scope.reports = api.reports.query({graphSlug: graphSlug});
+            $scope.queries = api.queries.query({graphSlug: graphSlug}); 
+            $scope.graphSlug = graphSlug;
         };
         
         $scope.newReport = function () {
@@ -38,7 +39,7 @@ reportsControllers.controller('reportsListCtrl', ['$scope', '$timeout', 'api',
             var post = new api.reports();
             post.report = newReport;
             console.log('post', post)
-            post.$save(function (data) {
+            post.$save({graphSlug: $scope.graphSlug}, function (data) {
                 $scope.reports.push(data)
                 $scope.dropped = []
             });

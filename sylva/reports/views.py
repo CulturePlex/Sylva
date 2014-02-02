@@ -8,7 +8,6 @@ from django.core.context_processors import csrf
 
 # @permission_required()
 def reports_index_view(request, graph_slug):
-    graph_slug = 'my_graph'
     c = {}
     c.update(csrf(request))
     return render_to_response('reports_index.html', RequestContext(request, {
