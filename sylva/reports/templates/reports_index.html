@@ -31,6 +31,7 @@
             </span>
             <div ng-repeat="report in reports">
                 <h2><a href="" ng-click="showReport(report.slug)">{$report.name$}</a></h2>
+                {$ report.description $}
                 
             </div>
         </div>  
@@ -40,7 +41,7 @@
                 <div class="column1">
                 <form id="report-form">
                     <div>
-                        <h2>{$reportHeader$}</h2><a class="button report-button" ng-click="processForm(report)">Save report</a>
+                        <h2 class="inline-h2">{$reportHeader$}</h2><a class="button report-button" ng-click="processForm(report)">Save report</a>
                     </div>
                     <div>
                         <label>Name:
