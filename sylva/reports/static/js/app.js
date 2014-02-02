@@ -17,9 +17,10 @@ reports.config([
         $httpProvider.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 
     }]).
+
     run([
     '$http', 
     '$cookies', 
-    function($http, $cookies) {
-        $http.defaults.headers.post['X-CSRFToken'] = $cookies.csrftoken;
+    function($http, $cookies, $timeout) {
+            $http.defaults.headers.post['X-CSRFToken'] = $cookies.csrftoken;
     }]);

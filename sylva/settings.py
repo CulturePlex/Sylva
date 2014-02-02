@@ -352,3 +352,6 @@ STRIPE_PLANS = {
 
 EMAIL_BACKEND = 'django.core.mail.backends.dummy.EmailBackend'
 # EMAIL_FILE_PATH = '/tmp/app-messages' # change this to a proper location
+
+# Use cookies 
+SESSION_ENGINE = 'django.contrib.sessions.backends.signed_cookies'

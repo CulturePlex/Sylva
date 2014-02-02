@@ -23,13 +23,13 @@ any view (how bout schemas/views.py)-->
 
 {% block content %}
 
-    <div ng-app="reports" ng-controller="reportsListCtrl" resize>
+    <div ng-app="reports" ng-controller="reportsListCtrl" resize graph="{{ graph_slug }}" init-report>
         <div class="content2-first">
             <span class="buttonLinkOption">
                 <a class="button" ng-click="newReport()">New Report</a>
             </span>
             <div ng-repeat="report in reports">
-                <h2><a href="" ng-click="getReport(report.name)">{$report.name$}</a></h2>
+                <h2><a href="" ng-click="showReport(report.slug)">{$report.name$}</a></h2>
             </div>
         </div>  
 
@@ -73,6 +73,7 @@ any view (how bout schemas/views.py)-->
     {% block extra_scripts %}
         <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.0/angular.min.js"></script>
         <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.0/angular-cookies.js"></script>
+        <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.0/angular-resource.js"></script>
         <script type="text/javascript" src="{{ STATIC_PREFIX }}js/app.js" ></script>
         <script type="text/javascript" src="{{ STATIC_PREFIX }}js/controllers.js" ></script>
         <script type="text/javascript" src="{{ STATIC_PREFIX }}js/services.js" ></script>

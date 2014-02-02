@@ -20,6 +20,18 @@ reportsDirectives.directive('resize', ['$window', function ($window) {
         });
     };
 }]);
+
+reportsDirectives.directive('initReport', ['$timeout', function ($timeout) {
+    return function(scope, element, attrs) {
+        $timeout(function() {
+            scope.$apply(function () {
+                console.log(attrs.token);
+                scope.init(attrs.graph)
+            });
+        });
+    }
+}]);
+
 reportsDirectives.directive('draggable', function() {
   return function(scope, element) {
     // this gives us the native JS object
@@ -101,16 +113,12 @@ reportsDirectives.directive('droppable', function() {
               
               var binId = this.id;
               var item = document.getElementById(e.dataTransfer.getData('Text'));
-              console.log(item.id)
-              //this.appendChild(item);
-              // call the passed drop function
               scope.$apply(function(scope) {
                 var fn = scope.drop();
                 if ('undefined' !== typeof fn) {            
                   fn(item.id);
                 }
               });
-              
               return false;
             },
             false

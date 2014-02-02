@@ -1,57 +1,55 @@
 var reportsControllers = angular.module('reportsControllers', []);
 
 
-reportsControllers.controller('reportsListCtrl', ['$scope', '$timeout', function($scope, $timeout) {
-    $scope.reports = [
-        {name: 'report1', queries: ['query1', 'query3']},
-        {name: 'report2', queries: ['query5', 'query2']},
-        {name: 'report3', queries: ['query4', 'query5']},
-    ];
+reportsControllers.controller('reportsListCtrl', ['$scope', '$timeout', 'api',
+    function($scope, $timeout, api) {
 
-    $scope.queries = [{name: 'query1'}, {name: 'query2'}, {name: 'query3'}, {name: 'query4'}, {name: 'query5'}]
+        $scope.dropped = [];
+        $scope.namePlaceholder = 'Report Name';
+        $scope.reportName = '';
 
-    $scope.dropped = []
-    $scope.namePlaceholder = 'Report Name'
-    $scope.reportName = ''
-    //$scope.reportForm = true;
-    console.log($scope.reportForm)
-    
-    $scope.newReport = function () {
-        console.log('click')
-        $scope.reportForm = true;
-        $scope.dropped = []
-        $scope.reportName = ''
-        $scope.namePlaceholder = 'Report Name'
-    };  
-
-    $scope.removeQuery = function (index) {
-        console.log(index)
-        if (index > -1) $scope.dropped.splice(index, 1)
-    };
-
-    $scope.handleDrop = function (drop) {
-        $scope.dropped.push(drop);
-        console.log($scope.dropped)
-    }; 
-
-    $scope.processForm = function (reportName) {
-        var newReport = {
-            name: reportName,
-            queries: $scope.dropped
+        $scope.init = function (graph) {
+        console.log('init', graph);
+        $scope.reports = api.reports.query({graph: graph});
+        $scope.queries = api.queries.query({graph: graph}); 
         };
-        $scope.reports.push(newReport)
-        $scope.dropped = []
-        console.log('new', $scope.reports)
-    };
+        
+        $scope.newReport = function () {
+            $scope.reportForm = true;
+            $scope.dropped = [];
+            $scope.reportName = '';
+            $scope.namePlaceholder = 'Report Name';
+        };  
 
-    $scope.getReport = function (reportSlug) {
-        // need to put an edit feature here
-        var report = $scope.reports.filter(function (element) {
-            return element.name === reportSlug;
-        });
-        console.log('applying', report[0].queries)
-        $scope.dropped = report[0].queries
-        $scope.namePlaceholder = ''
-        $scope.reportName = report[0].name
-    };
-}]);
+        $scope.removeQuery = function (index) {
+            if (index > -1) $scope.dropped.splice(index, 1);
+        };
+
+        $scope.handleDrop = function (drop) {
+            $scope.dropped.push(drop);
+        }; 
+
+        $scope.processForm = function (reportName) {
+            var newReport = {
+                name: reportName,
+                queries: $scope.dropped
+            };
+        
+            var post = new api.reports()
+            post.report = newReport
+            console.log('post', post)
+            post.$save(function (data) {
+                $scope.reports.push(data)
+                $scope.dropped = []
+            });
+        };
+
+        $scope.showReport = function (reportSlug) {
+            var report = $scope.reports.filter(function (element) {
+                return element.slug === reportSlug;
+            });
+            $scope.dropped = report[0].queries
+            $scope.namePlaceholder = ''
+            $scope.reportName = report[0].name
+        };
+    }]);
