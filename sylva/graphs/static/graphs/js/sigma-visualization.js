@@ -47,6 +47,8 @@ clearTimeout */
       var nodesInTypes = {};  // Group the nodes by type.
       var nodesHidden = {}  // Hidden nodes by selecting theirs types.
       var nodesToShow = [];  // For show the nodes after the "outnodes" event.
+      // It saves the link in the Sylva logo when Sylva goes in fullscreen mode.
+      var linkLogo;
 
       // Instanciate Sigma.js and customize rendering.
       var sigInst = sigma.init(document.getElementById('sigma-container')).drawingProperties({
@@ -373,6 +375,10 @@ clearTimeout */
         $('nav.menu').hide();
         $('div.graph-item').hide();
         $('div#footer').hide();
+        $('#link-logo').bind('click', false);
+        $('#link-logo').addClass('disabled');
+        linkLogo = $('#link-logo').attr('href');
+        $('#link-logo').removeAttr('href');
 
         $('.title-graph-name').show();
         $('#sigma-exit-fullscreen').parent().show();
@@ -390,6 +396,9 @@ clearTimeout */
         $('nav.menu').show();
         $('div.graph-item').show();
         $('div#footer').show();
+        $('#link-logo').unbind('click');
+        $('#link-logo').removeClass('disabled');
+        $('#link-logo').attr('href', linkLogo);
 
         $('.title-graph-name').hide();
         $('#sigma-exit-fullscreen').parent().hide();
