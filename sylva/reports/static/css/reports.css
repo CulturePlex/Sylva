@@ -8,9 +8,12 @@
   min-height: 200px;
   width: 100%;
   float: left;
-  border: 1px solid black;
+  border: 3px solid #D8E8DE;
   padding: 20px;
   margin-top: 20px;
+  background: url(../img/grid.jpg) scroll left top #FAFAFA;
+  opacity: 0.9;
+  filter: alpha(opacity=90);
  }
 
 .content-col:hover {
@@ -34,7 +37,7 @@
 }
 
 .report-button {
-  margin-left: 20px
+  margin-left: 10px
 }
 
 .content2-first {
@@ -62,5 +65,14 @@
     vertical-align: bottom;
 }
 
+.sylva-borders {
+  border: 3px solid #D8E8DE;
+  border-radius: 7px;
+}
 
-
+.reports-header {
+    width: 1150px;
+    background-color: white;
+    margin: auto;
+    padding: 10px 15px 5px 15px;
+}

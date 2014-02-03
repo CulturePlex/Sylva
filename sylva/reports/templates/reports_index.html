@@ -15,20 +15,17 @@
   {# toolbar on="reports" #}
 {# endblock #}
 
-//<!-- don't think I should get the whole graph here -->
 {% block content_title %}
-    <header class="global">
+    <header class="reports-header">
         <h2>{{ graph_slug }} &raquo; Reports</h2>
     </header>
 {% endblock %}
 
 {% block content %}
 
-    <div ng-app="reports" ng-controller="reportsListCtrl" resize graph="{{ graph_slug }}" init-report>
+    <div ng-app="reports" ng-controller="reportsListCtrl" resize>
+        <div graph="{{ graph_slug }}" report="{{report_name}}" placeholder="{{ placeholder_name }}" init-report></div>
         <div class="content2-first content-col">
-            <span class="buttonLinkOption">
-                <a class="button" ng-click="newReport()">New Report</a>
-            </span>
             <div ng-repeat="report in reports">
                 <h2><a href="" ng-click="showReport(report.slug)">{$report.name$}</a></h2>
                 {$ report.description $}
@@ -42,15 +39,16 @@
                 <form id="report-form">
                     <div>
                         <h2 class="inline-h2">{$reportHeader$}</h2><a class="button report-button" ng-click="processForm(report)">Save report</a>
+                        <a class="button report-button" ng-click="newReport()">New Report</a>
                     </div>
                     <div>
                         <label>Name:
-                            <input type="text" ng-model="report.name" placeholder="{$ namePlaceholder $}">
+                            <input class="sylva-borders" type="text" class="sylva-borders" ng-model="report.name" placeholder="{$ namePlaceholder $}">
                         </label>
                     </div>
                     <div>
                         <label>Frequency:
-                            <select ng-model="report.frequency">
+                            <select ng-model="report.frequency" class="sylva-borders">
                                 <option value="daily">Daily</option>
                                 <option value="weekly">Weekly</option>
                                 <option value="monthly">Monthly</option>
@@ -59,14 +57,14 @@
                     </div>
                     <div>
                         <label> Start date:
-                            <input type="text" date-time ng-model="report.startTime" required="true" view="hours"> 
+                            <input class="sylva-borders" type="text" date-time ng-model="report.startTime" required="true" view="hours"> 
                         </label>     
                     </div> 
                 </form>
                 </div> 
                 <div class="column2">
                     <label>Description
-                      <textarea form="report-form" ng-model="report.description">
+                      <textarea class="sylva-borders" form="report-form" ng-model="report.description">
                       </textarea>
                     </label>
                 </div>
@@ -99,9 +97,7 @@
          <link rel="stylesheet" type="text/css" href="{{ STATIC_PREFIX }}css/reports.css" />
          <link rel="stylesheet" type="text/css" href="{{ STATIC_PREFIX }}css/angular-datepicker.css" />
     {% endblock %}
-    {% block scripts %}
-    
-    {% endblock %}
+
     {% block extra_scripts %}
 
         <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.0/angular.min.js"></script>

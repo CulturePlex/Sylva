@@ -5,18 +5,20 @@ reportsControllers.controller('reportsListCtrl', ['$scope', '$timeout', 'api',
     function($scope, $timeout, api) {
 
         $scope.dropped = [];
-        $scope.namePlaceholder = 'Report Name';
         $scope.reportName = '';
-        $scope.date = '19/03/2013';
         $scope.report = {};
-        $scope.reportHeader = "New Report";
-
-        $scope.init = function (graphSlug) {
+        
+        $scope.init = function (graphSlug, reportHeader, namePlaceholder) {
             console.log('init', graphSlug);
             $timeout(function () {
                 $scope.reports = api.reports.query({graphSlug: graphSlug});
                 $scope.queries = api.queries.query({graphSlug: graphSlug}); 
                 $scope.graphSlug = graphSlug;
+                $scope.defaultReportHeader = reportHeader;
+                $scope.defaultNamePlaceholder = namePlaceholder;
+                $scope.reportHeader = $scope.defaultReportHeader;
+                $scope.namePlaceholder = $scope.defaultNamePlaceholder
+
             });
         };
         
@@ -24,9 +26,9 @@ reportsControllers.controller('reportsListCtrl', ['$scope', '$timeout', 'api',
             $scope.reportForm = true;
             $scope.dropped = [];
             $scope.reportName = '';
-            $scope.namePlaceholder = 'Report Name';
+            $scope.namePlaceholder = $scope.defaultNamePlaceholder;
             $scope.report = {}; 
-            $scope.reportHeader = "New Report";
+            $scope.reportHeader = $scope.defaultReportHeader;
         };  
 
         $scope.removeQuery = function (index) {
@@ -52,9 +54,9 @@ reportsControllers.controller('reportsListCtrl', ['$scope', '$timeout', 'api',
             post.$save({graphSlug: $scope.graphSlug}, function (data) {
                 $scope.reports.push(data)
                 $scope.dropped = []
-                $scope.namePlaceholder = 'Report Name';
+                $scope.namePlaceholder = $scope.defaultNamePlaceholder;
                 $scope.report = {};
-                $scope.reportHeader = "New Report";
+                $scope.reportHeader = $scope.defaultReportHeader;
                 
             });
         };

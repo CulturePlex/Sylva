@@ -4,6 +4,7 @@ from django.shortcuts import (render_to_response, get_object_or_404,
                               HttpResponse)
 from django.template import RequestContext
 from django.core.context_processors import csrf
+from django.utils.translation import ugettext as _
 from guardian.decorators import permission_required
 
 
@@ -12,9 +13,13 @@ from guardian.decorators import permission_required
 def reports_index_view(request, graph_slug):
     c = {}
     c.update(csrf(request))
+    report_name = _("Escuela")
+    placeholder_name = _("Report Name")
     return render_to_response('reports_index.html', RequestContext(request, {
         'graph_slug': graph_slug,
-        'c': c
+        'c': c,
+        'report_name': report_name,
+        'placeholder_name': placeholder_name
     }))
 
 

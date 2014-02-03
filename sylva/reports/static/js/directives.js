@@ -26,7 +26,7 @@ reportsDirectives.directive('initReport', ['$timeout', function ($timeout) {
         $timeout(function() {
             scope.$apply(function () {
                 console.log(attrs.token);
-                scope.init(attrs.graph)
+                scope.init(attrs.graph, attrs.report, attrs.placeholder)
             });
         });
     }
