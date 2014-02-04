@@ -336,7 +336,7 @@ p.slogan {
     text-shadow:0 1px 1px rgba(175,203,188,0.8);
 }
 
-.bigger p, li {
+.bigger p, .bigger li {
     padding-bottom: 5px !important;
 }
 
