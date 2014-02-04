@@ -10,7 +10,7 @@ install:
 env:
   - NEO4J_VERSION="1.9.2"
 script:
-  - coverage run --source=sylva sylva/manage.py test accounts base data engines graphs schemas
+  - coverage run --source=sylva sylva/manage.py test accounts base.DashboardTestCase base.DataNodeTestCase base.SchemaTestCase base.UserTestCase data engines graphs schemas tools
 after_success:
   - ./neo4j/bin/neo4j stop
   - coveralls

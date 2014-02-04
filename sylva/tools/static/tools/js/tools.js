@@ -284,6 +284,11 @@
     $('#files-container').fadeIn(FADING_DURATION);
   };
 
+  // Handle file attached for testing operations
+  var attachFileHandler = function handleFileSelect(evt) {
+      var files = evt.target.files; // FileList object
+      loadFiles(files);
+  };
 
   // DOM ready.
   $(function() {
@@ -299,6 +304,17 @@
     // Drag and Drop containers.
     $('#files-container').on(eventsHandlers);
     $('#files-container2').on(eventsHandlers);
+
+    // Attach file on click the div
+    $('#files-container').on('click', function() {
+      $('#files').click();
+    });
+    $('#files-container2').on('click', function() {
+      $('#files').click();
+    });
+
+    // Attach file for testing operations
+    $('#files').on('change', attachFileHandler);
 
     // Radio inputs for file type selection.
     $('.option').on('change', handleRadioInputs);

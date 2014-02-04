@@ -658,7 +658,12 @@
 
   // Try to convert `value` into a valid type for Sylva.
   function cleanValue(value) {
-     return cleanBoolean(cleanDate(cleanQuotes(value)));
+     var matches = value.match(/(\d{4})-(\d{1,2})-(\d{1,2}) (\d{1,2}):(\d{1,2}):(\d{1,2})/);
+     if(matches !== null) {
+        return value;
+     } else {
+        return cleanBoolean(cleanDate(cleanQuotes(value)));
+     }
   }
 
 
@@ -678,43 +683,8 @@
         aux,
         isCleaned = false;
 
-    // match dd/mm/yyyy or mm/dd/yyyy?
-    matches = date.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/);
-    if (matches !== null) {
-      day = parseInt(matches[1], 10);
-      month = parseInt(matches[2], 10);
-      year = matches[3];
-
-      if (month > 12) {
-        aux = day;
-        day = month;
-        month = aux;
-      }
-
-      isCleaned = true;
-    }
-
-    if (!isCleaned) {
-      // match yyyy/mm/dd or yyyy/dd/mm?
-      matches = date.match(/(\d{4})\/(\d{1,2})\/(\d{1,2})/);
-      if (matches !== null) {
-        day = parseInt(matches[3], 10);
-        month = parseInt(matches[2], 10);
-        year = matches[1];
-
-        if (month > 12) {
-          aux = day;
-          day = month;
-          month = aux;
-        }
-
-        isCleaned = true;
-      }
-    }
-
-    if (!isCleaned) {
-      // match dd-mm-yyyy or mm-dd-yyyy?
-      matches = date.match(/(\d{1,2})-(\d{1,2})-(\d{4})/);
+      // match dd/mm/yyyy or mm/dd/yyyy?
+      matches = date.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/);
       if (matches !== null) {
         day = parseInt(matches[1], 10);
         month = parseInt(matches[2], 10);
@@ -728,31 +698,66 @@
 
         isCleaned = true;
       }
-    }
 
-    if (!isCleaned) {
-      // match yyyy-dd-mm?
-      matches = date.match(/(\d{4})-(\d{1,2})-(\d{1,2})/);
-      if (matches !== null) {
-        day = parseInt(matches[3], 10);
-        month = parseInt(matches[2], 10);
-        year = matches[1];
+      if (!isCleaned) {
+        // match yyyy/mm/dd or yyyy/dd/mm?
+        matches = date.match(/(\d{4})\/(\d{1,2})\/(\d{1,2})/);
+        if (matches !== null) {
+          day = parseInt(matches[3], 10);
+          month = parseInt(matches[2], 10);
+          year = matches[1];
 
-        if (month > 12) {
-          aux = day;
-          day = month;
-          month = aux;
+          if (month > 12) {
+            aux = day;
+            day = month;
+            month = aux;
+          }
+
+          isCleaned = true;
         }
-
-        isCleaned = true;
       }
-    }
 
-    if (isCleaned) {
-      cleanedDate = year + '-' + month + '-' + day;
-    } else {
-      cleanedDate = date;
-    }
+      if (!isCleaned) {
+        // match dd-mm-yyyy or mm-dd-yyyy?
+        matches = date.match(/(\d{1,2})-(\d{1,2})-(\d{4})/);
+        if (matches !== null) {
+          day = parseInt(matches[1], 10);
+          month = parseInt(matches[2], 10);
+          year = matches[3];
+
+          if (month > 12) {
+            aux = day;
+            day = month;
+            month = aux;
+          }
+
+          isCleaned = true;
+        }
+      }
+
+      if (!isCleaned) {
+        // match yyyy-dd-mm?
+        matches = date.match(/(\d{4})-(\d{1,2})-(\d{1,2})/);
+        if (matches !== null) {
+          day = parseInt(matches[3], 10);
+          month = parseInt(matches[2], 10);
+          year = matches[1];
+
+          if (month > 12) {
+            aux = day;
+            day = month;
+            month = aux;
+          }
+
+          isCleaned = true;
+        }
+      }
+
+      if (isCleaned) {
+        cleanedDate = year + '-' + month + '-' + day;
+      } else {
+        cleanedDate = date;
+      }
 
     return cleanedDate;
   }
