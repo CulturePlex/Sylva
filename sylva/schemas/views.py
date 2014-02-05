@@ -114,6 +114,10 @@ def schema_nodetype_editcreate(request, graph_slug, nodetype_id=None):
             with transaction.commit_on_success():
                 node_type = form.save(commit=False)
                 node_type.schema = graph.schema
+                # Checking the color
+                if 'color' not in node_type.get_options():
+                    color = '#F206FF'
+                    node_type.set_option('color', color)
                 node_type.save()
                 instances = formset.save(commit=False)
                 for instance in instances:

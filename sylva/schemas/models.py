@@ -185,6 +185,29 @@ class BaseType(models.Model):
 #                                  """,
                                   help_text=_("Code in Javascript to "
                                               "validate all the properties"))
+    options = models.TextField(_('options'), null=True, blank=True)
+
+    def get_options(self):
+        options = json.loads(self.options or "{}")
+        return options
+
+    def set_options(self, dic):
+        if isinstance(dic, dict):
+            self.options = json.dumps(dic)
+
+    def update_options(self, dic):
+        options = self.get_options()
+        options.update(dic)
+        self.options = json.dumps(options)
+
+    def get_option(self, key=None):
+        return self.get_options()[key]
+
+    def set_option(self, key, value):
+        if key and value:
+            options = self.get_options()
+            options[key] = value
+            self.options = json.dumps(options)
 
     class Meta:
         abstract = True

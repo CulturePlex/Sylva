@@ -61,9 +61,9 @@ class NodeTypeForm(forms.ModelForm):
     class Meta:
         model = NodeType
         if settings.OPTIONS["ENABLE_INHERITANCE"]:
-            exclude = ("schema", "order", "total")
+            exclude = ("schema", "order", "total", "options")
         else:
-            exclude = ("schema", "order", "total", "inheritance")
+            exclude = ("schema", "order", "total", "inheritance", "options")
         if not settings.OPTIONS.get("ENABLE_TYPE_VALIDATION_FORMS", False):
             exclude += ("validation", )
 
