@@ -6,6 +6,17 @@ diagram.Container = "diagram";
 diagram.CurrentModels = [];
 diagram.CurrentRelations = {};
 diagram.Counter = 0;
+diagram.lookupCounter = [];
+
+diagram.lookupsValues = ["equals",
+                        "is less than or equal to",
+                        "is less than",
+                        "is greater than",
+                        "is greater than or equal to",
+                        "is between",
+                        "does not equal",
+                        "has some value",
+                        "has no value"];
 
 (function($) {
     /**
@@ -32,7 +43,7 @@ diagram.Counter = 0;
                  // Only send the token to relative URLs i.e. locally.
                  xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
              }
-         } 
+         }
     });
 
     init = function() {
@@ -142,13 +153,37 @@ diagram.Counter = 0;
             divFields.attr("id", "diagramFields_"+ modelName);
             countFields = 0;
             lengthFields = model.fields.length;
-//            for(fieldName in model.fields) {
             for(var fieldIndex = 0; fieldIndex < lengthFields; fieldIndex++) {
                 field = model.fields[fieldIndex];
+                var id = "diagramBoxField_"+ diagram.Counter +"_"+ graphName +"_"+ modelName +"_"+ field.name;
+                // Initialize the lookups counter for the field
+                diagram.lookupCounter[field.name] = 0;
                 divField = $("<DIV>");
                 divField.addClass("field");
+                divField.css('display', 'block');
                 diagram.setLabel(divField, field.label, field.primary);
-                divField.attr("id", "diagramBoxField_"+ diagram.Counter +"_"+ graphName +"."+ modelName +"."+ fieldName);
+                divField.attr("id", id);
+                // link to add new lookups
+                addLookup = $("<A>");
+                addLookup.addClass("add-lookup");
+                addLookup.attr("id", "lookup-" + field.name);
+                addLookup.attr("href", "javascript:void(0);");
+                addLookup.css("float", "right");
+                addLookup.css("margin-right", "5%");
+                // Icon
+                addLookupIcon = $("<I>");
+                addLookupIcon.addClass("icon-plus-sign");
+                // Div to draw the lookups
+                divLookup = $("<DIV>");
+                divLookup.addClass("div-" + field.name);
+                addLookup.attr("data-name", "div-" + field.name);
+                addLookup.attr("data-id", id);
+                addLookup.attr("data-field", field.name);
+                addLookup.attr("data-type", field.type);
+                addLookup.append(addLookupIcon);
+                divField.append(addLookup);
+                divField.append(divLookup);
+                // TODO
                 if (field.type == "ForeignKey") {
                     divField.addClass("single");
                     divField.click(diagram.addRelated);
@@ -401,8 +436,162 @@ diagram.Counter = 0;
                 }
             }
             jsPlumb.repaintEverything();
-        }
-        //diagram.loadModels();
+        };
+
+        /**
+         * Load the models from the schema
+         * - typeName
+         */
+        diagram.loadBox = function(typeName) {
+            var graph, models, modelName, position, positionºs, titleAnchor;
+            if (diagram.Models) {
+                for(graph in diagram.Models) {
+                    models = diagram.Models[graph];
+                    for(modelName in models) {
+                        if((modelName.localeCompare(typeName)) == 0)
+                            diagram.addBox(graph, modelName);
+                    }
+                }
+            }
+            positions = JSON.parse($("#id_diagram_positions").val());
+            for(var i=0; i<positions.length; i++) {
+                position = positions[i]
+                $("#diagramBox_"+ position.modelName).css({
+                    left: position.left,
+                    top: position.top
+                });
+                if (!JSON.parse(position.status)) {
+                    titleAnchor = $("#diagramBox_"+ position.modelName +" > div > a");
+                    titleAnchor.removeClass("inline-deletelink");
+                    titleAnchor.addClass("inline-morelink");
+                    $("#diagramFields_"+ position.modelName).toggleClass("hidden");
+                }
+            }
+            jsPlumb.repaintEverything();
+        };
+
+        /**
+        * Create a contextual menu with the lookups
+        * - parentId
+        * - className
+        * - datatype
+        * - fieldName
+        */
+        diagram.lookups = function(parentId, className, datatype, fieldName) {
+            divSelectLookup = $("<DIV>");
+            divSelectLookup.addClass(className + "-lookup-" + diagram.lookupCounter[fieldName]);
+            // Select field with the lookups options
+            selectLookup = $("<SELECT>");
+            selectLookup.addClass("select-lookup");
+            selectLookup.attr("style", "width: 35%; display: inline; margin-left: 3%;");
+            for (var i = 0; i<diagram.lookupsValues.length; i++) {
+                selectLookup.append('<option value="' + diagram.lookupsValues[i] + '">' + diagram.lookupsValues[i] + '</option>');
+            }
+            // Initial input
+            inputLookup = $("<INPUT>");
+            inputLookup.attr("style", "width: 35%; margin-left: 5%;");
+            // Link to remove the lookup
+            removeLookup = $("<A>");
+            removeLookup.addClass("remove-lookup");
+            removeLookup.attr("id", className + "-lookup-" + diagram.lookupCounter[fieldName]);
+            removeLookup.attr("data-field", fieldName);
+            removeLookup.attr("data-parentid", parentId);
+            removeLookup.attr("href", "javascript:void(0);");
+            removeLookup.css("margin-left", "2%");
+            // Icon
+            removeLookupIcon = $("<I>");
+            removeLookupIcon.addClass("icon-minus-sign");
+            // We append the elements
+            removeLookup.append(removeLookupIcon);
+            divSelectLookup.append(selectLookup);
+            divSelectLookup.append(inputLookup);
+            divSelectLookup.append(removeLookup);
+            $("." + className).append(divSelectLookup);
+        };
     };
+
+    /**
+     * Interactions functions
+     */
+
+     /**
+      * Add box type to the diagram
+      */
+
+    $('.add-box').on('click', function() {
+        var $this = $(this);
+        var nodeType = $this.data("type");
+        diagram.loadBox(nodeType);
+    });
+
+    /**
+      * Add lookup inside a box type
+      */
+
+    $("#diagramContainer").on('click', '.add-lookup', function() {
+        var $this = $(this);
+        var id = $this.data("id");
+        var className = $this.data("name");
+        var datatype = $this.data("type");
+        var fieldName = $this.data("field");
+        $('#' + id).css('display', 'inline-table');
+        diagram.lookups(id, className, datatype, fieldName);
+        var newValue = diagram.lookupCounter[fieldName];
+        diagram.lookupCounter[fieldName] = newValue + 1;
+    });
+
+    /**
+      * Remove lookup inside a box type
+      */
+
+    $("#diagramContainer").on('click', '.remove-lookup', function() {
+        var $this = $(this);
+        var id = "." + this.id;
+        var fieldName = $this.data("field");
+        var parentId = $this.data("parentid");
+        $(id).remove();
+        var newValue = diagram.lookupCounter[fieldName];
+        diagram.lookupCounter[fieldName] = newValue - 1;
+        if(diagram.lookupCounter[fieldName] == 0)
+            $('#' + parentId).css('display', 'block');
+    });
+
+    /**
+      * Add a special input related to the lookup selected
+      */
+
+    $("#diagramContainer").on('change', '.select-lookup', function() {
+        var $this = $(this);
+        var value = $this.val();
+        if(value == "is between") {
+            // two inputs - we check if we have introduced an input field
+            if(this.nextElementSibling.tagName == "INPUT") {
+                $(this.nextElementSibling).remove();
+                if(this.nextElementSibling.tagName == "INPUT") {
+                    $(this.nextElementSibling).remove();
+                }
+            }
+            $(this).after("<input style=\"width: 10%; margin-left: 5%;\" />");
+            $(this).after("<input style=\"width: 10%; margin-left: 5%;\" />");
+        } else if((value == "has some value") || (value == "has no value")) {
+            // no inputs
+            if(this.nextElementSibling.tagName == "INPUT") {
+                $(this.nextElementSibling).remove();
+                if(this.nextElementSibling.tagName == "INPUT") {
+                    $(this.nextElementSibling).remove();
+                }
+            }
+        } else {
+            // one input - we check if we have introduced an input field
+            if(this.nextElementSibling.tagName == "INPUT") {
+                $(this.nextElementSibling).remove();
+                if(this.nextElementSibling.tagName == "INPUT") {
+                    $(this.nextElementSibling).remove();
+                }
+            }
+            $(this).after("<input style=\"width: 35%; margin-left: 5%;\" />");
+        }
+    });
+
     $(document).ready(init);
 })(jQuery);

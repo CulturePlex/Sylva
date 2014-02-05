@@ -75,7 +75,8 @@ class Schema(models.Model, SchemaMixin):
             for node_property in node_type.properties.all().select_related():
                 field = {
                     "label": node_property.key,
-                    "type": node_property.get_datatype(),
+                    #"type": node_property.get_datatype(),
+                    "type": node_property.datatype,
                     "name": node_property.slug,
                     "primary": False,
                     "blank": False,
@@ -86,7 +87,8 @@ class Schema(models.Model, SchemaMixin):
                 for rel_property in rel_type.properties.all().select_related():
                     field = {
                         "label": rel_property.key,
-                        "type": rel_property.get_datatype(),
+                        #"type": rel_property.get_datatype(),
+                        "type": rel_property.datatype,
                         "name": rel_property.slug,
                     }
                     rel_fields.append(field)
