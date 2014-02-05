@@ -156,13 +156,19 @@ clearTimeout */
         var showInfo = $('#sigma-node-info').prop('checked');
         if (showInfo) {
           // Show node info popup.
+          var plusLeft = 212;
+          var plusTop = 61;
+          if (isFullscreenByButton) {
+            plusLeft = -8;
+            plusTop = 4;
+          }
           sigInst.iterNodes(function(node) {
             $tooltip =
               $('<div class="node-info"></div>')
                 .append('<ul>' + attributesToString(sylv_nodes[nodePK]) + '</ul>')
                 .css({
-                  'left': node.displayX+212,
-                  'top': node.displayY+61
+                  'left': node.displayX + plusLeft,
+                  'top': node.displayY + plusTop
                 });
             $('#sigma-container').append($tooltip);
           }, [nodePK]);
@@ -310,7 +316,7 @@ clearTimeout */
         }
       });
 
-      // Handle the fullscreen changes.
+      // Handle the fullscreen mode changes.
       function handleFullscreen() {
         if(isFullscreenByButton) {
           isFullscreenByButton = false;
@@ -321,7 +327,10 @@ clearTimeout */
         }
       }
 
-      // Update some sizes in fullscreen mode.
+      /* Update some sizes in fullscreen mode. This function will be called
+       * when changes in the size of the screen occurr, e.g., when the user
+       * open the developers tools in fullscreen mode.
+       */
       function updateSizes() {
           var height = $(window).height();
           var width = $(window).width();
@@ -334,27 +343,60 @@ clearTimeout */
           var trueHeaderHeight =  $('div.inside.clearfix').height();
           $('#body').height(height - trueHeaderHeight);
 
-          // The new height will be: screenHeight - header - whiteSpace - (border + padding from canvasInfo) - whiteSpace
-          $('#canvas-info').height(height - 103);
-
-          $('.graph-controls').css({marginRight: "40px"});
-          $('#sigma-wrapper').css({marginRight: "40px"});
-
           // The new width will be: screenWidth - leftWhiteSpace - canvasInfo- rightWhiteSpace - sigmaWrapperBorder - (safeSpace between canvasInfo and canvas)
-          $('#sigma-wrapper').width(width - 248);
+          $('#sigma-wrapper').width(width);
 
           // The new height will be: screenHeight - header - whiteSpace - graphControls - (border + padding from canvasInfo) - whiteSpace
-          $('#sigma-wrapper').height(height - 133);
+          $('#sigma-wrapper').height(height - 51);
 
-          var top = height - 101;
+          var top = height - 97;
           var left = width - 52;
-          $('#sigma-pause').css({top: top + "px", left: left + "px"});
+          $('#sigma-pause').css({
+            top: top + "px",
+            left: left + "px"
+          });
 
           sigInst.resize();
       }
 
-      // Restore some size when exit fullscreen mode.
-      function restoreSizes() {
+      /* Update some sizes and styles in fullscreen mode, but only needed when
+       * the fullscreen mode is activated.
+       */
+      function updateStyles() {
+        $('#body').css({
+          paddingBottom: "0",
+          paddingTop: "0"
+        });
+
+        $('#sigma-wrapper').css({
+          border: "none",
+          marginRight: "20px",
+          marginTop: "-14px"
+        });
+
+        $('.graph-controls').css({
+          position: "absolute",
+          right: "60px",
+          paddingTop: "10px",
+          paddingRight: "10px",
+          borderRadius: "10px",
+          backgroundColor: "rgba(214, 231, 223, 0.5)"
+        });
+
+        $('#canvas-info').css({
+          position: "absolute",
+          zIndex: "100",
+          border: "none",
+          overflow: "auto",
+          padding: "10px",
+          height: "auto",
+          borderRadius: "10px",
+          backgroundColor: "rgba(214, 231, 223, 0.5)"
+        });
+      }
+
+      // Restore the sizes and styles when exit fullscreen mode.
+      function restoreSizesAndStyles() {
         $('#sigma-pause').removeAttr('style');
         $('#sigma-wrapper').removeAttr('style');
         $('.graph-controls').removeAttr('style');
@@ -367,14 +409,18 @@ clearTimeout */
         sigInst.resize();
       }
 
-      // Perform the 'real' fullscreen action.
+      /* Perform the 'real' fullscreen action. Also perform "sytle" actions
+       * that can't be undone with the "restoreSizesAndStyles()" method.
+       */
       function goFullscreen() {
         $('#sigma-go-fullscreen').hide();
         $('nav.main li').hide();
-        $('header.global h2').hide();
+        $('header.global > h2').hide();
         $('nav.menu').hide();
         $('div.graph-item').hide();
         $('div#footer').hide();
+        $('#graphcanvas').hide();
+
         $('#link-logo').bind('click', false);
         $('#link-logo').addClass('disabled');
         linkLogo = $('#link-logo').attr('href');
@@ -384,11 +430,15 @@ clearTimeout */
         $('#sigma-exit-fullscreen').parent().show();
 
         updateSizes();
+        updateStyles();
 
         $(window).on('resize', updateSizes);
       }
 
-      // Perform the cancelation of the fullscreen mode.
+      /* Perform the cancelation of the fullscreen mode. Also perform the
+       * "remove" of some "sytles" that can't be done with the
+       * "restoreSizesAndStyles()" method.
+       */
       function stopFullscreen() {
         $('#sigma-go-fullscreen').show();
         $('nav.main li').show();
@@ -396,6 +446,7 @@ clearTimeout */
         $('nav.menu').show();
         $('div.graph-item').show();
         $('div#footer').show();
+
         $('#link-logo').unbind('click');
         $('#link-logo').removeClass('disabled');
         $('#link-logo').attr('href', linkLogo);
@@ -404,7 +455,7 @@ clearTimeout */
         $('#sigma-exit-fullscreen').parent().hide();
 
         $(window).unbind('resize');
-        restoreSizes();
+        restoreSizesAndStyles();
       }
 
       // Listeners for handle the "fullscreen" events.

@@ -349,12 +349,11 @@ p.slogan {
     display: none;
     font-size: 150%;
     color: #348E82;
-    padding-top: 12px;
-    text-align: center;
+    padding-top: 13px;
 }
 
-.title-graph-name span {
-    margin-left: -150px;
+.title-graph-name h2 {
+    padding: 0;
 }
 
 /* END Class utils ************************************************************/
@@ -1523,7 +1522,7 @@ table.content-table {
 }
 
 .sigma-checkbox input[type="checkbox"] {
-    margin-top: 5px;
+    margin-top: 6px;
 }
 
 .sigma-checkbox label {
