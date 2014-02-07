@@ -119,6 +119,10 @@ class Schema(models.Model, SchemaMixin):
         with transaction.commit_on_success():
             for node_type, properties in data['nodeTypes'].iteritems():
                 n = NodeType(name=node_type, schema=self)
+                # Saving with color
+                color = n.schema.get_color()
+                n.set_option('color', color)
+                n.schema.save()
                 n.save()
                 for prop, values in properties.iteritems():
                     np = NodeProperty(key=prop, node=n)
