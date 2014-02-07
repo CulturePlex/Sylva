@@ -51,14 +51,15 @@ sylva:true, alert:true */
                                  '</div>');
 
     // Graph rendering
-    var jqxhr = $.getJSON(sylva.ajax_url, function(data) {
+    var jqxhr = $.getJSON(sylva.view_graph_ajax_url, function(data) {
       $('#graph-loading').remove();
       spinner.stop();
 
       // full graph (Sigma.js and others)
-      sylva.nodes = data.total_nodes;
-      sylva.edges = data.total_edges;
+      sylva.nodes = data.nodes;
+      sylva.edges = data.edges;
 
+      sylva.nodetypes = data.nodetypes;
       sylva.size = data.size;
 
       visualizations.sigma();

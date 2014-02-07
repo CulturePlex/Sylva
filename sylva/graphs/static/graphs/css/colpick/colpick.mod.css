@@ -1,0 +1,36 @@
+/*
+colpick Color Picker / colpick.com
+Modifications for SylvaDB.
+*/
+
+/*Main container*/
+.colpick {
+	z-index: 200;
+	background: #D6E7DF !important;
+	border: 0 !important;
+}
+
+/*Submit/Select button*/
+.colpick_submit {
+	background-color: white !important;
+	box-shadow: 0 1px 1px rgba(0, 0, 0, 0.9) !important;
+	-webkit-box-shadow: 0 1px 1px rgba(0, 0, 0, 0.9) !important;
+	-moz-box-shadow: 0 1px 1px rgba(0, 0, 0, 0.9) !important;
+	margin-top: 1px !important;
+	color: #262626 !important;
+	margin-left: 2px !important;
+	border: 0 !important;
+}
+
+.colpick_submit:hover {
+	background-color: white !important;
+	box-shadow: 0 0 5px rgba(52,142,130,0.75) !important;
+    -webkit-box-shadow: 0 0 5px rgba(52,142,130,0.75) !important;
+    -moz-box-shadow: 0 0 5px rgba(52,142,130,0.75) !important;
+}
+
+/*Text inputs*/
+.colpick_hex_field input {
+	right: -2px !important;
+	padding-right: 4px !important;
+}

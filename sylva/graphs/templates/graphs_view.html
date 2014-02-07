@@ -123,20 +123,24 @@
 
 {% block extra_scripts %}
 <script type="text/javascript">
-  sylva.colors = {};
   sylva.nodeViewURL = "{% url nodes_view graph.slug 0 %}";
   sylva.nodeEditURL = "{% url nodes_edit graph.slug 0 %}";
   sylva.graphViewURL = "{% url graph_view graph.slug %}";
   sylva.is_graph_empty = {{ is_graph_empty|slugify }};
   sylva.is_schema_empty = {{ is_schema_empty|slugify }};
-  sylva.ajax_url = "{{ ajax_url }}";
+  sylva.view_graph_ajax_url = "{{ view_graph_ajax_url }}";
+  sylva.edit_nodetype_color_ajax_url = "{{ edit_nodetype_color_ajax_url }}";
 </script>
 <script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/sigma/sigma-0.1.js"></script>
 <script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/sigma/plugins/sigma.fisheye.js"></script>
 <script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/sigma/plugins/sigma.forceatlas2.js"></script>
 <script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/sigma/plugins/sigma.parseGexf.js"></script>
+<script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/colpick/colpick.js"></script>
+<script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/colpick/rgbcolor.js"></script>
 <script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/visualization-utils.js"></script>
 <script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/sigma-visualization.js"></script>
 <script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/visualizations.js"></script>
 
+<link type="text/css" rel="stylesheet" href="{{ STATIC_PREFIX }}graphs/css/colpick/colpick.css" />
+<link type="text/css" rel="stylesheet" href="{{ STATIC_PREFIX }}graphs/css/colpick/colpick.mod.css" />
 {% endblock %}

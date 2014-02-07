@@ -18,33 +18,15 @@ clearTimeout */
   // True when the "Go fullscreen" button is clicked.
   var isFullscreenByButton = false;
 
-  colors = ['#F70000', '#B9264F', '#990099', '#74138C', '#0000CE',
-        '#1F88A7', '#4A9586', '#FF2626', '#D73E68', '#B300B3', '#8D18AB',
-        '#5B5BFF', '#25A0C5', '#5EAE9E', '#FF5353', '#DD597D', '#CA00CA',
-        '#A41CC6', '#7373FF', '#29AFD6', '#74BAAC', '#FF7373', '#E37795',
-        '#D900D9', '#BA21E0', '#8282FF', '#4FBDDD', '#8DC7BB', '#FF8E8E',
-        '#E994AB', '#FF2DFF', '#CB59E8', '#9191FF', '#67C7E2', '#A5D3CA',
-        '#FFA4A4', '#EDA9BC', '#F206FF', '#CB59E8', '#A8A8FF', '#8ED6EA',
-        '#C0E0DA', '#FFB5B5', '#F0B9C8', '#FF7DFF', '#D881ED', '#B7B7FF',
-        '#A6DEEE', '#CFE7E2', '#FFC8C8', '#F4CAD6', '#FFA8FF', '#EFCDF8',
-        '#C6C6FF', '#C0E7F3', '#DCEDEA', '#FFEAEA', '#F8DAE2', '#FFC4FF',
-        '#EFCDF8', '#DBDBFF', '#D8F0F8', '#E7F3F1', '#FFEAEA', '#FAE7EC',
-        '#FFE3FF', '#F8E9FC', '#EEEEFF', '#EFF9FC', '#F2F9F8', '#FFFDFD',
-        '#FEFAFB', '#FFFDFF', '#FFFFFF', '#FDFDFF', '#FAFDFE', '#F7FBFA'];
-
   var Sigma = {
 
     init: function() {
       var that = this;
-      // Nodes and edges.
-      var sylv_nodes = sylva.nodes;
-      var sylv_edges = sylva.edges;
       // Node info.
       var $tooltip;
       // Graph size.
       var size = sylva.size;
       // Objects for play with them for show and hide nodes.
-      var nodesInTypes = {};  // Group the nodes by type.
       var nodesHidden = {}  // Hidden nodes by selecting theirs types.
       var nodesToShow = [];  // For show the nodes after the "outnodes" event.
       // It saves the link in the Sylva logo when Sylva goes in fullscreen mode.
@@ -67,78 +49,74 @@ clearTimeout */
         maxRatio: 32
       });
 
-      // Add nodes and create colors.
-      for (var n in sylv_nodes) {
-        type = sylv_nodes[n].type;
-        if (!(type in nodesInTypes)) {
-          nodesInTypes[type] = {};
+      // Add nodes.
+      $.each(sylva.nodes, function(nodetypeId, nodes) {
+        for (var n in nodes) {
+          sigInst.addNode(n, {
+            x: Math.random(),
+            y: Math.random(),
+            color: sylva.nodetypes[nodetypeId].color,
+            nodetypeId: nodetypeId
+          });
         }
-        nodesInTypes[type][n] = "";
-        if (!(type in sylva.colors)) {
-          sylva.colors[type] = colors[Object.keys(sylva.colors).length];
-        }
-        sigInst.addNode(n, {
-          x: Math.random(),
-          y: Math.random(),
-          color: sylva.colors[type]
-        });
-      }
+      });
 
       // Add edges.
-      for (var e in sylv_edges) {
-        sigInst.addEdge(sylv_edges[e].id, sylv_edges[e].source, sylv_edges[e].target);
+      for (var e in sylva.edges) {
+        sigInst.addEdge(sylva.edges[e].id, sylva.edges[e].source, sylva.edges[e].target);
       }
 
       // Create the legend.
-      sylva.colors["notype"] = colors[Object.keys(sylva.colors).length];
       $('#node-type-legend').empty();
       var list = $('#node-type-legend').append($('<ul>'));
       list.css({
         listStyleType: 'none',
         marginTop: "5px"
       });
-      $.each(sylva.colors, function(type, color) {
-        if (type !== "notype") {
-          list.append($('<li>')
+      $.each(sylva.nodetypes, function(nodetypeId, nodetype) {
+        list.append($('<li>')
+          .css({
+            minHeight: "20px",
+            paddingLeft: "3px"
+          })
+          .append($('<i>')
+            .addClass("icon-eye-open")
+            .addClass("show-hide-nodes")
+            .attr("data-action", "hide")
+            .attr("data-nodetype-id", nodetypeId)
             .css({
-              minHeight: "20px",
-              paddingLeft: "3px"
+              paddingRight: "3px",
+              width: "1em",
+              height: "1em",
+              cursor: "pointer",
+              verticalAlign: "-2px"
+            }))
+          .append($('<span>')
+            .addClass("change-nodes-color")
+            .attr("data-color", nodetype.color)
+            .attr("data-nodetype-id", nodetypeId)
+            .css({
+              backgroundColor: nodetype.color,
+              display: "inline-block",
+              width: "16px",
+              height: "16px",
+              verticalAlign: "middle"
+            }))
+          .append($('<span>')
+            .css({
+              paddingLeft: "0.3em",
+              verticalAlign: "middle"
             })
-            .append($('<i>')
-              .addClass("icon-eye-open")
-              .addClass("show-hide-nodes")
-              .attr("data-action", "hide")
-              .attr("data-nodetype", type)
-              .css({
-                paddingRight: "3px",
-                width: "1em",
-                height: "1em",
-                cursor: "pointer",
-                verticalAlign: "-2px"
-              }))
-            .append($('<span>')
-              .css({
-                backgroundColor: color,
-                display: "inline-block",
-                width: "16px",
-                height: "16px",
-                verticalAlign: "middle"
-              }))
-            .append($('<span>')
-              .css({
-                paddingLeft: "0.3em",
-                verticalAlign: "middle"
-              })
-              .text(type)
-            )
-          );
-        }
+            .text(nodetype.name)
+          )
+        );
       });
 
       // Show node info and hide the rest of nodes and edges.
       sigInst.bind('overnodes', function(event) {
         var nodes = event.content;
         var nodePK = nodes[0];  // node primary key
+        var nodetypeId = sigInst.getNodes(nodePK).attr.nodetypeId
         var neighbors = {};
         var isOrphan = true;
 
@@ -165,7 +143,7 @@ clearTimeout */
           sigInst.iterNodes(function(node) {
             $tooltip =
               $('<div class="node-info"></div>')
-                .append('<ul>' + attributesToString(sylv_nodes[nodePK]) + '</ul>')
+                .append('<ul>' + attributesToString(sylva.nodes[nodetypeId][nodePK]) + '</ul>')
                 .css({
                   'left': node.displayX + plusLeft,
                   'top': node.displayY + plusTop
@@ -199,7 +177,7 @@ clearTimeout */
         }
 
         // Update node legend.
-        sylva.Utils.updateNodeLegend(sylv_nodes[nodePK].id, nodePK, 'element-info');
+        sylva.Utils.updateNodeLegend(sylva.nodes[nodetypeId][nodePK].id, nodePK, 'element-info');
 
       });
 
@@ -241,7 +219,7 @@ clearTimeout */
 
       // Hide/show nodes by type.
       $('.show-hide-nodes').on('click', function() {
-        var type = $(this).attr('data-nodetype');
+        var nodetypeId = $(this).attr('data-nodetype-id');
         var action = $(this).attr('data-action');
         if (action == "hide") {
           $(this).attr('data-action', 'show');
@@ -249,21 +227,98 @@ clearTimeout */
           $(this).addClass('icon-eye-close');
           sigInst.iterNodes(function(n) {
             n.hidden = true;
-          }, Object.keys(nodesInTypes[type])).draw();
+          }, Object.keys(sylva.nodes[nodetypeId])).draw();
           // Adding the nodes to a dictionary to know which nodes hide in the "overnodes" event.
-          $.extend(nodesHidden, nodesInTypes[type]);
+          $.extend(nodesHidden, sylva.nodes[nodetypeId]);
         } else {
           $(this).attr('data-action', 'hide');
           $(this).removeClass('icon-eye-close');
           $(this).addClass('icon-eye-open');
           sigInst.iterNodes(function(n) {
             n.hidden = false;
-          }, Object.keys(nodesInTypes[type])).draw();
+          }, Object.keys(sylva.nodes[nodetypeId])).draw();
           // Deleting the nodes from a dictionary to know which nodes hide in the "overnodes" event.
-          $.each(nodesInTypes[type], function(key, value) {
+          $.each(sylva.nodes[nodetypeId], function(key, value) {
             delete nodesHidden[key];
           });
         }
+      });
+
+      // Change the color of the nodes and the legend.
+      function changeNodesColor(nodetypeId, color, span) {
+        var currentColor = $(span).css('background-color');
+        currentColor = new RGBColor(currentColor).toHex().toUpperCase();
+        if (currentColor != color) {
+          sigInst.iterNodes(function(n) {
+            n.color = color;
+          }, Object.keys(sylva.nodes[nodetypeId])).draw();
+          $(span).css({
+            backgroundColor: color
+          });
+        }
+      }
+
+      /* Change the color of the nodes and the legend when the user is
+       * selecting it in the widget.
+       */
+      function changeColorWidget(span, hex) {
+        var nodetypeId = $(span).attr('data-nodetype-id');
+        var newColor = '#' + hex
+        changeNodesColor(nodetypeId, newColor, span);
+      }
+
+      /* Restore the color of the nodes and the legend when the user click out
+       * of the widget.
+       */
+      function hideColorWidget(span, picker) {
+        if ($(picker).is(':visible')) {
+          var nodetypeId = $(span).attr('data-nodetype-id');
+          var oldColor = $(span).attr('data-color');
+          $(span).colpickSetColor(oldColor.substr(1));
+          changeNodesColor(nodetypeId, oldColor, span);
+        }
+      }
+
+      /* Change the color of the nodes and the legend and submit to server.
+       * Also, restore the color if the request fails.
+       */
+      function submitColorWidget(span, hex) {
+        var nodetypeId = $(span).attr('data-nodetype-id');
+        var newColor = '#' + hex;
+        var oldColor = $(span).attr('data-color');
+        changeNodesColor(nodetypeId, newColor, span);
+        $(span).attr('data-color', newColor);
+        $(span).colpickHide();
+        params = {
+          nodetypeId: nodetypeId,
+          color: newColor
+        };
+        var jqxhr = $.post(sylva.edit_nodetype_color_ajax_url, params, 'json');
+        jqxhr.error(function() {
+          changeNodesColor(nodetypeId, oldColor, span);
+          $(span).attr('data-color', oldColor);
+          alert(gettext("Oops! Something went wrong with the server."));
+        });
+      }
+
+      // Change nodes color.
+      $('.change-nodes-color').each(function(i, span) {
+        var currentColor = $(span).attr('data-color');
+        $(span).colpick({
+          colorScheme: 'light',
+          layout: 'hex',
+          submitText: 'Ok',
+          color: currentColor.substr(1),  // Colpick doesn't need the '#' char.
+          onChange: function(hsb, hex, rgb, el, bySetColor) {
+            changeColorWidget(span, hex.toUpperCase());
+          },
+          onHide: function(picker) {
+            hideColorWidget(span, picker);
+          },
+          onSubmit: function(hsb, hex, rgb, el, bySetColor) {
+            submitColorWidget(span, hex.toUpperCase());
+          }
+        });
       });
 
       // Save as a PNG image.

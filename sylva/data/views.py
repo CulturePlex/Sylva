@@ -334,7 +334,10 @@ def nodes_view(request, graph_slug, node_id):
         if graph_relationships:
             incoming_relationships.append({"prefix": prefix,
                                            "relations": graph_relationships})
-    ajax_url = reverse('graphs.views.graph_data', args=[graph.slug, node_id])
+    view_graph_ajax_url = reverse('graphs.views.graph_data',
+                                  args=[graph.slug, node_id])
+    edit_nodetype_color_ajax_url = reverse(
+        'schemas.views.schema_nodetype_edit_color', args=[graph.slug])
     return render_to_response('nodes_view.html',
                               {"graph": graph,
                                "nodetype": nodetype,
@@ -346,7 +349,9 @@ def nodes_view(request, graph_slug, node_id):
                                "media_links": media_node.links.all(),
                                "media_files": media_node.files.all(),
                                "action": _("View"),
-                               "ajax_url": ajax_url},
+                               "view_graph_ajax_url": view_graph_ajax_url,
+                               "edit_nodetype_color_ajax_url":
+                                  edit_nodetype_color_ajax_url},
                               context_instance=RequestContext(request))
 
 
