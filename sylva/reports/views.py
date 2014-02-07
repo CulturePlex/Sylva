@@ -13,13 +13,14 @@ from guardian.decorators import permission_required
 def reports_index_view(request, graph_slug):
     c = {}
     c.update(csrf(request))
-    report_name = _("Escuela")
+    report_name = _("New Report")
     placeholder_name = _("Report Name")
-    return render_to_response('reports_index.html', RequestContext(request, {
+    return render_to_response('reports_base.html', RequestContext(request, {
         'graph_slug': graph_slug,
         'c': c,
         'report_name': report_name,
-        'placeholder_name': placeholder_name
+        'placeholder_name': placeholder_name,
+        
     }))
 
 

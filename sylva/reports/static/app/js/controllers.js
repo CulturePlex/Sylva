@@ -1,7 +1,17 @@
 var reportsControllers = angular.module('reportsControllers', []);
 
+reportsControllers.controller('ReportListCtrl', ['$scope', '$routeParams', '$timeout', 'api',  function ($scope, $routeParams, $timeout, api) {
+    console.log('yes')
+    $scope.graph = $routeParams.graphid;
+    $scope.reports = api.reports.query({graphSlug: $scope.graph});
+    
+}]);
 
-reportsControllers.controller('reportsListCtrl', ['$scope', '$timeout', 'api',
+reportsControllers.controller('EditReportCtrl', ['$scope', '$routeParams', 'api', function ($scope, $routeParams, api) {
+    $scope.report = 'report'
+}]);
+
+reportsControllers.controller('reportsEditCtrl', ['$scope', '$timeout', 'api',
     function($scope, $timeout, api) {
 
         $scope.dropped = [];

@@ -1,0 +1,23 @@
+<div class="max600">
+  <table id="content_table" class="content-table text-left">
+    <thead>
+      <th>#</th>
+      <th>Name</th>
+      <th>Description</th>
+      <th>Start Date</th>
+      <th>Frequency</th>
+    </thead>
+    <tbody>
+      <tr class="row-even" ng-repeat="report in reports">
+        <td class="dataList"><a class="edit" href="#/{$graph$}/edit/{$report.name$}"><!-- 1182 -->&nbsp;</a></td>
+        <td>{$report.name$}</td>
+        <td>{$report.description$}</td>
+        <td>{$report.start_time$}</td>
+        <td>{$report.frequency$}</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="buttonLinkOption">
+    <a class="button" href="#/new_report">New Report</a>
+  </span>
+</div>

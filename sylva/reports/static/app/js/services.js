@@ -2,7 +2,7 @@ var reportsServices = angular.module('reportsServices', ['ngResource']);
 
 
 reportsServices.factory('api', ['$resource', function ($resource) {
-    var reports = $resource('/reports/:graphSlug/report-builder', {}, {
+    var reports = $resource('/reports/:graphSlug/reports', {}, {
         query: {method:'GET', isArray:true},
         save: {method:'POST'}
     });
