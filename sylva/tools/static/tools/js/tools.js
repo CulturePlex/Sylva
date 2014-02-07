@@ -310,11 +310,12 @@
       $('#files').click();
     });
     $('#files-container2').on('click', function() {
-      $('#files').click();
+      $('#files2').click();
     });
 
     // Attach file for testing operations
     $('#files').on('change', attachFileHandler);
+    $('#files2').on('change', attachFileHandler);
 
     // Radio inputs for file type selection.
     $('.option').on('change', handleRadioInputs);

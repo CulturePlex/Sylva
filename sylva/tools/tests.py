@@ -72,6 +72,31 @@ def create_advanced_type(test, name, datatype):
         'diagramBoxField_bobgraph.bobs-type.undefined').first.value
     test.assertEqual(text, "Name")
 
+def create_advanced_type_and_relationship(test, name, datatype):
+    """
+    Create a type for the graph. The name of the graph
+    is passed by parameter and the datatype too.
+    """
+    test.browser.find_link_by_href(
+        '/schemas/' + name + '/types/create/').first.click()
+    text = test.browser.find_by_xpath(
+        "//div[@class='content2-first']/h2").first.value
+    test.assertEqual(text, 'Type')
+    test.browser.find_by_name('name').first.fill("Bob's type")
+    test.browser.find_by_xpath(
+        "//div[@class='content2-first']/p/textarea[@name='description']").first.fill('The loved type')
+    test.browser.find_by_name('properties-0-key').first.fill('Name')
+    test.browser.find_by_name('properties-0-display').first.check()
+    test.browser.find_by_id('advancedModeButton').first.click()
+    test.browser.find_by_xpath("//select[@id='id_properties-0-datatype']").first.click()
+    test.browser.find_by_xpath("//optgroup[@label='Auto']/option[@value='" + datatype +"']").first.click()
+    test.browser.find_by_value('Save Type').first.click()
+    text = test.browser.find_by_id(
+        'diagramBoxField_bobgraph.bobs-type.undefined').first.value
+    test.assertEqual(text, "Name")
+    # We create a relationship
+    test.browser.find_by_id('allowedRelations').first.click()
+
 
 def create_advanced_data(test):
     """
@@ -82,7 +107,21 @@ def create_advanced_data(test):
         "//a[@class='dataOption new']").first.click()
     text = test.browser.find_by_id('propertiesTitle').first.value
     test.assertEqual(text, 'Properties')
-    #test.browser.find_by_name('Name').first.fill("Bob's node")
+    test.browser.find_by_value("Save Bob's type").first.click()
+    text = test.browser.find_by_xpath("//div[@class='pagination']/span[@class='pagination-info']").first.value
+    # The next line must be more 'specific' when we can destroy Neo4j DBs
+    test.assertNotEqual(text.find(" elements Bob's type."), -1)
+
+def create_advanced_data_firefox(test):
+    """
+    Create advanced data for the graph.
+    """
+    test.browser.find_by_id('dataMenu').first.click()
+    test.browser.find_by_xpath(
+        "//a[@class='dataOption new']").first.click()
+    text = test.browser.find_by_id('propertiesTitle').first.value
+    test.assertEqual(text, 'Properties')
+    test.browser.find_by_name('Name').first.fill("Bob's node")
     test.browser.find_by_value("Save Bob's type").first.click()
     text = test.browser.find_by_xpath("//div[@class='pagination']/span[@class='pagination-info']").first.value
     # The next line must be more 'specific' when we can destroy Neo4j DBs
@@ -99,10 +138,10 @@ def export_advanced_schema(test, name):
     result = requests.get(test.live_server_url + '/schemas/' + name + '/export/', cookies=cookies)
     test.assertEqual(result.headers['content-type'], 'application/json')
     test.assertEqual(test.browser.status_code.is_success(), True)
-    fw = open('sylva/tools/files/' + name + '_schema.json', 'w')
+    fw = open('sylva/tools/files/gexf/' + name + '_schema.json', 'w')
     fw.write(result.content)
     fw.close()
-    f = open('sylva/tools/files/' + name + '_schema.json')
+    f = open('sylva/tools/files/gexf/' + name + '_schema.json')
     test.assertEqual(f.read().split("\n")[0], result.content)
 
 
@@ -119,7 +158,7 @@ def import_advanced_schema(test, name_export, name_import):
     test.browser.find_link_by_href('/schemas/' + name_import + '/').first.click()
     test.assertEqual(test.browser.title, "SylvaDB - " + name_import)
     test.browser.find_by_id('schemaImport').first.click()
-    test.browser.attach_file('file', 'sylva/tools/files/bobgraph_schema.json')
+    test.browser.attach_file('file', 'sylva/tools/files/gexf/bobgraph_schema.json')
     test.browser.find_by_value('Continue').first.click()
     test.assertEqual(test.browser.title, "SylvaDB - " + name_import)
     text = test.browser.find_by_id('diagramBoxField_' + name_import + '.bobs-type-2.undefined').first.value
@@ -139,7 +178,7 @@ def import_advanced_schema_csv(test, name_export, name_import):
     test.browser.find_link_by_href('/schemas/' + name_import + '/').first.click()
     test.assertEqual(test.browser.title, "SylvaDB - " + name_import)
     test.browser.find_by_id('schemaImport').first.click()
-    test.browser.attach_file('file', '/home/gabi/Desktop/culturePlex/Sylva/sylva/tools/files/bobgraph_rel_schema.json')
+    test.browser.attach_file('file', '/home/gabi/Desktop/culturePlex/Sylva/sylva/tools/files/csv/bobgraph_rel_schema.json')
     test.browser.find_by_value('Continue').first.click()
     test.assertEqual(test.browser.title, "SylvaDB - " + name_import)
     text = test.browser.find_by_id('diagramBoxField_' + name_import + '.bobs-type-2.undefined').first.value
@@ -152,10 +191,10 @@ def data_export_gexf(test):
     result = requests.get(test.live_server_url + '/tools/bobgraph/export/gexf/', cookies=cookies)
     test.assertEqual(result.headers['content-type'], 'application/xml')
     test.assertEqual(test.browser.status_code.is_success(), True)
-    fw = open('sylva/tools/files/bobs-graph.gexf', 'w')
+    fw = open('sylva/tools/files/gexf/bobs-graph.gexf', 'w')
     fw.write(result.content)
     fw.close()
-    f = open('sylva/tools/files/bobs-graph.gexf')
+    f = open('sylva/tools/files/gexf/bobs-graph.gexf')
     xmlFile = ""
     for line in f:
         xmlFile += line
@@ -172,7 +211,7 @@ def data_import_gexf(test):
                 $('#files').css('display', '');
              """
     test.browser.execute_script(script)
-    test.browser.attach_file('file', 'sylva/tools/files/bobs-graph.gexf')
+    test.browser.attach_file('file', 'sylva/tools/files/gexf/bobs-graph.gexf')
     # Wait until the data is imported
     test.browser.is_text_present('Data uploaded.', wait_time=10)
     # Check that nodes and relationships are ok
@@ -197,9 +236,9 @@ class ToolsTestCase(LiveServerTestCase):
     def tearDown(self):
         logout(self)
         self.browser.quit()
-        filelist = [f for f in os.listdir("sylva/tools/files/")]
-        for f in filelist:
-            os.remove("sylva/tools/files/" + f)
+        #filelist = [f for f in os.listdir("sylva/tools/files/")]
+        #for f in filelist:
+        #    os.remove("sylva/tools/files/" + f)
 
     def test_graph_export_gexf_autoincrement(self):
         # Create a graph with an auto_increment property
@@ -322,16 +361,15 @@ class ToolsTestCase(LiveServerTestCase):
     csv files
     """
     def test_graph_export_csv(self):
-        pass
-        """
         # Create a graph with a auto_user property
         create_graph(self, self.firstGraphName)
         create_advanced_schema(self, self.firstGraphName)
         create_advanced_type(self, self.firstGraphName, "e")
-        create_advanced_data(self)
+        create_advanced_data_firefox(self)
         # Schema export
-        #export_advanced_schema(self, self.firstGraphName)
+        # export_advanced_schema(self, self.firstGraphName)
         # Data export in csv format
+        """
         self.browser.find_by_id('toolsMenu').first.click()
         cookies = {self.browser.cookies.all()[0]["name"]: self.browser.cookies.all()[0]["value"], self.browser.cookies.all()[1]["name"]: self.browser.cookies.all()[1]["value"]}
         result = requests.get(self.live_server_url + '/tools/bobgraph/export/csv/', cookies=cookies)
@@ -350,6 +388,7 @@ class ToolsTestCase(LiveServerTestCase):
                 csvFile += line
             f.close()
             self.assertEqual(csv_zip.read(name), csvFile)
+        """
         # Create new graph for import the data
         import_advanced_schema_csv(self, self.firstGraphName, self.secondGraphName)
         # Data import
@@ -357,27 +396,33 @@ class ToolsTestCase(LiveServerTestCase):
         self.browser.find_link_by_href('/tools/' + self.secondGraphName + '/import/').first.click()
         self.browser.find_by_id('csv-radio').first.click()
         # Change the display field of input to attach the file
-        script = #$('#files').css('display', '');
+        script = """
+            $('#files').css('display', '');
+            """
         self.browser.execute_script(script)
-        import ipdb
-        ipdb.set_trace()
         self.browser.is_text_present('Drop your nodes files here', wait_time=10)
         # Import the nodes
-        self.browser.attach_file('file', '/home/gabi/Desktop/culturePlex/Sylva/sylva/tools/files/bobs-type.csv')
+        self.browser.attach_file('file', '/home/gabi/Desktop/culturePlex/Sylva/sylva/tools/files/csv/bobs-type.csv')
+        self.browser.is_text_present('Nodes files loaded. Loading edges files...', wait_time=10)
         # Wait until the data is imported
         self.browser.is_text_present('Now drop your edges files', wait_time=10)
+        # Change the display field of input to attach the file
+        script = """
+            $('#files2').css('display', '');
+            """
+        self.browser.execute_script(script)
         # Import the relationships
-        self.browser.attach_file('file', '/home/gabi/Desktop/culturePlex/Sylva/sylva/tools/files/bobs-rels.csv')
+        self.browser.attach_file('file2', '/home/gabi/Desktop/culturePlex/Sylva/sylva/tools/files/csv/bobs-rels.csv')
+        self.browser.is_text_present('Data loaded. Uploading to the server...', wait_time=10)
         # Wait until the data is imported
         self.browser.is_text_present('Data uploaded.', wait_time=10)
         # Check that nodes and relationships are ok
         self.browser.find_by_id('dataMenu').first.click()
         self.browser.find_by_xpath("//a[@class='dataOption list']").first.click()
-        bobgraph = Graph.objects.get(name=self.firstGraphName)
         alicegraph = Graph.objects.get(name=self.secondGraphName)
         alicegraphNodes = alicegraph.nodes.count()
-        self.assertEqual(bobgraph.nodes.count(), alicegraph.nodes.count())
-        self.assertEqual(bobgraph.relationships.count(), alicegraph.relationships.count())
+        self.assertEqual(8, alicegraph.nodes.count())
+        self.assertEqual(1, alicegraph.relationships.count())
         # Add new nodes and relationships and check all is correct
         self.browser.find_by_id('dataMenu').first.click()
         self.browser.find_by_xpath(
@@ -392,4 +437,3 @@ class ToolsTestCase(LiveServerTestCase):
         # Destroy the databases
         Graph.objects.get(name=self.firstGraphName).destroy()
         Graph.objects.get(name=self.secondGraphName).destroy()
-        """
