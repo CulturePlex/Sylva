@@ -1,89 +1,127 @@
-var reportsControllers = angular.module('reportsControllers', []);
+'use strict'
 
-reportsControllers.controller('ReportListCtrl', ['$scope', '$routeParams', '$timeout', 'api',  function ($scope, $routeParams, $timeout, api) {
-    console.log('yes')
-    $scope.graph = $routeParams.graphid;
-    $scope.reports = api.reports.query({graphSlug: $scope.graph});
+
+var controllers = angular.module('reports.controllers', []);
+
+
+controllers.controller('ReportListCtrl', [
+    '$scope',
+    '$routeParams',
+    '$location',
+    'api', 
+    'parser',
+    function ($scope, $routeParams, $location, api, parser) {
+        $scope.graph = parser.parse();
+        $scope.reports = api.reports.query({graphSlug: $scope.graph});
     
 }]);
 
-reportsControllers.controller('EditReportCtrl', ['$scope', '$routeParams', 'api', function ($scope, $routeParams, api) {
-    $scope.report = 'report'
-}]);
 
-reportsControllers.controller('reportsEditCtrl', ['$scope', '$timeout', 'api',
-    function($scope, $timeout, api) {
-
-        $scope.dropped = [];
-        $scope.reportName = '';
+controllers.controller('BaseReportFormCtrl', [
+    '$scope',
+    '$routeParams',
+    '$location', 
+    'api',
+    'parser', 
+    function ($scope, $routeParams, $location, api, parser) {
+        $scope.graph = parser.parse();
+        $scope.queries = [];
         $scope.report = {};
-        
-        $scope.init = function (graphSlug, reportHeader, namePlaceholder) {
-            console.log('init', graphSlug);
-            $timeout(function () {
-                $scope.reports = api.reports.query({graphSlug: graphSlug});
-                $scope.queries = api.queries.query({graphSlug: graphSlug}); 
-                $scope.graphSlug = graphSlug;
-                $scope.defaultReportHeader = reportHeader;
-                $scope.defaultNamePlaceholder = namePlaceholder;
-                $scope.reportHeader = $scope.defaultReportHeader;
-                $scope.namePlaceholder = $scope.defaultNamePlaceholder
 
-            });
-        };
-        
-        $scope.newReport = function () {
-            $scope.reportForm = true;
-            $scope.dropped = [];
-            $scope.reportName = '';
-            $scope.namePlaceholder = $scope.defaultNamePlaceholder;
-            $scope.report = {}; 
-            $scope.reportHeader = $scope.defaultReportHeader;
-        };  
-
-        $scope.removeQuery = function (index) {
-            if (index > -1) $scope.dropped.splice(index, 1);
+        $scope.designReport = function () {
+            api.queries.query({graphSlug: $scope.graph}, function (data) {
+                $scope.queries = data;
+            });  
         };
 
-        $scope.handleDrop = function (drop) {
-            $scope.dropped.push(drop);
+        $scope.editMeta = function () {
+            $scope.queries = [];
+        }
+
+        $scope.handleDrop = function (binId, drop) {
+            if ($scope.report.queries[binId] === undefined) {
+                $scope.report.queries[binId] = drop;
+            }
         }; 
 
-        $scope.processForm = function (report) {
-            var newReport = {
-                name: report.name,
-                queries: $scope.dropped,
-                start_time: report.startTime,
-                frequency: report.frequency,
-                description: report.description
-            };
-            console.log('daat', report);
+        $scope.removeQuery = function (key) {
+            $scope.report.queries[key] = undefined;
+        };
+
+        $scope.saveReport = function (report) {
             var post = new api.reports();
-            post.report = newReport;
-            console.log('post', post)
-            post.$save({graphSlug: $scope.graphSlug}, function (data) {
-                $scope.reports.push(data)
-                $scope.dropped = []
-                $scope.namePlaceholder = $scope.defaultNamePlaceholder;
-                $scope.report = {};
-                $scope.reportHeader = $scope.defaultReportHeader;
-                
+            post.report = $scope.report;
+            post.$save({graphSlug: $scope.graph}, function (data) {
+                console.log(data)
+                var redirect = '/';
+                $location.path(redirect);
             });
         };
+}]);
 
-        $scope.showReport = function (reportSlug) {
-            var report = $scope.reports.filter(function (element) {
-                return element.slug === reportSlug;
-            });
-            var name = report[0].name
-            $scope.dropped = report[0].queries;
-            $scope.namePlaceholder = '';
-            $scope.report.name = name;
-            $scope.reportHeader = name;
-            console.log('start', report[0].start_time)
-            $scope.report.startTime = new Date(report[0].start_time);
-            $scope.report.frequency = report[0].frequency;
-            $scope.report.description = report[0].description;
 
+controllers.controller('NewReportCtrl', [
+    '$scope', 
+    '$controller',
+    function ($scope, $controller) {
+        $controller('BaseReportFormCtrl', {$scope: $scope});
+        $scope.report = {
+            name: 'New Report',
+            slug: $scope.report.name,
+            periodicity: 'weekly',
+            start_time: '',
+            start_date: '',
+            description: '',
+            nameHtml: '<h2>New Report</h2>',
+            queries: {}
         };
-    }]);
+}]);
+
+
+controllers.controller('EditReportCtrl', [
+    '$scope', 
+    '$routeParams',
+    '$controller',
+    'api',
+    function ($scope, $routeParams, $controller, api) {
+        $controller('BaseReportFormCtrl', {$scope: $scope});
+        $scope.report.slug = $routeParams.reportSlug;
+        api.reports.query({
+            graphSlug: $scope.graph,
+            slug: $scope.report.slug  
+        }, function (data) {
+            $scope.report = data[0];
+        });
+}]);
+
+
+controllers.controller('ReportHistoryCtrl', [
+    '$scope',
+    '$routeParams',
+    'api',
+    'parser',
+    function ($scope, $routeParams, api, parser) {
+        $scope.report = {};
+        $scope.graph = parser.parse();
+        $scope.report.slug = $routeParams.reportSlug;
+        api.reports.query({
+            graphSlug: $scope.graph,
+            slug: $scope.report.slug  
+        }, function (data) {
+            console.log(data)
+            $scope.report = data[0];
+            if ($scope.report.history != undefined) {
+                $scope.currentContext = $scope.report.history.sort(function (a, b) {
+                    if (a.date < b.date) return 1;
+                    if (a.date > b.date) return -1;
+                    return 0;
+                })[0];
+            }
+        });
+
+        $scope.updateContext = function (contextID) {
+            $scope.currentContext = $scope.report.history.filter(function (element) {
+                return element.id === contextID;
+            })[0];
+        }
+}]);

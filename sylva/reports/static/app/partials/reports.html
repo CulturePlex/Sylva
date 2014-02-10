@@ -1,23 +1,27 @@
+<!--All fixed text can come translated from endpoint -->
 <div class="max600">
-  <table id="content_table" class="content-table text-left">
+  <table id="content_table" class="content-table text-left" style="margin-bottom:10px">
     <thead>
       <th>#</th>
       <th>Name</th>
-      <th>Description</th>
       <th>Start Date</th>
-      <th>Frequency</th>
+      <th>Start Time</th>
+      <th>Periodicity</th>
+      <th>Description</th>
     </thead>
     <tbody>
-      <tr class="row-even" ng-repeat="report in reports">
-        <td class="dataList"><a class="edit" href="#/{$graph$}/edit/{$report.name$}"><!-- 1182 -->&nbsp;</a></td>
-        <td>{$report.name$}</td>
-        <td>{$report.description$}</td>
-        <td>{$report.start_time$}</td>
-        <td>{$report.frequency$}</td>
+      <tr ng-repeat="report in reports" ng-class-odd="'row-odd'" ng-class-even="'row-even'">
+        <td class="dataList">
+          <a href="#/history/{$ report.slug $}" class="rels" title="Report History">&nbsp;</a>
+          <a href="#/edit/{$ report.slug $}" class="edit" title="Edit Report"><!-- 1182 -->&nbsp;</a>
+        </td>
+        <td>{$ report.name $}</td>
+        <td>{$ report.start_date $}</td>
+        <td>{$ report.start_time $}</td>
+        <td>{$ report.periodicity $}</td>
+        <td>{$ report.description $}</td>
       </tr>
     </tbody>
   </table>
-  <span class="buttonLinkOption">
-    <a class="button" href="#/new_report">New Report</a>
-  </span>
+  <a class="button" href="#/new">New Report</a>
 </div>

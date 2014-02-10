@@ -1,0 +1,16 @@
+<div class="max600">
+  <div class="content2-first">
+    <h2>History: {$ report.name $}</h2>
+    <div id="history">
+      <ul>
+        <li ng-repeat="context in report.history | orderBy:'date':true">
+          <h2><a href="" ng-click="updateContext(context.id)">{$ context.date $}</h2>
+        </li>
+      </ul>
+    </div><!--history-->
+  </div><!--content2-first-->
+  <div class="content-divider"></div>
+  <div class="content2-second">
+    <h2>{$ currentContext $}</h2>
+  </div><!--content2-second-->
+</div> <!-- max600 container-->

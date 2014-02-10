@@ -20,31 +20,48 @@ def reports_index_view(request, graph_slug):
         'c': c,
         'report_name': report_name,
         'placeholder_name': placeholder_name,
-        
     }))
 
 
 #@permission_required('reports.view_report',
                      #(Report, 'graph__slug', 'graph_slug'), return_403=True)
 def reports_endpoint(request, graph_slug):
-    reports = [
-        {'name': 'report1', 'slug': 'report1',
-         'queries': ['query1', 'query3'], 'frequency': 'weekly',
-         'start_time': 'Sun Feb 03 2014 09:25:00 GMT-0500 (EST)',
-         'description': 'a report'},
+    reports = [{
+        'name': 'report1',
+        'slug': 'report1',
+        'queries': {'bin1': 'query1'},
+        'periodicity': 'weekly',
+        'start_time': '08:30',
+        'start_date': "11/02/2014",
+        'description': 'Report1 will now form the beginning of the tests',
+        'history': [
+            {'date': "11/03/2014", 'id': 1},
+            {'date': "11/05/2014", 'id': 2},
+            {'date': "11/02/2014", 'id': 3}
+        ]
+    },
+
+
         {'name': 'report2', 'slug': 'report2',
-         'queries': ['query5', 'query2'], 'frequency': 'daily',
-         'start_time': 'Sun Feb 04 2014 09:25:00 GMT-0500 (EST)',
+         'queries': {'bin1': 'query2'}, 'periodicity': 'daily',
+         'start_time': '09:30', 'start_date': "11/02/2014",
          'description': 'a report'},
+
         {'name': 'report3', 'slug': 'report3',
-         'queries': ['query4', 'query5'], 'frequency': 'weekly',
-         'start_time': 'Sun Feb 05 2014 09:25:00 GMT-0500 (EST)',
+         'queries': {'bin1': 'query3'}, 'periodicity': 'weekly',
+         'start_time': '10:30', 'start_date': "11/02/2014",
          'description': 'a report'},
     ]
     if request.POST:
         post = json.loads(request.body)
         new_report = post['report']
         json_data = json.dumps(new_report)
+    elif request.GET.get('slug', ''):
+        ##import ipdb; ipdb.set_trace()
+        slug = request.GET['slug']
+        for report in reports:
+            if report['slug'] == slug:
+                json_data = json.dumps([report])
     else:
         json_data = json.dumps(reports)
     return HttpResponse(json_data, mimetype='application/json')
@@ -61,4 +78,5 @@ def queries_endpoint(request, graph_slug):
         {'name': 'query5'}
     ]
     json_data = json.dumps(queries)
+    print json_data
     return HttpResponse(json_data, mimetype='application/json')
