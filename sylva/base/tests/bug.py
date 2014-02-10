@@ -119,10 +119,6 @@ class BugTestCase(LiveServerTestCase):
         self.browser.find_by_id('sigma-pause').first.click()
         nodes = self.browser.find_by_xpath("//div[@class='flags-block']/span[@class='graph-nodes']").first.value
         rels = self.browser.find_by_xpath("//div[@class='flags-block']/span[@class='graph-relationships']").first.value
-        print '##########'
-        print "Nodes:", real_nodes, "nodes stored -", nodes, "in graphInfo"
-        print "Relationships:", real_rels, "relationships stored -", rels, "in graphInfo"
-        print '##########'
         self.assertEqual(str(real_nodes) + " nodes", nodes)
         self.assertEqual(str(real_rels) + " relationships", rels)
 
@@ -249,10 +245,6 @@ class BugTestCase(LiveServerTestCase):
         self.browser.find_by_id('sigma-pause').first.click()
         nodes = self.browser.find_by_xpath("//div[@class='flags-block']/span[@class='graph-nodes']").first.value
         rels = self.browser.find_by_xpath("//div[@class='flags-block']/span[@class='graph-relationships']").first.value
-        print '##########'
-        print "Nodes:", real_nodes, "nodes stored -", nodes, "in graphInfo"
-        print "Relationships:", real_rels, "relationships stored -", rels, "in graphInfo"
-        print '##########'
         self.assertEqual(str(real_nodes) + " nodes", nodes)
         self.assertEqual(str(real_rels) + " relationships", rels)
 
@@ -371,10 +363,6 @@ class BugTestCase(LiveServerTestCase):
         self.browser.find_by_id('sigma-pause').first.click()
         nodes = self.browser.find_by_xpath("//div[@class='flags-block']/span[@class='graph-nodes']").first.value
         rels = self.browser.find_by_xpath("//div[@class='flags-block']/span[@class='graph-relationships']").first.value
-        print '##########'
-        print "Nodes:", real_nodes, "nodes stored -", nodes, "in graphInfo"
-        print "Relationships:", real_rels, "relationships stored -", rels, "in graphInfo"
-        print '##########'
         self.assertEqual(str(real_nodes) + " nodes", nodes)
         self.assertEqual(str(real_rels) + " relationships", rels)
 
@@ -507,9 +495,5 @@ class BugTestCase(LiveServerTestCase):
         self.browser.find_by_id('sigma-pause').first.click()
         nodes = self.browser.find_by_xpath("//div[@class='flags-block']/span[@class='graph-nodes']").first.value
         rels = self.browser.find_by_xpath("//div[@class='flags-block']/span[@class='graph-relationships']").first.value
-        print '##########'
-        print "Nodes:", real_nodes, "nodes stored -", nodes, "in graphInfo"
-        print "Relationships:", real_rels, "relationships stored -", rels, "in graphInfo"
-        print '##########'
         self.assertEqual(str(real_nodes) + " nodes", nodes)
         self.assertEqual(str(real_rels) + " relationships", rels)

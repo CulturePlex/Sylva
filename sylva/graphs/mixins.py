@@ -168,7 +168,6 @@ class BaseSequence(Sequence):
         return self
 
 
-
 class NodeSequence(BaseSequence):
 
     def create_list(self, eltos, with_labels=False):
