@@ -6,11 +6,10 @@ var controllers = angular.module('reports.controllers', []);
 
 controllers.controller('ReportListCtrl', [
     '$scope',
-    '$routeParams',
     '$location',
     'api', 
     'parser',
-    function ($scope, $routeParams, $location, api, parser) {
+    function ($scope, $location, api, parser) {
         $scope.graph = parser.parse();
         $scope.reports = api.reports.query({graphSlug: $scope.graph});
     
@@ -19,11 +18,10 @@ controllers.controller('ReportListCtrl', [
 
 controllers.controller('BaseReportFormCtrl', [
     '$scope',
-    '$routeParams',
     '$location', 
     'api',
     'parser', 
-    function ($scope, $routeParams, $location, api, parser) {
+    function ($scope, $location, api, parser) {
         $scope.graph = parser.parse();
         $scope.queries = [];
         $scope.report = {};
