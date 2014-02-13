@@ -7,6 +7,7 @@ diagram.CurrentModels = [];
 diagram.CurrentRelations = {};
 diagram.Counter = 0;
 diagram.fieldCounter = 0;
+diagram.nodetypesCounter = [];
 
 diagram.lookupsAllValues = ["equals",
                         "is less than or equal to",
@@ -23,10 +24,19 @@ diagram.lookupsSpecificValues = ["equals",
                         "has some value",
                         "has no value"];
 
-diagram.lookupsValuesType = {   's': diagram.lookupsSpecificValues,
+diagram.lookupsTextValues = ["equals",
+                        "does not equal",
+                        "has some value",
+                        "has no value",
+                        "contains",
+                        "doesn't contain",
+                        "starts with",
+                        "ends with"];
+
+diagram.lookupsValuesType = {   's': diagram.lookupsTextValues,
                                 'b': diagram.lookupsSpecificValues,
                                 'n': diagram.lookupsAllValues,
-                                'x': diagram.lookupsSpecificValues,
+                                'x': diagram.lookupsTextValues,
                                 'd': diagram.lookupsAllValues,
                                 't': diagram.lookupsAllValues,
                                 'c': diagram.lookupsSpecificValues,
@@ -38,6 +48,26 @@ diagram.lookupsValuesType = {   's': diagram.lookupsSpecificValues,
                                 'o': diagram.lookupsAllValues,
                                 'e': diagram.lookupsSpecificValues
                             };
+
+diagram.relationshipOptionsTarget = { endpoint: "Rectangle",
+                                paintStyle: {   width: 25,
+                                                height: 21,
+                                                fillStyle: '#666'
+                                            },
+                                anchor: "TopCenter",
+                                isTarget: true,
+                                connectorStyle: { strokeStyle: '#666'}
+                              };
+
+diagram.relationshipOptionsSource = { endpoint: "Rectangle",
+                                paintStyle: {   width: 25,
+                                                height: 21,
+                                                fillStyle: '#666'
+                                            },
+                                anchor: "BottomCenter",
+                                isSource: true,
+                                connectorStyle: { strokeStyle: '#666'}
+                              };
 
 (function($) {
     /**
@@ -131,51 +161,61 @@ diagram.lookupsValuesType = {   's': diagram.lookupsSpecificValues,
 
         /**
          * Adds a new model box with its fields
+         * - graphName
+         * - modelName
+         * - typeName
          */
-        diagram.addBox = function (graphName, modelName) {
-            var model, root, divBox, divTitle, fieldName, field, divField, divFields, divManies, primaries, countFields, anchorDelete;
+        diagram.addBox = function (graphName, modelName, typeName) {
+            var model, root, idBox, divBox, divAddBox, divContainerBoxes, divField, divFields, divManies, divAllowedRelationships, fieldName, field, primaries, countFields, idFields, selectAllRel, optionAllRel, idAllRels, addField, addFieldIcon, idContainerBoxes;
             primaries = [];
             model = diagram.Models[graphName][modelName];
             root = $("#"+ diagram.Container);
             diagram.Counter++;
+            idBox = "diagramBox_"+ diagram.Counter +"_"+ modelName;
+            idFields = "diagramFields_"+ modelName + "_" + diagram.Counter;
+            idAllRels = "diagramAllRel_"+ modelName + "_" + diagram.Counter;
+            idContainerBoxes = "diagramContainerBoxes_" + modelName + "_" + diagram.Counter;
             divBox = $("<DIV>");
-            divBox.attr("id", "diagramBox_"+ diagram.Counter +"_"+ modelName);
+            divBox.attr("id", idBox);
             divBox.css({
                 "left": (parseInt(Math.random() * 55 + 1) * 10) + "px",
                 "top": (parseInt(Math.random() * 25 + 1) * 10) + "px",
-                "width": "200px"
+                //"width": "200px"
+                "width": "30%"
             });
             divBox.addClass("body");
-            divTitle = $("<DIV>");
-            divTitle.addClass("title");
-            // Checkbox for select property
-            //checkboxType = $("<INPUT>");
-            //checkboxType.attr("type", "checkbox");
-            //divTitle.append(checkboxType);
-            diagram.setLabel(divTitle, model.name, false);
-            anchorDelete = $("<A>");
-            anchorDelete.html("x");
-            anchorDelete.attr("href", "javascript:void(0);");
-            anchorDelete.attr("id", "inlineDeleteLink_"+ modelName);
-            anchorDelete.addClass("inline-deletelink");
-            anchorDelete.click(function () {
-                $("#diagramModelAnchor_"+ graphName +"\\\."+ modelName).click();
-                divFields.toggleClass("hidden");
-                anchorDelete.toggleClass("inline-morelink");
-                anchorDelete.toggleClass("inline-deletelink");
-                diagram.saveBoxPositions();
-                jsPlumb.repaintEverything();
+            divTitle = diagram.addTitleDiv(graphName, model, typeName, modelName, idContainerBoxes, idBox);
+            // Allowed relationships
+            // Select for the allowed relationships
+            selectAllRel = $("<SELECT>");
+            selectAllRel.addClass("select-rel");
+            selectAllRel.css({
+                "width": "46%",
+                "padding": "0",
+                "margin-left": "3%",
+                "margin-top": "5%",
+                "margin-bottom": "5%"
             });
-            divTitle.append(anchorDelete);
-            idFields = "diagramFields_"+ modelName + "_" + diagram.Counter;
+            for(var i = 0; i < model.relations.length; i++) {
+                var label = model.relations[i].label;
+                optionAllRel = $("<OPTION>");
+                optionAllRel.addClass("option-rel");
+                optionAllRel.attr('value', label);
+                optionAllRel.attr('data-parentid', idBox);
+                optionAllRel.attr('selected', 'selected');
+                optionAllRel.html(label);
+                selectAllRel.append(optionAllRel);
+            }
+            divAllowedRelationships = $("<DIV>");
+            divAllowedRelationships.attr("id", idAllRels);
+            divAllowedRelationships.append(selectAllRel);
+            // We append the divs
             divFields = $("<DIV>");
             divFields.attr("id", idFields);
             countFields = 0;
             // Create the select for the properties
-            // TODO - INITIALIZE
-            divField = diagram.addFieldRow(graphName, modelName, idFields);
+            divField = diagram.addFieldRow(graphName, modelName, idFields, typeName);
             divFields.append(divField);
-            // TODO - END
             if (countFields < 5 && countFields > 0) {
                 divFields.addClass("noOverflow");
             } else if (countFields > 0) {
@@ -195,7 +235,30 @@ diagram.lookupsValuesType = {   's': diagram.lookupsSpecificValues,
             if (divManies) {
                 divBox.append(divManies);
             }
-            divBox.append(divFields);
+            // Link to add a new row
+            addField = $("<A>");
+            addField.addClass("add-field-row");
+            addField.css({
+                "margin-left": "2%"
+            });
+            addField.attr("data-parentid", idFields);
+            addField.attr("data-graph", graphName);
+            addField.attr("data-model", modelName);
+            // Icon
+            addFieldIcon = $("<I>");
+            addFieldIcon.addClass("icon-plus-sign");
+            addField.append(addFieldIcon);
+            divAddBox = $("<DIV>");
+            divAddBox.append(divFields);
+            divAddBox.append(addField);
+            divAddBox.css({
+                "border-bottom": "2px dashed #348E82"
+            });
+            divContainerBoxes = $("<DIV>");
+            divContainerBoxes.attr("id", idContainerBoxes);
+            divContainerBoxes.append(divAddBox);
+            divContainerBoxes.append(divAllowedRelationships);
+            divBox.append(divContainerBoxes);
             for(divField in primaries) {
                 divBox.prepend(primaries[divField]);
             }
@@ -224,6 +287,106 @@ diagram.lookupsValuesType = {   's': diagram.lookupsSpecificValues,
         };
 
         /**
+         * Set all the neccesary to include in the title div
+         * - graphName
+         * - model
+         * - typeName
+         * - modelName
+         * - idContainerBoxes
+         * - idBox
+         */
+        diagram.addTitleDiv = function(graphName, model, typeName, modelName, idContainerBoxes, idBox) {
+            var divTitle, selectNodetype, optionNodetype, checkboxType, anchorShowHide, iconToggle, anchorDelete, iconDelete;
+            divTitle = $("<DIV>");
+            divTitle.addClass("title");
+            divTitle.css({
+                "padding-bottom": "3%"
+            });
+            // Select for the type
+            selectNodetype = $("<SELECT>");
+            selectNodetype.addClass("select-nodetype-" + typeName);
+            selectNodetype.css({
+                "width": "46%",
+                "float": "left",
+                "padding": "0",
+                "margin-left": "3%"
+            });
+            optionNodetype = $("<OPTION>");
+            optionNodetype.addClass("option-nodetype-" + typeName);
+            optionNodetype.attr('id', model.name + diagram.nodetypesCounter[typeName]);
+            optionNodetype.attr('value', model.name + diagram.nodetypesCounter[typeName]);
+            optionNodetype.attr('selected', 'selected');
+            optionNodetype.html(model.name + diagram.nodetypesCounter[typeName]);
+            // This for loop is to to add the new option in the old boxes
+            for(var i = 0; i < diagram.nodetypesCounter[typeName]; i++)
+            {
+                $($('.select-nodetype-' + typeName)[i]).append(optionNodetype.clone(true));
+                $($('.select-nodetype-' + typeName + ' #' + model.name + i)[i]).attr('selected', 'selected');
+            }
+            // This for loop is to include the old options in the new box
+            for(var j = 0; j < diagram.nodetypesCounter[typeName]; j++) {
+                var value = model.name + j;
+                selectNodetype.append("<option class='option-nodetype-" + typeName + "' id='" + value + "' value='" + value +"'>" + value + "</option>");
+            }
+            selectNodetype.append(optionNodetype);
+            // Checkbox for select type
+            checkboxType = $("<INPUT>");
+            checkboxType.attr("type", "checkbox");
+            checkboxType.css({
+                "float": "left",
+                "margin-top": "1%"
+            });
+            divTitle.append(checkboxType);
+            diagram.setName(divTitle, model.name);
+            divTitle.append(selectNodetype);
+            anchorShowHide = $("<A>");
+            anchorShowHide.attr("href", "javascript:void(0);");
+            anchorShowHide.attr("id", "inlineShowHideLink_"+ modelName);
+            iconToggle = $("<I>");
+            iconToggle.addClass("icon-minus-sign");
+            iconToggle.css({
+                "color": "white",
+                "float": "right",
+                "margin-right": "2%"
+            });
+            anchorShowHide.append(iconToggle);
+            anchorShowHide.click(function () {
+                $("#diagramModelAnchor_"+ graphName +"\\\."+ modelName).click();
+                $('#' + idContainerBoxes).toggleClass("hidden");
+                if (iconToggle.attr('class') == 'icon-minus-sign') {
+                    iconToggle.removeClass('icon-minus-sign');
+                    iconToggle.addClass('icon-plus-sign');
+                } else {
+                    iconToggle.removeClass('icon-plus-sign');
+                    iconToggle.addClass('icon-minus-sign');
+                }
+                diagram.saveBoxPositions();
+                jsPlumb.repaintEverything();
+            });
+            anchorDelete = $("<A>");
+            anchorDelete.attr("href", "javascript:void(0);");
+            anchorDelete.attr("id", "inlineDeleteLink_"+ modelName);
+            iconDelete = $("<I>");
+            iconDelete.addClass("icon-remove-sign");
+            iconDelete.css({
+                "color": "white",
+                "float": "right",
+                "margin-right": "2%"
+            });
+            anchorDelete.append(iconDelete);
+            anchorDelete.click(function () {
+                $("#diagramModelAnchor_"+ graphName +"\\\."+ modelName).click();
+                jsPlumb.detachAllConnections(idBox);
+                jsPlumb.deleteEndpoint(idBox);
+                $('#' + idBox).remove();
+            });
+            divTitle.append(anchorDelete);
+            divTitle.append(anchorShowHide);
+
+            return divTitle;
+        }
+
+        /**
          * Set the label fo the fields getting shorter and adding ellipsis
          */
         diagram.setLabel = function (div, label, primary) {
@@ -241,38 +404,15 @@ diagram.lookupsValuesType = {   's': diagram.lookupsSpecificValues,
         };
 
         /**
-         * Adds a model to the layer
+         * Set the name fo the model box getting shorter and adding ellipsis
          */
-        diagram.addModel = function (graphName, modelName) {
-            var appModel, model, target1, target2;
-            model = diagram.Models[graphName][modelName];
-            appModel = graphName +"."+ modelName;
-            if (diagram.CurrentModels.indexOf(appModel) < 0) {
-                diagram.CurrentModels.push(appModel);
-                if (model.is_auto) {
-                    target1 = model.relations[0].target;
-                    target2 = model.relations[1].target;
-                    diagram.addModel(target1.name, target1.model);
-                    diagram.addModel(target2.name, target2.model);
-                } else {
-                    diagram.addBox(graphName, modelName);
-                }
-                diagram.addRelations(graphName, modelName);
+        diagram.setName = function (div, name) {
+            var html = "<span style='float: left; margin-left: 3%;'>" + name + " as " + "</span>";
+            if (name.length > 5) {
+                html = "<span style='float: left; margin-left: 3%;'>" + name.substr(0, 5) + "…" + " as " + "</span>";
             }
-        };
-
-        /*
-         * Removes a model from the layer
-         */
-        diagram.removeModel = function(graphName, modelName) {
-            var appModel = graphName +"."+ modelName;
-            var pos = diagram.CurrentModels.indexOf(appModel);
-            if (pos >= 0) {
-                diagram.CurrentModels.splice(pos, 1);
-                var model = diagram.Models[graphName][modelName];
-                diagram.removeBox(graphName, modelName)
-                diagram.removeRelations(graphName, modelName);
-            }
+            div.append(html);
+            return div;
         };
 
         /**
@@ -375,8 +515,15 @@ diagram.lookupsValuesType = {   's': diagram.lookupsSpecificValues,
                 for(graph in diagram.Models) {
                     models = diagram.Models[graph];
                     for(modelName in models) {
-                        if((modelName.localeCompare(typeName)) == 0)
-                            diagram.addBox(graph, modelName);
+                        if((modelName.localeCompare(typeName)) == 0) {
+                            // Node type counter for the node type select field
+                            if(diagram.nodetypesCounter[typeName] >= 0) {
+                                diagram.nodetypesCounter[typeName]++;
+                            } else {
+                                diagram.nodetypesCounter[typeName] = 0;
+                            }
+                            diagram.addBox(graph, modelName, typeName);
+                        }
                     }
                 }
             }
@@ -398,17 +545,17 @@ diagram.lookupsValuesType = {   's': diagram.lookupsSpecificValues,
         };
 
         /**
-        * Add a new row for a field in a box
-        * - graphName
-        * - modelName
-        * - parentId
-        */
-
+         * Add a new row for a field in a box
+         * - graphName
+         * - modelName
+         * - parentId
+         */
         diagram.addFieldRow = function(graphName, modelName, parentId) {
+            var model, lengthFields, fieldId, selectProperty, selectLookup, field, datatype, optionProperty, inputLookup, divField, divAndOr, selectAndOr, removeField, removeFieldIcon, checkboxProperty;
             model = diagram.Models[graphName][modelName];
             lengthFields = model.fields.length;
             diagram.fieldCounter++;
-            var fieldId = "field" + diagram.fieldCounter;
+            fieldId = "field" + diagram.fieldCounter;
             // Select property
             selectProperty = $("<SELECT>");
             selectProperty.addClass("select-property");
@@ -432,39 +579,18 @@ diagram.lookupsValuesType = {   's': diagram.lookupsSpecificValues,
                 datatype = field.type;
                 optionProperty = $("<OPTION>");
                 optionProperty.addClass('option-property');
-                optionProperty.attr('value', field.name);
+                optionProperty.attr('value', field.label);
                 optionProperty.attr('data-datatype', field.type);
-                optionProperty.html(field.name);
+                optionProperty.html(field.label);
                 selectProperty.append(optionProperty);
             }
             // Initial input
             inputLookup = $("<INPUT>");
+            inputLookup.addClass("lookup-value");
             inputLookup.css({
                 "width": "20%",
                 "margin-left": "5%"
             });
-            // Link to remove the lookup
-            removeField = $("<A>");
-            removeField.addClass("remove-field-row");
-            removeField.css({
-                "margin-left": "2%"
-            });
-            removeField.attr('data-fieldid', fieldId)
-            // Icon
-            removeFieldIcon = $("<I>");
-            removeFieldIcon.addClass("icon-minus-sign");
-            // Link to add the lookup
-            addField = $("<A>");
-            addField.addClass("add-field-row");
-            addField.css({
-                "margin-left": "2%"
-            });
-            addField.attr("data-parentid", parentId);
-            addField.attr("data-graph", graphName);
-            addField.attr("data-model", modelName);
-            // Icon
-            addFieldIcon = $("<I>");
-            addFieldIcon.addClass("icon-plus-sign");
             divField = $("<DIV>");
             divField.addClass("field");
             divField.css({
@@ -473,22 +599,57 @@ diagram.lookupsValuesType = {   's': diagram.lookupsSpecificValues,
                 'margin-bottom': '5%'
             });
             divField.attr('id', fieldId);
+            // Checkbox for select property
+            checkboxProperty = $("<INPUT>");
+            checkboxProperty.attr("type", "checkbox");
+            checkboxProperty.css({
+                "margin-left": "2%"
+            });
             // We append the elements
-            removeField.append(removeFieldIcon);
-            addField.append(addFieldIcon);
+            divField.append(checkboxProperty);
             divField.append(selectProperty);
             divField.append(selectLookup);
             divField.append(inputLookup);
-            divField.append(removeField);
-            divField.append(addField);
+            // If we have more than 1 field row, add and-or div
+            // and the option to remove field rows
+            if ($('#' + parentId).children().length > 0) {
+                divAndOr = $("<DIV>");
+                divAndOr.addClass("and-or-option");
+                divAndOr.css({
+                    "width": "10%",
+                    "float": "left"
+                });
+                selectAndOr = $("<SELECT>");
+                selectAndOr.addClass("select-and-or");
+                selectAndOr.css({
+                    "width": "10px"
+                });
+                selectAndOr.append("<option value='and'>And</option>");
+                selectAndOr.append("<option value='or'>Or</option>");
+                divAndOr.append(selectAndOr);
+                // Link to remove the lookup
+                removeField = $("<A>");
+                removeField.addClass("remove-field-row");
+                removeField.css({
+                    "margin-left": "2%"
+                });
+                removeField.attr('data-fieldid', fieldId);
+                removeField.attr('data-parentid', parentId);
+                // Icon
+                removeFieldIcon = $("<I>");
+                removeFieldIcon.addClass("icon-minus-sign");
+                divField.append(divAndOr);
+                removeField.append(removeFieldIcon);
+                divField.append(removeField);
+            }
 
             return divField;
         };
 
         /**
-        * Choose the options according to the datatype
-        * - datatype
-        */
+         * Choose the options according to the datatype
+         * - datatype
+         */
         diagram.lookupOptions = function(datatype) {
             return diagram.lookupsValuesType[datatype];
         };
@@ -498,10 +659,9 @@ diagram.lookupsValuesType = {   's': diagram.lookupsSpecificValues,
      * Interactions functions
      */
 
-     /**
-      * Add box type to the diagram
-      */
-
+    /**
+     * Add box type to the diagram
+     */
     $('.add-box').on('click', function() {
         var $this = $(this);
         var nodeType = $this.data("type");
@@ -509,9 +669,8 @@ diagram.lookupsValuesType = {   's': diagram.lookupsSpecificValues,
     });
 
     /**
-      * Add lookup inside a box type
-      */
-
+     * Add field row inside a box type
+     */
     $("#diagramContainer").on('click', '.add-field-row', function() {
         var $this = $(this);
         var parentId = $this.data("parentid");
@@ -519,30 +678,37 @@ diagram.lookupsValuesType = {   's': diagram.lookupsSpecificValues,
         var graphName = $this.data("graph");
 
         divField = diagram.addFieldRow(graphName, modelName, parentId);
+
         $("#" + parentId).append(divField);
     });
 
     /**
-      * Remove lookup inside a box type
-      */
-
+     * Remove field row inside a box type
+     */
     $("#diagramContainer").on('click', '.remove-field-row', function() {
         var $this = $(this);
         var fieldId = $this.data("fieldid");
-        $("#" + fieldId).remove();
+        var parentId = $this.data("parentid");
+
+        // We check that the field box need to have one
+        // field row at least
+        if($('#' + parentId).children().length > 1) {
+            $("#" + fieldId).remove();
+        } else {
+            alert("You need a field at least");
+        }
     });
 
     /**
-      * Add the values of the select lookup in relation with the property
-      * selected
-      */
-
+     * Add the values of the select lookup in relation with the property
+     * selected
+     */
     $("#diagramContainer").on('click', '.select-property', function() {
         var $this = $(this);
         var fieldId = $this.data("fieldid");
         var selector = "#" + fieldId + " .select-lookup";
         var datatype = $('option:selected', this).data("datatype");
-        arrayOptions = diagram.lookupOptions(datatype);
+        var arrayOptions = diagram.lookupOptions(datatype);
 
         // If already we have lookups, we remove them to avoid overwritting
         if($(selector).children()) {
@@ -552,6 +718,54 @@ diagram.lookupsValuesType = {   's': diagram.lookupsSpecificValues,
         for (var i = 0; i < arrayOptions.length; i++) {
             $(selector).append('<option value="' + arrayOptions[i] + '">' + arrayOptions[i] + '</option>');
         }
+    });
+
+    /**
+     * Add a special input related to the lookup selected
+     */
+    $("#diagramContainer").on('change', '.select-lookup', function() {
+        var $this = $(this);
+        var value = $this.val();
+        if(value == "is between") {
+            // two inputs - we check if we have introduced an input field
+            if(this.nextElementSibling.tagName == "INPUT") {
+                $(this.nextElementSibling).remove();
+                if(this.nextElementSibling.tagName == "INPUT") {
+                    $(this.nextElementSibling).remove();
+                }
+            }
+            $(this).after("<input style=\"width: 10%; margin-left: 5%;\" />");
+            $(this).after("<input style=\"width: 10%; margin-left: 5%;\" />");
+        } else if((value == "has some value") || (value == "has no value")) {
+            // no inputs
+            if(this.nextElementSibling.tagName == "INPUT") {
+                $(this.nextElementSibling).remove();
+                if(this.nextElementSibling.tagName == "INPUT") {
+                    $(this.nextElementSibling).remove();
+                }
+            }
+        } else {
+            // one input - we check if we have introduced an input field
+            if(this.nextElementSibling.tagName == "INPUT") {
+                $(this.nextElementSibling).remove();
+                if(this.nextElementSibling.tagName == "INPUT") {
+                    $(this.nextElementSibling).remove();
+                }
+            }
+            $(this).after("<input style=\"width: 35%; margin-left: 5%;\" />");
+        }
+    });
+
+    /**
+     * Add the handler for drag and drop relationships
+     */
+    $("#diagramContainer").on('click', '.select-rel', function() {
+        var $this = $(this);
+        var elementId = $('option:selected', this).data("parentid");
+
+        // We must check if is target or source and select an endpoint or another
+        var endpoint = jsPlumb.addEndpoint(elementId, { uuid:elementId }, diagram.relationshipOptionsTarget);
+        $this.attr('disabled', 'disabled');
     });
 
     $(document).ready(init);
