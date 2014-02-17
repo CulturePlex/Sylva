@@ -49,24 +49,40 @@ diagram.lookupsValuesType = {   's': diagram.lookupsTextValues,
                                 'e': diagram.lookupsSpecificValues
                             };
 
-diagram.relationshipOptionsTarget = { endpoint: "Rectangle",
-                                paintStyle: {   width: 25,
-                                                height: 21,
-                                                fillStyle: '#666'
-                                            },
+diagram.relationshipOptionsTarget = { endpoint: "Dot",
                                 anchor: "TopCenter",
                                 isTarget: true,
-                                connectorStyle: { strokeStyle: '#666'}
+                                connectorStyle: { strokeStyle: '#AEAA78',
+                                                  lineWidth: 2},
+                                connectorOverlays:[
+                                    [ "PlainArrow", { width:15, length:15, location:1, id:"arrow" } ]
+                                ],
+                                paintStyle: {
+                                    strokeStyle: '#AEAA78',
+                                    lineWidth: 1
+                                },
+                                backgroundPaintStyle: {
+                                    strokeStyle: '#AEAA78',
+                                    lineWidth: 1
+                                }
                               };
 
-diagram.relationshipOptionsSource = { endpoint: "Rectangle",
-                                paintStyle: {   width: 25,
-                                                height: 21,
-                                                fillStyle: '#666'
-                                            },
+diagram.relationshipOptionsSource = { endpoint: "Dot",
                                 anchor: "BottomCenter",
                                 isSource: true,
-                                connectorStyle: { strokeStyle: '#666'}
+                                connectorStyle: { strokeStyle: '#AEAA78',
+                                                  lineWidth: 2},
+                                connectorOverlays:[
+                                    [ "PlainArrow", { width:15, length:15, location:1, id:"arrow" } ]
+                                ],
+                                paintStyle: {
+                                    strokeStyle: '#AEAA78',
+                                    lineWidth: 1
+                                },
+                                backgroundPaintStyle: {
+                                    strokeStyle: '#AEAA78',
+                                    lineWidth: 1
+                                }
                               };
 
 (function($) {
@@ -166,7 +182,7 @@ diagram.relationshipOptionsSource = { endpoint: "Rectangle",
          * - typeName
          */
         diagram.addBox = function (graphName, modelName, typeName) {
-            var model, root, idBox, divBox, divAddBox, divContainerBoxes, divField, divFields, divManies, divAllowedRelationships, fieldName, field, primaries, countFields, idFields, selectAllRel, optionAllRel, idAllRels, addField, addFieldIcon, idContainerBoxes;
+            var model, root, idBox, divBox, divAddBox, divContainerBoxes, divField, divFields, divManies, divAllowedRelationships, fieldName, field, primaries, countFields, idFields, selectAllRel, optionAllRel, idAllRels, addField, addFieldIcon, idContainerBoxes, removeRelation;
             primaries = [];
             model = diagram.Models[graphName][modelName];
             root = $("#"+ diagram.Container);
@@ -194,21 +210,40 @@ diagram.relationshipOptionsSource = { endpoint: "Rectangle",
                 "padding": "0",
                 "margin-left": "3%",
                 "margin-top": "5%",
-                "margin-bottom": "5%"
+                "margin-bottom": "5%",
+                "display": "inline"
             });
             for(var i = 0; i < model.relations.length; i++) {
-                var label = model.relations[i].label;
+                var relation = model.relations[i];
+                var label = relation.label;
                 optionAllRel = $("<OPTION>");
                 optionAllRel.addClass("option-rel");
                 optionAllRel.attr('value', label);
                 optionAllRel.attr('data-parentid', idBox);
                 optionAllRel.attr('selected', 'selected');
+                // We check if is a source or a target
+                if(relation.source) {
+                    optionAllRel.attr('data-source', relation.source);
+                }
+                if(relation.target) {
+                    optionAllRel.attr('data-target', relation.target);
+                }
                 optionAllRel.html(label);
                 selectAllRel.append(optionAllRel);
             }
+            // Link to remove the relations
+            removeRelation = $("<A>");
+            removeRelation.addClass("remove-relation");
+            removeRelation.css({
+                "margin-left": "10%"
+            });
+            removeRelation.attr('data-parentid', idBox);
+            removeRelation.attr('data-relationsid', idAllRels);
+            removeRelation.html('remove link');
             divAllowedRelationships = $("<DIV>");
             divAllowedRelationships.attr("id", idAllRels);
             divAllowedRelationships.append(selectAllRel);
+            divAllowedRelationships.append(removeRelation);
             // We append the divs
             divFields = $("<DIV>");
             divFields.attr("id", idFields);
@@ -377,7 +412,8 @@ diagram.relationshipOptionsSource = { endpoint: "Rectangle",
             anchorDelete.click(function () {
                 $("#diagramModelAnchor_"+ graphName +"\\\."+ modelName).click();
                 jsPlumb.detachAllConnections(idBox);
-                jsPlumb.deleteEndpoint(idBox);
+                jsPlumb.deleteEndpoint(idBox + "-source");
+                jsPlumb.deleteEndpoint(idBox + "-target");
                 $('#' + idBox).remove();
             });
             divTitle.append(anchorDelete);
@@ -560,17 +596,18 @@ diagram.relationshipOptionsSource = { endpoint: "Rectangle",
             selectProperty = $("<SELECT>");
             selectProperty.addClass("select-property");
             selectProperty.css({
-                'width': '45%',
-                'padding': '0'
+                'width': '60%',
+                'margin-left': '2%',
+                'display': 'inline'
             });
             selectProperty.attr('data-fieldid', fieldId)
             // Select lookup
             selectLookup = $("<SELECT>");
             selectLookup.addClass("select-lookup");
             selectLookup.css({
-                "width": "25%",
+                "width": "40%",
                 "display": "inline",
-                "margin-left": "3%"
+                "margin-left": "10%"
             });
             // We get the values for the properties select and the values
             // for the lookups option in relation with the datatype
@@ -581,22 +618,16 @@ diagram.relationshipOptionsSource = { endpoint: "Rectangle",
                 optionProperty.addClass('option-property');
                 optionProperty.attr('value', field.label);
                 optionProperty.attr('data-datatype', field.type);
+                if(field.choices)
+                    optionProperty.attr('data-choices', field.choices);
                 optionProperty.html(field.label);
                 selectProperty.append(optionProperty);
             }
-            // Initial input
-            inputLookup = $("<INPUT>");
-            inputLookup.addClass("lookup-value");
-            inputLookup.css({
-                "width": "20%",
-                "margin-left": "5%"
-            });
             divField = $("<DIV>");
             divField.addClass("field");
             divField.css({
                 'display': 'inline-table',
-                'margin-top': '5%',
-                'margin-bottom': '5%'
+                'margin-top': '5%'
             });
             divField.attr('id', fieldId);
             // Checkbox for select property
@@ -605,43 +636,42 @@ diagram.relationshipOptionsSource = { endpoint: "Rectangle",
             checkboxProperty.css({
                 "margin-left": "2%"
             });
-            // We append the elements
-            divField.append(checkboxProperty);
-            divField.append(selectProperty);
-            divField.append(selectLookup);
-            divField.append(inputLookup);
             // If we have more than 1 field row, add and-or div
-            // and the option to remove field rows
             if ($('#' + parentId).children().length > 0) {
                 divAndOr = $("<DIV>");
                 divAndOr.addClass("and-or-option");
                 divAndOr.css({
-                    "width": "10%",
-                    "float": "left"
+                    "margin-bottom": "5%"
                 });
                 selectAndOr = $("<SELECT>");
                 selectAndOr.addClass("select-and-or");
                 selectAndOr.css({
-                    "width": "10px"
+                    "width": "35%"
                 });
                 selectAndOr.append("<option value='and'>And</option>");
                 selectAndOr.append("<option value='or'>Or</option>");
                 divAndOr.append(selectAndOr);
+                divField.append(divAndOr);
                 // Link to remove the lookup
                 removeField = $("<A>");
                 removeField.addClass("remove-field-row");
                 removeField.css({
-                    "margin-left": "2%"
+                    "margin-left": "2%",
+                    "float": "right"
                 });
                 removeField.attr('data-fieldid', fieldId);
                 removeField.attr('data-parentid', parentId);
                 // Icon
                 removeFieldIcon = $("<I>");
                 removeFieldIcon.addClass("icon-minus-sign");
-                divField.append(divAndOr);
                 removeField.append(removeFieldIcon);
                 divField.append(removeField);
             }
+
+            // We append the elements
+            divField.append(checkboxProperty);
+            divField.append(selectProperty);
+            divField.append(selectLookup);
 
             return divField;
         };
@@ -680,6 +710,7 @@ diagram.relationshipOptionsSource = { endpoint: "Rectangle",
         divField = diagram.addFieldRow(graphName, modelName, parentId);
 
         $("#" + parentId).append(divField);
+        jsPlumb.repaintEverything();
     });
 
     /**
@@ -697,6 +728,7 @@ diagram.relationshipOptionsSource = { endpoint: "Rectangle",
         } else {
             alert("You need a field at least");
         }
+        jsPlumb.repaintEverything();
     });
 
     /**
@@ -708,6 +740,7 @@ diagram.relationshipOptionsSource = { endpoint: "Rectangle",
         var fieldId = $this.data("fieldid");
         var selector = "#" + fieldId + " .select-lookup";
         var datatype = $('option:selected', this).data("datatype");
+        var choices = $('option:selected', this).data("choices");
         var arrayOptions = diagram.lookupOptions(datatype);
 
         // If already we have lookups, we remove them to avoid overwritting
@@ -717,42 +750,145 @@ diagram.relationshipOptionsSource = { endpoint: "Rectangle",
 
         for (var i = 0; i < arrayOptions.length; i++) {
             $(selector).append('<option value="' + arrayOptions[i] + '">' + arrayOptions[i] + '</option>');
+            $(selector).attr("data-fieldid", fieldId);
+        }
+
+        // Here we ask if the datatype needs a special input
+        var tagName = $this.next().next().prop("tagName");
+        if(datatype == 'b') {
+            // Boolean select
+            if(tagName == "INPUT" || tagName == "SELECT") {
+                $this.next().next().remove();
+                if(tagName == "INPUT") {
+                    $this.next().next().remove();
+                }
+            }
+            var select = $("<SELECT>");
+            select.css({
+                "width": "20%",
+                "margin-left": "5%"
+            });
+            select.append('<option value="true">True</option>');
+            select.append('<option value="false">False</option>');
+        } else if(datatype == 'c') {
+            // Choices select
+            var choicesArray = choices.split(',');
+            if(tagName == "INPUT" || tagName == "SELECT") {
+                $this.next().next().remove();
+                if(tagName == "INPUT") {
+                    $this.next().next().remove();
+                }
+            }
+            var select = $("<SELECT>");
+            select.css({
+                "width": "35%",
+                "display": "inline",
+                "margin-left": "5%"
+            });
+            for(var j = 0; j < choicesArray.length; j = j + 2) {
+                select.append('<option value="' + choicesArray[j] +'">' + choicesArray[j] + '</option>');
+            }
+            $('#' + fieldId).append(select);
+        } else if(datatype == 'w') {
+            // Datepicker input
+            if(tagName == "INPUT" || tagName == "SELECT") {
+                $this.next().next().remove();
+                if(tagName == "INPUT") {
+                    $this.next().next().remove();
+                }
+            }
+            var inputLookup = $("<INPUT>");
+            inputLookup.addClass("lookup-value");
+            inputLookup.css({
+                "width": "20%",
+                "margin-left": "5%"
+            });
+            inputLookup.datepicker();
+            $('#' + fieldId).append(inputLookup);
+        } else if(datatype == 'a') {
+            // Datepicker input
+            if(tagName == "INPUT" || tagName == "SELECT") {
+                $this.next().next().remove();
+                if(tagName == "INPUT") {
+                    $this.next().next().remove();
+                }
+            }
+            var inputLookup = $("<INPUT>");
+            inputLookup.addClass("lookup-value");
+            inputLookup.css({
+                "width": "20%",
+                "margin-left": "5%"
+            });
+            inputLookup.datepicker();
+            $('#' + fieldId).append(inputLookup);
+        } else if(datatype == 'e') {
+            // Users select
+        } else {
+            if(tagName == "INPUT" || tagName == "SELECT") {
+                $this.next().next().remove();
+                if(tagName == "INPUT") {
+                    $this.next().next().remove();
+                }
+            }
+            // Initial input
+            var inputLookup = $("<INPUT>");
+            inputLookup.addClass("lookup-value");
+            inputLookup.css({
+                "width": "35%",
+                "margin-left": "5%"
+            });
+            $('#' + fieldId).append(inputLookup);
         }
     });
 
     /**
-     * Add a special input related to the lookup selected
+     * Add a special input related to the lookup selected and the type
+     * of the property
      */
     $("#diagramContainer").on('change', '.select-lookup', function() {
         var $this = $(this);
         var value = $this.val();
-        if(value == "is between") {
-            // two inputs - we check if we have introduced an input field
-            if(this.nextElementSibling.tagName == "INPUT") {
-                $(this.nextElementSibling).remove();
-                if(this.nextElementSibling.tagName == "INPUT") {
-                    $(this.nextElementSibling).remove();
+        // Here we get the datatype for the special inputs for booleans,
+        // dates, etc.
+        var tagName = $this.next().prop("tagName");
+        var fieldId = $this.data("fieldid");
+        var datatype = $('#' + fieldId + ' .select-property option:selected').data("datatype");
+        var condition = datatype != 'b'
+                        && datatype != 'c'
+                        && datatype != 'w'
+                        && datatype != 'a'
+                        && datatype != 'e';
+        if(condition) {
+            if(value == "is between") {
+                // two inputs - we check if we have introduced an input field
+                if(tagName == "INPUT" || tagName == "SELECT") {
+                    $this.next().remove();
+                    if(tagName == "INPUT") {
+                        $this.next().remove();
+                    }
                 }
-            }
-            $(this).after("<input style=\"width: 10%; margin-left: 5%;\" />");
-            $(this).after("<input style=\"width: 10%; margin-left: 5%;\" />");
-        } else if((value == "has some value") || (value == "has no value")) {
-            // no inputs
-            if(this.nextElementSibling.tagName == "INPUT") {
-                $(this.nextElementSibling).remove();
-                if(this.nextElementSibling.tagName == "INPUT") {
-                    $(this.nextElementSibling).remove();
+                $this.after("<input style=\"width: 10%; margin-left: 5%;\" />");
+                $this.after("<input style=\"width: 10%; margin-left: 5%;\" />");
+            } else if((value == "has some value") || (value == "has no value")) {
+                // no inputs
+                if(tagName == "INPUT" || tagName == "SELECT") {
+                    $this.next().remove();
+                    if(tagName == "INPUT") {
+                        $this.next().remove();
+                    }
                 }
+            } else {
+                // one input - we check if we have introduced an input field
+                if(tagName == "INPUT" || tagName == "SELECT") {
+                    $this.next().remove();
+                    if(tagName == "INPUT") {
+                        $this.next().remove();
+                    }
+                }
+                $this.after("<input style=\"width: 35%; margin-left: 5%;\" />");
             }
         } else {
-            // one input - we check if we have introduced an input field
-            if(this.nextElementSibling.tagName == "INPUT") {
-                $(this.nextElementSibling).remove();
-                if(this.nextElementSibling.tagName == "INPUT") {
-                    $(this.nextElementSibling).remove();
-                }
-            }
-            $(this).after("<input style=\"width: 35%; margin-left: 5%;\" />");
+            alert("The type is boolean, choices, date or user");
         }
     });
 
@@ -762,10 +898,30 @@ diagram.relationshipOptionsSource = { endpoint: "Rectangle",
     $("#diagramContainer").on('click', '.select-rel', function() {
         var $this = $(this);
         var elementId = $('option:selected', this).data("parentid");
-
+        var source = $('option:selected', this).data("source");
+        var target = $('option:selected', this).data("target");
         // We must check if is target or source and select an endpoint or another
-        var endpoint = jsPlumb.addEndpoint(elementId, { uuid:elementId }, diagram.relationshipOptionsTarget);
+        if(source) {
+            var endpointUuid = elementId + "-source";
+            var endpointSource = jsPlumb.addEndpoint(elementId, { uuid:endpointUuid, scope: source }, diagram.relationshipOptionsSource);
+        }
+        if(target) {
+            var endpointUuid = elementId + "-target";
+            var endpointTarget = jsPlumb.addEndpoint(elementId, { uuid:endpointUuid, label: target, scope: target }, diagram.relationshipOptionsTarget);
+        }
+
         $this.attr('disabled', 'disabled');
+    });
+
+    /**
+     * Add the handler to remove the wire
+     */
+     $("#diagramContainer").on('click', '.remove-relation', function() {
+        var $this = $(this);
+        var elementId = $this.data("parentid");
+        var relationsId = $this.data("relationsid");
+        jsPlumb.deleteEndpoint(elementId + '-source');
+        $('#' + relationsId + ' select').removeAttr('disabled');
     });
 
     $(document).ready(init);

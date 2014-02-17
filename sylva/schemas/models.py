@@ -80,6 +80,7 @@ class Schema(models.Model, SchemaMixin):
                     "name": node_property.slug,
                     "primary": False,
                     "blank": False,
+                    "choices": node_property.get_choices(),
                 }
                 fields.append(field)
             for rel_type in node_type.get_all_relationships().select_related():

@@ -5,6 +5,7 @@ from zipfile import ZipFile
 from StringIO import StringIO
 
 from django.test import LiveServerTestCase
+from django.utils.unittest import skipIf
 
 from splinter import Browser
 
@@ -112,6 +113,7 @@ def create_advanced_data(test):
     # The next line must be more 'specific' when we can destroy Neo4j DBs
     test.assertNotEqual(text.find(" elements Bob's type."), -1)
 
+
 def create_advanced_data_firefox(test):
     """
     Create advanced data for the graph.
@@ -121,7 +123,7 @@ def create_advanced_data_firefox(test):
         "//a[@class='dataOption new']").first.click()
     text = test.browser.find_by_id('propertiesTitle').first.value
     test.assertEqual(text, 'Properties')
-    test.browser.find_by_name('Name').first.fill("Bob's node")
+    #test.browser.find_by_name('Name').first.fill("Bob's node")
     test.browser.find_by_value("Save Bob's type").first.click()
     text = test.browser.find_by_xpath("//div[@class='pagination']/span[@class='pagination-info']").first.value
     # The next line must be more 'specific' when we can destroy Neo4j DBs
@@ -219,7 +221,7 @@ def data_import_gexf(test):
     test.browser.find_by_xpath("//a[@class='dataOption list']").first.click()
 
 
-class ToolsTestCase(LiveServerTestCase):
+class ToolsTestCaseGexf(LiveServerTestCase):
     """
     A master test to check the behaviour of the new 'auto' fields.
     Actually only works with gephi format.
@@ -356,6 +358,27 @@ class ToolsTestCase(LiveServerTestCase):
         Graph.objects.get(name=self.firstGraphName).destroy()
         Graph.objects.get(name=self.secondGraphName).destroy()
 
+
+@skipIf(os.environ['INTERFACE'], 'We need to check the phantomjs execution')
+class ToolsTestCaseCsv(LiveServerTestCase):
+    """
+    A master test to check the behaviour of the new 'auto' fields.
+    Actually only works with gephi format.
+    """
+
+    def setUp(self):
+        self.browser = Browser('phantomjs')
+        signup(self, 'bob', 'bob@cultureplex.ca', 'bob_secret')
+        signin(self, 'bob', 'bob_secret')
+        self.firstGraphName = "bobgraph"
+        self.secondGraphName = "alicegraph"
+
+    def tearDown(self):
+        logout(self)
+        self.browser.quit()
+        #filelist = [f for f in os.listdir("sylva/tools/files/")]
+        #for f in filelist:
+        #    os.remove("sylva/tools/files/" + f)
     """
     We should fix why we get the "Sorry..." error when upload edges in
     csv files

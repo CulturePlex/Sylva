@@ -22,7 +22,8 @@ neo4jrestclient==1.7.0
 psycopg2==2.4.5
 pyblueprints==0.5.1
 pycrypto==2.6
-pydkim==0.3
+# pydkim==0.3
+git+git://github.com/ghewgill/pydkim.git
 python-dateutil==2.1
 python-rexster==0.1.1
 requests==0.14.2
