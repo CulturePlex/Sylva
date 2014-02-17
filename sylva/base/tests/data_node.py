@@ -17,7 +17,7 @@ def create_node(test, name):
         "//a[@class='dataOption new']").first.click()
     text = test.browser.find_by_id('propertiesTitle').first.value
     test.assertEqual(text, 'Properties')
-    test.browser.find_by_name('Name').first.fill(name)
+    #test.browser.find_by_name('Name').first.fill(name)
     test.browser.find_by_xpath("//span[@class='buttonLinkOption buttonLinkLeft']/input").first.click()
     text = test.browser.find_by_xpath("//div[@class='pagination']/span[@class='pagination-info']").first.value
     # The next line must be more 'specific' when we can destroy Neo4j DBs

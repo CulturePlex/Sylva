@@ -359,7 +359,7 @@ class ToolsTestCaseGexf(LiveServerTestCase):
         Graph.objects.get(name=self.secondGraphName).destroy()
 
 
-@skipIf(os.environ['INTERFACE'], 'We need to check the phantomjs execution')
+@skipIf(os.environ['INTERFACE'] == "1", 'We need to check the phantomjs execution')
 class ToolsTestCaseCsv(LiveServerTestCase):
     """
     A master test to check the behaviour of the new 'auto' fields.
