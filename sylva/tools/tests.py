@@ -221,6 +221,7 @@ def data_import_gexf(test):
     test.browser.find_by_xpath("//a[@class='dataOption list']").first.click()
 
 
+@skipIf(os.environ['INTERFACE'] == "0", 'Interface test')
 class ToolsTestCaseGexf(LiveServerTestCase):
     """
     A master test to check the behaviour of the new 'auto' fields.
@@ -359,7 +360,7 @@ class ToolsTestCaseGexf(LiveServerTestCase):
         Graph.objects.get(name=self.secondGraphName).destroy()
 
 
-@skipIf(os.environ['INTERFACE'] == "1", 'We need to check the phantomjs execution')
+@skipIf(os.environ['INTERFACE'] == "0", 'Interface test')
 class ToolsTestCaseCsv(LiveServerTestCase):
     """
     A master test to check the behaviour of the new 'auto' fields.

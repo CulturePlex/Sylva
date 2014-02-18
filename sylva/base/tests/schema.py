@@ -1,6 +1,8 @@
 import requests
+import os
 
 from django.test import LiveServerTestCase
+from django.utils.unittest import skipIf
 
 from splinter import Browser
 
@@ -8,6 +10,7 @@ from user import signup, signin, logout
 from dashboard import create_graph, create_schema, create_type
 
 
+@skipIf(os.environ['INTERFACE'] == "0", 'Interface test')
 class SchemaTestCase(LiveServerTestCase):
     """
     A set of tests for testing export schema, import schema and everything

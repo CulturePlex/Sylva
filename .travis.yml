@@ -8,10 +8,13 @@ install:
   - pip install -U -r requirements_test.txt --use-mirrors
   - pip install coveralls --use-mirrors
 env:
+ global:
   - NEO4J_VERSION="1.9.2"
+ matrix:
+  - INTERFACE="0"
   - INTERFACE="1"
 script:
-  - coverage run --source=sylva sylva/manage.py test accounts base data engines graphs schemas tools
+  - coverage run --source=sylva sylva/manage.py test accounts base data engines graphs schemas
 after_success:
   - ./neo4j/bin/neo4j stop
   - coveralls

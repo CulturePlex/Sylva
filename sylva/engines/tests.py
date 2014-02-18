@@ -6,9 +6,11 @@ when you run "manage.py test".
 
 Replace this with more appropriate tests for your application.
 """
+import os
 
 from django.conf import settings
 from django.test import TestCase
+from django.utils.unittest import skipIf
 
 from engines.gdb.utils import get_connection_string
 from engines.models import Instance
@@ -19,6 +21,7 @@ gdb_properties = settings.GRAPHDATABASES["tests"]
 connection_string = get_connection_string(gdb_properties)
 
 
+@skipIf(os.environ['INTERFACE'] == "1", 'Model test')
 class InstanceNeo4jTestSuite(TestCase):
     def setUp(self):
         self.u = User(username="Me")
@@ -79,6 +82,7 @@ class InstanceNeo4jTestSuite(TestCase):
         self.assertEqual(exists, False)
 
 
+@skipIf(os.environ['INTERFACE'] == "1", 'Model test')
 class InstanceRexsterTestSuite(TestCase):
     def setUp(self):
         self.u = User(username="Me")

@@ -1,6 +1,8 @@
 #-*- coding:utf-8 -*-
+import os
 
 from django.test import TestCase
+from django.utils.unittest import skipIf
 
 from django.contrib.auth import authenticate
 from django.test.client import Client, RequestFactory
@@ -15,6 +17,7 @@ import tools.views
 import graphs.models
 
 
+@skipIf(os.environ['INTERFACE'] == "1", 'Model test')
 class GraphTest(TestCase):
     def setUp(self):
         self.factory = RequestFactory()
@@ -236,6 +239,7 @@ class GraphTest(TestCase):
         Graph.objects.get(name=self.graphName).destroy()
 
 
+@skipIf(os.environ['INTERFACE'] == "1", 'Model test')
 class RelationshipTest(TestCase):
     """
     A set of tests for testing Relationship.

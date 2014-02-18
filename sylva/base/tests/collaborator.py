@@ -43,7 +43,7 @@ def add_permission(test, username, permission):
         test.browser.find_by_xpath("//tr/td/a[text()='" + username + "']/../../td/input[@id='" + permission + "']").first.click()
 
 
-@skipIf(os.environ['INTERFACE'] == "1", 'We need to check if everything is alright')
+@skipIf(os.environ['INTERFACE'] == "0", 'Interface test')
 class CollaboratorTestCase(LiveServerTestCase):
     """
     Improve comment. On these tests, is the developer who must keep the logic
