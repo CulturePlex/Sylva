@@ -2,10 +2,11 @@
 from collections import Sequence
 
 from django.db import transaction
-# from django.db.models import F
+from django.db.models import F
 
 from engines.gdb.backends import NodeDoesNotExist, RelationshipDoesNotExist
 from schemas.models import NodeType, RelationshipType
+from data.models import Data
 
 
 ASC = "asc"
@@ -74,10 +75,6 @@ class GraphMixin(object):
         self.schema.delete()
         self.data.delete()
         self.delete()
-
-    def update_references(self):
-        self._nodes_manager = None
-        self._relationships_manager = None
 
 
 class BaseManager(object):
@@ -199,11 +196,12 @@ class NodesManager(BaseManager):
                     nodetype = self.schema.nodetype_set.get(pk=label)
                     if not self.graph.relaxed:
                         properties = self._filter_dict(properties, nodetype)
+                    import ipdb
+                    ipdb.set_trace()
                     nodetype.total += 1
                     nodetype.save()
-                # self.data.update(total_nodes=F('total_nodes') + 1)
-                self.data.total_nodes += 1
-                self.data.save()
+                Data.objects.filter(id=self.data.id).update(
+                    total_nodes=F('total_nodes') + 1)
             node_id = self.gdb.create_node(label=label, properties=properties)
             node = Node(node_id, self.graph, initial=properties, label=label)
             return node
@@ -340,9 +338,8 @@ class RelationshipsManager(BaseManager):
                         properties = self._filter_dict(properties, reltype)
                     reltype.total += 1
                     reltype.save()
-                # self.data.update(total_relationships=F('total_relationships') + 1)
-                self.data.total_relationships += 1
-                self.data.save()
+                Data.objects.filter(id=self.data.id).update(
+                    total_relationships=F('total_relationships') + 1)
             relationship_id = self.gdb.create_relationship(source_id, target_id,
                                                            label, properties)
             relationship = Relationship(relationship_id, self.graph,
@@ -717,9 +714,10 @@ class Node(BaseElement):
         else:
             label = self.label
             with transaction.commit_on_success():
-                # self.data.update(total_nodes=F('total_nodes') - 1)
-                self.data.total_nodes -= 1
-                self.data.save()
+                Data.objects.filter(id=self.data.id).update(
+                    total_nodes=F('total_nodes') - 1)
+                # self.data.total_nodes -= 1
+                # self.data.save()
                 if self.schema:
                     nodetype = self.schema.nodetype_set.get(pk=label)
                     nodetype.total -= 1
@@ -836,9 +834,10 @@ class Relationship(BaseElement):
             self.__delitem__(key)
         else:
             with transaction.commit_on_success():
-                # self.data.update(total_relationships=F('total_relationships') - 1)
-                self.data.total_relationships -= 1
-                self.data.save()
+                Data.objects.filter(id=self.data.id).update(
+                    total_relationships=F('total_relationships') - 1)
+                # self.data.total_relationships -= 1
+                # self.data.save()
                 if self.schema:
                     schema = self.schema
                     reltype = schema.relationshiptype_set.get(pk=self.label)

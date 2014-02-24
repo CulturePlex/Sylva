@@ -245,7 +245,6 @@ class ItemForm(forms.Form):
         return cleaned_data
 
     def save(self, commit=True, as_new=False, *args, **kwargs):
-        # self.graph.update_references()
         properties = self.cleaned_data
         if (properties and any([bool(unicode(v).strip()) for v
                 in properties.values()])):
@@ -438,7 +437,6 @@ class RelationshipForm(ItemForm):
 
     def save(self, related_node=None, as_new=False, commit=True, *args,
              **kwargs):
-        # self.graph.update_references()
         related_node = related_node or self.related_node
         properties = None
         if hasattr(self, "cleaned_data"):
