@@ -6,7 +6,7 @@ env:
 before_install:
   - ./download_and_install_neo4j.sh $NEO4J_VERSION
 install:
-  - pip install -U -r requirements_test.txt --use-mirrors
+  - pip install -r requirements_test.txt --use-mirrors
 before_script:
   - ./neo4j/bin/neo4j start
 script:
