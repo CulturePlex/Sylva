@@ -179,7 +179,6 @@ clearTimeout */
 
         // Update node legend.
         sylva.Utils.updateNodeLegend(sylva.nodes[nodetypeId][nodePK].id, nodePK, 'element-info');
-
       });
 
       // Hide node info popup and show the rest of nodes and edges.
@@ -352,8 +351,6 @@ clearTimeout */
           elem.webkitRequestFullscreen();
         } else if (elem.webkitRequestFullScreen) {
           elem.webkitRequestFullScreen();
-        } else if (elem.msRequestFullscreen) {
-          elem.msRequestFullscreen();
         }
       });
 
@@ -367,8 +364,6 @@ clearTimeout */
           document.webkitExitFullscreen();
         } else if (document.webkitCancelFullScreen) {
           document.webkitCancelFullScreen();
-        } else if (document.msExitFullscreen) {
-          document.msExitFullscreen();
         }
       });
 
@@ -518,7 +513,6 @@ clearTimeout */
       $(document).on('fullscreenchange', handleFullscreen);
       $(document).on('mozfullscreenchange', handleFullscreen);
       $(document).on('webkitfullscreenchange', handleFullscreen);
-      $(document).on('MSFullscreenChange', handleFullscreen);
 
       sigInst.startForceAtlas2();
       isDrawing = true;
