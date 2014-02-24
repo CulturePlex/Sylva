@@ -85,7 +85,7 @@ clearTimeout */
             .attr("data-action", "hide")
             .attr("data-nodetype-id", nodetypeId)
             .css({
-              paddingRight: "3px",
+              marginRight: "3px",
               width: "1em",
               height: "1em",
               cursor: "pointer",
@@ -100,7 +100,8 @@ clearTimeout */
               display: "inline-block",
               width: "16px",
               height: "16px",
-              verticalAlign: "middle"
+              verticalAlign: "middle",
+              cursor: "pointer"
             }))
           .append($('<span>')
             .css({
