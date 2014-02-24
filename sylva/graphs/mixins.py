@@ -2,6 +2,7 @@
 from collections import Sequence
 
 from django.db import transaction
+# from django.db.models import F
 
 from engines.gdb.backends import NodeDoesNotExist, RelationshipDoesNotExist
 from schemas.models import NodeType, RelationshipType
@@ -73,6 +74,10 @@ class GraphMixin(object):
         self.schema.delete()
         self.data.delete()
         self.delete()
+
+    def update_references(self):
+        self._nodes_manager = None
+        self._relationships_manager = None
 
 
 class BaseManager(object):
@@ -196,6 +201,7 @@ class NodesManager(BaseManager):
                         properties = self._filter_dict(properties, nodetype)
                     nodetype.total += 1
                     nodetype.save()
+                # self.data.update(total_nodes=F('total_nodes') + 1)
                 self.data.total_nodes += 1
                 self.data.save()
             node_id = self.gdb.create_node(label=label, properties=properties)
@@ -334,6 +340,7 @@ class RelationshipsManager(BaseManager):
                         properties = self._filter_dict(properties, reltype)
                     reltype.total += 1
                     reltype.save()
+                # self.data.update(total_relationships=F('total_relationships') + 1)
                 self.data.total_relationships += 1
                 self.data.save()
             relationship_id = self.gdb.create_relationship(source_id, target_id,
@@ -710,6 +717,7 @@ class Node(BaseElement):
         else:
             label = self.label
             with transaction.commit_on_success():
+                # self.data.update(total_nodes=F('total_nodes') - 1)
                 self.data.total_nodes -= 1
                 self.data.save()
                 if self.schema:
@@ -828,6 +836,7 @@ class Relationship(BaseElement):
             self.__delitem__(key)
         else:
             with transaction.commit_on_success():
+                # self.data.update(total_relationships=F('total_relationships') - 1)
                 self.data.total_relationships -= 1
                 self.data.save()
                 if self.schema:
