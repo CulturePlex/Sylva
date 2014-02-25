@@ -1,4 +1,8 @@
 /* Adapted from https://github.com/versae/qbe */
+
+// Django i18n.
+var gettext = window.gettext || String;
+
 if (!diagram) {
     var diagram = {};
 }
@@ -8,30 +12,31 @@ diagram.CurrentRelations = {};
 diagram.Counter = 0;
 diagram.fieldCounter = 0;
 diagram.nodetypesCounter = [];
+diagram.colorsForLabels = [];
 
-diagram.lookupsAllValues = ["equals",
-                        "is less than or equal to",
-                        "is less than",
-                        "is greater than",
-                        "is greater than or equal to",
-                        "is between",
-                        "does not equal",
-                        "has some value",
-                        "has no value"];
+diagram.lookupsAllValues = [gettext("equals"),
+                        gettext("is less than or equal to"),
+                        gettext("is less than"),
+                        gettext("is greater than"),
+                        gettext("is greater than or equal to"),
+                        gettext("is between"),
+                        gettext("does not equal"),
+                        gettext("has some value"),
+                        gettext("has no value")];
 
-diagram.lookupsSpecificValues = ["equals",
-                        "does not equal",
-                        "has some value",
-                        "has no value"];
+diagram.lookupsSpecificValues = [gettext("equals"),
+                        gettext("does not equal"),
+                        gettext("has some value"),
+                        gettext("has no value")];
 
-diagram.lookupsTextValues = ["equals",
-                        "does not equal",
-                        "has some value",
-                        "has no value",
-                        "contains",
-                        "doesn't contain",
-                        "starts with",
-                        "ends with"];
+diagram.lookupsTextValues = [gettext("equals"),
+                        gettext("does not equal"),
+                        gettext("has some value"),
+                        gettext("has no value"),
+                        gettext("contains"),
+                        gettext("doesn't contain"),
+                        gettext("starts with"),
+                        gettext("ends with")];
 
 diagram.lookupsValuesType = {   's': diagram.lookupsTextValues,
                                 'b': diagram.lookupsSpecificValues,
@@ -48,42 +53,6 @@ diagram.lookupsValuesType = {   's': diagram.lookupsTextValues,
                                 'o': diagram.lookupsAllValues,
                                 'e': diagram.lookupsSpecificValues
                             };
-
-diagram.relationshipOptionsTarget = { endpoint: "Dot",
-                                anchor: "TopCenter",
-                                isTarget: true,
-                                connectorStyle: { strokeStyle: '#AEAA78',
-                                                  lineWidth: 2},
-                                connectorOverlays:[
-                                    [ "PlainArrow", { width:15, length:15, location:1, id:"arrow" } ]
-                                ],
-                                paintStyle: {
-                                    strokeStyle: '#AEAA78',
-                                    lineWidth: 1
-                                },
-                                backgroundPaintStyle: {
-                                    strokeStyle: '#AEAA78',
-                                    lineWidth: 1
-                                }
-                              };
-
-diagram.relationshipOptionsSource = { endpoint: "Dot",
-                                anchor: "BottomCenter",
-                                isSource: true,
-                                connectorStyle: { strokeStyle: '#AEAA78',
-                                                  lineWidth: 2},
-                                connectorOverlays:[
-                                    [ "PlainArrow", { width:15, length:15, location:1, id:"arrow" } ]
-                                ],
-                                paintStyle: {
-                                    strokeStyle: '#AEAA78',
-                                    lineWidth: 1
-                                },
-                                backgroundPaintStyle: {
-                                    strokeStyle: '#AEAA78',
-                                    lineWidth: 1
-                                }
-                              };
 
 (function($) {
     /**
@@ -182,7 +151,7 @@ diagram.relationshipOptionsSource = { endpoint: "Dot",
          * - typeName
          */
         diagram.addBox = function (graphName, modelName, typeName) {
-            var model, root, idBox, divBox, divAddBox, divContainerBoxes, divField, divFields, divManies, divAllowedRelationships, fieldName, field, primaries, countFields, idFields, selectAllRel, optionAllRel, idAllRels, addField, addFieldIcon, idContainerBoxes, removeRelation;
+            var model, root, idBox, divBox, divAddBox, divContainerBoxes, divField, divFields, divManies, divAllowedRelationships, fieldName, field, primaries, countFields, idFields, boxAllRel, optionAllRel, idAllRels, addField, addFieldIcon, idContainerBoxes, removeRelation;
             primaries = [];
             model = diagram.Models[graphName][modelName];
             root = $("#"+ diagram.Container);
@@ -203,9 +172,9 @@ diagram.relationshipOptionsSource = { endpoint: "Dot",
             divTitle = diagram.addTitleDiv(graphName, model, typeName, modelName, idContainerBoxes, idBox);
             // Allowed relationships
             // Select for the allowed relationships
-            selectAllRel = $("<SELECT>");
-            selectAllRel.addClass("select-rel");
-            selectAllRel.css({
+            boxAllRel = $("<DIV>");
+            boxAllRel.addClass("select-rel");
+            boxAllRel.css({
                 "width": "46%",
                 "padding": "0",
                 "margin-left": "3%",
@@ -216,34 +185,52 @@ diagram.relationshipOptionsSource = { endpoint: "Dot",
             for(var i = 0; i < model.relations.length; i++) {
                 var relation = model.relations[i];
                 var label = relation.label;
-                optionAllRel = $("<OPTION>");
+                var relationId = "div-option-rel-" + diagram.Counter + "-" + i;
+
+                divAllRel = $("<DIV>");
+                divAllRel.addClass("div-option-rel");
+                divAllRel.attr("id", relationId);
+
+                optionAllRel = $("<LI>");
                 optionAllRel.addClass("option-rel");
-                optionAllRel.attr('value', label);
-                optionAllRel.attr('data-parentid', idBox);
-                optionAllRel.attr('selected', 'selected');
-                // We check if is a source or a target
-                if(relation.source) {
-                    optionAllRel.attr('data-source', relation.source);
-                }
-                if(relation.target) {
-                    optionAllRel.attr('data-target', relation.target);
-                }
                 optionAllRel.html(label);
-                selectAllRel.append(optionAllRel);
+
+                // Link to add the relations
+                addRelation = $("<A>");
+                addRelation.addClass("add-relation");
+                addRelation.css({});
+                addRelation.attr('data-parentid', relationId);
+                addRelation.html(gettext("add"));
+
+                if(relation.source) {
+                    addRelation.attr("data-source", relation.source);
+                    if(!diagram.colorsForLabels[relation.source])
+                        diagram.colorsForLabels[relation.source] = diagram.randomColor();
+                } if(relation.target) {
+                    addRelation.attr("data-target", relation.target);
+                    if(!diagram.colorsForLabels[relation.target])
+                        diagram.colorsForLabels[relation.target] = diagram.randomColor();
+                }
+
+                // Link to remove the relations
+                removeRelation = $("<A>");
+                removeRelation.addClass("remove-relation");
+                removeRelation.css({
+                    "margin-left": "10%"
+                });
+                removeRelation.attr('data-parentid', relationId);
+                removeRelation.html(gettext("remove"));
+
+                divAllRel.append(optionAllRel);
+                divAllRel.append(addRelation);
+                divAllRel.append(removeRelation);
+
+                boxAllRel.append(divAllRel);
             }
-            // Link to remove the relations
-            removeRelation = $("<A>");
-            removeRelation.addClass("remove-relation");
-            removeRelation.css({
-                "margin-left": "10%"
-            });
-            removeRelation.attr('data-parentid', idBox);
-            removeRelation.attr('data-relationsid', idAllRels);
-            removeRelation.html('remove link');
+
             divAllowedRelationships = $("<DIV>");
             divAllowedRelationships.attr("id", idAllRels);
-            divAllowedRelationships.append(selectAllRel);
-            divAllowedRelationships.append(removeRelation);
+            divAllowedRelationships.append(boxAllRel);
             // We append the divs
             divFields = $("<DIV>");
             divFields.attr("id", idFields);
@@ -317,6 +304,7 @@ diagram.relationshipOptionsSource = { endpoint: "Dot",
                         jsPlumb.repaint(["diagramBox_"+ diagram.Counter +"_"+ modelName]);
                     });
                     diagram.saveBoxPositions();
+                    jsPlumb.repaintEverything();
                 }
             });
         };
@@ -443,9 +431,9 @@ diagram.relationshipOptionsSource = { endpoint: "Dot",
          * Set the name fo the model box getting shorter and adding ellipsis
          */
         diagram.setName = function (div, name) {
-            var html = "<span style='float: left; margin-left: 3%;'>" + name + " as " + "</span>";
+            var html = "<span style='float: left; margin-left: 3%;'>" + name + " " + gettext("as") + " </span>";
             if (name.length > 5) {
-                html = "<span style='float: left; margin-left: 3%;'>" + name.substr(0, 5) + "…" + " as " + "</span>";
+                html = "<span style='float: left; margin-left: 3%;'>" + name.substr(0, 5) + "…" + " " + gettext("as") + " </span>";
             }
             div.append(html);
             return div;
@@ -683,6 +671,70 @@ diagram.relationshipOptionsSource = { endpoint: "Dot",
         diagram.lookupOptions = function(datatype) {
             return diagram.lookupsValuesType[datatype];
         };
+
+        /**
+         * Returns a random color
+         *
+         */
+        diagram.randomColor = function() {
+            var letters = '0123456789ABCDEF'.split('');
+            var color = '#';
+            for (var i = 0; i < 6; i++ ) {
+                color += letters[Math.round(Math.random() * 15)];
+            }
+            return color;
+        };
+
+        /**
+         * Returns the options of a relationship
+         *
+         */
+         diagram.getRelationshipOptions = function(type, label, color) {
+            var relationshipOptions = null;
+
+            if(type == 'source') {
+                relationshipOptions = { endpoint: "Dot",
+                                anchor: "RightMiddle",
+                                isSource: true,
+                                connectorStyle: { strokeStyle: '#AEAA78',
+                                                  lineWidth: 2},
+                                connectorOverlays:[
+                                    [ "PlainArrow", { width:10, length:10, location:1, id:"arrow"}],
+                                    [ "Label", {location:0.5,
+                                                label:label,
+                                                id:"label",
+                                                cssClass:"connection"}]
+                                ],
+                                paintStyle: {
+                                    strokeStyle: color,
+                                    lineWidth: 3
+                                },
+                                backgroundPaintStyle: {
+                                    strokeStyle: color,
+                                    lineWidth: 3
+                                }
+                              };
+            } else if(type == 'target') {
+                relationshipOptions = { endpoint: "Dot",
+                                anchor: "LeftMiddle",
+                                isTarget: true,
+                                connectorStyle: { strokeStyle: '#AEAA78',
+                                                  lineWidth: 2},
+                                connectorOverlays:[
+                                    [ "PlainArrow", { width:10, length:10, location:1, id:"arrow"}]
+                                ],
+                                paintStyle: {
+                                    strokeStyle: color,
+                                    lineWidth: 3
+                                },
+                                backgroundPaintStyle: {
+                                    strokeStyle: color,
+                                    lineWidth: 3
+                                }
+                              };
+            }
+            return relationshipOptions;
+         }
     };
 
     /**
@@ -765,7 +817,8 @@ diagram.relationshipOptionsSource = { endpoint: "Dot",
             }
             var select = $("<SELECT>");
             select.css({
-                "width": "20%",
+                "width": "35%",
+                "display": "inline",
                 "margin-left": "5%"
             });
             select.append('<option value="true">True</option>');
@@ -824,13 +877,13 @@ diagram.relationshipOptionsSource = { endpoint: "Dot",
         } else if(datatype == 'e') {
             // Users select
         } else {
+            // Initial input
             if(tagName == "INPUT" || tagName == "SELECT") {
                 $this.next().next().remove();
                 if(tagName == "INPUT") {
                     $this.next().next().remove();
                 }
             }
-            // Initial input
             var inputLookup = $("<INPUT>");
             inputLookup.addClass("lookup-value");
             inputLookup.css({
@@ -888,29 +941,30 @@ diagram.relationshipOptionsSource = { endpoint: "Dot",
                 $this.after("<input style=\"width: 35%; margin-left: 5%;\" />");
             }
         } else {
-            alert("The type is boolean, choices, date or user");
+            // In this branch, the type would be boolean, choices, date or user
         }
     });
 
     /**
      * Add the handler for drag and drop relationships
      */
-    $("#diagramContainer").on('click', '.select-rel', function() {
+    $("#diagramContainer").on('click', '.add-relation', function() {
         var $this = $(this);
-        var elementId = $('option:selected', this).data("parentid");
-        var source = $('option:selected', this).data("source");
-        var target = $('option:selected', this).data("target");
+        var elementId = $this.data("parentid");
+        var source = $this.data("source");
+        var target = $this.data("target");
         // We must check if is target or source and select an endpoint or another
         if(source) {
             var endpointUuid = elementId + "-source";
-            var endpointSource = jsPlumb.addEndpoint(elementId, { uuid:endpointUuid, scope: source }, diagram.relationshipOptionsSource);
+            var endpointSource = jsPlumb.addEndpoint(elementId, { uuid:endpointUuid, connector: "Flowchart", scope: source}, diagram.getRelationshipOptions('source', source, diagram.colorsForLabels[source]));
         }
         if(target) {
             var endpointUuid = elementId + "-target";
-            var endpointTarget = jsPlumb.addEndpoint(elementId, { uuid:endpointUuid, label: target, scope: target }, diagram.relationshipOptionsTarget);
+            if(!jsPlumb.getEndpoint(endpointUuid)) {
+                var endpointTarget = jsPlumb.addEndpoint(elementId, { uuid:endpointUuid, connector: "Flowchart", scope: target },diagram.getRelationshipOptions('target', target, diagram.colorsForLabels[target]));
+            }
         }
-
-        $this.attr('disabled', 'disabled');
+        jsPlumb.repaintEverything();
     });
 
     /**
@@ -919,9 +973,8 @@ diagram.relationshipOptionsSource = { endpoint: "Dot",
      $("#diagramContainer").on('click', '.remove-relation', function() {
         var $this = $(this);
         var elementId = $this.data("parentid");
-        var relationsId = $this.data("relationsid");
         jsPlumb.deleteEndpoint(elementId + '-source');
-        $('#' + relationsId + ' select').removeAttr('disabled');
+        jsPlumb.repaintEverything();
     });
 
     $(document).ready(init);
