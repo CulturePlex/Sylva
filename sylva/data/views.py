@@ -190,7 +190,8 @@ def nodes_create(request, graph_slug, node_type_id):
         data = None
         mediafile_formset = MediaFileFormSet(prefix="__files")
         medialink_formset = MediaLinkFormSet(prefix="__links")
-    node_form = NodeForm(itemtype=nodetype, data=data, user=request.user.username)
+    node_form = NodeForm(graph=graph, itemtype=nodetype, data=data,
+                         user=request.user.username)
     outgoing_formsets = SortedDict()
     prefixes = []
     for relationship in nodetype.outgoing_relationships.all():
@@ -210,7 +211,8 @@ def nodes_create(request, graph_slug, node_type_id):
         prefixes.append({"key": formset_prefix,
                          "value": u"→ %s (%s)" % (relationship.name,
                                                     relationship.target.name)})
-        outgoing_formset = RelationshipFormSet(itemtype=relationship,
+        outgoing_formset = RelationshipFormSet(graph=graph,
+                                               itemtype=relationship,
                                                instance=nodetype,
                                                direction=TARGET,
                                                prefix=formset_prefix,
@@ -235,7 +237,8 @@ def nodes_create(request, graph_slug, node_type_id):
         prefixes.append({"key": formset_prefix,
                          "value": u"← %s (%s)" % (relationship.name,
                                                     relationship.source.name)})
-        incoming_formset = RelationshipFormSet(itemtype=relationship,
+        incoming_formset = RelationshipFormSet(graph=graph,
+                                               itemtype=relationship,
                                                instance=nodetype,
                                                direction=SOURCE,
                                                prefix=formset_prefix,
@@ -387,7 +390,8 @@ def nodes_edit(request, graph_slug, node_id):
                                              data=data, prefix="__links")
     node_initial = node.properties.copy()
     node_initial.update({ITEM_FIELD_NAME: node.id})
-    node_form = NodeForm(itemtype=nodetype, initial=node_initial, data=data, user=request.user.username)
+    node_form = NodeForm(graph=graph, itemtype=nodetype, initial=node_initial,
+                         data=data, user=request.user.username)
     # Outgoing relationships
 #    initial = []
 #    for relationship in node.relationships.all():
@@ -431,7 +435,8 @@ def nodes_edit(request, graph_slug, node_id):
         prefixes.append({"key": formset_prefix,
                          "value": u"→ %s (%s)" % (relationship.name,
                                                     relationship.target.name)})
-        outgoing_formset = RelationshipFormSet(itemtype=relationship,
+        outgoing_formset = RelationshipFormSet(graph=graph,
+                                               itemtype=relationship,
                                                instance=nodetype,
                                                related_node=node,
                                                direction=TARGET,
@@ -482,7 +487,8 @@ def nodes_edit(request, graph_slug, node_id):
         prefixes.append({"key": formset_prefix,
                          "value": u"← %s (%s)" % (relationship.name,
                                                     relationship.source.name)})
-        incoming_formset = RelationshipFormSet(itemtype=relationship,
+        incoming_formset = RelationshipFormSet(graph=graph,
+                                               itemtype=relationship,
                                                instance=nodetype,
                                                related_node=node,
                                                direction=SOURCE,

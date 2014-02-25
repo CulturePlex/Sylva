@@ -44,15 +44,15 @@ class ItemForm(forms.Form):
             "all": ("css/jqueryui.1.8.18.css", )
         }
 
-    def __init__(self, itemtype, instance=None, *args, **kwargs):
+    def __init__(self, graph, itemtype, instance=None, *args, **kwargs):
         self.username = kwargs.pop('user')
+        self.graph = graph
         # Only for relationships
         self.related_node = kwargs.pop("related_node", None)
         self.direction = kwargs.pop("direction", SOURCE)
         super(ItemForm, self).__init__(label_suffix="", *args, **kwargs)
-        self.populate_fields(itemtype, instance=instance,
+        self.populate_fields(graph, itemtype, instance=instance,
                              initial=kwargs.get("initial", None))
-        self.graph = itemtype.schema.graph
         self.item_id = None
         self.delete = None
         self.instance = instance
@@ -61,10 +61,10 @@ class ItemForm(forms.Form):
                                     in itemtype.properties.all().values("key")
                                     if itemtype.id != prop["key"]]
 
-    def populate_fields(self, itemtype, instance=None, initial=None):
-        self.populate_node_properties(itemtype, initial=initial)
+    def populate_fields(self, graph, itemtype, instance=None, initial=None):
+        self.populate_node_properties(graph, itemtype, initial=initial)
 
-    def populate_node_properties(self, itemtype, initial=None):
+    def populate_node_properties(self, graph, itemtype, initial=None):
         # Node properties
         for item_property in itemtype.properties.all().order_by("order"):
             datatype_dict = item_property.get_datatype_dict()
@@ -159,12 +159,12 @@ class ItemForm(forms.Form):
                     field = forms.CharField(**field_attrs)
                 else:
                     collaborators = [(u'', NULL_OPTION)]
-                    owner = itemtype.schema.graph.owner.username
+                    owner = graph.owner.username
                     collaborators.append((owner, owner))
                     collaborators.extend(
                         [(collaborator.username, collaborator.username)
                             for collaborator
-                            in itemtype.schema.graph.get_collaborators()])
+                            in graph.get_collaborators()])
                     collaborators.sort()
                     field_attrs["choices"] = collaborators
                     field_attrs["initial"] = slugify(field_attrs["initial"]
@@ -312,12 +312,12 @@ class NodeForm(ItemForm):
 
 class RelationshipForm(ItemForm):
 
-    def populate_fields(self, itemtype, instance=None, initial=None):
-        self.populate_relationship_properties(itemtype, instance=instance,
-                                              initial=initial)
-        self.populate_node_properties(itemtype, initial=initial)
+    def populate_fields(self, graph, itemtype, instance=None, initial=None):
+        self.populate_relationship_properties(
+            graph, itemtype, instance=instance, initial=initial)
+        self.populate_node_properties(graph, itemtype, initial=initial)
 
-    def populate_relationship_properties(self, itemtype, instance=None,
+    def populate_relationship_properties(self, graph, itemtype, instance=None,
                                          initial=None):
         # Relationship properties
         if isinstance(itemtype, RelationshipType):
@@ -366,7 +366,7 @@ class RelationshipForm(ItemForm):
                 data_name = "-".join([self.prefix, str(itemtype.id)])
                 node = None
                 if initial and itemtype.id in initial:  # Saved data
-                    node = itemtype.schema.graph.nodes.get(initial.get(
+                    node = graph.nodes.get(initial.get(
                         itemtype.id))
                 elif data_name in self.data:  # New data from the form
                     '''
@@ -378,7 +378,7 @@ class RelationshipForm(ItemForm):
                     node_id = self.data[data_name]
                     if node_id.isdecimal():
                         node_id = int(node_id)
-                        node = itemtype.schema.graph.nodes.get(node_id)
+                        node = graph.nodes.get(node_id)
                 if node is not None:
                     widget_class = u"node_autocomplete %s" % node.display
                 else:
@@ -492,8 +492,9 @@ def relationship_formset_factory(relationship, *args, **kwargs):
 
 class TypeBaseFormSet(BaseFormSet):
 
-    def __init__(self, itemtype, instance=None, related_node=None,
+    def __init__(self, graph, itemtype, instance=None, related_node=None,
                  direction=SOURCE, *args, **kwargs):
+        self.graph = graph
         self.itemtype = itemtype
         self.instance = instance
         self.username = kwargs.pop('user')
@@ -521,6 +522,7 @@ class TypeBaseFormSet(BaseFormSet):
         defaults.update(kwargs)
         # This is the only line distinct to original implementation from django
         form = self.form(
+            self.graph,
             self.itemtype,
             instance=self.instance,
             related_node=self.related_node,
