@@ -119,12 +119,14 @@ class DashboardTestCase(LiveServerTestCase):
             }
             var instance = sigma.instances[instanceId];
             var nodeId = '0';
-            for (key in sylva.nodes) {
+            for (key in sylva.nodes['1']) {
                 nodeId = key;
                 break;
             }
             sigma.test_node_id = instance.getNodes(nodeId).id;
             '''
+        import ipdb
+        ipdb.set_trace()
         self.browser.execute_script(js_code)
         text = self.browser.evaluate_script('sigma.test_node_id')
         Graph.objects.get(name="Bob's graph").destroy()

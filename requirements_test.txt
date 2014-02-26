@@ -16,9 +16,10 @@ django-storages==1.1.5
 django-su==0.2
 django-tinymce==1.5.1b4
 django-userena==1.1.2
-django-zebra==0.4.3
+git+git://github.com/Yaco-Sistemas/django-zebra.git
 docopt==0.6.1
 easy-thumbnails==1.1
+gunicorn==18.0
 httplib2==0.7.7
 ipdb==0.7
 ipython==0.13.1
@@ -27,7 +28,7 @@ neo4jrestclient==1.7.0
 psycopg2==2.4.5
 pyblueprints==0.5.1
 pycrypto==2.6
-pydkim==0.3
+git+git://github.com/ghewgill/pydkim.git
 python-dateutil==2.1
 python-rexster==0.1.1
 requests==2.0.1

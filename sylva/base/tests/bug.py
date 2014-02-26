@@ -218,8 +218,8 @@ class BugTestCase(LiveServerTestCase):
         self.browser.find_by_xpath("//a[@class='dataOption new']")[0].click()
         self.browser.find_by_name('Name').first.fill("First3")
         # Adding more "FirstToSecond" relationship forms
-        self.browser.find_by_xpath("//a[@class='addButton inFormsets']")[0].click()
-        self.browser.find_by_xpath("//a[@class='addButton inFormsets']")[0].click()
+        self.browser.find_by_xpath("//a[@class='addButton inFormsets']")[1].click()
+        self.browser.find_by_xpath("//a[@class='addButton inFormsets']")[1].click()
         # Adding the relationships
         self.browser.find_by_xpath("//li[@class='token-input-input-token']/input")[0].fill('First1')
         self.browser.is_element_present_by_id("id_user_wait", 5)
