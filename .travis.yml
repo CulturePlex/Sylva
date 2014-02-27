@@ -10,9 +10,8 @@ install:
 before_script:
   - ./neo4j/bin/neo4j start
 script:
-  - coverage run --source=sylva sylva/manage.py test accounts base data engines graphs schemas --verbosity 2
+  - coverage run --source=sylva sylva/manage.py test accounts base data engines graphs schemas
 after_success:
   - coveralls
 after_script:
   - ./neo4j/bin/neo4j stop
-

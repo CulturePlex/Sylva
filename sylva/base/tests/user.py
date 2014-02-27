@@ -31,7 +31,7 @@ class UserTestCase(LiveServerTestCase):
     """
 
     def setUp(self):
-        self.browser = Browser('phantomjs')
+        self.browser = Browser('phantomjs', {'connection': 'keep-alive'})
 
     def tearDown(self):
         self.browser.quit()

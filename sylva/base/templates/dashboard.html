@@ -55,7 +55,9 @@
 {% endif %}
 
   </div>
+
   <div class="content-divider"></div>
+
   <div class="content3-block">
     <h2 id="collaborationsTitle" class="collect">{% trans "Collaborations" %}</h2>
 
@@ -66,21 +68,20 @@
         {% trans "There're no graphs in collaboration yet." %}
     {% endfor %}
     </div>
-
   </div>
 
+  <div class="content-divider"></div>
+  <div class="content3-block">
+    <h2 class="query">{% trans "Statistics" %}</h4>
+    {% if graphs or collaborations %}
+    {% trans "Relationships (Y axe), Nodes (X axe), Storage (bubble size)." %}
+    <div id="dashboardStats" style="width: 375px; height: 500px;"></div>
+    {% else %}
+    {% trans "There're no statistics yet." %}
+    {% endif %}
+  <!-- end content blocks -->
+  </div>
 
-          <div class="content-divider"></div>
-          <div class="content3-block">
-            <h2 class="query">{% trans "Statistics" %}</h4>
-            {% if graphs or collaborations %}
-            {% trans "Relationships (Y axe), Nodes (X axe), Storage (bubble size)." %}
-            <div id="dashboardStats" style="width: 375px; height: 500px;"></div>
-            {% else %}
-            {% trans "There're no statistics yet." %}
-            {% endif %}
-          <!-- end content blocks -->
-          </div>
 </div>
 
 <!-- Features Tour -->

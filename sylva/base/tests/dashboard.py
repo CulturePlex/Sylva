@@ -11,7 +11,6 @@ def create_graph(test):
     text = test.browser.find_by_xpath(
         "//header[@class='global']/h2").first.value
     test.assertNotEqual(text.find('Create New Graph'), -1)
-    test.assertEqual(text, 'Create New Graph')
     test.browser.find_by_name('name').first.fill("Bob's graph")
     test.browser.find_by_xpath(
         "//form[@name='graphs_create']/p/textarea[@name='description']").first.fill('The loved graph')
@@ -81,7 +80,7 @@ class DashboardTestCase(LiveServerTestCase):
     """
 
     def setUp(self):
-        self.browser = Browser('phantomjs')
+        self.browser = Browser('phantomjs', {'connection': 'keep-alive'})
         signup(self, 'bob', 'bob@cultureplex.ca', 'bob_secret')
         signin(self, 'bob', 'bob_secret')
 
