@@ -80,7 +80,7 @@ class DashboardTestCase(LiveServerTestCase):
     """
 
     def setUp(self):
-        self.browser = Browser('phantomjs', {'connection': 'keep-alive'})
+        self.browser = Browser('phantomjs', {'keepAlive': True})
         signup(self, 'bob', 'bob@cultureplex.ca', 'bob_secret')
         signin(self, 'bob', 'bob_secret')
 

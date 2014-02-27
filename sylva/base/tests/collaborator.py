@@ -55,7 +55,7 @@ class CollaboratorTestCase(LiveServerTestCase):
     The name of the tests self-explain the behaviour of them.
     """
     def setUp(self):
-        self.browser = Browser('phantomjs', {'connection': 'keep-alive'})
+        self.browser = Browser('phantomjs', {'keepAlive': True})
 
     def tearDown(self):
         logout(self)
