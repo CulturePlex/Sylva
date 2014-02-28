@@ -8,8 +8,8 @@
       <div ng-show="queries">
         <ul>
           <li ng-repeat="query in queries">
-            <div draggable id="{$ query.name $}">
-            <h2>{$ query.name $}</h2>
+            <div draggable id="{{ query.name }}">
+            <h2>{{ query.name }}</h2>
           </li>
         </ul>
       </div><!--queries container-->
@@ -96,7 +96,7 @@
         <div>
           <div droppable sy-watch-bins class="bin" id="bin1" drop="handleDrop" bin="bin">
               <div ng-if="report.queries.bin1 != undefined">
-                <h2>{$ report.queries.bin1 $}</h2>
+                <h2>{{ report.queries.bin1 }}</h2>
                 <a href="" ng-click="removeQuery('bin1')">remove</a>
               </div>
           </div>

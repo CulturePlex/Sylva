@@ -70,6 +70,7 @@ controllers.controller('NewReportCtrl', [
             start_time: '',
             start_date: '',
             description: '',
+            // move this to directive
             nameHtml: '<h2>New Report</h2>',
             queries: {}
         };
