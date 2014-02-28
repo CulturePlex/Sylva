@@ -13,7 +13,7 @@ class BugTestCase(LiveServerTestCase):
     """
 
     def setUp(self):
-        self.browser = Browser('phantomjs', {'keepAlive': True})
+        self.browser = Browser('phantomjs')
         signup(self, 'bob', 'bob@cultureplex.ca', 'bob_secret')
         signin(self, 'bob', 'bob_secret')
 

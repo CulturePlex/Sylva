@@ -16,7 +16,10 @@ def signin(test, username, password):
     test.browser.visit(test.live_server_url + '/accounts/signin/')
     test.browser.find_by_name('identification').fill(username)
     test.browser.find_by_name('password').fill(password)
-    test.browser.find_by_value('Signin').first.click()
+    print "\n########## @@@@@@@@@@ ########## Enter: signin 1"
+    test.browser.find_by_xpath(
+        "//div[@id='body']/div/form/input").first.click()
+    print "########## @@@@@@@@@@ ########## Exit: signin 1"
 
 
 def logout(test):
@@ -31,7 +34,7 @@ class UserTestCase(LiveServerTestCase):
     """
 
     def setUp(self):
-        self.browser = Browser('phantomjs', {'keepAlive': True})
+        self.browser = Browser('phantomjs')
 
     def tearDown(self):
         self.browser.quit()
@@ -102,7 +105,10 @@ class UserTestCase(LiveServerTestCase):
         self.browser.visit(self.live_server_url + '/accounts/signin/')
         self.browser.find_by_name('identification').fill('')
         self.browser.find_by_name('password').fill('bob_secret')
-        self.browser.find_by_value('Signin').first.click()
+        print "\n########## @@@@@@@@@@ ########## Enter: signin 2"
+        self.browser.find_by_xpath(
+            "//div[@id='body']/div/form/input").first.click()
+        print "########## @@@@@@@@@@ ########## Exit: signin 2"
         text = self.browser.find_by_xpath("//ul[@class='errorlist']/li").first.text
         self.assertEqual(text, 'Either supply us with your email or username.')
 
@@ -111,7 +117,10 @@ class UserTestCase(LiveServerTestCase):
         self.browser.visit(self.live_server_url + '/accounts/signin/')
         self.browser.find_by_name('identification').fill('alice')
         self.browser.find_by_name('password').fill('bob_secret')
-        self.browser.find_by_value('Signin').first.click()
+        print "\n########## @@@@@@@@@@ ########## Enter: signin 3"
+        self.browser.find_by_xpath(
+            "//div[@id='body']/div/form/input").first.click()
+        print "########## @@@@@@@@@@ ########## Exit: signin 3"
         text = self.browser.find_by_xpath("//ul[@class='errorlist']/li").first.text
         self.assertEqual(text, 'Please enter a correct username or email and password. Note that both fields are case-sensitive.')
 
@@ -120,7 +129,10 @@ class UserTestCase(LiveServerTestCase):
         self.browser.visit(self.live_server_url + '/accounts/signin/')
         self.browser.find_by_name('identification').fill('bob')
         self.browser.find_by_name('password').fill('')
-        self.browser.find_by_value('Signin').first.click()
+        print "\n########## @@@@@@@@@@ ########## Enter: signin 4"
+        self.browser.find_by_xpath(
+            "//div[@id='body']/div/form/input").first.click()
+        print "########## @@@@@@@@@@ ########## Exit: signin 4"
         text = self.browser.find_by_xpath("//ul[@class='errorlist']/li").first.text
         self.assertEqual(text, 'This field is required.')
 
@@ -129,7 +141,10 @@ class UserTestCase(LiveServerTestCase):
         self.browser.visit(self.live_server_url + '/accounts/signin/')
         self.browser.find_by_name('identification').fill('bob')
         self.browser.find_by_name('password').fill('alice_secret')
-        self.browser.find_by_value('Signin').first.click()
+        print "\n########## @@@@@@@@@@ ########## Enter: signin 5"
+        self.browser.find_by_xpath(
+            "//div[@id='body']/div/form/input").first.click()
+        print "########## @@@@@@@@@@ ########## Exit: signin 5"
         text = self.browser.find_by_xpath("//ul[@class='errorlist']/li").first.text
         self.assertEqual(text, 'Please enter a correct username or email and password. Note that both fields are case-sensitive.')
 

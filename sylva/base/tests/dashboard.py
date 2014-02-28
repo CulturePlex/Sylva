@@ -30,8 +30,12 @@ def create_schema(test):
     test.browser.find_link_by_href(
         '/graphs/bobs-graph/').first.click()
     test.assertEqual(test.browser.title, "SylvaDB - Bob's graph")
-    test.browser.find_link_by_href(
-        '/schemas/bobs-graph/').first.click()
+    print "\n########## @@@@@@@@@@ ########## Enter: create_schema"
+    # test.browser.find_link_by_href(
+    #    '/schemas/bobs-graph/').first.click()
+    test.browser.find_by_xpath(
+        "//header/nav/ul/li/a/span[text()='Schema']/..").first.click()
+    print "########## @@@@@@@@@@ ########## Exit: create_schema"
     text = test.browser.find_by_xpath(
         "//div[@class='body-inside']/p").first.value
     test.assertEqual(text, 'There are no types defined yet.')
@@ -80,7 +84,7 @@ class DashboardTestCase(LiveServerTestCase):
     """
 
     def setUp(self):
-        self.browser = Browser('phantomjs', {'keepAlive': True})
+        self.browser = Browser('phantomjs')
         signup(self, 'bob', 'bob@cultureplex.ca', 'bob_secret')
         signin(self, 'bob', 'bob_secret')
 
