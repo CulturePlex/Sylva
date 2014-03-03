@@ -40,11 +40,7 @@ class SchemaTestCase(LiveServerTestCase):
 
     def test_import_schema(self):
         create_graph(self)
-        self.assertEqual(self.browser.title, 'SylvaDB - Dashboard')
-        self.browser.find_link_by_href('/graphs/bobs-graph/').first.click()
-        self.assertEqual(self.browser.title, "SylvaDB - Bob's graph")
-        self.browser.find_link_by_href('/schemas/bobs-graph/').first.click()
-        self.assertEqual(self.browser.title, "SylvaDB - Bob's graph")
+        create_schema(self)
         self.browser.find_by_id('schemaImport').first.click()
         file_path = os.path.join(
             os.path.abspath(os.path.dirname(__file__)),
@@ -438,11 +434,8 @@ class SchemaTestCase(LiveServerTestCase):
         self.assertEqual(text, "auto now add name")
 
     def test_new_advanced_type_auto_increment(self):
-        print 'Before creating graph'
         create_graph(self)
-        print 'After creating graph & before create schema'
         create_schema(self)
-        print 'After creating schema'
         self.browser.find_link_by_href(
             '/schemas/bobs-graph/types/create/').first.click()
         text = self.browser.find_by_xpath(

@@ -65,7 +65,7 @@ class DataNodeTestCase(LiveServerTestCase):
         create_node(self, "Bob")
         create_node(self, "Alice")
         # We create a allowed relation
-        self.browser.find_link_by_href('/schemas/bobs-graph/').first.click()
+        self.browser.find_by_id('schema-link').first.click()
         self.browser.find_by_id('allowedRelations').first.click()
         self.browser.select('source', '1')
         self.browser.find_by_name('name').fill('Bob\'s rel')
@@ -125,7 +125,7 @@ class DataNodeTestCase(LiveServerTestCase):
         text = self.browser.find_by_xpath("//div[@class='flags-block']/span[@class='graph-relationships']").first.value
         self.assertEqual(text, "1 relationships")
         # Deleting type
-        self.browser.find_link_by_href('/schemas/bobs-graph/').first.click()
+        self.browser.find_by_id('schema-link').first.click()
         self.browser.find_by_xpath("//fieldset[@class='module aligned wide model']/h2/a").first.click()
         self.browser.find_by_xpath("//span[@class='buttonLinkOption buttonLinkRight']/a[@class='delete']").first.click()
         text = self.browser.find_by_xpath(
@@ -189,7 +189,7 @@ class DataNodeTestCase(LiveServerTestCase):
         text = self.browser.find_by_xpath("//div[@class='flags-block']/span[@class='graph-relationships']").first.value
         self.assertEqual(text, "1 relationships")
         # Deleting type
-        self.browser.find_link_by_href('/schemas/bobs-graph/').first.click()
+        self.browser.find_by_id('schema-link').first.click()
         self.browser.find_by_xpath("//fieldset[@class='module aligned wide model']/h2/a").first.click()
         self.browser.find_by_xpath("//span[@class='buttonLinkOption buttonLinkRight']/a[@class='delete']").first.click()
         text = self.browser.find_by_xpath(
