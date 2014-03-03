@@ -5,7 +5,6 @@ from StringIO import StringIO
 from django.test import LiveServerTestCase
 
 from splinter import Browser
-from xvfbwrapper import Xvfb
 
 from user import signup, signin, logout
 from dashboard import create_graph, create_schema, create_type, create_data
@@ -35,7 +34,6 @@ class DataNodeTestCase(LiveServerTestCase):
     """
 
     def setUp(self):
-        self.vdisplay = Xvfb()
         self.browser = Browser()
         signup(self, 'bob', 'bob@cultureplex.ca', 'bob_secret')
         signin(self, 'bob', 'bob_secret')
@@ -43,7 +41,6 @@ class DataNodeTestCase(LiveServerTestCase):
     def tearDown(self):
         logout(self)
         self.browser.quit()
-        self.vdisplay.stop()
 
     def test_data_node_addition(self):
         create_graph(self)

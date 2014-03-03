@@ -1,7 +1,6 @@
 from django.test import LiveServerTestCase
 
 from splinter import Browser
-from xvfbwrapper import Xvfb
 
 
 def signup(test, username, email, password):
@@ -33,12 +32,10 @@ class UserTestCase(LiveServerTestCase):
     """
 
     def setUp(self):
-        self.vdisplay = Xvfb()
         self.browser = Browser()
 
     def tearDown(self):
         self.browser.quit()
-        self.vdisplay.stop()
 
     def test_user_signup(self):
         signup(self, 'bob', 'bob@cultureplex.ca', 'bob_secret')

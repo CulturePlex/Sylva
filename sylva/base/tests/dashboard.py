@@ -1,7 +1,6 @@
 from django.test import LiveServerTestCase
 
 from splinter import Browser
-from xvfbwrapper import Xvfb
 
 from user import signup, signin, logout
 from graphs.models import Graph
@@ -80,14 +79,12 @@ class DashboardTestCase(LiveServerTestCase):
     """
 
     def setUp(self):
-        self.vdisplay = Xvfb()
         self.browser = Browser()
         signup(self, 'bob', 'bob@cultureplex.ca', 'bob_secret')
 
     def tearDown(self):
         logout(self)
         self.browser.quit()
-        self.vdisplay.stop()
 
     def test_dashboard(self):
         signin(self, 'bob', 'bob_secret')

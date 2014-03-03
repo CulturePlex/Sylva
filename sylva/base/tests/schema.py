@@ -3,7 +3,6 @@ import requests
 from django.test import LiveServerTestCase
 
 from splinter import Browser
-from xvfbwrapper import Xvfb
 
 from user import signup, signin, logout
 from dashboard import create_graph, create_schema, create_type
@@ -19,7 +18,6 @@ class SchemaTestCase(LiveServerTestCase):
     """
 
     def setUp(self):
-        self.vdisplay = Xvfb()
         self.browser = Browser()
         signup(self, 'bob', 'bob@cultureplex.ca', 'bob_secret')
         signin(self, 'bob', 'bob_secret')
@@ -27,7 +25,6 @@ class SchemaTestCase(LiveServerTestCase):
     def tearDown(self):
         logout(self)
         self.browser.quit()
-        self.vdisplay.stop()
 
     def test_export_schema(self):
         create_graph(self)

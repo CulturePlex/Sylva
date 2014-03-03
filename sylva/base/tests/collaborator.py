@@ -1,7 +1,6 @@
 from django.test import LiveServerTestCase
 
 from splinter import Browser
-from xvfbwrapper import Xvfb
 
 from user import signup, signin, logout
 from dashboard import create_graph, create_schema, create_type, create_data
@@ -56,13 +55,11 @@ class CollaboratorTestCase(LiveServerTestCase):
     The name of the tests self-explain the behaviour of them.
     """
     def setUp(self):
-        self.vdisplay = Xvfb()
         self.browser = Browser()
 
     def tearDown(self):
         logout(self)
         self.browser.quit()
-        self.vdisplay.stop()
 
     def test_graph_view_without_permissions(self):
         signup(self, 'alice', 'alice@cultureplex.ca', 'alice_secret')

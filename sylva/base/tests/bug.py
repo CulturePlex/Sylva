@@ -1,7 +1,6 @@
 from django.test import LiveServerTestCase
 
 from splinter import Browser
-from xvfbwrapper import Xvfb
 
 from user import signup, signin, logout
 from dashboard import create_graph, create_schema
@@ -14,7 +13,6 @@ class BugTestCase(LiveServerTestCase):
     """
 
     def setUp(self):
-        self.vdisplay = Xvfb()
         self.browser = Browser()
         signup(self, 'bob', 'bob@cultureplex.ca', 'bob_secret')
         signin(self, 'bob', 'bob_secret')
@@ -22,7 +20,6 @@ class BugTestCase(LiveServerTestCase):
     def tearDown(self):
         logout(self)
         self.browser.quit()
-        self.vdisplay.stop()
         Graph.objects.get(name="Bob's graph").destroy()
 
     def test_node_rel_count_one(self):
