@@ -81,17 +81,24 @@
         <input type="hidden" id="id_diagram_positions_url" name="diagram_positions" value="{% url schama_diagram_positions graph.slug %}"/>
     </div>
 </div>
-<a class="button" href="{% url schema_nodetype_create graph.slug %}">{% trans "Run" %}</a>
+<!--{{ form.as_p }}-->
+<a class="button" id="run-button" href="#">{% trans "Run" %}</a>
 {% endblock %}
 
 {% block extra_links %}
 <link rel="stylesheet" type="text/css" href="{{ STATIC_PREFIX }}css/schemas.diagram.css" />
+<!--<link rel="stylesheet" type="text/css" href="{{STATIC_PREFIX}}operators/css/operators.datepicker.css" />-->
+<link rel="stylesheet" type="text/css" href="{{ STATIC_PREFIX }}css/chosen.css" />
 {% endblock %}
 {% block extra_scripts %}
 <!--<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.13/jquery-ui.min.js"></script>-->
 <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.9.1/jquery-ui.min.js"></script>
 <script type="text/javascript" src="{{ STATIC_PREFIX }}js/jquery.jsplumb.1.3.9.min.js"></script>
 <script type="text/javascript" src="{{ STATIC_PREFIX }}js/jquery.scrollto.min.js"></script>
+<script type="text/javascript" src="{{ STATIC_PREFIX }}js/chosen.jquery.min.js"></script>
+<script type="text/javascript" src="{{ STATIC_PREFIX }}js/chosen.ajax.js"></script>
+<script type="text/javascript" src="{{ STATIC_PREFIX }}js/jqueryui.timepicker.js"></script>
+<script type="text/javascript" src="{{ STATIC_PREFIX }}js/datatypes.js"></script>
 <script type="text/javascript" src="{{ STATIC_PREFIX }}operators/js/operators.query.js"></script>
 <script type="text/javascript">
 if (!diagram) {
@@ -99,5 +106,8 @@ if (!diagram) {
 }
 
 diagram.Models = {% autoescape off %}{{ graph.schema.get_schema_diagram }}{% endautoescape %};
+
+diagram.url = "{% url graph_query_collaborators graph.slug %}";
+
 </script>
 {% endblock %}

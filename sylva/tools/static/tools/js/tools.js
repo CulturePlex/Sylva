@@ -185,11 +185,13 @@
     'csv-nodes': function(nodesFiles) {
       var isValid = true,
           file,
+          extension,
           i, li;
 
       for (i = 0, li = nodesFiles.length; i < li; i++) {
         file = nodesFiles[i];
-        if (file.type !== 'text/csv') {
+        extension = file.name.split('.').pop();
+        if (extension !== 'csv') {
           isValid = false;
           break;
         }
@@ -214,7 +216,8 @@
 
   // Validate graph and print message.
   var validateData = function() {
-    return DI.validateGraph(DI.nodes, DI.edges, DI.schemaNodes, DI.schemaEdges);
+    var res =  DI.validateGraph(DI.nodes, DI.edges, DI.schemaNodes, DI.schemaEdges);
+    return res;
   };
 
 

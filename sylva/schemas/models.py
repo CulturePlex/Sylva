@@ -99,6 +99,7 @@ class Schema(models.Model, SchemaMixin):
                     "source": rel_type.source.slug,
                     "target": rel_type.target.slug,
                     "fields": rel_fields,
+                    "id": rel_type.id
                 }
                 relations.append(relation)
             schema[node_type.slug] = {
@@ -108,6 +109,7 @@ class Schema(models.Model, SchemaMixin):
                 "is_auto": False,
                 "fields": fields,
                 "relations": relations,
+                "id": node_type.id
             }
         slug = self.graph.slug
         diagram = {slug: schema}
