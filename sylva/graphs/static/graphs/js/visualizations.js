@@ -85,7 +85,14 @@ sylva:true, alert:true */
 
     // Error handling.
     jqxhr.error(function() {
-      alert(gettext("Oops! Something went wrong with the server. Please, reload the page."));
+      $('#graph-loading').remove();
+      spinner.stop();
+
+      $('#graphcanvas').hide();
+      $('#sigma-wrapper').show();
+
+      var msg = gettext("Oops! Something went wrong with the server. Please, reload the page.");
+      $('#sigma-container').html('<div class="graph-empty-message">' + msg + '</div>');
     });
 
   });

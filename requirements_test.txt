@@ -31,11 +31,12 @@ git+git://github.com/ghewgill/pydkim.git
 python-dateutil==2.1
 python-rexster==0.1.1
 requests==2.0.1
-selenium==2.40.0
+selenium==2.37.2
 sh==1.09
 simplejson==2.6.2
 six==1.2.0
-splinter==0.6.0
+splinter==0.5.4
 stripe==1.7.8
 ujson==1.23
 wsgiref==0.1.2
+xvfbwrapper==0.2.4

@@ -1,6 +1,7 @@
 from django.test import LiveServerTestCase
 
 from splinter import Browser
+from xvfbwrapper import Xvfb
 
 from user import signup, signin, logout
 from dashboard import create_graph, create_schema
@@ -13,13 +14,15 @@ class BugTestCase(LiveServerTestCase):
     """
 
     def setUp(self):
-        self.browser = Browser('phantomjs')
+        self.vdisplay = Xvfb()
+        self.browser = Browser()
         signup(self, 'bob', 'bob@cultureplex.ca', 'bob_secret')
         signin(self, 'bob', 'bob_secret')
 
     def tearDown(self):
         logout(self)
         self.browser.quit()
+        self.vdisplay.stop()
         Graph.objects.get(name="Bob's graph").destroy()
 
     def test_node_rel_count_one(self):
@@ -97,26 +100,25 @@ class BugTestCase(LiveServerTestCase):
         self.browser.find_by_xpath("//a[@class='addButton inFormsets']")[1].click()
         # Adding the relationships
         self.browser.find_by_xpath("//li[@class='token-input-input-token']/input")[0].fill('First2')
-        self.browser.is_element_present_by_id("id_user_wait", 5)
+        self.browser.is_element_present_by_id("id_user_wait", 3)
         self.browser.find_by_xpath("//div[@class='token-input-dropdown']//li[@class='token-input-dropdown-item2 token-input-selected-dropdown-item']/b").first.click()
         real_rels += 1
         self.browser.find_by_xpath("//li[@class='token-input-input-token']/input")[1].fill('Second1')
-        self.browser.is_element_present_by_id("id_user_wait", 5)
+        self.browser.is_element_present_by_id("id_user_wait", 3)
         self.browser.find_by_xpath("//div[@class='token-input-dropdown']//li[@class='token-input-dropdown-item2 token-input-selected-dropdown-item']/b").first.click()
         real_rels += 1
         self.browser.find_by_xpath("//li[@class='token-input-input-token']/input")[2].fill('Second2')
-        self.browser.is_element_present_by_id("id_user_wait", 5)
+        self.browser.is_element_present_by_id("id_user_wait", 3)
         self.browser.find_by_xpath("//div[@class='token-input-dropdown']//li[@class='token-input-dropdown-item2 token-input-selected-dropdown-item']/b").first.click()
         real_rels += 1
         self.browser.find_by_xpath("//li[@class='token-input-input-token']/input")[3].fill('Second3')
-        self.browser.is_element_present_by_id("id_user_wait", 5)
+        self.browser.is_element_present_by_id("id_user_wait", 3)
         self.browser.find_by_xpath("//div[@class='token-input-dropdown']//li[@class='token-input-dropdown-item2 token-input-selected-dropdown-item']/b").first.click()
         real_rels += 1
         # Saving "First1"
         self.browser.find_by_value('Save First').first.click()
         # Checking the counts
         self.browser.find_link_by_href('/graphs/bobs-graph/').first.click()
-        self.browser.find_by_id('sigma-pause').first.click()
         nodes = self.browser.find_by_xpath("//div[@class='flags-block']/span[@class='graph-nodes']").first.value
         rels = self.browser.find_by_xpath("//div[@class='flags-block']/span[@class='graph-relationships']").first.value
         self.assertEqual(str(real_nodes) + " nodes", nodes)
@@ -196,19 +198,19 @@ class BugTestCase(LiveServerTestCase):
         self.browser.find_by_xpath("//a[@class='addButton inFormsets']")[1].click()
         # Adding the relationships
         self.browser.find_by_xpath("//li[@class='token-input-input-token']/input")[0].fill('First2')
-        self.browser.is_element_present_by_id("id_user_wait", 5)
+        self.browser.is_element_present_by_id("id_user_wait", 3)
         self.browser.find_by_xpath("//div[@class='token-input-dropdown']//li[@class='token-input-dropdown-item2 token-input-selected-dropdown-item']/b").first.click()
         real_rels += 1
         self.browser.find_by_xpath("//li[@class='token-input-input-token']/input")[1].fill('Second1')
-        self.browser.is_element_present_by_id("id_user_wait", 5)
+        self.browser.is_element_present_by_id("id_user_wait", 3)
         self.browser.find_by_xpath("//div[@class='token-input-dropdown']//li[@class='token-input-dropdown-item2 token-input-selected-dropdown-item']/b").first.click()
         real_rels += 1
         self.browser.find_by_xpath("//li[@class='token-input-input-token']/input")[2].fill('Second2')
-        self.browser.is_element_present_by_id("id_user_wait", 5)
+        self.browser.is_element_present_by_id("id_user_wait", 3)
         self.browser.find_by_xpath("//div[@class='token-input-dropdown']//li[@class='token-input-dropdown-item2 token-input-selected-dropdown-item']/b").first.click()
         real_rels += 1
         self.browser.find_by_xpath("//li[@class='token-input-input-token']/input")[3].fill('Second3')
-        self.browser.is_element_present_by_id("id_user_wait", 5)
+        self.browser.is_element_present_by_id("id_user_wait", 3)
         self.browser.find_by_xpath("//div[@class='token-input-dropdown']//li[@class='token-input-dropdown-item2 token-input-selected-dropdown-item']/b").first.click()
         real_rels += 1
         # Saving "First1"
@@ -222,19 +224,19 @@ class BugTestCase(LiveServerTestCase):
         self.browser.find_by_xpath("//a[@class='addButton inFormsets']")[1].click()
         # Adding the relationships
         self.browser.find_by_xpath("//li[@class='token-input-input-token']/input")[0].fill('First1')
-        self.browser.is_element_present_by_id("id_user_wait", 5)
+        self.browser.is_element_present_by_id("id_user_wait", 3)
         self.browser.find_by_xpath("//div[@class='token-input-dropdown']//li[@class='token-input-dropdown-item2 token-input-selected-dropdown-item']/b").first.click()
         real_rels += 1
         self.browser.find_by_xpath("//li[@class='token-input-input-token']/input")[1].fill('Second1')
-        self.browser.is_element_present_by_id("id_user_wait", 5)
+        self.browser.is_element_present_by_id("id_user_wait", 3)
         self.browser.find_by_xpath("//div[@class='token-input-dropdown']//li[@class='token-input-dropdown-item2 token-input-selected-dropdown-item']/b").first.click()
         real_rels += 1
         self.browser.find_by_xpath("//li[@class='token-input-input-token']/input")[2].fill('Second2')
-        self.browser.is_element_present_by_id("id_user_wait", 5)
+        self.browser.is_element_present_by_id("id_user_wait", 3)
         self.browser.find_by_xpath("//div[@class='token-input-dropdown']//li[@class='token-input-dropdown-item2 token-input-selected-dropdown-item']/b").first.click()
         real_rels += 1
         self.browser.find_by_xpath("//li[@class='token-input-input-token']/input")[3].fill('Second3')
-        self.browser.is_element_present_by_id("id_user_wait", 5)
+        self.browser.is_element_present_by_id("id_user_wait", 3)
         self.browser.find_by_xpath("//div[@class='token-input-dropdown']//li[@class='token-input-dropdown-item2 token-input-selected-dropdown-item']/b").first.click()
         real_rels += 1
         # Saving "First3"
@@ -242,7 +244,6 @@ class BugTestCase(LiveServerTestCase):
         real_nodes += 1
         # Checking the counts
         self.browser.find_link_by_href('/graphs/bobs-graph/').first.click()
-        self.browser.find_by_id('sigma-pause').first.click()
         nodes = self.browser.find_by_xpath("//div[@class='flags-block']/span[@class='graph-nodes']").first.value
         rels = self.browser.find_by_xpath("//div[@class='flags-block']/span[@class='graph-relationships']").first.value
         self.assertEqual(str(real_nodes) + " nodes", nodes)
@@ -323,19 +324,19 @@ class BugTestCase(LiveServerTestCase):
         self.browser.find_by_xpath("//a[@class='addButton inFormsets']")[1].click()
         # Adding the relationships
         self.browser.find_by_xpath("//li[@class='token-input-input-token']/input")[0].fill('First2')
-        self.browser.is_element_present_by_id("id_user_wait", 5)
+        self.browser.is_element_present_by_id("id_user_wait", 3)
         self.browser.find_by_xpath("//div[@class='token-input-dropdown']//li[@class='token-input-dropdown-item2 token-input-selected-dropdown-item']/b").first.click()
         real_rels += 1
         self.browser.find_by_xpath("//li[@class='token-input-input-token']/input")[1].fill('Second1')
-        self.browser.is_element_present_by_id("id_user_wait", 5)
+        self.browser.is_element_present_by_id("id_user_wait", 3)
         self.browser.find_by_xpath("//div[@class='token-input-dropdown']//li[@class='token-input-dropdown-item2 token-input-selected-dropdown-item']/b").first.click()
         real_rels += 1
         self.browser.find_by_xpath("//li[@class='token-input-input-token']/input")[2].fill('Second2')
-        self.browser.is_element_present_by_id("id_user_wait", 5)
+        self.browser.is_element_present_by_id("id_user_wait", 3)
         self.browser.find_by_xpath("//div[@class='token-input-dropdown']//li[@class='token-input-dropdown-item2 token-input-selected-dropdown-item']/b").first.click()
         real_rels += 1
         self.browser.find_by_xpath("//li[@class='token-input-input-token']/input")[3].fill('Second3')
-        self.browser.is_element_present_by_id("id_user_wait", 5)
+        self.browser.is_element_present_by_id("id_user_wait", 3)
         self.browser.find_by_xpath("//div[@class='token-input-dropdown']//li[@class='token-input-dropdown-item2 token-input-selected-dropdown-item']/b").first.click()
         real_rels += 1
         # Saving "First1"
@@ -348,11 +349,11 @@ class BugTestCase(LiveServerTestCase):
         self.browser.find_by_xpath("//a[@class='addButton inFormsets']")[0].click()
         # Adding the relationships
         self.browser.find_by_xpath("//li[@class='token-input-input-token']/input")[0].fill('First1')
-        self.browser.is_element_present_by_id("id_user_wait", 5)
+        self.browser.is_element_present_by_id("id_user_wait", 3)
         self.browser.find_by_xpath("//div[@class='token-input-dropdown']//li[@class='token-input-dropdown-item2 token-input-selected-dropdown-item']/b").first.click()
         real_rels += 1
         self.browser.find_by_xpath("//li[@class='token-input-input-token']/input")[1].fill('First2')
-        self.browser.is_element_present_by_id("id_user_wait", 5)
+        self.browser.is_element_present_by_id("id_user_wait", 3)
         self.browser.find_by_xpath("//div[@class='token-input-dropdown']//li[@class='token-input-dropdown-item2 token-input-selected-dropdown-item']/b").first.click()
         real_rels += 1
         # Saving "First3"
@@ -360,7 +361,6 @@ class BugTestCase(LiveServerTestCase):
         real_nodes += 1
         # Checking the counts
         self.browser.find_link_by_href('/graphs/bobs-graph/').first.click()
-        self.browser.find_by_id('sigma-pause').first.click()
         nodes = self.browser.find_by_xpath("//div[@class='flags-block']/span[@class='graph-nodes']").first.value
         rels = self.browser.find_by_xpath("//div[@class='flags-block']/span[@class='graph-relationships']").first.value
         self.assertEqual(str(real_nodes) + " nodes", nodes)
@@ -441,19 +441,19 @@ class BugTestCase(LiveServerTestCase):
         self.browser.find_by_xpath("//a[@class='addButton inFormsets']")[1].click()
         # Adding the relationships
         self.browser.find_by_xpath("//li[@class='token-input-input-token']/input")[0].fill('First2')
-        self.browser.is_element_present_by_id("id_user_wait", 5)
+        self.browser.is_element_present_by_id("id_user_wait", 3)
         self.browser.find_by_xpath("//div[@class='token-input-dropdown']//li[@class='token-input-dropdown-item2 token-input-selected-dropdown-item']/b").first.click()
         real_rels += 1
         self.browser.find_by_xpath("//li[@class='token-input-input-token']/input")[1].fill('Second1')
-        self.browser.is_element_present_by_id("id_user_wait", 5)
+        self.browser.is_element_present_by_id("id_user_wait", 3)
         self.browser.find_by_xpath("//div[@class='token-input-dropdown']//li[@class='token-input-dropdown-item2 token-input-selected-dropdown-item']/b").first.click()
         real_rels += 1
         self.browser.find_by_xpath("//li[@class='token-input-input-token']/input")[2].fill('Second2')
-        self.browser.is_element_present_by_id("id_user_wait", 5)
+        self.browser.is_element_present_by_id("id_user_wait", 3)
         self.browser.find_by_xpath("//div[@class='token-input-dropdown']//li[@class='token-input-dropdown-item2 token-input-selected-dropdown-item']/b").first.click()
         real_rels += 1
         self.browser.find_by_xpath("//li[@class='token-input-input-token']/input")[3].fill('Second3')
-        self.browser.is_element_present_by_id("id_user_wait", 5)
+        self.browser.is_element_present_by_id("id_user_wait", 3)
         self.browser.find_by_xpath("//div[@class='token-input-dropdown']//li[@class='token-input-dropdown-item2 token-input-selected-dropdown-item']/b").first.click()
         real_rels += 1
         # Saving "First1"
@@ -468,23 +468,23 @@ class BugTestCase(LiveServerTestCase):
         self.browser.find_by_xpath("//a[@class='addButton inFormsets']")[2].click()
         # Adding the relationships
         self.browser.find_by_xpath("//li[@class='token-input-input-token']/input")[1].fill('Second1')
-        self.browser.is_element_present_by_id("id_user_wait", 5)
+        self.browser.is_element_present_by_id("id_user_wait", 3)
         self.browser.find_by_xpath("//div[@class='token-input-dropdown']//li[@class='token-input-dropdown-item2 token-input-selected-dropdown-item']/b").first.click()
         real_rels += 1
         self.browser.find_by_xpath("//li[@class='token-input-input-token']/input")[2].fill('Second2')
-        self.browser.is_element_present_by_id("id_user_wait", 5)
+        self.browser.is_element_present_by_id("id_user_wait", 3)
         self.browser.find_by_xpath("//div[@class='token-input-dropdown']//li[@class='token-input-dropdown-item2 token-input-selected-dropdown-item']/b").first.click()
         real_rels += 1
         self.browser.find_by_xpath("//li[@class='token-input-input-token']/input")[3].fill('Second3')
-        self.browser.is_element_present_by_id("id_user_wait", 5)
+        self.browser.is_element_present_by_id("id_user_wait", 3)
         self.browser.find_by_xpath("//div[@class='token-input-dropdown']//li[@class='token-input-dropdown-item2 token-input-selected-dropdown-item']/b").first.click()
         real_rels += 1
         self.browser.find_by_xpath("//li[@class='token-input-input-token']/input")[4].fill('First1')
-        self.browser.is_element_present_by_id("id_user_wait", 5)
+        self.browser.is_element_present_by_id("id_user_wait", 3)
         self.browser.find_by_xpath("//div[@class='token-input-dropdown']//li[@class='token-input-dropdown-item2 token-input-selected-dropdown-item']/b").first.click()
         real_rels += 1
         self.browser.find_by_xpath("//li[@class='token-input-input-token']/input")[5].fill('First2')
-        self.browser.is_element_present_by_id("id_user_wait", 5)
+        self.browser.is_element_present_by_id("id_user_wait", 3)
         self.browser.find_by_xpath("//div[@class='token-input-dropdown']//li[@class='token-input-dropdown-item2 token-input-selected-dropdown-item']/b").first.click()
         real_rels += 1
         # Saving "First3"
@@ -492,7 +492,6 @@ class BugTestCase(LiveServerTestCase):
         real_nodes += 1
         # Checking the counts
         self.browser.find_link_by_href('/graphs/bobs-graph/').first.click()
-        self.browser.find_by_id('sigma-pause').first.click()
         nodes = self.browser.find_by_xpath("//div[@class='flags-block']/span[@class='graph-nodes']").first.value
         rels = self.browser.find_by_xpath("//div[@class='flags-block']/span[@class='graph-relationships']").first.value
         self.assertEqual(str(real_nodes) + " nodes", nodes)

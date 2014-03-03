@@ -1,6 +1,7 @@
 from django.test import LiveServerTestCase
 
 from splinter import Browser
+from xvfbwrapper import Xvfb
 
 from user import signup, signin, logout
 from graphs.models import Graph
@@ -30,12 +31,7 @@ def create_schema(test):
     test.browser.find_link_by_href(
         '/graphs/bobs-graph/').first.click()
     test.assertEqual(test.browser.title, "SylvaDB - Bob's graph")
-    print "\n########## @@@@@@@@@@ ########## Enter: create_schema"
-    # test.browser.find_link_by_href(
-    #    '/schemas/bobs-graph/').first.click()
-    test.browser.find_by_xpath(
-        "//header/nav/ul/li/a/span[text()='Schema']/..").first.click()
-    print "########## @@@@@@@@@@ ########## Exit: create_schema"
+    test.browser.find_by_id('schema-link').first.click()
     text = test.browser.find_by_xpath(
         "//div[@class='body-inside']/p").first.value
     test.assertEqual(text, 'There are no types defined yet.')
@@ -84,21 +80,24 @@ class DashboardTestCase(LiveServerTestCase):
     """
 
     def setUp(self):
-        self.browser = Browser('phantomjs')
+        self.vdisplay = Xvfb()
+        self.browser = Browser()
         signup(self, 'bob', 'bob@cultureplex.ca', 'bob_secret')
-        signin(self, 'bob', 'bob_secret')
 
     def tearDown(self):
         logout(self)
         self.browser.quit()
+        self.vdisplay.stop()
 
     def test_dashboard(self):
+        signin(self, 'bob', 'bob_secret')
         self.assertEquals(self.browser.title, 'SylvaDB - Dashboard')
         text = self.browser.find_by_xpath(
             "//header[@class='global']/h1").first.value
         self.assertEqual(text, 'Dashboard')
 
     def test_dashboard_new_graph(self):
+        signin(self, 'bob', 'bob_secret')
         create_graph(self)
         Graph.objects.get(name="Bob's graph").destroy()
 
@@ -109,11 +108,13 @@ class DashboardTestCase(LiveServerTestCase):
         current instance of Sigma and checks the data with Sylva JavaScript
         object.
         """
+        signin(self, 'bob', 'bob_secret')
         create_graph(self)
         create_schema(self)
         create_type(self)
         create_data(self)
         self.browser.find_link_by_href('/graphs/bobs-graph/').first.click()
+        self.browser.is_element_present_by_id('wait_for_js', 3)
         js_code = '''
             var instanceId = '0';
             for (key in sigma.instances) {
@@ -138,6 +139,8 @@ class DashboardTestCase(LiveServerTestCase):
         Thist test checks that the tour starts automatically after signup, only
         once.
         """
+        self.browser.is_element_present_by_id('wait_for_cookie_tour', 3)
+        signin(self, 'bob', 'bob_secret')
         exist = self.browser.is_element_present_by_xpath(
             "//div[@class='joyride-content-wrapper']")
         self.assertEqual(exist, True)

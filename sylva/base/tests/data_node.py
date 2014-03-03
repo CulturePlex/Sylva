@@ -5,6 +5,7 @@ from StringIO import StringIO
 from django.test import LiveServerTestCase
 
 from splinter import Browser
+from xvfbwrapper import Xvfb
 
 from user import signup, signin, logout
 from dashboard import create_graph, create_schema, create_type, create_data
@@ -34,13 +35,15 @@ class DataNodeTestCase(LiveServerTestCase):
     """
 
     def setUp(self):
-        self.browser = Browser('phantomjs')
+        self.vdisplay = Xvfb()
+        self.browser = Browser()
         signup(self, 'bob', 'bob@cultureplex.ca', 'bob_secret')
         signin(self, 'bob', 'bob_secret')
 
     def tearDown(self):
         logout(self)
         self.browser.quit()
+        self.vdisplay.stop()
 
     def test_data_node_addition(self):
         create_graph(self)
@@ -144,6 +147,7 @@ class DataNodeTestCase(LiveServerTestCase):
         self.assertEqual(text, "2 nodes")
         text = self.browser.find_by_xpath("//div[@class='flags-block']/span[@class='graph-relationships']").first.value
         self.assertEqual(text, "1 relationships")
+        self.browser.is_element_present_by_id('wait_for_js', 3)
         js_code = '''
             var instanceId = '0';
             for (key in sigma.instances) {
@@ -216,8 +220,7 @@ class DataNodeTestCase(LiveServerTestCase):
         create_data(self)
         original_name = self.browser.find_by_xpath("//table[@id='content_table']/tbody/tr/td")[1].value
         # Clone the node
-        self.browser.find_by_xpath("//table[@id='content_table']/tbody/tr/td/p/a[@title='View node']").first.click()
-        self.browser.find_by_xpath("//a[@title='Edit']").first.click()
+        self.browser.find_by_xpath("//table[@id='content_table']/tbody/tr/td/a[@class='edit']").first.click()
         self.browser.find_by_name('Name').first.fill(original_name + " clone")
         self.browser.find_by_name("as-new").first.click()
         # Check that two nodes exist
@@ -255,6 +258,7 @@ class DataNodeTestCase(LiveServerTestCase):
         self.browser.find_by_value('Save Bob\'s type').first.click()
         # Checking
         self.browser.find_by_xpath("//table[@id='content_table']/tbody/tr/td/p/a[@title='View node' and text()='Alice']").first.click()
+        self.browser.is_element_present_by_id('wait_for_js', 3)
         js_code = '''
             var instanceId = '0';
             for (key in sigma.instances) {
