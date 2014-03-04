@@ -1,15 +1,12 @@
 #-*- coding:utf-8 -*-
-import os
 
 from django.test import TestCase
-from django.utils.unittest import skipIf
 from django.contrib.auth.models import User
 from datetime import date
 
 from accounts.models import Account, UserProfile
 
 
-@skipIf(os.environ['INTERFACE'] == "1", 'Model test')
 class UserAccountTest(TestCase):
     """
     A set of tests for testing Users, Accounts and UserProfiles.

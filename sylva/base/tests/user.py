@@ -1,7 +1,4 @@
-import os
-
 from django.test import LiveServerTestCase
-from django.utils.unittest import skipIf
 
 from splinter import Browser
 
@@ -27,7 +24,6 @@ def logout(test):
     test.browser.find_link_by_href('/accounts/signout/').first.click()
 
 
-@skipIf(os.environ['INTERFACE'] == "0", 'Interface test')
 class UserTestCase(LiveServerTestCase):
     """
     A set of tests for testing Users, Accounts and UserProfiles. Also, we

@@ -1,7 +1,4 @@
-import os
-
 from django.test import LiveServerTestCase
-from django.utils.unittest import skipIf
 
 from splinter import Browser
 
@@ -77,7 +74,6 @@ def create_data(test):
     test.assertNotEqual(text.find(" elements Bob's type."), -1)
 
 
-@skipIf(os.environ['INTERFACE'] == "0", 'Interface test')
 class DashboardTestCase(LiveServerTestCase):
     """
     These tests check basic functions of Sylva's dashboard.
