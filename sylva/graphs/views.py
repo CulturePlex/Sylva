@@ -27,24 +27,24 @@ from graphs.models import Graph, PERMISSIONS
 from schemas.models import Schema
 
 
-def _jsonify_graph(nodes_list, relations_list,
-                   n_elements=settings.PREVIEW_NODES, full=False):
+def _jsonify_graph(nodes_list, relations_list):
     """
-    Returns a tuple with the elements of a subgraph jsonified. The format
-    is (nodes, edges, preview_nodes, preview_edges)
-    The preview subgraph is composed by the first random "n_elements"
-    nodes traversed from the first one
+    Returns a tuple with the elements of a graph jsonified.
     """
     nodes = {}
     edges = []
-    partial_edges = []
-    partial_nodes = {}
-    partial_nodes_ids = []
     nodes_display = {}
+    nodetypes = {}
     for node in nodes_list:
+        nodetype = node.get_type()
+        if nodetype.id not in nodes:
+            nodetype_color = nodetype.get_option("color")
+            nodetypes[nodetype.id] = {'name': nodetype.name,
+                                      'color': nodetype_color}
+            nodes[nodetype.id] = {}
         json_node = node.to_json()
         display = node.display + ' (' + str(node.id) + ')'
-        nodes[display] = json_node
+        nodes[nodetype.id][display] = json_node
         nodes_display[node.id] = display
     for rel in relations_list:
         source_id = rel.source.id
@@ -59,19 +59,7 @@ def _jsonify_graph(nodes_list, relations_list,
                 'properties': rel.properties
             }
             edges.append(edge)
-            if len(partial_nodes_ids) <= n_elements:
-                if source_id not in partial_nodes_ids:
-                    node_display = nodes_display[source_id]
-                    partial_nodes[node_display] = nodes[node_display]
-                    partial_nodes_ids.append(source_id)
-                if target_id not in partial_nodes_ids:
-                    node_display = nodes_display[target_id]
-                    partial_nodes[node_display] = nodes[node_display]
-                    partial_nodes_ids.append(target_id)
-            if (source_id in partial_nodes_ids
-                    and target_id in partial_nodes_ids):
-                partial_edges.append(edge)
-    return (nodes, edges, partial_nodes, partial_edges)
+    return (nodes, edges, nodetypes)
 
 
 @permission_required("graphs.view_graph", (Graph, "slug", "graph_slug"),
@@ -80,20 +68,26 @@ def graph_view(request, graph_slug, node_id=None):
     graph = get_object_or_404(Graph, slug=graph_slug)
     is_graph_empty = graph.is_empty()
     is_schema_empty = graph.schema.is_empty()
-    ajax_url = ''
+    view_graph_ajax_url = ''
+    edit_nodetype_color_ajax_url = reverse(
+        'schemas.views.schema_nodetype_edit_color', args=[graph.slug])
     node = None
     if node_id:
         node = graph.nodes.get(node_id)
-        ajax_url = reverse('nodes_data', args=[graph.slug, node_id])
+        view_graph_ajax_url = reverse('nodes_data', args=[graph.slug,
+                                               node_id])
     else:
-        ajax_url = reverse('graph_data', args=[graph.slug])
+        view_graph_ajax_url = reverse('graph_data', args=[graph.slug])
     return render_to_response('graphs_view.html',
                               {"graph": graph,
                                "is_graph_empty": is_graph_empty,
                                "is_schema_empty": is_schema_empty,
                                "MAX_SIZE": settings.MAX_SIZE,
                                "node": node,
-                               "ajax_url": ajax_url},
+                               "view_graph_ajax_url":
+                                  view_graph_ajax_url,
+                               "edit_nodetype_color_ajax_url":
+                                  edit_nodetype_color_ajax_url},
                               context_instance=RequestContext(request))
 
 
@@ -356,14 +350,12 @@ def graph_data(request, graph_slug, node_id=None):
         else:
             nodes_list = graph.nodes.all()
             relations_list = graph.relationships.all()
-        total_nodes, total_edges, nodes, edges = _jsonify_graph(nodes_list,
-                                                                relations_list)
+        nodes, edges, nodetypes = _jsonify_graph(nodes_list, relations_list)
         size = len(nodes_list)
         json_data = {
-            'total_nodes': total_nodes,
-            'total_edges': total_edges,
             'nodes': nodes,
             'edges': edges,
+            'nodetypes': nodetypes,
             'size': size
         }
         return HttpResponse(json.dumps(json_data), status=200,

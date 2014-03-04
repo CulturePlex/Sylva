@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import json
 
+from django.conf import settings
 from django.db import transaction
 from django.core.urlresolvers import reverse
 # from django.contrib.auth.decorators import login_required
@@ -9,6 +10,7 @@ from django.forms import ValidationError
 from django.http import HttpResponse
 from django.template import RequestContext
 from django.shortcuts import get_object_or_404, render_to_response, redirect
+from django.http import Http404
 from django.utils.translation import gettext as _
 
 from guardian.decorators import permission_required
@@ -114,6 +116,11 @@ def schema_nodetype_editcreate(request, graph_slug, nodetype_id=None):
             with transaction.commit_on_success():
                 node_type = form.save(commit=False)
                 node_type.schema = graph.schema
+                # Checking the color
+                if 'color' not in node_type.get_options():
+                    color = node_type.schema.get_color()
+                    node_type.set_option('color', color)
+                    node_type.schema.save()
                 node_type.save()
                 instances = formset.save(commit=False)
                 for instance in instances:
@@ -455,3 +462,18 @@ def mend_schema_property(element_type=None, action=None, key=None,
         _rename_schema_property(element_type, key, new_key)
     elif action == 'delete':
         _delete_schema_property(element_type, key)
+
+
+@permission_required("schemas.change_schema",
+                     (Schema, "graph__slug", "graph_slug"), return_403=True)
+def schema_nodetype_edit_color(request, graph_slug):
+    if ((request.is_ajax() or settings.DEBUG) and request.POST):
+        data = request.POST.copy()
+        nodetype_id = data['nodetypeId']
+        color = data['color']
+        nodetype = get_object_or_404(NodeType, id=nodetype_id)
+        with transaction.commit_on_success():
+            nodetype.set_option('color', color)
+            nodetype.save()
+        return HttpResponse(status=200, mimetype='application/json')
+    raise Http404(_("Error: Invalid request (expected an AJAX POST request)"))

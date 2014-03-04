@@ -1,12 +1,11 @@
 #!/usr/bin/env python
-#-*- coding:utf8 -*-
+#-*- coding:utf-8 -*-
 """
 This file demonstrates writing tests using the unittest module. These will pass
 when you run "manage.py test".
 
 Replace this with more appropriate tests for your application.
 """
-
 from django.conf import settings
 from django.test import TestCase
 
@@ -31,7 +30,6 @@ class InstanceNeo4jTestSuite(TestCase):
         self.instanceEngine = "engines.gdb.backends.neo4j"
         self.instancePort = "7474"
         self.instancePath = "db/data"
-
 
     def test_instance_creation_neo4j(self):
         """

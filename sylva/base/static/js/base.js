@@ -41,6 +41,7 @@
     navMenu($);
     notifications($);
     tour($);
+    createCookieTour($);
   });
 
 
@@ -82,28 +83,61 @@
   }
 
 
-  // Tour feature.
+  // Tour feature - declaration.
   function tour($) {
     if ($('#tour').length !== 0) {
       $('#toggleTour')
         .show()
-        .on('click', function() {
-          var $el = $(this);
+        .on('click', activateTour);
+      checkCookieTour();
+    }
+  }
 
-          var deactive = function() {
-            $el.removeClass('active');
-          };
 
-          if ($el.hasClass('active')) {
-            deactive();
-            $('.joyride-close-tip').click();
-          } else {
-            $el.addClass('active');
-            $('#tour').joyride({
-              postRideCallback: deactive
-            });
-          }
-        });
+  // Tour feature - activation.
+  function activateTour() {
+    var $el = $(this);
+    var deactive = function() {
+      $el.removeClass('active');
+    };
+    if ($el.hasClass('active')) {
+      deactive();
+      $('.joyride-close-tip').click();
+    } else {
+      $el.addClass('active');
+      $('#tour').joyride({
+        postRideCallback: deactive
+      });
+    }
+  }
+
+
+  // Tour feature - cookie creation.
+  function createCookieTour($) {
+    if ($('title').text() == 'SylvaDB - Signup almost done!') {
+      $.cookie.json = true;
+      var tourIds = ['dashboard', 'nodes-editcreate', 'nodes-view', 'graphs-collaborators', 'graphs-create', 'graphs-view', 'schemas-edit', 'schemas-item-edit'];
+      $.cookie('tour_ids', tourIds, { expires: 365, path: '/' });
+    }
+  }
+
+
+  // Tour feature - cookie control.
+  function checkCookieTour() {
+    $.cookie.json = true;
+    tourIds = $.cookie('tour_ids');
+    if (typeof tourIds != 'undefined') {
+      tourId = $('#tour').attr('data-tour-id');
+      index = $.inArray(tourId, tourIds);
+      if (index != -1) {
+        tourIds.splice(index, 1);
+        if (tourIds.length > 0) {
+          $.cookie('tour_ids', tourIds, { expires: 365, path: '/' });
+        } else {
+          $.removeCookie('tour_ids', { path: '/' });
+        }
+        activateTour();
+      }
     }
   }
 

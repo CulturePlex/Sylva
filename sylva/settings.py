@@ -63,7 +63,7 @@ LANGUAGE_CODE = 'en-ca'
 # Supported translations
 LANGUAGES = (
     ('en', ugettext('English')),
-    # ('es', ugettext('Español')),
+    #('es', ugettext('Español')),
 )
 
 # I18n
@@ -275,6 +275,11 @@ USERENA_MUGSHOT_GRAVATAR = True
 USERENA_MUGSHOT_DEFAULT = "mm"
 USERENA_MUGSHOT_SIZE = 100
 USERENA_USE_MESSAGES = False
+# Add to do the tests correctly, check mail is not necessary by now
+USERENA_ACTIVATION_REQUIRED = False
+
+# Add to do the tests correctly, check mail is not necessary by now
+USERENA_ACTIVATION_REQUIRED = False
 
 # Guardian
 GUARDIAN_RENDER_403 = True
@@ -295,6 +300,7 @@ ACCOUNT_FREE = {
 ENABLE_INSTANCES = False
 ENABLE_INHERITANCE = False
 ENABLE_AUTOCOMPLETE_NODES = True
+ENABLE_AUTOCOMPLETE_COLLABORATORS = True
 ENABLE_SEARCH = True
 ENABLE_CLONING = False
 ENABLE_PROFILE = False
@@ -318,6 +324,7 @@ OPTIONS = {
     "ENABLE_INSTANCES": ENABLE_INSTANCES,
     "ENABLE_INHERITANCE": ENABLE_INHERITANCE,
     "ENABLE_AUTOCOMPLETE_NODES": ENABLE_AUTOCOMPLETE_NODES,
+    "ENABLE_AUTOCOMPLETE_COLLABORATORS": ENABLE_AUTOCOMPLETE_COLLABORATORS,
     "ENABLE_SEARCH": ENABLE_SEARCH,
     "ENABLE_SIGNUP": ENABLE_SIGNUP,
     "ENABLE_TYPE_VALIDATION_FORMS": ENABLE_TYPE_VALIDATION_FORMS,
@@ -347,8 +354,3 @@ STRIPE_PLANS = {
         'account_type': 3
     }
 }
-
-# email backend
-
-EMAIL_BACKEND = 'django.core.mail.backends.dummy.EmailBackend'
-# EMAIL_FILE_PATH = '/tmp/app-messages' # change this to a proper location

@@ -185,11 +185,13 @@
     'csv-nodes': function(nodesFiles) {
       var isValid = true,
           file,
+          extension,
           i, li;
 
       for (i = 0, li = nodesFiles.length; i < li; i++) {
         file = nodesFiles[i];
-        if (file.type !== 'text/csv') {
+        extension = file.name.split('.').pop();
+        if (extension !== 'csv') {
           isValid = false;
           break;
         }
@@ -214,7 +216,8 @@
 
   // Validate graph and print message.
   var validateData = function() {
-    return DI.validateGraph(DI.nodes, DI.edges, DI.schemaNodes, DI.schemaEdges);
+    var res =  DI.validateGraph(DI.nodes, DI.edges, DI.schemaNodes, DI.schemaEdges);
+    return res;
   };
 
 
@@ -284,6 +287,11 @@
     $('#files-container').fadeIn(FADING_DURATION);
   };
 
+  // Handle file attached for testing operations
+  var attachFileHandler = function handleFileSelect(evt) {
+      var files = evt.target.files; // FileList object
+      loadFiles(files);
+  };
 
   // DOM ready.
   $(function() {
@@ -299,6 +307,18 @@
     // Drag and Drop containers.
     $('#files-container').on(eventsHandlers);
     $('#files-container2').on(eventsHandlers);
+
+    // Attach file on click the div
+    $('#files-container').on('click', function() {
+      $('#files').click();
+    });
+    $('#files-container2').on('click', function() {
+      $('#files2').click();
+    });
+
+    // Attach file for testing operations
+    $('#files').on('change', attachFileHandler);
+    $('#files2').on('change', attachFileHandler);
 
     // Radio inputs for file type selection.
     $('.option').on('change', handleRadioInputs);

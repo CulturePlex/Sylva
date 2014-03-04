@@ -4,6 +4,8 @@ try:
 except ImportError:
     import json  # NOQA
 
+from django.db.models import Q
+from django.contrib.auth.models import User
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.template import RequestContext
@@ -66,3 +68,26 @@ def operator_query_results(request, graph_slug):
     return HttpResponse(json.dumps(None),
                         status=400,  # Bad request
                         mimetype='application/json')
+
+
+@is_enabled(settings.ENABLE_QUERIES)
+@login_required
+@permission_required("data.view_data", (Data, "graph__slug", "graph_slug"),
+                     return_403=True)
+def graph_query_collaborators(request, graph_slug):
+    if request.is_ajax() and "term" in request.GET:
+        graph = get_object_or_404(Graph, slug=graph_slug)
+        term = request.GET["term"]
+        if graph and term:
+            collabs = graph.get_collaborators(include_anonymous=True,
+                                              as_queryset=True)
+            collabs_dict = {}
+            for collab in collabs:
+                full_name = collab.get_full_name()
+                if full_name:
+                    name = u"%s (%s)" % (full_name, collab.username)
+                else:
+                    name = collab.username
+                    collabs_dict[collab.id] = name
+            return HttpResponse(json.dumps(collabs_dict))
+    return HttpResponse(json.dumps({}))

@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load i18n graphs graph_filters %}
+{% load data_filters %}
 
 {% block navigation_buttons %}
   {{ block.super }}
@@ -289,6 +290,27 @@
             }
           });
         };
+
+        $('.show-hide-button').hover(function() {
+          //$('.show-hide').css('display', 'block');
+          $('.dropdown').css('display', 'block');
+        }, function() {
+          //$('.show-hide').css('display', 'none');
+          $('.dropdown').css('display', 'none');
+        });
+
+        $('.show-hide').on('click', function() {
+          var $this = $(this);
+          var key = $this.data("key");
+          var classId = "." + key;
+          var imgId = "#show-hide-" + key;
+          $(classId).toggle();
+          if ($(imgId).attr('class') == 'icon-eye-open'){
+            $(imgId).attr('class','icon-eye-close');
+          } else {
+            $(imgId).attr('class','icon-eye-open');
+          }
+        });
       });
     }(jQuery));
   </script>
@@ -306,12 +328,26 @@
   <div id="content2">
     {% if nodes %}
       <div id="search-query" class="visual-search"></div>
+      <div class="show-hide-button" style="float: right;">
+        <a href="#">{% trans "Hide & show property" %}: </a>
+        <ul class="dropdown">
+          {% for prop in properties %}
+            <li><i class="icon-eye-open" id="show-hide-{{prop.slug}}"></i><a style="font-size:11px; margin-left: 5%;" href='javascript:void(0);' data-key="{{prop.slug}}" class="show-hide">{{prop.key}}</a></li>
+          {% endfor %}
+        </ul>
+      </div>
       <table id="content_table" class="content-table text-left">
         <thead>
           <tr>
             <th>{% trans "#" %}</th>
             {% for prop in properties %}
-              <th>{{ prop.key }}</th>
+                <th class="{{ prop.slug }}"><a href="?order_by={{ prop.key }}&dir={{ dir }}" id="{{prop.slug}}"><p class="shorten-text">{{ prop.key }} <a class='remove-sorting' href="?order_by=default" title="{% trans "Remove from sorting" %}" /></a>
+                  {% if dir == 'desc' %}
+                    <a class='sorting-asc' href="?order_by={{ prop.key }}&dir={{ dir }}" title="{% trans "Sorting ascending by" %} {{ order_by }}" />
+                  {% else %}
+                    <a class='sorting-desc' href="?order_by={{ prop.key }}&dir={{ dir }}" title="{% trans "Sorting descending by " %} {{ order_by }}" />
+                  {% endif %}
+                </p></a></th>
             {% endfor %}
           </tr>
         </thead>
@@ -323,10 +359,12 @@
                 <a href="{% url nodes_edit graph.slug node.id %}" class="edit" alt="{% trans "Edit node" %}" title="{% trans "Edit node" %}"><!-- {{ node.id }}  -->&nbsp;</a>
               </td>
               {% for prop in properties %}
-                {% if prop.display %}
-                <td><a href="{% url nodes_view graph.slug node.id %}" title="{% trans "View node" %}">{{ node|get:prop.key|default:none_label }}</a></td>
+                {% if node|get:prop.key == 'True' %}
+                  <td class="{{ prop.slug }} shorten-text"><a class="type-list-true" href="{% url nodes_view graph.slug node.id %}" title="{% trans "View node" %}">{{ node|get:prop.key|default:none_label }}</a></td>
+                {% elif node|get:prop.key == 'False' %}
+                  <td class="{{ prop.slug }} shorten-text"><a class="type-list-false" href="{% url nodes_view graph.slug node.id %}" title="{% trans "View node" %}">{{ node|get:prop.key|default:none_label }}</a></td>
                 {% else %}
-                <td>{{ node|get:prop.key|default:none_label }}</td>
+                  <td class="{{ prop.slug }}"><p class="shorten-text"><a href="{% url nodes_view graph.slug node.id %}" title="{% trans "View node" %}">{{ node|get:prop.key|default:none_label }}</a></p></td>
                 {% endif %}
               {% endfor %}
             </tr>
@@ -339,8 +377,8 @@
         </tbody>
       </table>
     {% else %}
-      <p>{% trans "There are no data added to this type yet." %}</p>
-      <a class="button" href="{% url nodes_create graph.slug node_type.id %}">{% trans "Add data" %}</a>
+        <p>{% trans "There are no data added to this type yet." %}</p>
+        <a class="button" href="{% url nodes_create graph.slug node_type.id %}">{% trans "Add data" %}</a>
     {% endif %}
     {% if graph.data.total_nodes == 0 and graph.data.total_relationships == 0 and graph.relaxed %}
       <a class="button" href="{% url tool_import graph.slug %}">{% trans "Import" %}</a>

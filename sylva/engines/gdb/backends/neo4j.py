@@ -60,17 +60,44 @@ class GraphDatabase(BlueprintsGraphDatabase):
         except IndexError:
             return 0
 
+    def _prepare_script(self, for_node=True, label=None):
+        """
+        Creates part of the script for the cypher query.
+        """
+        if for_node:
+            var = 'n'
+            type = 'node'
+            index = self.nidx.name
+        else:
+            var = 'r'
+            type = 'rel'
+            index = self.ridx.name
+        if isinstance(label, (list, tuple)):
+            if label:
+                label = """ OR """.join(['label:%s' % str(label_id) for label_id in label])
+            else:
+                """
+                It will never pass by here.
+                It was checked before call this method.
+                """
+                pass
+        else:
+            if label:
+                label = """label:%s""" % (label)
+            else:
+                label = """label:*"""
+        script = """start %s=%s:`%s`('%s') """ % (var, type, index, label)
+        return script
+
     def get_nodes_count(self, label=None):
         """
         Get the number of total nodes.
         If "label" is provided, the number is calculated according the
         the label of the element.
         """
-        index = self.nidx
-        if label:
-            script = """start n=node:`%s`('label:%s')""" % (index.name, label)
-        else:
-            script = """start n=node:`%s`('label:*')""" % (index.name)
+        if isinstance(label, (list, tuple)) and not label:
+            return 0
+        script = self._prepare_script(for_node=True, label=label)
         script = """%s return count(n)""" % script
         count = self.cypher(query=script)
         return self._clean_count(count)
@@ -81,11 +108,9 @@ class GraphDatabase(BlueprintsGraphDatabase):
         If "label" is provided, the number is calculated according the
         the label of the element.
         """
-        index = self.ridx
-        if label:
-            script = """start r=rel:`%s`('label:%s')""" % (index.name, label)
-        else:
-            script = """start r=rel:`%s`('label:*')""" % (index.name)
+        if isinstance(label, (list, tuple)) and not label:
+            return 0
+        script = self._prepare_script(for_node=False, label=label)
         script = """%s return count(r)""" % script
         count = self.cypher(query=script)
         return self._clean_count(count)
@@ -154,12 +179,9 @@ class GraphDatabase(BlueprintsGraphDatabase):
                            limit=None, offset=None, order_by=None):
         # Using Cypher
         cypher = self.cypher
-        if label:
-            script = """start n=node:`%s`('label:%s') """ \
-                     % (self.nidx.name, label)
-        else:
-            script = """start n=node:`%s`('label:*') """ \
-                     % self.nidx.name
+        if isinstance(label, (list, tuple)) and not label:
+            return
+        script = self._prepare_script(for_node=True, label=label)
         where = None
         params = []
         if lookups:
@@ -178,6 +200,8 @@ class GraphDatabase(BlueprintsGraphDatabase):
             script = u"%s id(n), n" % script
         else:
             script = u"%s id(n)" % script
+        if order_by:
+            script = u"%s order by n.`%s` %s " % (script, order_by[0][0].replace('`', '\`'), order_by[0][1])
         page = 1000
         skip = offset or 0
         limit = limit or page
@@ -223,11 +247,9 @@ class GraphDatabase(BlueprintsGraphDatabase):
                                    limit=None, offset=None, order_by=None):
         # Using Cypher
         cypher = self.cypher
-        if label:
-            script = """start r=rel:`%s`('label:%s') """ % (self.ridx.name,
-                                                            label)
-        else:
-            script = """start r=rel:`%s`('label:*') """ % self.ridx.name
+        if isinstance(label, (list, tuple)) and not label:
+            return
+        script = self._prepare_script(for_node=False, label=label)
         script = """%s match a-[r]->b """ % script
         where = None
         params = []
@@ -249,6 +271,8 @@ class GraphDatabase(BlueprintsGraphDatabase):
         else:
             script = u"%s return distinct id(r), %s, a, b" \
                      % (script, type_or_r)
+        if order_by:
+            script = u"%s order by n.`%s` %s " % (script, order_by[0][0].replace('`', '\`'), order_by[0][1])
         page = 1000
         skip = offset or 0
         limit = limit or page

@@ -43,9 +43,14 @@
         {% endfor %}
         <span class="buttonLinkOption buttonLinkLeft">
           <input type="submit" value="{% trans "Save" %} {{ nodetype.name|capfirst }}"/>
+          {% if as_new %}
+          {% trans "or" %}
+          <input type="submit" name="as-new" value="{% trans "Save as new" %} {{ nodetype.name|capfirst }}"/>
+          {% endif %}
         </span>
         <span class="buttonLinkOption buttonLinkRight">
           {% if delete %}
+          {% trans "or" %}
           <a href="{% url nodes_delete graph.slug node.id %}">{% trans "Remove" %}</a>
           {% endif %}
           {% trans "or" %}
@@ -174,7 +179,7 @@
   </div>
 
   <!-- Features Tour -->
-  <ol id="tour" class="hidden">
+  <ol id="tour" class="hidden" data-tour-id="nodes-editcreate">
     <li data-id="propertiesTitle" data-button="{% trans "Next" %}" class="joyride-position-data-properties">
       <h2>{% trans "Properties" %}</h2>
       <p>{% trans "The properties fields of this Type." %}</p>
@@ -226,7 +231,7 @@
               addCssClass: "addButton inFormsets",
               addText: "{% trans "Add" %} {{ outgoing_formset.itemtype.name }} ({{ outgoing_formset.itemtype.target.name }})",
               extraClasses: ["row1", "row2"],
-              added: function(row) {$("#{{prefix}} p:last label").hide(); nodeAutocomplete(row.find("input.autocomplete"));},
+              added: function(row) {$("#{{prefix}} p:last label").hide(); nodeAutocomplete(row.find("input.node_autocomplete"));},
               deleteCssClass: "delete-rowup{% if outgoing_formset.itemtype.properties.count %}Props{% endif %}",
               deleteText: ""
             });
@@ -245,7 +250,7 @@
               addCssClass: "addButton inFormsets",
               addText: "{% trans "Add" %} "+ label,  // +" ({{ incoming_formset.itemtype.source.name }})",
               extraClasses: ["row1", "row2"],
-              added: function(row) {$("#{{prefix}} p:last label").hide(); nodeAutocomplete(row.find("input.autocomplete"));},
+              added: function(row) {$("#{{prefix}} p:last label").hide(); nodeAutocomplete(row.find("input.node_autocomplete"));},
               deleteCssClass: "delete-rowup{% if incoming_formset.itemtype.properties.count %}Props{% endif %}",
               deleteText: ""
             });
@@ -311,7 +316,6 @@
         // Expand properties box in case of form errors
         if ($('.errorlist').length > 0) {
           $('.toggleProperties').click();
-          $('.delete-rowupProps').last().click();
         }
 
         // Enabling autocomplete for nodes
@@ -345,8 +349,41 @@
           }
         };
 
-        $(".autocomplete").each(function(i, input) {
+        $(".node_autocomplete").each(function(i, input) {
           nodeAutocomplete(input);
+        });
+
+        // Enabling autocomplete for collaborators
+        var userAutocomplete = function(input) {
+          var params = {}, $input = $(input);
+          if ($input.attr("class")) {
+            if ($input.attr("class").indexOf(" ") > 0) {
+              params = {
+                minChars: 2,
+                propertyToSearch: "display",
+                tokenLimit: 1,
+                preventDuplicates: true,
+                tokenValue: "id",
+                prePopulate: [{
+                  id: $input.val(),
+                  display: $input.attr("class").split(" ").slice(1).join(" ")
+                }]
+              };
+            } else {
+              params = {
+                minChars: 2,
+                propertyToSearch: "display",
+                tokenLimit: 1,
+                preventDuplicates: true,
+                tokenValue: "id"
+              };
+            }
+            $input.tokenInput("{% url collaborators_lookup graph.slug %}", params);
+          }
+        };
+
+        $(".user_autocomplete").each(function(i, input) {
+          userAutocomplete(input);
         });
 
         // Selecting the type of relationships to show

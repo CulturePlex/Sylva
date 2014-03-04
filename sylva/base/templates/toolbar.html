@@ -1,11 +1,11 @@
 {% load i18n %}
-<li><a href="{% url graph_view graph.slug %}" class="{% if on == "graph" %}text{% else %}link{% endif %}">
+<li><a href="{% url graph_view graph.slug %}" class="{% if on == "graph" %}text{% else %}link{% endif %}" title="{% trans "Access to the graphs of the user" %}">
     <span>{% trans "Graph" %}</span>
 </a></li>
 <li>
 <!--    href="{% url nodes_list graph.slug %}"-->
 <!--    <a id="dataMenu" href="{% url nodes_list graph.slug %}" class="inline {% if on == "nodes" %}text{% else %}link{% endif %}">-->
-    <a id="dataMenu" href="javascript:void(0);" class="inline link">
+    <a id="dataMenu" href="javascript:void(0);" class="inline link" title="{% trans "List of all types of user data" %}">
         <span>{% trans "Data" %}</span>
     </a>
     <div id="dataBrowse">
@@ -38,17 +38,17 @@
 <!--<li><a href="{% url relationships_list graph.slug %}" class="{% if on == "relationships" %}text{% else %}link{% endif %}">-->
 <!--    <span>{% trans "Relationships" %}</span>-->
 <!--</a></li>-->
-<li><a href="{% url schema_edit graph.slug %}" class="{% if on == "schema" %}text{% else %}link{% endif %}">
+<li><a id="schema-link" href="{% url schema_edit graph.slug %}" class="{% if on == "schema" %}text{% else %}link{% endif %}" title="{% trans "Access to the schema of the graph database" %}">
     <span>{% trans "Schema" %}</span>
 </a></li>
 <!--<li><a href="{% url operator_query graph.slug %}" class="{% if on == "operators" %}text{% else %}link{% endif %}">-->
 <!--    <span>{% trans "Operators" %}</span>-->
 <!--</a></li>-->
-<li><a href="{% url graph_collaborators graph.slug %}" class="{% if on == "collaborators" %}text{% else %}link{% endif %}">
+<li><a href="{% url graph_collaborators graph.slug %}" class="{% if on == "collaborators" %}text{% else %}link{% endif %}" title="{% trans "List of collaborators or add a new collaborator" %}">
     <span>{% trans "Collaborators" %}</span>
 </a></li>
 <li>
-    <a id="toolsMenu" href="javascript:void(0);" class="link">
+    <a id="toolsMenu" href="javascript:void(0);" class="link" title="{% trans "Tools for import and export data" %}">
         <span>{% trans "Tools" %}</span>
     </a>
     <table id="toolsBrowseId" class="toolsBrowse">

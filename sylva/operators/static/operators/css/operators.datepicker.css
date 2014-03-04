@@ -1,0 +1,72 @@
+/**
+* CSS rules for the datepicker. These rules will go in the
+* respective css file after the testing phase
+*
+* http://www.hongkiat.com/blog/jquery-ui-datepicker/
+*/
+
+.ui-datepicker {
+    width: 216px;
+    height: auto;
+    margin: 5px auto 0;
+    font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+    -webkit-box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, .5);
+    -moz-box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, .5);
+    box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, .5);
+    background-color: white;
+}
+
+.ui-datepicker a {
+    text-decoration: none;
+}
+
+.ui-datepicker table {
+    width: 100%;
+}
+
+.ui-datepicker-header {
+    color: white;
+    width: 100%;
+    height: 20px;
+    background: #348E82;
+    color: white;
+    font-weight: bold;
+    text-align: center;
+    padding-top: 2px;
+    line-height: 150%;
+    font-size: 12px;
+    overflow: hidden;
+}
+
+.ui-datepicker-title {
+    text-align: center;
+}
+
+.ui-datepicker-prev, .ui-datepicker-next {
+    display: none;
+}
+
+.ui-datepicker th {
+    text-transform: uppercase;
+    font-size: 6pt;
+    padding: 5px 0;
+    color: #666666;
+    text-shadow: 1px 0px 0px #fff;
+    filter: dropshadow(color=#fff, offx=1, offy=0);
+}
+
+.ui-datepicker tbody td {
+    padding: 2px;
+    border-right: 1px solid #bbb;
+}
+
+.ui-datepicker tbody td:last-child {
+    border-right: 0px;
+}
+
+.ui-datepicker tbody tr {
+    border-bottom: 1px solid #bbb;
+}
+.ui-datepicker tbody tr:last-child {
+    border-bottom: 0px;
+}

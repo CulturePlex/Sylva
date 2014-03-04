@@ -1,25 +1,23 @@
-#-*- coding:utf8 -*-
-
+#-*- coding:utf-8 -*-
 from django.test import TestCase
 
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate
 from django.test.client import Client, RequestFactory
 from django.contrib.auth.models import User
 
-from graphs.models import Graph, User
+from graphs.models import Graph
 from graphs.mixins import RelationshipDoesNotExist
 from graphs.mixins import NodeDoesNotExist
 from schemas.models import Schema, NodeType, RelationshipType
 
 import tools.views
-import graphs.models
 
 
 class GraphTest(TestCase):
     def setUp(self):
         self.factory = RequestFactory()
         self.c = Client()
-        self.u = User.objects.create(username='john', password='doe',is_active=True, is_staff=True)
+        self.u = User.objects.create(username='john', password='doe', is_active=True, is_staff=True)
         self.u.set_password('hello')
         self.u.save()
         mySchema = Schema.objects.create()
@@ -40,6 +38,7 @@ class GraphTest(TestCase):
         """
         self.assertIsNotNone(self.graph)
         self.assertEqual(self.graph.name, self.graphName)
+        Graph.objects.get(name=self.graphName).destroy()
 
     def test_graph_deletion(self):
         """
@@ -63,6 +62,7 @@ class GraphTest(TestCase):
         n = self.graph.nodes.create(label=self.label)
         self.assertIsNotNone(n)
         self.assertEqual(n.label, self.label)
+        Graph.objects.get(name=self.graphName).destroy()
 
     def test_nodes_create_unicode(self):
         """
@@ -71,6 +71,7 @@ class GraphTest(TestCase):
         n = self.graph.nodes.create(label=self.unicode_label)
         self.assertIsNotNone(n)
         self.assertEqual(n.label, self.unicode_label)
+        Graph.objects.get(name=self.graphName).destroy()
 
     def test_nodes_edition(self):
         """
@@ -81,6 +82,7 @@ class GraphTest(TestCase):
         self.assertEqual(n.label, self.label)
         n._label = "2"
         self.assertNotEqual(n.label, self.label)
+        Graph.objects.get(name=self.graphName).destroy()
 
     def test_nodes_edition_unicode(self):
         """
@@ -89,8 +91,9 @@ class GraphTest(TestCase):
         n = self.graph.nodes.create(label=self.label)
         self.assertIsNotNone(n)
         self.assertEqual(n.label, self.label)
-        n._label= u"2"
+        n._label = u"2"
         self.assertNotEqual(n.label, self.label)
+        Graph.objects.get(name=self.graphName).destroy()
 
     def test_nodes_deletion(self):
         """
@@ -106,6 +109,7 @@ class GraphTest(TestCase):
         except NodeDoesNotExist:
             exists = False
         self.assertEqual(exists, False)
+        Graph.objects.get(name=self.graphName).destroy()
 
     def test_nodes_create_properties(self):
         """
@@ -122,6 +126,7 @@ class GraphTest(TestCase):
         for key, value in n.properties.iteritems():
             self.assertIn(key, self.properties)
             self.assertEqual(self.properties[key], value)
+        Graph.objects.get(name=self.graphName).destroy()
 
     def test_nodes_set_properties(self):
         """
@@ -138,6 +143,7 @@ class GraphTest(TestCase):
         for key, value in n.properties.iteritems():
             self.assertIn(key, self.properties)
             self.assertEqual(self.properties[key], value)
+        Graph.objects.get(name=self.graphName).destroy()
 
     def test_nodes_create_properties_unicode(self):
         """
@@ -154,6 +160,7 @@ class GraphTest(TestCase):
         for key, value in n.properties.iteritems():
             self.assertIn(key, self.unicode_properties)
             self.assertEqual(self.unicode_properties[key], value)
+        Graph.objects.get(name=self.graphName).destroy()
 
     def test_nodes_set_properties_unicode(self):
         """
@@ -170,6 +177,7 @@ class GraphTest(TestCase):
         for key, value in n.properties.iteritems():
             self.assertIn(key, self.unicode_properties)
             self.assertEqual(self.unicode_properties[key], value)
+        Graph.objects.get(name=self.graphName).destroy()
 
     def test_graph_clone(self):
         """
@@ -186,12 +194,14 @@ class GraphTest(TestCase):
         self.graph.clone(clone_graph, clone_data=True)
         self.assertNotEqual(self.graph, clone_graph)
         self.assertEqual(self.graph.nodes.count(), clone_graph.nodes.count())
+        Graph.objects.get(name=self.graphName).destroy()
+        Graph.objects.get(name=cloneGraphName).destroy()
 
     def test_graph_import(self):
         """
         Tests graph imported
         """
-        user = authenticate(username='john', password='hello')
+        authenticate(username='john', password='hello')
         login = self.c.login(username='john', password='hello')
         self.assertTrue(login)
         response = self.c.get('/accounts/signin/')
@@ -200,13 +210,14 @@ class GraphTest(TestCase):
         self.assertEqual(response.status_code, 200)
         request = self.factory.get('/import/')
         request.user = self.u
-        self.assertIsNotNone(tools.views.graph_import_tool(request,self.graph.slug))
+        self.assertIsNotNone(tools.views.graph_import_tool(request, self.graph.slug))
+        Graph.objects.get(name=self.graphName).destroy()
 
     def test_graph_export(self):
         """
         Tests graph exported
         """
-        user = authenticate(username='john', password='hello')
+        authenticate(username='john', password='hello')
         login = self.c.login(username='john', password='hello')
         self.assertTrue(login)
         response = self.c.get('/accounts/signin/')
@@ -220,6 +231,7 @@ class GraphTest(TestCase):
         self.assertIsNotNone(tools.views.graph_export_gexf(request,self.graph.slug))
         self.assertIsNotNone(tools.views.graph_export_csv(request,self.graph.slug))
         """
+        Graph.objects.get(name=self.graphName).destroy()
 
 
 class RelationshipTest(TestCase):
@@ -260,6 +272,7 @@ class RelationshipTest(TestCase):
         self.assertIsNotNone(self.relationship)
         self.assertIsNotNone(self.relationship.id)
         self.assertEqual(self.relationship.label, self.relationship_label)
+        Graph.objects.get(name="Bob's graph").destroy()
 
     def test_relationship_edition(self):
         """
@@ -276,6 +289,7 @@ class RelationshipTest(TestCase):
         self.relationship.set(self.property_key, self.property_value)
         self.assertEqual(self.relationship.get(
             self.property_key), self.property_value)
+        Graph.objects.get(name="Bob's graph").destroy()
 
     def test_relationship_deletion(self):
         """
@@ -288,5 +302,5 @@ class RelationshipTest(TestCase):
             exist = True
         except RelationshipDoesNotExist:
             exist = False
-
         self.assertEqual(exist, False)
+        Graph.objects.get(name="Bob's graph").destroy()

@@ -2,9 +2,11 @@
 from collections import Sequence
 
 from django.db import transaction
+from django.db.models import F
 
 from engines.gdb.backends import NodeDoesNotExist, RelationshipDoesNotExist
 from schemas.models import NodeType, RelationshipType
+from data.models import Data
 
 
 ASC = "asc"
@@ -168,7 +170,6 @@ class BaseSequence(Sequence):
         return self
 
 
-
 class NodeSequence(BaseSequence):
 
     def create_list(self, eltos, with_labels=False):
@@ -206,8 +207,12 @@ class NodesManager(BaseManager):
             raise NodesLimitReachedException
 
     def all(self):
+        node_types = self.graph.schema.nodetype_set.all()
+        node_labels = [str(node_type.id) for node_type in node_types]
         return NodeSequence(graph=self.graph,
-                            iterator_func=self.gdb.get_all_nodes,
+                            iterator_func=self.gdb.get_filtered_nodes,
+                            lookups=None,
+                            label=node_labels,
                             include_properties=True)
 
     def filter(self, *lookups, **options):
@@ -228,6 +233,8 @@ class NodesManager(BaseManager):
                                  lookups=lookups,
                                  iterator_func=self.gdb.get_filtered_nodes,
                                  include_properties=True)
+        # We call __len__() to create the list of elements
+        # eltos.__len__()
         return eltos
 
     def iterator(self):
@@ -340,9 +347,16 @@ class RelationshipsManager(BaseManager):
             raise RelationshipsLimitReachedException
 
     def all(self):
-        return RelationshipSequence(graph=self.graph,
-                                iterator_func=self.gdb.get_all_relationships,
-                                include_properties=True)
+        relationship_types = self.graph.schema.relationshiptype_set.all()
+        relationship_labels = [
+            str(relationship_type.id)
+            for relationship_type in relationship_types]
+        return RelationshipSequence(
+            graph=self.graph,
+            iterator_func=self.gdb.get_filtered_relationships,
+            lookups=None,
+            label=relationship_labels,
+            include_properties=True)
 
     def filter(self, *lookups, **options):
         if "label" in options:
@@ -460,9 +474,14 @@ class NodeRelationshipsManager(BaseManager):
             raise RelationshipsLimitReachedException
 
     def all(self):
+        relationship_types = self.graph.schema.relationshiptype_set.all()
+        relationship_labels = [
+            str(relationship_type.id)
+            for relationship_type in relationship_types]
         relationships = []
         eltos = self.gdb.get_node_relationships(self.node_id,
-                                                include_properties=True)
+                                                include_properties=True,
+                                                label=relationship_labels)
         for relationship_id, relationship_properties in eltos:
             relationship = Relationship(relationship_id, self.graph,
                                         initial=relationship_properties)

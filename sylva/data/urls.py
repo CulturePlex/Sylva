@@ -33,4 +33,8 @@ urlpatterns = patterns('data.views',
         name="relationships_list"),
     url(r'^(?P<graph_slug>[\w-]+)/relationships/(?P<relationship_type_id>\d+)/$',
         'relationships_list_full', name="relationships_list_full"),
+
+    # collaborators
+    url(r'^(?P<graph_slug>[\w-]+)/collaborators/lookup/$',
+        'collaborators_lookup', name="collaborators_lookup"),
 )
