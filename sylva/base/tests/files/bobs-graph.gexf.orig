@@ -18,7 +18,11 @@
             <attribute id="RelationshipTypeId" title="[Schema] Allowed Relationship Id" type="string"/>
         </attributes>
         <nodes>
+<<<<<<< HEAD
+                <node id="38" label="Bob&#39;s node" type="Bob&#39;s type">
+=======
                 <node id="21" label="Bob&#39;s node" type="Bob&#39;s type">
+>>>>>>> gabmunrio/master
                 <attvalues>
                     <attvalue for="NodeTypeId" value="1"/>
                     <attvalue for="NodeType" value="Bob&amp;#39;s type"/>

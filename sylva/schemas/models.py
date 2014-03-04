@@ -77,10 +77,12 @@ class Schema(models.Model, SchemaMixin):
             for node_property in node_type.properties.all().select_related():
                 field = {
                     "label": node_property.key,
-                    "type": node_property.get_datatype(),
+                    #"type": node_property.get_datatype(),
+                    "type": node_property.datatype,
                     "name": node_property.slug,
                     "primary": False,
                     "blank": False,
+                    "choices": node_property.get_choices(),
                 }
                 fields.append(field)
             for rel_type in node_type.get_all_relationships().select_related():
@@ -88,7 +90,8 @@ class Schema(models.Model, SchemaMixin):
                 for rel_property in rel_type.properties.all().select_related():
                     field = {
                         "label": rel_property.key,
-                        "type": rel_property.get_datatype(),
+                        #"type": rel_property.get_datatype(),
+                        "type": rel_property.datatype,
                         "name": rel_property.slug,
                     }
                     rel_fields.append(field)
@@ -98,6 +101,7 @@ class Schema(models.Model, SchemaMixin):
                     "source": rel_type.source.slug,
                     "target": rel_type.target.slug,
                     "fields": rel_fields,
+                    "id": rel_type.id
                 }
                 relations.append(relation)
             schema[node_type.slug] = {
@@ -107,6 +111,7 @@ class Schema(models.Model, SchemaMixin):
                 "is_auto": False,
                 "fields": fields,
                 "relations": relations,
+                "id": node_type.id
             }
         slug = self.graph.slug
         diagram = {slug: schema}

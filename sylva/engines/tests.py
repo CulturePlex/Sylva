@@ -6,7 +6,6 @@ when you run "manage.py test".
 
 Replace this with more appropriate tests for your application.
 """
-
 from django.conf import settings
 from django.test import TestCase
 

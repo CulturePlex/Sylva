@@ -1,4 +1,5 @@
 import requests
+import os
 
 from django.test import LiveServerTestCase
 
@@ -7,8 +8,6 @@ from splinter import Browser
 from user import signup, signin, logout
 from dashboard import create_graph, create_schema, create_type
 from graphs.models import Graph
-
-import os
 
 
 class SchemaTestCase(LiveServerTestCase):

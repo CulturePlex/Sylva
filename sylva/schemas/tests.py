@@ -1,6 +1,6 @@
 #-*- coding:utf-8 -*-
-
 from django.test import TestCase
+
 from datetime import date, time
 
 from schemas.models import (Schema, NodeType, RelationshipType, NodeProperty,
