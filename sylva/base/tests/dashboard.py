@@ -30,7 +30,8 @@ def create_schema(test):
     test.browser.find_link_by_href(
         '/graphs/bobs-graph/').first.click()
     test.assertEqual(test.browser.title, "SylvaDB - Bob's graph")
-    test.browser.find_by_id('schema-link').first.click()
+    js_code = "$('a#schema-link')[0].click();"
+    test.browser.execute_script(js_code)
     text = test.browser.find_by_xpath(
         "//div[@class='body-inside']/p").first.value
     test.assertEqual(text, 'There are no types defined yet.')

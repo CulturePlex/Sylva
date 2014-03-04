@@ -62,7 +62,7 @@ def create_advanced_type(test, name, datatype):
     test.browser.find_by_name('properties-0-key').first.fill('Name')
     test.browser.find_by_name('properties-0-display').first.check()
     test.browser.find_by_id('advancedModeButton').first.click()
-    test.browser.find_by_xpath("//optgroup[@label='Auto']/option[@value='" + datatype +"']").first.click()
+    test.browser.find_by_xpath("//optgroup[@label='Auto']/option[@value='" + datatype + "']").first.click()
     test.browser.find_by_value('Save Type').first.click()
     text = test.browser.find_by_id(
         'diagramBoxField_bobgraph.bobs-type.undefined').first.value
@@ -85,7 +85,7 @@ def create_advanced_type_and_relationship(test, name, datatype):
     test.browser.find_by_name('properties-0-key').first.fill('Name')
     test.browser.find_by_name('properties-0-display').first.check()
     test.browser.find_by_id('advancedModeButton').first.click()
-    test.browser.find_by_xpath("//optgroup[@label='Auto']/option[@value='" + datatype +"']").first.click()
+    test.browser.find_by_xpath("//optgroup[@label='Auto']/option[@value='" + datatype + "']").first.click()
     test.browser.find_by_value('Save Type').first.click()
     text = test.browser.find_by_id(
         'diagramBoxField_bobgraph.bobs-type.undefined').first.value
@@ -139,7 +139,10 @@ def import_advanced_schema(test, name_export, name_import):
     test.browser.find_link_by_href('/schemas/' + name_import + '/').first.click()
     test.assertEqual(test.browser.title, "SylvaDB - " + name_import)
     test.browser.find_by_id('schemaImport').first.click()
-    file_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'files/gexf/bobgraph_schema.json')
+    file_path = os.path.join(
+        os.path.abspath(os.path.dirname(__file__)),
+        'files/gexf/bobgraph_schema.json'
+    )
     test.browser.attach_file('file', file_path)
     test.browser.find_by_value('Continue').first.click()
     test.assertEqual(test.browser.title, "SylvaDB - " + name_import)
@@ -160,7 +163,10 @@ def import_advanced_schema_csv(test, name_export, name_import):
     test.browser.find_link_by_href('/schemas/' + name_import + '/').first.click()
     test.assertEqual(test.browser.title, "SylvaDB - " + name_import)
     test.browser.find_by_id('schemaImport').first.click()
-    file_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'files/csv/bobgraph_rel_schema.json')
+    file_path = os.path.join(
+        os.path.abspath(os.path.dirname(__file__)),
+        'files/csv/bobgraph_rel_schema.json'
+    )
     test.browser.attach_file('file', file_path)
     test.browser.find_by_value('Continue').first.click()
     test.assertEqual(test.browser.title, "SylvaDB - " + name_import)
@@ -194,7 +200,10 @@ def data_import_gexf(test):
                 $('#files').css('display', '');
              """
     test.browser.execute_script(script)
-    file_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'files/gexf/bobs-graph.gexf')
+    file_path = os.path.join(
+        os.path.abspath(os.path.dirname(__file__)),
+        'files/gexf/bobs-graph.gexf'
+    )
     test.browser.attach_file('file', file_path)
     # Wait until the data is imported
     test.browser.is_text_present('Data uploaded.', wait_time=10)
@@ -373,7 +382,10 @@ class ToolsTestCaseCsv(LiveServerTestCase):
         self.browser.execute_script(script)
         self.browser.is_text_present('Drop your nodes files here', wait_time=10)
         # Import the nodes
-        file_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'files/csv/bobs-type.csv')
+        file_path = os.path.join(
+            os.path.abspath(os.path.dirname(__file__)),
+            'files/csv/bobs-type.csv'
+        )
         self.browser.attach_file('file', file_path)
         self.browser.is_text_present('Nodes files loaded. Loading edges files...', wait_time=10)
         # Wait until the data is imported
@@ -384,7 +396,10 @@ class ToolsTestCaseCsv(LiveServerTestCase):
             """
         self.browser.execute_script(script)
         # Import the relationships
-        file_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'files/csv/bobs-rels.csv')
+        file_path = os.path.join(
+            os.path.abspath(os.path.dirname(__file__)),
+            'files/csv/bobs-rels.csv'
+        )
         self.browser.attach_file('file2', file_path)
         self.browser.is_text_present('Data loaded. Uploading to the server...', wait_time=10)
         # Wait until the data is imported
