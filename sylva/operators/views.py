@@ -78,15 +78,24 @@ def graph_query_collaborators(request, graph_slug):
         graph = get_object_or_404(Graph, slug=graph_slug)
         term = request.GET["term"]
         if graph and term:
-            collabs = graph.get_collaborators(include_anonymous=True,
-                                              as_queryset=True)
-            collabs_dict = {}
-            for collab in collabs:
+            #collabs = graph.get_collaborators(include_anonymous=True,
+            #                                  as_queryset=True)
+            lookups = (Q(username__icontains=term) |
+                       Q(first_name__icontains=term) |
+                       Q(last_name__icontains=term) |
+                       Q(email__icontains=term))
+            no_collabs = User.objects.filter(lookups)
+            no_collabs = no_collabs.exclude(id=request.user.id)
+            collabs_result = []
+            for collab in no_collabs:
+                collabs_dict = {}
                 full_name = collab.get_full_name()
                 if full_name:
                     name = u"%s (%s)" % (full_name, collab.username)
                 else:
                     name = collab.username
-                    collabs_dict[collab.id] = name
-            return HttpResponse(json.dumps(collabs_dict))
+                    collabs_dict["id"] = collab.id
+                    collabs_dict["value"] = name
+                    collabs_result.append(collabs_dict)
+            return HttpResponse(json.dumps(collabs_result))
     return HttpResponse(json.dumps({}))
