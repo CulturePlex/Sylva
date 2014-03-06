@@ -69,6 +69,7 @@
         </div>
         </fieldset>
     </div>
+    <div id="results"></div>
 {% endif %}
 </div>
     <div class="content-divider"></div>
@@ -109,7 +110,8 @@ if (!diagram) {
 
 diagram.Models = {% autoescape off %}{{ graph.schema.get_schema_diagram }}{% endautoescape %};
 
-diagram.url = "{% url graph_query_collaborators graph.slug %}";
+diagram.url_collaborators = "{% url graph_query_collaborators graph.slug %}";
+diagram.url_query = "{% url operator_query_results graph.slug %}";
 
 </script>
 {% endblock %}

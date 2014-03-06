@@ -180,6 +180,7 @@ diagram.lookupsValuesType = {
                 addRelation.addClass("add-relation");
                 addRelation.attr('data-parentid', idBox);
                 addRelation.attr('data-label', label);
+                addRelation.attr('data-idrel', relation.id);
                 diagram.fieldsForRels[label] = relation.fields;
 
                 if(relation.source) {
@@ -305,8 +306,9 @@ diagram.lookupsValuesType = {
         /**
          * Add a box for the relation
          * - label
+         * - idRel
          */
-        diagram.addRelationBox = function(label) {
+        diagram.addRelationBox = function(label, idRel) {
             // %%%%%%%%%%%%%%%%%%%%%%
             // %%%% Title part
             // %%%%%%%%%%%%%%%%%%%%%%
@@ -324,6 +326,7 @@ diagram.lookupsValuesType = {
             divTitle.css({
                 "padding-bottom": "3%"
             });
+            divTitle.attr("data-modelid", idRel);
             // Select for the type
             selectReltype = $("<SELECT>");
             selectReltype.addClass("select-reltype-" + label);
@@ -337,6 +340,7 @@ diagram.lookupsValuesType = {
             optionReltype.addClass("option-reltype-" + label);
             optionReltype.attr('id', label + diagram.reltypesCounter[label]);
             optionReltype.attr('value', label + diagram.reltypesCounter[label]);
+            optionReltype.attr('data-modelid', idRel);
             optionReltype.html(label + diagram.reltypesCounter[label]);
             // This for loop is to add the new option in the old boxes
             for(var i = 0; i < diagram.reltypesCounter[label]; i++)
@@ -368,7 +372,7 @@ diagram.lookupsValuesType = {
             var relationsIds = [];
             primaries = [];
             root = $("#"+ diagram.Container);
-            //diagram.Counter++;
+            diagram.Counter++;
             idBox = "diagramBoxRel-" + diagram.Counter + "-" + label;
             idTopBox = "diagramTopBoxRel-" + diagram.Counter + "-" + label;
             idFields = "diagramFieldsRel-" + diagram.Counter + "-" + label;
@@ -891,9 +895,10 @@ diagram.lookupsValuesType = {
          * Returns the options of a relationship
          * - type
          * - label
+         * - idRel
          * - anchor
          */
-         diagram.getRelationshipOptions = function(type, label, anchor) {
+         diagram.getRelationshipOptions = function(type, label, idRel, anchor) {
             var relationshipOptions = null;
 
             if(type == 'source') {
@@ -916,10 +921,10 @@ diagram.lookupsValuesType = {
                                         cssClass:"connection"}],*/
                                     ["Custom", {
                                         create:function(component) {
-                                                            return diagram.addRelationBox(label);
+                                                            return diagram.addRelationBox(label, idRel);
                                                         },
                                         location:0.5,
-                                        id:"customOverlay"
+                                        id:"diagramBoxRel-" + (diagram.Counter + 1) + "-" + label
                                     }]
                                 ],
                                 paintStyle: {
@@ -1259,12 +1264,13 @@ diagram.lookupsValuesType = {
         var $this = $(this);
         var parentId = $this.data("parentid");
         var label = $this.data("label");
+        var idRel = $this.data("idrel");
         var source = $this.data("source");
 
         if(source) {
             var uuidSource = parentId + "-source";
             if(!jsPlumb.getEndpoint(uuidSource)) {
-                var endpointSource = jsPlumb.addEndpoint(parentId, { uuid:uuidSource, connector: "Flowchart"}, diagram.getRelationshipOptions('source', label, 0.5));
+                var endpointSource = jsPlumb.addEndpoint(parentId, { uuid:uuidSource, connector: "Flowchart"}, diagram.getRelationshipOptions('source', label, idRel, 0.5));
             }
         }
 
@@ -1282,18 +1288,31 @@ diagram.lookupsValuesType = {
         jsPlumb.repaintEverything();
     });
 
+     jsPlumb.bind("connection", function(info) {
+        var sourceIdValue = info.sourceId;
+        var targetIdValue = info.targetId;
+
+        var idBoxRel = info.connection.getOverlays()[1].id;
+        //$('#' + idBoxRel).attr("data-idrel", idBoxRel);
+        info.connection.idrel = idBoxRel;
+     });
+
     /**
      * Handler for create the JSON file
      */
     $(document).on('click', '#run-button', function() {
-        var result = "";
+        var query = "";
         var propertiesChecked = {};
         // Conditions
         var conditions = "{'conditions': [";
         var properties = $('.select-property');
         $.each(properties, function(index, property){
+            var condition = "";
             var alias = $(property).data('boxalias');
-            var condition = "(\'" + $(property).next().val() + "\'," + " (\'property\', " + "\'" + alias + "\'," + "\'" + $(property).val() + "\'), " + "\'" + $(property).next().next().val() + "\'),";
+            var lookup = $(property).next().val();
+            if(lookup) {
+                condition = "(\'" + lookup + "\'," + " (\'property\', " + "\'" + alias + "\'," + "\'" + $(property).val() + "\'), " + "\'" + $(property).next().next().val() + "\'),";
+            }
             // We store the checked properties
             propertiesChecked[alias] = new Array();
             if($(property).prev().attr('checked')) {
@@ -1302,7 +1321,7 @@ diagram.lookupsValuesType = {
             conditions = conditions + condition;
         });
         conditions = conditions + '],';
-        result = result + conditions + '\n';
+        query = query + conditions;
 
         // Origin
         var origins = "'origins': [";
@@ -1317,7 +1336,7 @@ diagram.lookupsValuesType = {
             origins = origins + origin;
         });
         origins = origins + '],';
-        result = result + origins + '\n';
+        query = query + origins;
 
         // Patterns
         var patterns = "'patterns': [";
@@ -1327,13 +1346,20 @@ diagram.lookupsValuesType = {
         var elements = jsPlumb.getAllConnections();
         var ways = "";
         $.each(elements, function(index, element) {
+            // We get the id for the relation div
+            var relationId = element.idrel;
+
             // We get the source and the target of the relation
             var sourceId = element.sourceId;
             var targetId = element.targetId;
 
             // We get the selectors for every component to build
             // the json correctly
-            var relation = "{'relation': {},";
+            var relationSelector = $('#' + relationId + ' .title');
+            var relationAlias = $('#' + relationId + ' .title select').val();
+            var relationModelId = relationSelector.data('modelid');
+            var relation = "{'relation': {";
+            relation = relation + "'alias': \'" + relationAlias + "\'," + " 'type': 'relationship'," + " 'type_id': " + relationModelId + '},';
 
             var sourceSelector = $('#' + sourceId + ' .title');
             var sourceAlias = sourceSelector.data('boxalias');
@@ -1350,7 +1376,7 @@ diagram.lookupsValuesType = {
         });
         //ways = ways + ;
         patterns = patterns + ways + '],';
-        result = result + patterns + '\n';
+        query = query + patterns;
 
         // Result
         var results = "'results': [";
@@ -1367,9 +1393,33 @@ diagram.lookupsValuesType = {
             results = results + value  + ']},';
         });
         results = results + ']';
-        result = result + results + '}';
+        query = query + results + '}';
 
-        console.log(result);
+        query = "{'conditions': [('istartswith', ('property', 'n4_0', u'Title'), u'el')],'origins': [{'alias': 'n3_0', 'type': 'node', 'type_id': 3},{'alias': 'r2_0', 'type': 'relationship', 'type_id': 2},{'alias': 'n4_0', 'type': 'node', 'type_id': 4}],'patterns': [{'relation': {'alias': 'r2_0','type': 'relationship','type_id': 2},'source': {'alias': 'n3_0', 'type': 'node', 'type_id': 3},'target': {'alias': 'n4_0', 'type': 'node', 'type_id': 4}}],'results': [{'alias': 'n3_0', 'properties': [u'Name']},{'alias': 'r2_0', 'properties': []},{'alias': 'n4_0', 'properties': None}]}"
+
+        // We execute the query and show the results
+        console.log(query);
+        $.ajax({
+            type: "POST",
+            url: diagram.url_query,
+            data: {"query": query},
+            success: function (data) {
+                $("#results").html("");
+                for (var i = 0, j = data.length; i < j; i += 1) {
+                    var row = $("<div>");
+                    for (var k = 0, l = data[i].length; k < l; k += 1) {
+                        var cell = $("<span>");
+                        cell.text(data[i][k]);
+                        row.append(cell);
+                    }
+                    $("#results").append(row);
+                }
+            },
+            error: function (e) {
+                $("#results").html("No results found");
+            },
+            dataType: "json"
+        });
     });
 
     $(document).ready(init);
