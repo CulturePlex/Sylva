@@ -1,28 +1,23 @@
 #-*- coding:utf-8 -*-
-import os
-
 from django.test import TestCase
-from django.utils.unittest import skipIf
 
 from django.contrib.auth import authenticate
 from django.test.client import Client, RequestFactory
 from django.contrib.auth.models import User
 
-from graphs.models import Graph, User
+from graphs.models import Graph
 from graphs.mixins import RelationshipDoesNotExist
 from graphs.mixins import NodeDoesNotExist
 from schemas.models import Schema, NodeType, RelationshipType
 
 import tools.views
-import graphs.models
 
 
-@skipIf(os.environ['INTERFACE'] == "1", 'Model test')
 class GraphTest(TestCase):
     def setUp(self):
         self.factory = RequestFactory()
         self.c = Client()
-        self.u = User.objects.create(username='john', password='doe',is_active=True, is_staff=True)
+        self.u = User.objects.create(username='john', password='doe', is_active=True, is_staff=True)
         self.u.set_password('hello')
         self.u.save()
         mySchema = Schema.objects.create()
@@ -96,7 +91,7 @@ class GraphTest(TestCase):
         n = self.graph.nodes.create(label=self.label)
         self.assertIsNotNone(n)
         self.assertEqual(n.label, self.label)
-        n._label= u"2"
+        n._label = u"2"
         self.assertNotEqual(n.label, self.label)
         Graph.objects.get(name=self.graphName).destroy()
 
@@ -206,7 +201,7 @@ class GraphTest(TestCase):
         """
         Tests graph imported
         """
-        user = authenticate(username='john', password='hello')
+        authenticate(username='john', password='hello')
         login = self.c.login(username='john', password='hello')
         self.assertTrue(login)
         response = self.c.get('/accounts/signin/')
@@ -215,14 +210,14 @@ class GraphTest(TestCase):
         self.assertEqual(response.status_code, 200)
         request = self.factory.get('/import/')
         request.user = self.u
-        self.assertIsNotNone(tools.views.graph_import_tool(request,self.graph.slug))
+        self.assertIsNotNone(tools.views.graph_import_tool(request, self.graph.slug))
         Graph.objects.get(name=self.graphName).destroy()
 
     def test_graph_export(self):
         """
         Tests graph exported
         """
-        user = authenticate(username='john', password='hello')
+        authenticate(username='john', password='hello')
         login = self.c.login(username='john', password='hello')
         self.assertTrue(login)
         response = self.c.get('/accounts/signin/')
@@ -239,7 +234,6 @@ class GraphTest(TestCase):
         Graph.objects.get(name=self.graphName).destroy()
 
 
-@skipIf(os.environ['INTERFACE'] == "1", 'Model test')
 class RelationshipTest(TestCase):
     """
     A set of tests for testing Relationship.

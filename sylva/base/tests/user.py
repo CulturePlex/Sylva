@@ -19,7 +19,8 @@ def signin(test, username, password):
     test.browser.visit(test.live_server_url + '/accounts/signin/')
     test.browser.find_by_name('identification').fill(username)
     test.browser.find_by_name('password').fill(password)
-    test.browser.find_by_value('Signin').first.click()
+    test.browser.find_by_xpath(
+        "//div[@id='body']/div/form/input").first.click()
 
 
 def logout(test):
@@ -35,7 +36,7 @@ class UserTestCase(LiveServerTestCase):
     """
 
     def setUp(self):
-        self.browser = Browser('phantomjs')
+        self.browser = Browser()
 
     def tearDown(self):
         self.browser.quit()
@@ -106,16 +107,18 @@ class UserTestCase(LiveServerTestCase):
         self.browser.visit(self.live_server_url + '/accounts/signin/')
         self.browser.find_by_name('identification').fill('')
         self.browser.find_by_name('password').fill('bob_secret')
-        self.browser.find_by_value('Signin').first.click()
+        self.browser.find_by_xpath(
+            "//div[@id='body']/div/form/input").first.click()
         text = self.browser.find_by_xpath("//ul[@class='errorlist']/li").first.text
         self.assertEqual(text, 'Either supply us with your email or username.')
 
     def test_user_signin_bad_user(self):
         signup(self, 'bob', 'bob@cultureplex.ca', 'bob_secret')
         self.browser.visit(self.live_server_url + '/accounts/signin/')
-        self.browser.find_by_name('identification').fill('john')
+        self.browser.find_by_name('identification').fill('alice')
         self.browser.find_by_name('password').fill('bob_secret')
-        self.browser.find_by_value('Signin').first.click()
+        self.browser.find_by_xpath(
+            "//div[@id='body']/div/form/input").first.click()
         text = self.browser.find_by_xpath("//ul[@class='errorlist']/li").first.text
         self.assertEqual(text, 'Please enter a correct username or email and password. Note that both fields are case-sensitive.')
 
@@ -124,7 +127,8 @@ class UserTestCase(LiveServerTestCase):
         self.browser.visit(self.live_server_url + '/accounts/signin/')
         self.browser.find_by_name('identification').fill('bob')
         self.browser.find_by_name('password').fill('')
-        self.browser.find_by_value('Signin').first.click()
+        self.browser.find_by_xpath(
+            "//div[@id='body']/div/form/input").first.click()
         text = self.browser.find_by_xpath("//ul[@class='errorlist']/li").first.text
         self.assertEqual(text, 'This field is required.')
 
@@ -132,8 +136,9 @@ class UserTestCase(LiveServerTestCase):
         signup(self, 'bob', 'bob@cultureplex.ca', 'bob_secret')
         self.browser.visit(self.live_server_url + '/accounts/signin/')
         self.browser.find_by_name('identification').fill('bob')
-        self.browser.find_by_name('password').fill('john_secret')
-        self.browser.find_by_value('Signin').first.click()
+        self.browser.find_by_name('password').fill('alice_secret')
+        self.browser.find_by_xpath(
+            "//div[@id='body']/div/form/input").first.click()
         text = self.browser.find_by_xpath("//ul[@class='errorlist']/li").first.text
         self.assertEqual(text, 'Please enter a correct username or email and password. Note that both fields are case-sensitive.')
 
@@ -316,7 +321,7 @@ class UserTestCase(LiveServerTestCase):
         self.assertEqual(self.browser.title, 'SylvaDB - Change password')
         self.browser.find_by_name('old_password').fill('bob_secret')
         self.browser.find_by_name('new_password1').fill('bob_password')
-        self.browser.find_by_name('new_password2').fill('john_password')
+        self.browser.find_by_name('new_password2').fill('alice_password')
         self.browser.find_by_value('Change password').first.click()
         text = self.browser.find_by_xpath("//ul[@class='errorlist']/li").first.text
         self.assertEqual(text, 'The two password fields didn\'t match.')

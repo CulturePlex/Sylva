@@ -59,6 +59,9 @@ urlpatterns = patterns('',
     # payments
     url(r'^payments/', include('payments.urls')),
     url(r'^zebra/', include('zebra.urls', namespace="zebra", app_name='zebra')),
+
+    # reports
+    url(r'^reports/', include('reports.urls')),
 )
 
 urlpatterns += patterns('django.contrib.flatpages.views',

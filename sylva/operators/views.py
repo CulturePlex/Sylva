@@ -58,6 +58,7 @@ def operator_query_results(request, graph_slug):
         graph = get_object_or_404(Graph, slug=graph_slug)
         query_parser = QueryParser(graph)
         # query = "notas of autor with notas that start with lista"
+        # see https://gist.github.com/versae/9241069
         query_dict = query_parser.parse(unicode(query))
         results = graph.query(query_dict)
         # TODO: Try to make the response streamed
@@ -94,8 +95,6 @@ def graph_query_collaborators(request, graph_slug):
                     name = u"%s (%s)" % (full_name, collab.username)
                 else:
                     name = collab.username
-                    collabs_dict["id"] = collab.id
-                    collabs_dict["value"] = name
-                    collabs_result.append(collabs_dict)
-            return HttpResponse(json.dumps(collabs_result))
+                    collabs_dict[collab.id] = name
+            return HttpResponse(json.dumps(collabs_dict))
     return HttpResponse(json.dumps({}))

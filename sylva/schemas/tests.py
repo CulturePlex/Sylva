@@ -1,8 +1,5 @@
 #-*- coding:utf-8 -*-
-import os
-
 from django.test import TestCase
-from django.utils.unittest import skipIf
 
 from datetime import date, time
 
@@ -10,7 +7,6 @@ from schemas.models import (Schema, NodeType, RelationshipType, NodeProperty,
                             RelationshipProperty)
 
 
-@skipIf(os.environ['INTERFACE'] == "1", 'Model test')
 class SchemaTest(TestCase):
     """
     A set of tests for testing Schemas.
@@ -59,7 +55,6 @@ def property_pre_setUp(property_test):
     property_test.schema = Schema.objects.create()
 
 
-@skipIf(os.environ['INTERFACE'] == "1", 'Model test')
 class NodePropertyTest(TestCase):
     """
     A set of tests for testing NodeProperty.
@@ -116,7 +111,6 @@ class NodePropertyTest(TestCase):
         self.assertEqual(self.node_type.properties.count(), 0)
 
 
-@skipIf(os.environ['INTERFACE'] == "1", 'Model test')
 class RelationshipPropertyTest(TestCase):
     """
     A set of tests for testing RelationshipProperties.
@@ -176,7 +170,6 @@ class RelationshipPropertyTest(TestCase):
         self.assertEqual(self.relationship_type.properties.count(), 0)
 
 
-@skipIf(os.environ['INTERFACE'] == "1", 'Model test')
 class NodeTypesTest(TestCase):
     def setUp(self):
         self.mySchema = Schema.objects.create()
@@ -219,7 +212,6 @@ class NodeTypesTest(TestCase):
         self.assertEqual(exists, False)
 
 
-@skipIf(os.environ['INTERFACE'] == "1", 'Model test')
 class RelationshipTypesTest(TestCase):
     def setUp(self):
         self.mySchema = Schema.objects.create()

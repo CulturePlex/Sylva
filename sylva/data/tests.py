@@ -5,16 +5,12 @@ when you run "manage.py test".
 
 Replace this with more appropriate tests for your application.
 """
-import os
-
 from django.test import TestCase
-from django.utils.unittest import skipIf
 from django.core.files.storage import default_storage
 
 from data.models import Data, MediaNode, MediaFile, MediaLink
 
 
-@skipIf(os.environ['INTERFACE'] == "1", 'Model test')
 class MediaFileTest(TestCase):
     def setUp(self):
         # We modify the default storage path to store
@@ -73,7 +69,6 @@ class MediaFileTest(TestCase):
         self.assertEqual(exists, False)
 
 
-@skipIf(os.environ['INTERFACE'] == "1", 'Model test')
 class MediaLinkTest(TestCase):
     """
     A set of tests for testing MedaLink .

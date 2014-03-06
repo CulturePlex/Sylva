@@ -7,6 +7,8 @@ from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.translation import gettext as _
 from django.template.defaultfilters import slugify
+from django.db.models.signals import pre_save
+from django.dispatch import receiver
 
 from base.fields import AutoSlugField
 from schemas.mixins import SchemaMixin
@@ -122,6 +124,10 @@ class Schema(models.Model, SchemaMixin):
         with transaction.commit_on_success():
             for node_type, properties in data['nodeTypes'].iteritems():
                 n = NodeType(name=node_type, schema=self)
+                # Saving with color
+                color = n.schema.get_color()
+                n.set_option('color', color)
+                n.schema.save()
                 n.save()
                 for prop, values in properties.iteritems():
                     np = NodeProperty(key=prop, node=n)
@@ -141,6 +147,37 @@ class Schema(models.Model, SchemaMixin):
                     for key, value in values.iteritems():
                         setattr(rp, key, value)
                     rp.save()
+
+    def _create_colors(self):
+        colors = ['#F70000', '#B9264F', '#990099', '#74138C', '#0000CE',
+                  '#1F88A7', '#4A9586', '#FF2626', '#D73E68', '#B300B3',
+                  '#8D18AB', '#5B5BFF', '#25A0C5', '#5EAE9E', '#FF5353',
+                  '#DD597D', '#CA00CA', '#A41CC6', '#7373FF', '#29AFD6',
+                  '#74BAAC', '#FF7373', '#E37795', '#D900D9', '#BA21E0',
+                  '#8282FF', '#4FBDDD', '#8DC7BB', '#FF8E8E', '#E994AB',
+                  '#FF2DFF', '#CB59E8', '#9191FF', '#67C7E2', '#A5D3CA',
+                  '#FFA4A4', '#EDA9BC', '#F206FF', '#CB59E8', '#A8A8FF',
+                  '#8ED6EA', '#C0E0DA', '#FFB5B5', '#F0B9C8', '#FF7DFF',
+                  '#D881ED', '#B7B7FF', '#A6DEEE', '#CFE7E2', '#FFC8C8',
+                  '#F4CAD6', '#FFA8FF', '#EFCDF8', '#C6C6FF', '#C0E7F3',
+                  '#DCEDEA', '#FFEAEA', '#F8DAE2', '#FFC4FF', '#EFCDF8',
+                  '#DBDBFF', '#D8F0F8', '#E7F3F1', '#FFEAEA', '#FAE7EC',
+                  '#FFE3FF', '#F8E9FC', '#EEEEFF', '#EFF9FC', '#F2F9F8',
+                  '#FFFDFD', '#FEFAFB', '#FFFDFF', '#FFFFFF', '#FDFDFF',
+                  '#FAFDFE', '#F7FBFA']
+        self.set_option("colors", colors)
+
+    def get_color(self):
+        if 'colors' not in self.get_options():
+            self._create_colors()
+        colors = self.get_option("colors")
+        next = colors[0]
+        del colors[0]
+        if len(colors) <= 0:
+            self._create_colors()
+        else:
+            self.set_option("colors", colors)
+        return next
 
     def get_options(self):
         options = json.loads(self.options or "{}")
@@ -190,6 +227,29 @@ class BaseType(models.Model):
 #                                  """,
                                   help_text=_("Code in Javascript to "
                                               "validate all the properties"))
+    options = models.TextField(_('options'), null=True, blank=True)
+
+    def get_options(self):
+        options = json.loads(self.options or "{}")
+        return options
+
+    def set_options(self, dic):
+        if isinstance(dic, dict):
+            self.options = json.dumps(dic)
+
+    def update_options(self, dic):
+        options = self.get_options()
+        options.update(dic)
+        self.options = json.dumps(options)
+
+    def get_option(self, key=None):
+        return self.get_options()[key]
+
+    def set_option(self, key, value):
+        if key and value:
+            options = self.get_options()
+            options[key] = value
+            self.options = json.dumps(options)
 
     class Meta:
         abstract = True
@@ -386,8 +446,6 @@ class BaseProperty(models.Model):
     def save(self, *args, **kwargs):
         if self.key:
             self.key = self.key.strip()
-        #if not self.auto or self.auto < 1:
-        #    self.auto = 0
         super(BaseProperty, self).save(*args, **kwargs)
 
     def __unicode__(self):
@@ -404,12 +462,12 @@ class BaseProperty(models.Model):
             "choice": u"c",
             "text": u"x",
             "float": u"f",
+            "collaborator": u"r",
             "auto_now": u"w",
             "auto_now_add": u"a",
             "auto_increment": u"i",
             "auto_increment_update": u"o",
             "auto_user": u"e",
-            "user": u"r"
         }
 
     def get_datatype(self):
@@ -447,3 +505,10 @@ class RelationshipProperty(BaseProperty):
     class Meta:
         verbose_name_plural = _("Relationship properties")
         ordering = ("order", "key")
+
+
+@receiver(pre_save, sender=Schema)
+def create_schema_colors(*args, **kwargs):
+    schema = kwargs.get("instance", None)
+    if schema and not schema.pk:
+        schema._create_colors()

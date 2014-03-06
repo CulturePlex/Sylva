@@ -5,6 +5,7 @@ except ImportError:
     import json  # NOQA
 
 from django.db import transaction
+from django.core.files import File
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.core.urlresolvers import reverse
 from django.conf import settings
@@ -26,7 +27,7 @@ from data.models import Data, MediaNode
 from data.forms import (NodeForm, RelationshipForm, TypeBaseFormSet,
                         MediaFileFormSet, MediaLinkFormSet,
                         ItemDeleteConfirmForm,
-                        ITEM_FIELD_NAME)
+                        ITEM_FIELD_NAME, SOURCE, TARGET)
 from graphs.models import Graph
 from schemas.models import NodeType, RelationshipType
 
@@ -87,7 +88,7 @@ def nodes_lookup(request, graph_slug, with_properties=False, page_size=10):
                 query |= graph.Q(prop.key, icontains=q, nullable=True)
         nodes = node_type.filter(query)[:page_size]
         json_nodes = []
-        print exclude
+        # print exclude
         if with_properties:
             for node in nodes:
                 if str(node.id) not in exclude:
@@ -153,7 +154,9 @@ def nodes_list_full(request, graph_slug, node_type_id):
                 prop_value = node_properties[prop_key]
                 if prop_value == "":
                     prop_value = "(Empty)"
-                property_values[prop_key].add(prop_value.__str__())
+                if not isinstance(prop_value, unicode):
+                    prop_value = prop_value.__str__()
+                property_values[prop_key].add(prop_value)
     for key in property_values:
         property_values[key] = list(property_values[key])
     return render_to_response('node_list.html',
@@ -187,7 +190,8 @@ def nodes_create(request, graph_slug, node_type_id):
         data = None
         mediafile_formset = MediaFileFormSet(prefix="__files")
         medialink_formset = MediaLinkFormSet(prefix="__links")
-    node_form = NodeForm(itemtype=nodetype, data=data, user=request.user.username)
+    node_form = NodeForm(graph=graph, itemtype=nodetype, data=data,
+                         user=request.user.username)
     outgoing_formsets = SortedDict()
     prefixes = []
     for relationship in nodetype.outgoing_relationships.all():
@@ -207,8 +211,10 @@ def nodes_create(request, graph_slug, node_type_id):
         prefixes.append({"key": formset_prefix,
                          "value": u"→ %s (%s)" % (relationship.name,
                                                     relationship.target.name)})
-        outgoing_formset = RelationshipFormSet(itemtype=relationship,
+        outgoing_formset = RelationshipFormSet(graph=graph,
+                                               itemtype=relationship,
                                                instance=nodetype,
+                                               direction=TARGET,
                                                prefix=formset_prefix,
                                                data=data,
                                                user=request.user.username)
@@ -231,8 +237,10 @@ def nodes_create(request, graph_slug, node_type_id):
         prefixes.append({"key": formset_prefix,
                          "value": u"← %s (%s)" % (relationship.name,
                                                     relationship.source.name)})
-        incoming_formset = RelationshipFormSet(itemtype=relationship,
+        incoming_formset = RelationshipFormSet(graph=graph,
+                                               itemtype=relationship,
                                                instance=nodetype,
+                                               direction=SOURCE,
                                                prefix=formset_prefix,
                                                data=data,
                                                user=request.user.username)
@@ -312,8 +320,8 @@ def nodes_view(request, graph_slug, node_id):
                                            relationship.target.id)
         prefix = slugify(relationship_slug).replace("-", "_")
         prefixes.append({"key": prefix,
-                         "value": u"→ %s (%s)" % (relationship.name,
-                                                  relationship.target.name)})
+                         "value": u"→ %s (%s)" %
+                        (relationship.name, relationship.target.name)})
         graph_relationships = node.relationships.filter(label=relationship.id)
         if graph_relationships:
             outgoing_relationships.append({"prefix": prefix,
@@ -325,12 +333,16 @@ def nodes_view(request, graph_slug, node_id):
                                            relationship.target.id)
         prefix = slugify(relationship_slug).replace("-", "_")
         prefixes.append({"key": prefix,
-                         "value": u"← %s (%s)" % (relationship.name,
-                                                  relationship.source.name)})
+                         "value": u"← %s (%s)" %
+                        (relationship.name, relationship.source.name)})
         graph_relationships = node.relationships.filter(label=relationship.id)
         if graph_relationships:
             incoming_relationships.append({"prefix": prefix,
                                            "relations": graph_relationships})
+    view_graph_ajax_url = reverse('graphs.views.graph_data',
+                                  args=[graph.slug, node_id])
+    edit_nodetype_color_ajax_url = reverse(
+        'schemas.views.schema_nodetype_edit_color', args=[graph.slug])
     return render_to_response('nodes_view.html',
                               {"graph": graph,
                                "nodetype": nodetype,
@@ -341,7 +353,10 @@ def nodes_view(request, graph_slug, node_id):
                                "incoming_relationships": incoming_relationships,
                                "media_links": media_node.links.all(),
                                "media_files": media_node.files.all(),
-                               "action": _("View")},
+                               "action": _("View"),
+                               "view_graph_ajax_url": view_graph_ajax_url,
+                               "edit_nodetype_color_ajax_url":
+                                  edit_nodetype_color_ajax_url},
                               context_instance=RequestContext(request))
 
 
@@ -375,7 +390,8 @@ def nodes_edit(request, graph_slug, node_id):
                                              data=data, prefix="__links")
     node_initial = node.properties.copy()
     node_initial.update({ITEM_FIELD_NAME: node.id})
-    node_form = NodeForm(itemtype=nodetype, initial=node_initial, data=data, user=request.user.username)
+    node_form = NodeForm(graph=graph, itemtype=nodetype, initial=node_initial,
+                         data=data, user=request.user.username)
     # Outgoing relationships
 #    initial = []
 #    for relationship in node.relationships.all():
@@ -414,15 +430,16 @@ def nodes_edit(request, graph_slug, node_id):
                                                   formset=TypeBaseFormSet,
                                                   can_delete=True,
                                                   extra=1)
-        relationship_slug = "o_%s%s_%s" % (relationship.name, relationship.id,
-                                           relationship.target.id)
+        relationship_slug = "o_%s%s" % (relationship.name, relationship.id)
         formset_prefix = slugify(relationship_slug).replace("-", "_")
         prefixes.append({"key": formset_prefix,
                          "value": u"→ %s (%s)" % (relationship.name,
                                                     relationship.target.name)})
-        outgoing_formset = RelationshipFormSet(itemtype=relationship,
+        outgoing_formset = RelationshipFormSet(graph=graph,
+                                               itemtype=relationship,
                                                instance=nodetype,
                                                related_node=node,
+                                               direction=TARGET,
                                                prefix=formset_prefix,
                                                initial=initial,
                                                data=data,
@@ -465,15 +482,16 @@ def nodes_edit(request, graph_slug, node_id):
                                                   formset=TypeBaseFormSet,
                                                   can_delete=True,
                                                   extra=1)
-        relationship_slug = "i_%s%s_%s" % (relationship.name, relationship.id,
-                                           relationship.source.id)
+        relationship_slug = "i_%s%s" % (relationship.name, relationship.id)
         formset_prefix = slugify(relationship_slug).replace("-", "_")
         prefixes.append({"key": formset_prefix,
                          "value": u"← %s (%s)" % (relationship.name,
                                                     relationship.source.name)})
-        incoming_formset = RelationshipFormSet(itemtype=relationship,
+        incoming_formset = RelationshipFormSet(graph=graph,
+                                               itemtype=relationship,
                                                instance=nodetype,
                                                related_node=node,
+                                               direction=SOURCE,
                                                prefix=formset_prefix,
                                                initial=initial,
                                                data=data,
@@ -486,27 +504,49 @@ def nodes_edit(request, graph_slug, node_id):
             and all([rf.is_valid() for rf in incoming_formsets.values()])):
         with transaction.commit_manually():
             try:
-                node = node_form.save()
+                as_new = 'as-new' in request.POST
+                node = node_form.save(as_new=as_new)
                 for outgoing_formset in outgoing_formsets.values():
                     for outgoing_form in outgoing_formset.forms:
-                        outgoing_form.save(related_node=node)
+                        if not (outgoing_form.delete and as_new):
+                            # The if statement saves execution time
+                            outgoing_form.save(related_node=node,
+                                               as_new=as_new)
                 for incoming_formset in incoming_formsets.values():
                     for incoming_form in incoming_formset.forms:
-                        incoming_form.save(related_node=node)
+                        if not (incoming_form.delete and as_new):
+                            # The if statement saves execution time
+                            incoming_form.save(related_node=node,
+                                               as_new=as_new)
+                if as_new:
+                    mediafile_formset.forms = [
+                        modify_media_form(form)
+                        for form in mediafile_formset.forms
+                        if can_media_save_as_new(form)]
+                    medialink_formset.forms = [
+                        modify_media_form(form)
+                        for form in medialink_formset.forms
+                        if can_media_save_as_new(form)]
                 mediafiles = mediafile_formset.save(commit=False)
                 medialinks = medialink_formset.save(commit=False)
                 # Manage files and links
-                if not media_node.pk and (mediafiles or medialinks):
+                if ((as_new or not media_node.pk) and
+                        (mediafiles or medialinks)):
                     media_node = MediaNode.objects.create(node_id=node.id,
                                                           data=graph.data)
                 for mediafile in mediafiles:
                     mediafile.media_node = media_node
+                    if as_new and mediafile.pk:
+                        mediafile.pk = None
+                        clone_file(mediafile)
                     mediafile.save()
                 for medialink in medialinks:
                     medialink.media_node = media_node
+                    if as_new and medialink.pk:
+                        medialink.pk = None
                     medialink.save()
-                if media_node.pk and not media_node.files.exists() and \
-                        not media_node.links.exists():
+                if (media_node.pk and not media_node.files.exists() and
+                        not media_node.links.exists()):
                     media_node.delete()
             except:
                 transaction.rollback()
@@ -526,8 +566,29 @@ def nodes_edit(request, graph_slug, node_id):
                                "mediafile_formset": mediafile_formset,
                                "medialink_formset": medialink_formset,
                                "action": _("Edit"),
-                               "delete": True},
+                               "delete": True,
+                               "as_new": True},
                               context_instance=RequestContext(request))
+
+
+def can_media_save_as_new(form):
+    if (hasattr(form, 'cleaned_data') and 'DELETE' in form.cleaned_data and
+            not form.cleaned_data['DELETE']):
+        return True
+    return False
+
+
+def modify_media_form(form):
+    form.cleaned_data['id'] = None
+    form.changed_data.append('Dummy data for perform "save as new" operation')
+    return form
+
+
+def clone_file(mediafile):
+    original_path = mediafile.media_file.url
+    filename = original_path.rsplit('/', 1)[1]
+    f = open(mediafile.media_file.path)
+    mediafile.media_file.save(filename, File(f), save=False)
 
 
 @permission_required("data.delete_data", (Data, "graph__slug", "graph_slug"),
@@ -599,7 +660,7 @@ def relationships_list(request, graph_slug):
     for type_element in graph.schema.relationshiptype_set.all():
         properties = [p.key for p in type_element.properties.all()]
         data = create_data(properties, type_element.all()[:5], True)
-        columns = ["source", "target"]
+        columns = [SOURCE, TARGET]
         columns.extend(properties)
         type_element_name = u"(%s) %s (%s)" % (type_element.source.name,
                                                type_element.name,
@@ -623,7 +684,7 @@ def relationships_list_full(request, graph_slug, relationship_type_id):
     data_preview = []
     properties = [p.key for p in type_element.properties.all()]
     data = create_data(properties, type_element.all(), True)
-    columns = ["source", "target"]
+    columns = [SOURCE, TARGET]
     columns.extend(properties)
     data_preview.append([type_element.name, columns, data])
     return render_to_response('nodes_list.html',
@@ -653,3 +714,30 @@ def node_relationships(request, graph_slug, node_id):
                         "label": label.name})
     result = {'incoming': incoming, 'outgoing': outgoing}
     return HttpResponse(json.dumps(result))
+
+
+@permission_required("data.view_data", (Data, "graph__slug", "graph_slug"),
+                     return_403=True)
+def collaborators_lookup(request, graph_slug):
+    graph = get_object_or_404(Graph, slug=graph_slug)
+    data = request.GET.copy()
+    if (request.is_ajax() or settings.DEBUG) and data:
+        almost_name = data.keys()[0]
+        q = data[almost_name]
+        json_collaborators = []
+        owner = graph.owner.username
+        if q in owner:
+            json_collaborators.append({
+                "id": owner,
+                "display": owner
+            })
+        json_collaborators.extend([
+            {
+                "id": collaborator.username,
+                "display": collaborator.username
+            } for collaborator in graph.get_collaborators()
+            if q in collaborator.username])
+        json_collaborators.sort()
+        return HttpResponse(json.dumps(json_collaborators),
+                            status=200, mimetype='application/json')
+    raise Http404(_("Mismatch criteria for matching the search."))

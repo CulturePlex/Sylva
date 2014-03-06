@@ -572,6 +572,123 @@ diagram.lookupsValuesType = {
         }
 
         /**
+         * Set all the neccesary to create the title div
+         * - graphName
+         * - model
+         * - typeName
+         * - modelName
+         * - idTopBox
+         * - idBox
+         * - relationsIds
+         */
+        diagram.addTitleDiv = function(graphName, model, typeName, modelName, idTopBox, idBox, relationsIds) {
+            var divTitle, selectNodetype, optionNodetype, checkboxType, anchorShowHide, iconToggle, anchorDelete, iconDelete;
+            divTitle = $("<DIV>");
+            divTitle.addClass("title");
+            divTitle.css({
+                "padding-bottom": "3%"
+            });
+            // Select for the type
+            selectNodetype = $("<SELECT>");
+            selectNodetype.addClass("select-nodetype-" + typeName);
+            selectNodetype.css({
+                "width": "46%",
+                "float": "left",
+                "padding": "0",
+                "margin-left": "3%"
+            });
+            optionNodetype = $("<OPTION>");
+            optionNodetype.addClass("option-nodetype-" + typeName);
+            optionNodetype.attr('id', model.name + diagram.nodetypesCounter[typeName]);
+            optionNodetype.attr('data-modelid', model.id);
+            optionNodetype.attr('value', model.name + diagram.nodetypesCounter[typeName]);
+            optionNodetype.attr('selected', 'selected');
+            optionNodetype.html(model.name + diagram.nodetypesCounter[typeName]);
+            // This for loop is to add the new option in the old boxes
+            for(var i = 0; i < diagram.nodetypesCounter[typeName]; i++)
+            {
+                $($('.select-nodetype-' + typeName)[i]).append(optionNodetype.clone(true));
+                $($('.select-nodetype-' + typeName + ' #' + model.name + i)[i]).attr('selected', 'selected');
+            }
+            // This for loop is to include the old options in the new box
+            for(var j = 0; j < diagram.nodetypesCounter[typeName]; j++) {
+                var value = model.name + j;
+                selectNodetype.append("<option class='option-nodetype-" + typeName + "' id='" + value + "' data-modelid='" + model.id + "' value='" + value +"'>" + value + "</option>");
+            }
+            selectNodetype.append(optionNodetype);
+            // Checkbox for select type
+            checkboxType = $("<INPUT>");
+            checkboxType.attr("id", "checkbox-" + idBox);
+            checkboxType.attr("type", "checkbox");
+            checkboxType.css({
+                "float": "left",
+                "margin-top": "1%"
+            });
+            divTitle.append(checkboxType);
+            diagram.setName(divTitle, model.name);
+            divTitle.append(selectNodetype);
+            anchorShowHide = $("<A>");
+            anchorShowHide.attr("href", "javascript:void(0);");
+            anchorShowHide.attr("id", "inlineShowHideLink_"+ modelName);
+            iconToggle = $("<I>");
+            iconToggle.addClass("icon-minus-sign");
+            iconToggle.css({
+                "color": "white",
+                "float": "right",
+                "margin-right": "2%"
+            });
+            anchorShowHide.append(iconToggle);
+            anchorShowHide.click(function () {
+                $("#diagramModelAnchor_"+ graphName +"\\\."+ modelName).click();
+                $('#' + idTopBox).toggleClass("hidden");
+                if (iconToggle.attr('class') == 'icon-minus-sign') {
+                    iconToggle.removeClass('icon-minus-sign');
+                    iconToggle.addClass('icon-plus-sign');
+
+                    /*for(var i = 0; i < relationsIds.length; i++) {
+                        jsPlumb.toggle(relationsIds[i]);
+                    }*/
+                } else {
+                    iconToggle.removeClass('icon-plus-sign');
+                    iconToggle.addClass('icon-minus-sign');
+
+                    /*for(var i = 0; i < relationsIds.length; i++) {
+                        jsPlumb.toggle(relationsIds[i]);
+                    }*/
+                }
+                jsPlumb.repaintEverything();
+                diagram.saveBoxPositions();
+            });
+            anchorDelete = $("<A>");
+            anchorDelete.attr("href", "javascript:void(0);");
+            anchorDelete.attr("id", "inlineDeleteLink_"+ modelName);
+            iconDelete = $("<I>");
+            iconDelete.addClass("icon-remove-sign");
+            iconDelete.css({
+                "color": "white",
+                "float": "right",
+                "margin-right": "2%"
+            });
+            anchorDelete.append(iconDelete);
+            anchorDelete.click(function () {
+                $("#diagramModelAnchor_"+ graphName +"\\\."+ modelName).click();
+                jsPlumb.detachAllConnections(idBox);
+                for(var i = 0; i < relationsIds.length; i++) {
+                    jsPlumb.deleteEndpoint(relationsIds[i] + "-source");
+                    jsPlumb.deleteEndpoint(relationsIds[i] + "-target");
+                }
+
+                $('#' + idBox).remove();
+            });
+            divTitle.append(anchorDelete);
+            divTitle.append(anchorShowHide);
+
+            divTitle.attr("data-boxalias", model.name + diagram.nodetypesCounter[typeName]);
+
+            return divTitle;
+        }
+
+        /**
          * Set the label fo the fields getting shorter and adding ellipsis
          */
         diagram.setLabel = function (div, label, primary) {
@@ -599,6 +716,7 @@ diagram.lookupsValuesType = {
             div.append(html);
             return div;
         };
+
 
        /**
          * Save the positions of the all the boxes in a serialized way into a

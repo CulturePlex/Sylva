@@ -60,17 +60,44 @@ class GraphDatabase(BlueprintsGraphDatabase):
         except IndexError:
             return 0
 
+    def _prepare_script(self, for_node=True, label=None):
+        """
+        Creates part of the script for the cypher query.
+        """
+        if for_node:
+            var = 'n'
+            type = 'node'
+            index = self.nidx.name
+        else:
+            var = 'r'
+            type = 'rel'
+            index = self.ridx.name
+        if isinstance(label, (list, tuple)):
+            if label:
+                label = """ OR """.join(['label:%s' % str(label_id) for label_id in label])
+            else:
+                """
+                It will never pass by here.
+                It was checked before call this method.
+                """
+                pass
+        else:
+            if label:
+                label = """label:%s""" % (label)
+            else:
+                label = """label:*"""
+        script = """start %s=%s:`%s`('%s') """ % (var, type, index, label)
+        return script
+
     def get_nodes_count(self, label=None):
         """
         Get the number of total nodes.
         If "label" is provided, the number is calculated according the
         the label of the element.
         """
-        index = self.nidx
-        if label:
-            script = """start n=node:`%s`('label:%s')""" % (index.name, label)
-        else:
-            script = """start n=node:`%s`('label:*')""" % (index.name)
+        if isinstance(label, (list, tuple)) and not label:
+            return 0
+        script = self._prepare_script(for_node=True, label=label)
         script = """%s return count(n)""" % script
         count = self.cypher(query=script)
         return self._clean_count(count)
@@ -81,11 +108,9 @@ class GraphDatabase(BlueprintsGraphDatabase):
         If "label" is provided, the number is calculated according the
         the label of the element.
         """
-        index = self.ridx
-        if label:
-            script = """start r=rel:`%s`('label:%s')""" % (index.name, label)
-        else:
-            script = """start r=rel:`%s`('label:*')""" % (index.name)
+        if isinstance(label, (list, tuple)) and not label:
+            return 0
+        script = self._prepare_script(for_node=False, label=label)
         script = """%s return count(r)""" % script
         count = self.cypher(query=script)
         return self._clean_count(count)
@@ -154,12 +179,9 @@ class GraphDatabase(BlueprintsGraphDatabase):
                            limit=None, offset=None, order_by=None):
         # Using Cypher
         cypher = self.cypher
-        if label:
-            script = """start n=node:`%s`('label:%s') """ \
-                     % (self.nidx.name, label)
-        else:
-            script = """start n=node:`%s`('label:*') """ \
-                     % self.nidx.name
+        if isinstance(label, (list, tuple)) and not label:
+            return
+        script = self._prepare_script(for_node=True, label=label)
         where = None
         params = []
         if lookups:
@@ -225,11 +247,9 @@ class GraphDatabase(BlueprintsGraphDatabase):
                                    limit=None, offset=None, order_by=None):
         # Using Cypher
         cypher = self.cypher
-        if label:
-            script = """start r=rel:`%s`('label:%s') """ % (self.ridx.name,
-                                                            label)
-        else:
-            script = """start r=rel:`%s`('label:*') """ % self.ridx.name
+        if isinstance(label, (list, tuple)) and not label:
+            return
+        script = self._prepare_script(for_node=False, label=label)
         script = """%s match a-[r]->b """ % script
         where = None
         params = []
@@ -402,28 +422,29 @@ class GraphDatabase(BlueprintsGraphDatabase):
             conditions_list.append(condition)
         conditions = u" AND ".join(conditions_list)
         origins_list = []
-        for origin_dict in query_dict["origin"]:
-            if origin_dict.get("nodetype"):
+        for origin_dict in query_dict["origins"]:
+            if origin_dict["type"] == "node":
                 origin = u"""{alias}=node:`{nidx}`('label:{type}')""".format(
                     nidx=self.nidx.name,
                     alias=origin_dict["alias"],
-                    type=origin_dict["type"].id,
+                    type=origin_dict["type_id"],
                 )
             else:
                 origin = u"""{alias}=rel:`{ridx}`('label:{type}')""".format(
                     ridx=self.ridx.name,
                     alias=origin_dict["alias"],
-                    type=origin_dict["type"].id,
+                    type=origin_dict["type_id"],
                 )
             origins_list.append(origin)
         origins = u", ".join(origins_list)
         results_list = []
-        for result_dict in query_dict["result"]:
-            for property_name in result_dict["properties"]:
-                if property_name:
-                    if property_name is Ellipsis:
-                        result = u"{0}".format(result_dict["alias"])
-                    else:
+        for result_dict in query_dict["results"]:
+            if result_dict["properties"] is None:
+                result = u"{0}".format(result_dict["alias"])
+                results_list.append(result)
+            else:
+                for property_name in result_dict["properties"]:
+                    if property_name:
                         result = u"{0}.`{1}`".format(
                             result_dict["alias"],
                             property_name
@@ -436,7 +457,7 @@ class GraphDatabase(BlueprintsGraphDatabase):
                 source = pattern_dict["source"]["alias"]
                 target = pattern_dict["target"]["alias"]
                 relation = pattern_dict["relation"]["alias"]
-                relation_type = pattern_dict["relation"]["type"].id
+                relation_type = pattern_dict["relation"]["type_id"]
                 pattern = u"({source})-[{rel}:`{rel_type}`]-(target)".format(
                     source=source,
                     rel=relation,

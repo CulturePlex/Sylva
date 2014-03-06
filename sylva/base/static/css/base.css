@@ -250,6 +250,11 @@ progress::-webkit-progress-value { background: #348E82; }
     font-size: 1.2em;
 }
 
+.bigger {
+    font-size: 115%;
+    margin-top: 5px;
+}
+
 .clear {
     clear: both;
     display: block;
@@ -331,6 +336,26 @@ p.slogan {
     text-shadow:0 1px 1px rgba(175,203,188,0.8);
 }
 
+.bigger p, .bigger li {
+    padding-bottom: 5px !important;
+}
+
+.bigger ul {
+    list-style-type: disc;
+    padding-left: 40px;
+}
+
+.title-graph-name {
+    display: none;
+    font-size: 150%;
+    color: #348E82;
+    padding-top: 13px;
+}
+
+.title-graph-name h2 {
+    padding: 0;
+}
+
 /* END Class utils ************************************************************/
 
 
@@ -369,10 +394,11 @@ p.slogan {
     margin: auto;
 }
 
-#link_logo {
+#link-logo {
     width: 140px;
     height: 50px;
     display: inline-block;
+    float: left;
     background-image: url(../img/sylva_logo_text_header.png);
     background-repeat: no-repeat;
     background-position: 10px 4px;
@@ -752,6 +778,12 @@ ul#box-nav li {
     padding-left: 30px;
 }
 
+.content2-equal {
+    width: 540px;
+    float: left;
+    padding-right: 15px;
+}
+
 .content2-block p {
     width:365px;
     float:left;
@@ -764,6 +796,16 @@ ul#box-nav li {
     min-height: 400px;
     float: left;
     padding: 0px 10px 0px 10px;
+}
+
+.content-divider-equal {
+    background: url(../img/content-divider.gif) repeat-y top center;
+    width: 1px;
+    min-height: 420px;
+    float: left;
+    padding: 0px 10px 0px 10px;
+    margin-right: 15px;
+    margin-top: 0;
 }
 
 #content2 .content-divider {
@@ -795,13 +837,18 @@ span.buttonLinkOption a {
 }
 
 span.buttonLinkLeft,
-span.buttonLinkRight {
+span.buttonLinkRight,
+span.buttonLinkDown {
     float: left;
 }
 
 span.buttonLinkRight {
     padding-top: 6px;
     padding-left: 4px;
+}
+
+span.buttonLinkDown {
+    clear: both;
 }
 
 p.forgot-password {
@@ -1468,15 +1515,6 @@ table.content-table {
     height: 36px;
 }
 
-#visualization-type {
-    width: 150px;
-    height: 34px;
-    margin-top: 0px;
-    border: 3px solid #D8E8DE;
-    color: #555;
-    display: inline-block;
-}
-
 .sigma-checkbox {
     display: inline-block;
     position: relative;
@@ -1484,7 +1522,7 @@ table.content-table {
 }
 
 .sigma-checkbox input[type="checkbox"] {
-    margin-top: -2px;
+    margin-top: 6px;
 }
 
 .sigma-checkbox label {

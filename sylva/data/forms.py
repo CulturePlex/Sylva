@@ -16,6 +16,8 @@ from schemas.models import RelationshipType
 
 ITEM_FIELD_NAME = "_ITEM_ID"
 NULL_OPTION = u"---------"
+SOURCE = u"source"
+TARGET = u"target"
 
 
 class ItemDeleteConfirmForm(forms.Form):
@@ -42,31 +44,27 @@ class ItemForm(forms.Form):
             "all": ("css/jqueryui.1.8.18.css", )
         }
 
-    def __init__(self, itemtype, instance=None, *args, **kwargs):
+    def __init__(self, graph, itemtype, instance=None, *args, **kwargs):
         self.username = kwargs.pop('user')
+        self.graph = graph
         # Only for relationships
         self.related_node = kwargs.pop("related_node", None)
+        self.direction = kwargs.pop("direction", SOURCE)
         super(ItemForm, self).__init__(label_suffix="", *args, **kwargs)
-        self.populate_fields(itemtype, instance=instance,
+        self.populate_fields(graph, itemtype, instance=instance,
                              initial=kwargs.get("initial", None))
-        self.graph = itemtype.schema.graph
         self.item_id = None
         self.delete = None
         self.instance = instance
         self.itemtype = itemtype
-        if hasattr(itemtype, "source"):
-            if instance == itemtype.source:
-                self.direction = "target"
-            else:
-                self.direction = "source"
         self.itemtype_properties = [prop["key"] for prop
                                     in itemtype.properties.all().values("key")
                                     if itemtype.id != prop["key"]]
 
-    def populate_fields(self, itemtype, instance=None, initial=None):
-        self.populate_node_properties(itemtype, initial=initial)
+    def populate_fields(self, graph, itemtype, instance=None, initial=None):
+        self.populate_node_properties(graph, itemtype, initial=initial)
 
-    def populate_node_properties(self, itemtype, initial=None):
+    def populate_node_properties(self, graph, itemtype, initial=None):
         # Node properties
         for item_property in itemtype.properties.all().order_by("order"):
             datatype_dict = item_property.get_datatype_dict()
@@ -143,6 +141,38 @@ class ItemForm(forms.Form):
                 widget = forms.TextInput(attrs={"readonly": "readonly"})
                 field_attrs["widget"] = widget
                 field = forms.CharField(**field_attrs)
+            elif item_property.datatype == datatype_dict["collaborator"]:
+                if settings.ENABLE_AUTOCOMPLETE_COLLABORATORS:
+                    if initial and item_property.key in initial:
+                        slug_value = slugify(initial[item_property.key])
+                        initial[item_property.key] = slug_value
+                        username = slug_value
+                        widget_class = u"user_autocomplete %s" % username
+                    else:
+                        widget_class = u"user_autocomplete"
+                    widget = forms.TextInput(
+                        attrs={
+                            "class": widget_class,
+                        })
+                    field_attrs["widget"] = widget
+                    field_attrs["initial"] = ""
+                    field = forms.CharField(**field_attrs)
+                else:
+                    collaborators = [(u'', NULL_OPTION)]
+                    owner = graph.owner.username
+                    collaborators.append((owner, owner))
+                    collaborators.extend(
+                        [(collaborator.username, collaborator.username)
+                            for collaborator
+                            in graph.get_collaborators()])
+                    collaborators.sort()
+                    field_attrs["choices"] = collaborators
+                    field_attrs["initial"] = slugify(field_attrs["initial"]
+                                                     or "")
+                    if initial and item_property.key in initial:
+                        slug_value = slugify(initial[item_property.key])
+                        initial[item_property.key] = slug_value
+                    field = forms.ChoiceField(**field_attrs)
             else:
                 field = forms.CharField(**field_attrs)
             self.fields[item_property.key] = field
@@ -214,7 +244,7 @@ class ItemForm(forms.Form):
                 cleaned_data[key] = value
         return cleaned_data
 
-    def save(self, commit=True, *args, **kwargs):
+    def save(self, commit=True, as_new=False, *args, **kwargs):
         properties = self.cleaned_data
         if (properties and any([bool(unicode(v).strip()) for v
                 in properties.values()])):
@@ -228,8 +258,12 @@ class ItemForm(forms.Form):
             properties = self._set_now_attributes(properties)
             properties = self._auto_increment_update(properties)
             if commit:
-                if self.item_id:
+                if self.item_id and not as_new:
                     if self.delete:
+                        '''
+                        It will never pass by here because the nodes are not
+                        deleted with the save method
+                        '''
                         return self.graph.nodes.delete(id=self.item_id)
                     else:
                         node = self.graph.nodes.get(self.item_id)
@@ -278,17 +312,17 @@ class NodeForm(ItemForm):
 
 class RelationshipForm(ItemForm):
 
-    def populate_fields(self, itemtype, instance=None, initial=None):
-        self.populate_relationship_properties(itemtype, instance=instance,
-                                              initial=initial)
-        self.populate_node_properties(itemtype, initial=initial)
+    def populate_fields(self, graph, itemtype, instance=None, initial=None):
+        self.populate_relationship_properties(
+            graph, itemtype, instance=instance, initial=initial)
+        self.populate_node_properties(graph, itemtype, initial=initial)
 
-    def populate_relationship_properties(self, itemtype, instance=None,
+    def populate_relationship_properties(self, graph, itemtype, instance=None,
                                          initial=None):
         # Relationship properties
         if isinstance(itemtype, RelationshipType):
-            if instance == itemtype.source:
-                direction = u"target"
+            direction = self.direction
+            if direction == TARGET:
                 label = u"→ %s (%s)" % (itemtype.name,
                                         getattr(itemtype, direction).name)
                 if not settings.ENABLE_AUTOCOMPLETE_NODES:
@@ -298,7 +332,6 @@ class RelationshipForm(ItemForm):
                 #                      args=[itemtype.schema.graph.slug,
                 #                            itemtype.target.id])
             else:
-                direction = u"source"
                 label = u"← (%s) %s" % (getattr(itemtype, direction).name,
                                         itemtype.inverse or itemtype.name)
                 if not settings.ENABLE_AUTOCOMPLETE_NODES:
@@ -330,12 +363,26 @@ class RelationshipForm(ItemForm):
                               " class=\"toggleProperties\">"
                               "Toggle properties</a>.")
             if settings.ENABLE_AUTOCOMPLETE_NODES:
-                if initial and itemtype.id in initial:
-                    node = itemtype.schema.graph.nodes.get(initial.get(itemtype.id))
-                    widget_class = u"autocomplete %s" % node.display
+                data_name = "-".join([self.prefix, str(itemtype.id)])
+                node = None
+                if initial and itemtype.id in initial:  # Saved data
+                    node = graph.nodes.get(initial.get(
+                        itemtype.id))
+                elif data_name in self.data:  # New data from the form
+                    '''
+                    This is a special case. It is used when you introduce a new
+                    relationship and the form have validation errors. So, we
+                    don't have a `initial` object with "original" data, but we
+                    DO have new data to show in the form with errors.
+                    '''
+                    node_id = self.data[data_name]
+                    if node_id.isdecimal():
+                        node_id = int(node_id)
+                        node = graph.nodes.get(node_id)
+                if node is not None:
+                    widget_class = u"node_autocomplete %s" % node.display
                 else:
-                    node = None
-                    widget_class = u"autocomplete"
+                    widget_class = u"node_autocomplete"
                 input_attrs = {
                     "class": widget_class,
                     "data-type": getattr(itemtype, direction).id,
@@ -375,13 +422,11 @@ class RelationshipForm(ItemForm):
             itemtype_id = unicode(getattr(self.itemtype, direction).id)
             if getattr(self, node_attr).label != itemtype_id:
                 itemtype_attr = getattr(self.itemtype, direction)
-                #msg = _("The %s must be %s") % (direction, itemtype_attr.name)
                 msg = _("The {0} must be {1}").format(direction, itemtype_attr.name)
                 self._errors[self.itemtype.id] = self.error_class([msg])
                 del cleaned_data[self.itemtype.id]
         else:
             itemtype_attr = getattr(self.itemtype, direction)
-            #msg = _("The %s must be %s") % (direction, itemtype_attr.name)
             msg = _("The {0} must be {1}").format(direction, itemtype_attr.name)
             self._errors[self.itemtype.id] = self.error_class([msg])
         # If there is no data, there is no relationship to add
@@ -390,13 +435,14 @@ class RelationshipForm(ItemForm):
             self._errors.pop(self.itemtype.id)
         return cleaned_data
 
-    def save(self, related_node=None, commit=True, *args, **kwargs):
+    def save(self, related_node=None, as_new=False, commit=True, *args,
+             **kwargs):
         related_node = related_node or self.related_node
         properties = None
         if hasattr(self, "cleaned_data"):
             properties = self.cleaned_data
-        if (properties and any([bool(unicode(v).strip()) for v
-                in properties.values()])):
+        if (properties and
+                any([bool(unicode(v).strip()) for v in properties.values()])):
             node_id = properties.pop(self.itemtype.id)
             if not self.graph.relaxed:
                 properties_items = properties.items()
@@ -407,7 +453,7 @@ class RelationshipForm(ItemForm):
             properties = self._set_now_attributes(properties)
             properties = self._auto_increment_update(properties)
             if commit and (self.item_id or related_node):
-                if self.item_id:
+                if self.item_id and not as_new:
                     if self.delete:
                         return self.graph.relationships.delete(id=self.item_id)
                     else:
@@ -418,7 +464,7 @@ class RelationshipForm(ItemForm):
                         setattr(rel, self.direction, self_node)
                         return rel
                 else:
-                    if self.instance == self.itemtype.source:
+                    if self.direction == TARGET:
                         # Direction →
                         properties = self._auto_increment(properties)
                         return self.graph.relationships.create(
@@ -446,12 +492,14 @@ def relationship_formset_factory(relationship, *args, **kwargs):
 
 class TypeBaseFormSet(BaseFormSet):
 
-    def __init__(self, itemtype, instance=None, related_node=None,
-                 *args, **kwargs):
+    def __init__(self, graph, itemtype, instance=None, related_node=None,
+                 direction=SOURCE, *args, **kwargs):
+        self.graph = graph
         self.itemtype = itemtype
         self.instance = instance
         self.username = kwargs.pop('user')
         self.related_node = related_node
+        self.direction = direction
         super(TypeBaseFormSet, self).__init__(*args, **kwargs)
 
     def _construct_form(self, i, **kwargs):
@@ -474,9 +522,11 @@ class TypeBaseFormSet(BaseFormSet):
         defaults.update(kwargs)
         # This is the only line distinct to original implementation from django
         form = self.form(
+            self.graph,
             self.itemtype,
             instance=self.instance,
             related_node=self.related_node,
+            direction=self.direction,
             **defaults)
         self.add_fields(form, i)
         return form

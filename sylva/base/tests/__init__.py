@@ -1,7 +1,4 @@
-#import os
-
-#os.environ['INTERFACE'] = "1"
-
+from bug import BugTestCase
 from collaborator import CollaboratorTestCase
 from dashboard import DashboardTestCase
 from data_node import DataNodeTestCase
