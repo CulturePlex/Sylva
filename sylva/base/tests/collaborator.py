@@ -1,7 +1,4 @@
-import os
-
 from django.test import LiveServerTestCase
-from django.utils.unittest import skipIf
 
 from splinter import Browser
 
@@ -46,7 +43,6 @@ def add_permission(test, username, permission):
         test.browser.find_by_xpath("//tr/td/a[text()='" + username + "']/../../td/input[@id='" + permission + "']").first.click()
 
 
-@skipIf(os.environ['INTERFACE'] == "0", 'Interface test')
 class CollaboratorTestCase(LiveServerTestCase):
     """
     These tests check the permissions system creating two users: one creates a
