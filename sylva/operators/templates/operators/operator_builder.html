@@ -21,69 +21,48 @@
 
 {% block content %}
 {% if node_types %}
-<div>
-<div class="content2-first">
-    <div class="max600">
-        <fieldset class="module aligned">
-        <h2>{% trans "Types" %}</h2>
-        {% for node_type in node_types %}
-         <div class="form-row indent">
-            <label>
-                {{ node_type.name|capfirst }}
-                <a class="buttonLinkOption indent add-box" data-type="{{node_type.slug}}" href="javascript:void(0);">
-                    ({% trans "Add" %})
-                </a>
-            </label>
-        </div>
-        {% endfor %}
-         <div class="form-row indent">
-            <label class="helptext">
-                {% trans "Wildcard Type" %}
-                <a class="buttonLinkOption indent" href="">
-                    ({% trans "Add" %})
-                </a>
-            </label>
-        </div>
-        </fieldset>
+<div style="width: 570px;">
+    <div class="nav-links">
+        <a id="builder-query"><h2 style="display: inline;">{% trans "Query" %}</h2></a>
+        <h2 style="display: inline;"> | </h2>
+        <a id="builder-results"><h2 style="display: inline;">{% trans "Results" %}</h2></a>
     </div>
-    <div class="max600">
-        <fieldset class="module aligned">
-        <h2>{% trans "Allowed Relationships" %}</h2>
-        {% for node_type in relationship_types %}
-         <div class="form-row indent">
-            <label>
-                {{ node_type.name|capfirst }}
-                <a class="buttonLinkOption indent" href="">
-                    ({% trans "Add" %})
-                </a>
-            </label>
+    <div id="query-builder-query">
+        <div class="content2-second diagram" style="margin-top: 15px;">
+            <nav class="menu" style="float: left;">
+            <ul>
+                <div id="select-node">
+                    <a>{% trans "Type nodes" %}</a>
+                    <li>
+                        <div id="node-options" style="display: none;">
+                            <ul>
+                            {% for node_type in node_types %}
+                                <li>
+                                    <a class="add-box" data-type="{{node_type.slug}}" href="javascript:void(0);">{{ node_type.name|capfirst }}</a>
+                                </li>
+                            {% endfor %}
+                                <li>
+                                    <a class="add-box" data-type="wildcard" href="javascript:void(0);">{% trans "Wildcard Type" %}</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </li>
+                </div>
+            </ul>
+            </nav>
+            <div id="diagramContainer" style="width: 1000px; margin-top: 20px;">
+                <div id="diagram"></div>
+            </div>
+            <input type="hidden" id="id_diagram_positions" name="diagram_positions" value="{{ graph.schema.get_options.diagram_positions }}"/>
+            <input type="hidden" id="id_diagram_positions_url" name="diagram_positions" value="{% url schama_diagram_positions graph.slug %}"/>
         </div>
-        {% endfor %}
-         <div class="form-row indent">
-            <label class="helptext">
-                {% trans "Wildcard Allowed Relationship" %}
-                <a class="buttonLinkOption indent" href="">
-                    ({% trans "Add" %})
-                </a>
-            </label>
-        </div>
-        </fieldset>
+        <a class="button" id="run-button" href="#" style="margin-top: 40px; margin-left: 30px;">{% trans "Run" %}</a>
     </div>
-    <div id="results"></div>
+    <div id="query-builder-results">
+        <div id="results"></div>
+    </div>
+</div>
 {% endif %}
-</div>
-    <div class="content-divider"></div>
-    <div class="content2-second diagram">
-        <h2>{% trans "Query" %}</h2>
-        <div id="diagramContainer">
-            <div id="diagram"></div>
-        </div>
-        <input type="hidden" id="id_diagram_positions" name="diagram_positions" value="{{ graph.schema.get_options.diagram_positions }}"/>
-        <input type="hidden" id="id_diagram_positions_url" name="diagram_positions" value="{% url schama_diagram_positions graph.slug %}"/>
-    </div>
-</div>
-<!--{{ form.as_p }}-->
-<a class="button" id="run-button" href="#">{% trans "Run" %}</a>
 {% endblock %}
 
 {% block extra_links %}
@@ -112,6 +91,41 @@ diagram.Models = {% autoescape off %}{{ graph.schema.get_schema_diagram }}{% end
 
 diagram.url_collaborators = "{% url graph_query_collaborators graph.slug %}";
 diagram.url_query = "{% url operator_builder_results graph.slug %}";
+
+(function ($) {
+
+    $('.body-inside').css({
+        "width": "570px"
+    });
+
+    $('#builder-query').on('click', function() {
+        $('#builder-results h2').css({
+            "color": "#348E82"
+        });
+        $('#query-builder-results').hide();
+        $('#query-builder-query').show();
+        $('#results').hide();
+    });
+
+    $('#builder-results').on('click', function() {
+        $('#query-builder-query').hide();
+        $('#query-builder-results').show();
+        $('#results').show();
+    });
+
+    $('#select-node').on('mouseover', function() {
+        $('#node-options').css({
+            "display": "block"
+        });
+    });
+
+    $('#select-node').on('mouseout', function() {
+        $('#node-options').css({
+            "display": "none"
+        });
+    });
+
+})(jQuery);
 
 </script>
 {% endblock %}

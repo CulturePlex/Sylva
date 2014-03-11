@@ -424,17 +424,23 @@ class GraphDatabase(BlueprintsGraphDatabase):
         origins_list = []
         for origin_dict in query_dict["origins"]:
             if origin_dict["type"] == "node":
-                origin = u"""{alias}=node:`{nidx}`('label:{type}')""".format(
-                    nidx=self.nidx.name,
-                    alias=origin_dict["alias"],
-                    type=origin_dict["type_id"],
-                )
+                node_type = origin_dict["type_id"]
+                # wildcard type
+                if node_type != -1:
+                    origin = u"""{alias}=node:`{nidx}`('label:{type}')""".format(
+                        nidx=self.nidx.name,
+                        alias=origin_dict["alias"],
+                        type=origin_dict["type_id"],
+                    )
             else:
-                origin = u"""{alias}=rel:`{ridx}`('label:{type}')""".format(
-                    ridx=self.ridx.name,
-                    alias=origin_dict["alias"],
-                    type=origin_dict["type_id"],
-                )
+                relation_type = origin_dict["type_id"]
+                # wildcard type
+                if relation_type != -1:
+                    origin = u"""{alias}=rel:`{ridx}`('label:{type}')""".format(
+                        ridx=self.ridx.name,
+                        alias=origin_dict["alias"],
+                        type=origin_dict["type_id"],
+                    )
             origins_list.append(origin)
         origins = u", ".join(origins_list)
         results_list = []
@@ -458,12 +464,19 @@ class GraphDatabase(BlueprintsGraphDatabase):
                 target = pattern_dict["target"]["alias"]
                 relation = pattern_dict["relation"]["alias"]
                 relation_type = pattern_dict["relation"]["type_id"]
-                pattern = u"({source})-[{rel}:`{rel_type}`]-(target)".format(
-                    source=source,
-                    rel=relation,
-                    rel_type=relation_type,
-                    target=target,
-                )
+                # wildcard type
+                if relation_type == -1:
+                    pattern = u"({source})-[relation]-({target})".format(
+                        source=source,
+                        target=target,
+                    )
+                else:
+                    pattern = u"({source})-[{rel}:`{rel_type}`]-({target})".format(
+                        source=source,
+                        rel=relation,
+                        rel_type=relation_type,
+                        target=target,
+                    )
             patterns_list.append(pattern)
         if patterns_list:
             patterns = ", ".join(patterns_list)

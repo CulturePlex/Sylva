@@ -87,6 +87,7 @@ def graph_query_collaborators(request, graph_slug):
                        Q(email__icontains=term))
             no_collabs = User.objects.filter(lookups)
             no_collabs = no_collabs.exclude(id=request.user.id)
+            collabs_dict = {}
             for collab in no_collabs:
                 collabs_dict = {}
                 full_name = collab.get_full_name()
