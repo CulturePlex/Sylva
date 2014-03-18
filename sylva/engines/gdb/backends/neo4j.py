@@ -341,6 +341,11 @@ class GraphDatabase(BlueprintsGraphDatabase):
                     yield element["data"]
                 else:
                     yield element
+            for element in result["columns"]:
+                if "columns" in element:
+                    yield element["columns"]
+                else:
+                    yield element
             skip += page
             if len(result["data"]) == limit:
                 try:
@@ -409,9 +414,9 @@ class GraphDatabase(BlueprintsGraphDatabase):
             #     else:
             #         lookup = u"<>"
             #     match = u"null"
-            # elif lookup in ["eq", "equals"]:
-            #     lookup = u"="
-            #     match = u"'{0}'".format(_escape(match))
+            elif lookup in ["eq", "equals"]:
+                lookup = u"="
+                match = u"'{0}'".format(match)
             # elif lookup in ["neq", "notequals"]:
             #     lookup = u"<>"
             #     match = u"'{0}'".format(_escape(match))
@@ -426,22 +431,25 @@ class GraphDatabase(BlueprintsGraphDatabase):
             if origin_dict["type"] == "node":
                 node_type = origin_dict["type_id"]
                 # wildcard type
-                if node_type != -1:
-                    origin = u"""{alias}=node:`{nidx}`('label:{type}')""".format(
-                        nidx=self.nidx.name,
-                        alias=origin_dict["alias"],
-                        type=origin_dict["type_id"],
-                    )
+                if node_type == -1:
+                    node_type = '*'
+                origin = u"""{alias}=node:`{nidx}`('label:{type}')""".format(
+                    nidx=self.nidx.name,
+                    alias=origin_dict["alias"],
+                    type=node_type,
+                )
+                origins_list.append(origin)
             else:
                 relation_type = origin_dict["type_id"]
                 # wildcard type
-                if relation_type != -1:
-                    origin = u"""{alias}=rel:`{ridx}`('label:{type}')""".format(
-                        ridx=self.ridx.name,
-                        alias=origin_dict["alias"],
-                        type=origin_dict["type_id"],
-                    )
-            origins_list.append(origin)
+                if relation_type == -1:
+                    relation_type = '*'
+                origin = u"""{alias}=rel:`{ridx}`('label:{type}')""".format(
+                    ridx=self.ridx.name,
+                    alias=origin_dict["alias"],
+                    type=relation_type,
+                )
+                origins_list.append(origin)
         origins = u", ".join(origins_list)
         results_list = []
         for result_dict in query_dict["results"]:
@@ -466,8 +474,9 @@ class GraphDatabase(BlueprintsGraphDatabase):
                 relation_type = pattern_dict["relation"]["type_id"]
                 # wildcard type
                 if relation_type == -1:
-                    pattern = u"({source})-[relation]-({target})".format(
+                    pattern = u"({source})-[{rel}]-({target})".format(
                         source=source,
+                        rel=relation,
                         target=target,
                     )
                 else:
