@@ -37,13 +37,14 @@
         <div class="content2-second diagram" style="margin-top: 15px;">
             <nav id="select-node">
                 <a href="#">{% trans "Type nodes" %}</a>
-                <ul id="node-options" class="dropdown" style="width: 75px;">
+                <ul id="node-options" class="dropdown" style="width: 120px; font-size: 11px;">
                 {% for node_type in node_types %}
-                    <li style="font-weight: 10px;">
+                    <li style="padding: 3px;">
                         <a class="add-box" data-type="{{node_type.slug}}" href="javascript:void(0);">{{ node_type.name|capfirst }}</a>
                     </li>
                 {% endfor %}
-                    <li style="font-weight: 10px;">
+                <!-- Wildcard type - It needs to be improved -->
+                    <li style="padding: 3px;">
                         <a class="add-box" data-type="wildcard" href="javascript:void(0);">{% trans "Wildcard Type" %}</a>
                     </li>
                 </ul>

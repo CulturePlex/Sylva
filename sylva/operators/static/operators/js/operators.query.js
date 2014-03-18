@@ -164,7 +164,7 @@ diagram.lookupsValuesType = {
                     // We only add the relations when the field is the source
                     if(modelName == relation.source) {
                         var label = relation.label;
-                        var name = relation.name;
+                        var name = relation.name.replace(/-/g, "_");
                         //var name = relation.label;
                         var relationId = idBox + "-" + name;
 
@@ -184,9 +184,9 @@ diagram.lookupsValuesType = {
                         addRelation.attr('data-parentid', idBox);
                         addRelation.attr('data-relsid', idAllRels);
                         addRelation.attr('data-relationid', relationId);
-                        addRelation.attr('data-label', label);
+                        addRelation.attr('data-label', name);
                         addRelation.attr('data-idrel', relation.id);
-                        diagram.fieldsForRels[label] = relation.fields;
+                        diagram.fieldsForRels[name] = relation.fields;
 
                         if(relation.source) {
                             addRelation.attr("data-source", relation.source);
@@ -332,9 +332,10 @@ diagram.lookupsValuesType = {
                 divContainerBoxes.append(divAddBox);
             } else {
                 // We add an input field to get the return value
-                /*wildCardInput = $("<INPUT>");
+                wildCardInput = $("<INPUT>");
                 wildCardInput.addClass("wildCardInput");
-                divContainerBoxes.append(wildCardInput);*/
+                wildCardInput.attr('id', idBox + "-input");
+                divContainerBoxes.append(wildCardInput);
             }
             divContainerBoxes.append(divAllowedRelationships);
 
@@ -398,7 +399,7 @@ diagram.lookupsValuesType = {
             selectReltype = $("<SELECT>");
             selectReltype.addClass("select-reltype-" + label);
             selectReltype.css({
-                "width": "46%",
+                "width": "65px",
                 "float": "left",
                 "padding": "0",
                 "margin-left": "5%"
@@ -1014,7 +1015,7 @@ diagram.lookupsValuesType = {
             var relationshipOptions = null;
 
             if(type == 'source') {
-                relationshipOptions = { endpoint: ["Dot", {radius: 7}],
+                relationshipOptions = { endpoint: ["Dot", {radius: 10}],
                                 anchor: [1, anchor, 0, 0],
                                 isSource: true,
                                 connectorStyle: {
@@ -1046,7 +1047,7 @@ diagram.lookupsValuesType = {
                                 }
                               };
             } else if(type == 'target') {
-                relationshipOptions = { endpoint: ["Dot", {radius: 7}],
+                relationshipOptions = { endpoint: ["Dot", {radius: 10}],
                                 anchor: [0, anchor, -1, 0],
                                 isTarget: true,
                                 connectorStyle: {
@@ -1071,6 +1072,26 @@ diagram.lookupsValuesType = {
             return relationshipOptions;
          }
     };
+
+    diagram.html2json = function(htmlJson) {
+        var jsonResult = {};
+        for(var i = 0; i < htmlJson.length; i++) {
+            var jsonChildren = {}
+            var tag = $(htmlJson[i]).prop("tagName");
+            jsonChildren["tag"] = tag;
+            for(var j = 0; j < htmlJson[i].attributes.length; j++) {
+                var attributeName = htmlJson[i].attributes[j].name;
+                var attributeValue = htmlJson[i].attributes[j].nodeValue;
+                jsonChildren[attributeName] = attributeValue;
+            }
+            if(htmlJson[i].children) {
+                var children = diagram.html2json(htmlJson[i].children);
+                jsonChildren["children"] = children;
+            }
+            jsonResult["children" + i] = jsonChildren;
+        }
+        return jsonResult;
+    }
 
     /**
      * Interactions functions
@@ -1242,7 +1263,8 @@ diagram.lookupsValuesType = {
                 "margin-left": "5%",
                 "padding": 0
             });
-            for(var j = 0; j < choicesArray.length; j = j + 2) {
+            select.append('<option class="lookup-value" value=""></option>');
+            for(var j = 3; j < choicesArray.length; j = j + 2) {
                 select.append('<option class="lookup-value" value="' + choicesArray[j] +'">' + choicesArray[j] + '</option>');
             }
             $('#' + fieldId).append(select);
@@ -1368,7 +1390,8 @@ diagram.lookupsValuesType = {
         var tagName = $this.next().prop("tagName");
         var fieldId = $this.data("fieldid");
         var datatype = $('#' + fieldId + ' .select-property option:selected').data("datatype");
-        var condition = datatype != 'b'
+        var condition = datatype != 'd'
+                        && datatype != 'b'
                         && datatype != 'c'
                         && datatype != 'w'
                         && datatype != 'a'
@@ -1485,7 +1508,8 @@ diagram.lookupsValuesType = {
             var propertyValue = $(property).next().next().val();
 
             // We store the checked properties
-            propertiesChecked[alias] = new Array();
+            if(!propertiesChecked[alias])
+                propertiesChecked[alias] = new Array();
             if($(property).prev().attr('checked')) {
                 propertiesChecked[alias].push($(property).val());
             }
@@ -1582,6 +1606,14 @@ diagram.lookupsValuesType = {
 
             if(!properties)
                 properties = new Array();
+
+            if(alias == "wildcard0") {
+                var selector = $(element).parent().parent().parent().attr('id');
+                var wildCardInput = $('#' + selector + '-input').val();
+                if(wildCardInput != "") {
+                    properties.push(wildCardInput);
+                }
+            }
 
             result.alias = alias;
             result.properties = properties;

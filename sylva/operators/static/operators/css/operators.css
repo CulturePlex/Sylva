@@ -93,7 +93,7 @@
 
 .checkbox-select-type {
     float: left;
-    margin-top: 1%;
+    margin-top: 1% !important;
 }
 
 .icon-remove-sign {
@@ -119,6 +119,7 @@
 .field {
     display: inline-table;
     margin-top: 4%;
+    margin-bottom: 4%;
 }
 
 .checkbox-property {
@@ -129,6 +130,13 @@
     width: 50px;
     padding: 0;
     margin-left: 2%;
+}
+
+.wildCardInput {
+    width: 100px;
+    margin-top: 10px;
+    margin-left: 10px;
+    margin-bottom: 10px;
 }
 
 /* Results table */
