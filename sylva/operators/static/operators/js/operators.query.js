@@ -331,11 +331,15 @@ diagram.lookupsValuesType = {
             if(typeName != "wildcard") {
                 divContainerBoxes.append(divAddBox);
             } else {
+                var divWildcardInputs = $("<DIV>");
                 // We add an input field to get the return value
                 wildCardInput = $("<INPUT>");
                 wildCardInput.addClass("wildCardInput");
                 wildCardInput.attr('id', idBox + "-input");
-                divContainerBoxes.append(wildCardInput);
+                // Link to add more input fields
+                // TODO
+                divWildcardInputs.append(wildCardInput);
+                divContainerBoxes.append(divWildcardInputs);
             }
             divContainerBoxes.append(divAllowedRelationships);
 
@@ -1073,16 +1077,164 @@ diagram.lookupsValuesType = {
          }
     };
 
+    /**
+     * Generate the query to send to the backend
+     */
+    diagram.generateQuery = function() {
+        var query = {};
+        var propertiesChecked = {};
+
+        // Conditions
+        var conditionsArray = new Array();
+        var properties = $('.select-property');
+        $.each(properties, function(index, property) {
+            var conditionArray = new Array();
+            var lookup = $(property).next().val();
+            var propertyTag = "property";
+            //var alias = $(property).data('boxalias');
+            // We really should think about another solution
+            var parent = $(property).parent().parent().parent().parent().parent();
+            var parentId = $(parent).attr('id');
+            var alias = diagram.replaceChars($('#' + parentId + ' .title select').val());
+            var propertyName = $(property).val();
+            var propertyValue = $(property).next().next().val();
+
+            // We store the checked properties
+            if(!propertiesChecked[alias])
+                propertiesChecked[alias] = new Array();
+            if($(property).prev().attr('checked')) {
+                propertiesChecked[alias].push($(property).val());
+            }
+
+            if(lookup) {
+                var propertyArray = new Array();
+                propertyArray.push(propertyTag);
+                propertyArray.push(alias);
+                propertyArray.push(propertyName);
+
+                conditionArray.push(lookup);
+                conditionArray.push(propertyArray);
+                conditionArray.push(propertyValue);
+
+                conditionsArray.push(conditionArray);
+            }
+        });
+        query["conditions"] = conditionsArray;
+
+        // Origin
+        var originsArray = new Array();
+        var elements = $('option').filter(function(){ return $(this).attr("class") && $(this).attr("class").match(/(option-reltype|option-nodetype)./) && $(this).attr("selected");});
+        $.each(elements, function(index, element) {
+            var origin = {};
+            var type = "relationship";
+            // We check the type of the origin
+            if($(element).attr("class").indexOf("nodetype") >= 0)
+                type = "node";
+            var alias = diagram.replaceChars($(element).val());
+            var type_id = $(element).data('modelid');
+            origin.alias = alias;
+            origin.type = type;
+            origin.type_id = type_id;
+            originsArray.push(origin);
+        });
+        query["origins"] = originsArray;
+
+        // Patterns
+        var patternsArray = new Array();
+        // This is the way to get the connections in early versions
+        // var elements = jsPlumb.getAllConnections().jsPlumb_DefaultScope;
+        // This is the way to get the connections in the actual version
+        var elements = jsPlumb.getAllConnections();
+        $.each(elements, function(index, element) {
+            var pattern = {};
+            var relation = {};
+            var source = {};
+            var target = {};
+            // We get the id for the relation div
+            var relationId = element.idrel;
+
+            // We get the source and the target of the relation
+            var sourceId = element.sourceId;
+            var targetId = element.targetId;
+
+            // We get the selectors for every component to build
+            // the json correctly
+            var relationSelector = $('#' + relationId + ' .title');
+            var relationAlias = $('#' + relationId + ' .title select').val();
+            var relationModelId = relationSelector.data('modelid');
+            relation.alias = diagram.replaceChars(relationAlias);
+            relation.type = 'relationship';
+            relation.type_id = relationModelId;
+
+            var sourceSelector = $('#' + sourceId + ' .title');
+            var sourceAlias = $('#' + sourceId + ' .title select').val();
+            var sourceModelId = sourceSelector.data('modelid');
+            source.alias = diagram.replaceChars(sourceAlias);
+            source.type = 'node';
+            source.type_id = sourceModelId;
+
+            var targetSelector = $('#' + targetId + ' .title');
+            var targetAlias = $('#' + targetId + ' .title select').val();
+            var targetModelId = targetSelector.data('modelid');
+            target.alias = diagram.replaceChars(targetAlias);
+            target.type = 'node';
+            target.type_id = targetModelId;
+
+            pattern.relation = relation;
+            pattern.source = source;
+            pattern.target = target;
+
+            patternsArray.push(pattern);
+        });
+        query["patterns"] = patternsArray;
+
+        // Result
+        var resultsArray = new Array();
+        var elements = $('option').filter(function(){ return $(this).attr("class") && $(this).attr("class").match(/(option-reltype|option-nodetype)./) && $(this).attr("selected");});
+        $.each(elements, function(index, element) {
+            var result = {};
+            var alias = diagram.replaceChars($(element).val());
+            var properties = propertiesChecked[diagram.replaceChars(element.value)];
+
+            if(!properties)
+                properties = new Array();
+
+            if(alias.substring(0,8) == "wildcard") {
+                var selector = $(element).parent().parent().parent().attr('id');
+                var wildCardInput = $('#' + selector + '-input').val();
+                if(wildCardInput != "") {
+                    properties.push(wildCardInput);
+                }
+            }
+
+            result.alias = alias;
+            result.properties = properties;
+
+            resultsArray.push(result);
+        });
+        query["results"] = resultsArray;
+
+        return query;
+    };
+
+    /**
+     * Function that returns a json containing all the code html
+     * - htmlJson
+     */
+
     diagram.html2json = function(htmlJson) {
         var jsonResult = {};
+        var attributeName = "";
         for(var i = 0; i < htmlJson.length; i++) {
             var jsonChildren = {}
             var tag = $(htmlJson[i]).prop("tagName");
             jsonChildren["tag"] = tag;
             for(var j = 0; j < htmlJson[i].attributes.length; j++) {
-                var attributeName = htmlJson[i].attributes[j].name;
-                var attributeValue = htmlJson[i].attributes[j].nodeValue;
-                jsonChildren[attributeName] = attributeValue;
+                attributeName = htmlJson[i].attributes[j].name;
+                if(attributeName != "style") {
+                    var attributeValue = htmlJson[i].attributes[j].nodeValue;
+                    jsonChildren[attributeName] = attributeValue;
+                }
             }
             if(htmlJson[i].children) {
                 var children = diagram.html2json(htmlJson[i].children);
@@ -1091,7 +1243,7 @@ diagram.lookupsValuesType = {
             jsonResult["children" + i] = jsonChildren;
         }
         return jsonResult;
-    }
+    };
 
     /**
      * Interactions functions
@@ -1489,138 +1641,7 @@ diagram.lookupsValuesType = {
      * Handler for create the JSON file
      */
     $(document).on('click', '#run-button', function() {
-        var query = {};
-        var propertiesChecked = {};
-
-        // Conditions
-        var conditionsArray = new Array();
-        var properties = $('.select-property');
-        $.each(properties, function(index, property) {
-            var conditionArray = new Array();
-            var lookup = $(property).next().val();
-            var propertyTag = "property";
-            //var alias = $(property).data('boxalias');
-            // We really should think about another solution
-            var parent = $(property).parent().parent().parent().parent().parent();
-            var parentId = $(parent).attr('id');
-            var alias = diagram.replaceChars($('#' + parentId + ' .title select').val());
-            var propertyName = $(property).val();
-            var propertyValue = $(property).next().next().val();
-
-            // We store the checked properties
-            if(!propertiesChecked[alias])
-                propertiesChecked[alias] = new Array();
-            if($(property).prev().attr('checked')) {
-                propertiesChecked[alias].push($(property).val());
-            }
-
-            if(lookup) {
-                var propertyArray = new Array();
-                propertyArray.push(propertyTag);
-                propertyArray.push(alias);
-                propertyArray.push(propertyName);
-
-                conditionArray.push(lookup);
-                conditionArray.push(propertyArray);
-                conditionArray.push(propertyValue);
-
-                conditionsArray.push(conditionArray);
-            }
-        });
-        query["conditions"] = conditionsArray;
-
-        // Origin
-        var originsArray = new Array();
-        var elements = $('option').filter(function(){ return $(this).attr("class") && $(this).attr("class").match(/(option-reltype|option-nodetype)./) && $(this).attr("selected");});
-        $.each(elements, function(index, element) {
-            var origin = {};
-            var type = "relationship";
-            // We check the type of the origin
-            if($(element).attr("class").indexOf("nodetype") >= 0)
-                type = "node";
-            var alias = diagram.replaceChars($(element).val());
-            var type_id = $(element).data('modelid');
-            origin.alias = alias;
-            origin.type = type;
-            origin.type_id = type_id;
-            originsArray.push(origin);
-        });
-        query["origins"] = originsArray;
-
-        // Patterns
-        var patternsArray = new Array();
-        // This is the way to get the connections in early versions
-        // var elements = jsPlumb.getAllConnections().jsPlumb_DefaultScope;
-        // This is the way to get the connections in the actual version
-        var elements = jsPlumb.getAllConnections();
-        $.each(elements, function(index, element) {
-            var pattern = {};
-            var relation = {};
-            var source = {};
-            var target = {};
-            // We get the id for the relation div
-            var relationId = element.idrel;
-
-            // We get the source and the target of the relation
-            var sourceId = element.sourceId;
-            var targetId = element.targetId;
-
-            // We get the selectors for every component to build
-            // the json correctly
-            var relationSelector = $('#' + relationId + ' .title');
-            var relationAlias = $('#' + relationId + ' .title select').val();
-            var relationModelId = relationSelector.data('modelid');
-            relation.alias = diagram.replaceChars(relationAlias);
-            relation.type = 'relationship';
-            relation.type_id = relationModelId;
-
-            var sourceSelector = $('#' + sourceId + ' .title');
-            var sourceAlias = $('#' + sourceId + ' .title select').val();
-            var sourceModelId = sourceSelector.data('modelid');
-            source.alias = diagram.replaceChars(sourceAlias);
-            source.type = 'node';
-            source.type_id = sourceModelId;
-
-            var targetSelector = $('#' + targetId + ' .title');
-            var targetAlias = $('#' + targetId + ' .title select').val();
-            var targetModelId = targetSelector.data('modelid');
-            target.alias = diagram.replaceChars(targetAlias);
-            target.type = 'node';
-            target.type_id = targetModelId;
-
-            pattern.relation = relation;
-            pattern.source = source;
-            pattern.target = target;
-
-            patternsArray.push(pattern);
-        });
-        query["patterns"] = patternsArray;
-
-        // Result
-        var resultsArray = new Array();
-        var elements = $('option').filter(function(){ return $(this).attr("class") && $(this).attr("class").match(/(option-reltype|option-nodetype)./) && $(this).attr("selected");});
-        $.each(elements, function(index, element) {
-            var result = {};
-            var alias = diagram.replaceChars($(element).val());
-            var properties = propertiesChecked[diagram.replaceChars(element.value)];
-
-            if(!properties)
-                properties = new Array();
-
-            if(alias == "wildcard0") {
-                var selector = $(element).parent().parent().parent().attr('id');
-                var wildCardInput = $('#' + selector + '-input').val();
-                if(wildCardInput != "") {
-                    properties.push(wildCardInput);
-                }
-            }
-
-            result.alias = alias;
-            result.properties = properties;
-
-            resultsArray.push(result);
-        });
-        query["results"] = resultsArray;
+        var query = diagram.generateQuery();
         console.log("query: ");
         console.log(query);
 
@@ -1684,6 +1705,9 @@ diagram.lookupsValuesType = {
 
     });
 
+    /**
+     * Handler for run the query in the backend
+     */
     $('#run-button').click(function() {
         $.blockUI({
             message: '<span>' + gettext("Your query is being processing. Please wait...") + '</span>',
@@ -1698,6 +1722,40 @@ diagram.lookupsValuesType = {
             },
             onOverlayClick: $.unblockUI
         });
+    });
+
+    /**
+     * Handler to get the information to save the query
+     */
+    $('#save-button').click(function() {
+        var saveElements = {};
+        var query = diagram.generateQuery();
+        saveElements["query"] = query;
+        var elements = $('.title select');
+        var aliasDict = {};
+        $.each(elements, function(index, element) {
+            var valuesDict = {};
+            var parent = $(element).parent().parent();
+
+            var alias = diagram.replaceChars($(element).val());
+            var id = $(parent).attr('id');
+            var left = $(parent).css('left');
+            var top = $(parent).css('top');
+
+            valuesDict['id'] = id;
+            valuesDict['left'] = left;
+            valuesDict['top'] = top;
+
+            aliasDict[alias] = valuesDict;
+        });
+        saveElements['aliases'] = aliasDict;
+        // We store all the important values
+        saveElements['counter'] = diagram.Counter;
+        saveElements['counterRels'] = diagram.CounterRels;
+        saveElements['fieldCounter'] = diagram.fieldCounter;
+        saveElements['fieldRelsCounter'] = diagram.fieldRelsCounter;
+        // What we do with nodetypesCounter and reltypesCounter?
+        console.log(saveElements);
     });
 
     $(document).ready(init);

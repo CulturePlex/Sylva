@@ -26,6 +26,11 @@
     margin-left: 20px;
 }
 
+#save-button {
+    margin-top: 40px;
+    margin-left: 20px;
+}
+
 #query-builder-results {
     display: none;
 }

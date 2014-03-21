@@ -52,11 +52,10 @@
             <div id="diagramContainer" style="width: 1092px; margin-top: 20px;">
                 <div id="diagram"></div>
             </div>
-            <input type="hidden" id="id_diagram_positions" name="diagram_positions" value="{{ graph.schema.get_options.diagram_positions }}"/>
-            <input type="hidden" id="id_diagram_positions_url" name="diagram_positions" value="{% url schama_diagram_positions graph.slug %}"/>
         </div>
         <a class="button" id="run-button" href="#">{% trans "Run" %}</a>
         <a class="button" id="clear-button" href="#">{% trans "Clear query" %}</a>
+        <a class="button" id="save-button" href="#">{% trans "Save query" %}</a>
     </div>
     <div id="query-builder-results">
         <div id="results"></div>
