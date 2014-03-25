@@ -16,6 +16,7 @@ diagram.fieldRelsCounter = 0;
 diagram.nodetypesCounter = [];
 diagram.reltypesCounter = [];
 diagram.fieldsForRels = {};
+diagram.relindex = 1;
 
 diagram.stringValues = {
     'em': "",
@@ -130,14 +131,14 @@ diagram.lookupsValuesType = {
          * - typeName
          */
         diagram.addBox = function (graphName, modelName, typeName) {
-            var model, root, idBox, divBox, divAddBox, divContainerBoxes, divField, divFields, divManies, divAllowedRelationships, divAllRel, fieldName, field, countFields, idFields, boxAllRel, listRelElement, idAllRels, addField, addFieldIcon, idContainerBoxes, removeRelation, idTopBox, handlerAnchor, wildcardIndex;
-            wildcardIndex = 0;
+            var model, root, idBox, divBox, divAddBox, divContainerBoxes, divField, divFields, divManies, divAllowedRelationships, divAllRel, fieldName, field, countFields, idFields, boxAllRel, listRelElement, idAllRels, addField, addFieldIcon, idContainerBoxes, removeRelation, idTopBox, handlerAnchor, idBoxAllRels, selectAllRel;
             model = diagram.Models[graphName][modelName];
             root = $("#"+ diagram.Container);
             diagram.Counter++;
             idBox = "diagramBox-" + diagram.Counter +"-"+ modelName;
             idTopBox = "diagramTopBox-" + diagram.Counter + "-" + modelName;
             idFields = "diagramFields-" + diagram.Counter + "-" + modelName;
+            idBoxAllRels = "diagramBoxAllRels-" + diagram.Counter + "-" + modelName;
             idAllRels = "diagramAllRel-" + diagram.Counter + "-" + modelName;
             idContainerBoxes = "diagramContainerBoxes-" + diagram.Counter + "-" + modelName;
             divBox = $("<DIV>");
@@ -152,12 +153,15 @@ diagram.lookupsValuesType = {
             // Allowed relationships
             // Select for the allowed relationships
             boxAllRel = $("<DIV>");
-            boxAllRel.addClass("select-rel");
+            boxAllRel.addClass("box-all-rel");
+            boxAllRel.attr('id', idBoxAllRels);
+
+            selectAllRel = $("<SELECT>");
+            selectAllRel.addClass("select-rel");
 
             var relationsIds = [];
             if(typeName != "wildcard") {
                 var relationsLength = model.relations.length;
-                var relindex = 1;
                 for(var i = 0; i < relationsLength; i++) {
                     var relation = model.relations[i];
 
@@ -165,65 +169,29 @@ diagram.lookupsValuesType = {
                     if(modelName == relation.source) {
                         var label = relation.label;
                         var name = relation.name.replace(/-/g, "_");
-                        //var name = relation.label;
                         var relationId = idBox + "-" + name;
 
-                        divAllRel = $("<DIV>");
-                        divAllRel.addClass("div-list-rel");
-                        divAllRel.attr("id", idBox);
-
-                        listRelElement = $("<LI>");
-                        listRelElement.addClass("list-rel");
-
-                        diagram.setLabel(listRelElement, name);
-                        //listRelElement.html(name);
-
-                        // Link to add the relations
-                        addRelation = $("<A>");
-                        addRelation.addClass("add-relation");
-                        addRelation.attr('data-parentid', idBox);
-                        addRelation.attr('data-relsid', idAllRels);
-                        addRelation.attr('data-relationid', relationId);
-                        addRelation.attr('data-label', name);
-                        addRelation.attr('data-idrel', relation.id);
+                        var optionRel = $("<OPTION>");
+                        optionRel.addClass("option-rel");
+                        optionRel.attr('id', relationId);
+                        optionRel.attr('value', name);
+                        optionRel.attr('data-parentid', idBox);
+                        optionRel.attr('data-boxrel', idBoxAllRels);
+                        optionRel.attr('data-relsid', idAllRels);
+                        optionRel.attr('data-relationid', relationId);
+                        optionRel.attr('data-label', label);
+                        optionRel.attr('data-name', name);
+                        optionRel.attr('data-idrel', relation.id);
+                        optionRel.html(label);
                         diagram.fieldsForRels[name] = relation.fields;
 
                         if(relation.source) {
-                            addRelation.attr("data-source", relation.source);
-                            // We make this to have only the index when the
-                            // relationship is a source for calculate the
-                            // anchor correctly
-                            addRelation.attr('data-relindex', relindex);
-                            relindex++;
+                            optionRel.attr("data-source", relation.source);
                         }
-
-                        // Add relation icon
-                        addRelationIcon = $("<I>");
-                        addRelationIcon.addClass("icon-plus-sign");
-                        addRelationIcon.attr('id', 'add-relation-icon');
-                        addRelation.append(addRelationIcon);
 
                         relationsIds.push(relationId);
 
-                        // Link to remove the relations
-                        removeRelation = $("<A>");
-                        removeRelation.addClass("remove-relation");
-                        removeRelation.attr('data-parentid', relationId);
-                        removeRelation.attr('data-label', label);
-
-                        // Remove relation icon
-                        removeRelationIcon = $("<I>");
-                        removeRelationIcon.addClass("icon-minus-sign");
-                        removeRelationIcon.attr('id', 'remove-relation-icon');
-                        removeRelation.append(removeRelationIcon);
-
-                        divAllRel.append(listRelElement);
-                        divAllRel.append(addRelation);
-                        divAllRel.append(removeRelation);
-
-                        boxAllRel.append(divAllRel);
-
-                        wildcardIndex++;
+                        selectAllRel.append(optionRel);
                     }
                 }
             }
@@ -232,52 +200,26 @@ diagram.lookupsValuesType = {
             var wildCardName = "WildcardRel";
             var wildCardRelId = idBox + "-" + "wildcard";
 
-            divAllRel = $("<DIV>");
-            divAllRel.addClass("div-list-rel");
-            divAllRel.attr("id", idBox);
-
-            listRelElement = $("<LI>");
-            listRelElement.addClass("list-rel");
-
-            diagram.setLabel(listRelElement, wildCardName);
-
-            // Link to add the relations
-            addRelation = $("<A>");
-            addRelation.addClass("add-relation");
-            addRelation.attr('data-parentid', idBox);
-            addRelation.attr('data-relsid', idAllRels);
-            addRelation.attr('data-relationid', wildCardRelId);
-            addRelation.attr('data-relindex', (wildcardIndex + 1));
-            addRelation.attr('data-label', wildCardName);
-            addRelation.attr('data-idrel', -1);
+            // Option for the wildcard relationship
+            var optionRelWildcard = $("<OPTION>");
+            optionRelWildcard.addClass("option-rel");
+            optionRelWildcard.attr('id', relationId);
+            optionRelWildcard.attr('value', wildCardName);
+            optionRelWildcard.attr('data-parentid', idBox);
+            optionRelWildcard.attr('data-boxrel', idBoxAllRels);
+            optionRelWildcard.attr('data-relsid', idAllRels);
+            optionRelWildcard.attr('data-relationid', wildCardRelId);
+            optionRelWildcard.attr('data-label', wildCardName);
+            optionRelWildcard.attr('data-name', wildCardName);
+            optionRelWildcard.attr('data-idrel', -1);
+            optionRelWildcard.html(wildCardName);
             diagram.fieldsForRels[wildCardName] = [];
-            addRelation.attr("data-source", wildCardName);
-
-            // Add relation icon
-            addRelationIcon = $("<I>");
-            addRelationIcon.addClass("icon-plus-sign");
-            addRelationIcon.attr('id', 'add-relation-icon-wildcard');
-            addRelation.append(addRelationIcon);
+            optionRelWildcard.attr("data-source", wildCardName);
 
             relationsIds.push(wildCardRelId);
 
-            // Link to remove the relations
-            removeRelation = $("<A>");
-            removeRelation.addClass("remove-relation");
-            removeRelation.attr('data-parentid', wildCardRelId);
-            removeRelation.attr('data-label', wildCardName);
-
-            // Remove relation icon
-            removeRelationIcon = $("<I>");
-            removeRelationIcon.addClass("icon-minus-sign");
-            removeRelationIcon.attr('id', 'remove-relation-icon-wild');
-            removeRelation.append(removeRelationIcon);
-
-            divAllRel.append(listRelElement);
-            divAllRel.append(addRelation);
-            divAllRel.append(removeRelation);
-
-            boxAllRel.append(divAllRel);
+            selectAllRel.append(optionRelWildcard);
+            boxAllRel.append(selectAllRel);
 
             divAllowedRelationships = $("<DIV>");
             divAllowedRelationships.attr("id", idAllRels);
@@ -349,7 +291,8 @@ diagram.lookupsValuesType = {
             // We add the target relationship handler
             var uuidTarget = idBox + "-target";
             if(!jsPlumb.getEndpoint(uuidTarget)) {
-                var endpointTarget = jsPlumb.addEndpoint(idBox, { uuid:uuidTarget, connector: "Flowchart"},diagram.getRelationshipOptions('target', 0));
+                var anchor = ($('#' + idBox).height() - $('#' + idBox + ' .title').height()) / $('#' + idBox).height()
+                var endpointTarget = jsPlumb.addEndpoint(idBox, { uuid:uuidTarget, connector: "Flowchart"},diagram.getRelationshipOptions('target', 0, 0, 1 - anchor));
             }
             jsPlumb.draggable("diagramBox-"+ diagram.Counter +"-"+ modelName, {
                 handle: ".title",
@@ -366,7 +309,6 @@ diagram.lookupsValuesType = {
                         top = "0px";
                     }
                     diagram.saveBoxPositions();
-                    jsPlumb.repaintEverything();
                 }
             });
         };
@@ -458,7 +400,7 @@ diagram.lookupsValuesType = {
             // Allowed relationships
             // Select for the allowed relationships
             boxAllRel = $("<DIV>");
-            boxAllRel.addClass("select-rel");
+            boxAllRel.addClass("box-all-rel");
             // We append the divs
             divFields = $("<DIV>");
             divFields.attr("id", idFields);
@@ -574,7 +516,7 @@ diagram.lookupsValuesType = {
 
                 // Recalculate anchor if we have source endpoints already
                 if(jsPlumb.getEndpoints(idBox).length > 1) {
-                    // We start at index 1 because the index 0 si the target
+                    // We start at index 1 because the index 0 is the target
                     for(var i = 1; i < jsPlumb.getEndpoints(idBox).length; i++) {
                         var endpoint = jsPlumb.getEndpoints(idBox)[i];
                         var anchor = diagram.calculateAnchor(idBox, idAllRels, endpoint.relIndex);
@@ -789,7 +731,6 @@ diagram.lookupsValuesType = {
                 }
             }
 
-            jsPlumb.repaintEverything();
             return modelNameValue;
         };
 
@@ -978,7 +919,8 @@ diagram.lookupsValuesType = {
          * - relNumber
          */
          diagram.calculateAnchor = function(parentId, relsId, relIndex) {
-            var proportion = ($('#' + parentId).height() - $('#' + relsId).height()) / $('#' + parentId).height();
+            var selectRelHeight = 17;
+            var proportion = (($('#' + parentId).height() + selectRelHeight) - $('#' + relsId).height()) / $('#' + parentId).height();
             var offset = relIndex * 10;
 
             if(relIndex > 1) {
@@ -1304,7 +1246,6 @@ diagram.lookupsValuesType = {
 
         $("#" + parentId).append(divField);
 
-        jsPlumb.repaintEverything();
     });
 
     /**
@@ -1324,7 +1265,6 @@ diagram.lookupsValuesType = {
         } else {
             alert("You need a field at least");
         }
-
         // Recalculate anchor if we have source endpoints already
         if(jsPlumb.getEndpoints(idBox).length > 1) {
             // We start at index 1 because the index 0 si the target
@@ -1353,6 +1293,91 @@ diagram.lookupsValuesType = {
         } else {
             alert("You need a field at least");
         }
+    });
+
+    /**
+     * Add a new relationship row for that box type
+     */
+    $("#diagramContainer").on('click', '.select-rel', function() {
+        var $this = $(this);
+        var idBox = $('option:selected', this).data("parentid");
+        var boxrel = $('option:selected', this).data("boxrel");
+        var idAllRels = $('option:selected', this).data("relsid");
+        var relationId = $('option:selected', this).data("relationid");
+        var label = $('option:selected', this).data("label");
+        var name = $('option:selected', this).data("name");
+        var idrel = $('option:selected', this).data("idrel");
+        var source = $('option:selected', this).data("source");
+
+        // If exists a relationship with that id, we dont add the
+        // relationship
+
+        if($('#div-' + relationId).length == 0) {
+
+            divAllRel = $("<DIV>");
+            divAllRel.addClass("div-list-rel");
+            divAllRel.attr("id", "div-" + relationId);
+
+            listRelElement = $("<LI>");
+            listRelElement.addClass("list-rel");
+
+            diagram.setLabel(listRelElement, label);
+
+            // Link to add the relations
+            addRelation = $("<A>");
+            addRelation.addClass("add-relation");
+            addRelation.attr('data-parentid', idBox);
+            addRelation.attr('data-relsid', idAllRels);
+            addRelation.attr('data-relationid', relationId);
+            addRelation.attr('data-label', name);
+            addRelation.attr('data-idrel', idrel);
+
+            if(source) {
+                addRelation.attr("data-source", source);
+                // We make this to have only the index when the
+                // relationship is a source for calculate the
+                // anchor correctly
+                addRelation.attr('data-relindex', diagram.relindex);
+                diagram.relindex++;
+            }
+
+            // Add relation icon
+            addRelationIcon = $("<I>");
+            addRelationIcon.addClass("icon-plus-sign");
+            addRelationIcon.attr('id', 'add-relation-icon');
+            addRelation.append(addRelationIcon);
+
+            // Link to remove the relations
+            removeRelation = $("<A>");
+            removeRelation.addClass("remove-relation");
+            removeRelation.attr('data-parentid', relationId);
+            removeRelation.attr('data-idbox', idBox);
+            removeRelation.attr('data-relsid', idAllRels);
+            removeRelation.attr('data-divrelid', "div-" + relationId);
+            removeRelation.attr('data-label', label);
+
+            // Remove relation icon
+            removeRelationIcon = $("<I>");
+            removeRelationIcon.addClass("icon-minus-sign");
+            removeRelationIcon.attr('id', 'remove-relation-icon');
+            removeRelation.append(removeRelationIcon);
+
+            divAllRel.append(listRelElement);
+            divAllRel.append(addRelation);
+            divAllRel.append(removeRelation);
+
+            $('#' + boxrel).append(divAllRel);
+        }
+        // Recalculate anchor if we have source endpoints already
+        if(jsPlumb.getEndpoints(idBox).length > 1) {
+            // We start at index 1 because the index 0 si the target
+            for(var i = 1; i < jsPlumb.getEndpoints(idBox).length; i++) {
+                var endpoint = jsPlumb.getEndpoints(idBox)[i];
+                var anchor = diagram.calculateAnchor(idBox, idAllRels, endpoint.relIndex);
+                endpoint.anchor.y = anchor;
+            }
+        }
+
         jsPlumb.repaintEverything();
     });
 
@@ -1606,8 +1631,6 @@ diagram.lookupsValuesType = {
                 endpointSource.relIndex = relIndex;
             }
         }
-
-        jsPlumb.repaintEverything();
     });
 
     /**
@@ -1616,8 +1639,40 @@ diagram.lookupsValuesType = {
      $("#diagramContainer").on('click', '.remove-relation', function() {
         var $this = $(this);
         var patternId = $this.data("parentid");
+        var idBox = $this.data("idbox");
+        var idAllRels = $this.data("relsid");
+        var divRelId = $this.data("divrelid");
         var label = $this.data("label");
+
+        diagram.relindex--;
+
+        var oldEndpointRelIndex = jsPlumb.getEndpoint(patternId + '-source').relIndex;
         jsPlumb.deleteEndpoint(patternId + '-source');
+        $('#' + divRelId).remove();
+
+        // Recalculate anchor if we have source endpoints already
+        if(jsPlumb.getEndpoints(idBox).length > 1) {
+            // We start at index 1 because the index 0 si the target
+            var endpointsLength = jsPlumb.getEndpoints(idBox).length;
+            for(var i = 1; i < endpointsLength; i++) {
+                var endpoint = jsPlumb.getEndpoints(idBox)[i];
+                var anchor = 0;
+                // This is for the case that we have removed some
+                // element and need to update the rel index.
+                // The substract operation is because we have an endpoint
+                // extra: The target endpoint
+                if(endpoint.relIndex > oldEndpointRelIndex) {
+                    var newRelIndex = endpoint.relIndex - 1;
+                    anchor = diagram.calculateAnchor(idBox, idAllRels, newRelIndex);
+                    endpoint.relIndex = newRelIndex;
+
+                } else {
+                    anchor = diagram.calculateAnchor(idBox, idAllRels, endpoint.relIndex);
+                }
+                endpoint.anchor.y = anchor;
+            }
+        }
+
         jsPlumb.repaintEverything();
     });
 

@@ -50,6 +50,14 @@
     display: table-cell;
 }
 
+.select-rel {
+    width: 200px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    margin-left: 5px;
+    padding: 0;
+}
+
 #add-relation-icon {
     margin-left: 162px;
 }
@@ -123,6 +131,7 @@
 
 .field {
     display: inline-table;
+    height: 40px;
     margin-top: 4%;
     margin-bottom: 4%;
 }
