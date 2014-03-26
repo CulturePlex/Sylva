@@ -2,11 +2,9 @@
 from collections import Sequence
 
 from django.db import transaction
-from django.db.models import F
 
 from engines.gdb.backends import NodeDoesNotExist, RelationshipDoesNotExist
 from schemas.models import NodeType, RelationshipType
-from data.models import Data
 
 
 ASC = "asc"
@@ -734,12 +732,11 @@ class Node(BaseElement):
             return self.label
 
     def to_json(self):
-        node_dict = self.properties.copy()
-        node_dict.update({
-            'id': self.id,
-            'type': self.label_display
-        })
-        return node_dict
+        return {
+            'id': str(self.id),
+            'nodetype': self.label_display,
+            'properties': self.properties.copy()
+        }
 
     def __getitem__(self, key):
         # Not need anymore because _properties is always updated
@@ -856,8 +853,8 @@ class Relationship(BaseElement):
         return {
             'id': self.id,
             'source': self.source.display,
-            'type': self.label_display,
             'target': self.target.display,
+            'type': self.label_display,
             'properties': self.properties.copy()
         }
 

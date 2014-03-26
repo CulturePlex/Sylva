@@ -4,6 +4,8 @@ try:
 except ImportError:
     import json  # NOQA
 
+import random
+
 from django.db import transaction, IntegrityError
 from django.db.models import Q
 from django.conf import settings
@@ -31,35 +33,43 @@ def _jsonify_graph(nodes_list, relations_list):
     """
     Returns a tuple with the elements of a graph jsonified.
     """
-    nodes = {}
+    nodes = []
     edges = []
-    nodes_display = {}
     nodetypes = {}
+    node_ids = []
     for node in nodes_list:
         nodetype = node.get_type()
-        if nodetype.id not in nodes:
+        if nodetype.id not in nodetypes:
             nodetype_color = nodetype.get_option("color")
-            nodetypes[nodetype.id] = {'name': nodetype.name,
-                                      'color': nodetype_color}
-            nodes[nodetype.id] = {}
+            nodetypes[nodetype.id] = {'id': nodetype.id,
+                                      'name': nodetype.name,
+                                      'color': nodetype_color,
+                                      'nodes': []}
+        node_display = node.display + ' (' + str(node.id) + ')'
         json_node = node.to_json()
-        display = node.display + ' (' + str(node.id) + ')'
-        nodes[nodetype.id][display] = json_node
-        nodes_display[node.id] = display
+        json_node['nodetypeId'] = nodetype.id
+        json_node['label'] = node_display
+        json_node['color'] = nodetypes[nodetype.id]['color']
+        json_node['x'] = random.uniform(0, 1)
+        json_node['y'] = random.uniform(0, 1)
+        json_node['size'] = 1
+        nodes.append(json_node)
+        nodetypes[nodetype.id]['nodes'].append(str(node.id))
+        node_ids.append(node.id)
     for rel in relations_list:
         source_id = rel.source.id
         target_id = rel.target.id
-        if (source_id in nodes_display
-                and target_id in nodes_display):
+        if (source_id in node_ids and target_id in node_ids):
             edge = {
-                'id': rel.id,
-                'source': nodes_display[source_id],
-                'type': rel.label_display,
-                'target': nodes_display[target_id],
+                'id': str(rel.id),
+                'source': str(source_id),
+                'target': str(target_id),
+                'edgetype': rel.label_display,
                 'properties': rel.properties
             }
             edges.append(edge)
-    return (nodes, edges, nodetypes)
+    graph = {'nodes': nodes, 'edges': edges}
+    return (graph, nodetypes)
 
 
 @permission_required("graphs.view_graph", (Graph, "slug", "graph_slug"),
@@ -74,8 +84,8 @@ def graph_view(request, graph_slug, node_id=None):
     node = None
     if node_id:
         node = graph.nodes.get(node_id)
-        view_graph_ajax_url = reverse('nodes_data', args=[graph.slug,
-                                               node_id])
+        view_graph_ajax_url = reverse('nodes_data',
+                                      args=[graph.slug, node_id])
     else:
         view_graph_ajax_url = reverse('graph_data', args=[graph.slug])
     return render_to_response('graphs_view.html',
@@ -350,11 +360,10 @@ def graph_data(request, graph_slug, node_id=None):
         else:
             nodes_list = graph.nodes.all()
             relations_list = graph.relationships.all()
-        nodes, edges, nodetypes = _jsonify_graph(nodes_list, relations_list)
+        graph, nodetypes = _jsonify_graph(nodes_list, relations_list)
         size = len(nodes_list)
         json_data = {
-            'nodes': nodes,
-            'edges': edges,
+            'graph': graph,
             'nodetypes': nodetypes,
             'size': size
         }

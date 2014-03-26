@@ -12,10 +12,12 @@ sylva:true, alert:true */
   var visualizations = {
 
     sigma: function() {
-      $('#sigma-wrapper').show();
       $('.pause').show();
       $('#element-info').html('Click any node to interact');
       $('.sigma-checkbox').css('display', 'inline-block');
+      $('#sigma-node-size').css('display', 'inline-block');
+      $('#sigma-graph-layout').css('display', 'inline-block');
+      $('#sigma-edge-shape').css('display', 'inline-block');
       sylva.Sigma.start();
     }
 
@@ -24,7 +26,7 @@ sylva:true, alert:true */
   // DOM
   $(function() {
 
-    var opts = {
+    var spinnerOpts = {
       lines: 15,            // The number of lines to draw
       length: 14,           // The length of each line
       width: 5,             // The line thickness
@@ -41,8 +43,8 @@ sylva:true, alert:true */
       top: '105',           // Top position relative to parent in px
       left: '637'           // Left position relative to parent in px
     };
-    var target = document.getElementById('spinner');
-    var spinner = new Spinner(opts).spin(target);
+    var spinnerTarget = document.getElementById('spinner');
+    var spinner = new Spinner(spinnerOpts).spin(spinnerTarget);
 
     $('#sigma-container').append('<div id="graph-loading" class="graph-loading-wrapper" style="opacity: 0.5;">' +
                                    '<div id="graph-loading-message" class="graph-loading-inner" style="top: 170px;">' +
@@ -56,12 +58,12 @@ sylva:true, alert:true */
       spinner.stop();
 
       // full graph (Sigma.js and others)
-      sylva.nodes = data.nodes;
-      sylva.edges = data.edges;
+      sylva.graph = data.graph
 
       sylva.nodetypes = data.nodetypes;
       sylva.size = data.size;
 
+      $('#graph-support').hide();
       visualizations.sigma();
 
       var msg = '';
@@ -76,8 +78,6 @@ sylva:true, alert:true */
       }
 
       if (msg !== '') {
-        $('#graphcanvas').hide();
-        $('#sigma-wrapper').show();
         $('#sigma-container').html('<div class="graph-empty-message">' + msg + '</div>');
       }
 
@@ -88,10 +88,8 @@ sylva:true, alert:true */
       $('#graph-loading').remove();
       spinner.stop();
 
-      $('#graphcanvas').hide();
-      $('#sigma-wrapper').show();
-
       var msg = gettext("Oops! Something went wrong with the server. Please, reload the page.");
+
       $('#sigma-container').html('<div class="graph-empty-message">' + msg + '</div>');
     });
 

@@ -47,7 +47,7 @@
         <span id="sigma-pause" class="pause" style="display:none;" data-state="running">{% trans "Pause" %}</span>
         <div id="canvas-box">
                 <div id="spinner"></div>
-                <canvas id="graphcanvas">{% trans "Your browser does not support graph visualization" %}</canvas>
+                <canvas id="graph-support">{% trans "Your browser does not support graph visualization" %}</canvas>
         </div>
     </div>
     <!-- Start of DOM elements working as memory system and debugging -->
@@ -242,10 +242,14 @@
             });
         })(jQuery);
     </script>
-    <script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/sigma/sigma-0.1.js"></script>
-    <script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/sigma/plugins/sigma.fisheye.js"></script>
-    <script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/sigma/plugins/sigma.forceatlas2.js"></script>
-    <script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/sigma/plugins/sigma.parseGexf.js"></script>
+    <script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/sigma/sigma.min.js"></script>
+    <script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/sigma/plugins/sigma.layout.forceAtlas2.min.js"></script>
+    <script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/sigma/plugins/sigma.parsers.gexf.min.js"></script>
+    <script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/sigma/plugins/sigma.parsers.json.min.js"></script>
+    <script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/sigma/plugins/sigma.plugins.animate.min.js"></script>
+    <script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/sigma/plugins/sigma.plugins.neighborhoods.min.js"></script>
+    <script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/sigma/plugins/sigma.renderers.customShapes.min.js"></script>
+    <script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/sigma/plugins/sigma.renderers.extra.js"></script>
     <script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/colpick/colpick.js"></script>
     <script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/colpick/rgbcolor.js"></script>
     <script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/visualization-utils.js"></script>
