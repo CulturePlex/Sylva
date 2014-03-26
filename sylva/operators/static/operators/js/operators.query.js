@@ -16,7 +16,7 @@ diagram.fieldRelsCounter = 0;
 diagram.nodetypesCounter = [];
 diagram.reltypesCounter = [];
 diagram.fieldsForRels = {};
-diagram.relindex = 1;
+diagram.relindex = {};
 
 diagram.stringValues = {
     'em': "",
@@ -146,7 +146,8 @@ diagram.lookupsValuesType = {
             divBox.css({
                 "left": (parseInt(Math.random() * 55 + 1) * 10) + "px",
                 "top": (parseInt(Math.random() * 25 + 1) * 10) + "px",
-                "width": "245px"
+                "width": "320px"
+                //"width": "245px"
                 //"width": "33%"
             });
             divBox.addClass("body");
@@ -187,6 +188,7 @@ diagram.lookupsValuesType = {
 
                         if(relation.source) {
                             optionRel.attr("data-source", relation.source);
+                            diagram.relindex[idBox] = 1;
                         }
 
                         relationsIds.push(relationId);
@@ -227,6 +229,9 @@ diagram.lookupsValuesType = {
             // We append the divs
             divFields = $("<DIV>");
             divFields.attr("id", idFields);
+            divFields.css({
+                "margin-top": "10px"
+            });
             countFields = 0;
 
             if(typeName != "wildcard") {
@@ -514,15 +519,10 @@ diagram.lookupsValuesType = {
                     iconToggle.addClass('icon-minus-sign');
                 }
 
-                // Recalculate anchor if we have source endpoints already
-                if(jsPlumb.getEndpoints(idBox).length > 1) {
-                    // We start at index 1 because the index 0 is the target
-                    for(var i = 1; i < jsPlumb.getEndpoints(idBox).length; i++) {
-                        var endpoint = jsPlumb.getEndpoints(idBox)[i];
-                        var anchor = diagram.calculateAnchor(idBox, idAllRels, endpoint.relIndex);
-                        endpoint.anchor.y = anchor;
-                    }
-                }
+                // Recalculate anchor for source endpoints
+                diagram.recalculateAnchor(idBox, idAllRels);
+                // Recalculate anchor for target endpoints
+                diagram.recalculateAnchorTarget(idBox);
 
                 jsPlumb.repaintEverything();
                 diagram.saveBoxPositions();
@@ -817,6 +817,12 @@ diagram.lookupsValuesType = {
                 divField.append(removeField);
             }
 
+            if ($('#' + parentId).children().length == 0) {
+                divField.css({
+                    "margin-left": "-5px"
+                })
+            }
+
             // We append the patterns
             divField.append(checkboxProperty);
             divField.append(selectProperty);
@@ -930,6 +936,31 @@ diagram.lookupsValuesType = {
 
             return result;
          };
+
+        /**
+         * Recalculate the anchor for sources endpoints
+         * - idBox
+         * - idAllRels
+         */
+         diagram.recalculateAnchor = function(idBox, idAllRels) {
+            if(jsPlumb.getEndpoints(idBox).length > 1) {
+                for(var i = 1; i < jsPlumb.getEndpoints(idBox).length; i++) {
+                    var endpoint = jsPlumb.getEndpoints(idBox)[i];
+                    var anchor = diagram.calculateAnchor(idBox, idAllRels, endpoint.relIndex);
+                    endpoint.anchor.y = anchor;
+                }
+            }
+         }
+
+        /**
+         * Recalculate the anchor for targets endpoints
+         * - idBox
+         */
+         diagram.recalculateAnchorTarget = function(idBox) {
+            var endpointTarget = jsPlumb.getEndpoints(idBox)[0];
+            var anchor = ($('#' + idBox).height() - $('#' + idBox + ' .title').height()) / $('#' + idBox).height();
+            endpointTarget.anchor.y = 1 - anchor;
+         }
 
          /**
           * Function to change the special characters (i.e tildes) for
@@ -1048,6 +1079,10 @@ diagram.lookupsValuesType = {
                 propertiesChecked[alias].push($(property).val());
             }
 
+            // We check if we have and/or option
+            var andOrId = $(property).parent().attr('id');
+            var andOrVal = $('#' + andOrId + ' .and-or-option select').val();
+
             if(lookup) {
                 var propertyArray = new Array();
                 propertyArray.push(propertyTag);
@@ -1057,6 +1092,12 @@ diagram.lookupsValuesType = {
                 conditionArray.push(lookup);
                 conditionArray.push(propertyArray);
                 conditionArray.push(propertyValue);
+
+                if(andOrVal) {
+                    conditionArray.push(andOrVal);
+                } else {
+                    conditionArray.push("not");
+                }
 
                 conditionsArray.push(conditionArray);
             }
@@ -1221,15 +1262,10 @@ diagram.lookupsValuesType = {
 
         $("#" + parentId).append(divField);
 
-        // Recalculate anchor if we have source endpoints already
-        if(jsPlumb.getEndpoints(idBox).length > 1) {
-            // We start at index 1 because the index 0 si the target
-            for(var i = 1; i < jsPlumb.getEndpoints(idBox).length; i++) {
-                var endpoint = jsPlumb.getEndpoints(idBox)[i];
-                var anchor = diagram.calculateAnchor(idBox, idAllRels, endpoint.relIndex);
-                endpoint.anchor.y = anchor;
-            }
-        }
+        // Recalculate anchor for source endpoints
+        diagram.recalculateAnchor(idBox, idAllRels);
+        // Recalculate anchor for target endpoints
+        diagram.recalculateAnchorTarget(idBox);
 
         jsPlumb.repaintEverything();
     });
@@ -1265,15 +1301,10 @@ diagram.lookupsValuesType = {
         } else {
             alert("You need a field at least");
         }
-        // Recalculate anchor if we have source endpoints already
-        if(jsPlumb.getEndpoints(idBox).length > 1) {
-            // We start at index 1 because the index 0 si the target
-            for(var i = 1; i < jsPlumb.getEndpoints(idBox).length; i++) {
-                var endpoint = jsPlumb.getEndpoints(idBox)[i];
-                var anchor = diagram.calculateAnchor(idBox, idAllRels, endpoint.relIndex);
-                endpoint.anchor.y = anchor;
-            }
-        }
+        // Recalculate anchor for source endpoints
+        diagram.recalculateAnchor(idBox, idAllRels);
+        // Recalculate anchor for target endpoints
+        diagram.recalculateAnchorTarget(idBox);
 
         jsPlumb.repaintEverything();
     });
@@ -1323,29 +1354,20 @@ diagram.lookupsValuesType = {
 
             diagram.setLabel(listRelElement, label);
 
-            // Link to add the relations
-            addRelation = $("<A>");
-            addRelation.addClass("add-relation");
-            addRelation.attr('data-parentid', idBox);
-            addRelation.attr('data-relsid', idAllRels);
-            addRelation.attr('data-relationid', relationId);
-            addRelation.attr('data-label', name);
-            addRelation.attr('data-idrel', idrel);
-
             if(source) {
-                addRelation.attr("data-source", source);
-                // We make this to have only the index when the
-                // relationship is a source for calculate the
-                // anchor correctly
-                addRelation.attr('data-relindex', diagram.relindex);
-                diagram.relindex++;
+                var relIndex = diagram.relindex[idBox];
+                // calculate anchor
+                // We need idBox and idAllRels
+                var anchor = diagram.calculateAnchor(idBox, idAllRels, relIndex);
+                if(source) {
+                    var uuidSource = relationId + "-source";
+                    if(!jsPlumb.getEndpoint(uuidSource)) {
+                        var endpointSource = jsPlumb.addEndpoint(idBox, { uuid:uuidSource, connector: "Flowchart"}, diagram.getRelationshipOptions('source', name, idrel, anchor));
+                        endpointSource.relIndex = relIndex;
+                    }
+                }
+                diagram.relindex[idBox]++;
             }
-
-            // Add relation icon
-            addRelationIcon = $("<I>");
-            addRelationIcon.addClass("icon-plus-sign");
-            addRelationIcon.attr('id', 'add-relation-icon');
-            addRelation.append(addRelationIcon);
 
             // Link to remove the relations
             removeRelation = $("<A>");
@@ -1363,20 +1385,15 @@ diagram.lookupsValuesType = {
             removeRelation.append(removeRelationIcon);
 
             divAllRel.append(listRelElement);
-            divAllRel.append(addRelation);
+            //divAllRel.append(addRelation);
             divAllRel.append(removeRelation);
 
             $('#' + boxrel).append(divAllRel);
         }
-        // Recalculate anchor if we have source endpoints already
-        if(jsPlumb.getEndpoints(idBox).length > 1) {
-            // We start at index 1 because the index 0 si the target
-            for(var i = 1; i < jsPlumb.getEndpoints(idBox).length; i++) {
-                var endpoint = jsPlumb.getEndpoints(idBox)[i];
-                var anchor = diagram.calculateAnchor(idBox, idAllRels, endpoint.relIndex);
-                endpoint.anchor.y = anchor;
-            }
-        }
+        // Recalculate anchor for source endpoints
+        diagram.recalculateAnchor(idBox, idAllRels);
+        // Recalculate anchor for target endpoints
+        diagram.recalculateAnchorTarget(idBox);
 
         jsPlumb.repaintEverything();
     });
@@ -1526,9 +1543,8 @@ diagram.lookupsValuesType = {
             var inputLookup = $("<INPUT>");
             inputLookup.addClass("lookup-value");
             inputLookup.css({
-                "width": "75px",
-                "margin-left": "5%",
-                "margin-top": "3%"
+                "width": "60px",
+                "margin-left": "8px"
             });
             $('#' + fieldId).append(inputLookup);
         }
@@ -1600,7 +1616,7 @@ diagram.lookupsValuesType = {
                         $this.next().remove();
                     }
                 }
-                $this.after("<input style=\"width: 75px; margin-left: 5%; margin-top: 3%;\" />");
+                $this.after("<input style=\"width: 60px; margin-left: 8px;\" />");
             }
         } else {
             // In this branch, the type would be boolean, choices, date or user
@@ -1644,7 +1660,7 @@ diagram.lookupsValuesType = {
         var divRelId = $this.data("divrelid");
         var label = $this.data("label");
 
-        diagram.relindex--;
+        diagram.relindex[idBox]--;
 
         var oldEndpointRelIndex = jsPlumb.getEndpoint(patternId + '-source').relIndex;
         jsPlumb.deleteEndpoint(patternId + '-source');
@@ -1672,6 +1688,9 @@ diagram.lookupsValuesType = {
                 endpoint.anchor.y = anchor;
             }
         }
+
+        // Recalculate anchor for target endpoints
+        diagram.recalculateAnchorTarget(idBox);
 
         jsPlumb.repaintEverything();
     });
@@ -1748,7 +1767,7 @@ diagram.lookupsValuesType = {
                 $.unblockUI();
             },
             error: function (e) {
-                $("#results").html("Ooops! Sorry, was an error in the server. Please, refresh the page and try again.");
+                $("#results").html("Ooops! Sorry, was an error in the server: "+ e + "Please, refresh the page and try again.");
                 $('#query-builder-query').hide();
                 $('#query-builder-results').show();
                 $('#results').show();
@@ -1765,7 +1784,7 @@ diagram.lookupsValuesType = {
      */
     $('#run-button').click(function() {
         $.blockUI({
-            message: '<span>' + gettext("Your query is being processing. Please wait...") + '</span>',
+            message: '<span>' + gettext("Your query is executing. Please wait...") + '</span>',
             css: {
                 border: 'none',
                 padding: '15px',

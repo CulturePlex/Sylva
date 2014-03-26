@@ -59,7 +59,7 @@
 }
 
 #add-relation-icon {
-    margin-left: 162px;
+    margin-left: 240px;
 }
 
 #add-relation-icon-wildcard {
@@ -89,6 +89,7 @@
 
 #remove-field-icon {
     float: right;
+    margin-right: 5px;
 }
 
 #remove-field-icon-prop {
@@ -126,11 +127,12 @@
     width: 62px;
     padding: 0;
     display: inline;
-    margin-left: 10%;
+    margin-left: 10px;
 }
 
 .field {
-    display: inline-table;
+    /*display: inline-table;*/
+    display: inline;
     height: 40px;
     margin-top: 4%;
     margin-bottom: 4%;
@@ -143,6 +145,7 @@
 .select-and-or {
     width: 50px;
     padding: 0;
+    margin-top: 10px;
     margin-left: 2%;
 }
 
