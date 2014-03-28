@@ -119,3 +119,33 @@ def operator_builder_results(request, graph_slug):
     return HttpResponse(json.dumps(None),
                         status=400,  # Bad request
                         mimetype='application/json')
+
+
+"""
+from operators.tasks import celery_query_task
+
+
+@is_enabled(settings.ENABLE_QUERIES)
+@login_required
+@permission_required("data.view_data", (Data, "graph__slug", "graph_slug"),
+                     return_403=True)
+def operator_builder_results(request, graph_slug):
+    query = request.POST.get("query", "").strip()
+    if request.is_ajax() and query:
+        graph = get_object_or_404(Graph, slug=graph_slug)
+        # query = "notas of autor with notas that start with lista"
+        # see https://gist.github.com/versae/9241069
+        query_dict = json.loads(query)
+        results = graph.query(query_dict)
+        task = celery_query_task.apply_async()
+        print task.id
+        print task.ready()
+        print task.result
+        # TODO: Try to make the response streamed
+        return HttpResponse(json.dumps([r for r in results]),
+                            status=200,
+                            mimetype='application/json')
+    return HttpResponse(json.dumps(None),
+                        status=400,  # Bad request
+                        mimetype='application/json')
+"""

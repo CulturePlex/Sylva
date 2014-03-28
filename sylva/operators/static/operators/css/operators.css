@@ -165,3 +165,13 @@
     margin-left: 25px;
     display: none;
 }
+
+/* drag and drop options for relationship */
+
+.dragActive {
+    border:4px dotted orange;
+}
+
+.dropHover {
+    border:4px dotted green;
+}

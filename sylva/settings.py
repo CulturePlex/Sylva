@@ -188,7 +188,8 @@ INSTALLED_APPS = (
     'zebra',
     'payments',
     'south',
-    'reports'
+    'reports',
+    'djcelery'
 )
 
 AUTHENTICATION_BACKENDS = (
@@ -355,3 +356,11 @@ STRIPE_PLANS = {
         'account_type': 3
     }
 }
+
+# Celery configuration
+import djcelery
+djcelery.setup_loader()
+
+BROKER_URL = 'amqp://myuser:mypassword@localhost:5672//'
+CELERY_RESULT_BACKEND = "amqp"
+CELERY_IMPORTS = ("tools.tasks",)

@@ -359,7 +359,8 @@ class GraphDatabase(BlueprintsGraphDatabase):
 
     def _query_generator(self, query_dict):
         conditions_list = []
-        for lookup, property_tuple, match in query_dict["conditions"]:
+        index = 0
+        for lookup, property_tuple, match, connector in query_dict["conditions"]:
             #if property_tuple == u"property":
             type_property = u"{0}.`{1}`".format(*property_tuple[1:])
             if lookup == "exact":
@@ -423,9 +424,16 @@ class GraphDatabase(BlueprintsGraphDatabase):
             else:
                 lookup = lookup
                 match = u""
+            if index != 0:
+                if connector != 'not':
+                    connector = u' {} '.format(connector.upper())
+                    conditions_list.append(connector)
+                else:
+                    conditions_list.append(" AND ")
+            index = index + 1
             condition = u"{0} {1} {2}".format(type_property, lookup, match)
             conditions_list.append(condition)
-        conditions = u" AND ".join(conditions_list)
+        conditions = u" ".join(conditions_list)
         origins_list = []
         for origin_dict in query_dict["origins"]:
             if origin_dict["type"] == "node":

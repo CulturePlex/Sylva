@@ -294,10 +294,18 @@ diagram.lookupsValuesType = {
             divBox.prepend(divTitle);
             root.append(divBox);
             // We add the target relationship handler
+
+            var exampleDropOptions = {
+                tolerance:"touch",
+                hoverClass:"dropHover",
+                activeClass:"dragActive"
+            }
             var uuidTarget = idBox + "-target";
             if(!jsPlumb.getEndpoint(uuidTarget)) {
-                var anchor = ($('#' + idBox).height() - $('#' + idBox + ' .title').height()) / $('#' + idBox).height()
-                var endpointTarget = jsPlumb.addEndpoint(idBox, { uuid:uuidTarget, connector: "Flowchart"},diagram.getRelationshipOptions('target', 0, 0, 1 - anchor));
+                // This offset is for centering the endpoint
+                var offset = 7;
+                var anchor = ($('#' + idBox).height() - $('#' + idBox + ' .title').height() + offset) / $('#' + idBox).height()
+                var endpointTarget = jsPlumb.addEndpoint(idBox, { uuid:uuidTarget, connector: "Flowchart", dropOptions:exampleDropOptions},diagram.getRelationshipOptions('target', 0, 0, 1 - anchor));
             }
             jsPlumb.draggable("diagramBox-"+ diagram.Counter +"-"+ modelName, {
                 handle: ".title",
@@ -927,10 +935,11 @@ diagram.lookupsValuesType = {
          diagram.calculateAnchor = function(parentId, relsId, relIndex) {
             var selectRelHeight = 17;
             var proportion = (($('#' + parentId).height() + selectRelHeight) - $('#' + relsId).height()) / $('#' + parentId).height();
-            var offset = relIndex * 10;
+            // We add 17 because the select rel height
+            var offset = relIndex * 10 + 17;
 
             if(relIndex > 1) {
-                offset = (relIndex * 10) + ((relIndex - 1) * 13);
+                offset = (relIndex * 10) + ((relIndex - 1) * 13) + 17;
             }
             var result = (offset/$('#' + parentId).height()) + proportion;
 
@@ -958,7 +967,9 @@ diagram.lookupsValuesType = {
          */
          diagram.recalculateAnchorTarget = function(idBox) {
             var endpointTarget = jsPlumb.getEndpoints(idBox)[0];
-            var anchor = ($('#' + idBox).height() - $('#' + idBox + ' .title').height()) / $('#' + idBox).height();
+            // This offset is for centering the endpoint
+            var offset = 7;
+            var anchor = ($('#' + idBox).height() - $('#' + idBox + ' .title').height() + offset) / $('#' + idBox).height();
             endpointTarget.anchor.y = 1 - anchor;
          }
 
@@ -1143,6 +1154,9 @@ diagram.lookupsValuesType = {
             // We get the selectors for every component to build
             // the json correctly
             var relationSelector = $('#' + relationId + ' .title');
+            if(relationSelector.length == 0) {
+                alert("There's been an error in the relationship " + relationId + ". Please remove it and try again");
+            }
             var relationAlias = $('#' + relationId + ' .title select').val();
             var relationModelId = relationSelector.data('modelid');
             relation.alias = diagram.replaceChars(relationAlias);
@@ -1693,7 +1707,7 @@ diagram.lookupsValuesType = {
         diagram.recalculateAnchorTarget(idBox);
 
         jsPlumb.repaintEverything();
-    });
+     });
 
      jsPlumb.bind("connection", function(info) {
         var sourceIdValue = info.sourceId;
@@ -1708,7 +1722,6 @@ diagram.lookupsValuesType = {
         $($('.select-reltype-' + labelRel + ' #' + labelRel + (diagram.reltypesCounter[labelRel] + 1 - 1))[elem]).attr('selected', 'selected');
 
         diagram.CounterRels++;
-
      });
 
     /**
@@ -1767,7 +1780,7 @@ diagram.lookupsValuesType = {
                 $.unblockUI();
             },
             error: function (e) {
-                $("#results").html("Ooops! Sorry, was an error in the server: "+ e + "Please, refresh the page and try again.");
+                $("#results").html("Ooops! Sorry, was an error in the server: Please, refresh the page and try again.");
                 $('#query-builder-query').hide();
                 $('#query-builder-results').show();
                 $('#results').show();

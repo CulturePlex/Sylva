@@ -361,3 +361,25 @@ def graph_data(request, graph_slug, node_id=None):
         return HttpResponse(json.dumps(json_data), status=200,
                             mimetype='application/json')
     raise Http404(_("Error: Invalid request (expected an AJAX request)"))
+
+
+# Analytics test method
+from tools.tasks import GraphChiAnalyticsMethods
+
+
+@permission_required("graphs.view_graph", (Data, "graph__slug", "graph_slug"),
+                     return_403=True)
+def analytics_test(request, graph_slug):
+    if request.is_ajax():
+        analytics_name = request.GET['analytic']
+        if analytics_name == "communityDetection":
+            GraphChiAnalyticsMethods.graphchi_communitydetection_task.apply_async()
+        elif analytics_name == "connectedComponents":
+            GraphChiAnalyticsMethods.graphchi_connectedcomponents_task.apply_async()
+        elif analytics_name == "minimunSpanningForest":
+            GraphChiAnalyticsMethods.graphchi_minimunspanningforest_task.apply_async()
+        elif analytics_name == "pagerank":
+            GraphChiAnalyticsMethods.graphchi_pagerank_task.apply_async()
+        elif analytics_name == "triangleCounting":
+            GraphChiAnalyticsMethods.graphchi_trianglecounting_task.apply_async()
+    return HttpResponse(json.dumps({}))
