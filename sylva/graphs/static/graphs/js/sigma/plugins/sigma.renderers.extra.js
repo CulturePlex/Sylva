@@ -199,8 +199,6 @@
         maxW = 0,
         maxH = fontSize + 4;
 
-    var showInfo = $('#sigma-node-info').prop('checked');
-
     // Label background:
     context.font = (fontStyle ? fontStyle + ' ' : '') +
       fontSize + 'px ' + (settings('hoverFont') || settings('font'));
@@ -219,18 +217,18 @@
 
     // Getting the width & height of the label:
     maxW = context.measureText(node.label).width;
-    if (showInfo) {
-      var i = 0, text = '', currentW = 0;
-      for(var key in node.properties) {
-        i++;
-        text = key + ': ' + node.properties[key];
-        currentW = context.measureText(text).width;
-        if (currentW > maxW) {
-          maxW = currentW;
-        }
+    var i = 0,
+      text = '',
+      currentW = 0;
+    for (var key in node.properties) {
+      i++;
+      text = key + ': ' + node.properties[key];
+      currentW = context.measureText(text).width;
+      if (currentW > maxW) {
+        maxW = currentW;
       }
-      maxH = maxH * (i + 1);
     }
+    maxH = maxH * (i + 1);
 
     if (typeof node.label === 'string') {
       x = Math.round(node[prefix + 'x'] - fontSize / 2 - 2);
@@ -282,10 +280,7 @@
       context.fillStyle = (settings('labelHoverColor') === 'node') ?
         (node.color || settings('defaultNodeColor')) :
         settings('defaultLabelHoverColor');
-
-      if (showInfo) {
-        context.font = 'bold ' + fontSize + 'px ' + settings('font');
-      }
+      context.font = 'bold ' + fontSize + 'px ' + settings('font');
 
       context.fillText(
         node.label,
@@ -293,25 +288,23 @@
         Math.round(node[prefix + 'y'] + fontSize / 3)
       );
 
-      if (showInfo) {
-        i = 0;
-        var keyW = 0;
-        for(var key in node.properties) {
-          i++;
-          context.font = 'italic ' + fontSize + 'px ' + settings('font');
-          context.fillText(
-            key,
-            Math.round(node[prefix + 'x'] + size + 3),
-            Math.round(node[prefix + 'y'] + fontSize / 3 + fontSize * i * 1.3)
-          );
-          keyW = context.measureText(key).width;
-          context.font = 'normal ' + fontSize + 'px ' + settings('font');
-          context.fillText(
-            ': ' + node.properties[key],
-            Math.round(node[prefix + 'x'] + size + 3) + keyW,
-            Math.round(node[prefix + 'y'] + fontSize / 3 + fontSize * i * 1.3)
-          );
-        }
+      i = 0;
+      var keyW = 0;
+      for (var key in node.properties) {
+        i++;
+        context.font = 'italic ' + fontSize + 'px ' + settings('font');
+        context.fillText(
+          key,
+          Math.round(node[prefix + 'x'] + size + 3),
+          Math.round(node[prefix + 'y'] + fontSize / 3 + fontSize * i * 1.3)
+        );
+        keyW = context.measureText(key).width;
+        context.font = 'normal ' + fontSize + 'px ' + settings('font');
+        context.fillText(
+          ': ' + node.properties[key],
+          Math.round(node[prefix + 'x'] + size + 3) + keyW,
+          Math.round(node[prefix + 'y'] + fontSize / 3 + fontSize * i * 1.3)
+        );
       }
     }
   };

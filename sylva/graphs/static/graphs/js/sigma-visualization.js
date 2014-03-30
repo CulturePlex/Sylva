@@ -1,8 +1,8 @@
 // JSHint options
 
 /*global window:true, document:true, setTimeout:true, console:true, jQuery:true,
-sylva:true, prompt:true, alert:true, FileReader:true, Processing:true, sigma:true,
-clearTimeout */
+sylva:true, prompt:true, alert:true, FileReader:true, Processing:true,
+sigma:true, clearTimeout */
 
 
 /****************************************************************************
@@ -23,10 +23,6 @@ clearTimeout */
   var degreesCalculated = false;
   // It saves the link in the Sylva logo when Sylva goes in fullscreen mode.
   var linkLogo;
-  // It's used when the user select a layout, for save the original forceAtlas2 coordinates.
-  var originalCoorSaved = false;
-  // It's true when the user is using forceAtlas2 layout.
-  var inForceAtlas2 = true;
   // It's used when the user select a diferent edges shape than the original.
   var defaultEdgeSaved = false;
 
@@ -49,6 +45,12 @@ clearTimeout */
       var defaultMultiplier = 1;
       var degreeMultiplier = 2;
       var sizeMultiplier = defaultMultiplier;
+      // An array with the IDs of the visible nodes.
+      var visibleNodesIds = [];
+
+      for (var key in sylva.nodetypes) {
+        visibleNodesIds = visibleNodesIds.concat(sylva.nodetypes[key].nodes);
+      }
 
       // Instanciate Sigma.js and customize rendering.
       var sigInst = new sigma();
@@ -57,9 +59,9 @@ clearTimeout */
         container: $('#sigma-container')[0]
       });
 
-      if (sylva.size >= mediumGraphSize && sylva.size < bigGraphSize) {
+      if (size >= mediumGraphSize && size < bigGraphSize) {
         maxNodeSize = 6;
-      } else if (sylva.size >= bigGraphSize) {
+      } else if (size >= bigGraphSize) {
         maxNodeSize = 4;
       }
 
@@ -230,7 +232,7 @@ clearTimeout */
         currentNodeX = sigma.utils.getX(event) - dom.offsetWidth / 2;
         currentNodeY = sigma.utils.getY(event) - dom.offsetHeight / 2;
 
-        if (sylva.size > 1) {
+        if (size > 1) {
           var offset = $('.sigma-mouse').offset()
           var x = event.pageX - offset.left;
           var y = event.pageY - offset.top;
@@ -258,9 +260,6 @@ clearTimeout */
           node.x = x * cos - y * sin;
           node.y = y * cos + x * sin;
 
-          if (inForceAtlas2) {
-            originalCoorSaved = false;
-          }
           sigInst.refresh();
         }
       };
@@ -406,7 +405,8 @@ clearTimeout */
         if (isDrawing === true) {
           that.stop();
         } else {
-          that.start();
+          var drawHidden = $('#sigma-hidden-layout').prop('checked');
+          that.start(drawHidden);
         }
       });
 
@@ -417,7 +417,8 @@ clearTimeout */
       // Hide/show nodes by type.
       $('.show-hide-nodes').on('click', function() {
         var nodetypeId = $(this).attr('data-nodetype-id');
-        var nodesId = sylva.nodetypes[nodetypeId].nodes
+        var nodesId = sylva.nodetypes[nodetypeId].nodes;
+        var nodesNumber = nodesId.length;
         var action = $(this).attr('data-action');
         var hidden;
 
@@ -426,18 +427,29 @@ clearTimeout */
           $(this).removeClass('icon-eye-open');
           $(this).addClass('icon-eye-close');
           hidden = true;
+          for(var i = 0; i < nodesId.length; i++) {
+            var index = visibleNodesIds.indexOf(nodesId[i]);
+            visibleNodesIds.splice(index, 1);
+          }
         } else {
           $(this).attr('data-action', 'hide');
           $(this).removeClass('icon-eye-close');
           $(this).addClass('icon-eye-open');
           hidden = false;
+          visibleNodesIds = visibleNodesIds.concat(nodesId);
         }
 
         sigInst.graph.nodes(nodesId).forEach(function(n) {
           n.hidden = hidden;
         });
 
-        sigInst.refresh();
+        var drawHidden = $('#sigma-hidden-layout').prop('checked');
+        if (drawHidden && visibleNodesIds.length > 0) {
+          var type = $('#sigma-graph-layout').find('option:selected').attr('id');
+          redrawLayout(type, drawHidden);
+        } else {
+          sigInst.refresh();
+        }
       });
 
       // Change the color of the nodes and the legend.
@@ -541,6 +553,22 @@ clearTimeout */
         $canvas.remove();
       });
 
+      $('#sigma-node-info').change(function () {
+        if ($(this).prop('checked')) {
+          sigma.canvas.hovers.def = sigma.canvas.hovers.info;
+        } else {
+          sigma.canvas.hovers.def = sigma.canvas.hovers.defBackup;
+        }
+      });
+
+      $('#sigma-hidden-layout').change(function () {
+        var drawHidden = $(this).prop('checked');
+        var type = $('#sigma-graph-layout').find('option:selected').attr('id');
+        if (visibleNodesIds.length < size) {
+          redrawLayout(type, drawHidden);
+        }
+      });
+
       // Go fullscreen.
       $('#sigma-go-fullscreen').on('click', function() {
         var elem = $('body')[0];
@@ -570,7 +598,7 @@ clearTimeout */
 
       // Handle the fullscreen mode changes.
       var handleFullscreen = function() {
-        if(isFullscreenByButton) {
+        if (isFullscreenByButton) {
           isFullscreenByButton = false;
           stopFullscreen();
         } else {
@@ -727,7 +755,7 @@ clearTimeout */
 
       var calculateNodesDegrees = function() {
         var nodes = [];
-        for(var key in sylva.nodetypes) {
+        for (var key in sylva.nodetypes) {
           nodes = nodes.concat(sylva.nodetypes[key].nodes);
         }
 
@@ -744,90 +772,101 @@ clearTimeout */
         });
       };
 
-      var gridLayout = function() {
-        if(!degreesCalculated) {
+      var gridLayout = function(drawHidden) {
+        if (!degreesCalculated) {
           calculateNodesDegrees();
         }
 
-        var sorted = sigInst.graph.nodes();
-        sorted.sort(function (a, b) {
+        var nodes = [];
+        if (drawHidden) {
+          nodes = visibleNodesIds;
+        } else {
+          for (var key in sylva.nodetypes) {
+            nodes = nodes.concat(sylva.nodetypes[key].nodes);
+          }
+        }
+
+        var sorted = sigInst.graph.nodes(nodes);
+        sorted.sort(function(a, b) {
             return b.totalDegree - a.totalDegree;
         });
 
         sorted = graphToIds({'nodes': sorted, 'edges': []})['nodes'];
 
-        var side = Math.ceil(Math.sqrt(sylva.size));
+        var side = Math.ceil(Math.sqrt(sorted.length));
 
         sigInst.graph.nodes().forEach(function(n) {
-          if (!originalCoorSaved) {
-            n.originalX = n.x;
-            n.originalY = n.y;
+          if (!(n.hidden && drawHidden)) {
+            var i = sorted.indexOf(n.id);
+            n.gridX = 100 * (i % side);
+            n.gridY = 100 * Math.floor(i / side);
           }
-          var i = sorted.indexOf(n.id);
-          n.gridX = 100 * (i % side);
-          n.gridY = 100 * Math.floor(i / side);
         });
-
-        originalCoorSaved = true;
       };
 
-      var circularLayout = function() {
-        sigInst.graph.nodes().forEach(function(n, i) {
-          if (!originalCoorSaved) {
-            n.originalX = n.x;
-            n.originalY = n.y;
+      var circularLayout = function(drawHidden) {
+        var i = 0;
+        var number = size;
+        if (drawHidden) {
+          number = visibleNodesIds.length;
+        }
+        sigInst.graph.nodes().forEach(function(n) {
+          if (!(n.hidden && drawHidden)) {
+            var angle = Math.PI * 2 * i / number - Math.PI / 2;
+            n.circularX = Math.cos(angle);
+            n.circularY = Math.sin(angle);
+            i++;
           }
-          n.circularX = Math.cos(Math.PI * 2 * i / sylva.size - Math.PI / 2),
-          n.circularY = Math.sin(Math.PI * 2 * i / sylva.size - Math.PI / 2)
         });
-
-        originalCoorSaved = true;
       };
 
       // Control graph layout.
-      var graphLayoutSelect = $('#sigma-graph-layout');
-      graphLayoutSelect.change(function() {
+      $('#sigma-graph-layout').change(function() {
+        var type = $(this).find('option:selected').attr('id');
+        if (type != 'label') {
+          var drawHidden = $('#sigma-hidden-layout').prop('checked');
+          redrawLayout(type, drawHidden);
+        }
+      });
+
+      var redrawLayout = function(type, drawHidden) {
         var xPos = '';
         var yPos = '';
 
-        var type = $(this).find('option:selected').attr('id');
         switch(type) {
           case 'label':
-            break;
           case 'force-atlas-2':
-            if (originalCoorSaved) {
-              xPos = 'originalX';
-              yPos = 'originalY';
-              originalCoorSaved = false;
-            } else {
+            if (visibleNodesIds.length == 0) {
               return;
             }
-            inForceAtlas2 = true;
+            that.stop();
+            that.start(drawHidden);
+            that.addTimeout(timeout);
+            return;
             break;
           case 'grid':
             that.stop();
-            gridLayout();
+            gridLayout(drawHidden);
             xPos = 'gridX';
             yPos = 'gridY';
-            inForceAtlas2 = false;
             break;
           case 'circular':
             that.stop();
-            circularLayout();
+            circularLayout(drawHidden);
             xPos = 'circularX';
             yPos = 'circularY';
-            inForceAtlas2 = false;
             break;
           default:
             break;
         }
+
         sigma.plugins.animate(sigInst, {x: xPos, y: yPos}, {duration: 500});
-      });
+      };
 
       // Control node size.
       var nodeSizeSelect = $('#sigma-node-size');
       nodeSizeSelect.change(function() {
-        if(!degreesCalculated) {
+        if (!degreesCalculated) {
           calculateNodesDegrees();
         }
 
@@ -870,9 +909,7 @@ clearTimeout */
       });
 
       // Control edges shape.
-      var edgeShapeSelect = $('#sigma-edge-shape');
-      edgeShapeSelect.change(function() {
-
+      $('#sigma-edge-shape').change(function() {
         var type = $(this).find('option:selected').attr('id');
         switch(type) {
           case 'label':
@@ -975,17 +1012,16 @@ clearTimeout */
     },
 
     // Start layout algorithm.
-    start: function() {
+    start: function(drawHidden) {
       var sigInst = sigma.instances()[0];
       if (sigInst) {
-        sigInst.startForceAtlas2();
+        sigInst.startForceAtlas2(drawHidden);
       } else {
         Sigma.init();
       }
       isDrawing = true;
       $('#sigma-pause').html('Pause');
       sigma.canvas.hovers.defBackup = sigma.canvas.hovers.def;
-      sigma.canvas.hovers.def = sigma.canvas.hovers.info;
     },
 
     // Stop layout algorithm.

@@ -41,6 +41,10 @@
       <input type="checkbox" id="sigma-node-info">
       <label for="sigma-node-info" title="{% trans "Show node info" %}">{% trans "Node info" %}</label>
     </div>
+    <div class="sigma-checkbox" style="display:none;">
+      <input type="checkbox" id="sigma-hidden-layout">
+      <label for="sigma-hidden-layout" title="{% trans "Consider the hidden nodes to the layout" %}">{% trans "Hidden nodes layout" %}</label>
+    </div>
     <select id="sigma-graph-layout" style="display:none;">
       <option id="label" disabled selected>{% trans "Graph layout" %}</option>
       <option id="force-atlas-2">{% trans "Force Atlas 2" %}</option>
@@ -149,13 +153,13 @@
   sylva.edit_nodetype_color_ajax_url = "{{ edit_nodetype_color_ajax_url }}";
 </script>
 <script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/sigma/sigma.min.js"></script>
-<script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/sigma/plugins/sigma.layout.forceAtlas2.min.js"></script>
+<script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/sigma/plugins/sigma.layout.forceAtlas2.js"></script>
 <script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/sigma/plugins/sigma.parsers.gexf.min.js"></script>
 <script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/sigma/plugins/sigma.parsers.json.min.js"></script>
 <script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/sigma/plugins/sigma.plugins.animate.min.js"></script>
 <script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/sigma/plugins/sigma.plugins.neighborhoods.min.js"></script>
 <script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/sigma/plugins/sigma.renderers.customShapes.min.js"></script>
-<script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/sigma/plugins/sigma.renderers.extraShapes.js"></script>
+<script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/sigma/plugins/sigma.renderers.extra.js"></script>
 <script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/colpick/colpick.js"></script>
 <script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/colpick/rgbcolor.js"></script>
 <script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/visualization-utils.js"></script>

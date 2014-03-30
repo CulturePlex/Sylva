@@ -29,7 +29,7 @@
       };
 
       self.graph.nodes().forEach(function(n) {
-        if (!n.hidden) {
+        if (!(n.hidden && self.p.drawHidden)) {
           n.fa2 = {
             mass: 1 + self.graph.degree(n.id),
             old_dx: 0,
@@ -69,7 +69,7 @@
           // Initialise layout data
           for (i = 0, l = nodes.length; i < l; i++) {
             n = nodes[i];
-            if (!n.hidden) {
+            if (!(n.hidden && self.p.drawHidden)) {
               if (n.fa2)
                 n.fa2 = {
                   mass: 1 + self.graph.degree(n.id),
@@ -982,14 +982,22 @@
     }
   };
 
-  sigma.prototype.startForceAtlas2 = function() {
-    if ((this.forceatlas2 || {}).isRunning)
+  sigma.prototype.startForceAtlas2 = function(drawHidden) {
+    if ((this.forceatlas2 || {}).isRunning) {
+      this.forceatlas2.p.drawHidden = drawHidden;
       return this;
+    }
 
     if (!this.forceatlas2) {
-      this.forceatlas2 = new forceatlas2.ForceAtlas2(this.graph);
+      if (drawHidden == null)
+        drawHidden = false;
+      this.forceatlas2 = new forceatlas2.ForceAtlas2(this.graph, {
+        drawHidden: drawHidden
+      });
       this.forceatlas2.setAutoSettings();
       this.forceatlas2.init();
+    } else {
+      this.forceatlas2.p.drawHidden = drawHidden;
     }
 
     this.forceatlas2.isRunning = true;
@@ -1047,6 +1055,7 @@
     totalSwinging: 0,
     totalEffectiveTraction: 0,
     complexIntervals: 500,
-    simpleIntervals: 1000
+    simpleIntervals: 1000,
+    drawHidden: false
   };
 })();
