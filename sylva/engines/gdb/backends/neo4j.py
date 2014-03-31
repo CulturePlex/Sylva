@@ -341,6 +341,11 @@ class GraphDatabase(BlueprintsGraphDatabase):
                     yield element["data"]
                 else:
                     yield element
+            for element in result["columns"]:
+                if "columns" in element:
+                    yield element["columns"]
+                else:
+                    yield element
             skip += page
             if len(result["data"]) == limit:
                 try:
@@ -354,7 +359,8 @@ class GraphDatabase(BlueprintsGraphDatabase):
 
     def _query_generator(self, query_dict):
         conditions_list = []
-        for lookup, property_tuple, match in query_dict["conditions"]:
+        index = 0
+        for lookup, property_tuple, match, connector in query_dict["conditions"]:
             #if property_tuple == u"property":
             type_property = u"{0}.`{1}`".format(*property_tuple[1:])
             if lookup == "exact":
@@ -409,33 +415,54 @@ class GraphDatabase(BlueprintsGraphDatabase):
             #     else:
             #         lookup = u"<>"
             #     match = u"null"
-            # elif lookup in ["eq", "equals"]:
-            #     lookup = u"="
-            #     match = u"'{0}'".format(_escape(match))
+            elif lookup in ["eq", "equals"]:
+                lookup = u"="
+                match = u"'{0}'".format(match)
             # elif lookup in ["neq", "notequals"]:
             #     lookup = u"<>"
             #     match = u"'{0}'".format(_escape(match))
             else:
                 lookup = lookup
                 match = u""
+            if index != 0:
+                if connector != 'not':
+                    connector = u' {} '.format(connector.upper())
+                    conditions_list.append(connector)
+                else:
+                    conditions_list.append(" AND ")
+            index = index + 1
             condition = u"{0} {1} {2}".format(type_property, lookup, match)
             conditions_list.append(condition)
-        conditions = u" AND ".join(conditions_list)
+        conditions = u" ".join(conditions_list)
         origins_list = []
         for origin_dict in query_dict["origins"]:
             if origin_dict["type"] == "node":
+                node_type = origin_dict["type_id"]
+                # wildcard type
+                if node_type == -1:
+                    node_type = '*'
                 origin = u"""{alias}=node:`{nidx}`('label:{type}')""".format(
                     nidx=self.nidx.name,
                     alias=origin_dict["alias"],
-                    type=origin_dict["type_id"],
+                    type=node_type,
                 )
+                origins_list.append(origin)
             else:
-                origin = u"""{alias}=rel:`{ridx}`('label:{type}')""".format(
-                    ridx=self.ridx.name,
-                    alias=origin_dict["alias"],
-                    type=origin_dict["type_id"],
-                )
-            origins_list.append(origin)
+                relation_type = origin_dict["type_id"]
+                # wildcard type
+                if relation_type == -1:
+                    origin = u"""{alias}=rel:`{ridx}`('graph:{graph_id}')""".format(
+                        ridx=self.ridx.name,
+                        alias=origin_dict["alias"],
+                        graph_id=self.graph_id,
+                    )
+                else:
+                    origin = u"""{alias}=rel:`{ridx}`('label:{type}')""".format(
+                        ridx=self.ridx.name,
+                        alias=origin_dict["alias"],
+                        type=relation_type,
+                    )
+                origins_list.append(origin)
         origins = u", ".join(origins_list)
         results_list = []
         for result_dict in query_dict["results"]:
@@ -458,13 +485,21 @@ class GraphDatabase(BlueprintsGraphDatabase):
                 target = pattern_dict["target"]["alias"]
                 relation = pattern_dict["relation"]["alias"]
                 relation_type = pattern_dict["relation"]["type_id"]
-                pattern = u"({source})-[{rel}:`{rel_type}`]-(target)".format(
-                    source=source,
-                    rel=relation,
-                    rel_type=relation_type,
-                    target=target,
-                )
-            patterns_list.append(pattern)
+                # wildcard type
+                if relation_type == -1:
+                    pattern = u"({source})-[{rel}]-({target})".format(
+                        source=source,
+                        rel=relation,
+                        target=target,
+                    )
+                else:
+                    pattern = u"({source})-[{rel}:`{rel_type}`]-({target})".format(
+                        source=source,
+                        rel=relation,
+                        rel_type=relation_type,
+                        target=target,
+                    )
+                patterns_list.append(pattern)
         if patterns_list:
             patterns = ", ".join(patterns_list)
             match = u"MATCH {0} ".format(patterns)

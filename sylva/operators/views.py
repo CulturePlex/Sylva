@@ -79,10 +79,17 @@ def graph_query_collaborators(request, graph_slug):
         graph = get_object_or_404(Graph, slug=graph_slug)
         term = request.GET["term"]
         if graph and term:
-            collabs = graph.get_collaborators(include_anonymous=True,
-                                              as_queryset=True)
+            #collabs = graph.get_collaborators(include_anonymous=True,
+            #                                  as_queryset=True)
+            lookups = (Q(username__icontains=term) |
+                       Q(first_name__icontains=term) |
+                       Q(last_name__icontains=term) |
+                       Q(email__icontains=term))
+            no_collabs = User.objects.filter(lookups)
+            no_collabs = no_collabs.exclude(id=request.user.id)
             collabs_dict = {}
-            for collab in collabs:
+            for collab in no_collabs:
+                collabs_dict = {}
                 full_name = collab.get_full_name()
                 if full_name:
                     name = u"%s (%s)" % (full_name, collab.username)
@@ -91,3 +98,24 @@ def graph_query_collaborators(request, graph_slug):
                     collabs_dict[collab.id] = name
             return HttpResponse(json.dumps(collabs_dict))
     return HttpResponse(json.dumps({}))
+
+
+@is_enabled(settings.ENABLE_QUERIES)
+@login_required
+@permission_required("data.view_data", (Data, "graph__slug", "graph_slug"),
+                     return_403=True)
+def operator_builder_results(request, graph_slug):
+    query = request.POST.get("query", "").strip()
+    if request.is_ajax() and query:
+        graph = get_object_or_404(Graph, slug=graph_slug)
+        # query = "notas of autor with notas that start with lista"
+        # see https://gist.github.com/versae/9241069
+        query_dict = json.loads(query)
+        results = graph.query(query_dict)
+        # TODO: Try to make the response streamed
+        return HttpResponse(json.dumps([r for r in results]),
+                            status=200,
+                            mimetype='application/json')
+    return HttpResponse(json.dumps(None),
+                        status=400,  # Bad request
+                        mimetype='application/json')

@@ -19,4 +19,6 @@ urlpatterns = patterns(
         name="operator_query_results"),
     url(r'^(?P<graph_slug>[\w-]+)/query/collaborators/$', 'graph_query_collaborators',
         name="graph_query_collaborators"),
+    url(r'^(?P<graph_slug>[\w-]+)/builder/results/$', 'operator_builder_results',
+        name="operator_builder_results"),
 )

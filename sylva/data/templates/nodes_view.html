@@ -29,17 +29,45 @@
             </div>
         </div>
         <div class="graph-controls">
-            <div class="sigma-checkbox" style="display:none;">
-                <input type="checkbox" id="sigma-node-info">
-                <label for="sigma-node-info" title="{% trans "Show node info" %}">{% trans "Node info" %}</label>
-            </div>
-            <div class="sigma-checkbox" style="display:none;">
-                <input type="checkbox" id="sigma-fisheye">
-                <label for="sigma-fisheye" title="{% trans "Activate fisheye effect" %}">{% trans "FishEye" %}</label>
-            </div>
-            <div class="sigma-checkbox" style="display:none; float:right;">
-                <a id="sigma-export-image" class="button" style="font-size:100%;" title="{% trans "Save as a PNG image" %}" download="{{ graph.slug }}.png">{% trans "Save as image" %}</a>
-            </div>
+          <div class="sigma-checkbox" style="display:none;">
+            <a id="sigma-zoom-in" class="button icon-plus zoom zoom-left" style="font-size:100%;" title="{% trans "Zoom in" %}"></a>
+          </div>
+          <div class="sigma-checkbox" style="display:none;">
+            <a id="sigma-zoom-out" class="button icon-minus zoom zoom-right" style="font-size:100%;" title="{% trans "Zoom out" %}"></a>
+          </div>
+          <div class="sigma-checkbox" style="display:none;">
+            <input type="checkbox" id="sigma-node-info">
+            <label for="sigma-node-info" title="{% trans "Show node info" %}">{% trans "Node info" %}</label>
+          </div>
+          <div class="sigma-checkbox" style="display:none;">
+            <input type="checkbox" id="sigma-hidden-layout">
+            <label for="sigma-hidden-layout" title="{% trans "Consider the hidden nodes to the layout" %}">{% trans "Hidden nodes layout" %}</label>
+          </div>
+          <select id="sigma-graph-layout" style="display:none;">
+            <option id="label" disabled selected>{% trans "Graph layout" %}</option>
+            <option id="force-atlas-2">{% trans "Force Atlas 2" %}</option>
+            <option id="grid">{% trans "Grid" %}</option>
+            <option id="circular">{% trans "Circular" %}</option>
+          </select>
+          <select id="sigma-node-size" style="display:none;">
+            <option id="label" disabled selected>{% trans "Node size" %}</option>
+            <option id="same">{% trans "Same for all" %}</option>
+            <option id="total-degree">{% trans "Total degree" %}</option>
+            <option id="in-degree">{% trans "In degree" %}</option>
+            <option id="out-degree">{% trans "Out degree" %}</option>
+          </select>
+          <select id="sigma-edge-shape" style="display:none;">
+            <option id="label" disabled selected>{% trans "Edge shape" %}</option>
+            <option id="straight">{% trans "Straight" %}</option>
+            <option id="arrow">{% trans "Arrow" %}</option>
+            <option id="curve">{% trans "Curve" %}</option>
+          </select>
+          <div class="sigma-checkbox" style="display:none; float:right;">
+            <a id="sigma-go-fullscreen" class="button" style="font-size:100%;" title="{% trans "Fullscreen" %}">{% trans "Fullscreen" %}</a>
+          </div>
+          <div class="sigma-checkbox" style="display:none; float:right;">
+            <a id="sigma-export-image" class="button" style="font-size:100%;" title="{% trans "Save as a PNG image" %}" download="{{ graph.slug }}.png">{% trans "Save as image" %}</a>
+          </div>
         </div>
         <div id="sigma-wrapper">
             <div id="sigma-container"></div>
@@ -47,7 +75,7 @@
         <span id="sigma-pause" class="pause" style="display:none;" data-state="running">{% trans "Pause" %}</span>
         <div id="canvas-box">
                 <div id="spinner"></div>
-                <canvas id="graphcanvas">{% trans "Your browser does not support graph visualization" %}</canvas>
+                <canvas id="graph-support">{% trans "Your browser does not support graph visualization" %}</canvas>
         </div>
     </div>
     <!-- Start of DOM elements working as memory system and debugging -->
@@ -242,10 +270,15 @@
             });
         })(jQuery);
     </script>
-    <script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/sigma/sigma-0.1.js"></script>
-    <script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/sigma/plugins/sigma.fisheye.js"></script>
-    <script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/sigma/plugins/sigma.forceatlas2.js"></script>
-    <script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/sigma/plugins/sigma.parseGexf.js"></script>
+
+    <script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/sigma/sigma.min.js"></script>
+    <script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/sigma/plugins/sigma.layout.forceAtlas2.js"></script>
+    <script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/sigma/plugins/sigma.parsers.gexf.min.js"></script>
+    <script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/sigma/plugins/sigma.parsers.json.min.js"></script>
+    <script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/sigma/plugins/sigma.plugins.animate.min.js"></script>
+    <script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/sigma/plugins/sigma.plugins.neighborhoods.min.js"></script>
+    <script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/sigma/plugins/sigma.renderers.customShapes.min.js"></script>
+    <script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/sigma/plugins/sigma.renderers.extra.js"></script>
     <script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/colpick/colpick.js"></script>
     <script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/colpick/rgbcolor.js"></script>
     <script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/visualization-utils.js"></script>

@@ -1515,14 +1515,29 @@ table.content-table {
     height: 36px;
 }
 
-.sigma-checkbox {
-    display: inline-block;
-    position: relative;
-    margin-left: 12px;
+#sigma-graph-layout {
+    width: 125px;
 }
 
-.sigma-checkbox input[type="checkbox"] {
-    margin-top: 6px;
+#sigma-node-size {
+    width: 120px;
+}
+
+#sigma-edge-shape {
+    width: 115px;
+}
+
+.graph-controls select {
+    height: 34px;
+    margin-top: -5px;
+    margin-left: 12px;
+    border: 3px solid #D8E8DE;
+    color: #555;
+    display: inline-block;
+}
+
+.sigma-checkbox {
+    margin-left: 12px;
 }
 
 .sigma-checkbox label {
@@ -1530,6 +1545,30 @@ table.content-table {
     font-size: 100%;
     display: inline;
     margin-left: 2px;
+}
+
+.zoom {
+    margin-bottom: 5px;
+}
+
+.zoom-left {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+    -moz-border-top-right-radius: 0;
+    -moz-border-bottom-right-radius: 0;
+    -webkit-border-top-right-radius: 0;
+    -webkit-border-bottom-right-radius: 0;
+    margin-left: -5px;
+}
+
+.zoom-right {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    -moz-border-top-left-radius: 0;
+    -moz-border-bottom-left-radius: 0;
+    -webkit-border-top-left-radius: 0;
+    -webkit-border-bottom-left-radius: 0;
+    margin-left: -14px;
 }
 
 #sigma-wrapper {
