@@ -70,7 +70,6 @@ def create_data(test):
     test.browser.find_by_name('Name').first.fill("Bob's node")
     test.browser.find_by_value("Save Bob's type").first.click()
     text = test.browser.find_by_xpath("//div[@class='pagination']/span[@class='pagination-info']").first.value
-    # The next line must be more 'specific' when we can destroy Neo4j DBs
     test.assertNotEqual(text.find(" elements Bob's type."), -1)
 
 
