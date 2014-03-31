@@ -114,21 +114,12 @@ class DashboardTestCase(LiveServerTestCase):
         self.browser.find_link_by_href('/graphs/bobs-graph/').first.click()
         self.browser.is_element_present_by_id('wait_for_js', 3)
         js_code = '''
-            var instanceId = '0';
-            for (key in sigma.instances) {
-                instanceId = key;
-                break;
-            }
-            var instance = sigma.instances[instanceId];
-            var nodeId = '0';
-            for (key in sylva.nodes['1']) {
-                nodeId = key;
-                break;
-            }
-            sigma.test_node_id = instance.getNodes(nodeId).id;
+            var instance = sigma.instances(0);
+            var node = instance.graph.nodes()[0];
+            sigma.test_node_name = node.properties.Name;
             '''
         self.browser.execute_script(js_code)
-        text = self.browser.evaluate_script('sigma.test_node_id')
+        text = self.browser.evaluate_script('sigma.test_node_name')
         Graph.objects.get(name="Bob's graph").destroy()
         self.assertNotEqual(text.find("Bob's node"), -1)
 

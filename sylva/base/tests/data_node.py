@@ -149,13 +149,8 @@ class DataNodeTestCase(LiveServerTestCase):
         self.assertEqual(text, "1 relationships")
         self.browser.is_element_present_by_id('wait_for_js', 3)
         js_code = '''
-            var instanceId = '0';
-            for (key in sigma.instances) {
-                instanceId = key;
-                break;
-            }
-            var instance = sigma.instances[instanceId];
-            sigma.test_node_count = instance.getNodesCount();
+            var instance = sigma.instances(0);
+            sigma.test_node_count = instance.graph.nodes().length;
             '''
         self.browser.execute_script(js_code)
         text = self.browser.evaluate_script('sigma.test_node_count')
@@ -261,13 +256,8 @@ class DataNodeTestCase(LiveServerTestCase):
         self.browser.find_by_xpath("//table[@id='content_table']/tbody/tr/td/p/a[@title='View node' and text()='Alice']").first.click()
         self.browser.is_element_present_by_id('wait_for_js', 3)
         js_code = '''
-            var instanceId = '0';
-            for (key in sigma.instances) {
-                instanceId = key;
-                break;
-            }
-            var instance = sigma.instances[instanceId];
-            sigma.test_node_count = instance.getNodesCount();
+            var instance = sigma.instances(0);
+            sigma.test_node_count = instance.graph.nodes().length;
             '''
         self.browser.execute_script(js_code)
         text = self.browser.evaluate_script('sigma.test_node_count')
