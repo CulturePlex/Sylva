@@ -221,7 +221,18 @@ diagram.lookupsValuesType = {
             relationsIds.push(wildCardRelId);
 
             selectAllRel.append(optionRelWildcard);
+
+            // Link to add the relations
+            addRelation = $("<A>");
+            addRelation.addClass("add-relation");
+            // Add relation icon
+            addRelationIcon = $("<I>");
+            addRelationIcon.addClass("icon-plus-sign");
+            addRelationIcon.attr('id', 'add-relation-icon');
+            addRelation.append(addRelationIcon);
+
             boxAllRel.append(selectAllRel);
+            boxAllRel.append(addRelation);
 
             divAllowedRelationships = $("<DIV>");
             divAllowedRelationships.attr("id", idAllRels);
@@ -936,10 +947,10 @@ diagram.lookupsValuesType = {
             var selectRelHeight = 17;
             var proportion = (($('#' + parentId).height() + selectRelHeight) - $('#' + relsId).height()) / $('#' + parentId).height();
             // We add 17 because the select rel height
-            var offset = relIndex * 10 + 17;
+            var offset = relIndex * 10 + 20;
 
             if(relIndex > 1) {
-                offset = (relIndex * 10) + ((relIndex - 1) * 13) + 17;
+                offset = (relIndex * 10) + ((relIndex - 1) * 13) + 20;
             }
             var result = (offset/$('#' + parentId).height()) + proportion;
 
@@ -1003,12 +1014,15 @@ diagram.lookupsValuesType = {
             var relationshipOptions = null;
 
             if(type == 'source') {
-                relationshipOptions = { endpoint: ["Dot", {radius: 10}],
+                relationshipOptions = { endpoint: ["Image", {
+                    src: "http://localhost:8000/static/img/rarr2.gif",
+                    cssClass:"endpoint-image"}],
                                 anchor: [1, anchor, 0, 0],
                                 isSource: true,
                                 connectorStyle: {
                                     strokeStyle: '#AEAA78',
-                                    lineWidth: 2},
+                                    lineWidth: 2
+                                },
                                 connectorOverlays:[
                                     [ "PlainArrow", {
                                         width:10,
@@ -1038,6 +1052,7 @@ diagram.lookupsValuesType = {
                 relationshipOptions = { endpoint: ["Dot", {radius: 10}],
                                 anchor: [0, anchor, -1, 0],
                                 isTarget: true,
+                                maxConnections: 99,
                                 connectorStyle: {
                                     strokeStyle: '#AEAA78',
                                     lineWidth: 2},
@@ -1343,16 +1358,21 @@ diagram.lookupsValuesType = {
     /**
      * Add a new relationship row for that box type
      */
-    $("#diagramContainer").on('click', '.select-rel', function() {
+    $("#diagramContainer").on('click', '.add-relation', function() {
         var $this = $(this);
-        var idBox = $('option:selected', this).data("parentid");
-        var boxrel = $('option:selected', this).data("boxrel");
-        var idAllRels = $('option:selected', this).data("relsid");
-        var relationId = $('option:selected', this).data("relationid");
-        var label = $('option:selected', this).data("label");
-        var name = $('option:selected', this).data("name");
-        var idrel = $('option:selected', this).data("idrel");
-        var source = $('option:selected', this).data("source");
+        // We gonna select the select field
+        var parent = $this.parent();
+        var parentId = parent.attr("id");
+        var selectField = $('#' + parentId + " .select-rel");
+
+        var idBox = $('option:selected', selectField).data("parentid");
+        var boxrel = $('option:selected', selectField).data("boxrel");
+        var idAllRels = $('option:selected', selectField).data("relsid");
+        var relationId = $('option:selected', selectField).data("relationid");
+        var label = $('option:selected', selectField).data("label");
+        var name = $('option:selected', selectField).data("name");
+        var idrel = $('option:selected', selectField).data("idrel");
+        var source = $('option:selected', selectField).data("source");
 
         // If exists a relationship with that id, we dont add the
         // relationship
@@ -1398,9 +1418,17 @@ diagram.lookupsValuesType = {
             removeRelationIcon.attr('id', 'remove-relation-icon');
             removeRelation.append(removeRelationIcon);
 
+            // Help text for drag relationship
+            var helpText = $("<SPAN>");
+            helpText.addClass("help-text");
+            helpText.css({
+                "font-style": "italic"
+            });
+            helpText.html("(" + gettext("drag me") + ")");
+
             divAllRel.append(listRelElement);
-            //divAllRel.append(addRelation);
             divAllRel.append(removeRelation);
+            divAllRel.append(helpText);
 
             $('#' + boxrel).append(divAllRel);
         }
@@ -1638,32 +1666,6 @@ diagram.lookupsValuesType = {
     });
 
     /**
-     * Add the handler for drag and drop relationships
-     */
-    $("#diagramContainer").on('click', '.add-relation', function() {
-        var $this = $(this);
-        var parentId = $this.data("parentid");
-        var relsId = $this.data("relsid");
-        var relationId = $this.data("relationid");
-        var relIndex = $this.data("relindex");
-        var label = $this.data("label");
-        var idRel = $this.data("idrel");
-        var source = $this.data("source");
-
-        // calculate anchor
-        // We need idBox and idAllRels
-        var anchor = diagram.calculateAnchor(parentId, relsId, relIndex);
-
-        if(source) {
-            var uuidSource = relationId + "-source";
-            if(!jsPlumb.getEndpoint(uuidSource)) {
-                var endpointSource = jsPlumb.addEndpoint(parentId, { uuid:uuidSource, connector: "Flowchart"}, diagram.getRelationshipOptions('source', label, idRel, anchor));
-                endpointSource.relIndex = relIndex;
-            }
-        }
-    });
-
-    /**
      * Add the handler to remove the wire
      */
      $("#diagramContainer").on('click', '.remove-relation', function() {
@@ -1706,6 +1708,14 @@ diagram.lookupsValuesType = {
         // Recalculate anchor for target endpoints
         diagram.recalculateAnchorTarget(idBox);
 
+        // We make the endpoints visible when a connection is remove
+        var endpoints = $('._jsPlumb_endpoint');
+        $.each(endpoints, function(index, endpoint) {
+            var cssStatus = $(endpoint).css('visibility');
+            if(cssStatus == "hidden")
+                $(endpoint).css('visibility', 'visible');
+        });
+
         jsPlumb.repaintEverything();
      });
 
@@ -1715,11 +1725,18 @@ diagram.lookupsValuesType = {
 
         var idBoxRel = info.connection.getOverlays()[2].id;
         var labelRel = info.connection.getOverlays()[1].label;
-        //$('#' + idBoxRel).attr("data-idrel", idBoxRel);
         info.connection.idrel = idBoxRel;
 
         var elem = $('.select-reltype-' + labelRel + ' #' + labelRel + (diagram.reltypesCounter[labelRel] + 1 - 1)).length - 1;
         $($('.select-reltype-' + labelRel + ' #' + labelRel + (diagram.reltypesCounter[labelRel] + 1 - 1))[elem]).attr('selected', 'selected');
+
+        // We make the endpoints transparents when a connection is done
+        var endpoints = $('._jsPlumb_endpoint_connected');
+        $.each(endpoints, function(index, endpoint) {
+            var cssStatus = $(endpoint).css('visibility');
+            if(cssStatus != "hidden")
+                $(endpoint).css('visibility', 'hidden');
+        });
 
         diagram.CounterRels++;
      });
