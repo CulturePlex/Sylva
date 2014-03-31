@@ -499,7 +499,7 @@ class GraphDatabase(BlueprintsGraphDatabase):
                         rel_type=relation_type,
                         target=target,
                     )
-            patterns_list.append(pattern)
+                patterns_list.append(pattern)
         if patterns_list:
             patterns = ", ".join(patterns_list)
             match = u"MATCH {0} ".format(patterns)

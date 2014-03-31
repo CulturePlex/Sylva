@@ -541,7 +541,7 @@ diagram.lookupsValuesType = {
                 // Recalculate anchor for source endpoints
                 diagram.recalculateAnchor(idBox, idAllRels);
                 // Recalculate anchor for target endpoints
-                diagram.recalculateAnchorTarget(idBox);
+                //diagram.recalculateAnchorTarget(idBox);
 
                 jsPlumb.repaintEverything();
                 diagram.saveBoxPositions();
@@ -1049,8 +1049,13 @@ diagram.lookupsValuesType = {
                                 }
                               };
             } else if(type == 'target') {
-                relationshipOptions = { endpoint: ["Dot", {radius: 10}],
-                                anchor: [0, anchor, -1, 0],
+                relationshipOptions = { endpoint: ["Rectangle",
+                {width: 320,
+                 height: 30,
+                 cssClass: 'query-box-endpoint-target',
+                 hoverClass: 'query-box-endpoint-target-hover'}],
+                                //anchor: [1, anchor, -1, 0],
+                                anchor: "TopCenter",
                                 isTarget: true,
                                 maxConnections: 99,
                                 connectorStyle: {
@@ -1064,10 +1069,10 @@ diagram.lookupsValuesType = {
                                         id:"arrow"}]
                                 ],
                                 paintStyle: {
-                                    strokeStyle: '#AEAA78'
+                                    strokeStyle: '#348E82'
                                 },
                                 backgroundPaintStyle: {
-                                    strokeStyle: '#AEAA78',
+                                    strokeStyle: '#348E82',
                                     lineWidth: 3
                                 }
                               };
@@ -1294,7 +1299,7 @@ diagram.lookupsValuesType = {
         // Recalculate anchor for source endpoints
         diagram.recalculateAnchor(idBox, idAllRels);
         // Recalculate anchor for target endpoints
-        diagram.recalculateAnchorTarget(idBox);
+        //diagram.recalculateAnchorTarget(idBox);
 
         jsPlumb.repaintEverything();
     });
@@ -1333,7 +1338,7 @@ diagram.lookupsValuesType = {
         // Recalculate anchor for source endpoints
         diagram.recalculateAnchor(idBox, idAllRels);
         // Recalculate anchor for target endpoints
-        diagram.recalculateAnchorTarget(idBox);
+        //diagram.recalculateAnchorTarget(idBox);
 
         jsPlumb.repaintEverything();
     });
@@ -1435,7 +1440,7 @@ diagram.lookupsValuesType = {
         // Recalculate anchor for source endpoints
         diagram.recalculateAnchor(idBox, idAllRels);
         // Recalculate anchor for target endpoints
-        diagram.recalculateAnchorTarget(idBox);
+        //diagram.recalculateAnchorTarget(idBox);
 
         jsPlumb.repaintEverything();
     });
@@ -1706,7 +1711,7 @@ diagram.lookupsValuesType = {
         }
 
         // Recalculate anchor for target endpoints
-        diagram.recalculateAnchorTarget(idBox);
+        //diagram.recalculateAnchorTarget(idBox);
 
         // We make the endpoints visible when a connection is remove
         var endpoints = $('._jsPlumb_endpoint');

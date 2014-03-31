@@ -169,6 +169,10 @@
     height: 10px !important;
 }
 
+.query-box-endpoint-target {
+    margin-top: 17px;
+}
+
 /* Results table */
 
 #results {
@@ -182,9 +186,9 @@
 /* drag and drop options for relationship */
 
 .dragActive {
-    border:4px solid orange;
+    box-shadow: 0 0 1em 0.75em #AEAA78;
 }
 
 .dropHover {
-    border:4px solid green;
+    box-shadow: 0 0 1em 0.75em #348E82;
 }
