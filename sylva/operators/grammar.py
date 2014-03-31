@@ -22,13 +22,15 @@ class QueryParser(object):
         self.graph = graph
         self.schema = graph.schema
         self.counter = Counter()
-        self.types = {}
+        self.r_types = {}
+        self.n_types = {}
 
     def parse(self, query):
         grammar = self.build_grammar()
         grammar_query = grammar(query)
         query_dict = grammar_query.dict()
-        print query_dict
+        import pprint
+        pprint.pprint(query_dict)
         return query_dict
 
     def build_grammar(self):
@@ -36,7 +38,7 @@ class QueryParser(object):
         def merge(*args):
             """Merge dictionaries in *args"""
             m = {}
-            for key in ("conditions", "origin", "patterns", "result"):
+            for key in ("conditions", "origins", "patterns", "results"):
                 m[key] = []
                 for d in args:
                     m[key] += d.get(key, [])
@@ -49,35 +51,36 @@ class QueryParser(object):
                 if r:
                     return {
                         'conditions': [(f, ('property', t['alias'], p), v)],
-                        'origin': [t],
-                        'result': [{
+                        'origins': [t],
+                        'results': [{
                             "alias": t['alias'], "properties": r
                         }]}
                 else:
                     return {
                         'conditions': [(f, ('property', t['alias'], p), v)],
-                        'origin': [t],
-                        'result': [{
-                            "alias": t['alias'], "properties": [Ellipsis]
+                        'origins': [t],
+                        'results': [{
+                            "alias": t['alias'], "properties": None
                         }]}
             else:
                 if r:
                     return {
                         'conditions': [],
-                        'origin': [t],
-                        'result': [{
+                        'origins': [t],
+                        'results': [{
                             "alias": t['alias'], "properties": r
                         }]}
                 else:
                     return {
                         'conditions': [],
-                        'origin': [t],
-                        'result': [{
-                            "alias": t['alias'], "properties": [Ellipsis]
+                        'origins': [t],
+                        'results': [{
+                            "alias": t['alias'], "properties": None
                         }]}
 
         self.counter = Counter()
-        self.types = {}
+        self.r_types = {}
+        self.n_types = {}
         node_type_rules = self.get_node_type_rules()
         relationship_type_rules = self.get_relationship_type_rules()
         rules = [u"""
@@ -111,9 +114,9 @@ dict = <n_types:n> <~rel>
      -> n
      | <n_types:s> ws <rel:r>
      -> merge(s, r['merge'], {"patterns": [{
-            "source": s["origin"][-1],  # Not sure if [0] or [-1]
-            "target": r["node"]["origin"][-1],
-            "relation": r["relation"]["origin"][-1],
+            "source": s["origins"][-1],  # Not sure if [0] or [-1]
+            "target": r["node"]["origins"][-1],
+            "relation": r["relation"]["origins"][-1],
         }]})
      | -> None
         """]
@@ -121,7 +124,8 @@ dict = <n_types:n> <~rel>
         print rules
         return parsley.makeGrammar(rules, {
             "merge": merge,
-            "types": self.types,
+            "r_types": self.r_types,
+            "n_types": self.n_types,
             "counter": self.counter,
             "node_facet": node_facet,
         })
@@ -132,13 +136,15 @@ dict = <n_types:n> <~rel>
         rel_type_rule_codes = []
         rules_template = u"""
 r{rel_type_id} = ('{rel_type_names}')
-        -> {{'type': types.get({rel_type_id}), 'nodetype': False,  'alias': "r{rel_type_id}_{{0}}".format(counter.get('r{rel_type_id}', 0))}}
+        -> {{'type_id': r_types.get({rel_type_id}), 'type': 'relationship',  'alias': "r{rel_type_id}_{{0}}".format(counter.get('r{rel_type_id}', 0))}}
 r{rel_type_id}_facet = (conditions ws)? r_facet ws <r{rel_type_id}:r> ws ("a" | "the")?
-        -> {{'origin': [r], 'result': [{{"alias": r['alias'], "properties": []}}]}}
+        -> {{'origins': [r], 'results': [{{"alias": r['alias'], "properties": []}}]}}
         """
         rel_types = self.schema.relationshiptype_set.all().select_related()
         for rel_type in rel_types:
-            self.types[rel_type.id] = rel_type
+            # We can put rel_type (withouth the .id) if we want to send
+            # the actual RelationshipType object
+            self.r_types[rel_type.id] = rel_type.id
             rel_type_rule_codes.append(u"r{0}_facet".format(rel_type.id))
             properties = []
             for prop in rel_type.properties.all().values("key"):
@@ -188,7 +194,7 @@ r{rel_type_id}_facet = (conditions ws)? r_facet ws <r{rel_type_id}:r> ws ("a" | 
         rules_template = u"""
 n{node_type_id}_value = <anything*:x> -> ''.join(x)
 n{node_type_id} = ('{node_type_names}')
-       -> {{'type': types.get({node_type_id}), 'nodetype': True, 'alias': "n{node_type_id}_{{0}}".format(counter.get('n{node_type_id}', 0))}}
+       -> {{'type_id': n_types.get({node_type_id}), 'type': 'node', 'alias': "n{node_type_id}_{{0}}".format(counter.get('n{node_type_id}', 0))}}
 n{node_type_id}_property = {node_type_properties}
 n{node_type_id}_properties = <n{node_type_id}_property:first> <(ws (',' | "and") ws n{node_type_id}_property)*:rest>
         -> [first] + rest
@@ -200,7 +206,9 @@ n{node_type_id}_facet = (<n{node_type_id}_properties:r> ws ("of" | "from") ws ("
         -> (cond, left, right)
         """
         for node_type in self.schema.nodetype_set.all().select_related():
-            self.types[node_type.id] = node_type
+            # We can put node_type (withouth the .id) if we want to send
+            # the actual NodeType object
+            self.n_types[node_type.id] = node_type.id
             node_type_rule_codes.append(u"n{0}_facet".format(node_type.id))
             properties = []
             for prop in node_type.properties.all().values("key"):

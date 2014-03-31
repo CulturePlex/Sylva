@@ -58,6 +58,7 @@ def operator_query_results(request, graph_slug):
         graph = get_object_or_404(Graph, slug=graph_slug)
         query_parser = QueryParser(graph)
         # query = "notas of autor with notas that start with lista"
+        # see https://gist.github.com/versae/9241069
         query_dict = query_parser.parse(unicode(query))
         results = graph.query(query_dict)
         # TODO: Try to make the response streamed

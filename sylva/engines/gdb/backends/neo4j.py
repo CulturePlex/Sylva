@@ -422,28 +422,29 @@ class GraphDatabase(BlueprintsGraphDatabase):
             conditions_list.append(condition)
         conditions = u" AND ".join(conditions_list)
         origins_list = []
-        for origin_dict in query_dict["origin"]:
-            if origin_dict.get("nodetype"):
+        for origin_dict in query_dict["origins"]:
+            if origin_dict["type"] == "node":
                 origin = u"""{alias}=node:`{nidx}`('label:{type}')""".format(
                     nidx=self.nidx.name,
                     alias=origin_dict["alias"],
-                    type=origin_dict["type"].id,
+                    type=origin_dict["type_id"],
                 )
             else:
                 origin = u"""{alias}=rel:`{ridx}`('label:{type}')""".format(
                     ridx=self.ridx.name,
                     alias=origin_dict["alias"],
-                    type=origin_dict["type"].id,
+                    type=origin_dict["type_id"],
                 )
             origins_list.append(origin)
         origins = u", ".join(origins_list)
         results_list = []
-        for result_dict in query_dict["result"]:
-            for property_name in result_dict["properties"]:
-                if property_name:
-                    if property_name is Ellipsis:
-                        result = u"{0}".format(result_dict["alias"])
-                    else:
+        for result_dict in query_dict["results"]:
+            if result_dict["properties"] is None:
+                result = u"{0}".format(result_dict["alias"])
+                results_list.append(result)
+            else:
+                for property_name in result_dict["properties"]:
+                    if property_name:
                         result = u"{0}.`{1}`".format(
                             result_dict["alias"],
                             property_name
@@ -456,7 +457,7 @@ class GraphDatabase(BlueprintsGraphDatabase):
                 source = pattern_dict["source"]["alias"]
                 target = pattern_dict["target"]["alias"]
                 relation = pattern_dict["relation"]["alias"]
-                relation_type = pattern_dict["relation"]["type"].id
+                relation_type = pattern_dict["relation"]["type_id"]
                 pattern = u"({source})-[{rel}:`{rel_type}`]-(target)".format(
                     source=source,
                     rel=relation,
