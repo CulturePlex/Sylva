@@ -115,10 +115,10 @@ class DashboardTestCase(LiveServerTestCase):
         js_code = '''
             var instance = sigma.instances(0);
             var node = instance.graph.nodes()[0];
-            sigma.test_node_name = node.properties.Name;
+            sylva.test_node_name = node.properties.Name;
             '''
         self.browser.execute_script(js_code)
-        text = self.browser.evaluate_script('sigma.test_node_name')
+        text = self.browser.evaluate_script('sylva.test_node_name')
         Graph.objects.get(name="Bob's graph").destroy()
         self.assertNotEqual(text.find("Bob's node"), -1)
 
