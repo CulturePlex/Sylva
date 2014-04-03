@@ -183,6 +183,7 @@ diagram.lookupsValuesType = {
                         optionRel.attr('data-label', label);
                         optionRel.attr('data-name', name);
                         optionRel.attr('data-idrel', relation.id);
+                        optionRel.attr('data-scope', relation.target);
                         optionRel.html(label);
                         diagram.fieldsForRels[name] = relation.fields;
 
@@ -214,6 +215,7 @@ diagram.lookupsValuesType = {
             optionRelWildcard.attr('data-label', wildCardName);
             optionRelWildcard.attr('data-name', wildCardName);
             optionRelWildcard.attr('data-idrel', -1);
+            optionRelWildcard.attr('data-scope', "wildcard");
             optionRelWildcard.html(wildCardName);
             diagram.fieldsForRels[wildCardName] = [];
             optionRelWildcard.attr("data-source", wildCardName);
@@ -317,6 +319,7 @@ diagram.lookupsValuesType = {
                 var offset = 7;
                 var anchor = ($('#' + idBox).height() - $('#' + idBox + ' .title').height() + offset) / $('#' + idBox).height()
                 var endpointTarget = jsPlumb.addEndpoint(idBox, { uuid:uuidTarget, connector: "Flowchart", dropOptions:exampleDropOptions},diagram.getRelationshipOptions('target', 0, 0, 1 - anchor));
+                endpointTarget.scopeTarget = typeName;
             }
             jsPlumb.draggable("diagramBox-"+ diagram.Counter +"-"+ modelName, {
                 handle: ".title",
@@ -1015,7 +1018,7 @@ diagram.lookupsValuesType = {
 
             if(type == 'source') {
                 relationshipOptions = { endpoint: ["Image", {
-                    src: "http://localhost:8000/static/img/rarr2.gif",
+                    src: "../../../static/img/rarr2.gif",
                     cssClass:"endpoint-image"}],
                                 anchor: [1, anchor, 0, 0],
                                 isSource: true,
@@ -1052,8 +1055,7 @@ diagram.lookupsValuesType = {
                 relationshipOptions = { endpoint: ["Rectangle",
                 {width: 320,
                  height: 30,
-                 cssClass: 'query-box-endpoint-target',
-                 hoverClass: 'query-box-endpoint-target-hover'}],
+                 cssClass: 'query-box-endpoint-target'}],
                                 //anchor: [1, anchor, -1, 0],
                                 anchor: "TopCenter",
                                 isTarget: true,
@@ -1378,6 +1380,7 @@ diagram.lookupsValuesType = {
         var name = $('option:selected', selectField).data("name");
         var idrel = $('option:selected', selectField).data("idrel");
         var source = $('option:selected', selectField).data("source");
+        var scopeSource = $('option:selected', selectField).data("scope");
 
         // If exists a relationship with that id, we dont add the
         // relationship
@@ -1403,6 +1406,7 @@ diagram.lookupsValuesType = {
                     if(!jsPlumb.getEndpoint(uuidSource)) {
                         var endpointSource = jsPlumb.addEndpoint(idBox, { uuid:uuidSource, connector: "Flowchart"}, diagram.getRelationshipOptions('source', name, idrel, anchor));
                         endpointSource.relIndex = relIndex;
+                        endpointSource.scopeSource = scopeSource;
                     }
                 }
                 diagram.relindex[idBox]++;
@@ -1725,25 +1729,37 @@ diagram.lookupsValuesType = {
      });
 
      jsPlumb.bind("connection", function(info) {
-        var sourceIdValue = info.sourceId;
-        var targetIdValue = info.targetId;
+        var scopeSource = info.sourceEndpoint.scopeSource;
+        var scopeTarget = info.targetEndpoint.scopeTarget;
 
-        var idBoxRel = info.connection.getOverlays()[2].id;
-        var labelRel = info.connection.getOverlays()[1].label;
-        info.connection.idrel = idBoxRel;
+        var compare = scopeSource != scopeTarget;
+        var compareWildcard = (scopeSource == "wildcard") ||
+                                (scopeTarget == "wildcard");
 
-        var elem = $('.select-reltype-' + labelRel + ' #' + labelRel + (diagram.reltypesCounter[labelRel] + 1 - 1)).length - 1;
-        $($('.select-reltype-' + labelRel + ' #' + labelRel + (diagram.reltypesCounter[labelRel] + 1 - 1))[elem]).attr('selected', 'selected');
+        if(!compare || compareWildcard) {
+            var sourceIdValue = info.sourceId;
+            var targetIdValue = info.targetId;
 
-        // We make the endpoints transparents when a connection is done
-        var endpoints = $('._jsPlumb_endpoint_connected');
-        $.each(endpoints, function(index, endpoint) {
-            var cssStatus = $(endpoint).css('visibility');
-            if(cssStatus != "hidden")
-                $(endpoint).css('visibility', 'hidden');
-        });
+            var idBoxRel = info.connection.getOverlays()[2].id;
+            var labelRel = info.connection.getOverlays()[1].label;
+            info.connection.idrel = idBoxRel;
 
-        diagram.CounterRels++;
+            var elem = $('.select-reltype-' + labelRel + ' #' + labelRel + (diagram.reltypesCounter[labelRel] + 1 - 1)).length - 1;
+            $($('.select-reltype-' + labelRel + ' #' + labelRel + (diagram.reltypesCounter[labelRel] + 1 - 1))[elem]).attr('selected', 'selected');
+
+            // We make the endpoints transparents when a connection is done
+            var endpoints = $('._jsPlumb_endpoint_connected');
+            $.each(endpoints, function(index, endpoint) {
+                var cssStatus = $(endpoint).css('visibility');
+                if(cssStatus != "hidden")
+                    $(endpoint).css('visibility', 'hidden');
+            });
+
+            diagram.CounterRels++;
+        } else {
+            alert(gettext("The relationship between these types does not exist. Please, see the schema to know the allowed relationships."));
+            jsPlumb.detach(info.connection);
+        }
      });
 
     /**
@@ -1794,7 +1810,7 @@ diagram.lookupsValuesType = {
                     $('#query-builder-results').show();
                     $('#results').show();
                 } else {
-                    $("#results").html("No results found");
+                    $("#results").html(gettext("No results found"));
                     $('#query-builder-query').hide();
                     $('#query-builder-results').show();
                     $('#results').show();
@@ -1802,7 +1818,7 @@ diagram.lookupsValuesType = {
                 $.unblockUI();
             },
             error: function (e) {
-                $("#results").html("Ooops! Sorry, was an error in the server: Please, refresh the page and try again.");
+                $("#results").html(gettext("Sorry, was an error in the server: Please, refresh the page and try again."));
                 $('#query-builder-query').hide();
                 $('#query-builder-results').show();
                 $('#results').show();
