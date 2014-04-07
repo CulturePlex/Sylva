@@ -86,23 +86,46 @@
 
         <div ng-show="queries">
           <a class="button" href="" ng-click="editMeta()">Edit Metadata</a>
+          <a ng-show="report.table" class="button" href="" ng-click="format()">Format Report</a>
+          
         </div>
+
       </div>
 
     </div><!--row1-->
 
-    <div id="row2">
-      <div ng-show="queries">
+    <div ng-show="queries">
+
+      <div id="row2" class="inline-disp">
         <div>
-          <div droppable sy-watch-bins class="bin" id="bin1" drop="handleDrop" bin="bin">
-              <div ng-if="report.queries.bin1 != undefined">
-                <h2>{{ report.queries.bin1 }}</h2>
-                <a href="" ng-click="removeQuery('bin1')">remove</a>
-              </div>
+          <div sy-editable-table>
+            <!--move to directive-->
+            <table class="report-table">
+              <thead>
+                
+              </thead>
+              <tbody>
+                <tr>
+                  <td sy-droppable sy-merge-cells row="0" col="0" colspan="1" rowspan="1"></td>
+                  <td sy-droppable sy-merge-cells row="0" col="1" colspan="1" rowspan="1"></td>
+                </tr>
+                <tr>
+                  <td sy-droppable sy-merge-cells row="1" col="0" colspan="1" rowspan="1"></td>
+                  <td sy-droppable sy-merge-cells row="1" col="1" colspan="1" rowspan="1"></td>
+                </tr>
+              </tbody>
+            </table>
+            <a class="button" href="">add row</a>
+            <a class="button" href="">add column</a>
           </div>
         </div>
-      </div>
-    </div>
+        <div ng-show="report.table">
+         <span ng-bind-html="report.tableHtml">
+         </span>
+        </div> 
+      </div> <!--row2-->
+
+    </div> <!--show queries-->
     
 
   </div>

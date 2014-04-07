@@ -56,7 +56,7 @@ reports.config(['$httpProvider', function ($httpProvider) {
             // optional method
             'request': function(config) {
                 // do something on success
-                console.log('config', config)
+                //console.log('config', config)
                 return config || $q.when(config);
             },
      
@@ -72,7 +72,7 @@ reports.config(['$httpProvider', function ($httpProvider) {
             // optional method
             'response': function(response) {
                 // do something on success
-                console.log('response', response)
+                //console.log('response', response)
                 return response || $q.when(response);
             },
      

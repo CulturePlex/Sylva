@@ -18,13 +18,18 @@ controllers.controller('ReportListCtrl', [
 
 controllers.controller('BaseReportFormCtrl', [
     '$scope',
-    '$location', 
+    '$location',
+    '$sce', 
     'api',
-    'parser', 
-    function ($scope, $location, api, parser) {
+    'parser',
+    'tableArray', 
+    function ($scope, $location, $sce, api, parser, tableArray) {
         $scope.graph = parser.parse();
         $scope.queries = [];
-        $scope.report = {};
+        $scope.report = {
+            openCtxMenu: false,
+            table: null
+        };
 
         $scope.designReport = function () {
             api.queries.query({graphSlug: $scope.graph}, function (data) {
@@ -37,10 +42,16 @@ controllers.controller('BaseReportFormCtrl', [
         }
 
         $scope.handleDrop = function (binId, drop) {
+            console.log('drop')
             if ($scope.report.queries[binId] === undefined) {
                 $scope.report.queries[binId] = drop;
             }
         }; 
+
+
+        $scope.format = function () {
+            $scope.report.table = false;
+        }
 
         $scope.removeQuery = function (key) {
             $scope.report.queries[key] = undefined;
@@ -90,6 +101,10 @@ controllers.controller('EditReportCtrl', [
             slug: $scope.report.slug  
         }, function (data) {
             $scope.report = data[0];
+            $scope.report.openCtxMenu = false;
+            $scope.report.tarray = null;
+            $scope.report.numRows = 2;
+            $scope.report.numCols = 2;
         });
 }]);
 

@@ -1,12 +1,21 @@
 .bin {
   margin: 0 5px;
+  float: left;
+  border: 3px solid #D8E8DE;
+  padding: 20px;
+  margin-top: 20px;
+  opacity: 0.9;
+  filter: alpha(opacity=90);
+ }
+
+ .tinybin {
+  margin: 0 5px;
   min-height: 300px;
   width: 90%;
   float: left;
   border: 3px solid #D8E8DE;
   padding: 20px;
   margin-top: 20px;
-  background: url(../img/grid.jpg) scroll left top #FAFAFA;
   opacity: 0.9;
   filter: alpha(opacity=90);
  }
@@ -15,9 +24,25 @@
   float: left;
   width: auto;
   padding: 10px;
+  overflow-y: auto;
  }
 
+.inline-disp {
+  display: inline-table;
+  min-height: 300px;
+  width: 100%;
+}
 
+table.report-table {
+  width: 100%;
+  min-height: 400px;
+  
+}
+
+
+td {
+  border: 3px solid #D8E8DE;
+}
 
 
 

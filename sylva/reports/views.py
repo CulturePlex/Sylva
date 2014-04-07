@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import json
+from django.conf import settings
 from django.shortcuts import (render_to_response, get_object_or_404,
                               HttpResponse)
 from django.template import RequestContext
@@ -7,24 +8,31 @@ from django.core.context_processors import csrf
 from django.utils.translation import ugettext as _
 from guardian.decorators import permission_required
 
+from base.decorators import is_enabled
+from graphs.models import Graph, Schema
 
-#@permission_required('reports.view_report',
-                     #(Report, 'graph__slug', 'graph_slug'), return_403=True)
+settings.ENABLE_REPORT = True
+
+
+@permission_required("schemas.view_schema",
+                     (Schema, "graph__slug", "graph_slug"), return_403=True)
+@is_enabled(settings.ENABLE_REPORT)
 def reports_index_view(request, graph_slug):
     c = {}
     c.update(csrf(request))
     report_name = _("New Report")
     placeholder_name = _("Report Name")
+    graph = get_object_or_404(Graph, slug=graph_slug)
     return render_to_response('reports_base.html', RequestContext(request, {
-        'graph_slug': graph_slug,
+        'graph': graph,
         'c': c,
         'report_name': report_name,
         'placeholder_name': placeholder_name,
     }))
 
 
-#@permission_required('reports.view_report',
-                     #(Report, 'graph__slug', 'graph_slug'), return_403=True)
+@permission_required("schemas.view_schema",
+                     (Schema, "graph__slug", "graph_slug"), return_403=True)
 def reports_endpoint(request, graph_slug):
     reports = [{
         'name': 'report1',
@@ -67,8 +75,8 @@ def reports_endpoint(request, graph_slug):
     return HttpResponse(json_data, mimetype='application/json')
 
 
-#@permission_required('queries.view_query',
-                     #(Query, 'graph__slug', 'graph_slug'), return_403=True)
+@permission_required("schemas.view_schema",
+                     (Schema, "graph__slug", "graph_slug"), return_403=True)
 def queries_endpoint(request, graph_slug):
     queries = [
         {'name': 'query1'},

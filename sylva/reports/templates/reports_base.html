@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{# load i18n graphs static #}
+{% load i18n graphs static %}
 {# get_static_prefix as STATIC_PREFIX #}
 
 {% block navigation_buttons %}
@@ -10,14 +10,16 @@
   {{ graph_slug }}
 {% endblock %}
 
-{# block menu_buttons #}
-  {# toolbar on="reports" #}
-{# endblock #}
+{% block menu_buttons %}
+  {% toolbar on="reports" %}
+{% endblock %}
 
 {% block content_title %}
+<div>  
   <header class="reports-header">
-    <h2>{{ graph_slug }} &raquo; Reports</h2>
+    <h2 >{{ graph }} &raquo; Reports</h2>
   </header>
+</div>
 {% endblock %}
 
 {% block content %}
@@ -30,7 +32,6 @@
   {% block extra_links %}
     <link rel="stylesheet" href="//code.jquery.com/ui/1.10.4/themes/smoothness/jquery-ui.css">
     <link rel="stylesheet" type="text/css" href="{{ STATIC_PREFIX }}app/css/reports.css" />
-    <link rel="stylesheet" type="text/css" href="{{ STATIC_PREFIX }}app/css/angular-datepicker.css" />
   {% endblock %}
 
   {% block scripts %}
@@ -43,10 +44,11 @@
     <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.0/angular-resource.js"></script>
     <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.0/angular-route.js"></script>
     <script src= "//ajax.googleapis.com/ajax/libs/angularjs/1.2.0/angular-sanitize.js"></script>
+    
+    <script type="text/javascript" src="{{ STATIC_PREFIX }}app/js/lib/tinymce/tinymce.min.js"></script>
     <script type="text/javascript" src="{{ STATIC_PREFIX }}app/js/app.js" ></script>
     <script type="text/javascript" src="{{ STATIC_PREFIX }}app/js/controllers.js" ></script>
     <script type="text/javascript" src="{{ STATIC_PREFIX }}app/js/services.js" ></script>
     <script type="text/javascript" src="{{ STATIC_PREFIX }}app/js/directives.js" ></script>
-    <script type="text/javascript" src="{{ STATIC_PREFIX }}app/js/lib/angular-datepicker.js" ></script>
   {% endblock %}
 {% endblock %}
