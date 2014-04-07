@@ -7,6 +7,7 @@ from engines.gdb.backends import (GraphDatabaseConnectionError,
                                   GraphDatabaseInitializationError)
 from engines.gdb.backends.blueprints import BlueprintsGraphDatabase
 from engines.gdb.lookups.neo4j import Q as q_lookup_builder
+from engines.gdb.analytics.neo4j import Analytics
 
 
 class GraphDatabase(BlueprintsGraphDatabase):
@@ -525,3 +526,7 @@ class GraphDatabase(BlueprintsGraphDatabase):
         self.nidx.delete()
         self.ridx.delete()
         self = None
+
+    def analytics(self):
+        return Analytics()
+

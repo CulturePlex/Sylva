@@ -188,7 +188,7 @@ INSTALLED_APPS = (
     'zebra',
     'payments',
     'south',
-    'reports'
+    'reports',
 )
 
 AUTHENTICATION_BACKENDS = (
@@ -308,6 +308,7 @@ ENABLE_SIGNUP = True
 ENABLE_TYPE_VALIDATION_FORMS = False
 ENABLE_PAYMENTS = False
 ENABLE_QUERIES = False
+ENABLE_ANALYTICS = False
 ACTIVATION_EMAIL_BETA_MESSAGE = True
 MAINTENANCE_MODE = False
 

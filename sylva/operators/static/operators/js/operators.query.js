@@ -1845,6 +1845,9 @@ diagram.lookupsValuesType = {
                 opacity: .5,
                 color: '#fff'
             },
+            overlayCSS: {
+                opacity: 0.0
+            },
             onOverlayClick: $.unblockUI
         });
     });
