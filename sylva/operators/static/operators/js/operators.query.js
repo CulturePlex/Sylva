@@ -1134,11 +1134,16 @@ diagram.lookupsValuesType = {
                 propertiesChecked[alias].push($(property).val());
             }
 
+
+            //$(property).children().filter(function(index, element) {if($(element).val() == value) return $(element).data('datatype');})
+
+
+
             // We check if we have and/or option
             var andOrId = $(property).parent().attr('id');
             var andOrVal = $('#' + andOrId + ' .and-or-option select').val();
 
-            if(lookup) {
+            if((lookup != "undefined") && (lookup != null)) {
                 var propertyArray = new Array();
                 propertyArray.push(propertyTag);
                 propertyArray.push(alias);
@@ -1585,7 +1590,14 @@ diagram.lookupsValuesType = {
                 "margin-left": "5%",
                 "margin-top": "3%"
             });
-            inputLookup.timepicker();
+            var options = {
+                appendText: "(yyyy-mm-dd)",
+                gotoCurrent: true,
+                dateFormat: 'yy-mm-dd',
+                changeYear: true,
+                yearRange: "-3000:3000"
+            };
+            inputLookup.datepicker(options);
             $('#' + fieldId).append(inputLookup);
         } else if(datatype == 'e') {
             // Users select

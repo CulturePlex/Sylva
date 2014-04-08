@@ -7,7 +7,10 @@ from engines.gdb.backends import (GraphDatabaseConnectionError,
                                   GraphDatabaseInitializationError)
 from engines.gdb.backends.blueprints import BlueprintsGraphDatabase
 from engines.gdb.lookups.neo4j import Q as q_lookup_builder
-from engines.gdb.analysis.neo4j import Analysis
+#from engines.gdb.analysis.neo4j import Analysis
+
+
+WILDCARD_TYPE = -1
 
 
 class GraphDatabase(BlueprintsGraphDatabase):
@@ -440,7 +443,7 @@ class GraphDatabase(BlueprintsGraphDatabase):
             if origin_dict["type"] == "node":
                 node_type = origin_dict["type_id"]
                 # wildcard type
-                if node_type == -1:
+                if node_type == WILDCARD_TYPE:
                     node_type = '*'
                 origin = u"""{alias}=node:`{nidx}`('label:{type}')""".format(
                     nidx=self.nidx.name,
@@ -451,7 +454,7 @@ class GraphDatabase(BlueprintsGraphDatabase):
             else:
                 relation_type = origin_dict["type_id"]
                 # wildcard type
-                if relation_type == -1:
+                if relation_type == WILDCARD_TYPE:
                     origin = u"""{alias}=rel:`{ridx}`('graph:{graph_id}')""".format(
                         ridx=self.ridx.name,
                         alias=origin_dict["alias"],
@@ -527,6 +530,5 @@ class GraphDatabase(BlueprintsGraphDatabase):
         self.ridx.delete()
         self = None
 
-    def analysis(self):
-        return Analysis()
-
+    # def analysis(self):
+    #     return Analysis()
