@@ -35,6 +35,21 @@ diagram.stringValues = {
     'en': gettext("ends with")
 };
 
+diagram.lookupsBackendValues = {
+    'equals': 'eq',
+    'is less than or equal to': 'lte',
+    'is less than': 'lt',
+    'is greater than': 'gt',
+    'is greater than or equal to': 'gte',
+    'is between': 'is between',
+    'does not equal': 'neq',
+    'has some value': 'has some value',
+    'has no value': 'has no value',
+    'contains': 'contains',
+    "doesn't contain": "doesn't contain",
+    'starts with': 'startswith',
+    'ends with': 'endswith'
+}
 
 diagram.lookupsAllValues = [
     diagram.stringValues['em'],
@@ -146,7 +161,7 @@ diagram.lookupsValuesType = {
             divBox.css({
                 "left": (parseInt(Math.random() * 55 + 1) * 10) + "px",
                 "top": (parseInt(Math.random() * 25 + 1) * 10) + "px",
-                "width": "320px"
+                "width": "350px"
                 //"width": "245px"
                 //"width": "33%"
             });
@@ -318,8 +333,13 @@ diagram.lookupsValuesType = {
                 // This offset is for centering the endpoint
                 var offset = 7;
                 var anchor = ($('#' + idBox).height() - $('#' + idBox + ' .title').height() + offset) / $('#' + idBox).height()
-                var endpointTarget = jsPlumb.addEndpoint(idBox, { uuid:uuidTarget, connector: "Flowchart", dropOptions:exampleDropOptions},diagram.getRelationshipOptions('target', 0, 0, 1 - anchor));
+                var endpointTarget = jsPlumb.addEndpoint(idBox, { uuid:uuidTarget, connector: "Flowchart"},diagram.getRelationshipOptions('target', 0, 0, 1 - anchor));
                 endpointTarget.scopeTarget = typeName;
+                endpointTarget.bind("click", function(connection) {
+                    //endpointTarget.removeClass("dragActive");
+                    //endpointTarget.addClass("dropHover");
+                    console.log("entered!");
+                });
             }
             jsPlumb.draggable("diagramBox-"+ diagram.Counter +"-"+ modelName, {
                 handle: ".title",
@@ -780,7 +800,7 @@ diagram.lookupsValuesType = {
             selectProperty = $("<SELECT>");
             selectProperty.addClass("select-property");
             selectProperty.css({
-                "width": "110px"
+                "width": "80px"
             });
             selectProperty.attr('data-fieldid', fieldId)
             selectProperty.attr('data-boxalias', boxalias);
@@ -1020,7 +1040,7 @@ diagram.lookupsValuesType = {
                 relationshipOptions = { endpoint: ["Image", {
                     src: "../../../static/img/rarr2.gif",
                     cssClass:"endpoint-image"}],
-                                anchor: [1, anchor, 0, 0],
+                                anchor: [1, anchor, 1, 0],
                                 isSource: true,
                                 connectorStyle: {
                                     strokeStyle: '#AEAA78',
@@ -1028,6 +1048,7 @@ diagram.lookupsValuesType = {
                                 },
                                 connectorOverlays:[
                                     [ "PlainArrow", {
+                                        foldback: 0,
                                         width:10,
                                         length:10,
                                         location:1,
@@ -1053,7 +1074,7 @@ diagram.lookupsValuesType = {
                               };
             } else if(type == 'target') {
                 relationshipOptions = { endpoint: ["Rectangle",
-                {width: 320,
+                {width: 350,
                  height: 30,
                  cssClass: 'query-box-endpoint-target'}],
                                 //anchor: [1, anchor, -1, 0],
@@ -1065,6 +1086,7 @@ diagram.lookupsValuesType = {
                                     lineWidth: 2},
                                 connectorOverlays:[
                                     [ "PlainArrow", {
+                                        foldback: 0,
                                         width:10,
                                         length:10,
                                         location:0,
@@ -1467,7 +1489,8 @@ diagram.lookupsValuesType = {
         }
 
         for (var i = 0; i < arrayOptions.length; i++) {
-            $(selector).append('<option class="lookup-option" value="' + arrayOptions[i] + '">' + arrayOptions[i] + '</option>');
+            var value = diagram.lookupsBackendValues[arrayOptions[i]];
+            $(selector).append('<option class="lookup-option" value="' + value + '">' + arrayOptions[i] + '</option>');
             $(selector).attr("data-fieldid", fieldId);
         }
 
@@ -1728,6 +1751,10 @@ diagram.lookupsValuesType = {
         jsPlumb.repaintEverything();
      });
 
+    /**
+     * Bind methods for control jsPlumb events
+     */
+
      jsPlumb.bind("connection", function(info) {
         var scopeSource = info.sourceEndpoint.scopeSource;
         var scopeTarget = info.targetEndpoint.scopeTarget;
@@ -1747,20 +1774,36 @@ diagram.lookupsValuesType = {
             var elem = $('.select-reltype-' + labelRel + ' #' + labelRel + (diagram.reltypesCounter[labelRel] + 1 - 1)).length - 1;
             $($('.select-reltype-' + labelRel + ' #' + labelRel + (diagram.reltypesCounter[labelRel] + 1 - 1))[elem]).attr('selected', 'selected');
 
-            // We make the endpoints transparents when a connection is done
-            var endpoints = $('._jsPlumb_endpoint_connected');
-            $.each(endpoints, function(index, endpoint) {
-                var cssStatus = $(endpoint).css('visibility');
-                if(cssStatus != "hidden")
-                    $(endpoint).css('visibility', 'hidden');
-            });
-
             diagram.CounterRels++;
         } else {
-            alert(gettext("The relationship between these types does not exist. Please, see the schema to know the allowed relationships."));
             jsPlumb.detach(info.connection);
         }
+
+        info.targetEndpoint.removeClass("dragActive");
+        info.targetEndpoint.removeClass("dropHover");
      });
+
+    jsPlumb.bind("connectionDrag", function(connection) {
+        var scopeSource = connection.endpoints[0].scopeSource;
+
+        jsPlumb.selectEndpoints().each(function(endpoint) {
+            var scopeTarget = endpoint.scopeTarget;
+                if(scopeTarget) {
+                var compare = scopeSource == scopeTarget;
+                var compareWildcard = (scopeSource == "wildcard") ||
+                                        (scopeTarget == "wildcard");
+                if(compare || compareWildcard) {
+                    endpoint.addClass("dragActive");
+                }
+            }
+        });
+    });
+
+    jsPlumb.bind("connectionDragStop", function(connection) {
+        jsPlumb.selectEndpoints().each(function(endpoint) {
+            endpoint.removeClass("dragActive");
+        });
+    });
 
     /**
      * Handler for create the JSON file

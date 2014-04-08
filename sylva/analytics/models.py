@@ -39,12 +39,12 @@ class AnalysisManager(models.Manager):
         self._graph = graph
 
     def run(self, algorithm, **kwargs):
-        analytics = self._graph.gdb.analytics()
-        algorithm_func = getattr(analytics, algorithm, None)
+        analysis = self._graph.gdb.analysis()
+        algorithm_func = getattr(analysis, algorithm, None)
         analytic = Analytic.objects.create(graph=self._graph, algorithm=algorithm)
-        analytic.task_start = datetime.datetime.now()
         task = algorithm_func.apply_async(kwargs={'graph': self._graph, 'analytic': analytic})
-        # Get the task id
+        # Get the task values
+        analytic.task_start = datetime.datetime.now()
         analytic.task_id = task.id
         analytic.save()
 

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 
-class BaseAnalytics(object):
+class BaseAnalysis(object):
     """
     Base class for Analytics with the common API to implement.
     """
