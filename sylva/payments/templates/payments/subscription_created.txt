@@ -1,4 +1,5 @@
-{% load i18n %}{% blocktrans %}Hello {% if first_name %}{{ first_name }}{% else %}{{ username }}{% endif %},
+{% load i18n %}Hello {% if first_name %}{{ first_name }}{% else %}{{ username }}{% endif %},
+{% blocktrans %}
 
 congratulations, you have successfully subscribed for a SylvaDB {{ plan_name }} account.
 

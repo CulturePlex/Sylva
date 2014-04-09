@@ -63,7 +63,7 @@ LANGUAGE_CODE = 'en-ca'
 # Supported translations
 LANGUAGES = (
     ('en', ugettext('English')),
-    # ('es', ugettext('Español')),
+    #('es', ugettext('Español')),
 )
 
 # I18n
@@ -275,6 +275,11 @@ USERENA_MUGSHOT_GRAVATAR = True
 USERENA_MUGSHOT_DEFAULT = "mm"
 USERENA_MUGSHOT_SIZE = 100
 USERENA_USE_MESSAGES = False
+# Add to do the tests correctly, check mail is not necessary by now
+USERENA_ACTIVATION_REQUIRED = False
+
+# Add to do the tests correctly, check mail is not necessary by now
+USERENA_ACTIVATION_REQUIRED = False
 
 # Guardian
 GUARDIAN_RENDER_403 = True
@@ -295,6 +300,7 @@ ACCOUNT_FREE = {
 ENABLE_INSTANCES = False
 ENABLE_INHERITANCE = False
 ENABLE_AUTOCOMPLETE_NODES = True
+ENABLE_AUTOCOMPLETE_COLLABORATORS = True
 ENABLE_SEARCH = True
 ENABLE_CLONING = False
 ENABLE_PROFILE = False
@@ -302,7 +308,6 @@ ENABLE_SIGNUP = True
 ENABLE_TYPE_VALIDATION_FORMS = False
 ENABLE_PAYMENTS = False
 ENABLE_QUERIES = False
-ENABLE_REPORTS = False
 ACTIVATION_EMAIL_BETA_MESSAGE = True
 MAINTENANCE_MODE = False
 
@@ -319,6 +324,7 @@ OPTIONS = {
     "ENABLE_INSTANCES": ENABLE_INSTANCES,
     "ENABLE_INHERITANCE": ENABLE_INHERITANCE,
     "ENABLE_AUTOCOMPLETE_NODES": ENABLE_AUTOCOMPLETE_NODES,
+    "ENABLE_AUTOCOMPLETE_COLLABORATORS": ENABLE_AUTOCOMPLETE_COLLABORATORS,
     "ENABLE_SEARCH": ENABLE_SEARCH,
     "ENABLE_SIGNUP": ENABLE_SIGNUP,
     "ENABLE_TYPE_VALIDATION_FORMS": ENABLE_TYPE_VALIDATION_FORMS,
@@ -326,7 +332,6 @@ OPTIONS = {
     "PREVIEW_NODES": PREVIEW_NODES,
     "DEFAULT_FROM_EMAIL": DEFAULT_FROM_EMAIL,
     "ACTIVATION_EMAIL_BETA_MESSAGE": ACTIVATION_EMAIL_BETA_MESSAGE,
-    "ENABLE_REPORTS": ENABLE_REPORTS,
 }
 
 # django-zebra
@@ -349,6 +354,7 @@ STRIPE_PLANS = {
         'account_type': 3
     }
 }
+<<<<<<< HEAD
 
 # email backend
 
@@ -357,3 +363,5 @@ EMAIL_BACKEND = 'django.core.mail.backends.dummy.EmailBackend'
 
 # Use cookies 
 SESSION_ENGINE = 'django.contrib.sessions.backends.signed_cookies'
+=======
+>>>>>>> upstream/master

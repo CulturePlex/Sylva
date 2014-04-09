@@ -11,25 +11,13 @@ sylva:true, alert:true */
 
   var visualizations = {
 
-    processing: function() {
-      sylva.Sigma.stop();
-      $('#sigma-wrapper').hide();
-      $('.sigma-checkbox').hide();
-      $('.pause').hide();
-      $('#canvas-box').show();
-      $('#element-info').html('Click any node to interact');
-      sylva.Processing.start();
-    },
-
     sigma: function() {
-      sylva.Processing.stop();
-      $('#canvas-box')
-        .hide()
-        .append('<canvas id="graphcanvas">Your browser does not support graph visualization</canvas>');
-      $('#sigma-wrapper').show();
       $('.pause').show();
       $('#element-info').html('Click any node to interact');
       $('.sigma-checkbox').css('display', 'inline-block');
+      $('#sigma-node-size').css('display', 'inline-block');
+      $('#sigma-graph-layout').css('display', 'inline-block');
+      $('#sigma-edge-shape').css('display', 'inline-block');
       sylva.Sigma.start();
     }
 
@@ -38,7 +26,7 @@ sylva:true, alert:true */
   // DOM
   $(function() {
 
-    var opts = {
+    var spinnerOpts = {
       lines: 15,            // The number of lines to draw
       length: 14,           // The length of each line
       width: 5,             // The line thickness
@@ -55,8 +43,8 @@ sylva:true, alert:true */
       top: '105',           // Top position relative to parent in px
       left: '637'           // Left position relative to parent in px
     };
-    var target = document.getElementById('spinner');
-    var spinner = new Spinner(opts).spin(target);
+    var spinnerTarget = document.getElementById('spinner');
+    var spinner = new Spinner(spinnerOpts).spin(spinnerTarget);
 
     $('#sigma-container').append('<div id="graph-loading" class="graph-loading-wrapper" style="opacity: 0.5;">' +
                                    '<div id="graph-loading-message" class="graph-loading-inner" style="top: 170px;">' +
@@ -65,31 +53,18 @@ sylva:true, alert:true */
                                  '</div>');
 
     // Graph rendering
-    var jqxhr = $.getJSON(sylva.ajax_url, function(data) {
+    var jqxhr = $.getJSON(sylva.view_graph_ajax_url, function(data) {
       $('#graph-loading').remove();
       spinner.stop();
 
-      // partial graph (Processing.js)
-      sylva.nodes = data.nodes;
-      sylva.edges = data.edges;
-
       // full graph (Sigma.js and others)
-      sylva.total_nodes = data.total_nodes;
-      sylva.total_edges = data.total_edges;
+      sylva.graph = data.graph
 
+      sylva.nodetypes = data.nodetypes;
       sylva.size = data.size;
-      sylva.disableProcessing = data.size > sylva.MAX_SIZE;
 
-      if (sylva.disableProcessing) {
-        $('#visualization-processing').remove();
-        sylva.Processing.init();
-        $('#graphcanvas').on('graph_init', function(e) {
-          e.stopPropagation();
-          visualizations.sigma();
-        });
-      } else {
-        visualizations.processing();
-      }
+      $('#graph-support').hide();
+      visualizations.sigma();
 
       var msg = '';
       if (sylva.is_schema_empty) {
@@ -103,25 +78,20 @@ sylva:true, alert:true */
       }
 
       if (msg !== '') {
-        $('#graphcanvas').hide();
-        $('#sigma-wrapper').show();
         $('#sigma-container').html('<div class="graph-empty-message">' + msg + '</div>');
       }
-
 
     });
 
     // Error handling.
     jqxhr.error(function() {
-      alert(gettext("Oops! Something went wrong with the server. Please, reload the page."));
+      $('#graph-loading').remove();
+      spinner.stop();
+
+      var msg = gettext("Oops! Something went wrong with the server. Please, reload the page.");
+
+      $('#sigma-container').html('<div class="graph-empty-message">' + msg + '</div>');
     });
 
-    // Select box bindings
-    var $visualization_select = $('#visualization-type');
-    $visualization_select.children().first().attr('selected', 'selected');
-    $visualization_select.change(function() {
-      var type = $(this).find('option:selected').data('type');
-      visualizations[type]();
-    });
   });
 })(sylva, jQuery, window, document);

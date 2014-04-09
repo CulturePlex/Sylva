@@ -1,0 +1,1 @@
+{"allowedEdges": [{"source": "Bob's type", "properties": {}, "target": "Bob's type", "label": "Bob rel"}], "nodeTypes": {"Bob's type": {"Name": {"datatype": "e", "validation": null, "description": "", "default": "", "auto": null, "required": false, "slug": "name", "value": "", "display": true}}}}

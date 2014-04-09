@@ -1,0 +1,1 @@
+{"allowedEdges": [], "nodeTypes": {"Bob's type": {"Name": {"datatype": "a", "validation": null, "description": "", "default": "", "auto": null, "required": false, "slug": "name", "value": "", "display": true}}}}
