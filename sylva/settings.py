@@ -329,11 +329,11 @@ OPTIONS = {
     "ENABLE_SEARCH": ENABLE_SEARCH,
     "ENABLE_SIGNUP": ENABLE_SIGNUP,
     "ENABLE_TYPE_VALIDATION_FORMS": ENABLE_TYPE_VALIDATION_FORMS,
+    "ENABLE_REPORTS": ENABLE_REPORTS,
     "MAINTENANCE_MODE": MAINTENANCE_MODE,
     "PREVIEW_NODES": PREVIEW_NODES,
     "DEFAULT_FROM_EMAIL": DEFAULT_FROM_EMAIL,
     "ACTIVATION_EMAIL_BETA_MESSAGE": ACTIVATION_EMAIL_BETA_MESSAGE,
-    "ENABLE_REPORTS": ENABLE_REPORTS,
 }
 
 # django-zebra
@@ -356,14 +356,3 @@ STRIPE_PLANS = {
         'account_type': 3
     }
 }
-<<<<<<< HEAD
-
-# email backend
-
-EMAIL_BACKEND = 'django.core.mail.backends.dummy.EmailBackend'
-# EMAIL_FILE_PATH = '/tmp/app-messages' # change this to a proper location
-
-# Use cookies 
-SESSION_ENGINE = 'django.contrib.sessions.backends.signed_cookies'
-=======
->>>>>>> upstream/master
