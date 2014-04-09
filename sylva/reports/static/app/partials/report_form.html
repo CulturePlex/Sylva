@@ -1,15 +1,15 @@
-<div class="max600">
+<div class="cont">
 
   <!--Meta Form/Queries-->
   <div class="content2-first">
-    <h2>Report</h2>
+    
     <div class="input-container">
+      <h2>Report</h2>
       <!--Design Report View-->
       <div ng-show="queries">
         <ul>
           <li ng-repeat="query in queries">
-            <div draggable id="{{ query.name }}">
-            <h2>{{ query.name }}</h2>
+            <div draggable id="{{ query.name }}"><h2>{{ query.name }}</h2></div>
           </li>
         </ul>
       </div><!--queries container-->
@@ -62,7 +62,7 @@
   <!--Report Info/Designer-->
   <div class="content-divider"></div>
 
-  <div class="content2-second">
+  <div class="content2-cont">
 
     <div id="row1">
 
@@ -94,40 +94,44 @@
 
     </div><!--row1-->
 
-    <div ng-show="queries">
+    <div id="row2">
+      <div ng-show="queries">
 
-      <div id="row2" class="inline-disp">
-        <div>
-          <div sy-editable-table>
-            <!--move to directive-->
-            <table class="report-table">
-              <thead>
-                
-              </thead>
-              <tbody>
-                <tr>
-                  <td sy-droppable sy-merge-cells row="0" col="0" colspan="1" rowspan="1"></td>
-                  <td sy-droppable sy-merge-cells row="0" col="1" colspan="1" rowspan="1"></td>
-                </tr>
-                <tr>
-                  <td sy-droppable sy-merge-cells row="1" col="0" colspan="1" rowspan="1"></td>
-                  <td sy-droppable sy-merge-cells row="1" col="1" colspan="1" rowspan="1"></td>
-                </tr>
-              </tbody>
-            </table>
-            <a class="button" href="">add row</a>
-            <a class="button" href="">add column</a>
+      
+          <div sy-editable-table class="editable-table">
+            <div class="report-table">
+              <div class="rows">
+                <div class="trow">
+                  <div class="divider"></div>
+                  <div class="tcell" id="cell1" sy-droppable sy-merge-cells row="0" col="0" colspan="1" rowspan="1" style="width: 49.5%;"></div>
+                  <div class="divider"></div>
+                  <div class="tcell-final" id="cell2" sy-droppable sy-merge-cells row="0" col="1" colspan="1" rowspan="1" style="width: 49.5%;"></div>
+                  <div class="divider"></div>
+                </div>
+                <div class="trow-bottom">
+                  <div class="divider"></div>
+                  <div class="tcell" id="cell3" sy-droppable sy-merge-cells row="1" col="0" colspan="1" rowspan="1" style="width: 49.5%;"></div>
+                  <div class="divider"></div>
+                  <div class="tcell-final" id="cell4" sy-droppable sy-merge-cells row="1" col="1" colspan="1" rowspan="1" style="width: 49.5%;"></div>
+                  <div class="divider"></div>
+                </div>
+              </div>
+              <div>
+                <a class="button table-button" href="">add row</a>
+                <a class="button table-button" href="">add column</a>
+              </div>
+            </div>
+            
+            
           </div>
-        </div>
-        <div ng-show="report.table">
-         <span ng-bind-html="report.tableHtml">
-         </span>
-        </div> 
-      </div> <!--row2-->
 
-    </div> <!--show queries-->
+      </div> <!--show queries-->
+
+    </div> <!--row2-->
     
 
   </div>
 
 </div>
+
+        
