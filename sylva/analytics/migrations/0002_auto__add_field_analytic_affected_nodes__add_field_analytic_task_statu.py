@@ -8,28 +8,29 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        # Adding model 'Analytic'
-        db.create_table('analytics_analytic', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('graph', self.gf('django.db.models.fields.related.ForeignKey')(related_name='analytics', to=orm['graphs.Graph'])),
-            ('dump', self.gf('django.db.models.fields.CharField')(max_length=250, null=True, blank=True)),
-            ('algorithm', self.gf('django.db.models.fields.CharField')(max_length=8)),
-            ('results', self.gf('django.db.models.fields.CharField')(max_length=250, null=True, blank=True)),
-            ('task_id', self.gf('django.db.models.fields.CharField')(max_length=250, null=True, blank=True)),
-            ('task_start', self.gf('django.db.models.fields.DateTimeField')(null=True, blank=True)),
-            ('task_end', self.gf('django.db.models.fields.DateTimeField')(null=True, blank=True)),
-        ))
-        db.send_create_signal('analytics', ['Analytic'])
+        # Adding field 'Analytic.affected_nodes'
+        db.add_column('analytics_analytic', 'affected_nodes',
+                      self.gf('django.db.models.fields.CharField')(max_length=250, null=True, blank=True),
+                      keep_default=False)
+
+        # Adding field 'Analytic.task_status'
+        db.add_column('analytics_analytic', 'task_status',
+                      self.gf('django.db.models.fields.CharField')(max_length=250, null=True, blank=True),
+                      keep_default=False)
 
 
     def backwards(self, orm):
-        # Deleting model 'Analytic'
-        db.delete_table('analytics_analytic')
+        # Deleting field 'Analytic.affected_nodes'
+        db.delete_column('analytics_analytic', 'affected_nodes')
+
+        # Deleting field 'Analytic.task_status'
+        db.delete_column('analytics_analytic', 'task_status')
 
 
     models = {
         'analytics.analytic': {
             'Meta': {'object_name': 'Analytic'},
+            'affected_nodes': ('django.db.models.fields.CharField', [], {'max_length': '250', 'null': 'True', 'blank': 'True'}),
             'algorithm': ('django.db.models.fields.CharField', [], {'max_length': '8'}),
             'dump': ('django.db.models.fields.CharField', [], {'max_length': '250', 'null': 'True', 'blank': 'True'}),
             'graph': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'analytics'", 'to': "orm['graphs.Graph']"}),
@@ -37,7 +38,8 @@ class Migration(SchemaMigration):
             'results': ('django.db.models.fields.CharField', [], {'max_length': '250', 'null': 'True', 'blank': 'True'}),
             'task_end': ('django.db.models.fields.DateTimeField', [], {'null': 'True', 'blank': 'True'}),
             'task_id': ('django.db.models.fields.CharField', [], {'max_length': '250', 'null': 'True', 'blank': 'True'}),
-            'task_start': ('django.db.models.fields.DateTimeField', [], {'null': 'True', 'blank': 'True'})
+            'task_start': ('django.db.models.fields.DateTimeField', [], {'null': 'True', 'blank': 'True'}),
+            'task_status': ('django.db.models.fields.CharField', [], {'max_length': '250', 'null': 'True', 'blank': 'True'})
         },
         'auth.group': {
             'Meta': {'object_name': 'Group'},

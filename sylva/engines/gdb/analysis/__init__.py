@@ -12,14 +12,14 @@ class BaseAnalysis(object):
         """
         raise NotImplementedError("Method has to be implemented")
 
-    def dump_graphchi_edgelist(graph):
+    def connected_components(graph, analytic):
         """
-        Dump the content of the graph into an edgelist file
+        Connected components method
         """
         raise NotImplementedError("Method has to be implemented")
 
-    def dump_graphchi_adjlist(graph):
+    def dump(graph, analytic):
         """
-        Dump the content of the graph into an adjlist file
+        Dump the content of the graph into an edgelist file
         """
         raise NotImplementedError("Method has to be implemented")
