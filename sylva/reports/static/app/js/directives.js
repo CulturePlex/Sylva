@@ -43,6 +43,7 @@ directives.directive('syEditableTable', ['$compile', function ($compile) {
             ,   children = elem.children()
             ,   table = ang(children[0])
             ,   rowCont = ang(table.children()[0])
+            ,   rowWidth = parseInt(rowCont.css('width'))
             ,   buttons = ang(table.children()[1])
             ,   addRow = ang(buttons.children()[0])
             ,   addCol = ang(buttons.children()[1])
@@ -54,9 +55,55 @@ directives.directive('syEditableTable', ['$compile', function ($compile) {
             }, 1000)
            
             addRow.bind('click', function () {
-                var cells = new Cells()
-                ,   row = cells.getRow()
-                ,   bottomRow = cells.getBottomRow();
+                var tds = '';
+
+                var id = numRows * numCols
+                ,   width = rowWidth / numCols - ((numCols + 1) * 2 / numCols) + 'px';
+                
+                for (var i=0; i<numCols; i++) {
+                    if (i === numCols - 1) {
+                        var yndx = numRows
+                        ,   xndx = i;
+                        tds = 
+                            tds + 
+                            '<div sy-droppable sy-merge-cells class="tcell-final" id="cell' + 
+                            id++ + 
+                            '" style="width:' + 
+                            width + 
+                            ';" row="' +
+                            yndx +
+                            '" rowspan="' +
+                            1 +
+                            '" col="' +
+                            xndx +
+                            '" colspan="' +
+                            1 + 
+                            '">';
+                    } else {
+                        // compile cells during this step
+                        var yndx = numRows
+                        ,   xndx = i;
+                        tds = 
+                            tds + 
+                            '<div sy-droppable sy-merge-cells class="tcell" id="cell' + 
+                            id++ + 
+                            '" style="width:' + 
+                            width + 
+                            ';" row="' +
+                            yndx +
+                            '" rowspan="' +
+                            1 +
+                            '" col="' +
+                            xndx +
+                            '" colspan="' +
+                            1 + 
+                            '"></div>';
+                    }
+                }
+                ang('.tcell').css('width', width);
+                ang('.tcell-final').css('width', width);
+                var row = $compile('<div class="trow">' + tds + '</div>')(scope)
+                ,   bottomRow = $compile('<div class="trow-bottom">' + tds + '</div>')(scope)
                 ang('.trow-bottom').remove();
                 rowCont.append(row)
                 rowCont.append(bottomRow);
@@ -70,11 +117,19 @@ directives.directive('syEditableTable', ['$compile', function ($compile) {
             });
 
             addCol.bind('click', function () {
-                if (numCols < 4) {            
+                //if (numCols < 4) {
+                    var width;
+                    var pad;
+                    if (numRows > 2) {
+                        pad = (1 / (numCols)) + 0.3;
+                    } else {
+                        pad = (1 / (numCols)) + 0.15;
+                    } 
+                                
                     var rows = rowCont.children()
                     ,   id = 0
-                    ,   pad = (1 / (numCols + 1)) + (numCols) * 0.05
-                    ,   width = 100 / (numCols + 1) - pad + '%';
+                    ,   width = rowWidth / (numCols + 1) - ((numCols + 2) * 2 / (numCols + 1)) + 'px';
+                    console.log('newWIdth', width)
                     ang('.tcell-final').removeClass('tcell-final').addClass('tcell');
                     for (var i=0; i<rows.length; i++) {
                         console.log('rows')
@@ -96,7 +151,7 @@ directives.directive('syEditableTable', ['$compile', function ($compile) {
                             id + 
                             '" style="width:' + 
                             width + 
-                            '%;" row="' +
+                            '" row="' +
                             yndx +
                             '" rowspan="' +
                             1 +
@@ -104,7 +159,7 @@ directives.directive('syEditableTable', ['$compile', function ($compile) {
                             xndx +
                             '" colspan="' +
                             1 +
-                            '"></div><div class="divider"></div>'
+                            '">'
                         )(scope);
                         //console.log('cell', cell)
                         id++
@@ -115,71 +170,13 @@ directives.directive('syEditableTable', ['$compile', function ($compile) {
                         var rowCont = ang(ang(elem.children()[0]).children()[0])
                         scope.report.tarray = new TableArray(rowCont)
                      });
-                } else {
-                    alert('Max 4 Columns, add as many rows as you want')
-                }
+                //} else {
+                //    alert('Max 4 Columns, add as many rows as you want')
+                //}
                 
                 
             });
 
-
-            function Cells() {
-                this.tds = '';
-                var id = numRows * numCols
-                ,   pad = (1 / (numCols)) + (numCols - 1) * 0.05
-                ,   width = 100 / numCols - pad;
-                for (var i=0; i<numCols; i++) {
-                    if (i === numCols - 1) {
-                        var yndx = numRows
-                        ,   xndx = i;
-                        this.tds = 
-                            this.tds + 
-                            '<div sy-droppable sy-merge-cells class="tcell-final" id="cell' + 
-                            id++ + 
-                            '" style="width:' + 
-                            width + 
-                            '%;" row="' +
-                            yndx +
-                            '" rowspan="' +
-                            1 +
-                            '" col="' +
-                            xndx +
-                            '" colspan="' +
-                            1 + 
-                            '"></div><div class="divider"></div>';
-                    } else {
-                        // compile cells during this step
-                        var yndx = numRows
-                        ,   xndx = i;
-                        this.tds = 
-                            this.tds + 
-                            '<div sy-droppable sy-merge-cells class="tcell" id="cell' + 
-                            id++ + 
-                            '" style="width:' + 
-                            width + 
-                            '%;" row="' +
-                            yndx +
-                            '" rowspan="' +
-                            1 +
-                            '" col="' +
-                            xndx +
-                            '" colspan="' +
-                            1 + 
-                            '"></div><div class="divider"></div>';
-                    }
-                }
-            };
-
-            Cells.prototype.getRow = function() {
-                // don't compile here
-                var row = $compile('<div class="trow"><div class="divider"></div>' + this.tds + '</div>')(scope)
-                return row;
-            };
-
-            Cells.prototype.getBottomRow = function() {
-                var row = $compile('<div class="trow-bottom"><div class="divider"></div>' + this.tds + '</div>')(scope)
-                return row;
-            };
 
 
             //Maybe this should be a provider

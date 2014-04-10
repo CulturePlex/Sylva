@@ -10,14 +10,13 @@
 
 .cont {
     max-height: 600px;
-    min-height: 600px
+    min-height: 450px
 }
 
 .content2-first {
     width: 347px;
     float: left;
     padding-left: 2px;
-    max-height: 100%;
     
 }
 
@@ -50,29 +49,36 @@
 
 .editable-table {
   width: 100%;
-  height: 500px;
-  overflow-y:auto;
+
+}
+
+.report-table:hover {
+  overflow-y: scroll;;
 }
 
 .report-table {
-  width: 90%;
+  width: 100%;
   height: 400px;
+  overflow: hidden;
+
 }
 
-
+.rows {
+  width: 650px;
+}
 
 .trow {
-  border-top: 2px solid #D8E8DE;
+  border-top: 2px solid #348E82;
   width: 100%;
-  height: 200px;
+  height: 175px;
 
 }
 
 .trow-bottom {
-  border-top: 2px solid #D8E8DE;
-  border-bottom: 2px solid #D8E8DE;
+  border-top: 2px solid #348E82;
+  border-bottom: 2px solid #348E82;
   width: 100%;
-  height: 200px;
+  height: 175px;
 
 }
 
@@ -80,19 +86,22 @@
   height: 100%;
   float: left;
   position:relative;
-  text-align:center
+  text-align:center;
+  border-left: 2px solid #348E82;
 }
 
 
 .tcell-final {
   height: 100%;
   float: left;
+  border-left: 2px solid #348E82;
+  border-right: 2px solid #348E82;
 }
 
 .divider{
-    z-index: 1000;
+    z-index: 10000;
     position:relative;
-    background-color: #D8E8DE; ;
+    background-color: #348E82; ;
     float: left;
     height: 200px;
     width:2px;
