@@ -1,5 +1,5 @@
 # -*- encoding: utf-8 -*-
-import settings
+from django.conf import settings
 import logging
 
 from django.db import models
@@ -88,7 +88,7 @@ class StripeCustomer(DatesModelBase, ZebraStripeCustomer):
         customers = user.stripe_customers.all()
         if len(customers) <= 1:
             try:
-                profile = user.get_profile()
+                profile = user.profile
                 account = Account.objects.get(type=1)
                 profile.account = account
                 profile.save()
@@ -136,7 +136,7 @@ class StripeSubscription(DatesModelBase, ZebraStripeSubscription):
         '''A customer can be subscribed for 1 Basic plan or N Premium plans'''
         new_customer = self.customer
         user = new_customer.user
-        profile = user.get_profile()
+        profile = user.profile
         stripe_plan_id = self.plan.stripe_plan_id
         account_type = settings.STRIPE_PLANS[stripe_plan_id]['account_type']
         customers = user.stripe_customers.exclude(stripe_subscription__isnull=True)
@@ -155,7 +155,7 @@ class StripeSubscription(DatesModelBase, ZebraStripeSubscription):
         stripe_errors = False
         error_message = _('Sorry, an error occurred while processing the '
                           'card. Your payment could not be processed.')
-        profile = user.get_profile()
+        profile = user.profile
         stripe_plan_id = self.plan.stripe_plan_id
         account_type = settings.STRIPE_PLANS[stripe_plan_id]['account_type']
         try:

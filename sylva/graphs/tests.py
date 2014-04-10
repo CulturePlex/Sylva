@@ -225,13 +225,6 @@ class GraphTest(TestCase):
         self.assertIsNotNone(response.content)
         response = self.c.post('/accounts/signin/', {'username': 'john', 'password': 'hello'})
         self.assertEqual(response.status_code, 200)
-        """
-        self.u.user_permissions.add(graphs.models.PERMISSIONS['data']['view_data'])
-        request = self.factory.get('/export/')
-        request.user = self.u
-        self.assertIsNotNone(tools.views.graph_export_gexf(request,self.graph.slug))
-        self.assertIsNotNone(tools.views.graph_export_csv(request,self.graph.slug))
-        """
         Graph.objects.get(name=self.graphName).destroy()
 
 

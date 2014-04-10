@@ -17,7 +17,7 @@ def is_enabled(setting=False, next='index'):
 def is_subscribed(view):
     def _decorator(request, *args, **kwargs):
         user = request.user
-        account = user.get_profile().account
+        account = user.profile.account
         is_subscribed = account.type != 1
         if not is_subscribed:
             return redirect('dashboard')

@@ -51,10 +51,10 @@
         <span class="buttonLinkOption buttonLinkRight">
           {% if delete %}
           {% trans "or" %}
-          <a href="{% url nodes_delete graph.slug node.id %}">{% trans "Remove" %}</a>
+          <a href="{% url "nodes_delete" graph.slug node.id %}">{% trans "Remove" %}</a>
           {% endif %}
           {% trans "or" %}
-          <a href="{% url nodes_list graph.slug %}">{% trans "Cancel" %}</a>.</span>
+          <a href="{% url "nodes_list" graph.slug %}">{% trans "Cancel" %}</a>.</span>
       </div>
       {% if outgoing_formsets or incoming_formsets %}
         <div class="content-divider"></div>
@@ -80,7 +80,7 @@
                 </label>
                 <span class="helptext">
                   {% trans "Target of the relationship" %}
-                  <a href="{% url nodes_create outgoing_formset.itemtype.schema.graph.slug outgoing_formset.itemtype.target.id %}">
+                  <a href="{% url "nodes_create" outgoing_formset.itemtype.schema.graph.slug outgoing_formset.itemtype.target.id %}">
                     {% trans "Add" %} {{ outgoing_formset.itemtype.target.name }}
                   </a>
                 </span>
@@ -112,7 +112,7 @@
                 </label>
                 <span class="helptext">
                   {% trans "Source of the relationship" %}
-                  <a href="{% url nodes_create incoming_formset.itemtype.schema.graph.slug incoming_formset.itemtype.source.id %}">
+                  <a href="{% url "nodes_create" incoming_formset.itemtype.schema.graph.slug incoming_formset.itemtype.source.id %}">
                     {% trans "Add" %} {{ incoming_formset.itemtype.source.name }}
                   </a>
                 </span>
@@ -345,7 +345,7 @@
                 tokenValue: "id"
               };
             }
-            $input.tokenInput("{% url nodes_lookup graph.slug %}?exclude="+ exclude, params);
+            $input.tokenInput("{% url "nodes_lookup" graph.slug %}?exclude="+ exclude, params);
           }
         };
 
@@ -378,7 +378,7 @@
                 tokenValue: "id"
               };
             }
-            $input.tokenInput("{% url collaborators_lookup graph.slug %}", params);
+            $input.tokenInput("{% url "collaborators_lookup" graph.slug %}", params);
           }
         };
 

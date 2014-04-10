@@ -19,9 +19,9 @@ class Account(models.Model):
         (3, _('Premium')),
     )
     type = models.PositiveSmallIntegerField(_('type'),
-                                              choices=TYPE_CHOICES,
-                                              blank=True,
-                                              null=True)
+                                            choices=TYPE_CHOICES,
+                                            blank=True,
+                                            null=True)
     graphs = models.IntegerField(_('graphs'), blank=True, null=True)
     nodes = models.IntegerField(_('nodes'), blank=True, null=True)
     relationships = models.IntegerField(_('relationships'), blank=True,
@@ -30,9 +30,9 @@ class Account(models.Model):
                                   help_text=_('bytes'))
     queries = models.IntegerField(_('queries'), blank=True, null=True,
                                   help_text=_('Queries per day'))
-    privacy = models.NullBooleanField(_('privacy'), blank=True, null=True,
-                                  default=False,
-                                  help_text=_('Can change graphs\' privacy?'))
+    privacy = models.NullBooleanField(
+        _('privacy'), blank=True, null=True, default=False,
+        help_text=_('Can change graphs\' privacy?'))
 
     def __unicode__(self):
         return u"%s (%s)" % (self.name, self.get_type_display().lower())
@@ -47,18 +47,19 @@ class UserProfile(UserenaLanguageBaseProfile):
                                               choices=GENDER_CHOICES,
                                               blank=True,
                                               null=True)
-    website = models.URLField(_('website'), blank=True, verify_exists=False)
+    website = models.URLField(_('website'), blank=True)
     location = models.CharField(_('location'), max_length=255, blank=True)
     birth_date = models.DateField(_('birth date'), blank=True, null=True)
     about_me = models.TextField(_('about me'), blank=True)
     institution = models.CharField(_('institution'), blank=True, null=True,
-                                  max_length=150)
+                                   max_length=150)
     company = models.CharField(_('company'), blank=True, null=True,
                                max_length=150)
     lab = models.CharField(_('laboratoy'), blank=True, null=True,
                            max_length=150)
     options = models.TextField(_('options'), null=True, blank=True)
-    user = models.OneToOneField(User, verbose_name=_('user'))
+    user = models.OneToOneField(User, verbose_name=_('user'),
+                                related_name='profile')
     account = models.ForeignKey(Account, verbose_name=_('account'),
                                 related_name="users")
 
@@ -94,7 +95,7 @@ def create_profile_account(*args, **kwargs):
     created = kwargs.get("created", False)
     if user and created:
         try:
-            user.get_profile().account
+            user.profile.account
         except UserProfile.DoesNotExist:
             accounts = Account.objects.filter(type=1)
             if not accounts:

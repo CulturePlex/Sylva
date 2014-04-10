@@ -25,7 +25,7 @@
                 console.log(query);
                 $.ajax({
                     type: "POST",
-                    url: "{% url operator_query_results graph.slug %}",
+                    url: "{% url "operator_query_results" graph.slug %}",
                     data: {"query": query},
                     success: function (data) {
                         $("#results").html("");

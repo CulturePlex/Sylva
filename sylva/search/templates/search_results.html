@@ -24,7 +24,7 @@
             <ol class="searchResults">
             {% for item in result.list %}
                 {% with item.display as display %}
-                <li><a title="{{ display }}" href="{% url nodes_edit graph.slug item.id %}">{{ display|truncatewords:5 }}</a></li>
+                <li><a title="{{ display }}" href="{% url "nodes_edit" graph.slug item.id %}">{{ display|truncatewords:5 }}</a></li>
                 {% endwith %}
             {% endfor %}
             </ol>
@@ -42,7 +42,7 @@
             <ol class="searchResults">
             {% for item in result.list %}
                 {% with item.display as display %}
-                <li><a title="{{ display }}" href="{% url relationships_edit graph.slug item.id %}">{{ display|truncatewords:5 }}</a></li>
+                <li><a title="{{ display }}" href="{% url "relationships_edit" graph.slug item.id %}">{{ display|truncatewords:5 }}</a></li>
                 {% endwith %}
             {% endfor %}
             </ol>

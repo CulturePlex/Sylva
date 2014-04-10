@@ -62,7 +62,7 @@
 
 {% block last_row_element %}
   <td>
-    <a class="retrieve-relationships" id="rel_{{ cell }}" onClick="retrieveRelationships('{% url node_relationships graph.slug cell %}', 'rel_{{ cell }}')">
+    <a class="retrieve-relationships" id="rel_{{ cell }}" onClick="retrieveRelationships('{% url "node_relationships" graph.slug cell %}', 'rel_{{ cell }}')">
       {% trans "Retrieve relationships" %}
     </a>
   </td>
@@ -79,9 +79,9 @@
 {% block content_bottom_bar %}
   {% if option.3 or node_type %}
     {% if node_type %}
-      <a class="button" href="{% url nodes_create graph.slug node_type.id %}">
+      <a class="button" href="{% url "nodes_create" graph.slug node_type.id %}">
     {% else %}
-      <a class="button" href="{% url nodes_create graph.slug option.3 %}">
+      <a class="button" href="{% url "nodes_create" graph.slug option.3 %}">
     {% endif %}
     {% blocktrans with node_type=option.0 %}
       New {{ node_type }}
@@ -92,7 +92,7 @@
           {% trans "Preview" %}
         </a>
         {% trans "or" %}
-        <a href="{% url nodes_list_full graph.slug option.3 %}">
+        <a href="{% url "nodes_list_full" graph.slug option.3 %}">
           {% blocktrans with node_type=option.0 %}
             Show all
           {% endblocktrans %}

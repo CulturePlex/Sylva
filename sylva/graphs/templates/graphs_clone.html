@@ -25,7 +25,7 @@
   {{ form.as_p }}
   <input type="submit" name="cloneGraph" value="{% trans "Clone" %}" id="cloneGraph" />
   <span class="buttonLinkOption">
-    {% trans "or" %} <a href="{% url graph_view graph.slug %}">{% trans "Cancel" %}</a>.
+    {% trans "or" %} <a href="{% url "graph_view" graph.slug %}">{% trans "Cancel" %}</a>.
   </span>
 </form>
 <script>

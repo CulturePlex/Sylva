@@ -1,5 +1,5 @@
 # -*- encoding: utf-8 -*-
-from django.conf.urls.defaults import patterns, url
+from django.conf.urls import patterns, url
 
 urlpatterns = patterns('payments.views',
     url(r'^subscribe/basic/$', 'subscription_edit_create',

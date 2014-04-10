@@ -28,7 +28,7 @@ def create_collaborator(test, username):
     test.browser.is_element_present_by_xpath('//body', wait_time=1)
     test.browser.find_by_xpath("//div[@class='chzn-drop']/ul[@class='chzn-results']/li[text()='" + username + "']").first.click()
     test.browser.find_by_xpath(
-        "//div[@id='content2']/div/form/input").first.click()
+        "//div[@id='content2']/div/form/input")[1].click()
 
 
 def add_permission(test, username, permission):

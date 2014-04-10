@@ -15,5 +15,5 @@
     {% blocktrans %}you are now subscribed for a <strong>{{ account_name }}</strong> plan.{% endblocktrans %}
   </p>
   <br>
-  <a href="{% url dashboard %}" class="button">{% trans "Continue" %}</a>
+  <a href="{% url "dashboard" %}" class="button">{% trans "Continue" %}</a>
 {% endblock content %}

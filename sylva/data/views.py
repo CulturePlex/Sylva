@@ -249,31 +249,26 @@ def nodes_create(request, graph_slug, node_type_id):
             and mediafile_formset.is_valid() and medialink_formset.is_valid()
             and all([rf.is_valid() for rf in outgoing_formsets.values()])
             and all([rf.is_valid() for rf in incoming_formsets.values()])):
-        with transaction.commit_manually():
-            try:
-                node = node_form.save()
-                for outgoing_formset in outgoing_formsets.values():
-                    for outgoing_form in outgoing_formset.forms:
-                        outgoing_form.save(related_node=node)
-                for incoming_formset in incoming_formsets.values():
-                    for incoming_form in incoming_formset.forms:
-                        incoming_form.save(related_node=node)
-                # Manage files and links
-                mediafiles = mediafile_formset.save(commit=False)
-                medialinks = medialink_formset.save(commit=False)
-                if mediafiles or medialinks:
-                    media_node = MediaNode.objects.create(node_id=node.id,
-                                                          data=graph.data)
-                    for mediafile in mediafiles:
-                        mediafile.media_node = media_node
-                        mediafile.save()
-                    for medialink in medialinks:
-                        medialink.media_node = media_node
-                        medialink.save()
-            except:
-                transaction.rollback()
-            else:
-                transaction.commit()
+        with transaction.atomic():
+            node = node_form.save()
+            for outgoing_formset in outgoing_formsets.values():
+                for outgoing_form in outgoing_formset.forms:
+                    outgoing_form.save(related_node=node)
+            for incoming_formset in incoming_formsets.values():
+                for incoming_form in incoming_formset.forms:
+                    incoming_form.save(related_node=node)
+            # Manage files and links
+            mediafiles = mediafile_formset.save(commit=False)
+            medialinks = medialink_formset.save(commit=False)
+            if mediafiles or medialinks:
+                media_node = MediaNode.objects.create(node_id=node.id,
+                                                      data=graph.data)
+                for mediafile in mediafiles:
+                    mediafile.media_node = media_node
+                    mediafile.save()
+                for medialink in medialinks:
+                    medialink.media_node = media_node
+                    medialink.save()
         redirect_url = reverse("nodes_list_full",
                                args=[graph.slug, node_type_id])
         return redirect(redirect_url)
@@ -502,56 +497,51 @@ def nodes_edit(request, graph_slug, node_id):
             and mediafile_formset.is_valid() and medialink_formset.is_valid()
             and all([rf.is_valid() for rf in outgoing_formsets.values()])
             and all([rf.is_valid() for rf in incoming_formsets.values()])):
-        with transaction.commit_manually():
-            try:
-                as_new = 'as-new' in request.POST
-                node = node_form.save(as_new=as_new)
-                for outgoing_formset in outgoing_formsets.values():
-                    for outgoing_form in outgoing_formset.forms:
-                        if not (outgoing_form.delete and as_new):
-                            # The if statement saves execution time
-                            outgoing_form.save(related_node=node,
-                                               as_new=as_new)
-                for incoming_formset in incoming_formsets.values():
-                    for incoming_form in incoming_formset.forms:
-                        if not (incoming_form.delete and as_new):
-                            # The if statement saves execution time
-                            incoming_form.save(related_node=node,
-                                               as_new=as_new)
-                if as_new:
-                    mediafile_formset.forms = [
-                        modify_media_form(form)
-                        for form in mediafile_formset.forms
-                        if can_media_save_as_new(form)]
-                    medialink_formset.forms = [
-                        modify_media_form(form)
-                        for form in medialink_formset.forms
-                        if can_media_save_as_new(form)]
-                mediafiles = mediafile_formset.save(commit=False)
-                medialinks = medialink_formset.save(commit=False)
-                # Manage files and links
-                if ((as_new or not media_node.pk) and
-                        (mediafiles or medialinks)):
-                    media_node = MediaNode.objects.create(node_id=node.id,
-                                                          data=graph.data)
-                for mediafile in mediafiles:
-                    mediafile.media_node = media_node
-                    if as_new and mediafile.pk:
-                        mediafile.pk = None
-                        clone_file(mediafile)
-                    mediafile.save()
-                for medialink in medialinks:
-                    medialink.media_node = media_node
-                    if as_new and medialink.pk:
-                        medialink.pk = None
-                    medialink.save()
-                if (media_node.pk and not media_node.files.exists() and
-                        not media_node.links.exists()):
-                    media_node.delete()
-            except:
-                transaction.rollback()
-            else:
-                transaction.commit()
+        with transaction.atomic():
+            as_new = 'as-new' in request.POST
+            node = node_form.save(as_new=as_new)
+            for outgoing_formset in outgoing_formsets.values():
+                for outgoing_form in outgoing_formset.forms:
+                    if not (outgoing_form.delete and as_new):
+                        # The if statement saves execution time
+                        outgoing_form.save(related_node=node,
+                                           as_new=as_new)
+            for incoming_formset in incoming_formsets.values():
+                for incoming_form in incoming_formset.forms:
+                    if not (incoming_form.delete and as_new):
+                        # The if statement saves execution time
+                        incoming_form.save(related_node=node,
+                                           as_new=as_new)
+            if as_new:
+                mediafile_formset.forms = [
+                    modify_media_form(form)
+                    for form in mediafile_formset.forms
+                    if can_media_save_as_new(form)]
+                medialink_formset.forms = [
+                    modify_media_form(form)
+                    for form in medialink_formset.forms
+                    if can_media_save_as_new(form)]
+            mediafiles = mediafile_formset.save(commit=False)
+            medialinks = medialink_formset.save(commit=False)
+            # Manage files and links
+            if ((as_new or not media_node.pk) and
+                    (mediafiles or medialinks)):
+                media_node = MediaNode.objects.create(node_id=node.id,
+                                                      data=graph.data)
+            for mediafile in mediafiles:
+                mediafile.media_node = media_node
+                if as_new and mediafile.pk:
+                    mediafile.pk = None
+                    clone_file(mediafile)
+                mediafile.save()
+            for medialink in medialinks:
+                medialink.media_node = media_node
+                if as_new and medialink.pk:
+                    medialink.pk = None
+                medialink.save()
+            if (media_node.pk and not media_node.files.exists() and
+                    not media_node.links.exists()):
+                media_node.delete()
         redirect_url = reverse("nodes_list_full",
                                args=[graph.slug, nodetype.id])
         return redirect(redirect_url)

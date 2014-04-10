@@ -110,7 +110,7 @@ def graph_edit(request, graph_slug):
         data = request.POST.copy()
         form = GraphForm(data=data, user=request.user, instance=graph)
         if form.is_valid():
-            with transaction.commit_on_success():
+            with transaction.atomic():
                 # instance = form.cleaned_data["instance"]
                 graph = form.save(commit=False)
                 graph.save()
@@ -155,7 +155,7 @@ def graph_create(request):
         data = request.POST.copy()
         form = GraphForm(data=data, user=request.user)
         if form.is_valid():
-            with transaction.commit_on_success():
+            with transaction.atomic():
                 instance = form.cleaned_data["instance"]
                 graph = form.save(commit=False)
                 graph.owner = request.user
@@ -186,7 +186,7 @@ def graph_clone(request, graph_slug):
     if request.POST:
         form = GraphCloneForm(data=request.POST, user=request.user)
         if form.is_valid():
-            with transaction.commit_on_success():
+            with transaction.atomic():
                 instance = form.cleaned_data["instance"]
                 new_graph = form.save(commit=False)
                 new_graph.name = graph.name + " " + _("[cloned]")
@@ -238,7 +238,7 @@ def graph_collaborators(request, graph_slug):
         form = AddCollaboratorForm(data=data, graph=graph)
         if form.is_valid():
             new_collaborator = form.cleaned_data["new_collaborator"]
-            guardian.assign('view_graph', new_collaborator, graph)
+            guardian.assign_perm('view_graph', new_collaborator, graph)
             collaborators.append(new_collaborator)
     else:
         form = AddCollaboratorForm(graph=graph)
@@ -290,7 +290,7 @@ def change_permission(request, graph_slug):
             if permission_str in guardian.get_perms(user, aux[object_str]):
                 guardian.remove_perm(permission_str, user, aux[object_str])
             else:
-                guardian.assign(permission_str, user, aux[object_str])
+                guardian.assign_perm(permission_str, user, aux[object_str])
         else:
             raise ValueError("Unknown %s permission: %s" % (object_str,
                                                             permission_str))

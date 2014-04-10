@@ -89,7 +89,7 @@ class MediaLink(models.Model):
     media_node = models.ForeignKey(MediaNode, verbose_name=_("media node"),
                                    related_name="links")
     media_label = models.CharField(_("label"), max_length=150)
-    media_link = models.URLField(_('URL'), verify_exists=False)
+    media_link = models.URLField(_('URL'))
 
     def __unicode__(self):
         return _(u'{0} ({1} for {2})').format(self.media_label, self.media_link, self.media_node.node_id)

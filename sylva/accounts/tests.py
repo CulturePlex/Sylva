@@ -11,6 +11,7 @@ class UserAccountTest(TestCase):
     """
     A set of tests for testing Users, Accounts and UserProfiles.
     """
+    fixtures = ['initial_data.json']
 
     def setUp(self):
         """

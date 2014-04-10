@@ -24,7 +24,7 @@
       {% trans "Preview" %}
       </a>
       {% trans "or" %}
-      <a href="{% url relationships_list_full graph.slug option.3 %}">
+      <a href="{% url "relationships_list_full" graph.slug option.3 %}">
         {% blocktrans with relationship_type=option.0 %}
           Show all
         {% endblocktrans %}
@@ -37,12 +37,12 @@
   <div>
     <p style="margin-bottom: 10px;">{% trans "There are no types or no allowed relationships defined yet." %}</p>
     <span class="buttonLinkOption">
-      <a id="schemaNewType" class="button" href="{% url schema_nodetype_create graph.slug %}">
+      <a id="schemaNewType" class="button" href="{% url "schema_nodetype_create" graph.slug %}">
         {% trans "New Type" %}
       </a>
     </span>
     <span class="buttonLinkOption">
-      <a id="allowedRelations" class="button" href="{% url schema_relationshiptype_create graph.slug %}">
+      <a id="allowedRelations" class="button" href="{% url "schema_relationshiptype_create" graph.slug %}">
         {% trans "New allowed Relationship" %}
       </a>
     </span>

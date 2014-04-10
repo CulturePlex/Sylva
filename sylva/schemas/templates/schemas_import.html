@@ -20,7 +20,7 @@
 
 {% block content %}
 <h2>{% trans "Import a Schema" %}</h2>
-<form method="POST" action="{% url schema_import graph.slug %}" enctype="multipart/form-data">{% csrf_token %}
+<form method="POST" action="{% url "schema_import" graph.slug %}" enctype="multipart/form-data">{% csrf_token %}
   {{ form.as_p }}
   <span class="buttonLinkOption buttonLinkLeft">
     <input type="submit" value="{% trans "Continue" %}">

@@ -1,9 +1,9 @@
 {% load i18n %}
     <div class="graph-item">
         {% if show_edit %}
-        <span class="graph-title"><a title="{% trans "Edit properties" %}" href="{% url graph_edit graph.slug %}?remove=true">{{ graph.name|truncatewords_html:7 }}</a></span>
+        <span class="graph-title"><a title="{% trans "Edit properties" %}" href="{% url "graph_edit" graph.slug %}?remove=true">{{ graph.name|truncatewords_html:7 }}</a></span>
         {% else %}
-        <span class="graph-title"><a href="{% url graph_view graph.slug %}">{{ graph.name|truncatewords_html:7 }}</a></span>
+        <span class="graph-title"><a href="{% url "graph_view" graph.slug %}">{{ graph.name|truncatewords_html:7 }}</a></span>
         {% endif %}
         {% if graph.description %}
         <q class="graph-description">{{ graph.description|truncatewords_html:40 }}</q>
@@ -11,13 +11,13 @@
         <div class="flags">
             <div class="flags-block">
                 <span class="graph-owner">
-                    {% trans "By"%} <a title="{{ graph.owner }}" href="{% url userena.views.profile_detail graph.owner %}">{{ graph.owner }}</a>
+                    {% trans "By"%} <a title="{{ graph.owner }}" href="{% url "userena.views.profile_detail" graph.owner %}">{{ graph.owner }}</a>
                 </span>
                 <span class="graph-nodes">
-                    {{ graph.data.total_nodes }} <a title="{% trans "Nodes" %}" href="{% url nodes_list graph.slug %}">{% trans "nodes" %}</a>
+                    {{ graph.data.total_nodes }} <a title="{% trans "Nodes" %}" href="{% url "nodes_list" graph.slug %}">{% trans "nodes" %}</a>
                 </span>
                 <span class="graph-relationships">
-                    {# {{ graph.data.total_relationships }} <a title="{% trans "Relationships" %}" href="{% url relationships_list graph.slug %}">{% trans "relationships" %}</a> #}
+                    {# {{ graph.data.total_relationships }} <a title="{% trans "Relationships" %}" href="{% url "relationships_list" graph.slug %}">{% trans "relationships" %}</a> #}
                     {{ graph.data.total_relationships }} {% trans "relationships" %}
                 </span>
                 <span class="graph-schema">
@@ -26,13 +26,13 @@
                     {% else %}
                         {% trans "Strict" %}
                     {% endif %}
-                     <a title="{% trans "Schema" %}" href="{% url schema_edit graph.slug %}">{% trans "schema" %}</a>
+                     <a title="{% trans "Schema" %}" href="{% url "schema_edit" graph.slug %}">{% trans "schema" %}</a>
                 </span>
             </div>
             <div class="flags-divider"></div>
             <div class="flags-block">
                 <span class="graph-visibility">
-                    <a title="{% trans "Visibility" %}" href="{% url graph_edit graph.slug %}">
+                    <a title="{% trans "Visibility" %}" href="{% url "graph_edit" graph.slug %}">
                     {% if graph.public %}
                         {% trans "Public" %}</a>
                     {% else %}
@@ -41,7 +41,7 @@
                     </a>
                 </span>
                 <span class="graph-collaborators">
-                    {{ graph.get_collaborators|length }} <a title="{% trans "Collaborators" %}" href="{% url graph_collaborators graph.slug %}">{% trans "collaborators" %}</a>
+                    {{ graph.get_collaborators|length }} <a title="{% trans "Collaborators" %}" href="{% url "graph_collaborators" graph.slug %}">{% trans "collaborators" %}</a>
                 </span>
                 <span class="graph-queries">
                     {% trans "No queries yet" %}

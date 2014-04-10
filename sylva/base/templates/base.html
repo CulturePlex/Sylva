@@ -36,9 +36,9 @@
           {% block menu_navigation %}
             <nav class="menu">
               <ul>
-      <!--          <li><a href="{% url userena.views.profile_detail request.user %}" class="text">{{ request.user }}</a></li>-->
+      <!--          <li><a href="{% url "userena.views.profile_detail" request.user %}" class="text">{{ request.user }}</a></li>-->
                 {% block menu_buttons %}
-      <!--          <li><a href="{% url dashboard %}" class="link"><span>{% trans "Dashboard" %}</span></a></li>-->
+      <!--          <li><a href="{% url "dashboard" %}" class="link"><span>{% trans "Dashboard" %}</span></a></li>-->
                 {% endblock %}
       <!--          <li><a href="{{ LOGOUT_URL }}" class="link"><span>{% trans "Sign out" %}</span></a></li>-->
               </ul>
@@ -62,9 +62,9 @@
               {% block contact_navigation %}{% endblock %}
               {% block main_navigation %}
                 {% if request.user.is_authenticated %}
-                  <a href="{% url dashboard %}" id="link-logo" title="{% trans "Go to the Dashboard" %}">dashboard</a>
+                  <a href="{% url "dashboard" %}" id="link-logo" title="{% trans "Go to the Dashboard" %}">dashboard</a>
                 {% else %}
-                  <a href="{% url index %}" id="link-logo" title="{% trans "Go to the index page" %}">index</a>
+                  <a href="{% url "index" %}" id="link-logo" title="{% trans "Go to the index page" %}">index</a>
                 {% endif %}
                 {% if graph %}
                   <div class="title-graph-name"><h2>{{ graph.name }}</h2></div>
@@ -72,15 +72,15 @@
                 <nav class="main">
                   <ul>
                     <li><a href="javascript:void(0)" id="toggleTour" class="text" style="display: none;"><span>{% trans "Take a tour" %}</span></a></li>
-                    <li><a href="{% url get_started %}" class="link"><span>{% trans "Help" %}</span></a></li>
+                    <li><a href="{% url "get_started" %}" class="link"><span>{% trans "Help" %}</span></a></li>
                     {% if request.user.is_authenticated %}
-                      <li><a href="{% url userena.views.profile_detail request.user %}" class="link">{{ request.user }}</a></li>
+                      <li><a href="{% url "userena.views.profile_detail" request.user %}" class="link">{{ request.user }}</a></li>
                       {% block navigation_buttons %}
-                        <li><a href="{% url dashboard %}" class="link" title="{% trans "Main view for the options of the user" %}"><span>{% trans "Dashboard" %}</span></a></li>
+                        <li><a href="{% url "dashboard" %}" class="link" title="{% trans "Main view for the options of the user" %}"><span>{% trans "Dashboard" %}</span></a></li>
                       {% endblock %}
                       <li><a href="{{ LOGOUT_URL }}" class="link"><span>{% trans "Sign out" %}</span></a></li>
                     {% else %}
-                      <li><a href="{% url index %}" class="link-home" id="loginFormButton"><span>{% trans "Home" %}</span></a></li>
+                      <li><a href="{% url "index" %}" class="link-home" id="loginFormButton"><span>{% trans "Home" %}</span></a></li>
                     {% endif %}
                     <li style="display: none; margin-top: -35px; margin-right: 5px;"><a id="sigma-exit-fullscreen" class="link" title="{% trans "Exit fullscreen" %}">{% trans "Exit fullscreen" %}</a></li>
                   </ul>
@@ -126,7 +126,7 @@
     {% endblock %}
 
     {% block scripts %}
-      <script src="{% url django.views.i18n.javascript_catalog %}"></script>
+      <script src="{% url "django.views.i18n.javascript_catalog" %}"></script>
       <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
       <script src="{{ STATIC_PREFIX }}js/jquery.cookie.js"></script>
       <script src="{{ STATIC_PREFIX }}js/spin.1.2.7.js"></script>

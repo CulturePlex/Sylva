@@ -15,7 +15,7 @@
 <link rel="stylesheet" type="text/css" href="{{ STATIC_PREFIX }}css/chosen.css" />
 <script type="text/javascript">
     function setPermission(userID, objectStr, permissionStr) {
-        $.ajax({url: "{% url change_permission graph.slug %}",
+        $.ajax({url: "{% url "change_permission" graph.slug %}",
             data: {user_id: userID,
                 object_str: objectStr,
                 permission_str: permissionStr},
@@ -32,7 +32,7 @@
         init = function() {
             $('.chzn-select').ajaxChosen({
                 type: 'GET',
-                url: '{% url graph_ajax_collaborators graph.slug %}',
+                url: '{% url "graph_ajax_collaborators" graph.slug %}',
                 dataType: 'json'
             }, function (data) {
                 var results = {};

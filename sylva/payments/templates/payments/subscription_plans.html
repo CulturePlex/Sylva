@@ -41,7 +41,7 @@
           {% if is_basic %}
             <a href="javascript:void(0)" class="btn btn-large" disabled="disabled">{% trans "Already subscribed" %}</a>
           {% else %}
-            <a href="{% url subscription_basic %}?action={% if is_premium %}downgrade{% else %}subscribe{% endif %}" class="btn btn-large">
+            <a href="{% url "subscription_basic" %}?action={% if is_premium %}downgrade{% else %}subscribe{% endif %}" class="btn btn-large">
               {% if is_premium %}
                 {% blocktrans with name=basic_plan.name %}Downgrade to {{ name }}{% endblocktrans %}
               {% else %}
@@ -61,7 +61,7 @@
           <li>{% trans "Feature Four" %}</li>
         </ul>
         <div>
-          <a href="{% url subscription_premium %}?action={% if is_basic %}upgrade{% elif is_premium %}add-instance{% else %}subscribe{% endif %}" class="btn btn-large">
+          <a href="{% url "subscription_premium" %}?action={% if is_basic %}upgrade{% elif is_premium %}add-instance{% else %}subscribe{% endif %}" class="btn btn-large">
             {% if is_basic %}
               {% blocktrans with name=premium_plan.name %}Upgrade to {{ name }}{% endblocktrans %}
             {% elif is_premium %}
@@ -123,7 +123,7 @@
             {% if is_basic %}
               <a href="javascript:void(0)" class="btn btn-large" disabled="disabled">{% trans "Already subscribed" %}</a>
             {% else %}
-              <a href="{% url subscription_basic %}?action={% if is_premium %}downgrade{% else %}subscribe{% endif %}" class="btn btn-large">
+              <a href="{% url "subscription_basic" %}?action={% if is_premium %}downgrade{% else %}subscribe{% endif %}" class="btn btn-large">
                 {% if is_premium %}
                   {% blocktrans with name=basic_plan.name %}Downgrade to {{ name }}{% endblocktrans %}
                 {% else %}
@@ -133,7 +133,7 @@
             {% endif %}
           </td>
           <td>
-            <a href="{% url subscription_premium %}?action={% if is_basic %}upgrade{% elif is_premium %}add-instance{% else %}subscribe{% endif %}" class="btn btn-large">
+            <a href="{% url "subscription_premium" %}?action={% if is_basic %}upgrade{% elif is_premium %}add-instance{% else %}subscribe{% endif %}" class="btn btn-large">
               {% if is_basic %}
                 {% blocktrans with name=premium_plan.name %}Upgrade to {{ name }}{% endblocktrans %}
               {% elif is_premium %}

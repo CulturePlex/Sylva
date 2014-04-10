@@ -506,14 +506,14 @@ class SchemaTestCase(LiveServerTestCase):
         self.assertEqual(self.browser.title, "SylvaDB - Bob's graph")
         self.browser.find_by_id('allowedRelations').first.click()
         self.browser.select('source', '1')
-        self.browser.find_by_name('name').fill('Bob\'s rel')
+        self.browser.find_by_name('name').fill("Bob's rel")
         self.browser.select('target', '1')
-        self.browser.find_by_id('id_description').fill('This the allowed relationship for Bob\'s graph')
+        self.browser.find_by_id('id_description').fill("This the allowed relationship for Bob's graph")
         self.browser.find_by_value('Save Type').first.click()
         self.assertEqual(self.browser.title, "SylvaDB - Bob's graph")
         text = self.browser.find_by_xpath(
             "//div[@class='form-row indent']/label").first.value
-        self.assertNotEqual(text.find('Bob\'s rel'), -1)
+        self.assertNotEqual(text.find("Bob's rel"), -1)
 
     def test_schema_allowed_rel_addition_deletion(self):
         create_graph(self)
@@ -523,14 +523,14 @@ class SchemaTestCase(LiveServerTestCase):
         self.assertEqual(self.browser.title, "SylvaDB - Bob's graph")
         self.browser.find_by_id('allowedRelations').first.click()
         self.browser.select('source', '1')
-        self.browser.find_by_name('name').fill('Bob\'s rel')
+        self.browser.find_by_name('name').fill("Bob's rel")
         self.browser.select('target', '1')
-        self.browser.find_by_id('id_description').fill('This the allowed relationship for Bob\'s graph')
+        self.browser.find_by_id('id_description').fill("This the allowed relationship for Bob's graph")
         self.browser.find_by_value('Save Type').first.click()
         self.assertEqual(self.browser.title, "SylvaDB - Bob's graph")
         text = self.browser.find_by_xpath(
             "//div[@class='form-row indent']/label").first.value
-        self.assertNotEqual(text.find('Bob\'s rel'), -1)
+        self.assertNotEqual(text.find("Bob's rel"), -1)
         self.browser.find_by_xpath("//div[@class='form-row indent']/div[@class='form-row indent']/a").first.click()
         self.browser.find_by_xpath("//span[@class='buttonLinkOption buttonLinkRight']/a[@class='delete']").first.click()
         self.browser.choose('confirm', '1')

@@ -43,13 +43,13 @@
         <span class="buttonLinkOption buttonLinkRight">
             {% if item_type_id %}
                 {% if item_type == "relationship" %}
-                <a class="delete" href="{% url schema_relationshiptype_delete graph.slug item_type_id %}">{% trans "Remove" %}</a>
+                <a class="delete" href="{% url "schema_relationshiptype_delete" graph.slug item_type_id %}">{% trans "Remove" %}</a>
                 {% endif %}
                 {% if item_type == "node" %}
-                <a class="delete" href="{% url schema_nodetype_delete graph.slug item_type_id %}">{% trans "Remove" %}</a>
+                <a class="delete" href="{% url "schema_nodetype_delete" graph.slug item_type_id %}">{% trans "Remove" %}</a>
                 {% endif %}
             {% endif %}
-            {% trans "or" %} <a href="{% url schema_edit graph.slug %}">{% trans "Cancel" %}</a>.
+            {% trans "or" %} <a href="{% url "schema_edit" graph.slug %}">{% trans "Cancel" %}</a>.
         </span>
 
     </div>

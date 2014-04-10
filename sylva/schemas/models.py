@@ -121,7 +121,7 @@ class Schema(models.Model, SchemaMixin):
             return json.dumps(diagram)
 
     def _import(self, data):
-        with transaction.commit_on_success():
+        with transaction.atomic():
             for node_type, properties in data['nodeTypes'].iteritems():
                 n = NodeType(name=node_type, schema=self)
                 # Saving with color

@@ -197,7 +197,7 @@ class NodesManager(BaseManager):
 
     def create(self, label, properties=None):
         if self.data.can_add_nodes():
-            with transaction.commit_on_success():
+            with transaction.atomic():
                 if self.schema:
                     nodetype = self.schema.nodetype_set.get(pk=label)
                     if not self.graph.relaxed:
@@ -268,7 +268,7 @@ class NodesManager(BaseManager):
                     relationship.delete()
                 nodes_id.append(node_id)
             count = self.gdb.delete_nodes(nodes_id)
-            with transaction.commit_on_success():
+            with transaction.atomic():
                 self.data.total_nodes -= count
                 self.data.save()
                 if self.schema:
@@ -286,7 +286,7 @@ class NodesManager(BaseManager):
             eltos = self.gdb.get_all_nodes(include_properties=False)
             self.gdb.delete_nodes([node_id
                                    for node_id, n_props, n_label in eltos])
-            with transaction.commit_on_success():
+            with transaction.atomic():
                 self.data.total_relationships = 0
                 self.data.save()
                 if self.schema:
@@ -335,7 +335,7 @@ class RelationshipsManager(BaseManager):
         else:
             target_id = target
         if self.data.can_add_relationships():
-            with transaction.commit_on_success():
+            with transaction.atomic():
                 if self.schema:
                     reltype = self.schema.relationshiptype_set.get(pk=label)
                     if not self.graph.relaxed:
@@ -412,7 +412,7 @@ class RelationshipsManager(BaseManager):
             count = self.gdb.delete_relationships(
                 [relationship_id for relationship_id, r_props, r_label in eltos]
             )
-            with transaction.commit_on_success():
+            with transaction.atomic():
                 self.data.total_relationships -= count
                 self.data.save()
                 if self.schema:
@@ -429,7 +429,7 @@ class RelationshipsManager(BaseManager):
         else:
             eltos = self.gdb.get_all_relationships(include_properties=False)
             self.gdb.delete_relationships(eltos)
-            with transaction.commit_on_success():
+            with transaction.atomic():
                 self.data.total_relationships = 0
                 self.data.save()
                 if self.schema:
@@ -460,7 +460,7 @@ class NodeRelationshipsManager(BaseManager):
             source_id = target.id
             target_id = self.node_id
         if self.data.can_add_relationships():
-            with transaction.commit_on_success():
+            with transaction.atomic():
                 if self.schema:
                     reltype = self.schema.relationshiptype_set.get(pk=label)
                     if not self.graph.relaxed:
@@ -717,7 +717,7 @@ class Node(BaseElement):
             self.__delitem__(key)
         else:
             label = self.label
-            with transaction.commit_on_success():
+            with transaction.atomic():
                 self.data.total_nodes -= 1
                 self.data.save()
                 if self.schema:
@@ -834,7 +834,7 @@ class Relationship(BaseElement):
         if key:
             self.__delitem__(key)
         else:
-            with transaction.commit_on_success():
+            with transaction.atomic():
                 self.data.total_relationships -= 1
                 self.data.save()
                 if self.schema:

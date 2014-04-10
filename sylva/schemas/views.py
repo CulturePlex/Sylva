@@ -113,7 +113,7 @@ def schema_nodetype_editcreate(request, graph_slug, nodetype_id=None):
         form = NodeTypeForm(data=data, instance=empty_nodetype)
         formset = NodePropertyFormSet(data=data, instance=empty_nodetype)
         if form.is_valid() and formset.is_valid():
-            with transaction.commit_on_success():
+            with transaction.atomic():
                 node_type = form.save(commit=False)
                 node_type.schema = graph.schema
                 # Checking the color
@@ -218,7 +218,7 @@ def schema_relationshiptype_editcreate(request, graph_slug,
         formset = RelationshipTypeFormSet(data=data,
                                           instance=empty_relationshiptype)
         if form.is_valid() and formset.is_valid():
-            with transaction.commit_on_success():
+            with transaction.atomic():
                 relationshiptype = form.save(commit=False)
                 if (relationshiptype.source.schema != graph.schema
                         or relationshiptype.target.schema != graph.schema):
@@ -472,7 +472,7 @@ def schema_nodetype_edit_color(request, graph_slug):
         nodetype_id = data['nodetypeId']
         color = data['color']
         nodetype = get_object_or_404(NodeType, id=nodetype_id)
-        with transaction.commit_on_success():
+        with transaction.atomic():
             nodetype.set_option('color', color)
             nodetype.save()
         return HttpResponse(status=200, mimetype='application/json')

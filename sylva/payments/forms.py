@@ -1,6 +1,6 @@
 # -*- encoding: utf-8 -*-
 import logging
-import settings
+from django.conf import settings
 
 from django import forms
 from django.utils.translation import ugettext_lazy as _
@@ -36,7 +36,7 @@ class SubscriptionForm(StripePaymentForm):
             if len(customers) == 1:
                 customer = customers[0]
                 account_type = settings.STRIPE_PLANS[plan_id]['account_type']
-                if user.get_profile().account.type != account_type:
+                if user.profile.account.type != account_type:
                     subscription = customer.stripe_subscription
                     subscription.plan = plan
                     subscription.save()

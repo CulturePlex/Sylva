@@ -5,7 +5,7 @@
 
 {% trans "To activate your account you should click on the link below:" %}
 
-    {{ protocol }}://{{ site.domain }}{% url userena_activate activation_key %}
+    {{ protocol }}://{{ site.domain }}{% url "userena_activate" activation_key %}
 {% get_setting OPTIONS as OPTIONS %}{% if OPTIONS.ACTIVATION_EMAIL_BETA_MESSAGE %}
 {% blocktrans with site.name as name %}Please, keep in mind that we are in beta mood and still improving {{ name }}.{% endblocktrans %}
 {% blocktrans %}You have signed up for a Free account. This means that you will enjoy up to:{% endblocktrans %}

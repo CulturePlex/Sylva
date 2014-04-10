@@ -34,7 +34,7 @@
           <input type="submit" value="{% trans "Continue" %}"/>
         </span>
         <span class="buttonLinkOption buttonLinkRight">
-            {% trans "or" %} <a href="{% url schema_edit graph.slug %}">{% trans "Cancel" %}</a>.
+            {% trans "or" %} <a href="{% url "schema_edit" graph.slug %}">{% trans "Cancel" %}</a>.
         </span>
     </div>
 </form>

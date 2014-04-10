@@ -93,7 +93,7 @@ def subscription_cancel(request):
 @is_subscribed
 def subscription_welcome(request):
     user = request.user
-    account = user.get_profile().account
+    account = user.profile.account
     return render_to_response('payments/subscription_welcome.html',
                               {'user': user,
                                'account_name': account.name},
@@ -109,7 +109,7 @@ def subscription_plans(request):
     basic_plan = settings.STRIPE_PLANS['2']
     premium_plan = settings.STRIPE_PLANS['3']
     if user.is_authenticated():
-        account_type = user.get_profile().account.type
+        account_type = user.profile.account.type
         is_basic = account_type == 2
         is_premium = account_type == 3
     return render_to_response('payments/subscription_plans.html',
@@ -126,7 +126,7 @@ def subscription_plans(request):
 def subscription_list(request):
     user = request.user
     customers = user.stripe_customers.all()
-    account_type = user.get_profile().account.type
+    account_type = user.profile.account.type
     is_basic = account_type == 2
     is_premium = account_type == 3
     plan = settings.STRIPE_PLANS[str(account_type)]

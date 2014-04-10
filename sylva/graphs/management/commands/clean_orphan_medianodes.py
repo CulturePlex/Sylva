@@ -23,7 +23,7 @@ class Command(BaseCommand):
 
         self.stdout.write("Searching for empty and orphan MediaNodes...\n")
         for media_node in MediaNode.objects.all():
-            with transaction.commit_on_success():
+            with transaction.atomic():
                 if not media_node.links.exists() and \
                         not media_node.files.exists():
                     self.stdout.write("Deleting empty MediaNode [%s]\n"

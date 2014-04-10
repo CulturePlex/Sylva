@@ -49,7 +49,7 @@ class Command(BaseCommand):
         self.stdout.write("Processing %s graphs...\n" % len(graphs))
         for graph in graphs:
             self.stdout.write("\tGraph [%s] '%s': " % (graph.id, graph.slug))
-            with transaction.commit_on_success():
+            with transaction.atomic():
                 graph.data.total_nodes = graph.nodes.count()
                 graph.data.total_relationships = graph.relationships.count()
                 self.stdout.write("%s nodes, %s relationships\n" \

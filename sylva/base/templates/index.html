@@ -33,7 +33,7 @@
               overlayCss: {backgroundColor: "#f2f2f2"},
               modal: true,
               onClose: function(e) {
-                location.href = "{% url base.views.index %}";
+                location.href = "{% url "base.views.index" %}";
               }
             });
             return false;
@@ -73,15 +73,15 @@
   <nav class="main">
     <ul>
       <li><a href="" class="link plans active" title="{% trans "Coming soon!" %}"><span>{% trans "Plans" %}</span></a></li>
-      <li><a href="{% url signup %}" class="link signup"><span>{% trans "Sign up" %}</span></a></li>
+      <li><a href="{% url "signup" %}" class="link signup"><span>{% trans "Sign up" %}</span></a></li>
       {% if request.user.is_authenticated %}
-        <li><a href="{% url django.contrib.auth.views.logout %}" class="link logout"><span>{% trans "Sign out" %}</span></a></li>
+        <li><a href="{% url "django.contrib.auth.views.logout" %}" class="link logout"><span>{% trans "Sign out" %}</span></a></li>
       {% else %}
-        <li><a href="{% url userena.views.signin %}" class="link login" id="loginFormButton"><span>{% trans "Sign in" %}</span></a></li>
+        <li><a href="{% url "userena.views.signin" %}" class="link login" id="loginFormButton"><span>{% trans "Sign in" %}</span></a></li>
       {% endif %}
     </ul>
     {% if user_is_signedin %}
-      <a href="{% url userena.views.profile_edit request.user %}">{{ request.user }}</a>
+      <a href="{% url "userena.views.profile_edit" request.user %}">{{ request.user }}</a>
     {% endif %}
   </nav>
     <p class="slogan">

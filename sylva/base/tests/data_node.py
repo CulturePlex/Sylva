@@ -70,9 +70,9 @@ class DataNodeTestCase(LiveServerTestCase):
         self.browser.execute_script(js_code)
         self.browser.find_by_id('allowedRelations').first.click()
         self.browser.select('source', '1')
-        self.browser.find_by_name('name').fill('Bob\'s rel')
+        self.browser.find_by_name('name').fill("Bob's rel")
         self.browser.select('target', '1')
-        self.browser.find_by_id('id_description').fill('This the allowed relationship for Bob\'s graph')
+        self.browser.find_by_id('id_description').fill("This the allowed relationship for Bob's graph")
         self.browser.find_by_value('Save Type').first.click()
         self.assertEqual(self.browser.title, "SylvaDB - Bob's graph")
         # We create the link between the nodes
@@ -82,7 +82,7 @@ class DataNodeTestCase(LiveServerTestCase):
         self.browser.find_by_xpath("//li[@class='token-input-input-token']/input").first.fill('Alice')
         self.browser.is_element_present_by_id("id_user_wait", 5)
         self.browser.find_by_xpath("//div[@class='token-input-dropdown']//li[@class='token-input-dropdown-item2 token-input-selected-dropdown-item']/b").first.click()
-        self.browser.find_by_value('Save Bob\'s type').first.click()
+        self.browser.find_by_value("Save Bob's type").first.click()
         self.browser.find_link_by_href('/graphs/bobs-graph/').first.click()
         text = self.browser.find_by_xpath("//div[@class='flags-block']/span[@class='graph-relationships']").first.value
         self.assertEqual(text, "1 relationships")
@@ -91,7 +91,7 @@ class DataNodeTestCase(LiveServerTestCase):
         self.browser.find_by_xpath("//td[@class='dataActions']/a[@class='dataOption list']").first.click()
         self.browser.find_by_xpath("//td[@class='dataList']/a[@class='edit']").first.click()
         self.browser.find_by_xpath("//span[@class='all-relationships incoming-relationships i_bobs_rel1-relationships']//a[@class='delete-row initial-form floating']").first.click()
-        self.browser.find_by_value('Save Bob\'s type').first.click()
+        self.browser.find_by_value("Save Bob's type").first.click()
         self.browser.find_link_by_href('/graphs/bobs-graph/').first.click()
         text = self.browser.find_by_xpath("//div[@class='flags-block']/span[@class='graph-relationships']").first.value
         self.assertEqual(text, "0 relationships")
@@ -122,7 +122,7 @@ class DataNodeTestCase(LiveServerTestCase):
         self.browser.find_by_xpath("//li[@class='token-input-input-token']/input").first.fill('Alice')
         self.browser.is_element_present_by_id("id_user_wait", wait_time=5)
         self.browser.find_by_xpath("//div[@class='token-input-dropdown']//li[@class='token-input-dropdown-item2 token-input-selected-dropdown-item']/b").first.click()
-        self.browser.find_by_value('Save Bob\'s type').first.click()
+        self.browser.find_by_value("Save Bob's type").first.click()
         self.browser.find_link_by_href('/graphs/bobs-graph/').first.click()
         text = self.browser.find_by_xpath("//div[@class='flags-block']/span[@class='graph-relationships']").first.value
         self.assertEqual(text, "1 relationships")
@@ -182,7 +182,7 @@ class DataNodeTestCase(LiveServerTestCase):
         self.browser.find_by_xpath("//li[@class='token-input-input-token']/input").first.fill('Alice')
         self.browser.is_element_present_by_id("id_user_wait", wait_time=5)
         self.browser.find_by_xpath("//div[@class='token-input-dropdown']//li[@class='token-input-dropdown-item2 token-input-selected-dropdown-item']/b").first.click()
-        self.browser.find_by_value('Save Bob\'s type').first.click()
+        self.browser.find_by_value("Save Bob's type").first.click()
         self.browser.find_link_by_href('/graphs/bobs-graph/').first.click()
         text = self.browser.find_by_xpath("//div[@class='flags-block']/span[@class='graph-relationships']").first.value
         self.assertEqual(text, "1 relationships")
@@ -251,7 +251,7 @@ class DataNodeTestCase(LiveServerTestCase):
         self.browser.find_by_xpath("//li[@class='token-input-input-token']/input").first.fill('Alice')
         self.browser.is_element_present_by_id("id_user_wait", wait_time=5)
         self.browser.find_by_xpath("//div[@class='token-input-dropdown']//li[@class='token-input-dropdown-item2 token-input-selected-dropdown-item']/b").first.click()
-        self.browser.find_by_value('Save Bob\'s type').first.click()
+        self.browser.find_by_value("Save Bob's type").first.click()
         # Checking
         self.browser.find_by_xpath("//table[@id='content_table']/tbody/tr/td/p/a[@title='View node' and text()='Alice']").first.click()
         self.browser.is_element_present_by_id('wait_for_js', 3)

@@ -6,7 +6,7 @@ from django.db import models
 from django.db.models.signals import pre_save, post_save
 from django.dispatch import receiver
 
-from guardian.shortcuts import assign, get_users_with_perms, remove_perm
+from guardian.shortcuts import assign_perm, get_users_with_perms, remove_perm
 
 from base.fields import AutoSlugField
 from schemas.models import (Schema, NodeType, NodeProperty, RelationshipType,
@@ -48,7 +48,7 @@ class Graph(models.Model, GraphMixin):
                               related_name='graphs')
     data = models.OneToOneField(Data, verbose_name=_('data'))
     schema = models.OneToOneField(Schema, verbose_name=_('schema'),
-                               null=True, blank=True)
+                                  null=True, blank=True)
     relaxed = models.BooleanField(_('Is schema-relaxed?'), default=False)
     options = models.TextField(_('options'), null=True, blank=True)
 
@@ -187,8 +187,8 @@ class Graph(models.Model, GraphMixin):
                 return all_collaborators.exclude(id__in=[self.owner.id,
                                                  settings.ANONYMOUS_USER_ID])
             else:
-                return list(all_collaborators.exclude(id__in=[self.owner.id,
-                                                  settings.ANONYMOUS_USER_ID]))
+                return list(all_collaborators.exclude(
+                    id__in=[self.owner.id, settings.ANONYMOUS_USER_ID]))
 
 
 @receiver(pre_save, sender=Graph)
@@ -220,11 +220,11 @@ def assign_permissions_to_owner(*args, **kwargs):
                'data': graph.data}
         for permission_type in aux:
             for permission in PERMISSIONS[permission_type].keys():
-                assign(permission, owner, aux[permission_type])
+                assign_perm(permission, owner, aux[permission_type])
     anonymous = User.objects.get(id=settings.ANONYMOUS_USER_ID)
     if graph.public:
         for permission, obj in aux.items():
-            assign("view_%s" % permission, anonymous, obj)
+            assign_perm("view_%s" % permission, anonymous, obj)
     else:
         for permission, obj in aux.items():
             perm = "view_%s" % permission

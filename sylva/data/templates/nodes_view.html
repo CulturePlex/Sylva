@@ -101,7 +101,7 @@
     </div>
     <div id="content3">
         <div class="content3-block">
-            <a href="{% url nodes_edit graph.slug node.id %}" title="{% trans "Edit" %}"><i class="sylva-icon-edit-node16"></i></a>
+            <a href="{% url "nodes_edit" graph.slug node.id %}" title="{% trans "Edit" %}"><i class="sylva-icon-edit-node16"></i></a>
             <h2 class="inline">{% trans "Properties" %}</h2>
             {% if node_properties %}
                 <dl class="node-properties">
@@ -121,12 +121,12 @@
                     {% endfor %}
                 </dl>
             {% else %}
-                {% trans "Empty" %}. <a href="{% url nodes_edit graph.slug node.id %}">{% trans "Add property" %}</a>
+                {% trans "Empty" %}. <a href="{% url "nodes_edit" graph.slug node.id %}">{% trans "Add property" %}</a>
             {% endif %}
         </div>
         <div class="content-divider"></div>
         <div class="content3-block relationships">
-            <a href="{% url nodes_edit graph.slug node.id %}" title="{% trans "Edit" %}"><i class="sylva-icon-edit-node16"></i></a>
+            <a href="{% url "nodes_edit" graph.slug node.id %}" title="{% trans "Edit" %}"><i class="sylva-icon-edit-node16"></i></a>
             <select id="h2-relationships" class="inline">
                 <option value="all">{% trans "All Relationships" %}</option>
                 {% if incoming_relationships %}
@@ -183,13 +183,13 @@
                     {% endfor %}
                 {% endif %}
             {% else %}
-                {% trans "Empty" %}. <a href="{% url nodes_edit graph.slug node.id %}">{% trans "Add relationship" %}</a>
+                {% trans "Empty" %}. <a href="{% url "nodes_edit" graph.slug node.id %}">{% trans "Add relationship" %}</a>
             {% endif %}
         </div>
         <div class="content-divider"></div>
         <div class="content3-block">
             <div>
-                <a href="{% url nodes_edit graph.slug node.id %}" title="{% trans "Edit" %}"><i class="sylva-icon-edit-node16"></i></a>
+                <a href="{% url "nodes_edit" graph.slug node.id %}" title="{% trans "Edit" %}"><i class="sylva-icon-edit-node16"></i></a>
                 <h2 id="filesTitle" class="inline">{% trans "Files" %}</h2>
                 {% if media_files %}
                     <dl>
@@ -201,7 +201,7 @@
                 {% endif %}
             </div>
             <div>
-                <a href="{% url nodes_edit graph.slug node.id %}" title="{% trans "Edit" %}"><i class="sylva-icon-edit-node16"></i></a>
+                <a href="{% url "nodes_edit" graph.slug node.id %}" title="{% trans "Edit" %}"><i class="sylva-icon-edit-node16"></i></a>
                 <h2 id="linksTitle" class="inline">{% trans "Links" %}</h2>
                 {% if media_links %}
                     <dl>
@@ -236,9 +236,9 @@
 {% endblock content %}
 {% block extra_scripts %}
     <script type="text/javascript">
-        sylva.nodeViewURL = "{% url nodes_view graph.slug 0 %}";
-        sylva.nodeEditURL = "{% url nodes_edit graph.slug 0 %}";
-        sylva.graphViewURL = "{% url graph_view graph.slug %}";
+        sylva.nodeViewURL = "{% url "nodes_view" graph.slug 0 %}";
+        sylva.nodeEditURL = "{% url "nodes_edit" graph.slug 0 %}";
+        sylva.graphViewURL = "{% url "graph_view" graph.slug %}";
         sylva.is_graph_empty = false;
         sylva.is_schema_empty = false;
         sylva.view_graph_ajax_url = "{{ view_graph_ajax_url }}";

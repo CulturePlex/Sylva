@@ -31,7 +31,7 @@ class DataMixin(object):
             return True
         else:
             try:
-                profile = user.get_profile()
+                profile = user.profile
                 # HACK: Avoid the QuerySet cache
                 account = Account.objects.get(pk=profile.account.id)
                 return (self.total_nodes < account.nodes)
@@ -44,7 +44,7 @@ class DataMixin(object):
             return True
         else:
             try:
-                profile = user.get_profile()
+                profile = user.profile
                 # HACK: Avoid the QuerySet cache
                 account = Account.objects.get(pk=profile.account.id)
                 return (self.total_relationships < account.relationships)

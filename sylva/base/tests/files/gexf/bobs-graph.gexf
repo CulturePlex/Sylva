@@ -18,11 +18,11 @@
             <attribute id="RelationshipTypeId" title="[Schema] Allowed Relationship Id" type="string"/>
         </attributes>
         <nodes>
-                <node id="4" label="2014-03-31 15:45:59" type="Bob&#39;s type">
+                <node id="38" label="1" type="Bob&#39;s type">
                 <attvalues>
                     <attvalue for="NodeTypeId" value="1"/>
                     <attvalue for="NodeType" value="Bob&amp;#39;s type"/>
-                    <attvalue for="n1" value="2014-03-31 15:45:59"/>
+                    <attvalue for="n1" value="1"/>
                 </attvalues>
                 </node></nodes><edges>
         </edges>

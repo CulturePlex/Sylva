@@ -58,7 +58,7 @@
           {% for row in option.2 %}
             <tr>
               <td>
-                <a href="{% url nodes_edit graph.slug row|last %}">
+                <a href="{% url "nodes_edit" graph.slug row|last %}">
                   {{ forloop.counter }}
                 </a>
               </td>
@@ -69,7 +69,7 @@
                   </td>
                 {% else %}
                   <td class="{{ option.0|slugify }}_{{ forloop.counter }}">
-                    <a id="rel_edit_{{ cell }}" href="{% url nodes_edit graph.slug row|last %}">
+                    <a id="rel_edit_{{ cell }}" href="{% url "nodes_edit" graph.slug row|last %}">
                       {{ cell }}
                     </a>
                   </td>
@@ -84,14 +84,14 @@
       </div>
   {% empty %}
     {% block empty_for %}
-      <a class="button" href="{% url schema_nodetype_create graph.slug %}">{% trans "New Type" %}</a>
+      <a class="button" href="{% url "schema_nodetype_create" graph.slug %}">{% trans "New Type" %}</a>
       <span class="buttonLinkOption">
       {% trans "There are no types defined yet." %}
       </span>
     {% endblock %}
   {% endfor %}
   {% if graph.data.total_nodes == 0 and graph.data.total_relationships == 0 and option_list or graph.relaxed %}
-    <a class="button" href="{% url tool_import graph.slug %}">
+    <a class="button" href="{% url "tool_import" graph.slug %}">
       {% trans "Import" %}
     </a>
     <span class="buttonLinkOption">

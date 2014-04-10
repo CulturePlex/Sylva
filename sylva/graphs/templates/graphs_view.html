@@ -144,9 +144,9 @@
 
 {% block extra_scripts %}
 <script type="text/javascript">
-  sylva.nodeViewURL = "{% url nodes_view graph.slug 0 %}";
-  sylva.nodeEditURL = "{% url nodes_edit graph.slug 0 %}";
-  sylva.graphViewURL = "{% url graph_view graph.slug %}";
+  sylva.nodeViewURL = "{% url "nodes_view" graph.slug 0 %}";
+  sylva.nodeEditURL = "{% url "nodes_edit" graph.slug 0 %}";
+  sylva.graphViewURL = "{% url "graph_view" graph.slug %}";
   sylva.is_graph_empty = {{ is_graph_empty|slugify }};
   sylva.is_schema_empty = {{ is_schema_empty|slugify }};
   sylva.view_graph_ajax_url = "{{ view_graph_ajax_url }}";

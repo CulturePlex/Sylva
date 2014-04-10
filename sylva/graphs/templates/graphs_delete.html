@@ -23,8 +23,8 @@
 {% block content %}
 <form method="post" action="." id="graphsDelete" name="graphs_delete">
 {% csrf_token %}
-{% url graph_export_gexf graph.slug as data_export %}
-{% url schema_export graph.slug as schema_export %}
+{% url "graph_export_gexf" graph.slug as data_export %}
+{% url "schema_export" graph.slug as schema_export %}
 {{ form.as_p }}
 <div>
 {% blocktrans %}
@@ -34,7 +34,7 @@ Before deleting your graph, remember you can also export the <a href="{{ data_ex
 <br/>
 <input type="submit" value="{% trans "Delete" %}" />
 <span class="buttonLinkOption">
-    {% trans "or" %} <a href="{% url graph_view graph.slug %}">{% trans "Cancel" %}</a>.</span>
+    {% trans "or" %} <a href="{% url "graph_view" graph.slug %}">{% trans "Cancel" %}</a>.</span>
 </form>
 
 {% endblock %}

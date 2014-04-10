@@ -119,8 +119,10 @@ button {
 .button,
 button,
 input[type="text"],
+input[type="number"],
 input[type="password"],
 input[type="email"],
+input[type="url"],
 input[type="submit"],
 input[type="button"],
 textarea,
@@ -1380,9 +1382,17 @@ nav.menu ul li {
     display: block;
 }
 
-.itemtype-properties-table table.subform span.number input[type="text"] {
+.itemtype-properties-table table.subform span.number input {
     width: 25px;
     display: block;
+}
+
+input[type=number]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+}
+
+input[type="url"]::-webkit-validation-bubble-message {
+    display:none;
 }
 
 .itemtype-properties-table input[type="checkbox"] {

@@ -1,8 +1,8 @@
-.. image:: https://travis-ci.org/CulturePlex/Sylva.png?branch=master
+.. image:: https://travis-ci.org/CulturePlex/Sylva.png?branch=develop
   :target: https://travis-ci.org/CulturePlex/Sylva
 
-.. image:: https://coveralls.io/repos/CulturePlex/Sylva/badge.png?branch=master
-  :target: https://coveralls.io/r/CulturePlex/Sylva?branch=master
+.. image:: https://coveralls.io/repos/CulturePlex/Sylva/badge.png?branch=develop
+  :target: https://coveralls.io/r/CulturePlex/Sylva?branch=develop
 
 
 Sylva
