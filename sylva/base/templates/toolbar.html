@@ -41,6 +41,11 @@
 <li><a id="schema-link" href="{% url "schema_edit" graph.slug %}" class="{% if on == "schema" %}text{% else %}link{% endif %}" title="{% trans "Access to the schema of the graph database" %}">
     <span>{% trans "Schema" %}</span>
 </a></li>
+{% if options.ENABLE_REPORTS %}
+    <li><a href="{% url "reports" graph.slug %}" class="{% if on == "reports" %}text{% else %}link{% endif %}">
+        <span>{% trans "Reports" %}</span>
+    </a></li>
+{% endif %}
 <!--<li><a href="{% url "operator_query" graph.slug %}" class="{% if on == "operators" %}text{% else %}link{% endif %}">-->
 <!--    <span>{% trans "Operators" %}</span>-->
 <!--</a></li>-->

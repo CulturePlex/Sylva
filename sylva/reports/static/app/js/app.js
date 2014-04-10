@@ -1,0 +1,99 @@
+'use strict'
+
+
+var reports = angular.module('reports', [
+    'ngCookies',
+    'ngRoute',
+    'ngSanitize',
+    'reports.controllers',
+    'reports.services',
+    'reports.directives', 
+]);
+
+
+// Django settings.
+reports.config([
+    '$httpProvider',
+    function($httpProvider) {
+        $httpProvider.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded';
+        $httpProvider.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+}]);
+
+
+
+// Routing.
+reports.config([ 
+    '$routeProvider',
+    function($routeProvider) {
+        $routeProvider.
+            when('/', {
+                templateUrl: '/static/app/partials/reports.html',
+                controller: 'ReportListCtrl'
+            }).
+            when('/new', {
+                templateUrl: '/static/app/partials/report_form.html',
+                controller: 'NewReportCtrl'
+            }).
+            when('/edit/:reportSlug', {
+                templateUrl: '/static/app/partials/report_form.html',
+                controller: 'EditReportCtrl'
+            }).when('/history/:reportSlug', {
+                templateUrl: '/static/app/partials/report_history.html',
+                controller: 'ReportHistoryCtrl'
+            }).
+            otherwise({
+                redirectTo: '/'
+            });
+}]);
+
+
+
+// Basic interceptor (will need for api interaction, 
+// this is the new interceptors api)
+reports.config(['$httpProvider', function ($httpProvider) {
+    $httpProvider.interceptors.push(function($q) {
+        return {
+            // optional method
+            'request': function(config) {
+                // do something on success
+                //console.log('config', config)
+                return config || $q.when(config);
+            },
+     
+            // optional method
+            'requestError': function(rejection) {
+                // do something on error
+                if (canRecover(rejection)) {
+                    return responseOrNewPromise
+                }
+                return $q.reject(rejection);
+            },
+     
+            // optional method
+            'response': function(response) {
+                // do something on success
+                //console.log('response', response)
+                return response || $q.when(response);
+            },
+     
+            // optional method
+            'responseError': function(rejection) {
+                // do something on error
+                if (canRecover(rejection)) {
+                    return responseOrNewPromise
+                }
+                return $q.reject(rejection);
+            }
+        };
+    });
+
+}]);
+
+
+// Django settings.
+reports.run([
+    '$http', 
+    '$cookies', 
+    function($http, $cookies) {
+        $http.defaults.headers.post['X-CSRFToken'] = $cookies.csrftoken;
+}]);
