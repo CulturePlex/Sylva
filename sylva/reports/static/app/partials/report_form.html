@@ -1,0 +1,136 @@
+<div class="cont">
+
+  <!--Meta Form/Queries-->
+  <div class="content2-first">
+    
+    <div class="input-container">
+      <h2>Report</h2>
+      <!--Design Report View-->
+      <div ng-show="queries">
+        <ul>
+          <li ng-repeat="query in queries">
+            <div draggable id="{{ query.name }}"><h2>{{ query.name }}</h2></div>
+          </li>
+        </ul>
+      </div><!--queries container-->
+      <!--Metadata Form-->
+      <div id="formContainer">
+        <form id="reportForm">
+          <div ng-hide="queries" id="innerForm">
+            <p>
+              <label>Name:
+                <input sy-update-text type="text" ng-model="report.name" placeholder="Report Name" ng-maxlength="25">
+              </label>
+            </p>
+
+            <p>
+              <label> Start date:
+                <input type="text" sy-datepicker ng-model="report.start_date" required="true" view="hours"> 
+              </label> 
+            </p>
+
+            <p>
+              <label>Time:
+                <input type="text"  ng-model="report.start_time" placeholder="hh:mm">
+              </label>
+            </p>
+
+            <p>
+              <label>Frequency:
+                <select ng-model="report.periodicity">
+                  <option value="daily">Daily</option>
+                  <option value="weekly">Weekly</option>
+                  <option value="monthly">Monthly</option>
+                </select>  
+              </label>
+            </p>
+            <p>
+              <label>Description
+                  <textarea form="reportForm" ng-model="report.description">
+                  </textarea>
+              </label>
+            </p>
+          </div> <!--innerForm-->
+          <span class="buttonLinkOption buttonLinkLeft">
+            <input type="submit" value="Save Report" ng-click="saveReport(report)">
+          </span>
+        </form>
+      </div><!--formContainer-->
+    </div> <!--input-container div -->
+  </div><!--content2-first-->
+
+  <!--Report Info/Designer-->
+  <div class="content-divider"></div>
+
+  <div class="content2-cont">
+
+    <div id="row1">
+
+      <div id="col1">
+
+        <div ng-hide="queries">
+          <span ng-bind-html="report.nameHtml" sy-update-text></span>
+        </div>
+
+        <div ng-show="queries">
+          <span ng-bind-html="report.nameHtml"></span>
+        </div>
+
+      </div>
+
+      <div id="col2">
+
+        <div ng-hide="queries">
+          <a class="button" href="" ng-click="designReport()">Design Report</a>
+        </div>
+
+        <div ng-show="queries">
+          <a class="button" href="" ng-click="editMeta()">Edit Metadata</a>
+          <a ng-show="report.table" class="button" href="" ng-click="format()">Format Report</a>
+          
+        </div>
+
+      </div>
+
+    </div><!--row1-->
+
+    <div id="row2">
+      <div ng-show="queries">
+
+      
+          <div sy-editable-table class="editable-table">
+            <div class="report-table">
+              <div class="rows">
+                <div class="trow">
+                  <div class="tcell" id="cell1" sy-droppable sy-merge-cells row="0" col="0" colspan="1" rowspan="1" style="width: 322px;"></div>
+                  
+                  <div class="tcell final" id="cell2" sy-droppable sy-merge-cells row="0" col="1" colspan="1" rowspan="1" style="width: 322px;"></div>
+                
+                </div>
+                <div class="trow bottom">
+                  
+                  <div class="tcell" id="cell3" sy-droppable sy-merge-cells row="1" col="0" colspan="1" rowspan="1" style="width: 322px;"></div>
+                  
+                  <div class="tcell final" id="cell4" sy-droppable sy-merge-cells row="1" col="1" colspan="1" rowspan="1" style="width: 322px;"></div>
+                  
+                </div>
+              </div>
+              <div>
+                <a class="button table-button" href="">add row</a>
+                <a class="button table-button" href="">add column</a>
+              </div>
+            </div>
+            
+            
+          </div>
+
+      </div> <!--show queries-->
+
+    </div> <!--row2-->
+    
+
+  </div>
+
+</div>
+
+        

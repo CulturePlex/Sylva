@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% load i18n graphs static %}
+{# get_static_prefix as STATIC_PREFIX #}
+
+{% block navigation_buttons %}
+  {{ block.super }}
+{% endblock %}
+
+{% block title %}
+  {{ graph_slug }}
+{% endblock %}
+
+  {% block extra_links %}
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.10.4/themes/smoothness/jquery-ui.css">
+    <link rel="stylesheet" type="text/css" href="{{ STATIC_PREFIX }}app/css/reports.css" />
+  {% endblock %}
+
+{% block menu_buttons %}
+  {% toolbar on="reports" %}
+{% endblock %}
+
+{% block content_title %}
+<div>  
+  <header class="reports-header">
+    <h2 >{{ graph }} &raquo; Reports</h2>
+  </header>
+</div>
+{% endblock %}
+
+{% block content %}
+
+  <div ng-app="reports"> 
+    <div ng-view></div>
+
+  </div>
+
+
+
+
+
+  {% block scripts %}
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.0/jquery.min.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/jquery-ui.min.js"></script>
+  {% endblock %}
+  {% block extra_scripts %}
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.0/angular.min.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.0/angular-cookies.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.0/angular-resource.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.0/angular-route.js"></script>
+    <script src= "//ajax.googleapis.com/ajax/libs/angularjs/1.2.0/angular-sanitize.js"></script>
+    
+    <script type="text/javascript" src="{{ STATIC_PREFIX }}app/js/app.js" ></script>
+    <script type="text/javascript" src="{{ STATIC_PREFIX }}app/js/controllers.js" ></script>
+    <script type="text/javascript" src="{{ STATIC_PREFIX }}app/js/services.js" ></script>
+    <script type="text/javascript" src="{{ STATIC_PREFIX }}app/js/directives.js" ></script>
+  {% endblock %}
+
+{% endblock %}
+
