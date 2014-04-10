@@ -1013,7 +1013,7 @@ sigma:true, clearTimeout */
 
     // Start layout algorithm.
     start: function(drawHidden) {
-      var sigInst = sigma.instances()[0];
+      var sigInst = sigma.instances(0);
       if (sigInst) {
         sigInst.startForceAtlas2(drawHidden);
       } else {
@@ -1027,7 +1027,7 @@ sigma:true, clearTimeout */
     // Stop layout algorithm.
     stop: function() {
       this.removeTimeout();
-      var sigInst = sigma.instances()[0];
+      var sigInst = sigma.instances(0);
       if (sigInst) {
         sigInst.stopForceAtlas2();
         isDrawing = false;

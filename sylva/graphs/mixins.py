@@ -34,6 +34,7 @@ class GraphMixin(object):
         self._gdb = None
         self._nodes_manager = None
         self._relationships_manager = None
+        self._analysis_manager = None
 
     def _get_gdb(self):
         if not self._gdb:
@@ -52,6 +53,13 @@ class GraphMixin(object):
             self._relationships_manager = RelationshipsManager(self)
         return self._relationships_manager
     relationships = property(_get_relationships)
+
+    def _get_analysis(self):
+        if not self._analysis_manager:
+            from analytics.models import AnalysisManager
+            self._analysis_manager = AnalysisManager(self)
+        return self._analysis_manager
+    analysis = property(_get_analysis)
 
     def _get_q(self):
         if not self._q:

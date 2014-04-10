@@ -51,16 +51,16 @@
 }
 
 .select-rel {
-    width: 200px;
+    width: 130px;
     margin-top: 10px;
     margin-bottom: 10px;
-    margin-left: 5px;
+    margin-left: 7px;
     padding: 0;
     display: inline;
 }
 
 #add-relation-icon {
-    margin-left: 101px;
+    margin-left: 199px;
 }
 
 #add-relation-icon-wildcard {
@@ -79,7 +79,7 @@
 }
 
 #remove-relation-icon, #remove-relation-icon-wild {
-    margin-left: 200px;
+    margin-left: 230px;
 }
 
 #icon-toggle {
@@ -146,8 +146,8 @@
 .select-and-or {
     width: 50px;
     padding: 0;
-    margin-top: 10px;
     margin-left: 2%;
+    float: left;
 }
 
 .wildCardInput {

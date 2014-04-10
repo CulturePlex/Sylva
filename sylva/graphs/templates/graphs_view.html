@@ -152,17 +152,18 @@
   sylva.view_graph_ajax_url = "{{ view_graph_ajax_url }}";
   sylva.edit_nodetype_color_ajax_url = "{{ edit_nodetype_color_ajax_url }}";
 </script>
-
-<script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/sigma/sigma.min.js"></script>
-<script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/sigma/plugins/sigma.layout.forceAtlas2.js"></script>
+<script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/sigma/sigma.js"></script>
+<script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/sigma/plugins/sigma.layout.forceAtlas2.min.js"></script>
 <script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/sigma/plugins/sigma.parsers.gexf.min.js"></script>
 <script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/sigma/plugins/sigma.parsers.json.min.js"></script>
 <script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/sigma/plugins/sigma.plugins.animate.min.js"></script>
+<script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/sigma/plugins/sigma.plugins.dragNodes.min.js"></script>
 <script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/sigma/plugins/sigma.plugins.neighborhoods.min.js"></script>
 <script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/sigma/plugins/sigma.renderers.customShapes.min.js"></script>
-<script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/sigma/plugins/sigma.renderers.extra.js"></script>
+
 <script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/colpick/colpick.js"></script>
 <script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/colpick/rgbcolor.js"></script>
+
 <script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/visualization-utils.js"></script>
 <script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/sigma-visualization.js"></script>
 <script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/visualizations.js"></script>

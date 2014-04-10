@@ -150,10 +150,10 @@ class DataNodeTestCase(LiveServerTestCase):
         self.browser.is_element_present_by_id('wait_for_js', 3)
         js_code = '''
             var instance = sigma.instances(0);
-            sigma.test_node_count = instance.graph.nodes().length;
+            sylva.test_node_count = instance.graph.nodes().length;
             '''
         self.browser.execute_script(js_code)
-        text = self.browser.evaluate_script('sigma.test_node_count')
+        text = self.browser.evaluate_script('sylva.test_node_count')
         self.assertEqual(text, 0)
         Graph.objects.get(name="Bob's graph").destroy()
 
@@ -257,10 +257,10 @@ class DataNodeTestCase(LiveServerTestCase):
         self.browser.is_element_present_by_id('wait_for_js', 3)
         js_code = '''
             var instance = sigma.instances(0);
-            sigma.test_node_count = instance.graph.nodes().length;
+            sylva.test_node_count = instance.graph.nodes().length;
             '''
         self.browser.execute_script(js_code)
-        text = self.browser.evaluate_script('sigma.test_node_count')
+        text = self.browser.evaluate_script('sylva.test_node_count')
         self.assertEqual(text, 2)
         Graph.objects.get(name="Bob's graph").destroy()
 
