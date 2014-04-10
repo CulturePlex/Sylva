@@ -237,6 +237,11 @@ diagram.lookupsValuesType = {
 
             relationsIds.push(wildCardRelId);
 
+            // This 'if' is to initialize the dictionary for
+            // the wildcard box
+            if(!diagram.relindex[idBox])
+                diagram.relindex[idBox] = 1;
+
             selectAllRel.append(optionRelWildcard);
 
             // Link to add the relations
@@ -1460,11 +1465,9 @@ diagram.lookupsValuesType = {
             helpText.css({
                 "font-style": "italic"
             });
-            helpText.html("(" + gettext("drag me") + ")");
 
             divAllRel.append(listRelElement);
             divAllRel.append(removeRelation);
-            divAllRel.append(helpText);
 
             $('#' + boxrel).append(divAllRel);
         }
@@ -1472,6 +1475,8 @@ diagram.lookupsValuesType = {
         diagram.recalculateAnchor(idBox, idAllRels);
         // Recalculate anchor for target endpoints
         //diagram.recalculateAnchorTarget(idBox);
+
+        $('.endpoint-image').attr("title", "drag me!")
 
         jsPlumb.repaintEverything();
     });
@@ -1678,6 +1683,8 @@ diagram.lookupsValuesType = {
         if(condition) {
             if(value == "is between") {
                 // two inputs - we check if we have introduced an input field
+                var inputValueFirst = $this.next().val();
+                var inputValueSecond = $this.next().next().val();
                 if(tagName == "INPUT" || tagName == "SELECT") {
                     $this.next().remove();
                     if(tagName == "INPUT") {
@@ -1686,6 +1693,12 @@ diagram.lookupsValuesType = {
                 }
                 $this.after("<input style=\"width: 35px; margin-left: 5%; margin-top:3%;\" />");
                 $this.after("<input style=\"width: 35px; margin-left: 5%; margin-top:3%;\" />");
+                // We keep the value of the inputs
+                if(inputValueFirst) {
+                    $this.next().val(inputValueFirst);
+                } else if(inputValueSecond) {
+                    $this.next().next().val(inputValueSecond);
+                }
             } else if((value == "has some value") || (value == "has no value")) {
                 // no inputs
                 if(tagName == "INPUT" || tagName == "SELECT") {
@@ -1696,6 +1709,7 @@ diagram.lookupsValuesType = {
                 }
             } else {
                 // one input - we check if we have introduced an input field
+                var inputValue = $this.next().val();
                 if(tagName == "INPUT" || tagName == "SELECT") {
                     $this.next().remove();
                     if(tagName == "INPUT") {
@@ -1703,6 +1717,10 @@ diagram.lookupsValuesType = {
                     }
                 }
                 $this.after("<input style=\"width: 60px; margin-left: 8px;\" />");
+                // We keep the value of the input
+                if(inputValue) {
+                    $this.next().val(inputValue);
+                }
             }
         } else {
             // In this branch, the type would be boolean, choices, date or user
@@ -1873,7 +1891,7 @@ diagram.lookupsValuesType = {
                 $.unblockUI();
             },
             error: function (e) {
-                $("#results").html(gettext("Sorry, was an error in the server: Please, refresh the page and try again."));
+                $("#results").html(gettext("Sorry, was an error in the server: Please, refresh the page and try again. If the error continues, check if the database is running."));
                 $('#query-builder-query').hide();
                 $('#query-builder-results').show();
                 $('#results').show();
