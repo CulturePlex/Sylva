@@ -14,7 +14,7 @@ from graphs.models import Graph, Schema
 
 @permission_required("schemas.view_schema",
                      (Schema, "graph__slug", "graph_slug"), return_403=True)
-@is_enabled(settings.ENABLE_REPORT)
+@is_enabled(settings.ENABLE_REPORTS)
 def reports_index_view(request, graph_slug):
     c = {}
     c.update(csrf(request))
