@@ -40,8 +40,7 @@ directives.directive('syEditableTable', ['$compile', function ($compile) {
         restrict: 'A',
         link: function(scope, elem, attrs) {
             var ang = angular.element
-            ,   children = elem.children()
-            ,   table = ang(children[0])
+            ,   table = ang(elem.children()[0])
             ,   rowCont = ang(table.children()[0])
             ,   rowWidth = parseInt(rowCont.css('width'))
             ,   buttons = ang(table.children()[1])
@@ -54,19 +53,20 @@ directives.directive('syEditableTable', ['$compile', function ($compile) {
                 scope.report.tarray = tarray;    
             }, 1000)
            
-            addRow.bind('click', function () {
-                var tds = '';
 
-                var id = numRows * numCols
+            addRow.bind('click', function () {
+                var cells = ''
+                ,   yndx = numRows
+                ,   id = numRows * numCols
+                ,   lastRow = rowCont.children()[numRows - 1]
                 ,   width = rowWidth / numCols - ((numCols + 1) * 2 / numCols) + 'px';
-                
-                for (var i=0; i<numCols; i++) {
+                ang('.tcell').css('width', width);
+                ang('.tcell-final').css('width', width);
+                ang(lastRow).removeClass('bottom');
+                for (var i = 0; i < numCols; i++) {
                     if (i === numCols - 1) {
-                        var yndx = numRows
-                        ,   xndx = i;
-                        tds = 
-                            tds + 
-                            '<div sy-droppable sy-merge-cells class="tcell-final" id="cell' + 
+                        cells += 
+                            '<div sy-droppable sy-merge-cells class="tcell final" id="cell' + 
                             id++ + 
                             '" style="width:' + 
                             width + 
@@ -75,16 +75,13 @@ directives.directive('syEditableTable', ['$compile', function ($compile) {
                             '" rowspan="' +
                             1 +
                             '" col="' +
-                            xndx +
+                            i +
                             '" colspan="' +
                             1 + 
                             '">';
                     } else {
-                        // compile cells during this step
-                        var yndx = numRows
-                        ,   xndx = i;
-                        tds = 
-                            tds + 
+                        // compile cells during this step???
+                        cells += 
                             '<div sy-droppable sy-merge-cells class="tcell" id="cell' + 
                             id++ + 
                             '" style="width:' + 
@@ -94,103 +91,73 @@ directives.directive('syEditableTable', ['$compile', function ($compile) {
                             '" rowspan="' +
                             1 +
                             '" col="' +
-                            xndx +
+                            i +
                             '" colspan="' +
                             1 + 
                             '"></div>';
                     }
                 }
-                ang('.tcell').css('width', width);
-                ang('.tcell-final').css('width', width);
-                var row = $compile('<div class="trow">' + tds + '</div>')(scope)
-                ,   bottomRow = $compile('<div class="trow-bottom">' + tds + '</div>')(scope)
-                ang('.trow-bottom').remove();
-                rowCont.append(row)
+                var bottomRow = $compile('<div class="trow bottom">' + cells + '</div>')(scope)
                 rowCont.append(bottomRow);
-                // add row method here
+                // add row method here for model data structure instead of new array
                 scope.$apply(function () {
-                    var rowCont = ang(ang(elem.children()[0]).children()[0])
                     scope.report.tarray = new TableArray(rowCont)
                 });
                 numRows++;
-                console.log('added row', scope.report.tarray)
             });
 
+
             addCol.bind('click', function () {
-                //if (numCols < 4) {
-                    var width;
-                    var pad;
-                    if (numRows > 2) {
-                        pad = (1 / (numCols)) + 0.3;
-                    } else {
-                        pad = (1 / (numCols)) + 0.15;
-                    } 
-                                
+                //if (numCols < 4) {     
                     var rows = rowCont.children()
                     ,   id = 0
                     ,   width = rowWidth / (numCols + 1) - ((numCols + 2) * 2 / (numCols + 1)) + 'px';
-                    console.log('newWIdth', width)
-                    ang('.tcell-final').removeClass('tcell-final').addClass('tcell');
-                    for (var i=0; i<rows.length; i++) {
-                        console.log('rows')
-                        var el = rows[i];
-                        var tds = ang(el).children();
-                        console.log('tds', tds)
-                        for (var k=0; k<tds.length; k++) {
-                            var cellClass = ang(tds[k])[0].classList[0];
-                            if (cellClass !== 'divider') {
-                               ang(tds[k]).attr('id', 'cell' + id).css('width', width)
-                               console.log('cell', tds[k])
-                               id++
-                            }
+                    for (var i = 0; i < rows.length; i++) {
+                        var row = rows[i]
+                        ,   cells = ang(row).children();
+                        ang(cells[cells.length - 1]).removeClass('final');
+                        for (var k = 0; k < cells.length; k++) {
+                            var cellClass = ang(cells[k])[0].classList[0];
+                            ang(cells[k]).attr('id', 'cell' + id).css('width', width);
+                            id++;
                         }
-                        var yndx = i
-                        var xndx = el.length
                         var cell = $compile(
-                            '<div sy-droppable sy-merge-cells class="tcell-final" id="cell' + 
+                            '<div sy-droppable sy-merge-cells class="tcell final" id="cell' + 
                             id + 
                             '" style="width:' + 
                             width + 
                             '" row="' +
-                            yndx +
+                            i +
                             '" rowspan="' +
                             1 +
                             '" col="' +
-                            xndx +
+                            row.length +
                             '" colspan="' +
                             1 +
                             '">'
                         )(scope);
-                        //console.log('cell', cell)
-                        id++
-                        ang(el).append(cell)
+                        ang(row).append(cell);
+                        id++;
                     }
                     numCols++;
                     scope.$apply(function () {
-                        var rowCont = ang(ang(elem.children()[0]).children()[0])
-                        scope.report.tarray = new TableArray(rowCont)
+                        scope.report.tarray = new TableArray(rowCont);
                      });
                 //} else {
                 //    alert('Max 4 Columns, add as many rows as you want')
                 //}
-                
-                
             });
 
 
-
-            //Maybe this should be a provider
+            //This should be a provider
             function TableArray(table) {
                 this.tableArray = [];
                 var self = this
                 ,   rows = ang(table.children());
-                
                 angular.forEach(rows, function (el) {
-                    
                     var row = rowMapper(el)
                     self.tableArray.push(row);
                 });
-                console.log('ta', this.tableArray)
             };
 
             TableArray.prototype.findAdjCells = function(row, col) {
@@ -200,7 +167,6 @@ directives.directive('syEditableTable', ['$compile', function ($compile) {
                 if (this.tableArray[row][col + 1]) adjs.push('right');
                 if (row < this.tableArray.length - 1 && this.tableArray[row + 1][col]) adjs.push('down');
                 return adjs;
-
             };
 
             TableArray.prototype.addRow = function(tr) {
@@ -209,12 +175,15 @@ directives.directive('syEditableTable', ['$compile', function ($compile) {
             };
 
             TableArray.prototype.addCol = function() {
-                this.tableArray.map(function (el) {el.push('<td sy-droppable sy-merge-cells></td>')})
+                this.tableArray.map(function (el) {
+                    el.push('<td sy-droppable sy-merge-cells></td>')
+                });
             };
 
             TableArray.prototype.jsonify = function() {
                 console.log('jsonify')
             }
+
 
             function rowMapper(tr) {
                 var row = []
@@ -260,39 +229,19 @@ directives.directive('syMergeCells', ['$parse', '$window', function ($parse, $wi
                     var row = parseInt(elem.attr('row'))
                     ,   col = parseInt(elem.attr('col'))
                     ,   adjs = scope.report.tarray.findAdjCells(row, col);
-                    //debugger;
                     angular.forEach(adjs, function (el) {
-                        elem.append(arrowHtml[el])
+                        elem.append(arrowHtml[el]);
                     });
-                    arrows = true;
-                    
+                    arrows = true;   
                 }  
             });
+
 
             elem.bind("mouseout", function (event) {
                 elem.remove('#arrow')
                 ang('.arrow').remove()
                 arrows = false;
-                //elem.append('<h5>sadf</h5>')
             });
-
-            win.bind("click", function(event) {
-                console.log('click')
-                ang("div.custom-menu").hide();
-                scope.report.openCtxMenu = true;
-            });
-
-            win.bind('keyup', function(event) {
-                if (scope.report.openCtxMenu && event.keyCode === 27) 
-                    ang("div.custom-menu").hide();  
-            });
-
-            var ctxMenu = "<div class='custom-menu'><ul>" + 
-                          "<li><a href=''>merge up</a><br></li>" +
-                          "<li><a href=''>merge down</a><br></li>" +
-                          "<li><a href=''>merge right</a><br></li>" +
-                          "<li><a href=''>merge left</a><br></li>" +
-                          "</ul></div>";
         }
     }
 }]);
@@ -304,9 +253,6 @@ directives.directive('syDroppable', function() {
         link: function(scope, element, attrs) {
         // again we need the native object
             var el = element[0];
-            //console.log('attr', attrs)
-
-            //console.log('link', element);
             el.addEventListener(
                 'dragover',
                 function(e) {

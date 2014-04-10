@@ -74,7 +74,7 @@
 
 }
 
-.trow-bottom {
+.trow.bottom {
   border-top: 2px solid #348E82;
   border-bottom: 2px solid #348E82;
   width: 100%;
@@ -91,10 +91,7 @@
 }
 
 
-.tcell-final {
-  height: 100%;
-  float: left;
-  border-left: 2px solid #348E82;
+.tcell.final {
   border-right: 2px solid #348E82;
 }
 
