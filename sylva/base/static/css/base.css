@@ -1559,6 +1559,7 @@ table.content-table {
 
 .zoom {
     margin-bottom: 5px;
+    height: 15px;
 }
 
 .zoom-left {
@@ -1569,6 +1570,31 @@ table.content-table {
     -webkit-border-top-right-radius: 0;
     -webkit-border-bottom-right-radius: 0;
     margin-left: -5px;
+}
+
+.zoom-home {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+    -moz-border-top-right-radius: 0;
+    -moz-border-bottom-right-radius: 0;
+    -webkit-border-top-right-radius: 0;
+    -webkit-border-bottom-right-radius: 0;
+
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    -moz-border-top-left-radius: 0;
+    -moz-border-bottom-left-radius: 0;
+    -webkit-border-top-left-radius: 0;
+    -webkit-border-bottom-left-radius: 0;
+
+    margin-left: -14px;
+
+    padding-left: 4px;
+    padding-right: 4px;
+}
+
+.zoom-home:active {
+    padding: 5px 4px;
 }
 
 .zoom-right {

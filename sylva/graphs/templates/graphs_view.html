@@ -32,7 +32,10 @@
   </div>
   <div class="graph-controls">
     <div class="sigma-checkbox" style="display:none;">
-      <a id="sigma-zoom-in" class="button icon-plus zoom zoom-left" style="font-size:100%;" title="{% trans "Zoom in" %}"></a>
+      <a id="sigma-zoom-in" class="button icon-plus zoom zoom-left" title="{% trans "Zoom in" %}"></a>
+    </div>
+    <div class="sigma-checkbox" style="display:none;">
+      <a id="sigma-zoom-home" class="button icon-home zoom zoom-home" style="font-size:100%;" title="{% trans "Re-center graph" %}"></a>
     </div>
     <div class="sigma-checkbox" style="display:none;">
       <a id="sigma-zoom-out" class="button icon-minus zoom zoom-right" style="font-size:100%;" title="{% trans "Zoom out" %}"></a>
@@ -42,8 +45,8 @@
       <label for="sigma-node-info" title="{% trans "Show node info" %}">{% trans "Node info" %}</label>
     </div>
     <div class="sigma-checkbox" style="display:none;">
-      <input type="checkbox" id="sigma-hidden-layout">
-      <label for="sigma-hidden-layout" title="{% trans "Consider the hidden nodes to the layout" %}">{% trans "Hidden nodes layout" %}</label>
+      <input type="checkbox" id="sigma-hidden-layout" checked="checked">
+      <label for="sigma-hidden-layout" title="{% trans "Ignore the hidden nodes for apply the layout" %}">{% trans "Ignore hidden nodes" %}</label>
     </div>
     <select id="sigma-graph-layout" style="display:none;">
       <option id="label" disabled selected>{% trans "Graph layout" %}</option>
@@ -65,7 +68,7 @@
       <option id="curve">{% trans "Curve" %}</option>
     </select>
     <div class="sigma-checkbox" style="display:none; float:right;">
-      <a id="sigma-go-fullscreen" class="button" style="font-size:100%;" title="{% trans "Fullscreen" %}">{% trans "Fullscreen" %}</a>
+      <a id="sigma-go-analytics" class="button" style="font-size:100%;" title="{% trans "Analytics" %}">{% trans "Analytics" %}</a>
     </div>
     <div class="sigma-checkbox" style="display:none; float:right;">
       <a id="sigma-export-image" class="button" style="font-size:100%;" title="{% trans "Save as a PNG image" %}" download="{{ graph.slug }}.png">{% trans "Save as image" %}</a>

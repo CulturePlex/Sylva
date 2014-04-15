@@ -21,7 +21,7 @@ sigma:true, clearTimeout */
   var isFullscreenByButton = false;
   // True when the nodes degrees are calculated.
   var degreesCalculated = false;
-  // It saves the link in the Sylva logo when Sylva goes in fullscreen mode.
+  // It saves the link in the Sylva logo when Sylva goes in "Analytics" mode.
   var linkLogo;
   // It's used when the user select a diferent edges shape than the original.
   var defaultEdgeSaved = false;
@@ -39,7 +39,7 @@ sigma:true, clearTimeout */
       var minNodeSize = 1;
       var degreeMinNodeSize = 2;
       var maxNodeSize = 8;
-      var fullscreenMaxNodeSize = 8;
+      var analyticsMaxNodeSize = 8;
       var mediumGraphSize = 20;
       var bigGraphSize = 50;
       var defaultMultiplier = 1;
@@ -569,8 +569,27 @@ sigma:true, clearTimeout */
         }
       });
 
-      // Go fullscreen.
+      // Go analytics mode.
+      $('#sigma-go-analytics').on('click', function() {
+        goAnalyticsMode();
+      });
+
+      // Exit analytics mode.
+      $('#sigma-exit-analytics').on('click', function() {
+        stopAnalyticsMode();
+      });
+
+      // Go fullscreen mode.
       $('#sigma-go-fullscreen').on('click', function() {
+        goFullscreenMode();
+      });
+
+      // Exit fullscreen mode.
+      $('#sigma-exit-fullscreen').on('click', function() {
+        exitFullscreenMode();
+      });
+
+      var goFullscreenMode = function() {
         var elem = $('body')[0];
         if (elem.requestFullscreen) {
           elem.requestFullscreen();
@@ -581,10 +600,11 @@ sigma:true, clearTimeout */
         } else if (elem.webkitRequestFullScreen) {
           elem.webkitRequestFullScreen();
         }
-      });
+        $('#sigma-go-fullscreen').hide();
+        $('#sigma-exit-fullscreen').show();
+      };
 
-      // Exit fullscreen.
-      $('#sigma-exit-fullscreen').on('click', function() {
+      var exitFullscreenMode = function() {
         if (document.exitFullscreen) {
           document.exitFullscreen();
         } else if (document.mozCancelFullScreen) {
@@ -594,41 +614,63 @@ sigma:true, clearTimeout */
         } else if (document.webkitCancelFullScreen) {
           document.webkitCancelFullScreen();
         }
-      });
+        $('#sigma-exit-fullscreen').hide();
+        $('#sigma-go-fullscreen').show();
+      };
 
-      // Handle the fullscreen mode changes.
-      var handleFullscreen = function() {
+      var isFullscreenMode = function() {
+        return (document.fullScreenElement && document.fullScreenElement !== null)
+          || (document.mozFullScreen || document.webkitIsFullScreen);
+      }
+
+      var handleFullscreenMode = function() {
         if (isFullscreenByButton) {
           isFullscreenByButton = false;
-          stopFullscreen();
+          exitFullscreenMode();
         } else {
           isFullscreenByButton = true;
-          goFullscreen();
+          goFullscreenMode();
         }
       };
 
-      /* Update some sizes in fullscreen mode. This function will be called
+      // Listeners for handle the "fullscreen" events.
+      $(document).on('fullscreenchange', handleFullscreenMode);
+      $(document).on('mozfullscreenchange', handleFullscreenMode);
+      $(document).on('webkitfullscreenchange', handleFullscreenMode);
+
+      /* Update some sizes in analytics mode. This function will be called
        * when changes in the size of the screen occurr, e.g., when the user
-       * open the developers tools in fullscreen mode.
+       * open the developers tools in analytics mode.
        */
       var updateSizes = function() {
-        var height = $(window).height();
-        var width = $(window).width();
-        var fullscreenHeader = 51;
-
-        $('header').width(width);
-        $('#main').width(width);
-        $('div.inside.clearfix').width(width);
-        $('#body').width(width);
+        var height = Math.max(document.documentElement.clientHeight,
+          window.innerHeight || 0);
+        var width = Math.max(document.documentElement.clientWidth,
+          window.innerWidth || 0);
 
         var trueHeaderHeight =  $('div.inside.clearfix').height();
-        $('#body').height(height - trueHeaderHeight);
+        var analyticsHeader = trueHeaderHeight + 2;
+
+        $('header').css({
+          width: width,
+          paddingLeft: 0,
+          paddingRight: 0
+        });
+        $('#main').width(width);
+        $('div.inside.clearfix').width(width);
+        $('#body').css({
+          width: width - 20,
+          margin: 0,
+          paddingRight: 0
+        });
+
+        $('#body').height(height - trueHeaderHeight - 16);
 
         // The new width will be: screenWidth - leftWhiteSpace - canvasInfo- rightWhiteSpace - sigmaWrapperBorder - (safeSpace between canvasInfo and canvas)
         $('#sigma-wrapper').width(width);
 
         // The new height will be: screenHeight - header - whiteSpace - graphControls - (border + padding from canvasInfo) - whiteSpace
-        $('#sigma-wrapper').height(height - fullscreenHeader);
+        $('#sigma-wrapper').height(height - analyticsHeader);
 
         var top = height - 97;
         var left = width - 52;
@@ -637,12 +679,14 @@ sigma:true, clearTimeout */
           left: left + "px"
         });
 
-        sigInst.renderers[0].resize(width, height - fullscreenHeader);
+        var renderer = sigInst.renderers[0];
+        var container = $(renderer.container);
+        renderer.resize(container.width(), container.height());
         sigInst.refresh();
       };
 
-      /* Update some sizes and styles in fullscreen mode, but only needed when
-       * the fullscreen mode is activated.
+      /* Update some sizes and styles in analytics mode, but only needed when
+       * the analytics mode is activated.
        */
       var updateStyles = function() {
         $('#body').css({
@@ -652,13 +696,12 @@ sigma:true, clearTimeout */
 
         $('#sigma-wrapper').css({
           border: "none",
-          marginRight: "20px",
           marginTop: "-14px"
         });
 
         $('.graph-controls').css({
           position: "absolute",
-          right: "60px",
+          right: "10px",
           paddingTop: "10px",
           paddingRight: "10px",
           borderRadius: "10px",
@@ -677,7 +720,7 @@ sigma:true, clearTimeout */
         });
       };
 
-      // Restore the sizes and styles when exit fullscreen mode.
+      // Restore the sizes and styles when exit analytics mode.
       var restoreSizesAndStyles = function() {
         $('#sigma-pause').removeAttr('style');
         $('#sigma-wrapper').removeAttr('style');
@@ -692,11 +735,11 @@ sigma:true, clearTimeout */
         sigInst.refresh();
       };
 
-      /* Perform the 'real' fullscreen action. Also perform "sytle" actions
+      /* Perform the 'real' analytics action. Also perform "sytle" actions
        * that can't be undone with the "restoreSizesAndStyles()" method.
        */
-      var goFullscreen = function() {
-        $('#sigma-go-fullscreen').hide();
+      var goAnalyticsMode = function() {
+        $('#sigma-go-analytics').hide();
         $('nav.main li').hide();
         $('header.global > h2').hide();
         $('nav.menu').hide();
@@ -709,26 +752,34 @@ sigma:true, clearTimeout */
         $('#link-logo').removeAttr('href');
 
         $('.title-graph-name').show();
-        $('#sigma-exit-fullscreen').parent().show();
+        $('#sigma-go-fullscreen').show();
+        $('#sigma-exit-analytics').show();
+        $('.fullscreen-analytics-mode-controls').show();
 
         sigInst.settings({
-          maxNodeSize: fullscreenMaxNodeSize * sizeMultiplier
+          maxNodeSize: analyticsMaxNodeSize * sizeMultiplier
         });
 
-        updateSizes();
         updateStyles();
+        updateSizes();
 
         $(window).on('resize', updateSizes);
       };
 
-      /* Perform the cancelation of the fullscreen mode. Also perform the
+      /* Perform the cancelation of the analytics mode. Also perform the
        * "remove" of some "sytles" that can't be done with the
        * "restoreSizesAndStyles()" method.
        */
-      var stopFullscreen = function() {
-        $('#sigma-go-fullscreen').show();
+      var stopAnalyticsMode = function() {
+        $(window).off('resize', updateSizes);
+
+        if (isFullscreenMode()) {
+          exitFullscreenMode();
+        }
+
+        $('#sigma-go-analytics').show();
         $('nav.main li').show();
-        $('header.global h2').show();
+        $('header.global > h2').show();
         $('nav.menu').show();
         $('div.graph-item').show();
         $('div#footer').show();
@@ -738,20 +789,17 @@ sigma:true, clearTimeout */
         $('#link-logo').attr('href', linkLogo);
 
         $('.title-graph-name').hide();
-        $('#sigma-exit-fullscreen').parent().hide();
+        $('#sigma-go-fullscreen').hide();
+        $('#sigma-exit-fullscreen').hide();
+        $('#sigma-exit-analytics').hide();
+        $('.fullscreen-analytics-mode-controls').hide();
 
         sigInst.settings({
           maxNodeSize: maxNodeSize * sizeMultiplier
         });
 
-        $(window).off('resize');
         restoreSizesAndStyles();
       };
-
-      // Listeners for handle the "fullscreen" events.
-      $(document).on('fullscreenchange', handleFullscreen);
-      $(document).on('mozfullscreenchange', handleFullscreen);
-      $(document).on('webkitfullscreenchange', handleFullscreen);
 
       var calculateNodesDegrees = function() {
         var nodes = [];
@@ -991,6 +1039,23 @@ sigma:true, clearTimeout */
 
       $('#sigma-zoom-out').on('click', function(event) {
         zooming(false, {x: 0, y: 0});
+      });
+
+      $('#sigma-zoom-home').on('click', function(event) {
+        var _camera = sigInst.cameras[0],
+          count = sigma.misc.animation.killAll(_camera);
+
+        sigma.misc.animation.camera(
+          _camera,
+          {
+            x: 0,
+            y: 0,
+            ratio: 1
+          },
+          {
+            easing: count ? 'quadraticOut' : 'quadraticInOut',
+            duration: sigInst.settings('mouseZoomDuration')
+          });
       });
 
       sigInst.startForceAtlas2();
