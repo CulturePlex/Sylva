@@ -12,6 +12,12 @@ class BaseAnalysis(object):
         """
         raise NotImplementedError("Method has to be implemented")
 
+    def pagerankAux(graph, analytic):
+        """
+        Pagerank method
+        """
+        raise NotImplementedError("Method has to be implemented")
+
     def connected_components(graph, analytic):
         """
         Connected components method
