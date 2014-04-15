@@ -12,6 +12,7 @@ diagram.CurrentModels = [];
 diagram.Counter = 0;
 diagram.CounterRels = 0;
 diagram.fieldCounter = 0;
+diagram.wildcardFieldCounter = 0;
 diagram.fieldRelsCounter = 0;
 diagram.nodetypesCounter = [];
 diagram.reltypesCounter = [];
@@ -270,7 +271,7 @@ diagram.lookupsValuesType = {
             if(typeName != "wildcard") {
                 divTitle = diagram.addTitleDiv(graphName, model, typeName, modelName, idTopBox, idBox, idAllRels, relationsIds);
             } else {
-                divTitle = diagram.addWildcardTitleDiv(graphName, model, typeName, typeName, idTopBox, idBox, relationsIds);
+                divTitle = diagram.addWildcardTitleDiv(graphName, model, typeName, typeName, idTopBox, idBox, idAllRels, relationsIds);
             }
             // Create the select for the properties
             var boxalias = divTitle.data('boxalias');
@@ -311,15 +312,35 @@ diagram.lookupsValuesType = {
             if(typeName != "wildcard") {
                 divContainerBoxes.append(divAddBox);
             } else {
+                var divWildcardInputsId = idBox + "-fields";
+                var wildcardInputId = idBox + "-" + diagram.wildcardFieldCounter;
+                diagram.wildcardFieldCounter++;
+                var divWildcardInputsBox = $("<DIV>");
+                divWildcardInputsBox.attr('id', idTopBox);
+                divWildcardInputsBox.css({
+                    "border-bottom": "2px dashed #348E82"
+                });
                 var divWildcardInputs = $("<DIV>");
+                divWildcardInputs.attr('id', divWildcardInputsId);
                 // We add an input field to get the return value
-                wildCardInput = $("<INPUT>");
-                wildCardInput.addClass("wildCardInput");
-                wildCardInput.attr('id', idBox + "-input");
+                wildcardInput = $("<INPUT>");
+                wildcardInput.addClass("wildCardInput");
+                wildcardInput.attr('id', wildcardInputId);
                 // Link to add more input fields
-                // TODO
-                divWildcardInputs.append(wildCardInput);
-                divContainerBoxes.append(divWildcardInputs);
+                var addWildcardInput = $("<A>");
+                addWildcardInput.addClass("add-wildcard-input");
+                addWildcardInput.attr("data-parentid", divWildcardInputsId);
+                addWildcardInput.attr("data-fieldid", wildcardInputId);
+                addWildcardInput.attr("data-idbox", idBox);
+                var addWildcardInputIcon = $("<I>");
+                addWildcardInputIcon.addClass("icon-plus-sign");
+                addWildcardInputIcon.attr('id', 'add-wildcardInput-icon');
+                addWildcardInput.append(addWildcardInputIcon);
+                divWildcardInputs.append(wildcardInput);
+                divWildcardInputsBox.append(divWildcardInputs);
+                divWildcardInputsBox.append(addWildcardInput);
+
+                divContainerBoxes.append(divWildcardInputsBox);
             }
             divContainerBoxes.append(divAllowedRelationships);
 
@@ -339,12 +360,8 @@ diagram.lookupsValuesType = {
                 var offset = 7;
                 var anchor = ($('#' + idBox).height() - $('#' + idBox + ' .title').height() + offset) / $('#' + idBox).height()
                 var endpointTarget = jsPlumb.addEndpoint(idBox, { uuid:uuidTarget, connector: "Flowchart"},diagram.getRelationshipOptions('target', 0, 0, 1 - anchor));
+                endpointTarget.addClass("endpoint-target");
                 endpointTarget.scopeTarget = typeName;
-                endpointTarget.bind("click", function(connection) {
-                    //endpointTarget.removeClass("dragActive");
-                    //endpointTarget.addClass("dropHover");
-                    console.log("entered!");
-                });
             }
             jsPlumb.draggable("diagramBox-"+ diagram.Counter +"-"+ modelName, {
                 handle: ".title",
@@ -379,7 +396,7 @@ diagram.lookupsValuesType = {
 
             /*
              *  Title part
-            */
+             */
 
             if(diagram.reltypesCounter[label] >= 0) {
                 diagram.reltypesCounter[label]++;
@@ -430,7 +447,7 @@ diagram.lookupsValuesType = {
 
             /*
              *  Box part
-            */
+             */
 
             root = $("#"+ diagram.Container);
             idBox = "diagramBoxRel-" + diagram.CounterRels + "-" + label;
@@ -565,11 +582,8 @@ diagram.lookupsValuesType = {
                     iconToggle.removeClass('icon-plus-sign');
                     iconToggle.addClass('icon-minus-sign');
                 }
-
                 // Recalculate anchor for source endpoints
                 diagram.recalculateAnchor(idBox, idAllRels);
-                // Recalculate anchor for target endpoints
-                //diagram.recalculateAnchorTarget(idBox);
 
                 jsPlumb.repaintEverything();
                 diagram.saveBoxPositions();
@@ -606,9 +620,10 @@ diagram.lookupsValuesType = {
          * - modelName
          * - idTopBox
          * - idBox
+         * - idAllRels
          * - relationsIds
          */
-        diagram.addWildcardTitleDiv = function(graphName, model, typeName, modelName, idTopBox, idBox, relationsIds) {
+        diagram.addWildcardTitleDiv = function(graphName, model, typeName, modelName, idTopBox, idBox, idAllRels, relationsIds) {
             var divTitle, selectNodetype, optionNodetype, checkboxType, anchorShowHide, iconToggle, anchorDelete, iconDelete, typeId;
             typeId = -1;
             divTitle = $("<DIV>");
@@ -665,6 +680,8 @@ diagram.lookupsValuesType = {
                     iconToggle.removeClass('icon-plus-sign');
                     iconToggle.addClass('icon-minus-sign');
                 }
+                diagram.recalculateAnchor(idBox, idAllRels);
+
                 jsPlumb.repaintEverything();
                 diagram.saveBoxPositions();
             });
@@ -1209,7 +1226,7 @@ diagram.lookupsValuesType = {
             // the json correctly
             var relationSelector = $('#' + relationId + ' .title');
             if(relationSelector.length == 0) {
-                alert("There's been an error in the relationship " + relationId + ". Please remove it and try again");
+                alert("There's been an error in the relationship " + sourceId + "-" + targetId + ". Please remove it and try again");
             }
             var relationAlias = $('#' + relationId + ' .title select').val();
             var relationModelId = relationSelector.data('modelid');
@@ -1252,9 +1269,12 @@ diagram.lookupsValuesType = {
 
             if(alias.substring(0,8) == "wildcard") {
                 var selector = $(element).parent().parent().parent().attr('id');
-                var wildCardInput = $('#' + selector + '-input').val();
-                if(wildCardInput != "") {
-                    properties.push(wildCardInput);
+                var wildcardInputs = $('#' + selector + ' .wildCardInput');
+                if(wildcardInputs) {
+                    for(var i=0; i < wildcardInputs.length; i++) {
+                        var val = $(wildcardInputs[i]).val()
+                        properties.push(val);
+                    }
                 }
             }
 
@@ -1266,34 +1286,6 @@ diagram.lookupsValuesType = {
         query["results"] = resultsArray;
 
         return query;
-    };
-
-    /**
-     * Function that returns a json containing all the code html
-     * - htmlJson
-     */
-
-    diagram.html2json = function(htmlJson) {
-        var jsonResult = {};
-        var attributeName = "";
-        for(var i = 0; i < htmlJson.length; i++) {
-            var jsonChildren = {}
-            var tag = $(htmlJson[i]).prop("tagName");
-            jsonChildren["tag"] = tag;
-            for(var j = 0; j < htmlJson[i].attributes.length; j++) {
-                attributeName = htmlJson[i].attributes[j].name;
-                if(attributeName != "style") {
-                    var attributeValue = htmlJson[i].attributes[j].nodeValue;
-                    jsonChildren[attributeName] = attributeValue;
-                }
-            }
-            if(htmlJson[i].children) {
-                var children = diagram.html2json(htmlJson[i].children);
-                jsonChildren["children"] = children;
-            }
-            jsonResult["children" + i] = jsonChildren;
-        }
-        return jsonResult;
     };
 
     /**
@@ -1371,8 +1363,6 @@ diagram.lookupsValuesType = {
         }
         // Recalculate anchor for source endpoints
         diagram.recalculateAnchor(idBox, idAllRels);
-        // Recalculate anchor for target endpoints
-        //diagram.recalculateAnchorTarget(idBox);
 
         jsPlumb.repaintEverything();
     });
@@ -1389,8 +1379,60 @@ diagram.lookupsValuesType = {
         // field row at least
         if($('#' + parentId).children().length > 1) {
             $("#" + fieldId).remove();
-        } else {
-            alert("You need a field at least");
+        }
+    });
+
+    /**
+     * Add a new wildcard input
+     */
+    $("#diagramContainer").on('click', '.add-wildcard-input', function() {
+        var $this = $(this);
+        var parentId = $this.data("parentid");
+        var idBox = $this.data("idbox");
+
+        var fieldId = idBox + "-" + diagram.wildcardFieldCounter;
+        diagram.wildcardFieldCounter++;
+
+        var divNewWildcardInput = $("<DIV>");
+        divNewWildcardInput.attr('id', fieldId);
+        divNewWildcardInput.css({
+            "display": "table"
+        });
+
+        var wildcardInput = $("<INPUT>");
+        wildcardInput.addClass("wildCardInput");
+        wildcardInput.css({
+        });
+
+        // Link to remove the wildcard input
+        var removeWildcardInput = $("<A>");
+        removeWildcardInput.addClass("remove-wildcard-input");
+        removeWildcardInput.attr('data-parentid', parentId);
+        removeWildcardInput.attr('data-fieldid', fieldId);
+        // Icon
+        removeWildcardInputIcon = $("<I>");
+        removeWildcardInputIcon.addClass("icon-minus-sign");
+        removeWildcardInputIcon.attr('id', 'remove-wildcardInput-icon');
+        removeWildcardInput.append(removeWildcardInputIcon);
+
+        divNewWildcardInput.append(wildcardInput);
+        divNewWildcardInput.append(removeWildcardInput);
+
+        $("#" + parentId).append(divNewWildcardInput);
+    });
+
+    /**
+     * Remove field row inside a box type
+     */
+    $("#diagramContainer").on('click', '.remove-wildcard-input', function() {
+        var $this = $(this);
+        var fieldId = $this.data("fieldid");
+        var parentId = $this.data("parentid");
+
+        // We check that the field box need to have one
+        // field row at least
+        if($('#' + parentId).children().length > 1) {
+            $("#" + fieldId).remove();
         }
     });
 
@@ -1517,9 +1559,9 @@ diagram.lookupsValuesType = {
             var select = $("<SELECT>");
             select.addClass("lookup-value");
             select.css({
-                "width": "75px",
+                "width": "50px",
                 "display": "inline",
-                "margin-left": "5%",
+                "margin-left": "8px",
                 "padding": "0"
             });
             select.append('<option class="lookup-value" value="true">True</option>');
@@ -1536,9 +1578,9 @@ diagram.lookupsValuesType = {
             var select = $("<SELECT>");
             select.addClass("lookup-value");
             select.css({
-                "width": "75px",
+                "width": "50px",
                 "display": "inline",
-                "margin-left": "5%",
+                "margin-left": "8px",
                 "padding": 0
             });
             select.append('<option class="lookup-value" value=""></option>');
@@ -1557,9 +1599,8 @@ diagram.lookupsValuesType = {
             var inputLookup = $("<INPUT>");
             inputLookup.addClass("lookup-value");
             inputLookup.css({
-                "width": "75px",
-                "margin-left": "5%",
-                "margin-top": "3%"
+                "width": "50px",
+                "margin-left": "8px"
             });
             inputLookup.timepicker();
             $('#' + fieldId).append(inputLookup);
@@ -1574,9 +1615,8 @@ diagram.lookupsValuesType = {
             var inputLookup = $("<INPUT>");
             inputLookup.addClass("lookup-value time");
             inputLookup.css({
-                "width": "35px",
-                "margin-left": "5%",
-                "margin-top": "3%"
+                "width": "50px",
+                "margin-left": "8px"
             });
             inputLookup.timepicker();
             $('#' + fieldId).append(inputLookup);
@@ -1591,9 +1631,8 @@ diagram.lookupsValuesType = {
             var inputLookup = $("<INPUT>");
             inputLookup.addClass("lookup-value time");
             inputLookup.css({
-                "width": "35px",
-                "margin-left": "5%",
-                "margin-top": "3%"
+                "width": "50px",
+                "margin-left": "8px"
             });
             var options = {
                 appendText: "(yyyy-mm-dd)",
@@ -1613,13 +1652,10 @@ diagram.lookupsValuesType = {
                 }
             }
             var select = $("<INPUT>");
-            //select.addClass("lookup-value chosen-select");
-            //select.attr("data-placeholder", "choose a value...");
             select.addClass("lookup-value autocomplete");
             select.css({
-                "width": "75px",
-                "margin-left": "5%",
-                "margin-top": "3%"
+                "width": "50px",
+                "margin-left": "8px"
             });
 
             $('#' + fieldId).append(select);
@@ -1634,7 +1670,7 @@ diagram.lookupsValuesType = {
             var inputLookup = $("<INPUT>");
             inputLookup.addClass("lookup-value");
             inputLookup.css({
-                "width": "60px",
+                "width": "50px",
                 "margin-left": "8px"
             });
             $('#' + fieldId).append(inputLookup);
@@ -1770,14 +1806,6 @@ diagram.lookupsValuesType = {
         // Recalculate anchor for target endpoints
         //diagram.recalculateAnchorTarget(idBox);
 
-        // We make the endpoints visible when a connection is remove
-        var endpoints = $('._jsPlumb_endpoint');
-        $.each(endpoints, function(index, endpoint) {
-            var cssStatus = $(endpoint).css('visibility');
-            if(cssStatus == "hidden")
-                $(endpoint).css('visibility', 'visible');
-        });
-
         jsPlumb.repaintEverything();
      });
 
@@ -1809,11 +1837,24 @@ diagram.lookupsValuesType = {
             jsPlumb.detach(info.connection);
         }
 
+        var selector = '#' + info.targetEndpoint.elementId + ' .title';
+        $(selector).on('mouseover', function() {
+            $(selector).css({
+                "box-shadow": ""
+            });
+        });
+
+        $('.endpoint-image').css('visibility', 'visible');
+        info.sourceEndpoint.addClass("endpointInvisible");
         info.targetEndpoint.removeClass("dragActive");
         info.targetEndpoint.removeClass("dropHover");
      });
 
     jsPlumb.bind("connectionDrag", function(connection) {
+        // We make the endpoint invisible
+        $('.endpoint-image').css('visibility', 'hidden');
+
+        // We make the drag css style for nodes with the correct target
         var scopeSource = connection.endpoints[0].scopeSource;
 
         jsPlumb.selectEndpoints().each(function(endpoint) {
@@ -1824,6 +1865,17 @@ diagram.lookupsValuesType = {
                                         (scopeTarget == "wildcard");
                 if(compare || compareWildcard) {
                     endpoint.addClass("dragActive");
+                    var selector = '#' + endpoint.elementId + ' .title';
+                    $(selector).on('mouseover', function() {
+                        $(selector).css({
+                            "box-shadow": "0 0 1em 0.75em #348E82"
+                        });
+                    });
+                    $(selector).on('mouseout', function() {
+                        $(selector).css({
+                            "box-shadow": ""
+                        });
+                    });
                 }
             }
         });
@@ -1832,6 +1884,12 @@ diagram.lookupsValuesType = {
     jsPlumb.bind("connectionDragStop", function(connection) {
         jsPlumb.selectEndpoints().each(function(endpoint) {
             endpoint.removeClass("dragActive");
+            var selector = '#' + endpoint.elementId + ' .title';
+            $(selector).on('mouseover', function() {
+                $(selector).css({
+                    "box-shadow": ""
+                });
+            });
         });
     });
 
@@ -1891,7 +1949,7 @@ diagram.lookupsValuesType = {
                 $.unblockUI();
             },
             error: function (e) {
-                $("#results").html(gettext("Sorry, was an error in the server: Please, refresh the page and try again. If the error continues, check if the database is running."));
+                $("#results").html(gettext("Sorry, was an error in the server: Please, refresh the page and try again. If the error continues, maybe the database is not running."));
                 $('#query-builder-query').hide();
                 $('#query-builder-results').show();
                 $('#results').show();
