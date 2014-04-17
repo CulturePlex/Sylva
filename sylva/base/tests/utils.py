@@ -7,8 +7,6 @@ def spin_assert(assertion):
             assertion()
             return
         except AssertionError as e:
-            import ipdb
-            ipdb.set_trace()
             pass
             sleep(1)
     raise e
