@@ -67,7 +67,7 @@
                   <a href="{% url "index" %}" id="link-logo" title="{% trans "Go to the index page" %}">index</a>
                 {% endif %}
                 {% if graph %}
-                  <div class="title-graph-name"><h2>{{ graph.name }}</h2></div>
+                  <div class="title-graph-name analytics-mode"><h2>{{ graph.name }}</h2></div>
                 {% endif %}
                 <nav class="main">
                   <ul>
@@ -82,9 +82,9 @@
                     {% else %}
                       <li><a href="{% url "index" %}" class="link-home" id="loginFormButton"><span>{% trans "Home" %}</span></a></li>
                     {% endif %}
-                    <li class='fullscreen-analytics-mode-controls' style="display: none; margin-top: -35px; margin-right: 5px;">
-                      <a id="sigma-exit-analytics" style="display: none; float: right; margin-left: 10px;" class="link" title="{% trans "Exit analytics" %}">{% trans "Exit analytics" %}</a>
-                      <a id="sigma-go-fullscreen" style="display: none; float: right;" class="link" title="{% trans "Fullscreen" %}">{% trans "Fullscreen" %}</a>
+                    <li class="analytics-mode" style="display: none; margin-top: -35px; margin-right: 5px;">
+                      <a id="sigma-exit-analytics" style="display: none; float: right; margin-left: 10px;" class="link analytics-mode" title="{% trans "Exit analytics" %}">{% trans "Exit analytics" %}</a>
+                      <a id="sigma-go-fullscreen" style="display: none; float: right;" class="link analytics-mode" title="{% trans "Fullscreen" %}">{% trans "Fullscreen" %}</a>
                       <a id="sigma-exit-fullscreen" style="display: none; float: right;" class="link" title="{% trans "Exit fullscreen" %}">{% trans "Exit fullscreen" %}</a>
                     </li>
                   </ul>

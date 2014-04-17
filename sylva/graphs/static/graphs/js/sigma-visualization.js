@@ -47,6 +47,11 @@ sigma:true, clearTimeout */
       var sizeMultiplier = defaultMultiplier;
       // An array with the IDs of the visible nodes.
       var visibleNodesIds = [];
+      // The width and border of the analytics sidebar in analytics mode.
+      var analyticsSidebarWidth = 0;
+      var analyticsSidebarBorder = 2;
+      // It's used for keep the last dragged analytics control on top.
+      var highestZIndex = 100;
 
       for (var key in sylva.nodetypes) {
         visibleNodesIds = visibleNodesIds.concat(sylva.nodetypes[key].nodes);
@@ -74,8 +79,10 @@ sigma:true, clearTimeout */
       sigInst.graph.read(sylva.graph);
 
       // Create the legend.
-      $('#node-type-legend').empty();
-      var list = $('#node-type-legend').append($('<ul>'));
+      $('#graph-types').append('<h2 class="collapsible-header">'
+        + gettext('Types') + '</h2>');
+      $('#graph-types').append($('<ul>'));
+      var list = $('#graph-types ul');
       list.css({
         listStyleType: 'none',
         marginTop: "5px"
@@ -107,6 +114,7 @@ sigma:true, clearTimeout */
               display: "inline-block",
               width: "16px",
               height: "16px",
+              marginRight: "5px",
               verticalAlign: "middle",
               cursor: "pointer"
             }))
@@ -309,7 +317,8 @@ sigma:true, clearTimeout */
           console.log('OVERNODE!');
 
           node = event.data.node;
-          sylva.Utils.updateNodeLegend(node.id, node.label, 'element-info');
+          // TODO
+          //sylva.Utils.updateNodeLegend(node.id, node.label, 'element-info');
 
           // Binding mouse node events.
           $('.sigma-mouse').on('mousedown', nodeMouseDown);
@@ -576,7 +585,7 @@ sigma:true, clearTimeout */
 
       // Exit analytics mode.
       $('#sigma-exit-analytics').on('click', function() {
-        stopAnalyticsMode();
+        exitAnalyticsMode();
       });
 
       // Go fullscreen mode.
@@ -647,37 +656,36 @@ sigma:true, clearTimeout */
           window.innerHeight || 0);
         var width = Math.max(document.documentElement.clientWidth,
           window.innerWidth || 0);
+        var headerHeight =  $('div.inside.clearfix').height() + 2;
+        if (analyticsSidebarWidth == 0) {
+          analyticsSidebarWidth = width * 0.20;
+        } else if (analyticsSidebarWidth > width * 0.33) {
+          analyticsSidebarWidth = width * 0.33;
+        } else if (analyticsSidebarWidth < width * 0.15) {
+          analyticsSidebarWidth = width * 0.15;
+        }
 
-        var trueHeaderHeight =  $('div.inside.clearfix').height();
-        var analyticsHeader = trueHeaderHeight + 2;
-
-        $('header').css({
-          width: width,
-          paddingLeft: 0,
-          paddingRight: 0
-        });
         $('#main').width(width);
-        $('div.inside.clearfix').width(width);
-        $('#body').css({
-          width: width - 20,
-          margin: 0,
-          paddingRight: 0
-        });
 
-        $('#body').height(height - trueHeaderHeight - 16);
+        $('header').width(width);
+
+        $('div.inside.clearfix').width(width);
+
+        $('#body').height(height - headerHeight);
+        $('#body').width(width);
+
+        $('#canvas-container').width(width - analyticsSidebarWidth);
 
         // The new width will be: screenWidth - leftWhiteSpace - canvasInfo- rightWhiteSpace - sigmaWrapperBorder - (safeSpace between canvasInfo and canvas)
-        $('#sigma-wrapper').width(width);
-
         // The new height will be: screenHeight - header - whiteSpace - graphControls - (border + padding from canvasInfo) - whiteSpace
-        $('#sigma-wrapper').height(height - analyticsHeader);
+        $('#sigma-wrapper').width(width - analyticsSidebarWidth);
+        $('#sigma-wrapper').height(height - headerHeight);
 
-        var top = height - 97;
-        var left = width - 52;
-        $('#sigma-pause').css({
-          top: top + "px",
-          left: left + "px"
-        });
+        $('#analytics').width(analyticsSidebarWidth - analyticsSidebarBorder);
+        $('#analytics').height(height - headerHeight);
+
+        $('#analytics').resizable('option', 'minWidth', width * 0.15);
+        $('#analytics').resizable('option', 'maxWidth', width * 0.33);
 
         var renderer = sigInst.renderers[0];
         var container = $(renderer.container);
@@ -689,47 +697,85 @@ sigma:true, clearTimeout */
        * the analytics mode is activated.
        */
       var updateStyles = function() {
+        $('header').css({
+          paddingLeft: 0,
+          paddingRight: 0
+        });
+
         $('#body').css({
-          paddingBottom: "0",
-          paddingTop: "0"
+          margin: '-14px 0 0 0',
+          padding: 0
         });
 
         $('#sigma-wrapper').css({
-          border: "none",
-          marginTop: "-14px"
+          float: 'left'
         });
 
-        $('.graph-controls').css({
-          position: "absolute",
-          right: "10px",
-          paddingTop: "10px",
-          paddingRight: "10px",
-          borderRadius: "10px",
-          backgroundColor: "rgba(214, 231, 223, 0.5)"
+        $('#canvas-container').css({
+          display: 'inline'
         });
 
-        $('#canvas-info').css({
-          position: "absolute",
-          zIndex: "100",
-          border: "none",
-          overflow: "auto",
-          padding: "10px",
-          height: "auto",
-          borderRadius: "10px",
-          backgroundColor: "rgba(214, 231, 223, 0.5)"
+        $('#graph-types').css({
+          position: 'absolute',
+          zIndex: '100',
+          border: 'none',
+          overflow: 'auto',
+          padding: '10px',
+          marginRight: 0,
+          height: 'auto',
+          width: 'auto',
+          borderRadius: '10px',
+          backgroundColor: 'rgba(214, 231, 223, 0.5)'
+        });
+
+        $('#graph-controls').css({
+          position: 'absolute',
+          height: 'auto',
+          padding: '10px',
+          borderRadius: '10px',
+          backgroundColor: 'rgba(214, 231, 223, 0.5)'
+        });
+
+        $('#graph-layout').css({
+          position: 'absolute',
+          zIndex: '100',
+          border: 'none',
+          overflow: 'auto',
+          padding: '10px',
+          marginRight: 0,
+          borderRadius: '10px',
+          backgroundColor: 'rgba(214, 231, 223, 0.5)'
+        });
+
+        $('.collapsible-header').css({
+          cursor: 'pointer'
+        });
+
+        $('.collapsible-header').each(function(i) {
+          $(this).text(' ' + $(this).text());
+          $(this).prepend('<span class="icon-caret-down icon-fixed-width" style="display: inline;"></span>');
         });
       };
 
       // Restore the sizes and styles when exit analytics mode.
       var restoreSizesAndStyles = function() {
-        $('#sigma-pause').removeAttr('style');
+        $('.collapsible-header').css({
+          cursor: ''
+        });
+
+        $('.collapsible-header').each(function(i) {
+          $(this).children().first().remove();
+          $(this).html($(this).html().substring(1));
+        });
+
+        $('#graph-controls').removeAttr('style');
+        $('#graph-types').removeAttr('style');
         $('#sigma-wrapper').removeAttr('style');
-        $('.graph-controls').removeAttr('style');
-        $('#canvas-info').removeAttr('style');
+        $('#canvas-container').removeAttr('style');
         $('#body').removeAttr('style');
         $('div.inside.clearfix').removeAttr('style');
-        $('#main').removeAttr('style');
         $('header').removeAttr('style');
+        $('#main').removeAttr('style');
 
         sigInst.renderers[0].resize();
         sigInst.refresh();
@@ -751,10 +797,116 @@ sigma:true, clearTimeout */
         linkLogo = $('#link-logo').attr('href');
         $('#link-logo').removeAttr('href');
 
-        $('.title-graph-name').show();
-        $('#sigma-go-fullscreen').show();
-        $('#sigma-exit-analytics').show();
-        $('.fullscreen-analytics-mode-controls').show();
+        $('.analytics-mode').show();
+
+        try {
+          if ($('#analytics').resizable('option', 'disabled')) {
+            $('#analytics').resizable('enable');
+          }
+        } catch (e) {
+          $('#analytics').resizable({
+            ghost: true,
+            handles: 'w',
+            minWidth: '250',
+            maxWidth: '250',
+            stop: function(event, ui) {
+              analyticsSidebarWidth = ui.size.width + analyticsSidebarBorder;
+              updateSizes();
+            }
+          });
+        }
+
+        // TODO: Get target from event
+        $('#graph-types').draggable({
+          containment: '#body',
+          cursor: 'move',
+          zIndex: 9999,
+          create: function(event, ui) {
+            $('#graph-types').css({
+              top: '14px',
+              left: '16px'
+            });
+          },
+          stop: function(event, ui) {
+            highestZIndex++;
+            $('#graph-types').css({
+              zIndex: highestZIndex
+            });
+          }
+        });
+
+        $('#graph-controls').draggable({
+          containment: '#body',
+          cursor: 'move',
+          zIndex: 9999,
+          create: function(event, ui) {
+            $('#graph-controls').css({
+              top: '14px',
+              left: '232px'
+            });
+          },
+          stop: function(event, ui) {
+            highestZIndex++;
+            $('#graph-controls').css({
+              zIndex: highestZIndex
+            });
+          }
+        });
+
+        $('#graph-layout').draggable({
+          containment: '#body',
+          cursor: 'move',
+          zIndex: 9999,
+          create: function(event, ui) {
+            $('#graph-layout').css({
+              top: '200px',
+              left: '232px'
+            });
+          },
+          stop: function(event, ui) {
+            highestZIndex++;
+            $('#graph-layout').css({
+              zIndex: highestZIndex
+            });
+          }
+        });
+
+        var collapsibleSettings = {
+          collapsible: true,
+          animate: 150,
+          create: function(event, ui) {
+            var box = $(event.target);
+            var children = box.children();
+            var header =  children.first();
+            var body = $(children[1]);
+            var span = header.children().first();
+
+            header.removeClass('ui-accordion ui-accordion-icons ui-accordion-header ui-helper-reset');
+            body.removeClass('ui-accordion ui-accordion-content ui-accordion-content');
+            body.css('height', '');
+            span.remove();
+          },
+          activate: function(event, ui) {
+            var span = $(event.target).children().first().children().first();
+            if (span.hasClass('icon-caret-down')) {
+              span.removeClass('icon-caret-down');
+              span.addClass('icon-caret-right');
+              span.css({
+                marginRight: '5px'
+              });
+            } else {
+              span.removeClass('icon-caret-right');
+              span.addClass('icon-caret-down');
+              span.css({
+                marginRight: ''
+              });
+            }
+          }
+        };
+
+        $('#graph-types').accordion(collapsibleSettings);
+        $('#graph-controls').accordion(collapsibleSettings);
+        $('#graph-layout').accordion(collapsibleSettings);
 
         sigInst.settings({
           maxNodeSize: analyticsMaxNodeSize * sizeMultiplier
@@ -770,7 +922,7 @@ sigma:true, clearTimeout */
        * "remove" of some "sytles" that can't be done with the
        * "restoreSizesAndStyles()" method.
        */
-      var stopAnalyticsMode = function() {
+      var exitAnalyticsMode = function() {
         $(window).off('resize', updateSizes);
 
         if (isFullscreenMode()) {
@@ -788,15 +940,19 @@ sigma:true, clearTimeout */
         $('#link-logo').removeClass('disabled');
         $('#link-logo').attr('href', linkLogo);
 
-        $('.title-graph-name').hide();
-        $('#sigma-go-fullscreen').hide();
-        $('#sigma-exit-fullscreen').hide();
-        $('#sigma-exit-analytics').hide();
-        $('.fullscreen-analytics-mode-controls').hide();
+        $('.analytics-mode').hide();
 
         sigInst.settings({
           maxNodeSize: maxNodeSize * sizeMultiplier
         });
+
+        $('#analytics').resizable('disable');
+        $('#graph-types').draggable('destroy');
+        $('#graph-controls').draggable('destroy');
+        $('#graph-layout').draggable('destroy');
+        $('#graph-types').accordion('destroy');
+        $('#graph-controls').accordion('destroy');
+        $('#graph-layout').accordion('destroy');
 
         restoreSizesAndStyles();
       };
@@ -1085,7 +1241,10 @@ sigma:true, clearTimeout */
         Sigma.init();
       }
       isDrawing = true;
-      $('#sigma-pause').html('Pause');
+      $('#sigma-pause').removeClass('icon-play');
+      $('#sigma-pause').addClass('icon-pause');
+
+      // TODO: Watch if this is the right place for the next line.
       sigma.canvas.hovers.defBackup = sigma.canvas.hovers.def;
     },
 
@@ -1096,7 +1255,8 @@ sigma:true, clearTimeout */
       if (sigInst) {
         sigInst.stopForceAtlas2();
         isDrawing = false;
-        $('#sigma-pause').html('Play');
+        $('#sigma-pause').removeClass('icon-pause');
+        $('#sigma-pause').addClass('icon-play');
       }
     },
 

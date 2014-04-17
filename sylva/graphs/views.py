@@ -40,7 +40,7 @@ def _jsonify_graph(nodes_list, relations_list):
     for node in nodes_list:
         nodetype = node.get_type()
         if nodetype.id not in nodetypes:
-            nodetype_color = nodetype.get_option("color")
+            nodetype_color = nodetype.get_color()
             nodetypes[nodetype.id] = {'id': nodetype.id,
                                       'name': nodetype.name,
                                       'color': nodetype_color,
