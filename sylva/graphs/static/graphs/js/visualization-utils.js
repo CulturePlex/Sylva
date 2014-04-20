@@ -19,17 +19,8 @@ gettext */
       var nodeEditURL = sylva.nodeEditURL.replace(/nodes\/0\/edit/, 'nodes/' + nodeId + '/edit');
       var nodeViewURL = sylva.nodeViewURL.replace(/nodes\/0\/view/, 'nodes/' + nodeId + '/view');
       var title = (nodeTitle.length < 22) ? nodeTitle : nodeTitle.substring(0,16) + "...";
-      if ($("#content3").length > 0) { // Checkg that we are in a node vie page
-        graphViewLink = ''
-      } else {
-        graphViewLink = '<a href="' + sylva.graphViewURL + 'nodes/' + nodeId + '">' +
-          '<i class="sylva-icon-connections16"></i> ' + gettext('View related nodes') +
-        '</a>' +
-        '<br>'
-      }
       $('#' + domId).html(
         '<h2 title="' + nodeTitle + '" style="font-size: 18px;">' + title + '</h2>' +
-        graphViewLink +
         '<a href="' + nodeViewURL + '">' +
           '<i class="sylva-icon-nodes16"></i> ' + gettext('View node data') +
         '</a>' +

@@ -48,6 +48,7 @@
     font-size: 12px;
     padding: 2px 5px 2px 5px;
     display: table-cell;
+    width: 37px;
 }
 
 .select-rel {
@@ -91,6 +92,14 @@
 #remove-field-icon {
     float: right;
     margin-right: 5px;
+}
+
+#add-wildcardInput-icon {
+    margin-left: 336px;
+}
+
+#remove-wildcardInput-icon {
+    margin-left: 222px;
 }
 
 #remove-field-icon-prop {
@@ -165,8 +174,8 @@
 }
 
 .endpoint-image {
-    width: 10px !important;
-    height: 10px !important;
+    width: 12px !important;
+    height: 12px !important;
 }
 
 .query-box-endpoint-target {
@@ -183,12 +192,13 @@
     display: none;
 }
 
+/* Invisible option for draggable endpoints */
+.endpointInvisible {
+    visibility: hidden !important;
+}
+
 /* drag and drop options for relationship */
 
 .dragActive {
     box-shadow: 0 0 1em 0.75em #AEAA78;
-}
-
-.dropHover {
-    box-shadow: 0 0 1em 0.75em #348E82;
 }

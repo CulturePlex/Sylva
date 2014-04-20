@@ -116,11 +116,8 @@ def schema_nodetype_editcreate(request, graph_slug, nodetype_id=None):
             with transaction.atomic():
                 node_type = form.save(commit=False)
                 node_type.schema = graph.schema
-                # Checking the color
-                if 'color' not in node_type.get_options():
-                    color = node_type.schema.get_color()
-                    node_type.set_option('color', color)
-                    node_type.schema.save()
+                # Checking the color, it will create it if doesn't exist
+                node_type.get_color()
                 node_type.save()
                 instances = formset.save(commit=False)
                 for instance in instances:
@@ -473,7 +470,7 @@ def schema_nodetype_edit_color(request, graph_slug):
         color = data['color']
         nodetype = get_object_or_404(NodeType, id=nodetype_id)
         with transaction.atomic():
-            nodetype.set_option('color', color)
+            nodetype.set_color(color)
             nodetype.save()
         return HttpResponse(status=200, mimetype='application/json')
     raise Http404(_("Error: Invalid request (expected an AJAX POST request)"))

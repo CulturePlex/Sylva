@@ -5,22 +5,24 @@ from splinter import Browser
 from user import signup, signin, logout
 from graphs.models import Graph
 
+from utils import spin_assert
+
 
 def create_graph(test):
     test.browser.visit(test.live_server_url + '/graphs/create/')
     text = test.browser.find_by_xpath(
         "//header[@class='global']/h2").first.value
-    test.assertNotEqual(text.find('Create New Graph'), -1)
+    spin_assert(lambda: test.assertNotEqual(text.find('Create New Graph'), -1))
     test.browser.find_by_name('name').first.fill("Bob's graph")
     test.browser.find_by_xpath(
         "//form[@name='graphs_create']/p/textarea[@name='description']").first.fill('The loved graph')
     test.browser.find_by_name('addGraph').first.click()
     text = test.browser.find_by_xpath(
         "//header[@class='global']/h1").first.value
-    test.assertEqual(text, 'Dashboard')
+    spin_assert(lambda: test.assertEqual(text, 'Dashboard'))
     text = test.browser.find_link_by_href(
         '/graphs/bobs-graph/').first.value
-    test.assertEqual(text, "Bob's graph")
+    spin_assert(lambda: test.assertEqual(text, "Bob's graph"))
 
 
 def create_schema(test):
@@ -29,12 +31,14 @@ def create_schema(test):
     """
     test.browser.find_link_by_href(
         '/graphs/bobs-graph/').first.click()
-    test.assertEqual(test.browser.title, "SylvaDB - Bob's graph")
+    spin_assert(lambda: test.assertEqual(test.browser.title,
+                                         "SylvaDB - Bob's graph"))
     js_code = "$('a#schema-link')[0].click();"
     test.browser.execute_script(js_code)
     text = test.browser.find_by_xpath(
         "//div[@class='body-inside']/p").first.value
-    test.assertEqual(text, 'There are no types defined yet.')
+    spin_assert(lambda: test.assertEqual(text,
+                                         'There are no types defined yet.'))
 
 
 def create_type(test):
@@ -45,7 +49,7 @@ def create_type(test):
         '/schemas/bobs-graph/types/create/').first.click()
     text = test.browser.find_by_xpath(
         "//div[@class='content2-first']/h2").first.value
-    test.assertEqual(text, 'Type')
+    spin_assert(lambda: test.assertEqual(text, 'Type'))
     test.browser.find_by_name('name').first.fill("Bob's type")
     test.browser.find_by_xpath(
         "//div[@class='content2-first']/p/textarea[@name='description']").first.fill('The loved type')
@@ -54,7 +58,7 @@ def create_type(test):
     test.browser.find_by_value('Save Type').first.click()
     text = test.browser.find_by_id(
         'diagramBoxField_bobs-graph.bobs-type.undefined').first.value
-    test.assertEqual(text, "Name")
+    spin_assert(lambda: test.assertEqual(text, "Name"))
 
 
 def create_data(test):
@@ -66,11 +70,12 @@ def create_data(test):
     test.browser.find_by_xpath(
         "//a[@class='dataOption new']").first.click()
     text = test.browser.find_by_id('propertiesTitle').first.value
-    test.assertEqual(text, 'Properties')
+    spin_assert(lambda: test.assertEqual(text, 'Properties'))
     test.browser.find_by_name('Name').first.fill("Bob's node")
     test.browser.find_by_value("Save Bob's type").first.click()
     text = test.browser.find_by_xpath("//div[@class='pagination']/span[@class='pagination-info']").first.value
-    test.assertNotEqual(text.find(" elements Bob's type."), -1)
+    spin_assert(lambda: test.assertNotEqual(
+        text.find(" elements Bob's type."), -1))
 
 
 class DashboardTestCase(LiveServerTestCase):
@@ -88,10 +93,12 @@ class DashboardTestCase(LiveServerTestCase):
 
     def test_dashboard(self):
         signin(self, 'bob', 'bob_secret')
-        self.assertEquals(self.browser.title, 'SylvaDB - Dashboard')
+        spin_assert(lambda: self.assertEquals(self.browser.title,
+                                              'SylvaDB - Dashboard'))
+
         text = self.browser.find_by_xpath(
             "//header[@class='global']/h1").first.value
-        self.assertEqual(text, 'Dashboard')
+        spin_assert(lambda: self.assertEqual(text, 'Dashboard'))
 
     def test_dashboard_new_graph(self):
         signin(self, 'bob', 'bob_secret')
@@ -120,7 +127,7 @@ class DashboardTestCase(LiveServerTestCase):
         self.browser.execute_script(js_code)
         text = self.browser.evaluate_script('sylva.test_node_name')
         Graph.objects.get(name="Bob's graph").destroy()
-        self.assertNotEqual(text.find("Bob's node"), -1)
+        spin_assert(lambda: self.assertNotEqual(text.find("Bob's node"), -1))
 
     def test_automatic_tour(self):
         """
@@ -131,8 +138,8 @@ class DashboardTestCase(LiveServerTestCase):
         signin(self, 'bob', 'bob_secret')
         exist = self.browser.is_element_present_by_xpath(
             "//div[@class='joyride-content-wrapper']")
-        self.assertEqual(exist, True)
+        spin_assert(lambda: self.assertEqual(exist, True))
         self.browser.visit(self.live_server_url + '/dashboard/')
         exist = self.browser.is_element_present_by_xpath(
             "//div[@class='joyride-content-wrapper']")
-        self.assertNotEqual(exist, True)
+        spin_assert(lambda: self.assertNotEqual(exist, True))

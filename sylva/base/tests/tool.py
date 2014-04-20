@@ -8,6 +8,8 @@ from splinter import Browser
 from base.tests.user import signup, signin, logout
 from graphs.models import Graph
 
+from utils import spin_assert
+
 
 def create_graph(test, name):
     """
@@ -16,18 +18,18 @@ def create_graph(test, name):
     test.browser.visit(test.live_server_url + '/graphs/create/')
     text = test.browser.find_by_xpath(
         "//header[@class='global']/h2").first.value
-    test.assertNotEqual(text.find('Create New Graph'), -1)
-    test.assertEqual(text, 'Create New Graph')
+    spin_assert(lambda: test.assertNotEqual(text.find('Create New Graph'), -1))
+    spin_assert(lambda: test.assertEqual(text, 'Create New Graph'))
     test.browser.find_by_name('name').first.fill(name)
     test.browser.find_by_xpath(
         "//form[@name='graphs_create']/p/textarea[@name='description']").first.fill('The loved graph')
     test.browser.find_by_name('addGraph').first.click()
     text = test.browser.find_by_xpath(
         "//header[@class='global']/h1").first.value
-    test.assertEqual(text, 'Dashboard')
+    spin_assert(lambda: test.assertEqual(text, 'Dashboard'))
     text = test.browser.find_link_by_href(
         '/graphs/' + name + '/').first.value
-    test.assertEqual(text, name)
+    spin_assert(lambda: test.assertEqual(text, name))
 
 
 def create_advanced_schema(test, name):
@@ -38,12 +40,13 @@ def create_advanced_schema(test, name):
     test.browser.find_link_by_href(
         '/graphs/' + name + '/').first.click()
     test.browser.is_text_present('Your Schema is empty.')
-    test.assertEqual(test.browser.title, "SylvaDB - " + name)
+    spin_assert(lambda: test.assertEqual(test.browser.title, "SylvaDB - " + name))
     test.browser.find_link_by_href(
         '/schemas/' + name + '/').first.click()
     text = test.browser.find_by_xpath(
         "//div[@class='body-inside']/p").first.value
-    test.assertEqual(text, 'There are no types defined yet.')
+    spin_assert(lambda: test.assertEqual(text,
+                                         'There are no types defined yet.'))
 
 
 def create_advanced_type(test, name, datatype):
@@ -55,7 +58,7 @@ def create_advanced_type(test, name, datatype):
         '/schemas/' + name + '/types/create/').first.click()
     text = test.browser.find_by_xpath(
         "//div[@class='content2-first']/h2").first.value
-    test.assertEqual(text, 'Type')
+    spin_assert(lambda: test.assertEqual(text, 'Type'))
     test.browser.find_by_name('name').first.fill("Bob's type")
     test.browser.find_by_xpath(
         "//div[@class='content2-first']/p/textarea[@name='description']").first.fill('The loved type')
@@ -66,7 +69,7 @@ def create_advanced_type(test, name, datatype):
     test.browser.find_by_value('Save Type').first.click()
     text = test.browser.find_by_id(
         'diagramBoxField_bobgraph.bobs-type.undefined').first.value
-    test.assertEqual(text, "Name")
+    spin_assert(lambda: test.assertEqual(text, "Name"))
 
 
 def create_advanced_type_and_relationship(test, name, datatype):
@@ -78,7 +81,7 @@ def create_advanced_type_and_relationship(test, name, datatype):
         '/schemas/' + name + '/types/create/').first.click()
     text = test.browser.find_by_xpath(
         "//div[@class='content2-first']/h2").first.value
-    test.assertEqual(text, 'Type')
+    spin_assert(lambda: test.assertEqual(text, 'Type'))
     test.browser.find_by_name('name').first.fill("Bob's type")
     test.browser.find_by_xpath(
         "//div[@class='content2-first']/p/textarea[@name='description']").first.fill('The loved type')
@@ -89,7 +92,7 @@ def create_advanced_type_and_relationship(test, name, datatype):
     test.browser.find_by_value('Save Type').first.click()
     text = test.browser.find_by_id(
         'diagramBoxField_bobgraph.bobs-type.undefined').first.value
-    test.assertEqual(text, "Name")
+    spin_assert(lambda: test.assertEqual(text, "Name"))
     # We create a relationship
     test.browser.find_by_id('allowedRelations').first.click()
 
@@ -102,11 +105,12 @@ def create_advanced_data(test):
     test.browser.find_by_xpath(
         "//a[@class='dataOption new']").first.click()
     text = test.browser.find_by_id('propertiesTitle').first.value
-    test.assertEqual(text, 'Properties')
+    spin_assert(lambda: test.assertEqual(text, 'Properties'))
     test.browser.find_by_value("Save Bob's type").first.click()
     text = test.browser.find_by_xpath("//div[@class='pagination']/span[@class='pagination-info']").first.value
     # The next line must be more 'specific' when we can destroy Neo4j DBs
-    test.assertNotEqual(text.find(" elements Bob's type."), -1)
+    spin_assert(lambda: test.assertNotEqual(
+        text.find(" elements Bob's type."), -1))
 
 
 def export_advanced_schema(test, name):
@@ -117,13 +121,16 @@ def export_advanced_schema(test, name):
     test.browser.find_by_id('toolsMenu').first.click()
     cookies = {test.browser.cookies.all()[0]["name"]: test.browser.cookies.all()[0]["value"], test.browser.cookies.all()[1]["name"]: test.browser.cookies.all()[1]["value"]}
     result = requests.get(test.live_server_url + '/schemas/' + name + '/export/', cookies=cookies)
-    test.assertEqual(result.headers['content-type'], 'application/json')
-    test.assertEqual(test.browser.status_code.is_success(), True)
+    spin_assert(lambda: test.assertEqual(
+        result.headers['content-type'], 'application/json'))
+    spin_assert(lambda: test.assertEqual(
+        test.browser.status_code.is_success(), True))
     fw = open('sylva/base/tests/files/gexf/' + name + '_schema.json', 'w')
     fw.write(result.content)
     fw.close()
     f = open('sylva/base/tests/files/gexf/' + name + '_schema.json')
-    test.assertEqual(f.read().split("\n")[0], result.content)
+    spin_assert(lambda: test.assertEqual(
+        f.read().split("\n")[0], result.content))
 
 
 def import_advanced_schema(test, name_export, name_import):
@@ -132,12 +139,15 @@ def import_advanced_schema(test, name_export, name_import):
     the graph to import and the graph from import.
     """
     create_graph(test, name_import)
-    test.assertEqual(test.browser.title, 'SylvaDB - Dashboard')
+    spin_assert(lambda: test.assertEqual(
+        test.browser.title, 'SylvaDB - Dashboard'))
     test.browser.find_link_by_href('/graphs/' + name_import + '/').first.click()
     test.browser.is_text_present('Your Schema is empty.')
-    test.assertEqual(test.browser.title, "SylvaDB - " + name_import)
+    spin_assert(lambda: test.assertEqual(
+        test.browser.title, "SylvaDB - " + name_import))
     test.browser.find_link_by_href('/schemas/' + name_import + '/').first.click()
-    test.assertEqual(test.browser.title, "SylvaDB - " + name_import)
+    spin_assert(lambda: test.assertEqual(
+        test.browser.title, "SylvaDB - " + name_import))
     test.browser.find_by_id('schemaImport').first.click()
     file_path = os.path.join(
         os.path.abspath(os.path.dirname(__file__)),
@@ -145,9 +155,10 @@ def import_advanced_schema(test, name_export, name_import):
     )
     test.browser.attach_file('file', file_path)
     test.browser.find_by_value('Continue').first.click()
-    test.assertEqual(test.browser.title, "SylvaDB - " + name_import)
+    spin_assert(lambda: test.assertEqual(
+        test.browser.title, "SylvaDB - " + name_import))
     text = test.browser.find_by_id('diagramBoxField_' + name_import + '.bobs-type-2.undefined').first.value
-    test.assertEqual(text, "Name")
+    spin_assert(lambda: test.assertEqual(text, "Name"))
 
 
 def import_advanced_schema_csv(test, name_export, name_import):
@@ -156,12 +167,15 @@ def import_advanced_schema_csv(test, name_export, name_import):
     the graph to import and the graph from import. Csv format.
     """
     create_graph(test, name_import)
-    test.assertEqual(test.browser.title, 'SylvaDB - Dashboard')
+    spin_assert(lambda: test.assertEqual(
+        test.browser.title, 'SylvaDB - Dashboard'))
     test.browser.find_link_by_href('/graphs/' + name_import + '/').first.click()
     test.browser.is_text_present('Your Schema is empty.')
-    test.assertEqual(test.browser.title, "SylvaDB - " + name_import)
-    test.browser.find_link_by_href('/schemas/' + name_import + '/').first.click()
-    test.assertEqual(test.browser.title, "SylvaDB - " + name_import)
+    spin_assert(lambda: test.assertEqual(
+        test.browser.title, "SylvaDB - " + name_import))
+    test.browser.find_link_by_href(
+        '/schemas/' + name_import + '/').first.click()
+    spin_assert(lambda: test.assertEqual(test.browser.title, "SylvaDB - " + name_import))
     test.browser.find_by_id('schemaImport').first.click()
     file_path = os.path.join(
         os.path.abspath(os.path.dirname(__file__)),
@@ -169,17 +183,19 @@ def import_advanced_schema_csv(test, name_export, name_import):
     )
     test.browser.attach_file('file', file_path)
     test.browser.find_by_value('Continue').first.click()
-    test.assertEqual(test.browser.title, "SylvaDB - " + name_import)
+    spin_assert(lambda: test.assertEqual(test.browser.title, "SylvaDB - " + name_import))
     text = test.browser.find_by_id('diagramBoxField_' + name_import + '.bobs-type-2.undefined').first.value
-    test.assertEqual(text, "Name")
+    spin_assert(lambda: test.assertEqual(text, "Name"))
 
 
 def data_export_gexf(test):
     test.browser.find_by_id('toolsMenu').first.click()
     cookies = {test.browser.cookies.all()[0]["name"]: test.browser.cookies.all()[0]["value"], test.browser.cookies.all()[1]["name"]: test.browser.cookies.all()[1]["value"]}
     result = requests.get(test.live_server_url + '/tools/bobgraph/export/gexf/', cookies=cookies)
-    test.assertEqual(result.headers['content-type'], 'application/xml')
-    test.assertEqual(test.browser.status_code.is_success(), True)
+    spin_assert(lambda: test.assertEqual(
+        result.headers['content-type'], 'application/xml'))
+    spin_assert(lambda: test.assertEqual(
+        test.browser.status_code.is_success(), True))
     fw = open('sylva/base/tests/files/gexf/bobs-graph.gexf', 'w')
     fw.write(result.content)
     fw.close()
@@ -188,7 +204,7 @@ def data_export_gexf(test):
     for line in f:
         xmlFile += line
     f.close()
-    test.assertEqual(xmlFile, result.content)
+    spin_assert(lambda: test.assertEqual(xmlFile, result.content))
 
 
 def data_import_gexf(test):
@@ -246,8 +262,10 @@ class ToolsTestCaseGexf(LiveServerTestCase):
         bobgraph = Graph.objects.get(name=self.firstGraphName)
         alicegraph = Graph.objects.get(name=self.secondGraphName)
         alicegraphNodes = alicegraph.nodes.count()
-        self.assertEqual(bobgraph.nodes.count(), alicegraph.nodes.count())
-        self.assertEqual(bobgraph.relationships.count(), alicegraph.relationships.count())
+        spin_assert(lambda: self.assertEqual(
+            bobgraph.nodes.count(), alicegraph.nodes.count()))
+        spin_assert(lambda: self.assertEqual(
+            bobgraph.relationships.count(), alicegraph.relationships.count()))
         # We store the auto value to compare later
         alice_type = alicegraph.schema.nodetype_set.get()
         alice_properties = alice_type.properties.values()[0]
@@ -257,16 +275,18 @@ class ToolsTestCaseGexf(LiveServerTestCase):
         self.browser.find_by_xpath(
             "//a[@class='dataOption new']").first.click()
         text = self.browser.find_by_id('propertiesTitle').first.value
-        self.assertEqual(text, 'Properties')
+        spin_assert(lambda: self.assertEqual(text, 'Properties'))
         self.browser.find_by_value("Save Bob's type").first.click()
         text = self.browser.find_by_xpath("//div[@class='pagination']/span[@class='pagination-info']").first.value
-        self.assertNotEqual(text.find(" elements Bob's type."), -1)
-        self.assertEqual(alicegraphNodes + 1, alicegraph.nodes.count())
+        spin_assert(lambda: self.assertNotEqual(
+            text.find(" elements Bob's type."), -1))
+        spin_assert(lambda: self.assertEqual(
+            alicegraphNodes + 1, alicegraph.nodes.count()))
         # We check the new value for auto
         alice_type_new = alicegraph.schema.nodetype_set.get()
         alice_properties_new = alice_type_new.properties.values()[0]
         alice_auto_new = alice_properties_new['auto']
-        self.assertEqual(alice_auto + 1, alice_auto_new)
+        spin_assert(lambda: self.assertEqual(alice_auto + 1, alice_auto_new))
         # Destroy the databases
         Graph.objects.get(name=self.firstGraphName).destroy()
         Graph.objects.get(name=self.secondGraphName).destroy()
@@ -288,8 +308,10 @@ class ToolsTestCaseGexf(LiveServerTestCase):
         bobgraph = Graph.objects.get(name=self.firstGraphName)
         alicegraph = Graph.objects.get(name=self.secondGraphName)
         alicegraphNodes = alicegraph.nodes.count()
-        self.assertEqual(bobgraph.nodes.count(), alicegraph.nodes.count())
-        self.assertEqual(bobgraph.relationships.count(), alicegraph.relationships.count())
+        spin_assert(lambda: self.assertEqual(
+            bobgraph.nodes.count(), alicegraph.nodes.count()))
+        spin_assert(lambda: self.assertEqual(
+            bobgraph.relationships.count(), alicegraph.relationships.count()))
         # We store the auto now value to compare
         auto_now_date_bob = ""
         auto_now_date_alice = ""
@@ -297,17 +319,20 @@ class ToolsTestCaseGexf(LiveServerTestCase):
             auto_now_date_bob = node.properties.values()[0]
         for node in alicegraph.nodes.all():
             auto_now_date_alice = node.properties.values()[0]
-        self.assertEqual(auto_now_date_bob, auto_now_date_alice)
+        spin_assert(lambda: self.assertEqual(
+            auto_now_date_bob, auto_now_date_alice))
         # Add new nodes and relationships and check all is correct
         self.browser.find_by_id('dataMenu').first.click()
         self.browser.find_by_xpath(
             "//a[@class='dataOption new']").first.click()
         text = self.browser.find_by_id('propertiesTitle').first.value
-        self.assertEqual(text, 'Properties')
+        spin_assert(lambda: self.assertEqual(text, 'Properties'))
         self.browser.find_by_value("Save Bob's type").first.click()
         text = self.browser.find_by_xpath("//div[@class='pagination']/span[@class='pagination-info']").first.value
-        self.assertNotEqual(text.find(" elements Bob's type."), -1)
-        self.assertEqual(alicegraphNodes + 1, alicegraph.nodes.count())
+        spin_assert(lambda: self.assertNotEqual(
+            text.find(" elements Bob's type."), -1))
+        spin_assert(lambda: self.assertEqual(
+            alicegraphNodes + 1, alicegraph.nodes.count()))
         # Destroy the databases
         Graph.objects.get(name=self.firstGraphName).destroy()
         Graph.objects.get(name=self.secondGraphName).destroy()
@@ -329,18 +354,22 @@ class ToolsTestCaseGexf(LiveServerTestCase):
         bobgraph = Graph.objects.get(name=self.firstGraphName)
         alicegraph = Graph.objects.get(name=self.secondGraphName)
         alicegraphNodes = alicegraph.nodes.count()
-        self.assertEqual(bobgraph.nodes.count(), alicegraph.nodes.count())
-        self.assertEqual(bobgraph.relationships.count(), alicegraph.relationships.count())
+        spin_assert(lambda: self.assertEqual(
+            bobgraph.nodes.count(), alicegraph.nodes.count()))
+        spin_assert(lambda: self.assertEqual(
+            bobgraph.relationships.count(), alicegraph.relationships.count()))
         # Add new nodes and relationships and check all is correct
         self.browser.find_by_id('dataMenu').first.click()
         self.browser.find_by_xpath(
             "//a[@class='dataOption new']").first.click()
         text = self.browser.find_by_id('propertiesTitle').first.value
-        self.assertEqual(text, 'Properties')
+        spin_assert(lambda: self.assertEqual(text, 'Properties'))
         self.browser.find_by_value("Save Bob's type").first.click()
         text = self.browser.find_by_xpath("//div[@class='pagination']/span[@class='pagination-info']").first.value
-        self.assertNotEqual(text.find(" elements Bob's type."), -1)
-        self.assertEqual(alicegraphNodes + 1, alicegraph.nodes.count())
+        spin_assert(lambda: self.assertNotEqual(
+            text.find(" elements Bob's type."), -1))
+        spin_assert(lambda: self.assertEqual(
+            alicegraphNodes + 1, alicegraph.nodes.count()))
         # Destroy the databases
         Graph.objects.get(name=self.firstGraphName).destroy()
         Graph.objects.get(name=self.secondGraphName).destroy()
@@ -409,18 +438,21 @@ class ToolsTestCaseCsv(LiveServerTestCase):
         self.browser.find_by_xpath("//a[@class='dataOption list']").first.click()
         alicegraph = Graph.objects.get(name=self.secondGraphName)
         alicegraphNodes = alicegraph.nodes.count()
-        self.assertEqual(3, alicegraph.nodes.count())
-        self.assertEqual(1, alicegraph.relationships.count())
+        spin_assert(lambda: self.assertEqual(3, alicegraph.nodes.count()))
+        spin_assert(lambda: self.assertEqual(
+            1, alicegraph.relationships.count()))
         # Add new nodes and relationships and check all is correct
         self.browser.find_by_id('dataMenu').first.click()
         self.browser.find_by_xpath(
             "//a[@class='dataOption new']").first.click()
         text = self.browser.find_by_id('propertiesTitle').first.value
-        self.assertEqual(text, 'Properties')
+        spin_assert(lambda: self.assertEqual(text, 'Properties'))
         self.browser.find_by_value("Save Bob's type").first.click()
         text = self.browser.find_by_xpath("//div[@class='pagination']/span[@class='pagination-info']").first.value
-        self.assertNotEqual(text.find(" elements Bob's type."), -1)
-        self.assertEqual(alicegraphNodes + 1, alicegraph.nodes.count())
+        spin_assert(lambda: self.assertNotEqual(
+            text.find(" elements Bob's type."), -1))
+        spin_assert(lambda: self.assertEqual(
+            alicegraphNodes + 1, alicegraph.nodes.count()))
         # Destroy the databases
         Graph.objects.get(name=self.firstGraphName).destroy()
         Graph.objects.get(name=self.secondGraphName).destroy()

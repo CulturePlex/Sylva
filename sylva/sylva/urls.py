@@ -62,6 +62,9 @@ urlpatterns = patterns('',
 
     # reports
     url(r'^reports/', include('reports.urls')),
+
+    # analytics
+    url(r'^analytics/', include('analytics.urls')),
 )
 
 urlpatterns += patterns('django.contrib.flatpages.views',

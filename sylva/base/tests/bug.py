@@ -6,6 +6,8 @@ from user import signup, signin, logout
 from dashboard import create_graph, create_schema
 from graphs.models import Graph
 
+from utils import spin_assert
+
 
 class BugTestCase(LiveServerTestCase):
     """
@@ -118,8 +120,10 @@ class BugTestCase(LiveServerTestCase):
         self.browser.find_link_by_href('/graphs/bobs-graph/').first.click()
         nodes = self.browser.find_by_xpath("//div[@class='flags-block']/span[@class='graph-nodes']").first.value
         rels = self.browser.find_by_xpath("//div[@class='flags-block']/span[@class='graph-relationships']").first.value
-        self.assertEqual(str(real_nodes) + " nodes", nodes)
-        self.assertEqual(str(real_rels) + " relationships", rels)
+        spin_assert(lambda: self.assertEqual(
+            str(real_nodes) + " nodes", nodes))
+        spin_assert(lambda: self.assertEqual(
+            str(real_rels) + " relationships", rels))
 
     def test_node_rel_count_two(self):
         '''
@@ -243,8 +247,10 @@ class BugTestCase(LiveServerTestCase):
         self.browser.find_link_by_href('/graphs/bobs-graph/').first.click()
         nodes = self.browser.find_by_xpath("//div[@class='flags-block']/span[@class='graph-nodes']").first.value
         rels = self.browser.find_by_xpath("//div[@class='flags-block']/span[@class='graph-relationships']").first.value
-        self.assertEqual(str(real_nodes) + " nodes", nodes)
-        self.assertEqual(str(real_rels) + " relationships", rels)
+        spin_assert(lambda: self.assertEqual(
+            str(real_nodes) + " nodes", nodes))
+        spin_assert(lambda: self.assertEqual(
+            str(real_rels) + " relationships", rels))
 
     def test_node_rel_count_three(self):
         '''
@@ -360,8 +366,10 @@ class BugTestCase(LiveServerTestCase):
         self.browser.find_link_by_href('/graphs/bobs-graph/').first.click()
         nodes = self.browser.find_by_xpath("//div[@class='flags-block']/span[@class='graph-nodes']").first.value
         rels = self.browser.find_by_xpath("//div[@class='flags-block']/span[@class='graph-relationships']").first.value
-        self.assertEqual(str(real_nodes) + " nodes", nodes)
-        self.assertEqual(str(real_rels) + " relationships", rels)
+        spin_assert(lambda: self.assertEqual(
+            str(real_nodes) + " nodes", nodes))
+        spin_assert(lambda: self.assertEqual(
+            str(real_rels) + " relationships", rels))
 
     def test_node_rel_count_four(self):
         '''
@@ -491,5 +499,7 @@ class BugTestCase(LiveServerTestCase):
         self.browser.find_link_by_href('/graphs/bobs-graph/').first.click()
         nodes = self.browser.find_by_xpath("//div[@class='flags-block']/span[@class='graph-nodes']").first.value
         rels = self.browser.find_by_xpath("//div[@class='flags-block']/span[@class='graph-relationships']").first.value
-        self.assertEqual(str(real_nodes) + " nodes", nodes)
-        self.assertEqual(str(real_rels) + " relationships", rels)
+        spin_assert(lambda: self.assertEqual(
+            str(real_nodes) + " nodes", nodes))
+        spin_assert(lambda: self.assertEqual(
+            str(real_rels) + " relationships", rels))

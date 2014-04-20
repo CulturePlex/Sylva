@@ -277,6 +277,27 @@ class NodeType(BaseType):
     def __unicode__(self):
         return "%s" % (self.name)
 
+    def has_color(self):
+        return 'color' in self.get_options()
+
+    def create_color(self):
+        with transaction.atomic():
+            color = self.schema.get_color()
+            self.schema.save()
+        self.set_color(color)
+        return color
+
+    def get_color(self):
+        if self.has_color():
+            return self.get_option('color')
+        else:
+            return self.create_color()
+
+    def set_color(self, color):
+        with transaction.atomic():
+            self.set_option('color', color)
+            self.save()
+
     def get_incoming_relationships(self, reflexive=False):
         relationship_types = RelationshipType.objects.filter(target=self)
         if reflexive:

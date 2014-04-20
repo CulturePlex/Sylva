@@ -27,11 +27,7 @@ class Analytic(models.Model):
     task_start = models.DateTimeField(_("task_start"), null=True, blank=True)
     task_end = models.DateTimeField(_("task_end"), null=True, blank=True)
     task_status = models.CharField(_("task_status"), max_length=250, null=True, blank=True)
-
-    """
-    task_errors
-    task_message
-    """
+    task_error = models.CharField(_("task_error"), max_length=250, null=True, blank=True)
 
 
 class AnalysisManager(models.Manager):
@@ -46,11 +42,7 @@ class AnalysisManager(models.Manager):
         # analytic = Analytic.objects.create(graph=self._graph, algorithm=algorithm, affected_nodes=affected_nodes_array)
         analytic = Analytic.objects.create(graph=self._graph, algorithm=algorithm)
         task = algorithm_func.apply_async(kwargs={'graph': self._graph, 'analytic': analytic})
-        # Get the task values
-        # while task.status != 'SUCCESS':
-        #     print task.status
-        analytic.task_id = task.id
-        analytic.task_status = task.status
+        analytic.task_id = task.task_id
         analytic.save()
 
         return analytic
