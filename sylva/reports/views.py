@@ -11,6 +11,7 @@ from guardian.decorators import permission_required
 from base.decorators import is_enabled
 from graphs.models import Graph, Schema
 
+settings.ENABLE_REPORTS = True
 
 @permission_required("schemas.view_schema",
                      (Schema, "graph__slug", "graph_slug"), return_403=True)

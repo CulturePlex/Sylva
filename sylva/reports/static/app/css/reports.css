@@ -1,13 +1,3 @@
-.bin {
-  margin: 0 5px;
-  float: left;
-  border: 3px solid #D8E8DE;
-  padding: 20px;
-  margin-top: 20px;
-  opacity: 0.9;
-  filter: alpha(opacity=90);
- }
-
 .cont {
     max-height: 600px;
     min-height: 450px
@@ -16,29 +6,22 @@
 .content2-first {
     width: 347px;
     float: left;
-    padding-left: 2px;
-    
+    padding-left: 2px;    
 }
 
 .content2-cont {
     width: 710px;
     float: left;
-    padding-left: 30px;
-    
+    padding-left: 30px;    
 }
 
  #col1, #col2 {
-  float: left;
-  width: auto;
-  padding: 10px;
+    float: left;
+    width: auto;
+    padding: 10px;
  }
 
-#row1 {
-  float: left;
-  width: 100%;
-}
-
-#row2 {
+#row1 #row2{
   float: left;
   width: 100%;
 }
@@ -49,7 +32,6 @@
 
 .editable-table {
   width: 100%;
-
 }
 
 .report-table:hover {
@@ -60,7 +42,6 @@
   width: 100%;
   height: 400px;
   overflow: hidden;
-
 }
 
 .rows {
@@ -71,15 +52,10 @@
   border-top: 2px solid #348E82;
   width: 100%;
   height: 175px;
-
 }
 
 .trow.bottom {
-  border-top: 2px solid #348E82;
   border-bottom: 2px solid #348E82;
-  width: 100%;
-  height: 175px;
-
 }
 
 .tcell {
@@ -90,43 +66,6 @@
   border-left: 2px solid #348E82;
 }
 
-
 .tcell.final {
   border-right: 2px solid #348E82;
 }
-
-.divider{
-    z-index: 10000;
-    position:relative;
-    background-color: #348E82; ;
-    float: left;
-    height: 200px;
-    width:2px;
-}
-
-
-/*.tcell-final::after {
-  content: "";
-  position: absolute;
-
-  top: 0;
-  bottom: 0;
-  left: 99%;
-  border-right: 3px solid #D8E8DE;
-  height: 200px;
-}
-
-.tcell::after {
-  content: "";
-  position: absolute;
-
-  top: 0;
-  bottom: 0;
-  left: 99%;
-  border-right: 3px solid #D8E8DE;
-  height: 200px;
-
-
-}
-
-
