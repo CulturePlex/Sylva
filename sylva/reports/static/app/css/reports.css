@@ -72,6 +72,8 @@
 .arrow {
   position: absolute;
   margin: auto;
+  font-size: x-large;
+  font-weight: bold;
 }
 
 .arrow.left {

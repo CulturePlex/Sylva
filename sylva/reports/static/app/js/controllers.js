@@ -27,10 +27,10 @@ controllers.controller('BaseReportFormCtrl', [
         $scope.graph = parser.parse();
         $scope.queries = [];
         $scope.report = {
-            openCtxMenu: false,
             table: null
         };
 
+        
         $scope.designReport = function () {
             api.queries.query({graphSlug: $scope.graph}, function (data) {
                 $scope.queries = data;
@@ -47,7 +47,6 @@ controllers.controller('BaseReportFormCtrl', [
                 $scope.report.queries[binId] = drop;
             }
         }; 
-
 
         $scope.format = function () {
             $scope.report.table = false;
@@ -66,6 +65,10 @@ controllers.controller('BaseReportFormCtrl', [
                 $location.path(redirect);
             });
         };
+
+        $scope.mergeCells = function() {
+            console.log('left')
+        }
 }]);
 
 

@@ -166,35 +166,41 @@ directives.directive('syEditableTable', ['$compile', 'tableArray', function ($co
 }]);
 
 
-directives.directive('syMergeCells', ['$parse', '$window', function ($parse, $window) {
+directives.directive('syMergeCells', ['$parse', '$window', '$compile', function ($parse, $window, $compile) {
     return {
         link: function (scope, elem, attrs) {
             var ang = angular.element
             ,   win = angular.element($window)
             ,   arrows = false
+            ,   row = parseInt(elem.attr('row'))
+            ,   col = parseInt(elem.attr('col'))
             ,   arrowHtml = {
-                    left: '<a class="arrow left">&#8592</a>', 
-                    up: '<a class="arrow up">&#8593</a>',
-                    right: '<a class="arrow right">&#8594</a>',
-                    down: '<a class="arrow down">&#8595</a>'
+                    left: '<a class="arrow left" href="" ng-click="mergeCells()">&#8592</a>', 
+                    up: '<a class="arrow up" href="" ng-click="mergeCells()">&#8593</a>',
+                    right: '<a class="arrow right" href="" ng-click="mergeCells()">&#8594</a>',
+                    down: '<a class="arrow down" href="" ng-click="mergeCells()">&#8595</a>'
             };
+
             
-            elem.bind("mouseover", function (event) {
+            
+            elem.bind("click", function (event) {
                 if (!arrows) {
-                    var row = parseInt(elem.attr('row'))
-                    ,   col = parseInt(elem.attr('col'))
-                    ,   adjs = scope.report.tarray.findAdjCells(row, col);
+                    ang('.arrow').remove();
+                    var adjs = scope.report.tarray.findAdjCells(row, col);
                     angular.forEach(adjs, function (el) {
-                        elem.append(arrowHtml[el]);
+                        var arrow = $compile(arrowHtml[el])(scope)
+                        elem.append(arrow);
                     });
-                    arrows = true;   
-                }  
+                    arrows = true;
+                } else {
+                    console.log('else', elem.children())
+                    ang('.arrow').remove();
+                    arrows = false;
+                }
             });
 
             elem.bind("mouseout", function (event) {
-                elem.remove('#arrow')
-                ang('.arrow').remove()
-                arrows = false;
+                arrows = false
             });
         }
     }
