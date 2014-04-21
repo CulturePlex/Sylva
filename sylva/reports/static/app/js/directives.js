@@ -8,7 +8,7 @@ directives.directive('syUpdateText', function () {
     return {
         link:function(scope) {
             scope.$watch('report.name', function (newVal, oldVal) {
-                scope.report.nameHtml = '<h2>' + newVal + '</h2>';
+                scope.report.name = newVal;
             });
         }
     };
@@ -48,9 +48,11 @@ directives.directive('syEditableTable', ['$compile', 'tableArray', function ($co
             ,   addCol = ang(buttons.children()[1])
             ,   numRows = 2
             ,   numCols = 2
-            ,   tarray = tableArray(rowCont, ang);
+            ,   tableObj = prepTable(rowCont)
+            ,   tarray = tableArray(tableObj);
+
             setTimeout(function () {
-                scope.report.tarray = tarray;    
+                scope.report.tarray = tarray; 
             }, 1000)
 
             addRow.bind('click', function () {
@@ -88,7 +90,8 @@ directives.directive('syEditableTable', ['$compile', 'tableArray', function ($co
                 rowCont.append(bottomRow);
                 // add row method here for model data structure instead of new array
                 scope.$apply(function () {
-                    scope.report.tarray = tableArray(rowCont, ang);
+                    var tableObj = prepTable(rowCont);
+                    scope.report.tarray = tableArray(tableObj);
                 });
                 numRows++;
             });
@@ -112,21 +115,52 @@ directives.directive('syEditableTable', ['$compile', 'tableArray', function ($co
                             '" style="width:' + width + 
                             '" row="' + i +
                             '" rowspan="' + 1 +
-                            '" col="' + row.length +
+                            '" col="' + numCols +
                             '" colspan="' + 1 +
                             '"></div>'
                         )(scope);
                         ang(row).append(cell);
                         id++;
+                        console.log('length', numCols)
                     }
                     numCols++;
                     scope.$apply(function () {
-                        scope.report.tarray = tableArray(rowCont, ang);
+                        var tableObj = prepTable(rowCont);
+                        scope.report.tarray = tableArray(tableObj);
+                        console.log('tarray', scope.report.tarray)
                      });
                 } else {
                     alert('Max 4 Columns, add as many rows as you want')
                 }
             });
+
+            function prepTable(table) {
+                var tableArray = []
+                ,   rows = ang(table.children());
+                angular.forEach(rows, function (el) {
+                    var row = mapper(el);
+                    tableArray.push(row);
+                });
+                return tableArray;
+            };
+
+            function mapper(tr) {
+                var row = []
+                ,   tr = ang(tr).children();
+                for(var i=0; i<tr.length; i++) {
+                    var cell = ang(tr[i])
+                    ,   cellObj = {
+                        id: cell.attr('id'),
+                        row: cell.attr('row'),
+                        col: cell.attr('col'),
+                        rowspan: cell.attr('rowspan'),
+                        colspan: cell.attr('colspan')
+                    };
+                    row.push(cellObj);        
+                }
+                return row;
+            };
+
         }
     } 
 }]);
@@ -139,16 +173,14 @@ directives.directive('syMergeCells', ['$parse', '$window', function ($parse, $wi
             ,   win = angular.element($window)
             ,   arrows = false
             ,   arrowHtml = {
-                    left: '<a class="arrow">&#8592</a>', 
-                    up: '<a class="arrow">&#8593</a>',
-                    right: '<a class="arrow">&#8594</a>',
-                    down: '<a class="arrow">&#8595</a>'
+                    left: '<a class="arrow left">&#8592</a>', 
+                    up: '<a class="arrow up">&#8593</a>',
+                    right: '<a class="arrow right">&#8594</a>',
+                    down: '<a class="arrow down">&#8595</a>'
             };
             
-
             elem.bind("mouseover", function (event) {
                 if (!arrows) {
-                    console.log(elem.attr('row'))
                     var row = parseInt(elem.attr('row'))
                     ,   col = parseInt(elem.attr('col'))
                     ,   adjs = scope.report.tarray.findAdjCells(row, col);
@@ -158,7 +190,6 @@ directives.directive('syMergeCells', ['$parse', '$window', function ($parse, $wi
                     arrows = true;   
                 }  
             });
-
 
             elem.bind("mouseout", function (event) {
                 elem.remove('#arrow')

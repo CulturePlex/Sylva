@@ -36,18 +36,11 @@ services.factory('parser', ['$location', function ($location) {
     return new Parser();
 }]);
 
+
 services.factory('tableArray', function () {
 
-    function TableArray(table, ang) {
-        this.tableArray = [];
-        this.mapper = mapper;
-        this.ang = ang;
-        var self = this
-        ,   rows = this.ang(table.children());
-        angular.forEach(rows, function (el) {
-            var row = mapper(el, self.ang);
-            self.tableArray.push(row);
-        });
+    function TableArray(tableArray) {
+        this.tableArray = tableArray  
     };
 
     TableArray.prototype.findAdjCells = function(row, col) {
@@ -69,23 +62,7 @@ services.factory('tableArray', function () {
         console.log('jsonify')
     }
 
-    var mapper = function(tr, ang) {
-        var row = []
-        ,   tr = ang(tr).children();
-        for(var i=0; i<tr.length; i++) {
-            var cell = ang(tr[i])
-            ,   cellObj = {
-                id: cell.attr('id'),
-                xndx: cell.attr('row'),
-                yndx: cell.attr('col'),
-                rowspan: cell.attr('rowspan'),
-                colspan: cell.attr('colspan')
-            };
-            row.push(cellObj);        
-        }
-        return row;
-    }  
-    
+      
     return function (table, ang) {
         return new TableArray(table, ang);
     }

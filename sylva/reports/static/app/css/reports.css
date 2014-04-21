@@ -61,11 +61,35 @@
 .tcell {
   height: 100%;
   float: left;
-  position:relative;
-  text-align:center;
+  position: relative;
   border-left: 2px solid #348E82;
 }
 
 .tcell.final {
   border-right: 2px solid #348E82;
+}
+
+.arrow {
+  position: absolute;
+  margin: auto;
+}
+
+.arrow.left {
+  top: 50%;
+  left: 0;
+}
+
+.arrow.up {
+  top: 0;
+  left: 50%;
+}
+
+.arrow.right {
+  top: 50%;
+  right: 0;
+}
+
+.arrow.down {
+  bottom: 0;  
+  left: 50%;
 }
