@@ -28,12 +28,6 @@
         <a id="builder-results"><h2 style="display: inline;">{% trans "Results" %}</h2></a>
     </div>
     <div id="query-builder-query">
-        <div id="query-information">
-            <label for="query-name">{% trans "Name" %}</label>
-            <input id="query-name" type="text" />
-            <label id="label-description" for="query-description">{% trans "Description" %}</label>
-            <textarea id="query-description" rows="4" cols="50" >{% trans "Write a description..." %}</textarea>
-        </div>
         <div class="content2-second diagram" style="margin-top: 15px;">
             <nav id="select-node">
                 <a href="#">{% trans "Type nodes" %}</a>
@@ -56,6 +50,12 @@
         <a class="button" id="run-button" href="#">{% trans "Run" %}</a>
         <a class="button" id="clear-button" href="#">{% trans "Clear query" %}</a>
         <a class="button" id="save-button" href="#">{% trans "Save query" %}</a>
+        <div id="query-information">
+            <label for="query-name">{% trans "Name" %}</label>
+            <input id="query-name" type="text" />
+            <label id="label-description" for="query-description">{% trans "Description" %}</label>
+            <textarea id="query-description" rows="4" cols="50" >{% trans "Write a description..." %}</textarea>
+        </div>
     </div>
     <div id="query-builder-results">
         <div id="results"></div>

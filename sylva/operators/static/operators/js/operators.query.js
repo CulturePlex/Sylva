@@ -12,7 +12,6 @@ diagram.CurrentModels = [];
 diagram.Counter = 0;
 diagram.CounterRels = 0;
 diagram.fieldCounter = 0;
-diagram.wildcardFieldCounter = 0;
 diagram.fieldRelsCounter = 0;
 diagram.nodetypesCounter = [];
 diagram.reltypesCounter = [];
@@ -309,39 +308,7 @@ diagram.lookupsValuesType = {
             });
             divContainerBoxes = $("<DIV>");
             divContainerBoxes.attr("id", idContainerBoxes);
-            if(typeName != "wildcard") {
-                divContainerBoxes.append(divAddBox);
-            } else {
-                var divWildcardInputsId = idBox + "-fields";
-                var wildcardInputId = idBox + "-" + diagram.wildcardFieldCounter;
-                diagram.wildcardFieldCounter++;
-                var divWildcardInputsBox = $("<DIV>");
-                divWildcardInputsBox.attr('id', idTopBox);
-                divWildcardInputsBox.css({
-                    "border-bottom": "2px dashed #348E82"
-                });
-                var divWildcardInputs = $("<DIV>");
-                divWildcardInputs.attr('id', divWildcardInputsId);
-                // We add an input field to get the return value
-                wildcardInput = $("<INPUT>");
-                wildcardInput.addClass("wildCardInput");
-                wildcardInput.attr('id', wildcardInputId);
-                // Link to add more input fields
-                var addWildcardInput = $("<A>");
-                addWildcardInput.addClass("add-wildcard-input");
-                addWildcardInput.attr("data-parentid", divWildcardInputsId);
-                addWildcardInput.attr("data-fieldid", wildcardInputId);
-                addWildcardInput.attr("data-idbox", idBox);
-                var addWildcardInputIcon = $("<I>");
-                addWildcardInputIcon.addClass("icon-plus-sign");
-                addWildcardInputIcon.attr('id', 'add-wildcardInput-icon');
-                addWildcardInput.append(addWildcardInputIcon);
-                divWildcardInputs.append(wildcardInput);
-                divWildcardInputsBox.append(divWildcardInputs);
-                divWildcardInputsBox.append(addWildcardInput);
-
-                divContainerBoxes.append(divWildcardInputsBox);
-            }
+            divContainerBoxes.append(divAddBox);
             divContainerBoxes.append(divAllowedRelationships);
 
             divBox.append(divContainerBoxes);
@@ -426,8 +393,7 @@ diagram.lookupsValuesType = {
             optionReltype.attr('data-modelid', idRel);
             optionReltype.html(label + diagram.reltypesCounter[label]);
             // This for loop is to add the new option in the old boxes
-            for(var i = 0; i < diagram.reltypesCounter[label]; i++)
-            {
+            for(var i = 0; i < diagram.reltypesCounter[label]; i++) {
                 $($('.select-reltype-' + label)[i]).append(optionReltype.clone(true));
             }
             // This for loop is to include the old options in the new box
@@ -546,8 +512,7 @@ diagram.lookupsValuesType = {
             optionNodetype.attr('value', model.name + diagram.nodetypesCounter[typeName]);
             optionNodetype.html(model.name + diagram.nodetypesCounter[typeName]);
             // This for loop is to add the new option in the old boxes
-            for(var i = 0; i < diagram.nodetypesCounter[typeName]; i++)
-            {
+            for(var i = 0; i < diagram.nodetypesCounter[typeName]; i++) {
                 $($('.select-nodetype-' + typeName)[i]).append(optionNodetype.clone(true));
             }
             // This for loop is to include the old options in the new box
@@ -714,7 +679,7 @@ diagram.lookupsValuesType = {
         diagram.setLabel = function (div, label) {
             div.html(label);
             if (label.length > 5) {
-                div.html(label.substr(0, 4) +"…");
+                div.html(label.substr(0, 20) +"…");
             }
             div.attr("title", label);
             div.attr("alt", label);
@@ -811,41 +776,53 @@ diagram.lookupsValuesType = {
         diagram.addFieldRow = function(graphName, modelName, parentId, typeName, boxalias, idBox, idAllRels) {
             var model, lengthFields, fieldId, selectProperty, selectLookup, field, datatype, optionProperty, inputLookup, divField, divAndOr, selectAndOr, removeField, removeFieldIcon, checkboxProperty;
             model = diagram.Models[graphName][modelName];
-            if(typeName != "wildcard") {
-                lengthFields = model.fields.length;
-            } else {
-                lengthFields = 0;
-            }
             diagram.fieldCounter++;
             fieldId = "field" + diagram.fieldCounter;
-            // Select property
-            selectProperty = $("<SELECT>");
-            selectProperty.addClass("select-property");
-            selectProperty.css({
-                "width": "80px"
-            });
-            selectProperty.attr('data-fieldid', fieldId)
-            selectProperty.attr('data-boxalias', boxalias);
-            // Select lookup
-            selectLookup = $("<SELECT>");
-            selectLookup.addClass("select-lookup");
-            selectLookup.css({
-                "width": "80px"
-            });
-            // We get the values for the properties select and the values
-            // for the lookups option in relation with the datatype
-            for(var fieldIndex = 0; fieldIndex < lengthFields; fieldIndex++) {
-                field = model.fields[fieldIndex];
-                datatype = field.type;
-                optionProperty = $("<OPTION>");
-                optionProperty.addClass('option-property');
-                optionProperty.attr('value', field.label);
-                optionProperty.attr('data-datatype', field.type);
-                if(field.choices)
-                    optionProperty.attr('data-choices', field.choices);
-                optionProperty.html(field.label);
-                selectProperty.append(optionProperty);
+            if(typeName != "wildcard") {
+                lengthFields = model.fields.length;
+                // Select property
+                selectProperty = $("<SELECT>");
+                selectProperty.addClass("select-property");
+                selectProperty.css({
+                    "width": "80px"
+                });
+                selectProperty.attr('data-fieldid', fieldId)
+                selectProperty.attr('data-boxalias', boxalias);
+
+                // We get the values for the properties select and the values
+                // for the lookups option in relation with the datatype
+                for(var fieldIndex = 0; fieldIndex < lengthFields; fieldIndex++) {
+                    field = model.fields[fieldIndex];
+                    datatype = field.type;
+                    optionProperty = $("<OPTION>");
+                    optionProperty.addClass('option-property');
+                    optionProperty.attr('value', field.label);
+                    optionProperty.attr('data-datatype', field.type);
+                    if(field.choices)
+                        optionProperty.attr('data-choices', field.choices);
+                    optionProperty.html(field.label);
+                    selectProperty.append(optionProperty);
+                }
+                // Select lookup
+                selectLookup = $("<SELECT>");
+                selectLookup.addClass("select-lookup");
+                selectLookup.css({
+                    "width": "80px"
+                });
+            } else {
+                // We add an input field to get the return value
+                selectProperty = $("<INPUT>");
+                selectProperty.addClass("wildCardInput select-property");
+                selectProperty.attr('id', fieldId);
+                selectProperty.attr('data-fieldid', fieldId);
+                // Select lookup
+                selectLookup = $("<SELECT>");
+                selectLookup.addClass("select-lookup");
+                selectLookup.css({
+                    "width": "80px"
+                });
             }
+
             divField = $("<DIV>");
             divField.addClass("field");
             divField.attr('id', fieldId);
@@ -1156,11 +1133,6 @@ diagram.lookupsValuesType = {
                 propertiesChecked[alias].push($(property).val());
             }
 
-
-            //$(property).children().filter(function(index, element) {if($(element).val() == value) return $(element).data('datatype');})
-
-
-
             // We check if we have and/or option
             var andOrId = $(property).parent().attr('id');
             var andOrVal = $('#' + andOrId + ' .and-or-option select').val();
@@ -1267,17 +1239,6 @@ diagram.lookupsValuesType = {
             if(!properties)
                 properties = new Array();
 
-            if(alias.substring(0,8) == "wildcard") {
-                var selector = $(element).parent().parent().parent().attr('id');
-                var wildcardInputs = $('#' + selector + ' .wildCardInput');
-                if(wildcardInputs) {
-                    for(var i=0; i < wildcardInputs.length; i++) {
-                        var val = $(wildcardInputs[i]).val()
-                        properties.push(val);
-                    }
-                }
-            }
-
             result.alias = alias;
             result.properties = properties;
 
@@ -1287,6 +1248,125 @@ diagram.lookupsValuesType = {
 
         return query;
     };
+
+    /**
+     * Load the query
+     */
+    diagram.loadQuery = function(jsonQuery) {
+        jsonDict = JSON.parse(jsonQuery);
+        types = jsonDict["aliases"];
+        nodetypes = {};
+        origins = jsonDict["query"]["origins"];
+        originsLength = origins.length;
+        conditions = jsonDict["query"]["conditions"];
+        conditionsLength = conditions.length;
+        patterns = jsonDict["query"]["patterns"];
+        patternsLength = patterns.length;
+        results = jsonDict["query"]["results"];
+        resultsLength = results.length;
+        var resultsArray = {};
+        var fieldIndex = 0;
+        // We save the results to return
+        for(key in types) {
+            for(var i = 0; i < resultsLength; i++) {
+                if(results[i].alias == key) {
+                    resultsArray[key] = results[i].properties;
+                }
+            }
+        }
+        // We save the node types to load the boxes
+        for(var i = 0; i < originsLength; i++) {
+            if(origins[i].type == "node") {
+                nodeAlias = origins[i].alias;
+                nodetypes[nodeAlias] = types[nodeAlias];
+            }
+        }
+        // Load the boxes for nodetypes
+        for(key in nodetypes) {
+            id = nodetypes[key].id;
+            typename = nodetypes[key].typename;
+            leftPos = nodetypes[key].left;
+            topPos = nodetypes[key].top;
+            // Load the box and set the positions
+            diagram.loadBox(typename);
+            $('#' + id).css({
+                "left": leftPos,
+                "top": topPos
+            });
+            // Load the conditions for the box
+            // This loop could be replace if we have a
+            // dict instead an array
+            // ---------------------------------------
+            // Every index in the loop is an index for a field
+            fieldIndex++;
+            var boxFields = 0;
+            for(var i = 0; i < conditionsLength; i++) {
+                alias = conditions[i][1][1];
+                // We check if the condition is for the type
+                if(alias == key) {
+                    boxFields++;
+                    // If we have more than one field, we add
+                    // a new field
+                    if(boxFields > 1) {
+                        $('#' + id + ' .add-field-row').click();
+                        fieldIndex++;
+                    }
+                    // lookup
+                    lookup = jsonDict["query"]["conditions"][i][0];
+                    // property
+                    property = jsonDict["query"]["conditions"][i][1][2];
+                    // value
+                    value = jsonDict["query"]["conditions"][i][2];
+                    // We have to check the and-or value
+                    andOr = jsonDict["query"]["conditions"][i][3];
+                    // We set the values in the correct position
+                    //$field = $('#' + id + " #field" + (i+1));
+                    $('#' + id + " #field" + fieldIndex + " .select-property").click();
+                    $('#' + id + " #field" + fieldIndex + " .select-property").val(property);
+                    $('#' + id + " #field" + fieldIndex + " .select-lookup").click();
+                    $('#' + id + " #field" + fieldIndex + " .select-lookup").val(lookup);
+                    $('#' + id + " #field" + fieldIndex + " .lookup-value").val(value);
+                    if(andOr != "not") {
+                        $('#' + id + " #field" + fieldIndex + " .select-and-or").val(andOr);
+                    }
+                    // We check if the field has results to return
+                    if(resultsArray[key].indexOf(property) != -1) {
+                        $('#' + id + " #field" + fieldIndex + ' .checkbox-property').click();
+                    }
+                }
+            }
+            // We select the correct value for the alias
+            $('#' + id + ' .title select').val(key);
+        }
+        // Load the relationships between the boxes
+        for(var i = 0; i < patternsLength; i++) {
+            var source = jsonDict["query"]["patterns"][i].source.alias;
+            var sourceId = types[source].id;
+
+            var target = jsonDict["query"]["patterns"][i].target.alias;
+            var targetId = types[target].id;
+
+            var relation = jsonDict["query"]["patterns"][i].relation.alias;
+            var relationValue = types[relation].typename;
+            var relationName = relationValue;
+
+            // We check if the relationship is of type wildcard
+            if(relationValue == "wildcard")
+               relationValue = "WildcardRel";
+
+            var uuidSource = sourceId + '-' + relationName + '-source';
+            console.log(uuidSource);
+            var uuidTarget = targetId + '-target';
+            console.log(uuidTarget);
+
+            $('#' + sourceId + ' .select-rel').val(relationValue);
+            $('#' + sourceId + ' .add-relation').click();
+
+            jsPlumb.connect({uuids: [uuidSource, uuidTarget] })
+        }
+
+        jsPlumb.repaintEverything();
+    }
 
     /**
      * Interactions functions
@@ -1324,8 +1404,6 @@ diagram.lookupsValuesType = {
 
         // Recalculate anchor for source endpoints
         diagram.recalculateAnchor(idBox, idAllRels);
-        // Recalculate anchor for target endpoints
-        //diagram.recalculateAnchorTarget(idBox);
 
         jsPlumb.repaintEverything();
     });
@@ -1383,60 +1461,6 @@ diagram.lookupsValuesType = {
     });
 
     /**
-     * Add a new wildcard input
-     */
-    $("#diagramContainer").on('click', '.add-wildcard-input', function() {
-        var $this = $(this);
-        var parentId = $this.data("parentid");
-        var idBox = $this.data("idbox");
-
-        var fieldId = idBox + "-" + diagram.wildcardFieldCounter;
-        diagram.wildcardFieldCounter++;
-
-        var divNewWildcardInput = $("<DIV>");
-        divNewWildcardInput.attr('id', fieldId);
-        divNewWildcardInput.css({
-            "display": "table"
-        });
-
-        var wildcardInput = $("<INPUT>");
-        wildcardInput.addClass("wildCardInput");
-        wildcardInput.css({
-        });
-
-        // Link to remove the wildcard input
-        var removeWildcardInput = $("<A>");
-        removeWildcardInput.addClass("remove-wildcard-input");
-        removeWildcardInput.attr('data-parentid', parentId);
-        removeWildcardInput.attr('data-fieldid', fieldId);
-        // Icon
-        removeWildcardInputIcon = $("<I>");
-        removeWildcardInputIcon.addClass("icon-minus-sign");
-        removeWildcardInputIcon.attr('id', 'remove-wildcardInput-icon');
-        removeWildcardInput.append(removeWildcardInputIcon);
-
-        divNewWildcardInput.append(wildcardInput);
-        divNewWildcardInput.append(removeWildcardInput);
-
-        $("#" + parentId).append(divNewWildcardInput);
-    });
-
-    /**
-     * Remove field row inside a box type
-     */
-    $("#diagramContainer").on('click', '.remove-wildcard-input', function() {
-        var $this = $(this);
-        var fieldId = $this.data("fieldid");
-        var parentId = $this.data("parentid");
-
-        // We check that the field box need to have one
-        // field row at least
-        if($('#' + parentId).children().length > 1) {
-            $("#" + fieldId).remove();
-        }
-    });
-
-    /**
      * Add a new relationship row for that box type
      */
     $("#diagramContainer").on('click', '.add-relation', function() {
@@ -1469,6 +1493,7 @@ diagram.lookupsValuesType = {
             listRelElement.addClass("list-rel");
 
             diagram.setLabel(listRelElement, label);
+            //listRelElement.html(label);
 
             if(source) {
                 var relIndex = diagram.relindex[idBox];
@@ -1540,6 +1565,12 @@ diagram.lookupsValuesType = {
             $(selector).children().remove();
         }
 
+        // This if is for check if the select-property is for a wildcard input
+        if(!arrayOptions) {
+            datatype = 'u';
+            arrayOptions = diagram.lookupOptions(datatype);
+        }
+
         for (var i = 0; i < arrayOptions.length; i++) {
             var value = diagram.lookupsBackendValues[arrayOptions[i]];
             $(selector).append('<option class="lookup-option" value="' + value + '">' + arrayOptions[i] + '</option>');
@@ -1559,7 +1590,7 @@ diagram.lookupsValuesType = {
             var select = $("<SELECT>");
             select.addClass("lookup-value");
             select.css({
-                "width": "50px",
+                "width": "60px",
                 "display": "inline",
                 "margin-left": "8px",
                 "padding": "0"
@@ -1578,7 +1609,7 @@ diagram.lookupsValuesType = {
             var select = $("<SELECT>");
             select.addClass("lookup-value");
             select.css({
-                "width": "50px",
+                "width": "60px",
                 "display": "inline",
                 "margin-left": "8px",
                 "padding": 0
@@ -1599,7 +1630,7 @@ diagram.lookupsValuesType = {
             var inputLookup = $("<INPUT>");
             inputLookup.addClass("lookup-value");
             inputLookup.css({
-                "width": "50px",
+                "width": "60px",
                 "margin-left": "8px"
             });
             inputLookup.timepicker();
@@ -1615,7 +1646,7 @@ diagram.lookupsValuesType = {
             var inputLookup = $("<INPUT>");
             inputLookup.addClass("lookup-value time");
             inputLookup.css({
-                "width": "50px",
+                "width": "60px",
                 "margin-left": "8px"
             });
             inputLookup.timepicker();
@@ -1631,7 +1662,7 @@ diagram.lookupsValuesType = {
             var inputLookup = $("<INPUT>");
             inputLookup.addClass("lookup-value time");
             inputLookup.css({
-                "width": "50px",
+                "width": "60px",
                 "margin-left": "8px"
             });
             var options = {
@@ -1654,7 +1685,7 @@ diagram.lookupsValuesType = {
             var select = $("<INPUT>");
             select.addClass("lookup-value autocomplete");
             select.css({
-                "width": "50px",
+                "width": "60px",
                 "margin-left": "8px"
             });
 
@@ -1670,7 +1701,7 @@ diagram.lookupsValuesType = {
             var inputLookup = $("<INPUT>");
             inputLookup.addClass("lookup-value");
             inputLookup.css({
-                "width": "50px",
+                "width": "60px",
                 "margin-left": "8px"
             });
             $('#' + fieldId).append(inputLookup);
@@ -1998,10 +2029,15 @@ diagram.lookupsValuesType = {
 
             var alias = diagram.replaceChars($(element).val());
             var id = $(parent).attr('id');
+            var typename = $(element).attr('class').substring(15);
+            // This is for check if we have a relationship or a node
+            if(typename.substring(0,1) == "-")
+                typename = typename.substring(1);
             var left = $(parent).css('left');
             var top = $(parent).css('top');
 
             valuesDict['id'] = id;
+            valuesDict['typename'] = typename;
             valuesDict['left'] = left;
             valuesDict['top'] = top;
 
@@ -2014,7 +2050,11 @@ diagram.lookupsValuesType = {
         saveElements['fieldCounter'] = diagram.fieldCounter;
         saveElements['fieldRelsCounter'] = diagram.fieldRelsCounter;
         // What we do with nodetypesCounter and reltypesCounter?
-        console.log(saveElements);
+        console.log(JSON.stringify(saveElements));
+
+        $('#query-information').css({
+            'display': 'block'
+        });
     });
 
     $(document).ready(init);
