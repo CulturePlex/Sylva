@@ -48,7 +48,7 @@
     font-size: 12px;
     padding: 2px 5px 2px 5px;
     display: table-cell;
-    width: 37px;
+    max-width: 36px;
 }
 
 .select-rel {
@@ -160,10 +160,7 @@
 }
 
 .wildCardInput {
-    width: 100px;
-    margin-top: 10px;
-    margin-left: 10px;
-    margin-bottom: 10px;
+    width: 70px;
 }
 
 .help-text {
@@ -180,6 +177,10 @@
 
 .query-box-endpoint-target {
     margin-top: 17px;
+}
+
+#query-information {
+    display: none;
 }
 
 /* Results table */
