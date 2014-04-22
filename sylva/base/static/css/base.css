@@ -1494,14 +1494,16 @@ table.content-table {
     font-size: 150%;
     font-weight: bold;
     width: 1160px;
-    height: 295px;
+    height: 350px;
     position: absolute;
     z-index: 500;
+    margin-left: -20px;
 }
 
 .graph-loading-inner {
     position: relative;
     text-align: center;
+    margin-top: 34px;
     width: 100%;
 }
 
@@ -1510,29 +1512,42 @@ table.content-table {
   height: 350px;
   float: left;
   margin-right: 4px;
+  margin-top: -5px;
   padding: 3px;
   overflow-x: hidden;
   overflow-y: auto;
 }
 
 #graph-controls {
-    z-index: 100;
+    position: relative;
+    z-index: 101;
     height: 36px;
+}
+
+#graph-node-info {
+    position: relative;
+    z-index: 101;
+    height: 36px;
+    float: left;
 }
 
 #sigma-graph-layout {
     width: 125px;
 }
 
+#sigma-graph-layout-order {
+    width: 155px;
+}
+
 #sigma-node-size {
-    width: 120px;
+    width: 125px;
 }
 
 #sigma-edge-shape {
     width: 115px;
 }
 
-#graph-controls select {
+#graph-layout select {
     height: 34px;
     margin-top: -5px;
     margin-left: 12px;
@@ -1552,6 +1567,19 @@ table.content-table {
     margin-left: 2px;
 }
 
+.sigma-control input[type="checkbox"] {
+    margin-top: 3px;
+}
+
+.sigma-control a.button {
+    margin-top: 3px;
+}
+
+#sigma-export-image {
+    margin-left: -10px;
+    margin-right: 3px;
+}
+
 .control-button {
     margin-bottom: 5px;
     height: 15px;
@@ -1568,7 +1596,6 @@ table.content-table {
     -moz-border-bottom-right-radius: 0;
     -webkit-border-top-right-radius: 0;
     -webkit-border-bottom-right-radius: 0;
-    margin-left: -5px;
 }
 
 .zoom-home {
@@ -1586,7 +1613,7 @@ table.content-table {
     -webkit-border-top-left-radius: 0;
     -webkit-border-bottom-left-radius: 0;
 
-    margin-left: -14px;
+    margin-left: -2px;
 
     padding-left: 4px;
     padding-right: 4px;
@@ -1603,14 +1630,20 @@ table.content-table {
     -moz-border-bottom-left-radius: 0;
     -webkit-border-top-left-radius: 0;
     -webkit-border-bottom-left-radius: 0;
-    margin-left: -14px;
+    margin-left: -2px;
+}
+
+div[id^='collorpicker_'] {
+    z-index: 99999;
 }
 
 #sigma-wrapper {
     display: block;
     float: right;
-    width: 947px;
-    height: 295px;
+    width: 980px;
+    height: 360px;
+    margin-right: -20px;
+    margin-top: -36px;
 }
 
 #sigma-container {

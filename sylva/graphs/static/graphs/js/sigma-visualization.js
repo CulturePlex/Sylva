@@ -51,7 +51,7 @@ sigma:true, clearTimeout */
       var analyticsSidebarWidth = 0;
       var analyticsSidebarBorder = 2;
       // It's used for keep the last dragged analytics control on top.
-      var highestZIndex = 100;
+      var highestZIndex = 200;
 
       for (var key in sylva.nodetypes) {
         visibleNodesIds = visibleNodesIds.concat(sylva.nodetypes[key].nodes);
@@ -63,6 +63,8 @@ sigma:true, clearTimeout */
         type: 'canvas',
         container: $('#sigma-container')[0]
       });
+
+      var camera = sigInst.cameras[0];
 
       if (size >= mediumGraphSize && size < bigGraphSize) {
         maxNodeSize = 6;
@@ -153,9 +155,7 @@ sigma:true, clearTimeout */
           event.preventDefault();
 
           var zoom = sigma.utils.getDelta(event.originalEvent) > 0;
-
-          var _camera = sigInst.cameras[0];
-          var pos = _camera.cameraPosition(currentNodeX, currentNodeY, true);
+          var pos = camera.cameraPosition(currentNodeX, currentNodeY, true);
 
           zooming(zoom, pos);
         }
@@ -233,8 +233,8 @@ sigma:true, clearTimeout */
         that.stop();
 
         var dom = $('.sigma-mouse')[0];
-        var cos = Math.cos(sigInst.cameras[0].angle);
-        var sin = Math.sin(sigInst.cameras[0].angle);
+        var cos = Math.cos(camera.angle);
+        var sin = Math.sin(camera.angle);
 
         mouseMovedOnNode = true;
         currentNodeX = sigma.utils.getX(event) - dom.offsetWidth / 2;
@@ -416,6 +416,24 @@ sigma:true, clearTimeout */
         } else {
           var drawHidden = $('#sigma-hidden-layout').prop('checked');
           that.start(drawHidden);
+
+          // If graph-layout isn't 'label' or FA2 set in FA2.
+          var option = $('#sigma-graph-layout').find('option:selected');
+          var type = option.attr('id');
+          if ((type != 'label') && (type != 'force-atlas-2')) {
+            option.prop('selected', false);
+
+            option = $('#force-atlas-2');
+            option.prop('selected', 'selected');
+            type = option.attr('id');
+
+            disableOptions(option, type);
+            $('#sigma-graph-layout-order').hide();
+          }
+
+          var order = $('#sigma-graph-layout-order').find('option:selected').attr('id');
+          var drawHidden = $('#sigma-hidden-layout').prop('checked');
+          redrawLayout(type, order, drawHidden);
         }
       });
 
@@ -455,7 +473,8 @@ sigma:true, clearTimeout */
         var drawHidden = $('#sigma-hidden-layout').prop('checked');
         if (drawHidden && visibleNodesIds.length > 0) {
           var type = $('#sigma-graph-layout').find('option:selected').attr('id');
-          redrawLayout(type, drawHidden);
+          var order = $('#sigma-graph-layout-order').find('option:selected').attr('id');
+          redrawLayout(type, order, drawHidden);
         } else {
           sigInst.refresh();
         }
@@ -571,10 +590,11 @@ sigma:true, clearTimeout */
       });
 
       $('#sigma-hidden-layout').change(function () {
-        var drawHidden = $(this).prop('checked');
-        var type = $('#sigma-graph-layout').find('option:selected').attr('id');
         if (visibleNodesIds.length < size) {
-          redrawLayout(type, drawHidden);
+          var type = $('#sigma-graph-layout').find('option:selected').attr('id');
+          var order = $('#sigma-graph-layout-order').find('option:selected').attr('id');
+          var drawHidden = $('#sigma-hidden-layout').prop('checked');
+          redrawLayout(type, order, drawHidden);
         }
       });
 
@@ -702,13 +722,18 @@ sigma:true, clearTimeout */
           paddingRight: 0
         });
 
+        $('nav.menu').css({
+          marginTop: '-30px'
+        });
+
         $('#body').css({
           margin: '-14px 0 0 0',
           padding: 0
         });
 
         $('#sigma-wrapper').css({
-          float: 'left'
+          float: 'left',
+          marginTop: 0
         });
 
         $('#canvas-container').css({
@@ -724,6 +749,7 @@ sigma:true, clearTimeout */
           marginRight: 0,
           height: 'auto',
           width: 'auto',
+          marginTop: 0,
           borderRadius: '10px',
           backgroundColor: 'rgba(214, 231, 223, 0.5)'
         });
@@ -738,7 +764,7 @@ sigma:true, clearTimeout */
 
         $('#graph-layout').css({
           position: 'absolute',
-          zIndex: '100',
+          zIndex: '102',
           border: 'none',
           overflow: 'auto',
           padding: '10px',
@@ -748,12 +774,17 @@ sigma:true, clearTimeout */
         });
 
         $('.collapsible-header').css({
-          cursor: 'pointer'
+          cursor: 'pointer',
+          display: 'inline-block'
         });
 
         $('.collapsible-header').each(function(i) {
           $(this).text(' ' + $(this).text());
           $(this).prepend('<span class="icon-caret-down icon-fixed-width" style="display: inline;"></span>');
+        });
+
+        $('#sigma-zoom-in').parent().css({
+          float: 'left'
         });
       };
 
@@ -768,11 +799,16 @@ sigma:true, clearTimeout */
           $(this).html($(this).html().substring(1));
         });
 
+        $('#sigma-zoom-in').parent().css({
+          float: 'right'
+        });
+
         $('#graph-controls').removeAttr('style');
         $('#graph-types').removeAttr('style');
         $('#sigma-wrapper').removeAttr('style');
         $('#canvas-container').removeAttr('style');
         $('#body').removeAttr('style');
+        $('nav.menu').removeAttr('style');
         $('div.inside.clearfix').removeAttr('style');
         $('header').removeAttr('style');
         $('#main').removeAttr('style');
@@ -786,9 +822,9 @@ sigma:true, clearTimeout */
        */
       var goAnalyticsMode = function() {
         $('#sigma-go-analytics').hide();
+        $('#graph-node-info').hide();
         $('nav.main li').hide();
         $('header.global > h2').hide();
-        $('nav.menu').hide();
         $('div.graph-item').hide();
         $('div#footer').hide();
 
@@ -796,8 +832,13 @@ sigma:true, clearTimeout */
         $('#link-logo').addClass('disabled');
         linkLogo = $('#link-logo').attr('href');
         $('#link-logo').removeAttr('href');
+        $('div.inside.clearfix').append($('nav.menu'));
 
         $('.analytics-mode').show();
+
+        if ($('#sigma-node-info').is(':checked')) {
+          sigma.canvas.hovers.def = sigma.canvas.hovers.defBackup;
+        }
 
         try {
           if ($('#analytics').resizable('option', 'disabled')) {
@@ -842,7 +883,7 @@ sigma:true, clearTimeout */
           create: function(event, ui) {
             $('#graph-controls').css({
               top: '14px',
-              left: '232px'
+              left: '550px'
             });
           },
           stop: function(event, ui) {
@@ -859,8 +900,8 @@ sigma:true, clearTimeout */
           zIndex: 9999,
           create: function(event, ui) {
             $('#graph-layout').css({
-              top: '200px',
-              left: '232px'
+              top: '14px',
+              left: '200px'
             });
           },
           stop: function(event, ui) {
@@ -914,8 +955,9 @@ sigma:true, clearTimeout */
 
         updateStyles();
         updateSizes();
-
         $(window).on('resize', updateSizes);
+
+        reCenter();
       };
 
       /* Perform the cancelation of the analytics mode. Also perform the
@@ -930,17 +972,22 @@ sigma:true, clearTimeout */
         }
 
         $('#sigma-go-analytics').show();
+        $('#graph-node-info').show();
         $('nav.main li').show();
         $('header.global > h2').show();
-        $('nav.menu').show();
         $('div.graph-item').show();
         $('div#footer').show();
 
         $('#link-logo').off('click');
         $('#link-logo').removeClass('disabled');
         $('#link-logo').attr('href', linkLogo);
+        $('header').prepend($('nav.menu'));
 
         $('.analytics-mode').hide();
+
+        if ($('#sigma-node-info').is(':checked')) {
+          sigma.canvas.hovers.def = sigma.canvas.hovers.info;
+        }
 
         sigInst.settings({
           maxNodeSize: maxNodeSize * sizeMultiplier
@@ -955,6 +1002,7 @@ sigma:true, clearTimeout */
         $('#graph-layout').accordion('destroy');
 
         restoreSizesAndStyles();
+        reCenter();
       };
 
       var calculateNodesDegrees = function() {
@@ -976,7 +1024,7 @@ sigma:true, clearTimeout */
         });
       };
 
-      var gridLayout = function(drawHidden) {
+      var gridLayout = function(sortFunc, drawHidden) {
         if (!degreesCalculated) {
           calculateNodesDegrees();
         }
@@ -991,30 +1039,33 @@ sigma:true, clearTimeout */
         }
 
         var sorted = sigInst.graph.nodes(nodes);
-        sorted.sort(function(a, b) {
-            return b.totalDegree - a.totalDegree;
-        });
-
-        sorted = graphToIds({'nodes': sorted, 'edges': []})['nodes'];
+        if (sortFunc) {
+          sorted.sort(sortFunc);
+        }
 
         var side = Math.ceil(Math.sqrt(sorted.length));
 
-        sigInst.graph.nodes().forEach(function(n) {
+        sorted.forEach(function(n, i) {
           if (!(n.hidden && drawHidden)) {
-            var i = sorted.indexOf(n.id);
             n.gridX = 100 * (i % side);
             n.gridY = 100 * Math.floor(i / side);
           }
         });
       };
 
-      var circularLayout = function(drawHidden) {
+      var circularLayout = function(sortFunc, drawHidden) {
         var i = 0;
         var number = size;
         if (drawHidden) {
           number = visibleNodesIds.length;
         }
-        sigInst.graph.nodes().forEach(function(n) {
+
+        var sorted = sigInst.graph.nodes();
+        if (sortFunc) {
+          sorted.sort(sortFunc);
+        }
+
+        sorted.forEach(function(n) {
           if (!(n.hidden && drawHidden)) {
             var angle = Math.PI * 2 * i / number - Math.PI / 2;
             n.circularX = Math.cos(angle);
@@ -1024,16 +1075,38 @@ sigma:true, clearTimeout */
         });
       };
 
+      var disableOptions = function(option, type) {
+        var parentId = option.parent().attr('id');
+        option.prop('disabled', 'disabled');
+        $('#' + parentId + ' option').each(function() {
+          var id = $(this).attr('id');
+          if ((id != 'label') && (id != type)) {
+            $(this).prop('disabled', false);
+          }
+        });
+      };
+
       // Control graph layout.
       $('#sigma-graph-layout').change(function() {
-        var type = $(this).find('option:selected').attr('id');
+        var option = $(this).find('option:selected');
+        var type = option.attr('id');
+
+        disableOptions(option, type);
+
         if (type != 'label') {
+          if (type != 'force-atlas-2') {
+            $('#sigma-graph-layout-order').show();
+          } else {
+            $('#sigma-graph-layout-order').hide();
+          }
+
+          var order = $('#sigma-graph-layout-order').find('option:selected').attr('id');
           var drawHidden = $('#sigma-hidden-layout').prop('checked');
-          redrawLayout(type, drawHidden);
+          redrawLayout(type, order, drawHidden);
         }
       });
 
-      var redrawLayout = function(type, drawHidden) {
+      var redrawLayout = function(type, order, drawHidden) {
         var xPos = '';
         var yPos = '';
 
@@ -1050,13 +1123,15 @@ sigma:true, clearTimeout */
             break;
           case 'grid':
             that.stop();
-            gridLayout(drawHidden);
+            var sortFunc = layoutSort(order);
+            gridLayout(sortFunc, drawHidden);
             xPos = 'gridX';
             yPos = 'gridY';
             break;
           case 'circular':
             that.stop();
-            circularLayout(drawHidden);
+            var sortFunc = layoutSort(order);
+            circularLayout(sortFunc, drawHidden);
             xPos = 'circularX';
             yPos = 'circularY';
             break;
@@ -1067,16 +1142,73 @@ sigma:true, clearTimeout */
         sigma.plugins.animate(sigInst, {x: xPos, y: yPos}, {duration: 500});
       };
 
+      var layoutSort = function(order) {
+        switch(order) {
+          case 'label':
+          case 'def':
+            return null;
+            break;
+          case 'tdd':
+            return function(a, b) {
+              return b.totalDegree - a.totalDegree;
+            };
+            break;
+          case 'tda':
+            return function(a, b) {
+              return a.totalDegree - b.totalDegree;
+            };
+            break;
+          case 'idd':
+            return function(a, b) {
+              return b.inDegree - a.inDegree;
+            };
+            break;
+          case 'ida':
+            return function(a, b) {
+              return a.inDegree - b.inDegree;
+            };
+            break;
+          case 'odd':
+            return function(a, b) {
+              return b.outDegree - a.outDegree;
+            };
+            break;
+          case 'oda':
+            return function(a, b) {
+              return a.outDegree - b.outDegree;
+            };
+            break;
+          default:
+            break;
+          }
+      };
+
+      $('#sigma-graph-layout-order').change(function() {
+        var option = $(this).find('option:selected');
+        var order = option.attr('id');
+
+        disableOptions(option, order);
+
+        var layoutType = $('#sigma-graph-layout').find('option:selected').attr('id');
+        var order = $('#sigma-graph-layout-order').find('option:selected').attr('id');
+        var drawHidden = $('#sigma-hidden-layout').prop('checked');
+        redrawLayout(layoutType, order, drawHidden);
+      });
+
       // Control node size.
       var nodeSizeSelect = $('#sigma-node-size');
       nodeSizeSelect.change(function() {
+        var option = $(this).find('option:selected');
+        var type = option.attr('id');
+
+        disableOptions(option, type);
+
         if (!degreesCalculated) {
           calculateNodesDegrees();
         }
 
         var animationSize = '';
 
-        var type = $(this).find('option:selected').attr('id');
         var auxMinNodeSize = sigInst.settings('minNodeSize');
         var auxMaxNodeSize = sigInst.settings('maxNodeSize') / sizeMultiplier;
         switch(type) {
@@ -1114,7 +1246,11 @@ sigma:true, clearTimeout */
 
       // Control edges shape.
       $('#sigma-edge-shape').change(function() {
-        var type = $(this).find('option:selected').attr('id');
+        var option = $(this).find('option:selected');
+        var type = option.attr('id');
+
+        disableOptions(option, type);
+
         switch(type) {
           case 'label':
             break;
@@ -1139,6 +1275,13 @@ sigma:true, clearTimeout */
             }
             sigma.canvas.edges.def = sigma.canvas.edges.curve;
             break;
+          case 'curved-arrow':
+            if (!defaultEdgeSaved) {
+              sigma.canvas.edges.defBackup = sigma.canvas.edges.def;
+              defaultEdgeSaved = true;
+            }
+            sigma.canvas.edges.def = sigma.canvas.edges.curvedArrow;
+            break;
           default:
             break;
         }
@@ -1147,7 +1290,6 @@ sigma:true, clearTimeout */
 
       var zooming = function(zoomIn, position) {
         var _settings = sigInst.settings;
-        var _camera = sigInst.cameras[0];
         var _target = $('#sigma-container');
 
         var pos,
@@ -1164,20 +1306,20 @@ sigma:true, clearTimeout */
           _settings('zoomMin'),
           Math.min(
             _settings('zoomMax'),
-            _camera.ratio * ratio
+            camera.ratio * ratio
           )
         );
-        ratio = newRatio / _camera.ratio;
+        ratio = newRatio / camera.ratio;
 
         // Check that the new ratio is different from the initial one:
-        if (newRatio !== _camera.ratio) {
-          count = sigma.misc.animation.killAll(_camera);
+        if (newRatio !== camera.ratio) {
+          count = sigma.misc.animation.killAll(camera);
 
           sigma.misc.animation.camera(
-            _camera,
+            camera,
             {
-              x: position.x * (1 - ratio) + _camera.x,
-              y: position.y * (1 - ratio) + _camera.y,
+              x: position.x * (1 - ratio) + camera.x,
+              y: position.y * (1 - ratio) + camera.y,
               ratio: newRatio
             },
             {
@@ -1198,11 +1340,14 @@ sigma:true, clearTimeout */
       });
 
       $('#sigma-zoom-home').on('click', function(event) {
-        var _camera = sigInst.cameras[0],
-          count = sigma.misc.animation.killAll(_camera);
+        reCenter();
+      });
+
+      var reCenter = function() {
+        var count = sigma.misc.animation.killAll(camera);
 
         sigma.misc.animation.camera(
-          _camera,
+          camera,
           {
             x: 0,
             y: 0,
@@ -1212,7 +1357,7 @@ sigma:true, clearTimeout */
             easing: count ? 'quadraticOut' : 'quadraticInOut',
             duration: sigInst.settings('mouseZoomDuration')
           });
-      });
+      };
 
       sigInst.startForceAtlas2();
       isDrawing = true;

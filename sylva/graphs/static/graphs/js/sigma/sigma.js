@@ -7947,127 +7947,6 @@ function (a) {
  * Renderers
  ****************************************************************************/
 
-;(function() {
-  'use strict';
-
-  sigma.utils.pkg('sigma.canvas.edges');
-
-  /**
-   * This edge renderer will display edges as arrows going from the source node
-   * to the target node.
-   *
-   * @param  {object}                   edge     The node object.
-   * @param  {object}                   source   The source node object.
-   * @param  {object}                   target   The target node object.
-   * @param  {CanvasRenderingContext2D} context  The canvas context.
-   * @param  {configurable}             settings The settings function.
-   */
-  sigma.canvas.edges.arrow = function(edge, source, target, context, settings) {
-    var color = edge.color,
-        prefix = settings('prefix') || '',
-        edgeColor = settings('edgeColor'),
-        defaultNodeColor = settings('defaultNodeColor'),
-        defaultEdgeColor = settings('defaultEdgeColor'),
-        thickness = edge[prefix + 'size'] || 1,
-        tSize = target[prefix + 'size'],
-        sX = source[prefix + 'x'],
-        sY = source[prefix + 'y'],
-        tX = target[prefix + 'x'],
-        tY = target[prefix + 'y'],
-        aSize = thickness * 5,
-        d = Math.sqrt(Math.pow(tX - sX, 2) + Math.pow(tY - sY, 2)),
-        aX = sX + (tX - sX) * (d - aSize - tSize) / d,
-        aY = sY + (tY - sY) * (d - aSize - tSize) / d,
-        vX = (tX - sX) * aSize / d,
-        vY = (tY - sY) * aSize / d;
-
-    if (!color)
-      switch (edgeColor) {
-        case 'source':
-          color = source.color || defaultNodeColor;
-          break;
-        case 'target':
-          color = target.color || defaultNodeColor;
-          break;
-        default:
-          color = defaultEdgeColor;
-          break;
-      }
-
-    context.strokeStyle = color;
-    context.lineWidth = thickness;
-    context.beginPath();
-    context.moveTo(sX, sY);
-    context.lineTo(
-      aX,
-      aY
-    );
-    context.stroke();
-
-    context.fillStyle = color;
-    context.beginPath();
-    context.moveTo(aX + vX, aY + vY);
-    context.lineTo(aX + vY, aY - vX);
-    context.lineTo(aX - vY, aY + vX);
-    context.lineTo(aX + vX, aY + vY);
-    context.closePath();
-    context.fill();
-  };
-})();
-
-;(function() {
-  'use strict';
-
-  sigma.utils.pkg('sigma.canvas.edges');
-
-  /**
-   * This edge renderer will display edges as curves.
-   *
-   * @param  {object}                   edge     The node object.
-   * @param  {object}                   source   The source node object.
-   * @param  {object}                   target   The target node object.
-   * @param  {CanvasRenderingContext2D} context  The canvas context.
-   * @param  {configurable}             settings The settings function.
-   */
-  sigma.canvas.edges.curve = function(edge, source, target, context, settings) {
-    var color = edge.color,
-        prefix = settings('prefix') || '',
-        edgeColor = settings('edgeColor'),
-        defaultNodeColor = settings('defaultNodeColor'),
-        defaultEdgeColor = settings('defaultEdgeColor');
-
-    if (!color)
-      switch (edgeColor) {
-        case 'source':
-          color = source.color || defaultNodeColor;
-          break;
-        case 'target':
-          color = target.color || defaultNodeColor;
-          break;
-        default:
-          color = defaultEdgeColor;
-          break;
-      }
-
-    context.strokeStyle = color;
-    context.lineWidth = edge[prefix + 'size'] || 1;
-    context.beginPath();
-    context.moveTo(
-      source[prefix + 'x'],
-      source[prefix + 'y']
-    );
-    context.quadraticCurveTo(
-      (source[prefix + 'x'] + target[prefix + 'x']) / 2 +
-        (target[prefix + 'y'] - source[prefix + 'y']) / 4,
-      (source[prefix + 'y'] + target[prefix + 'y']) / 2 +
-        (source[prefix + 'x'] - target[prefix + 'x']) / 4,
-      target[prefix + 'x'],
-      target[prefix + 'y']
-    );
-    context.stroke();
-  };
-})();
-
 ;(function(undefined) {
   'use strict';
 
@@ -8334,7 +8213,7 @@ function (a) {
         sY = source[prefix + 'y'],
         tX = target[prefix + 'x'],
         tY = target[prefix + 'y'],
-        aSize = thickness * 2.5,
+        aSize = thickness * 5,
         d = Math.sqrt(Math.pow(tX - sX, 2) + Math.pow(tY - sY, 2)),
         aX = sX + (tX - sX) * (d - aSize - tSize) / d,
         aY = sY + (tY - sY) * (d - aSize - tSize) / d,
@@ -8367,8 +8246,8 @@ function (a) {
     context.fillStyle = color;
     context.beginPath();
     context.moveTo(aX + vX, aY + vY);
-    context.lineTo(aX + vY * 0.6, aY - vX * 0.6);
-    context.lineTo(aX - vY * 0.6, aY + vX * 0.6);
+    context.lineTo(aX + vY, aY - vX);
+    context.lineTo(aX - vY, aY + vX);
     context.lineTo(aX + vX, aY + vY);
     context.closePath();
     context.fill();
@@ -8414,7 +8293,7 @@ function (a) {
                    (source[prefix + 'x'] - target[prefix + 'x']) / 4,
         tX = target[prefix + 'x'],
         tY = target[prefix + 'y'],
-        aSize = thickness * 2.5,
+        aSize = thickness * 5,
         d = Math.sqrt(Math.pow(tX - controlX, 2) + Math.pow(tY - controlY, 2)),
         aX = controlX + (tX - controlX) * (d - aSize - tSize) / d,
         aY = controlY + (tY - controlY) * (d - aSize - tSize) / d,
@@ -8444,8 +8323,8 @@ function (a) {
     context.fillStyle = color;
     context.beginPath();
     context.moveTo(aX + vX, aY + vY);
-    context.lineTo(aX + vY * 0.6, aY - vX * 0.6);
-    context.lineTo(aX - vY * 0.6, aY + vX * 0.6);
+    context.lineTo(aX + vY, aY - vX);
+    context.lineTo(aX - vY, aY + vX);
     context.lineTo(aX + vX, aY + vY);
     context.closePath();
     context.fill();
