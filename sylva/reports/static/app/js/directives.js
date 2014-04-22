@@ -174,15 +174,37 @@ directives.directive('syMergeCells', ['$parse', '$window', '$compile', function 
             ,   arrows = false
             ,   row = parseInt(elem.attr('row'))
             ,   col = parseInt(elem.attr('col'))
+            ,   leftcoords = [row, col - 1]
+            ,   upcoords = [row - 1, col]
+            ,   rightcoords = [row, col + 1]
+            ,   downcoords = [row + 1, col]
             ,   arrowHtml = {
-                    left: '<a class="arrow left" href="" ng-click="mergeCells()">&#8592</a>', 
-                    up: '<a class="arrow up" href="" ng-click="mergeCells()">&#8593</a>',
-                    right: '<a class="arrow right" href="" ng-click="mergeCells()">&#8594</a>',
-                    down: '<a class="arrow down" href="" ng-click="mergeCells()">&#8595</a>'
+                    left: '<a class="arrow left" href="" ng-click="mergeLeft()">&#8592</a>', 
+                    up: '<a class="arrow up" href="" ng-click="mergeUp()">&#8593</a>',
+                    right: '<a class="arrow right" href="" ng-click="mergeRight()">&#8594</a>',
+                    down: '<a class="arrow down" href="" ng-click="mergeDown()">&#8595</a>'
             };
 
-            
-            
+            scope.mergeLeft = function() {
+                var mergeCol = col - 1
+                console.log('left',row, mergeCol)
+            }
+
+            scope.mergeUp = function() {
+                var mergeRow = row - 1
+                console.log('left',mergeRow, col)
+            }
+
+            scope.mergeRight = function() {
+                var mergeCol = col + 1
+                console.log('left',row, mergeCol)
+            }
+
+            scope.mergeDown = function() {
+                var mergeRow = row + 1
+                console.log('left',mergeRow, col)
+            }
+
             elem.bind("click", function (event) {
                 if (!arrows) {
                     ang('.arrow').remove();

@@ -30,7 +30,8 @@ controllers.controller('BaseReportFormCtrl', [
             table: null
         };
 
-        
+        $scope.tCells = [];
+
         $scope.designReport = function () {
             api.queries.query({graphSlug: $scope.graph}, function (data) {
                 $scope.queries = data;
@@ -66,8 +67,8 @@ controllers.controller('BaseReportFormCtrl', [
             });
         };
 
-        $scope.mergeCells = function() {
-            console.log('left')
+        $scope.mergeCells = function(coords) {
+            console.log('merge', coords)
         }
 }]);
 
