@@ -21,7 +21,7 @@
     padding: 10px;
  }
 
-#row1 #row2{
+#row1, #row2{
   float: left;
   width: 100%;
 }

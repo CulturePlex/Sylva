@@ -4,7 +4,7 @@
 var directives = angular.module('reports.directives', []);
 
 
-directives.directive('syUpdateText', function () {
+directives.directive('sylvaUpdateText', function () {
     return {
         link:function(scope) {
             scope.$watch('report.name', function (newVal, oldVal) {
@@ -15,7 +15,7 @@ directives.directive('syUpdateText', function () {
 });
 
 
-directives.directive('syDatepicker', function () {
+directives.directive('sylvaDatepicker', function () {
     return {
         restrict: 'A',
         require : 'ngModel',
@@ -35,9 +35,16 @@ directives.directive('syDatepicker', function () {
 });
 
 
-directives.directive('syEditableTable', ['$compile', 'tableArray', function ($compile, tableArray) {
+directives.directive('sylvaEditableTable', ['$compile', 'tableArray', function ($compile, tableArray) {
     return {
         restrict: 'A',
+        controller: function ($scope) {
+            $scope.merge = [];
+
+            this.setMerge = function(coords, mergeCoords) {
+                $scope.merge = [coords, mergeCoords];
+            };
+        },
         link: function(scope, elem, attrs) {
             var ang = angular.element
             ,   table = ang(elem.children()[0])
@@ -46,92 +53,35 @@ directives.directive('syEditableTable', ['$compile', 'tableArray', function ($co
             ,   buttons = ang(table.children()[1])
             ,   addRow = ang(buttons.children()[0])
             ,   addCol = ang(buttons.children()[1])
-            ,   numRows = 2
-            ,   numCols = 2
             ,   tableObj = prepTable(rowCont)
-            ,   tarray = tableArray(tableObj);
+            ,   tarray = tableArray(tableObj, rowWidth);
 
-            setTimeout(function () {
-                scope.report.tarray = tarray; 
-            }, 1000)
+            //setTimeout(function () {
+                scope.tableArray = tarray; 
+            //}, 1000)
+
+            scope.getMerge = function () {
+                return scope.merge;
+            };
+
+            scope.$watchCollection(scope.getMerge, function (newVal, oldVal) {
+                console.log('watched merge')
+            });
 
             addRow.bind('click', function () {
-                var cells = ''
-                ,   yndx = numRows
-                ,   id = numRows * numCols
-                ,   lastRow = rowCont.children()[numRows - 1]
-                ,   width = rowWidth / numCols - ((numCols + 1) * 2 / numCols) + 'px';
-                ang('.tcell').css('width', width);
-                ang('.tcell-final').css('width', width);
-                ang(lastRow).removeClass('bottom');
-                for (var i = 0; i < numCols; i++) {
-                    if (i === numCols - 1) {
-                        cells += 
-                            '<div sy-droppable sy-merge-cells class="tcell final" id="cell' + id++ + 
-                            '" style="width:' + width + 
-                            ';" row="' + yndx +
-                            '" rowspan="' + 1 +
-                            '" col="' + i +
-                            '" colspan="' + 1 + 
-                            '"></div>';
-                    } else {
-                        // compile cells during this step???
-                        cells += 
-                            '<div sy-droppable sy-merge-cells class="tcell" id="cell' + id++ + 
-                            '" style="width:' + width + 
-                            ';" row="' + yndx +
-                            '" rowspan="' + 1 +
-                            '" col="' + i +
-                            '" colspan="' + 1 + 
-                            '"></div>';
-                    }
-                }
-                var bottomRow = $compile('<div class="trow bottom">' + cells + '</div>')(scope)
-                rowCont.append(bottomRow);
-                // add row method here for model data structure instead of new array
                 scope.$apply(function () {
-                    var tableObj = prepTable(rowCont);
-                    scope.report.tarray = tableArray(tableObj);
+                    scope.tableArray.addRow()
+                    var html = scope.tableArray.htmlify()
+                    $compile(rowCont.html(html))(scope)
                 });
-                numRows++;
             });
 
             addCol.bind('click', function () {
-                if (numCols < 4) {     
-                    var rows = rowCont.children()
-                    ,   id = 0
-                    ,   width = rowWidth / (numCols + 1) - ((numCols + 2) * 2 / (numCols + 1)) + 'px';
-                    for (var i = 0; i < rows.length; i++) {
-                        var row = rows[i]
-                        ,   cells = ang(row).children();
-                        ang(cells[cells.length - 1]).removeClass('final');
-                        for (var k = 0; k < cells.length; k++) {
-                            var cellClass = ang(cells[k])[0].classList[0];
-                            ang(cells[k]).attr('id', 'cell' + id).css('width', width);
-                            id++;
-                        }
-                        var cell = $compile(
-                            '<div sy-droppable sy-merge-cells class="tcell final" id="cell' + id + 
-                            '" style="width:' + width + 
-                            '" row="' + i +
-                            '" rowspan="' + 1 +
-                            '" col="' + numCols +
-                            '" colspan="' + 1 +
-                            '"></div>'
-                        )(scope);
-                        ang(row).append(cell);
-                        id++;
-                        console.log('length', numCols)
-                    }
-                    numCols++;
-                    scope.$apply(function () {
-                        var tableObj = prepTable(rowCont);
-                        scope.report.tarray = tableArray(tableObj);
-                        console.log('tarray', scope.report.tarray)
-                     });
-                } else {
-                    alert('Max 4 Columns, add as many rows as you want')
-                }
+                scope.$apply(function () {
+                    scope.tableArray.addCol()
+                    var html = scope.tableArray.htmlify()
+                    $compile(rowCont.html(html))(scope)
+                });
             });
 
             function prepTable(table) {
@@ -166,49 +116,32 @@ directives.directive('syEditableTable', ['$compile', 'tableArray', function ($co
 }]);
 
 
-directives.directive('syMergeCells', ['$parse', '$window', '$compile', function ($parse, $window, $compile) {
+directives.directive('sylvaMergeCells', ['$parse', '$compile', function ($parse, $compile) {
     return {
-        link: function (scope, elem, attrs) {
+        require: '^sylvaEditableTable',
+        scope: true,
+        link: function (scope, elem, attrs, sylvaEditableTableCtrl) {
             var ang = angular.element
-            ,   win = angular.element($window)
             ,   arrows = false
-            ,   row = parseInt(elem.attr('row'))
+            ,   row = parseInt(elem.attr('row')) //this can be moved to scope.merge if necessary
             ,   col = parseInt(elem.attr('col'))
-            ,   leftcoords = [row, col - 1]
-            ,   upcoords = [row - 1, col]
-            ,   rightcoords = [row, col + 1]
-            ,   downcoords = [row + 1, col]
+            ,   coords = [row, col]
             ,   arrowHtml = {
-                    left: '<a class="arrow left" href="" ng-click="mergeLeft()">&#8592</a>', 
-                    up: '<a class="arrow up" href="" ng-click="mergeUp()">&#8593</a>',
-                    right: '<a class="arrow right" href="" ng-click="mergeRight()">&#8594</a>',
-                    down: '<a class="arrow down" href="" ng-click="mergeDown()">&#8595</a>'
+                    left: '<a class="arrow left" href="" ng-click="merge(0)">&#8592</a>', 
+                    up: '<a class="arrow up" href="" ng-click="merge(1)">&#8593</a>',
+                    right: '<a class="arrow right" href="" ng-click="merge(2)">&#8594</a>',
+                    down: '<a class="arrow down" href="" ng-click="merge(3)">&#8595</a>'
             };
 
-            scope.mergeLeft = function() {
-                var mergeCol = col - 1
-                console.log('left',row, mergeCol)
-            }
-
-            scope.mergeUp = function() {
-                var mergeRow = row - 1
-                console.log('left',mergeRow, col)
-            }
-
-            scope.mergeRight = function() {
-                var mergeCol = col + 1
-                console.log('left',row, mergeCol)
-            }
-
-            scope.mergeDown = function() {
-                var mergeRow = row + 1
-                console.log('left',mergeRow, col)
+            scope.merge = function(ndx) {
+                var merges = [[row, col - 1], [row - 1, col], [row, col + 1], [row + 1, col]];
+                sylvaEditableTableCtrl.setMerge(coords, merges[ndx]);
             }
 
             elem.bind("click", function (event) {
                 if (!arrows) {
                     ang('.arrow').remove();
-                    var adjs = scope.report.tarray.findAdjCells(row, col);
+                    var adjs = scope.tableArray.getAdjCells(row, col);
                     angular.forEach(adjs, function (el) {
                         var arrow = $compile(arrowHtml[el])(scope)
                         elem.append(arrow);
@@ -229,7 +162,7 @@ directives.directive('syMergeCells', ['$parse', '$window', '$compile', function 
 }]);
 
 
-directives.directive('syDroppable', function() {
+directives.directive('sylvaDroppable', function() {
     return {
         restrict: 'A',
         link: function(scope, element, attrs) {

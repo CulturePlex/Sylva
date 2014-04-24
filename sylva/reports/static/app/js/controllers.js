@@ -18,18 +18,16 @@ controllers.controller('ReportListCtrl', [
 
 controllers.controller('BaseReportFormCtrl', [
     '$scope',
-    '$location',
-    '$sce', 
+    '$location', 
     'api',
     'parser',
     'tableArray', 
-    function ($scope, $location, $sce, api, parser, tableArray) {
+    function ($scope, $location, api, parser, tableArray) {
         $scope.graph = parser.parse();
         $scope.queries = [];
         $scope.report = {
             table: null
         };
-
         $scope.tCells = [];
 
         $scope.designReport = function () {
@@ -69,6 +67,14 @@ controllers.controller('BaseReportFormCtrl', [
 
         $scope.mergeCells = function(coords) {
             console.log('merge', coords)
+        }
+
+        $scope.addRow = function() {
+            //$scope.tableArray.addRow()
+        }
+
+        $scope.addCol = function() {
+            //$scope.tableArray.addCol()
         }
 }]);
 
