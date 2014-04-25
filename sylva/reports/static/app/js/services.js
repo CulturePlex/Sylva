@@ -39,11 +39,12 @@ services.factory('parser', ['$location', function ($location) {
 
 services.factory('tableArray', function () {
 
-    function TableArray(tableArray, rowWidth) {
-        this.table = tableArray;
+    function TableArray(table, rowWidth) {
+        this.table = table;
         this.rowWidth = rowWidth;
-        this.numRows = tableArray.length;
-        this.numCols = tableArray[0].length;
+        this.numRows = table.length;
+        this.numCols = table[0].length;
+        console.log('ta', this.table)
     };
 
     TableArray.prototype.getAdjCells = function(row, col) {
@@ -69,11 +70,13 @@ services.factory('tableArray', function () {
 
     TableArray.prototype.addCol = function() {
         var cellId = 0;
+        console.log('numrows', this.numRows)
         for (var i=0; i<this.numRows; i++) {
             var row = this.table[i]
             ,   rlen = row.length
             ,   cell = {col: rlen, colspan: '1', id: '', row: i, rowspan: '1'};
             row.push(cell);
+            //console.log('row', row)
             var newRlen = rlen + 1;
             for (var j=0; j<newRlen; j++) {
                 row[j].id = 'cell' + cellId;
@@ -81,6 +84,19 @@ services.factory('tableArray', function () {
             }     
         }
         this.numCols++
+    };
+
+    TableArray.prototype.merge = function(coords) {
+        console.log('coords', coords)
+    };
+
+    TableArray.prototype.getId = function() {
+        var id = 0
+        ,   tlen = this.table.length;
+        for (var i=0; i<tlen; i++) {
+            id += this.table[i].length
+        }
+        return id
     };
 
     TableArray.prototype.htmlify = function() {
@@ -124,15 +140,6 @@ services.factory('tableArray', function () {
 
     TableArray.prototype.jsonify = function() {
         console.log('jsonify')
-    };
-
-    TableArray.prototype.getId = function() {
-        var id = 0
-        ,   tlen = this.table.length;
-        for (var i=0; i<tlen; i++) {
-            id += this.table[i].length
-        }
-        return id
     };
 
     return function (table, rowWidth) {

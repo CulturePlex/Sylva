@@ -47,32 +47,29 @@ directives.directive('sylvaEditableTable', ['$compile', 'tableArray', function (
         },
         link: function(scope, elem, attrs) {
             var ang = angular.element
-            ,   table = ang(elem.children()[0])
-            ,   rowCont = ang(table.children()[0])
-            ,   rowWidth = parseInt(rowCont.css('width'))
-            ,   buttons = ang(table.children()[1])
+            ,   rows = ang(elem.children()[0])
+            ,   rowWidth = parseInt(rows.css('width'))
+            ,   buttons = ang(elem.children()[1])
             ,   addRow = ang(buttons.children()[0])
             ,   addCol = ang(buttons.children()[1])
-            ,   tableObj = prepTable(rowCont)
-            ,   tarray = tableArray(tableObj, rowWidth);
+            ,   table = prepTable(rows)
+            ,   tarray = tableArray(table, rowWidth);
 
-            //setTimeout(function () {
-                scope.tableArray = tarray; 
-            //}, 1000)
+            scope.tableArray = tarray; 
 
             scope.getMerge = function () {
                 return scope.merge;
             };
 
             scope.$watchCollection(scope.getMerge, function (newVal, oldVal) {
-                console.log('watched merge')
+                scope.tableArray.merge(newVal)
             });
 
             addRow.bind('click', function () {
                 scope.$apply(function () {
                     scope.tableArray.addRow()
                     var html = scope.tableArray.htmlify()
-                    $compile(rowCont.html(html))(scope)
+                    $compile(rows.html(html))(scope)
                 });
             });
 
@@ -80,14 +77,16 @@ directives.directive('sylvaEditableTable', ['$compile', 'tableArray', function (
                 scope.$apply(function () {
                     scope.tableArray.addCol()
                     var html = scope.tableArray.htmlify()
-                    $compile(rowCont.html(html))(scope)
+                    //console.log('html', html)
+                    $compile(rows.html(html))(scope)
                 });
             });
 
             function prepTable(table) {
-                var tableArray = []
-                ,   rows = ang(table.children());
-                angular.forEach(rows, function (el) {
+                var tableArray = [];
+                var rowArr = ang(rows).children()
+                console.log('rowArr', rowArr)
+                angular.forEach(rowArr, function (el) {
                     var row = mapper(el);
                     tableArray.push(row);
                 });
@@ -110,7 +109,6 @@ directives.directive('sylvaEditableTable', ['$compile', 'tableArray', function (
                 }
                 return row;
             };
-
         }
     } 
 }]);

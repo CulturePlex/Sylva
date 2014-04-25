@@ -32,16 +32,12 @@
 
 .editable-table {
   width: 100%;
-}
-
-.report-table:hover {
-  overflow-y: scroll;;
-}
-
-.report-table {
-  width: 100%;
   height: 400px;
   overflow: hidden;
+}
+
+.editable-table:hover {
+  overflow-y: scroll;
 }
 
 .rows {
