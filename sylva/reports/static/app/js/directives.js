@@ -39,7 +39,7 @@ directives.directive('sylvaEditableTable', ['$compile', 'tableArray', function (
     return {
         restrict: 'A',
         controller: function ($scope) {
-            $scope.merge = [];
+            $scope.merge = null;
 
             this.setMerge = function(coords, mergeCoords) {
                 $scope.merge = [coords, mergeCoords];
@@ -62,7 +62,14 @@ directives.directive('sylvaEditableTable', ['$compile', 'tableArray', function (
             };
 
             scope.$watchCollection(scope.getMerge, function (newVal, oldVal) {
-                scope.tableArray.merge(newVal)
+                if (newVal === oldVal) return;
+                //scope.$apply(function () {
+                    
+                    scope.tableArray.mergeCol(newVal)
+                    var html = scope.tableArray.htmlify()
+                    $compile(rows.html(html))(scope)  
+                //});
+                
             });
 
             addRow.bind('click', function () {
@@ -133,6 +140,7 @@ directives.directive('sylvaMergeCells', ['$parse', '$compile', function ($parse,
 
             scope.merge = function(ndx) {
                 var merges = [[row, col - 1], [row - 1, col], [row, col + 1], [row + 1, col]];
+                console.log('dir', coords, merges[ndx])
                 sylvaEditableTableCtrl.setMerge(coords, merges[ndx]);
             }
 

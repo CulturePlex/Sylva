@@ -40,12 +40,25 @@ services.factory('parser', ['$location', function ($location) {
 services.factory('tableArray', function () {
 
     function TableArray(table, rowWidth) {
-        this.table = table;
+        this.table = spanToInt(table);
         this.rowWidth = rowWidth;
         this.numRows = table.length;
         this.numCols = table[0].length;
         console.log('ta', this.table)
     };
+
+    function spanToInt(table) {
+        var tableLen = table.length;
+        for (var i=0; i<tableLen; i++) {
+            var row = table[i];
+            row.map(function (el) {
+                el.colspan = parseInt(el.colspan)
+                el.rowspan = parseInt(el.rowspan)
+                console.log('spans', typeof el.colspan, typeof el.rowspan)
+            });
+        }
+        return table
+    }
 
     TableArray.prototype.getAdjCells = function(row, col) {
         var adjs = [];
@@ -80,14 +93,28 @@ services.factory('tableArray', function () {
             var newRlen = rlen + 1;
             for (var j=0; j<newRlen; j++) {
                 row[j].id = 'cell' + cellId;
-                cellId++
+                cellId++;
             }     
         }
-        this.numCols++
+        this.numCols++;
     };
 
-    TableArray.prototype.merge = function(coords) {
+    TableArray.prototype.mergeCol = function(coords) {
         console.log('coords', coords)
+        var cds = coords[0]
+        ,   mrgCds = coords[1]
+        ,   mrgRow = this.table[cds[0]]
+        ,   cell = this.table[cds[0]][cds[1]]
+        ,   mrgCell = this.table[mrgCds[0]][mrgCds[1]]
+        console.log('befpr', mrgRow)
+        mrgRow.splice(mrgCds[1], 1);
+        console.log('after', mrgRow)
+        console.log('cellinfo', cell)
+        cell.colspan = parseInt(cell.colspan);
+        cell.colspan += parseInt(mrgCell.colspan);
+        this.table[cds[0]] = mrgRow;
+        //console.log("cell merge", mrgCds[1])
+
     };
 
     TableArray.prototype.getId = function() {
@@ -96,35 +123,35 @@ services.factory('tableArray', function () {
         for (var i=0; i<tlen; i++) {
             id += this.table[i].length
         }
-        return id
+        return id;
     };
 
     TableArray.prototype.htmlify = function() {
-        var html = '' 
+        var html = ''; 
         // this will go to j loop to check for colspan etc.
-        ,   width = this.rowWidth / this.numCols - ((this.numCols + 1) * 2 / this.numCols) + 'px';
+        
         for (var i=0; i<this.numRows; i++) {
             var row = this.table[i]
             ,   rlen = row.length
             ,   cells = '';
             for (var j=0; j<rlen; j++) {
                 var cell = row[j]
-                if (j === this.numCols - 1) {
-                    cells += 
-                        '<div sylva-droppable sylva-merge-cells class="tcell final" id=' + cell.id + 
+                ,   width = (this.rowWidth / this.numCols - ((this.numCols + 1) * 2 / this.numCols)) * cell.colspan + (2 * (cell.colspan - 1)) + 'px';
+                //console.log('mergeinfo', cell.colspan, width)
+                if (j === rlen - 1) {
+                    cells += '<div sylva-droppable sylva-merge-cells class="tcell final" id=' + cell.id + 
                         '" style="width:' + width + 
-                        ';" row="' + cell.row +
+                        ';" row="' + i +
                         '" rowspan="' + cell.rowspan +
-                        '" col="' + cell.col +
+                        '" col="' + j +
                         '" colspan="' + cell.colspan + 
                         '"></div>';
                 } else {
-                    cells += 
-                        '<div sylva-droppable sylva-merge-cells class="tcell" id=' + cell.id + 
+                    cells += '<div sylva-droppable sylva-merge-cells class="tcell" id=' + cell.id + 
                         '" style="width:' + width + 
-                        ';" row="' + cell.row +
+                        ';" row="' + i +
                         '" rowspan="' + cell.rowspan +
-                        '" col="' + cell.col +
+                        '" col="' + j +
                         '" colspan="' + cell.colspan + 
                         '"></div>';
                 }
