@@ -20,7 +20,7 @@ sylva:true, alert:true */
   // DOM
   $(function() {
 
-    $('#graph-types').hide();
+    $('#graph-node-types').hide();
     $('#sigma-wrapper').width($('#body').width());
     var msg = '';
     if (sylva.is_schema_empty) {
@@ -67,14 +67,16 @@ sylva:true, alert:true */
         $('#graph-loading').remove();
         spinner.stop();
 
-        // full graph (Sigma.js and others)
+        // full graph
         sylva.graph = data.graph
 
+        // Other data
         sylva.nodetypes = data.nodetypes;
+        sylva.reltypes = data.reltypes;
         sylva.size = data.size;
 
         $('#graph-support').hide();
-        $('#graph-types').show();
+        $('#graph-node-types').show();
         $('#sigma-wrapper').removeAttr('style');
         visualizations.sigma();
 

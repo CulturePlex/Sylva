@@ -474,3 +474,20 @@ def schema_nodetype_edit_color(request, graph_slug):
             nodetype.save()
         return HttpResponse(status=200, mimetype='application/json')
     raise Http404(_("Error: Invalid request (expected an AJAX POST request)"))
+
+
+@permission_required("schemas.change_schema",
+                     (Schema, "graph__slug", "graph_slug"), return_403=True)
+def schema_reltype_edit_color(request, graph_slug):
+    if ((request.is_ajax() or settings.DEBUG) and request.POST):
+        data = request.POST.copy()
+        reltype_id = data['reltypeId']
+        color = data['color']
+        color_mode = data['colorMode']
+        reltype = get_object_or_404(RelationshipType, id=reltype_id)
+        with transaction.atomic():
+            reltype.set_color(color)
+            reltype.set_color_mode(color_mode)
+            reltype.save()
+        return HttpResponse(status=200, mimetype='application/json')
+    raise Http404(_("Error: Invalid request (expected an AJAX POST request)"))

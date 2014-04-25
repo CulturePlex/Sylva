@@ -1286,7 +1286,8 @@ nav.menu ul li {
     margin-left: 10px;
 }
 
-nav.menu ul li a.text {
+nav.menu ul li a.text,
+.change-rels-color-float a.text {
     border: none;
     background: none;
     color: #348E82;
@@ -1296,7 +1297,8 @@ nav.menu ul li a.text {
     -webkit-border-radius: none;
 }
 
-nav.menu ul li a {
+nav.menu ul li a,
+.change-rels-color-float a {
     border-radius: 4px;
     -moz-border-radius: 4px;
     -webkit-border-radius: 4px;
@@ -1317,12 +1319,14 @@ nav.menu ul li .inline {
     display: inline-block;
 }
 
-nav.menu ul li a.link {
+nav.menu ul li a.link,
+.change-rels-color-float a.link {
     padding-left:3px;
     padding-right:3px;
 }
 
-nav.menu ul li a.active {
+nav.menu ul li a.active,
+.change-rels-color-float a.active {
     opacity: 0.2;
     cursor: default;
 }
@@ -1332,12 +1336,14 @@ nav.menu ul li a.link-home span {
     padding: 2px 2px 2px 10px;
 }
 
-nav.menu ul li a.link span {
+nav.menu ul li a.link span,
+.change-rels-color-float a.link span {
     padding-left:3px;
     padding-right:3px;
 }
 
-nav.menu ul li a:hover {
+nav.menu ul li a:hover,
+.change-rels-color-float a:hover {
     box-shadow: 0 0 5px rgba(52,142,130,0.75);
     -webkit-box-shadow: 0 0 5px rgba(52,142,130,0.75);
     -moz-box-shadow: 0 0 5px rgba(52,142,130,0.75);
@@ -1350,6 +1356,14 @@ nav.menu ul {
 nav.menu ul li {
     float: left;
     list-style: none;
+}
+
+.change-rels-color-float a {
+    width: 22px;
+    display: inline-block;
+    float: right;
+    margin-top: 8px;
+    margin-left: 10px;
 }
 
 /* Node types properties */
@@ -1498,16 +1512,16 @@ table.content-table {
     position: absolute;
     z-index: 500;
     margin-left: -20px;
+    margin-top: 34px;
 }
 
 .graph-loading-inner {
     position: relative;
     text-align: center;
-    margin-top: 34px;
     width: 100%;
 }
 
-#graph-types {
+#graph-node-types {
   width: 180px;
   height: 350px;
   float: left;
@@ -1519,9 +1533,10 @@ table.content-table {
 }
 
 #graph-controls {
+    display: block;
     position: relative;
-    z-index: 101;
-    height: 36px;
+    z-index: 9999;
+    margin-right: -15px;
 }
 
 #graph-node-info {
@@ -1544,7 +1559,13 @@ table.content-table {
 }
 
 #sigma-edge-shape {
-    width: 115px;
+    width: 125px;
+}
+
+#rels-color-mode {
+    width: 158px;
+    display: inline-block;
+    float: left;
 }
 
 #graph-layout select {
@@ -1554,6 +1575,23 @@ table.content-table {
     border: 3px solid #D8E8DE;
     color: #555;
     display: inline-block;
+}
+
+.change-rels-color-float {
+    background-color: #D6E7DF !important;
+    -webkit-border-radius: 5px;
+    -moz-border-radius': 5px;
+    border-radius: 5px;
+    position: absolute;
+    display: block;
+    z-index: 99999;
+    padding: 5px;
+}
+
+.change-rels-color-float select {
+    height: 34px;
+    border: 3px solid #D8E8DE;
+    color: #555;
 }
 
 .sigma-control {
@@ -1577,7 +1615,6 @@ table.content-table {
 
 #sigma-export-image {
     margin-left: -10px;
-    margin-right: 3px;
 }
 
 .control-button {
@@ -1769,7 +1806,7 @@ ol.searchResults {
 
 #dataBrowse {
     display: none;
-    z-index: 1000;
+    z-index: 10000;
     position: absolute;
     left: 0px;
     margin-left: 66px;
@@ -1852,7 +1889,7 @@ ul.inner {
 
 table.toolsBrowse {
     display: none;
-    z-index: 1000;
+    z-index: 10000;
     margin-top: 3px;
     right: 35px;
     position: absolute;

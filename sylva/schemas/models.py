@@ -259,6 +259,20 @@ class BaseType(models.Model):
     def get_absolute_url(self):
         return ('nodes_list_full', [self.schema.graph.slug, self.id])
 
+    def has_color(self):
+        return 'color' in self.get_options()
+
+    def get_color(self):
+        if self.has_color():
+            return self.get_option('color')
+        else:
+            return self.create_color()
+
+    def set_color(self, color):
+        with transaction.atomic():
+            self.set_option('color', color)
+            self.save()
+
 
 class NodeType(BaseType):
     inheritance = models.ForeignKey('self', null=True, blank=True,
@@ -276,27 +290,6 @@ class NodeType(BaseType):
 
     def __unicode__(self):
         return "%s" % (self.name)
-
-    def has_color(self):
-        return 'color' in self.get_options()
-
-    def create_color(self):
-        with transaction.atomic():
-            color = self.schema.get_color()
-            self.schema.save()
-        self.set_color(color)
-        return color
-
-    def get_color(self):
-        if self.has_color():
-            return self.get_option('color')
-        else:
-            return self.create_color()
-
-    def set_color(self, color):
-        with transaction.atomic():
-            self.set_option('color', color)
-            self.save()
 
     def get_incoming_relationships(self, reflexive=False):
         relationship_types = RelationshipType.objects.filter(target=self)
@@ -337,6 +330,13 @@ class NodeType(BaseType):
             return self.schema.graph.nodes.filter(*lookups, label=self.id)
         else:
             return []
+
+    def create_color(self):
+        with transaction.atomic():
+            color = self.schema.get_color()
+            self.schema.save()
+        self.set_color(color)
+        return color
 
 
 class RelationshipType(BaseType):
@@ -407,6 +407,28 @@ class RelationshipType(BaseType):
 
     def __unicode__(self):
         return '%s %s %s' % (self.source.name, self.name, self.target.name)
+
+    def create_color(self):
+        color = self.target.get_color()
+        self.set_color(color)
+        self.set_color_mode('source')
+        return color
+
+    def get_color_mode(self):
+        '''
+        It will return 'target', 'source', 'avg' or 'custom'
+        '''
+        if 'color_mode' in self.get_options():
+            return self.get_option('color_mode')
+        else:
+            color_mode = 'target'
+            self.set_color_mode(color_mode)
+            return color_mode
+
+    def set_color_mode(self, color_mode):
+        with transaction.atomic():
+            self.set_option('color_mode', color_mode)
+            self.save()
 
 
 class BaseProperty(models.Model):

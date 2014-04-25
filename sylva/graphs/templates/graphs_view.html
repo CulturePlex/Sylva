@@ -23,7 +23,9 @@
 
 {% block content %}
 <div id="canvas-container">
-  <div id="graph-types">
+  <div id="graph-node-types">
+  </div>
+  <div id="graph-rel-types" class="analytics-mode" style="display: none;">
   </div>
   <div id="graph-node-info">
     <div class="sigma-control" style="display: none; float: left;">
@@ -32,19 +34,18 @@
     </div>
   </div>
   <div id="graph-controls">
-    <h2 class="collapsible-header analytics-mode" style="display: none;">{% trans "Graph controls" %}</h2>
-    <div>
-      <div class="sigma-control analytics-mode" style="display: none; float: right;">
-        <a id="sigma-export-image" class="button" style="font-size:100%;" title="{% trans "Save as a PNG image" %}" download="{{ graph.slug }}.png">{% trans "Save as image" %}</a>
-      </div>
-      <div class="sigma-control" style="display: none; float: right;">
-        <a id="sigma-zoom-in" class="button icon-plus control-button zoom-left" title="{% trans "Zoom in" %}"></a>
-        <a id="sigma-zoom-home" class="button icon-home control-button zoom-home" style="font-size:100%;" title="{% trans "Re-center graph" %}"></a>
-        <a id="sigma-zoom-out" class="button icon-minus control-button zoom-right" style="font-size:100%;" title="{% trans "Zoom out" %}"></a>
-      </div>
-      <div class="sigma-control" style="display: none; float: right;">
-        <a id="sigma-go-analytics" class="button" style="font-size:100%;" title="{% trans "Analytics" %}">{% trans "Analytics" %}</a>
-      </div>
+    <div class="sigma-control" style="display: none; float: right;">
+      <a id="sigma-zoom-in" class="button icon-plus control-button zoom-left" title="{% trans "Zoom in" %}"></a>
+      <a id="sigma-zoom-home" class="button icon-home control-button zoom-home" style="font-size:100%;" title="{% trans "Re-center graph" %}"></a>
+      <a id="sigma-zoom-out" class="button icon-minus control-button zoom-right" style="font-size:100%;" title="{% trans "Zoom out" %}"></a>
+    </div>
+    <div class="sigma-control analytics-mode" style="display: none; float: left;">
+      <a id="sigma-export-image" class="button" style="font-size:100%;" title="{% trans "Save as a PNG image" %}" download="{{ graph.slug }}.png">{% trans "Save as image" %}</a>
+    </div>
+    <div class="sigma-control" style="display: none; float: right;">
+      <a id="sigma-go-analytics" class="button" style="font-size:100%;" title="{% trans "Analytics" %}">{% trans "Analytics" %}</a>
+    </div>
+    <div id="node-info">
     </div>
   </div>
   <div id="graph-layout" class="analytics-mode" style="display: none;">
@@ -145,7 +146,7 @@
       </dl>
     </p>
   </li>
-  <li data-id="graph-types" data-button="{% trans "Next" %}" data-options="tipLocation:right">
+  <li data-id="graph-node-types" data-button="{% trans "Next" %}" data-options="tipLocation:right">
     <h2>{% trans "Node info" %}</h2>
     <p>{% trans "Clicking on a node, you will show some useful information inside this panel:" %}
       <dl>
@@ -176,6 +177,7 @@
   sylva.is_schema_empty = {{ is_schema_empty|slugify }};
   sylva.view_graph_ajax_url = "{{ view_graph_ajax_url }}";
   sylva.edit_nodetype_color_ajax_url = "{{ edit_nodetype_color_ajax_url }}";
+  sylva.edit_reltype_color_ajax_url = "{{ edit_reltype_color_ajax_url }}";
 </script>
 <script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/sigma/sigma.js"></script>
 <script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/sigma/plugins/sigma.layout.forceAtlas2.min.js"></script>
@@ -188,6 +190,7 @@
 
 <script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/colpick/colpick.js"></script>
 <script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/colpick/rgbcolor.js"></script>
+<script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/colpick/jquery.xcolor.js"></script>
 
 <script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/visualization-utils.js"></script>
 <script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/sigma-visualization.js"></script>

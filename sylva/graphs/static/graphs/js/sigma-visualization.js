@@ -17,7 +17,9 @@ sigma:true, clearTimeout */
   var isDrawing = false;
   // setTimeout id.
   var timeout_id = 0;
-  // True when the "Go fullscreen" button is clicked.
+  // True when the "Analytics" button is clicked.
+  var isAnalyticsMode = false;
+  // True when the "Fullscreen" button is clicked.
   var isFullscreenByButton = false;
   // True when the nodes degrees are calculated.
   var degreesCalculated = false;
@@ -47,11 +49,15 @@ sigma:true, clearTimeout */
       var sizeMultiplier = defaultMultiplier;
       // An array with the IDs of the visible nodes.
       var visibleNodesIds = [];
+      // An array with the IDs of the visible rels.
+      var visibleRelsIds = [];
       // The width and border of the analytics sidebar in analytics mode.
       var analyticsSidebarWidth = 0;
       var analyticsSidebarBorder = 2;
       // It's used for keep the last dragged analytics control on top.
       var highestZIndex = 200;
+      // It's used for check if a ColorPicker for relatinships exists.
+      relColorPicker = null;
 
       for (var key in sylva.nodetypes) {
         visibleNodesIds = visibleNodesIds.concat(sylva.nodetypes[key].nodes);
@@ -80,11 +86,11 @@ sigma:true, clearTimeout */
 
       sigInst.graph.read(sylva.graph);
 
-      // Create the legend.
-      $('#graph-types').append('<h2 class="collapsible-header">'
+      // Create the node legend.
+      $('#graph-node-types').append('<h2 class="collapsible-header">'
         + gettext('Types') + '</h2>');
-      $('#graph-types').append($('<ul>'));
-      var list = $('#graph-types ul');
+      $('#graph-node-types').append($('<ul>'));
+      var list = $('#graph-node-types ul');
       list.css({
         listStyleType: 'none',
         marginTop: "5px"
@@ -130,11 +136,62 @@ sigma:true, clearTimeout */
         );
       });
 
-      var node = null;
+      // Create the relationship legend.
+      $('#graph-rel-types').append('<h2 class="collapsible-header">'
+        + gettext('Relationships') + '</h2>');
+      $('#graph-rel-types').append($('<ul>'));
+      var list = $('#graph-rel-types ul');
+      list.css({
+        listStyleType: 'none',
+        marginTop: "5px"
+      });
+      $.each(sylva.reltypes, function(reltypeId, reltype) {
+        list.append($('<li>')
+          .css({
+            minHeight: "20px",
+            paddingLeft: "3px"
+          })
+          .append($('<i>')
+            .addClass("icon-eye-open")
+            .addClass("show-hide-rels")
+            .attr("data-action", "hide")
+            .attr("data-reltype-id", reltypeId)
+            .css({
+              marginRight: "3px",
+              width: "1em",
+              height: "1em",
+              cursor: "pointer",
+              verticalAlign: "-2px"
+            }))
+          .append($('<span>')
+            .addClass("change-rels-color")
+            .attr("data-color", reltype.color)
+            .attr("data-color-mode", reltype.colorMode)
+            .attr("data-reltype-id", reltypeId)
+            .css({
+              backgroundColor: reltype.color,
+              display: "inline-block",
+              width: "16px",
+              height: "16px",
+              marginRight: "5px",
+              verticalAlign: "middle",
+              cursor: "pointer"
+            }))
+          .append($('<span>')
+            .css({
+              paddingLeft: "0.3em",
+              verticalAlign: "middle"
+            })
+            .html(reltype.htmlFullName)
+          )
+        );
+      });
+
+      var nodeOvered = null;
       var mouseMovedOnNode = false;
       var mouseMovedOnStage = false;
       var isOverNode = false;
-      var nodesInGrey = false;
+      var centeredNodeForGreify = null;
       var isMouseOverCanvas = false;
       var zoomWheel = false;
       var currentNodeX = 0;
@@ -195,8 +252,8 @@ sigma:true, clearTimeout */
         var near = false;
 
         var offset = $('.sigma-mouse').offset()
-        var nodeX = node['renderer1:x'];
-        var nodeY = node['renderer1:y'];
+        var nodeX = nodeOvered['renderer1:x'];
+        var nodeY = nodeOvered['renderer1:y'];
         var x = event.pageX - offset.left;
         var y = event.pageY - offset.top;
         x = nodeX - x;
@@ -216,8 +273,12 @@ sigma:true, clearTimeout */
         if (mouseMovedOnNode) {
           mouseMovedOnNode = false;
         } else {
-          nodesInGrey = true;
-          grayfyNonNeighborhoodOnly(node);
+          centeredNodeForGreify = nodeOvered;
+          grayfyNonNeighborhoodOnly(nodeOvered);
+          if (isAnalyticsMode) {
+            sylva.Utils.updateNodeLegend(nodeOvered, '#node-info');
+            updateSizes();
+          }
         }
 
         $('#main').css('user-select', 'all');
@@ -228,7 +289,7 @@ sigma:true, clearTimeout */
       };
 
       var nodeMouseMove = function(event) {
-        console.log(node.label + ' MOVE!');
+        console.log(nodeOvered.label + ' MOVE!');
 
         that.stop();
 
@@ -265,8 +326,8 @@ sigma:true, clearTimeout */
             (ref[1].y - ref[0].y) + ref[0].y;
 
           // Rotating the coordinates.
-          node.x = x * cos - y * sin;
-          node.y = y * cos + x * sin;
+          nodeOvered.x = x * cos - y * sin;
+          nodeOvered.y = y * cos + x * sin;
 
           sigInst.refresh();
         }
@@ -299,9 +360,13 @@ sigma:true, clearTimeout */
 
         if (mouseMovedOnStage) {
           mouseMovedOnStage = false;
-        } else if (nodesInGrey) {
-          nodesInGrey = false;
+        } else if (centeredNodeForGreify) {
+          centeredNodeForGreify = null;
           ungrayfyAllNodes();
+          if (isAnalyticsMode) {
+            sylva.Utils.cleanNodeLegend('#node-info');
+            updateSizes();
+          }
         }
       };
 
@@ -316,9 +381,7 @@ sigma:true, clearTimeout */
         if (!isOverNode) {
           console.log('OVERNODE!');
 
-          node = event.data.node;
-          // TODO
-          //sylva.Utils.updateNodeLegend(node.id, node.label, 'element-info');
+          nodeOvered = event.data.node;
 
           // Binding mouse node events.
           $('.sigma-mouse').on('mousedown', nodeMouseDown);
@@ -375,16 +438,14 @@ sigma:true, clearTimeout */
         sigInst.graph.nodes().forEach(function(n) {
           if (neighborhoodIds['nodes'].indexOf(n.id) >= 0) {
             n.color = sylva.nodetypes[n.nodetypeId].color;
-            delete n['type'];
           } else {
             n.color = grey;
-            n.type = 'grey';
           }
         });
 
         sigInst.graph.edges().forEach(function(e) {
           if (neighborhoodIds['edges'].indexOf(e.id) >= 0) {
-            e.color = sigInst.graph.nodes(e.source).color;
+            e.color = sylva.reltypes[e.reltypeId].color;
           } else {
             e.color = grey;
           }
@@ -398,11 +459,10 @@ sigma:true, clearTimeout */
         console.log("UNGRAYFING!")
         sigInst.graph.nodes().forEach(function(n) {
           n.color = sylva.nodetypes[n.nodetypeId].color
-          delete n['type'];
         });
 
         sigInst.graph.edges().forEach(function(e) {
-          e.color = sigInst.graph.nodes(e.source).color;
+          e.color = sylva.reltypes[e.reltypeId].color;
         });
 
         // Re-draw graph.
@@ -480,9 +540,43 @@ sigma:true, clearTimeout */
         }
       });
 
+      // Hide/show rels by type.
+      $('.show-hide-rels').on('click', function() {
+        var reltypeId = $(this).attr('data-reltype-id');
+        var relsId = sylva.reltypes[reltypeId].relationships;
+        var relsNumber = relsId.length;
+        var action = $(this).attr('data-action');
+        var hidden;
+
+        if (action == "hide") {
+          $(this).attr('data-action', 'show');
+          $(this).removeClass('icon-eye-open');
+          $(this).addClass('icon-eye-close');
+          hidden = true;
+          for(var i = 0; i < relsId.length; i++) {
+            var index = visibleRelsIds.indexOf(relsId[i]);
+            visibleRelsIds.splice(index, 1);
+          }
+        } else {
+          $(this).attr('data-action', 'hide');
+          $(this).removeClass('icon-eye-close');
+          $(this).addClass('icon-eye-open');
+          hidden = false;
+          visibleRelsIds = visibleRelsIds.concat(relsId);
+        }
+
+        sigInst.graph.edges(relsId).forEach(function(e) {
+          e.hidden = hidden;
+        });
+
+        sigInst.refresh();
+      });
+
+      // TODO: If same color in nodes and rels don't send anything
+
       // Change the color of the nodes and the legend.
       var changeNodesColor = function(nodetypeId, color, span) {
-        var nodesId = sylva.nodetypes[nodetypeId].nodes
+        var nodesId = sylva.nodetypes[nodetypeId].nodes;
         var currentColor = $(span).css('background-color');
         currentColor = new RGBColor(currentColor).toHex().toUpperCase();
         if (currentColor != color) {
@@ -490,7 +584,16 @@ sigma:true, clearTimeout */
             n.color = color;
           });
           sigInst.graph.edges().forEach(function(e) {
-            e.color = sigInst.graph.nodes(e.source).color;
+            var colorMode = sylva.reltypes[e.reltypeId].colorMode;
+            if (colorMode == 'target') {
+              e.color = sigInst.graph.nodes(e.target).color;
+            } else if (colorMode == 'source') {
+              e.color = sigInst.graph.nodes(e.source).color;
+            } else if (colorMode == 'avg') {
+              var target = sigInst.graph.nodes(e.target).color;
+              var source = sigInst.graph.nodes(e.source).color;
+              e.color = $.xcolor.average(target, source).getHex();
+            }
           });
           $(span).css({
             backgroundColor: color
@@ -502,16 +605,16 @@ sigma:true, clearTimeout */
       /* Change the color of the nodes and the legend when the user is
        * selecting it in the widget.
        */
-      var changeColorWidget = function(span, hex) {
+      var changeNodeColorWidget = function(span, hex) {
         var nodetypeId = $(span).attr('data-nodetype-id');
-        var newColor = '#' + hex
+        var newColor = '#' + hex;
         changeNodesColor(nodetypeId, newColor, span);
       };
 
       /* Restore the color of the nodes and the legend when the user click out
        * of the widget.
        */
-      var hideColorWidget = function(span, picker) {
+      var hideNodeColorWidget = function(span, picker) {
         if ($(picker).is(':visible')) {
           var nodetypeId = $(span).attr('data-nodetype-id');
           var oldColor = $(span).attr('data-color');
@@ -523,7 +626,7 @@ sigma:true, clearTimeout */
       /* Change the color of the nodes and the legend and submit to server.
        * Also, restore the color if the request fails.
        */
-      var submitColorWidget = function(span, hex) {
+      var submitNodeColorWidget = function(span, hex) {
         var nodetypeId = $(span).attr('data-nodetype-id');
         var newColor = '#' + hex;
         var oldColor = $(span).attr('data-color');
@@ -532,8 +635,8 @@ sigma:true, clearTimeout */
         sylva.nodetypes[nodetypeId].color = newColor;
         $(span).colpickHide();
         params = {
-          nodetypeId: nodetypeId,
-          color: newColor
+          'nodetypeId': nodetypeId,
+          'color': newColor
         };
         var jqxhr = $.post(sylva.edit_nodetype_color_ajax_url, params, 'json');
         jqxhr.error(function() {
@@ -553,13 +656,222 @@ sigma:true, clearTimeout */
           submitText: 'Ok',
           color: currentColor.substr(1),  // Colpick doesn't need the '#' char.
           onChange: function(hsb, hex, rgb, el, bySetColor) {
-            changeColorWidget(span, hex.toUpperCase());
+            changeNodeColorWidget(span, hex.toUpperCase());
           },
           onHide: function(picker) {
-            hideColorWidget(span, picker);
+            hideNodeColorWidget(span, picker);
           },
           onSubmit: function(hsb, hex, rgb, el, bySetColor) {
-            submitColorWidget(span, hex.toUpperCase());
+            submitNodeColorWidget(span, hex.toUpperCase());
+          }
+        });
+      });
+
+      // var changeNodesColor = function(nodetypeId, color, span) {
+      var changeRelsColor = function(reltypeId, color, span) {
+        var relsId = sylva.reltypes[reltypeId].relationships;
+        var currentColor = $(span).css('background-color');
+        currentColor = new RGBColor(currentColor).toHex().toUpperCase();
+        if (currentColor != color) {
+          sigInst.graph.edges(relsId).forEach(function(e) {
+            e.color = color;
+          });
+          $(span).css({
+            backgroundColor: color
+          });
+          sigInst.refresh();
+        }
+      };
+
+      var changeRelColorWidget = function(span, type, color) {
+        var reltypeId = $(span).attr('data-reltype-id');
+        var relId = sylva.reltypes[reltypeId].relationships[0];
+        var rel = sigInst.graph.edges(relId);
+        if (type == 'target') {
+          color = sigInst.graph.nodes(rel.target).color;
+        } else if (type == 'source') {
+          color = sigInst.graph.nodes(rel.source).color;
+        } else if (type == 'avg') {
+          var target = sigInst.graph.nodes(rel.target).color;
+          var source = sigInst.graph.nodes(rel.source).color;
+          color = $.xcolor.average(target, source).getHex();
+        } else {
+          color = '#' + color;
+        }
+        changeRelsColor(reltypeId, color, span);
+      };
+
+      var hideRelColorWidget = function(span) {
+        var reltypeId = $(span).attr('data-reltype-id');
+        var oldColor = $(span).attr('data-color');
+        changeRelsColor(reltypeId, oldColor, span);
+      };
+
+      var submitRelColorWidget = function(span, type) {
+        var reltypeId = $(span).attr('data-reltype-id');
+        var newColor = $(span).css('background-color');
+        newColor = new RGBColor(newColor).toHex().toUpperCase();
+        var oldColor = $(span).attr('data-color');
+        var oldColorMode = $(span).attr('data-color-mode');
+        changeRelsColor(reltypeId, newColor, span);
+        var newColorMode = type;
+        $(span).attr('data-color', newColor);
+        $(span).attr('data-color-mode', newColorMode);
+        sylva.reltypes[reltypeId].color = newColor;
+        sylva.reltypes[reltypeId].colorMode = newColorMode;
+        params = {
+          'reltypeId': reltypeId,
+          'color': newColor,
+          'colorMode': newColorMode
+        };
+        var jqxhr = $.post(sylva.edit_reltype_color_ajax_url, params, 'json');
+        jqxhr.error(function() {
+          changeRelsColor(reltypeId, oldColor, span);
+          $(span).attr('data-color', oldColor);
+          $(span).attr('data-color-mode', oldColorMode);
+          sylva.reltypes[reltypeId].color = oldColor;
+          sylva.reltypes[reltypeId].colorMode = oldColorMode;
+          alert(gettext("Oops! Something went wrong with the server."));
+        });
+      };
+
+      var improveRelColorWidget = function(span, container) {
+        var currentColor = $(span).css('background-color');
+        currentColor = new RGBColor(currentColor).toHex().toUpperCase();
+        var type = 'custom';
+        container.colpick({
+          showEvent: 'change',
+          submit: false,
+          colorScheme: 'light',
+          layout: 'hex',
+          submitText: 'Ok',
+          color: currentColor.substr(1),  // Colpick doesn't need the '#' char.
+          onChange: function(hsb, hex, rgb, el, bySetColor) {
+            changeRelColorWidget(span, type, hex.toUpperCase());
+          }
+        });
+
+        relColorPicker = container.next();
+        container.css({
+          borderBottomLeftRadius: 0,
+          borderBottomRightRadius: 0
+        });
+        relColorPicker.css({
+          borderTopLeftRadius: 0,
+          borderTopRightRadius: 0
+        });
+
+        // If already existed the widget.
+        container.colpickSetColor(currentColor.substr(1), false);
+      };
+
+      var restoreRelColorWidget = function(container) {
+        if (relColorPicker) {
+          container.css({
+            borderBottomLeftRadius: '5px',
+            borderBottomRightRadius: '5px'
+          });
+          container.colpickHide();
+          relColorPicker = null;
+        }
+      };
+
+      // Change rels color.
+      $('.change-rels-color').each(function(i, span) {
+        $(span).on('click', function(event) {
+          var reltypeId = $(span).attr('data-reltype-id');
+          var currentColor = $(span).attr('data-color');
+          var currentColorMode = $(span).attr('data-color-mode')
+
+          var offset = $(span).offset()
+          var left = offset.left;
+          var top = offset.top + $(span).height();
+
+          var container = $('<div class="change-rels-color-float">');
+          container.css({
+            left: left,
+            top: top
+          });
+
+          var colorModeSelect = $('<select id="rels-color-mode">');
+          var optionTarget = $('<option id="target">');
+          optionTarget.text(gettext('Target'));
+          colorModeSelect.append(optionTarget);
+          var optionSource = $('<option id="source">');
+          optionSource.text(gettext('Source'));
+          colorModeSelect.append(optionSource);
+          var optionAvg = $('<option id="avg">');
+          optionAvg.text(gettext('Average'));
+          colorModeSelect.append(optionAvg);
+          var optionCustom = $('<option id="custom">');
+          optionCustom.text(gettext('Custom'));
+          colorModeSelect.append(optionCustom);
+
+          switch (currentColorMode) {
+            case 'target':
+              optionTarget.prop('disabled', 'disabled');
+              optionTarget.prop('selected', 'selected');
+              break;
+            case 'source':
+              optionSource.prop('disabled', 'disabled');
+              optionSource.prop('selected', 'selected');
+              break;
+            case 'avg':
+              optionAvg.prop('disabled', 'disabled');
+              optionAvg.prop('selected', 'selected');
+              break;
+            case 'custom':
+              optionCustom.prop('disabled', 'disabled');
+              optionCustom.prop('selected', 'selected');
+              break;
+            default:
+              break;
+          }
+
+          var button = $('<a class="link" style="width: 22px">');
+          button.html('<span>Ok</span>');
+
+          container.append(colorModeSelect);
+          container.append(button);
+
+          colorModeSelect.on('change', function(event) {
+            var option = $(this).find('option:selected');
+            var type = option.attr('id');
+
+            disableOptions(option, type);
+
+            if (type == 'custom') {
+              improveRelColorWidget(span, container);
+            } else {
+              changeRelColorWidget(span, type, null);
+              restoreRelColorWidget(container);
+              event.stopPropagation()
+            }
+
+          });
+
+          button.on('click', function() {
+            var type = colorModeSelect.find('option:selected').attr('id');
+            submitRelColorWidget(span, type);
+            restoreRelColorWidget(container);
+            container.remove();
+          });
+
+          $('body').on('mousedown', function() {
+            restoreRelColorWidget(container);
+            hideRelColorWidget(span);
+            container.remove();
+          });
+
+          container.on('mousedown', function(event){
+              event.stopPropagation();
+          });
+
+          $('body').append(container);
+
+          if (currentColorMode == 'custom') {
+            improveRelColorWidget(span, container);
+            colorModeSelect.trigger('change');
           }
         });
       });
@@ -707,6 +1019,10 @@ sigma:true, clearTimeout */
         $('#analytics').resizable('option', 'minWidth', width * 0.15);
         $('#analytics').resizable('option', 'maxWidth', width * 0.33);
 
+        $('#graph-controls').css({
+          left: width - analyticsSidebarWidth - $('#graph-controls').width() - 20
+        });
+
         var renderer = sigInst.renderers[0];
         var container = $(renderer.container);
         renderer.resize(container.width(), container.height());
@@ -740,9 +1056,23 @@ sigma:true, clearTimeout */
           display: 'inline'
         });
 
-        $('#graph-types').css({
+        $('#graph-node-types').css({
           position: 'absolute',
           zIndex: '100',
+          border: 'none',
+          overflow: 'auto',
+          padding: '10px',
+          marginRight: 0,
+          height: 'auto',
+          width: 'auto',
+          marginTop: 0,
+          borderRadius: '10px',
+          backgroundColor: 'rgba(214, 231, 223, 0.5)'
+        });
+
+        $('#graph-rel-types').css({
+          position: 'absolute',
+          zIndex: '101',
           border: 'none',
           overflow: 'auto',
           padding: '10px',
@@ -758,7 +1088,7 @@ sigma:true, clearTimeout */
           position: 'absolute',
           height: 'auto',
           padding: '10px',
-          borderRadius: '10px',
+          borderBottomLeftRadius: '10px',
           backgroundColor: 'rgba(214, 231, 223, 0.5)'
         });
 
@@ -784,7 +1114,7 @@ sigma:true, clearTimeout */
         });
 
         $('#sigma-zoom-in').parent().css({
-          float: 'left'
+          marginLeft: '0'
         });
       };
 
@@ -800,11 +1130,12 @@ sigma:true, clearTimeout */
         });
 
         $('#sigma-zoom-in').parent().css({
-          float: 'right'
+          float: 'right',
+          marginLeft: ''
         });
 
         $('#graph-controls').removeAttr('style');
-        $('#graph-types').removeAttr('style');
+        $('#graph-node-types').removeAttr('style');
         $('#sigma-wrapper').removeAttr('style');
         $('#canvas-container').removeAttr('style');
         $('#body').removeAttr('style');
@@ -821,6 +1152,8 @@ sigma:true, clearTimeout */
        * that can't be undone with the "restoreSizesAndStyles()" method.
        */
       var goAnalyticsMode = function() {
+        isAnalyticsMode = true;
+
         $('#sigma-go-analytics').hide();
         $('#graph-node-info').hide();
         $('nav.main li').hide();
@@ -858,37 +1191,37 @@ sigma:true, clearTimeout */
         }
 
         // TODO: Get target from event
-        $('#graph-types').draggable({
+        $('#graph-node-types').draggable({
           containment: '#body',
           cursor: 'move',
           zIndex: 9999,
           create: function(event, ui) {
-            $('#graph-types').css({
+            $('#graph-node-types').css({
               top: '14px',
               left: '16px'
             });
           },
           stop: function(event, ui) {
             highestZIndex++;
-            $('#graph-types').css({
+            $('#graph-node-types').css({
               zIndex: highestZIndex
             });
           }
         });
 
-        $('#graph-controls').draggable({
+        $('#graph-rel-types').draggable({
           containment: '#body',
           cursor: 'move',
           zIndex: 9999,
           create: function(event, ui) {
-            $('#graph-controls').css({
+            $('#graph-rel-types').css({
               top: '14px',
-              left: '550px'
+              left: '200px'
             });
           },
           stop: function(event, ui) {
             highestZIndex++;
-            $('#graph-controls').css({
+            $('#graph-rel-types').css({
               zIndex: highestZIndex
             });
           }
@@ -901,7 +1234,7 @@ sigma:true, clearTimeout */
           create: function(event, ui) {
             $('#graph-layout').css({
               top: '14px',
-              left: '200px'
+              left: '450px'
             });
           },
           stop: function(event, ui) {
@@ -945,13 +1278,18 @@ sigma:true, clearTimeout */
           }
         };
 
-        $('#graph-types').accordion(collapsibleSettings);
-        $('#graph-controls').accordion(collapsibleSettings);
+        $('#graph-node-types').accordion(collapsibleSettings);
+        $('#graph-rel-types').accordion(collapsibleSettings);
         $('#graph-layout').accordion(collapsibleSettings);
 
         sigInst.settings({
           maxNodeSize: analyticsMaxNodeSize * sizeMultiplier
         });
+
+        if (centeredNodeForGreify) {
+          sylva.Utils.updateNodeLegend(centeredNodeForGreify, '#node-info');
+          updateSizes();
+        }
 
         updateStyles();
         updateSizes();
@@ -965,6 +1303,8 @@ sigma:true, clearTimeout */
        * "restoreSizesAndStyles()" method.
        */
       var exitAnalyticsMode = function() {
+        isAnalyticsMode = false;
+
         $(window).off('resize', updateSizes);
 
         if (isFullscreenMode()) {
@@ -994,12 +1334,14 @@ sigma:true, clearTimeout */
         });
 
         $('#analytics').resizable('disable');
-        $('#graph-types').draggable('destroy');
-        $('#graph-controls').draggable('destroy');
+        $('#graph-node-types').draggable('destroy');
+        $('#graph-rel-types').draggable('destroy');
         $('#graph-layout').draggable('destroy');
-        $('#graph-types').accordion('destroy');
-        $('#graph-controls').accordion('destroy');
+        $('#graph-node-types').accordion('destroy');
+        $('#graph-rel-types').accordion('destroy');
         $('#graph-layout').accordion('destroy');
+
+        sylva.Utils.cleanNodeLegend('#node-info');
 
         restoreSizesAndStyles();
         reCenter();
@@ -1110,7 +1452,7 @@ sigma:true, clearTimeout */
         var xPos = '';
         var yPos = '';
 
-        switch(type) {
+        switch (type) {
           case 'label':
           case 'force-atlas-2':
             if (visibleNodesIds.length == 0) {
@@ -1143,7 +1485,7 @@ sigma:true, clearTimeout */
       };
 
       var layoutSort = function(order) {
-        switch(order) {
+        switch (order) {
           case 'label':
           case 'def':
             return null;
@@ -1211,7 +1553,7 @@ sigma:true, clearTimeout */
 
         var auxMinNodeSize = sigInst.settings('minNodeSize');
         var auxMaxNodeSize = sigInst.settings('maxNodeSize') / sizeMultiplier;
-        switch(type) {
+        switch (type) {
           case 'label':
             break;
           case 'same':
@@ -1251,7 +1593,7 @@ sigma:true, clearTimeout */
 
         disableOptions(option, type);
 
-        switch(type) {
+        switch (type) {
           case 'label':
             break;
           case 'straight':

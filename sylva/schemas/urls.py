@@ -66,8 +66,13 @@ urlpatterns = patterns('schemas.views',
         name="schema_import"),
 
     # node type edit color
-    url(r'^(?P<graph_slug>[\w-]+)/types/edit_color/$',
+    url(r'^(?P<graph_slug>[\w-]+)/nodetypes/edit_color/$',
         'schema_nodetype_edit_color',
         name="schema_nodetype_edit_color"),
+
+    # relationship type edit color
+    url(r'^(?P<graph_slug>[\w-]+)/reltypes/edit_color/$',
+        'schema_reltype_edit_color',
+        name="schema_reltype_edit_color"),
 
 )

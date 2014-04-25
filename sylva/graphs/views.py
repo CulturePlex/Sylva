@@ -34,22 +34,24 @@ def _jsonify_graph(nodes_list, relations_list):
     Returns a tuple with the elements of a graph jsonified.
     """
     nodes = []
-    edges = []
+    rels = []
     nodetypes = {}
+    reltypes = {}
     node_ids = []
     for node in nodes_list:
         nodetype = node.get_type()
         if nodetype.id not in nodetypes:
-            nodetype_color = nodetype.get_color()
-            nodetypes[nodetype.id] = {'id': nodetype.id,
-                                      'name': nodetype.name,
-                                      'color': nodetype_color,
-                                      'nodes': []}
+            nodetypes[nodetype.id] = {
+                'id': nodetype.id,
+                'name': nodetype.name,
+                'color': nodetype.get_color(),
+                'nodes': []
+            }
         node_display = node.display + ' (' + str(node.id) + ')'
         json_node = node.to_json()
         json_node['nodetypeId'] = nodetype.id
         json_node['label'] = node_display
-        json_node['color'] = nodetypes[nodetype.id]['color']
+        json_node['color'] = nodetype.get_color()
         json_node['x'] = random.uniform(0, 1)
         json_node['y'] = random.uniform(0, 1)
         json_node['size'] = 1
@@ -60,16 +62,35 @@ def _jsonify_graph(nodes_list, relations_list):
         source_id = rel.source.id
         target_id = rel.target.id
         if (source_id in node_ids and target_id in node_ids):
-            edge = {
+            reltype = rel.get_type()
+            if reltype.id not in reltypes:
+                htmlFullName = reltype.source.name + \
+                    ' <span style="font-style: italic;">' + \
+                    reltype.name + '</span> ' + \
+                    reltype.target.name
+                reltypes[reltype.id] = {
+                    'id': reltype.id,
+                    'name': reltype.name,
+                    'fullName': reltype.__unicode__(),
+                    'htmlFullName': htmlFullName,
+                    'color': reltype.get_color(),
+                    'colorMode': reltype.get_color_mode(),
+                    'relationships': []
+                }
+            rel_json = {
                 'id': str(rel.id),
                 'source': str(source_id),
                 'target': str(target_id),
-                'edgetype': rel.label_display,
+                'reltypeId': reltype.id,
+                'reltype': rel.label_display,
+                'fullReltype': reltype.__unicode__(),
+                'color': reltype.get_color(),
                 'properties': rel.properties
             }
-            edges.append(edge)
-    graph = {'nodes': nodes, 'edges': edges}
-    return (graph, nodetypes)
+            rels.append(rel_json)
+            reltypes[reltype.id]['relationships'].append(rel_json['id'])
+    graph = {'nodes': nodes, 'edges': rels}
+    return (graph, nodetypes, reltypes)
 
 
 @permission_required("graphs.view_graph", (Graph, "slug", "graph_slug"),
@@ -81,6 +102,8 @@ def graph_view(request, graph_slug, node_id=None):
     view_graph_ajax_url = ''
     edit_nodetype_color_ajax_url = reverse(
         'schemas.views.schema_nodetype_edit_color', args=[graph.slug])
+    edit_reltype_color_ajax_url = reverse(
+        'schemas.views.schema_reltype_edit_color', args=[graph.slug])
     node = None
     if node_id:
         node = graph.nodes.get(node_id)
@@ -97,7 +120,9 @@ def graph_view(request, graph_slug, node_id=None):
                                "view_graph_ajax_url":
                                   view_graph_ajax_url,
                                "edit_nodetype_color_ajax_url":
-                                  edit_nodetype_color_ajax_url},
+                                  edit_nodetype_color_ajax_url,
+                               "edit_reltype_color_ajax_url":
+                                  edit_reltype_color_ajax_url},
                               context_instance=RequestContext(request))
 
 
@@ -360,11 +385,12 @@ def graph_data(request, graph_slug, node_id=None):
         else:
             nodes_list = graph.nodes.all()
             relations_list = graph.relationships.all()
-        graph, nodetypes = _jsonify_graph(nodes_list, relations_list)
+        graph, nodetypes, reltypes = _jsonify_graph(nodes_list, relations_list)
         size = len(nodes_list)
         json_data = {
             'graph': graph,
             'nodetypes': nodetypes,
+            'reltypes': reltypes,
             'size': size
         }
         return HttpResponse(json.dumps(json_data), status=200,
