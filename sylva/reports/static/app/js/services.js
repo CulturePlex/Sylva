@@ -59,7 +59,14 @@ services.factory('tableArray', function () {
         var row = []
         ,   cellId = this.getId();
         for (var i=0; i<this.numCols; i++) {
-            var cell = {col: i, colspan: '1', id: 'cell' + cellId, row: this.numRows, rowspan: '1'};
+            var cell = {
+                col: i,
+                colspan: '1',
+                id: 'cell' + cellId,
+                row: this.numRows,
+                rowspan: '1',
+                query: ''
+            };
             row.push(cell);
             cellId++;
         }   
@@ -72,7 +79,14 @@ services.factory('tableArray', function () {
         for (var i=0; i<this.numRows; i++) {
             var row = this.table[i]
             ,   rlen = row.length
-            ,   cell = {col: rlen, colspan: '1', id: '', row: i, rowspan: '1'};
+            ,   cell = {
+                col: rlen,
+                colspan: '1',
+                id: '',
+                row: i,
+                rowspan: '1',
+                query: ''
+            };
             row.push(cell);
             var newRlen = rlen + 1;
             for (var j=0; j<newRlen; j++) {
@@ -103,6 +117,16 @@ services.factory('tableArray', function () {
         this.numCols -= 1;     
     }
 
+    TableArray.prototype.addQuery = function(coords, query) {
+        
+        this.table[coords[0]][coords[1]].query = query;
+        console.log('add', coords, query, this.table)
+    }
+
+    TableArray.prototype.delQuery = function(coords) {
+        this.table[coords[0]][coords[1]].query = '';
+    }
+
     TableArray.prototype.mergeCol = function(coords) {
         var cds = coords[0]
         ,   mrgCds = coords[1]
@@ -125,14 +149,35 @@ services.factory('tableArray', function () {
     };
 
     TableArray.prototype.htmlify = function() {
-        var html = ''; 
+        var queryHtml = '<div class="query"><a class="delete" href="" ng-click="delQuery()">x</a>'
+        ,   selectHtml = '<label class="chart-select">Chart Type:' +
+            '<select>' +
+            '<option value="bar">Bar</option>' +
+            '<option value="line">Line</option>' +
+            '<option value="scatter">Scatter</option>' +
+            '<option value="pie">Pie</option>' +
+            '</select>' + 
+            '</label>' 
+        ,   html = ''; 
         for (var i=0; i<this.numRows; i++) {
             var row = this.table[i]
             ,   rlen = row.length
             ,   cells = '';
             for (var j=0; j<rlen; j++) {
                 var cell = row[j]
-                ,   width = (this.rowWidth / this.numCols - ((this.numCols + 1) * 2 / this.numCols)) * cell.colspan + (2 * (cell.colspan - 1)) + 'px';
+                ,   width = (this.rowWidth / this.numCols - ((this.numCols + 1) * 2 / this.numCols)) * cell.colspan + (2 * (cell.colspan - 1)) + 'px'
+                ,   seriesHtml = '<div class="series-div"><span class="series-label"> X-Axis:</span>' +
+                    '<select class="series-select">' +
+                    '<option value="bar">Series A</option>' +
+                    '<option value="line">Series B</option>' +
+                    '</select>' + 
+                    '</div>'+
+                    '<div class="series-div"><span class="series-label">Y-Axis:</span>' +
+                    '<select class="series-select">' +
+                    '<option value="bar">Series A</option>' +
+                    '<option value="line">Series B</option>' +
+                    '</select>' +
+                    '</div>';  
                 if (j === rlen - 1) {
                     cells += '<div sylva-droppable sylva-merge-cells class="tcell final" id=' + cell.id + 
                         '" style="width:' + width + 
@@ -140,7 +185,12 @@ services.factory('tableArray', function () {
                         '" rowspan="' + cell.rowspan +
                         '" col="' + j +
                         '" colspan="' + cell.colspan + 
-                        '"></div>';
+                        '" query="' + cell['query'] +
+                        '">';
+                    if (cell.query  !== '') {
+                        cells += queryHtml + '<h2>' + cell.query + '</h2>'+ selectHtml + seriesHtml + '</div>';
+                    }
+                    cells += '</div>'
                 } else {
                     cells += '<div sylva-droppable sylva-merge-cells class="tcell" id=' + cell.id + 
                         '" style="width:' + width + 
@@ -148,7 +198,12 @@ services.factory('tableArray', function () {
                         '" rowspan="' + cell.rowspan +
                         '" col="' + j +
                         '" colspan="' + cell.colspan + 
-                        '"></div>';
+                        '" query="' + cell['query'] +
+                        '">';
+                    if (cell.query !== '') {
+                        cells += queryHtml + '<h2>' + cell.query + '</h2>' + selectHtml + seriesHtml + '</div>';
+                    }
+                    cells += '</div>'
                 }
             }
             if (i === this.numRows - 1) {

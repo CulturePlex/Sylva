@@ -40,9 +40,15 @@ directives.directive('sylvaEditableTable', ['$compile', 'tableArray', function (
         restrict: 'A',
         controller: function ($scope) {
             $scope.merge = null;
+            $scope.setHtml = 0;
 
             this.setMerge = function(coords, mergeCoords) {
                 $scope.merge = [coords, mergeCoords];
+            };
+
+            this.setHtml = function() {
+                $scope.setHtml++;
+                console.log('set', $scope.setHtml)
             };
         },
         link: function(scope, elem, attrs) {
@@ -59,15 +65,25 @@ directives.directive('sylvaEditableTable', ['$compile', 'tableArray', function (
 
             scope.tableArray = tarray; 
 
-            scope.getMerge = function () {
+            scope.getMerge = function() {
                 return scope.merge;
             };
+
+            scope.getHtml = function() {
+                return scope.setHtml;
+            } 
 
             scope.$watchCollection(scope.getMerge, function (newVal, oldVal) {
                 if (newVal === oldVal) return;
                 scope.tableArray.mergeCol(newVal);
                 var html = scope.tableArray.htmlify();
                 $compile(rows.html(html))(scope);          
+            });
+
+            scope.$watch(scope.getHtml, function (newVal, oldVal) {
+                console.log('watechefasdaafadsfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfas')
+                var html = scope.tableArray.htmlify();
+                $compile(rows.html(html))(scope);
             });
 
             addRow.bind('click', function () {
@@ -122,7 +138,8 @@ directives.directive('sylvaEditableTable', ['$compile', 'tableArray', function (
                         row: cell.attr('row'),
                         col: cell.attr('col'),
                         rowspan: cell.attr('rowspan'),
-                        colspan: cell.attr('colspan')
+                        colspan: cell.attr('colspan'),
+                        query: cell.attr('query')
                     };
                     row.push(cellObj);        
                 }
@@ -155,6 +172,11 @@ directives.directive('sylvaMergeCells', ['$compile', function ($compile) {
                 sylvaEditableTableCtrl.setMerge(coords, merges[ndx]);
             }
 
+            scope.delQuery = function() {
+                scope.tableArray.delQuery([row, col]);
+                sylvaEditableTableCtrl.setHtml();
+            }
+
             elem.bind("click", function (event) {
                 if (!arrows) {
                     ang('.arrow').remove();
@@ -174,58 +196,52 @@ directives.directive('sylvaMergeCells', ['$compile', function ($compile) {
                 arrows = false;
             });
         }
+
     }
 }]);
 
 
 directives.directive('sylvaDroppable', function() {
     return {
+        require: '^sylvaEditableTable',
         restrict: 'A',
-        link: function(scope, element, attrs) {
+        link: function(scope, elem, attrs, sylvaEditableTableCtrl) {
         // again we need the native object
-            var el = element[0];
-            el.addEventListener(
-                'dragover',
-                function(e) {
-                    console.log('dragover')
-                    e.dataTransfer.dropEffect = 'move';
-                    // allows us to drop
-                    if (e.preventDefault) e.preventDefault();
-                        this.classList.add('over');
-                    return false;
-                }, false
-            );
+            var row = parseInt(elem.attr('row')) //this can be moved to scope.merge if necessary
+            ,   col = parseInt(elem.attr('col'))
+            ,   el = elem[0];
+            el.addEventListener('dragover', function(e) {
+                console.log('dragover')
+                e.dataTransfer.dropEffect = 'move';
+                // allows us to drop
+                if (e.preventDefault) e.preventDefault();
+                this.classList.add('over');
+                return false;
+            }, false);
           
-            el.addEventListener(
-                'dragenter',
-                function(e) {
-                    console.log('dragcenter')
-                    this.classList.add('over');
-                    return false;
-                }, false
-            );
+            el.addEventListener('dragenter', function(e) {
+                console.log('dragcenter')
+                this.classList.add('over');
+                return false;
+            }, false);
           
-            el.addEventListener(
-                'dragleave',
-                function(e) {
-                    this.classList.remove('over');
-                    return false;
-                }, false
-            );
+            el.addEventListener('dragleave', function(e) {
+                this.classList.remove('over');
+                return false;
+            }, false);
           
-            el.addEventListener(
-                'drop',
-                function(e) {
-                    if (e.stopPropagation) e.stopPropagation();
-                    this.classList.remove('over');
-                    var binId = this.id;
-                    var item = document.getElementById(e.dataTransfer.getData('Text'));
-                    scope.$apply(function(scope) {
-                        scope.handleDrop(binId, item.id);      
+            el.addEventListener('drop', function(e) {
+                if (e.stopPropagation) e.stopPropagation();
+                this.classList.remove('over');
+                var binId = this.id;
+                var item = document.getElementById(e.dataTransfer.getData('Text'));
+                console.log('drop', this, item)
+                scope.$apply(function(scope) {
+                    scope.tableArray.addQuery([row, col], item.id);
+                    sylvaEditableTableCtrl.setHtml();    
                 });
-                  return false;
-                }, false
-            );
+              return false;
+            }, false);  
         }
     }
 });

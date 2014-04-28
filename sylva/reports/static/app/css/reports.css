@@ -91,3 +91,38 @@
   bottom: 0;  
   left: 50%;
 }
+
+.query {
+  text-align: center;
+  width: 70%;
+  margin: 0 auto;
+}
+
+.query label.chart-select {
+  width: 100%;
+}
+
+.query select {
+  width: 100%;
+}
+
+.query select.series-select {
+  width: 60%;
+  float: right;
+}
+
+.series-div  {
+  float: left;
+}
+
+.series-label {
+  font-weight: bold;
+  vertical-align: bottom;
+}
+
+.delete {
+  position: absolute;
+  top: 0;
+  left: 1px;
+  font-size: 16px;
+}
