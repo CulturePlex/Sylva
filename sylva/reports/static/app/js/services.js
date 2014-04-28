@@ -112,6 +112,7 @@ services.factory('tableArray', function () {
         mrgRow.splice(mrgCds[1], 1);
         cell.colspan = parseInt(cell.colspan);
         cell.colspan += parseInt(mrgCell.colspan);
+        this.table[cds[0]] = mrgRow;
     };
 
     TableArray.prototype.getId = function() {
