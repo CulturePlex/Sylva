@@ -52,6 +52,8 @@ directives.directive('sylvaEditableTable', ['$compile', 'tableArray', function (
             ,   buttons = ang(elem.children()[1])
             ,   addRow = ang(buttons.children()[0])
             ,   addCol = ang(buttons.children()[1])
+            ,   delRow = ang(buttons.children()[2])
+            ,   delCol = ang(buttons.children()[3])
             ,   table = prepTable(rows)
             ,   tarray = tableArray(table, rowWidth);
 
@@ -63,36 +65,46 @@ directives.directive('sylvaEditableTable', ['$compile', 'tableArray', function (
 
             scope.$watchCollection(scope.getMerge, function (newVal, oldVal) {
                 if (newVal === oldVal) return;
-                //scope.$apply(function () {
-                    
-                    scope.tableArray.mergeCol(newVal)
-                    var html = scope.tableArray.htmlify()
-                    $compile(rows.html(html))(scope)  
-                //});
-                
+                scope.tableArray.mergeCol(newVal);
+                var html = scope.tableArray.htmlify();
+                $compile(rows.html(html))(scope);          
             });
 
             addRow.bind('click', function () {
                 scope.$apply(function () {
-                    scope.tableArray.addRow()
-                    var html = scope.tableArray.htmlify()
-                    $compile(rows.html(html))(scope)
+                    scope.tableArray.addRow();
+                    var html = scope.tableArray.htmlify();
+                    $compile(rows.html(html))(scope);
                 });
             });
 
             addCol.bind('click', function () {
                 scope.$apply(function () {
-                    scope.tableArray.addCol()
-                    var html = scope.tableArray.htmlify()
-                    //console.log('html', html)
-                    $compile(rows.html(html))(scope)
+                    scope.tableArray.addCol();
+                    var html = scope.tableArray.htmlify();
+                    $compile(rows.html(html))(scope);
+                });
+            });
+
+            delRow.bind('click', function () {
+                scope.$apply(function () {
+                    scope.tableArray.delRow();
+                    var html = scope.tableArray.htmlify();
+                    $compile(rows.html(html))(scope);
+                });
+            });
+
+            delCol.bind('click', function () {
+                scope.$apply(function () {
+                    scope.tableArray.delCol();
+                    var html = scope.tableArray.htmlify();
+                    $compile(rows.html(html))(scope);
                 });
             });
 
             function prepTable(table) {
-                var tableArray = [];
-                var rowArr = ang(rows).children()
-                console.log('rowArr', rowArr)
+                var tableArray = []
+                ,   rowArr = ang(rows).children();
                 angular.forEach(rowArr, function (el) {
                     var row = mapper(el);
                     tableArray.push(row);
@@ -121,7 +133,7 @@ directives.directive('sylvaEditableTable', ['$compile', 'tableArray', function (
 }]);
 
 
-directives.directive('sylvaMergeCells', ['$parse', '$compile', function ($parse, $compile) {
+directives.directive('sylvaMergeCells', ['$compile', function ($compile) {
     return {
         require: '^sylvaEditableTable',
         scope: true,
@@ -140,7 +152,6 @@ directives.directive('sylvaMergeCells', ['$parse', '$compile', function ($parse,
 
             scope.merge = function(ndx) {
                 var merges = [[row, col - 1], [row - 1, col], [row, col + 1], [row + 1, col]];
-                console.log('dir', coords, merges[ndx])
                 sylvaEditableTableCtrl.setMerge(coords, merges[ndx]);
             }
 
@@ -149,19 +160,18 @@ directives.directive('sylvaMergeCells', ['$parse', '$compile', function ($parse,
                     ang('.arrow').remove();
                     var adjs = scope.tableArray.getAdjCells(row, col);
                     angular.forEach(adjs, function (el) {
-                        var arrow = $compile(arrowHtml[el])(scope)
+                        var arrow = $compile(arrowHtml[el])(scope);
                         elem.append(arrow);
                     });
                     arrows = true;
                 } else {
-                    console.log('else', elem.children())
                     ang('.arrow').remove();
                     arrows = false;
                 }
             });
 
             elem.bind("mouseout", function (event) {
-                arrows = false
+                arrows = false;
             });
         }
     }

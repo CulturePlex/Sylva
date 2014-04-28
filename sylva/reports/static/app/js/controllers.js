@@ -111,10 +111,6 @@ controllers.controller('EditReportCtrl', [
             slug: $scope.report.slug  
         }, function (data) {
             $scope.report = data[0];
-            $scope.report.openCtxMenu = false;
-            $scope.report.tarray = null;
-            $scope.report.numRows = 2;
-            $scope.report.numCols = 2;
         });
 }]);
 

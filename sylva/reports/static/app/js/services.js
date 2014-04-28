@@ -40,25 +40,11 @@ services.factory('parser', ['$location', function ($location) {
 services.factory('tableArray', function () {
 
     function TableArray(table, rowWidth) {
-        this.table = spanToInt(table);
+        this.table = table;
         this.rowWidth = rowWidth;
         this.numRows = table.length;
         this.numCols = table[0].length;
-        console.log('ta', this.table)
     };
-
-    function spanToInt(table) {
-        var tableLen = table.length;
-        for (var i=0; i<tableLen; i++) {
-            var row = table[i];
-            row.map(function (el) {
-                el.colspan = parseInt(el.colspan)
-                el.rowspan = parseInt(el.rowspan)
-                console.log('spans', typeof el.colspan, typeof el.rowspan)
-            });
-        }
-        return table
-    }
 
     TableArray.prototype.getAdjCells = function(row, col) {
         var adjs = [];
@@ -74,22 +60,20 @@ services.factory('tableArray', function () {
         ,   cellId = this.getId();
         for (var i=0; i<this.numCols; i++) {
             var cell = {col: i, colspan: '1', id: 'cell' + cellId, row: this.numRows, rowspan: '1'};
-            row.push(cell)
-            cellId++
+            row.push(cell);
+            cellId++;
         }   
-        this.table.push(row) 
-        this.numRows++     
+        this.table.push(row); 
+        this.numRows++;     
     };
 
     TableArray.prototype.addCol = function() {
         var cellId = 0;
-        console.log('numrows', this.numRows)
         for (var i=0; i<this.numRows; i++) {
             var row = this.table[i]
             ,   rlen = row.length
             ,   cell = {col: rlen, colspan: '1', id: '', row: i, rowspan: '1'};
             row.push(cell);
-            //console.log('row', row)
             var newRlen = rlen + 1;
             for (var j=0; j<newRlen; j++) {
                 row[j].id = 'cell' + cellId;
@@ -99,22 +83,35 @@ services.factory('tableArray', function () {
         this.numCols++;
     };
 
+    TableArray.prototype.delRow = function() {
+        // will have to update for verticle merge
+        var ndx = this.table.length - 1;
+        this.table.splice(ndx, 1);
+        this.numRows -= 1;
+    }
+
+    TableArray.prototype.delCol = function() {
+        var self = this;
+        this.table.map(function (el) {
+            var lastCell = el[el.length - 1]
+            if (lastCell.colspan > 1) {
+                lastCell.colspan = lastCell.colspan - 1;
+            } else {
+                el.splice(el.length - 1, 1);
+            }
+        });
+        this.numCols -= 1;     
+    }
+
     TableArray.prototype.mergeCol = function(coords) {
-        console.log('coords', coords)
         var cds = coords[0]
         ,   mrgCds = coords[1]
         ,   mrgRow = this.table[cds[0]]
         ,   cell = this.table[cds[0]][cds[1]]
-        ,   mrgCell = this.table[mrgCds[0]][mrgCds[1]]
-        console.log('befpr', mrgRow)
+        ,   mrgCell = this.table[mrgCds[0]][mrgCds[1]];
         mrgRow.splice(mrgCds[1], 1);
-        console.log('after', mrgRow)
-        console.log('cellinfo', cell)
         cell.colspan = parseInt(cell.colspan);
         cell.colspan += parseInt(mrgCell.colspan);
-        this.table[cds[0]] = mrgRow;
-        //console.log("cell merge", mrgCds[1])
-
     };
 
     TableArray.prototype.getId = function() {
@@ -128,8 +125,6 @@ services.factory('tableArray', function () {
 
     TableArray.prototype.htmlify = function() {
         var html = ''; 
-        // this will go to j loop to check for colspan etc.
-        
         for (var i=0; i<this.numRows; i++) {
             var row = this.table[i]
             ,   rlen = row.length
@@ -137,7 +132,6 @@ services.factory('tableArray', function () {
             for (var j=0; j<rlen; j++) {
                 var cell = row[j]
                 ,   width = (this.rowWidth / this.numCols - ((this.numCols + 1) * 2 / this.numCols)) * cell.colspan + (2 * (cell.colspan - 1)) + 'px';
-                //console.log('mergeinfo', cell.colspan, width)
                 if (j === rlen - 1) {
                     cells += '<div sylva-droppable sylva-merge-cells class="tcell final" id=' + cell.id + 
                         '" style="width:' + width + 
