@@ -15,11 +15,12 @@ diagram.fieldCounter = 0;
 diagram.fieldRelsCounter = 0;
 diagram.nodetypesCounter = [];
 diagram.reltypesCounter = [];
+diagram.fieldsForNodes = {};
 diagram.fieldsForRels = {};
 diagram.relindex = {};
 
 diagram.stringValues = {
-    'em': "",
+    'em': gettext("choose one"),
     'e' : gettext("equals"),
     'le': gettext("is less than or equal to"),
     'lt': gettext("is less than"),
@@ -199,7 +200,7 @@ diagram.lookupsValuesType = {
                         optionRel.attr('data-name', name);
                         optionRel.attr('data-idrel', relation.id);
                         optionRel.attr('data-scope', relation.target);
-                        optionRel.html(label);
+                        optionRel.html(label + " (" + relation.target + ")");
                         diagram.fieldsForRels[name] = relation.fields;
 
                         if(relation.source) {
@@ -274,6 +275,8 @@ diagram.lookupsValuesType = {
             }
             // Create the select for the properties
             var boxalias = divTitle.data('boxalias');
+            alias = diagram.replaceChars(boxalias);
+            diagram.fieldsForNodes[alias] =[];
             divField = diagram.addFieldRow(graphName, modelName, idFields, typeName, boxalias, idBox, idAllRels);
             divFields.append(divField);
             if (countFields < 5 && countFields > 0) {
@@ -561,6 +564,13 @@ diagram.lookupsValuesType = {
             anchorDelete.append(iconDelete);
             anchorDelete.click(function () {
                 $("#diagramModelAnchor_"+ graphName +"\\\."+ modelName).click();
+                var connections = jsPlumb.getEndpoint(idBox + '-target').connections;
+                // We redraw the endpoint of the endpoints connected to this
+                // target
+                for(var i = 0; i < connections.length; i++) {
+                    connections[i].endpoints[0].removeClass('endpointInvisible');
+                }
+
                 jsPlumb.detachAllConnections(idBox);
                 for(var i = 0; i < relationsIds.length; i++)
                     jsPlumb.deleteEndpoint(relationsIds[i] + "-source");
@@ -658,10 +668,21 @@ diagram.lookupsValuesType = {
             anchorDelete.append(iconDelete);
             anchorDelete.click(function () {
                 $("#diagramModelAnchor_"+ graphName +"\\\."+ modelName).click();
+                var connections = jsPlumb.getEndpoint(idBox + '-target').connections;
+                // We redraw the endpoint of the endpoints connected to this
+                // target
+                for(var i = 0; i < connections.length; i++) {
+                    connections[i].endpoints[0].removeClass('endpointInvisible');
+                }
+
                 jsPlumb.detachAllConnections(idBox);
                 for(var i = 0; i < relationsIds.length; i++)
                     jsPlumb.deleteEndpoint(relationsIds[i] + "-source");
                 jsPlumb.deleteEndpoint(idBox + "-target");
+
+                jsPlumb.selectEndpoints().each(function(endpoint) {
+                    endpoint.removeClass("dragActive");
+                });
 
                 $('#' + idBox).remove();
             });
@@ -778,6 +799,8 @@ diagram.lookupsValuesType = {
             model = diagram.Models[graphName][modelName];
             diagram.fieldCounter++;
             fieldId = "field" + diagram.fieldCounter;
+            alias = diagram.replaceChars(boxalias);
+            diagram.fieldsForNodes[alias].push(fieldId);
             if(typeName != "wildcard") {
                 lengthFields = model.fields.length;
                 // Select property
@@ -788,6 +811,14 @@ diagram.lookupsValuesType = {
                 });
                 selectProperty.attr('data-fieldid', fieldId)
                 selectProperty.attr('data-boxalias', boxalias);
+                // First option to choose one
+                optionProperty = $("<OPTION>");
+                optionProperty.addClass('option-property');
+                optionProperty.attr('value', '');
+                optionProperty.attr('disabled', 'disabled');
+                optionProperty.attr('selected', 'selected');
+                optionProperty.html(gettext("choose one..."));
+                selectProperty.append(optionProperty);
 
                 // We get the values for the properties select and the values
                 // for the lookups option in relation with the datatype
@@ -891,7 +922,14 @@ diagram.lookupsValuesType = {
                 // Select property
                 selectProperty = $("<SELECT>");
                 selectProperty.addClass("select-property");
-                selectProperty.attr('data-fieldid', fieldId)
+                selectProperty.attr('data-fieldid', fieldId);
+                // First option to choose one
+                optionProperty = $("<OPTION>");
+                optionProperty.addClass('option-property');
+                optionProperty.attr('value', '');
+                optionProperty.attr('disabled', 'disabled');
+                optionProperty.html(gettext("choose one..."));
+                selectProperty.append(optionProperty);
                 // Select lookup
                 selectLookup = $("<SELECT>");
                 selectLookup.addClass("select-lookup");
@@ -1260,20 +1298,13 @@ diagram.lookupsValuesType = {
         originsLength = origins.length;
         conditions = jsonDict["query"]["conditions"];
         conditionsLength = conditions.length;
+        conditionsDict = {};
         patterns = jsonDict["query"]["patterns"];
         patternsLength = patterns.length;
-        results = jsonDict["query"]["results"];
-        resultsLength = results.length;
-        var resultsArray = {};
+        checkboxes = jsonDict["checkboxes"];
         var fieldIndex = 0;
-        // We save the results to return
-        for(key in types) {
-            for(var i = 0; i < resultsLength; i++) {
-                if(results[i].alias == key) {
-                    resultsArray[key] = results[i].properties;
-                }
-            }
-        }
+        var conditionsIndex = 0;
+
         // We save the node types to load the boxes
         for(var i = 0; i < originsLength; i++) {
             if(origins[i].type == "node") {
@@ -1281,29 +1312,56 @@ diagram.lookupsValuesType = {
                 nodetypes[nodeAlias] = types[nodeAlias];
             }
         }
+        // We store the conditions in a dictionary
+        var conditionsAlias = [];
+        for(var i = 0; i < conditionsLength; i++) {
+            var conditionsArray = [];
+            // alias
+            alias = conditions[i][1][1];
+            // lookup
+            lookup = jsonDict["query"]["conditions"][i][0];
+            conditionsArray.push(lookup);
+            // property
+            property = jsonDict["query"]["conditions"][i][1][2];
+            conditionsArray.push(property);
+            // value
+            value = jsonDict["query"]["conditions"][i][2];
+            conditionsArray.push(value);
+            // We have to check the and-or value
+            andOr = jsonDict["query"]["conditions"][i][3];
+            conditionsArray.push(andOr);
+
+            //conditionsAlias.push(conditionsArray);
+            if(!conditionsDict[alias])
+                conditionsDict[alias] = [];
+            conditionsDict[alias].push(conditionsArray);
+        }
+
         // Load the boxes for nodetypes
         for(key in nodetypes) {
-            id = nodetypes[key].id;
-            typename = nodetypes[key].typename;
-            leftPos = nodetypes[key].left;
-            topPos = nodetypes[key].top;
-            // Load the box and set the positions
-            diagram.loadBox(typename);
-            $('#' + id).css({
-                "left": leftPos,
-                "top": topPos
-            });
-            // Load the conditions for the box
-            // This loop could be replace if we have a
-            // dict instead an array
-            // ---------------------------------------
-            // Every index in the loop is an index for a field
-            fieldIndex++;
-            var boxFields = 0;
-            for(var i = 0; i < conditionsLength; i++) {
-                alias = conditions[i][1][1];
-                // We check if the condition is for the type
-                if(alias == key) {
+            if(nodetypes.hasOwnProperty(key)) {
+                id = nodetypes[key].id;
+                // We change the counter to get the correct id of the box
+                counter = parseInt(id.split("-")[1]);
+                diagram.Counter = counter - 1;
+                typename = nodetypes[key].typename;
+                leftPos = nodetypes[key].left;
+                topPos = nodetypes[key].top;
+                // Load the box and set the positions
+                diagram.loadBox(typename);
+                $('#' + id).css({
+                    "left": leftPos,
+                    "top": topPos
+                });
+                fields = jsonDict["fields"][key];
+                // Load the conditions for the box
+                // This loop could be replace if we have a
+                // dict instead an array
+                // ---------------------------------------
+                // Every index in the loop is an index for a field
+                var boxFields = 0;
+                fieldIndex++;
+                for(var i = 0; i < fields.length; i++) {
                     boxFields++;
                     // If we have more than one field, we add
                     // a new field
@@ -1311,32 +1369,43 @@ diagram.lookupsValuesType = {
                         $('#' + id + ' .add-field-row').click();
                         fieldIndex++;
                     }
-                    // lookup
-                    lookup = jsonDict["query"]["conditions"][i][0];
-                    // property
-                    property = jsonDict["query"]["conditions"][i][1][2];
-                    // value
-                    value = jsonDict["query"]["conditions"][i][2];
-                    // We have to check the and-or value
-                    andOr = jsonDict["query"]["conditions"][i][3];
-                    // We set the values in the correct position
-                    //$field = $('#' + id + " #field" + (i+1));
-                    $('#' + id + " #field" + fieldIndex + " .select-property").click();
-                    $('#' + id + " #field" + fieldIndex + " .select-property").val(property);
-                    $('#' + id + " #field" + fieldIndex + " .select-lookup").click();
-                    $('#' + id + " #field" + fieldIndex + " .select-lookup").val(lookup);
-                    $('#' + id + " #field" + fieldIndex + " .lookup-value").val(value);
-                    if(andOr != "not") {
-                        $('#' + id + " #field" + fieldIndex + " .select-and-or").val(andOr);
-                    }
-                    // We check if the field has results to return
-                    if(resultsArray[key].indexOf(property) != -1) {
-                        $('#' + id + " #field" + fieldIndex + ' .checkbox-property').click();
+                    // We check if we have conditions
+                    if(jsonDict["fieldsConditions"][fieldIndex - 1]) {
+                        conditions = conditionsDict[key][conditionsIndex];
+                        // lookup
+                        lookup = conditions[0];
+                        // property
+                        property = conditions[1];
+                        // value
+                        value = conditions[2];
+                        // We have to check the and-or value
+                        andOr = conditions[3];
+                        // We set the values in the correct position
+                        //$field = $('#' + id + " #field" + (i+1));
+                        $('#' + id + " #field" + fieldIndex + " .select-property").val(property);
+                        $('#' + id + " #field" + fieldIndex + " .select-property").click();
+                        $('#' + id + " #field" + fieldIndex + " .select-lookup").val(lookup);
+                        $('#' + id + " #field" + fieldIndex + " .select-lookup").click();
+                        $('#' + id + " #field" + fieldIndex + " .lookup-value").val(value);
+                        if(andOr != "not") {
+                            $('#' + id + " #field" + fieldIndex + " .select-and-or").val(andOr);
+                        }
+                        conditionsIndex++;
                     }
                 }
+                conditionsIndex = 0;
+                // We select the correct value for the alias
+                $('#' + id + ' .title select').val(key);
             }
-            // We select the correct value for the alias
-            $('#' + id + ' .title select').val(key);
+        }
+        // We check the checkboxes to return
+        for(key in checkboxes) {
+            if(checkboxes.hasOwnProperty(key)) {
+                var property = checkboxes[key];
+                var fieldIndex = parseInt(key) + 1;
+                $("#field" + fieldIndex + " .select-property").val(property);
+                $("#field" + fieldIndex + ' .checkbox-property').click();
+            }
         }
         // Load the relationships between the boxes
         for(var i = 0; i < patternsLength; i++) {
@@ -1351,8 +1420,8 @@ diagram.lookupsValuesType = {
             var relationName = relationValue;
 
             // We check if the relationship is of type wildcard
-            if(relationValue == "wildcard")
-               relationValue = "WildcardRel";
+            if(relationValue == "WildcardRel")
+               relationName = "wildcard";
 
             var uuidSource = sourceId + '-' + relationName + '-source';
             console.log(uuidSource);
@@ -1573,8 +1642,12 @@ diagram.lookupsValuesType = {
 
         for (var i = 0; i < arrayOptions.length; i++) {
             var value = diagram.lookupsBackendValues[arrayOptions[i]];
-            $(selector).append('<option class="lookup-option" value="' + value + '">' + arrayOptions[i] + '</option>');
             $(selector).attr("data-fieldid", fieldId);
+            if(i == 0) {
+                $(selector).append('<option class="lookup-option" value="' + value + '" disabled="disabled" selected="selected">' + arrayOptions[i] + '</option>');
+            } else {
+                $(selector).append('<option class="lookup-option" value="' + value + '">' + arrayOptions[i] + '</option>');
+            }
         }
 
         // Here we ask if the datatype needs a special input
@@ -1927,7 +2000,7 @@ diagram.lookupsValuesType = {
     /**
      * Handler for create the JSON file
      */
-    $(document).on('click', '#run-button', function() {
+    $(document).on('click', '#run-button', function(event) {
         var query = diagram.generateQuery();
         console.log("query: ");
         console.log(query);
@@ -1989,13 +2062,13 @@ diagram.lookupsValuesType = {
             },
             dataType: "json"
         });
-
+        event.preventDefault();
     });
 
     /**
      * Handler for run the query in the backend
      */
-    $('#run-button').click(function() {
+    $(document).on('click', '#run-button', function(event) {
         $.blockUI({
             message: '<span>' + gettext("Your query is executing. Please wait...") + '</span>',
             css: {
@@ -2012,17 +2085,22 @@ diagram.lookupsValuesType = {
             },
             onOverlayClick: $.unblockUI
         });
+        event.preventDefault();
     });
 
     /**
      * Handler to get the information to save the query
      */
-    $('#save-button').click(function() {
+    $(document).on('click', '#save-button', function(event) {
         var saveElements = {};
         var query = diagram.generateQuery();
         saveElements["query"] = query;
         var elements = $('.title select');
+        var checkboxes = $('.checkbox-property');
         var aliasDict = {};
+        var checkboxesDict = {};
+        var fieldsConditionsDict = {};
+        // We get the id, typename, left and top of the boxes
         $.each(elements, function(index, element) {
             var valuesDict = {};
             var parent = $(element).parent().parent();
@@ -2043,11 +2121,27 @@ diagram.lookupsValuesType = {
 
             aliasDict[alias] = valuesDict;
         });
+        // We get the checkboxes checked and the property to return
+        $.each(checkboxes, function(index, checkbox) {
+            if($(checkbox).prop('checked')) {
+                checkboxesDict[index] = $(checkbox).next().val();
+            }
+        });
+        // We get the fields that are conditions to construct the box properly
+        $.each(checkboxes, function(index, checkbox) {
+            var lookup = $(checkbox).next().next().val();
+            var inputLookup = $(checkbox).next().next().next().val();
+            if(lookup && inputLookup) {
+                fieldsConditionsDict[index] = true;
+            } else {
+                fieldsConditionsDict[index] = false;
+            }
+        });
         saveElements['aliases'] = aliasDict;
         // We store all the important values
-        saveElements['counter'] = diagram.Counter;
-        saveElements['counterRels'] = diagram.CounterRels;
-        saveElements['fieldCounter'] = diagram.fieldCounter;
+        saveElements['fields'] = diagram.fieldsForNodes;
+        saveElements['checkboxes'] = checkboxesDict;
+        saveElements['fieldsConditions'] = fieldsConditionsDict;
         saveElements['fieldRelsCounter'] = diagram.fieldRelsCounter;
         // What we do with nodetypesCounter and reltypesCounter?
         console.log(JSON.stringify(saveElements));
@@ -2055,6 +2149,7 @@ diagram.lookupsValuesType = {
         $('#query-information').css({
             'display': 'block'
         });
+        event.preventDefault();
     });
 
     $(document).ready(init);
