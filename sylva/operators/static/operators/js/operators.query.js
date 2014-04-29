@@ -162,7 +162,7 @@ diagram.lookupsValuesType = {
             divBox.css({
                 "left": (parseInt(Math.random() * 55 + 1) * 10) + "px",
                 "top": (parseInt(Math.random() * 25 + 1) * 10) + "px",
-                "width": "350px"
+                "width": "360px"
                 //"width": "245px"
                 //"width": "33%"
             });
@@ -264,7 +264,8 @@ diagram.lookupsValuesType = {
             divFields = $("<DIV>");
             divFields.attr("id", idFields);
             divFields.css({
-                "margin-top": "10px"
+                "margin-top": "10px",
+                "margin-bottom": "10px"
             });
             countFields = 0;
 
@@ -305,7 +306,7 @@ diagram.lookupsValuesType = {
             divAddBox = $("<DIV>");
             divAddBox.attr("id", idTopBox);
             divAddBox.append(divFields);
-            divAddBox.append(addField);
+            //divAddBox.append(addField);
             divAddBox.css({
                 "border-bottom": "2px dashed #348E82"
             });
@@ -809,7 +810,7 @@ diagram.lookupsValuesType = {
                 selectProperty.css({
                     "width": "80px"
                 });
-                selectProperty.attr('data-fieldid', fieldId)
+                selectProperty.attr('data-fieldid', fieldId);
                 selectProperty.attr('data-boxalias', boxalias);
                 // First option to choose one
                 optionProperty = $("<OPTION>");
@@ -861,44 +862,45 @@ diagram.lookupsValuesType = {
             checkboxProperty = $("<INPUT>");
             checkboxProperty.addClass("checkbox-property");
             checkboxProperty.attr("type", "checkbox");
-            // If we have more than 1 field row, add and-or div
-            if ($('#' + parentId).children().length > 0) {
-                divAndOr = $("<DIV>");
-                divAndOr.addClass("and-or-option");
-                divAndOr.css({
-                    "margin-bottom": "5%"
-                });
-                selectAndOr = $("<SELECT>");
-                selectAndOr.addClass("select-and-or");
-                selectAndOr.append("<option class='option-and-or' value='and'>" + gettext("And") + "</option>");
-                selectAndOr.append("<option class='option-and-or' value='or'>" + gettext("Or") + "</option>");
-                divAndOr.append(selectAndOr);
-                divField.append(divAndOr);
-                // Link to remove the lookup
-                removeField = $("<A>");
-                removeField.addClass("remove-field-row");
-                removeField.attr('data-fieldid', fieldId);
-                removeField.attr('data-parentid', parentId);
-                removeField.attr('data-idbox', idBox);
-                removeField.attr('data-idallrels', idAllRels);
-                // Icon
-                removeFieldIcon = $("<I>");
-                removeFieldIcon.addClass("icon-minus-sign");
-                removeFieldIcon.attr('id', 'remove-field-icon');
-                removeField.append(removeFieldIcon);
-                divField.append(removeField);
-            }
+            // Add and-or div
+            divAndOr = $("<DIV>");
+            divAndOr.addClass("and-or-option");
+            divAndOr.css({
+                'display': 'inline'
+            });
+            selectAndOr = $("<SELECT>");
+            selectAndOr.addClass("select-and-or");
+            selectAndOr.attr('data-parentid', parentId);
+            selectAndOr.attr('data-model', modelName);
+            selectAndOr.attr('data-graph', graphName);
+            selectAndOr.attr('data-typename', typeName);
+            selectAndOr.attr('data-boxalias', boxalias);
+            selectAndOr.attr('data-idbox', idBox);
+            selectAndOr.attr('data-idallrels', idAllRels);
+            selectAndOr.append("<option class='option-and-or' value='not' selected='selected' disabled>" + gettext("Choose one") + "</option>");
+            selectAndOr.append("<option class='option-and-or' value='and'>" + gettext("And") + "</option>");
+            selectAndOr.append("<option class='option-and-or' value='or'>" + gettext("Or") + "</option>");
+            divAndOr.append(selectAndOr);
 
-            if ($('#' + parentId).children().length == 0) {
-                divField.css({
-                    "margin-left": "-5px"
-                })
-            }
+            // Link to remove the lookup
+            removeField = $("<A>");
+            removeField.addClass("remove-field-row");
+            removeField.attr('data-fieldid', fieldId);
+            removeField.attr('data-parentid', parentId);
+            removeField.attr('data-idbox', idBox);
+            removeField.attr('data-idallrels', idAllRels);
+            // Icon
+            removeFieldIcon = $("<I>");
+            removeFieldIcon.addClass("icon-minus-sign");
+            removeFieldIcon.attr('id', 'remove-field-icon');
+            removeField.append(removeFieldIcon);
 
             // We append the patterns
             divField.append(checkboxProperty);
             divField.append(selectProperty);
             divField.append(selectLookup);
+            divField.append(divAndOr);
+            divField.append(removeField);
 
             return divField;
         };
@@ -928,7 +930,7 @@ diagram.lookupsValuesType = {
                 optionProperty.addClass('option-property');
                 optionProperty.attr('value', '');
                 optionProperty.attr('disabled', 'disabled');
-                optionProperty.html(gettext("choose one..."));
+                optionProperty.html(gettext("Choose one"));
                 selectProperty.append(optionProperty);
                 // Select lookup
                 selectLookup = $("<SELECT>");
@@ -1366,7 +1368,7 @@ diagram.lookupsValuesType = {
                     // If we have more than one field, we add
                     // a new field
                     if(boxFields > 1) {
-                        $('#' + id + ' .add-field-row').click();
+                        $('#' + id + ' .select-and-or').change();
                         fieldIndex++;
                     }
                     // We check if we have conditions
@@ -1383,9 +1385,9 @@ diagram.lookupsValuesType = {
                         // We set the values in the correct position
                         //$field = $('#' + id + " #field" + (i+1));
                         $('#' + id + " #field" + fieldIndex + " .select-property").val(property);
-                        $('#' + id + " #field" + fieldIndex + " .select-property").click();
+                        $('#' + id + " #field" + fieldIndex + " .select-property").change();
                         $('#' + id + " #field" + fieldIndex + " .select-lookup").val(lookup);
-                        $('#' + id + " #field" + fieldIndex + " .select-lookup").click();
+                        $('#' + id + " #field" + fieldIndex + " .select-lookup").change();
                         $('#' + id + " #field" + fieldIndex + " .lookup-value").val(value);
                         if(andOr != "not") {
                             $('#' + id + " #field" + fieldIndex + " .select-and-or").val(andOr);
@@ -1475,6 +1477,34 @@ diagram.lookupsValuesType = {
         diagram.recalculateAnchor(idBox, idAllRels);
 
         jsPlumb.repaintEverything();
+    });
+
+    /**
+     * Add field row inside a box type
+     */
+    $("#diagramContainer").on('change', '.select-and-or', function() {
+        var $this = $(this);
+        // We check if the field is the last to field to allow the addition
+        // of a new field
+        var field = $this.parent().parent();
+        if($(field).next().length == 0) {
+            var parentId = $this.data("parentid");
+            var modelName = $this.data("model");
+            var graphName = $this.data("graph");
+            var typeName = $this.data("typename");
+            var boxalias = $this.data("boxalias");
+            var idBox = $this.data("idbox");
+            var idAllRels = $this.data("idallrels");
+
+            divField = diagram.addFieldRow(graphName, modelName, parentId, typeName, boxalias, idBox, idAllRels);
+
+            $("#" + parentId).append(divField);
+
+            // Recalculate anchor for source endpoints
+            diagram.recalculateAnchor(idBox, idAllRels);
+
+            jsPlumb.repaintEverything();
+        }
     });
 
     /**
@@ -1621,7 +1651,7 @@ diagram.lookupsValuesType = {
      * Add the values of the select lookup in relation with the property
      * selected
      */
-    $("#diagramContainer").on('click', '.select-property', function() {
+    $("#diagramContainer").on('change', '.select-property', function() {
         var $this = $(this);
         var fieldId = $this.data("fieldid");
         var selector = "#" + fieldId + " .select-lookup";
@@ -1670,6 +1700,7 @@ diagram.lookupsValuesType = {
             });
             select.append('<option class="lookup-value" value="true">True</option>');
             select.append('<option class="lookup-value" value="false">False</option>');
+            $(inputLookup).insertAfter($('#' + fieldId + ' .select-lookup'))
         } else if(datatype == 'c') {
             // Choices select
             var choicesArray = choices.split(',');
@@ -1691,7 +1722,7 @@ diagram.lookupsValuesType = {
             for(var j = 3; j < choicesArray.length; j = j + 2) {
                 select.append('<option class="lookup-value" value="' + choicesArray[j] +'">' + choicesArray[j] + '</option>');
             }
-            $('#' + fieldId).append(select);
+            $(inputLookup).insertAfter($('#' + fieldId + ' .select-lookup'))
         } else if(datatype == 'w') {
             // Datepicker input
             if(tagName == "INPUT" || tagName == "SELECT") {
@@ -1707,7 +1738,7 @@ diagram.lookupsValuesType = {
                 "margin-left": "8px"
             });
             inputLookup.timepicker();
-            $('#' + fieldId).append(inputLookup);
+            $(inputLookup).insertAfter($('#' + fieldId + ' .select-lookup'))
         } else if(datatype == 'a') {
             // Datepicker input
             if(tagName == "INPUT" || tagName == "SELECT") {
@@ -1723,7 +1754,7 @@ diagram.lookupsValuesType = {
                 "margin-left": "8px"
             });
             inputLookup.timepicker();
-            $('#' + fieldId).append(inputLookup);
+            $(inputLookup).insertAfter($('#' + fieldId + ' .select-lookup'))
         } else if(datatype == 'd') {
             // Datepicker input
             if(tagName == "INPUT" || tagName == "SELECT") {
@@ -1746,7 +1777,7 @@ diagram.lookupsValuesType = {
                 yearRange: "-3000:3000"
             };
             inputLookup.datepicker(options);
-            $('#' + fieldId).append(inputLookup);
+            $(inputLookup).insertAfter($('#' + fieldId + ' .select-lookup'))
         } else if(datatype == 'e') {
             // Users select
             if(tagName == "INPUT" || tagName == "SELECT") {
@@ -1762,11 +1793,12 @@ diagram.lookupsValuesType = {
                 "margin-left": "8px"
             });
 
-            $('#' + fieldId).append(select);
+            $(inputLookup).insertAfter($('#' + fieldId + ' .select-lookup'))
         } else {
             // Initial input
             if(tagName == "INPUT" || tagName == "SELECT") {
                 $this.next().next().remove();
+                tagName = $this.next().next().prop("tagName");
                 if(tagName == "INPUT") {
                     $this.next().next().remove();
                 }
@@ -1777,7 +1809,7 @@ diagram.lookupsValuesType = {
                 "width": "60px",
                 "margin-left": "8px"
             });
-            $('#' + fieldId).append(inputLookup);
+            $(inputLookup).insertAfter($('#' + fieldId + ' .select-lookup'))
         }
 
         if(datatype == 'e') {
@@ -1813,6 +1845,7 @@ diagram.lookupsValuesType = {
         // dates, etc.
         var tagName = $this.next().prop("tagName");
         var fieldId = $this.data("fieldid");
+
         var datatype = $('#' + fieldId + ' .select-property option:selected').data("datatype");
         var condition = datatype != 'd'
                         && datatype != 'b'
@@ -1827,12 +1860,13 @@ diagram.lookupsValuesType = {
                 var inputValueSecond = $this.next().next().val();
                 if(tagName == "INPUT" || tagName == "SELECT") {
                     $this.next().remove();
+                    tagName = $this.next().prop("tagName");
                     if(tagName == "INPUT") {
                         $this.next().remove();
                     }
                 }
-                $this.after("<input style=\"width: 35px; margin-left: 5%; margin-top:3%;\" />");
-                $this.after("<input style=\"width: 35px; margin-left: 5%; margin-top:3%;\" />");
+                $this.after("<input class='lookup-value' style=\"width: 35px; margin-left: 5%; margin-top:3%;\" />");
+                $this.after("<input class='lookup-value' style=\"width: 35px; margin-left: 5%; margin-top:3%;\" />");
                 // We keep the value of the inputs
                 if(inputValueFirst) {
                     $this.next().val(inputValueFirst);
@@ -1843,6 +1877,7 @@ diagram.lookupsValuesType = {
                 // no inputs
                 if(tagName == "INPUT" || tagName == "SELECT") {
                     $this.next().remove();
+                    tagName = $this.next().prop("tagName");
                     if(tagName == "INPUT") {
                         $this.next().remove();
                     }
@@ -1852,11 +1887,12 @@ diagram.lookupsValuesType = {
                 var inputValue = $this.next().val();
                 if(tagName == "INPUT" || tagName == "SELECT") {
                     $this.next().remove();
+                    tagName = $this.next().prop("tagName");
                     if(tagName == "INPUT") {
                         $this.next().remove();
                     }
                 }
-                $this.after("<input style=\"width: 60px; margin-left: 8px;\" />");
+                $this.after("<input class='lookup-value' style=\"width: 60px; margin-left: 8px;\" />");
                 // We keep the value of the input
                 if(inputValue) {
                     $this.next().val(inputValue);

@@ -90,7 +90,7 @@
 }
 
 #remove-field-icon {
-    float: right;
+    margin-left: 8px;
     margin-right: 5px;
 }
 
@@ -141,8 +141,8 @@
 }
 
 .field {
-    /*display: inline-table;*/
-    display: inline;
+    /*display: inline-table;
+    display: inline;*/
     height: 40px;
     margin-top: 4%;
     margin-bottom: 4%;
@@ -155,8 +155,8 @@
 .select-and-or {
     width: 50px;
     padding: 0;
-    margin-left: 2%;
-    float: left;
+    display: inline;
+    margin-left: 8px;
 }
 
 .wildCardInput {
