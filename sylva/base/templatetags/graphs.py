@@ -45,4 +45,18 @@ def breadcrumb(context, *links):
         else:
             breads.append(("", link))
     return {'links': breads,
-            'graph': context.get("graph", None)}
+            'graph': context.
+            get("graph", None)}
+
+
+@register.inclusion_tag('graphs_visualization.html', takes_context=True)
+def graph_visualization(context, analytics=True):
+    return {'analytics': bool(analytics)}
+
+
+@register.inclusion_tag('graphs_visualization_resources.html',
+                        takes_context=True)
+def graph_visualization_resources(context, analytics=True):
+    ctxt = context
+    ctxt['analytics'] = bool(analytics)
+    return ctxt

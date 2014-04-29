@@ -1,0 +1,114 @@
+{% load i18n %}
+<div id="canvas-container">
+  <div id="graph-node-types">
+  </div>
+  <div id="graph-rel-types" class="analytics-mode" style="display: none;">
+  </div>
+  <div id="graph-node-info">
+    <div class="sigma-control" style="display: none; float: left;">
+      <input type="checkbox" id="sigma-node-info">
+      <label for="sigma-node-info" title="{% trans "Show node info" %}">{% trans "Node info" %}</label>
+    </div>
+  </div>
+  <div id="graph-controls">
+    <div style="float: right;">
+      <div class="sigma-control" style="display: none; float: right;">
+        <a id="sigma-zoom-in" class="button icon-plus control-button zoom-left" title="{% trans "Zoom in" %}"></a>
+        <a id="sigma-zoom-home" class="button icon-home control-button zoom-home" style="font-size:100%;" title="{% trans "Re-center graph" %}"></a>
+        <a id="sigma-zoom-out" class="button icon-minus control-button zoom-right" style="font-size:100%;" title="{% trans "Zoom out" %}"></a>
+      </div>
+      <div class="sigma-control analytics-mode" style="display: none; float: left;">
+        <a id="sigma-export-image" class="button" style="font-size:100%;" title="{% trans "Save as a PNG image" %}" download="{{ graph.slug }}.png">{% trans "Save as image" %}</a>
+      </div>
+      {% if analytics %}
+        <div class="sigma-control" style="display: none; float: right;">
+          <a id="sigma-go-analytics" class="button" style="font-size:100%;" title="{% trans "Analytics" %}">{% trans "Analytics" %}</a>
+        </div>
+      {% endif %}
+    </div>
+    <div id="node-info">
+    </div>
+  </div>
+  <div id="graph-layout" class="analytics-mode" style="display: none;">
+    <h2 class="collapsible-header">{% trans "Layout" %}</h2>
+    <div>
+      <div>
+        <div class="sigma-control">
+          <a id="sigma-pause" class="button control-button pause-button" style="font-size:100%;" title="{% trans "Play / puase layout algorithm" %}"></a>
+        </div>
+        <div class="sigma-control">
+          <input type="checkbox" id="sigma-hidden-layout" checked="checked">
+          <label for="sigma-hidden-layout" title="{% trans "Ignore the hidden nodes for apply the layout" %}">{% trans "Ignore hidden nodes" %}</label>
+        </div>
+      </div>
+      <div style="margin-top: 5px; margin-bottom: 10px;">
+        <select id="sigma-graph-layout">
+          <option id="label" disabled="disabled" selected="selected">{% trans "Graph layout" %}</option>
+          <option id="force-atlas-2" disabled="disabled">{% trans "Force Atlas 2" %}</option>
+          <option id="grid">{% trans "Grid" %}</option>
+          <option id="circular">{% trans "Circular" %}</option>
+        </select>
+        <select id="sigma-graph-layout-order" style="display: none;">
+          <option id="label" disabled="disabled" selected="selected">{% trans "Node order" %}</option>
+          <option id="def" disabled="disabled">{% trans "Default" %}</option>
+          <option id="tdd">{% trans "Total degree, desc" %}</option>
+          <option id="tda">{% trans "Total degree, asc" %}</option>
+          <option id="idd">{% trans "In degree, desc" %}</option>
+          <option id="ida">{% trans "In degree, asc" %}</option>
+          <option id="odd">{% trans "Out degree, desc" %}</option>
+          <option id="oda">{% trans "Out degree, asc" %}</option>
+        </select>
+      </div>
+      <div>
+        <select id="sigma-node-size">
+          <option id="label" disabled="disabled" selected="selected">{% trans "Node size" %}</option>
+          <option id="same" disabled="disabled">{% trans "Same for all" %}</option>
+          <option id="total-degree">{% trans "Total degree" %}</option>
+          <option id="in-degree">{% trans "In degree" %}</option>
+          <option id="out-degree">{% trans "Out degree" %}</option>
+        </select>
+        <select id="sigma-edge-shape">
+          <option id="label" disabled="disabled" selected="selected">{% trans "Edge shape" %}</option>
+          <option id="straight" disabled="disabled">{% trans "Straight" %}</option>
+          <option id="arrow">{% trans "Arrow" %}</option>
+          <option id="curve">{% trans "Curve" %}</option>\
+          <option id="curved-arrow">{% trans "Curved arrow" %}</option>
+        </select>
+      </div>
+    </div>
+  </div>
+  <div id="sigma-wrapper">
+    <div id="sigma-container"></div>
+  </div>
+  <div id="canvas-box">
+    <div id="spinner"></div>
+    <canvas id="graph-support">{% trans "Your browser does not support graph visualization" %}</canvas>
+  </div>
+</div>
+<div id="analytics" class="analytics-mode" style="display: none;">
+  <h2 style="margin-top: 5px; margin-left: 10px;">{% trans "Analytics" %}</h2>
+</div>
+
+  <!-- Start of DOM elements working as memory system and debugging -->
+<div id="sec-debug" style="display:none;">
+  <div id="sec-node-list">
+    <ul id="node-list"></ul>
+  </div>
+  <div id="sec-edge-list">
+    <ol id="edge-list"></ol>
+  </div>
+
+  <h3>Graph Nodes Debug</h3>
+  <textarea id="id_graph_nodes" rows="10" cols="80" name="graph_nodes">{}</textarea>
+  <h3>Graph Edges Debug</h3>
+  <textarea id="id_graph_edges" rows="10" cols="80" name="graph_edges">[]</textarea>
+  <h3>Graph Schema Debug</h3>
+  <textarea id="id_graph_schema" rows="10" cols="80" name="graph_schema">{}</textarea>
+</div>
+<!-- End of DOM elements working as memory system and debugging -->
+
+<br/>
+<div>
+  <div class="not-available">
+  </div>
+</div>
