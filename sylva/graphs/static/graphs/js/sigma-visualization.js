@@ -63,6 +63,18 @@ sigma:true, clearTimeout */
         visibleNodesIds = visibleNodesIds.concat(sylva.nodetypes[key].nodes);
       }
 
+      if (sylva.collapsibles == 0) {
+        sylva.collapsibles = [
+          'graph-node-types',
+          'graph-rel-types',
+          'graph-layout'
+        ];
+
+        sylva.positions['graph-node-types'] = ['15px', '15px', true];
+        sylva.positions['graph-rel-types'] = ['15px', '150px', false];
+        sylva.positions['graph-layout'] = ['15px', '380px', true];
+      }
+
       // Instanciate Sigma.js and customize rendering.
       var sigInst = new sigma();
       sigInst.addRenderer({
@@ -138,7 +150,7 @@ sigma:true, clearTimeout */
 
       // Create the relationship legend.
       $('#graph-rel-types').append('<h2 class="collapsible-header">'
-        + gettext('Relationships') + '</h2>');
+        + gettext('Allowed relationships') + '</h2>');
       $('#graph-rel-types').append($('<ul>'));
       var list = $('#graph-rel-types ul');
       list.css({
@@ -623,6 +635,9 @@ sigma:true, clearTimeout */
         }
       };
 
+      // TODO: When change nodes color, also change the edges depending of the
+      // edge configuration, change the relationship color box.
+
       /* Change the color of the nodes and the legend and submit to server.
        * Also, restore the color if the request fails.
        */
@@ -638,7 +653,12 @@ sigma:true, clearTimeout */
           'nodetypeId': nodetypeId,
           'color': newColor
         };
-        var jqxhr = $.post(sylva.edit_nodetype_color_ajax_url, params, 'json');
+        var jqxhr = $.ajax({
+          url: sylva.edit_nodetype_color_ajax_url,
+          type: 'POST',
+          data: params,
+          dataType: 'json'
+        });
         jqxhr.error(function() {
           changeNodesColor(nodetypeId, oldColor, span);
           $(span).attr('data-color', oldColor);
@@ -724,7 +744,12 @@ sigma:true, clearTimeout */
           'color': newColor,
           'colorMode': newColorMode
         };
-        var jqxhr = $.post(sylva.edit_reltype_color_ajax_url, params, 'json');
+        var jqxhr = $.ajax({
+          url: sylva.edit_reltype_color_ajax_url,
+          type: 'POST',
+          data: params,
+          dataType: 'json'
+        });
         jqxhr.error(function() {
           changeRelsColor(reltypeId, oldColor, span);
           $(span).attr('data-color', oldColor);
@@ -1060,7 +1085,6 @@ sigma:true, clearTimeout */
           position: 'absolute',
           zIndex: '100',
           border: 'none',
-          overflow: 'auto',
           padding: '10px',
           marginRight: 0,
           height: 'auto',
@@ -1068,13 +1092,34 @@ sigma:true, clearTimeout */
           marginTop: 0,
           borderRadius: '10px',
           backgroundColor: 'rgba(214, 231, 223, 0.5)'
+        });
+
+        $('#graph-node-types ul').css({
+          maxHeight: '279px',
+          overflowY: 'hidden'
+        });
+
+        // TODO: Fix the 'clip/ellipsis' thing
+        $('#graph-node-types ul').hover(function() {
+          $('#graph-node-types ul').css({
+            overflowY: 'auto'
+          });
+          $('#graph-node-types ul li').css({
+            textOverflow: 'clip'
+          });
+        }, function(){
+          $('#graph-node-types ul').css({
+            overflowY: 'hidden'
+          });
+          $('#graph-node-types ul li').css({
+            textOverflow: 'ellipsis'
+          });
         });
 
         $('#graph-rel-types').css({
           position: 'absolute',
           zIndex: '101',
           border: 'none',
-          overflow: 'auto',
           padding: '10px',
           marginRight: 0,
           height: 'auto',
@@ -1084,12 +1129,31 @@ sigma:true, clearTimeout */
           backgroundColor: 'rgba(214, 231, 223, 0.5)'
         });
 
+        $('#graph-rel-types ul').css({
+          maxHeight: '279px',
+          overflowY: 'hidden',
+        });
+
+        $('#graph-rel-types ul').hover(function() {
+          $('#graph-rel-types ul').css({
+            overflowY: 'auto'
+          });
+          $('#graph-rel-types ul li').css({
+            textOverflow: 'clip'
+          });
+        }, function(){
+          $('#graph-rel-types ul').css({
+            overflowY: 'hidden'
+          });
+          $('#graph-rel-types ul li').css({
+            textOverflow: 'ellipsis'
+          });
+        });
+
         $('#graph-controls').css({
           position: 'absolute',
           height: 'auto',
           padding: '10px',
-          borderBottomLeftRadius: '10px',
-          backgroundColor: 'rgba(214, 231, 223, 0.5)'
         });
 
         $('#graph-layout').css({
@@ -1136,6 +1200,7 @@ sigma:true, clearTimeout */
 
         $('#graph-controls').removeAttr('style');
         $('#graph-node-types').removeAttr('style');
+        $('#graph-node-types ul').removeAttr('style');
         $('#sigma-wrapper').removeAttr('style');
         $('#canvas-container').removeAttr('style');
         $('#body').removeAttr('style');
@@ -1146,6 +1211,38 @@ sigma:true, clearTimeout */
 
         sigInst.renderers[0].resize();
         sigInst.refresh();
+      };
+
+      var updateBoxPositions = function(key, ui) {
+        var box = $('#' + key);
+        var top = box.css('top');
+        var left = box.css('left');
+
+        if (ui) {
+          var collapsed = false;
+          if (ui.newPanel.hasOwnProperty('selector')) {
+            collapsed = true;
+          }
+          sylva.positions[key] = [top, left, collapsed];
+        } else {
+          sylva.positions[key][0] = top;
+          sylva.positions[key][1] = left;
+        }
+
+        var params = {
+          'collapsibles': sylva.collapsibles,
+          'positions': sylva.positions
+        };
+
+        var jqxhr = $.ajax({
+          url: sylva.graph_analytics_boxes_edit_position,
+          type: 'POST',
+          data: JSON.stringify(params),
+          dataType: 'json'
+        });
+        jqxhr.error(function() {
+          alert(gettext("Oops! Something went wrong with the server."));
+        });
       };
 
       /* Perform the 'real' analytics action. Also perform "sytle" actions
@@ -1190,60 +1287,25 @@ sigma:true, clearTimeout */
           });
         }
 
-        // TODO: Get target from event
-        $('#graph-node-types').draggable({
+        var draggableSettings = {
           containment: '#body',
           cursor: 'move',
           zIndex: 9999,
           create: function(event, ui) {
-            $('#graph-node-types').css({
-              top: '14px',
-              left: '16px'
+            $('#' + event.target.id).css({
+              top: sylva.positions[event.target.id][0],
+              left: sylva.positions[event.target.id][1]
             });
           },
           stop: function(event, ui) {
             highestZIndex++;
-            $('#graph-node-types').css({
+            $('#' + event.target.id).css({
               zIndex: highestZIndex
             });
-          }
-        });
 
-        $('#graph-rel-types').draggable({
-          containment: '#body',
-          cursor: 'move',
-          zIndex: 9999,
-          create: function(event, ui) {
-            $('#graph-rel-types').css({
-              top: '14px',
-              left: '200px'
-            });
-          },
-          stop: function(event, ui) {
-            highestZIndex++;
-            $('#graph-rel-types').css({
-              zIndex: highestZIndex
-            });
+            updateBoxPositions(event.target.id);
           }
-        });
-
-        $('#graph-layout').draggable({
-          containment: '#body',
-          cursor: 'move',
-          zIndex: 9999,
-          create: function(event, ui) {
-            $('#graph-layout').css({
-              top: '14px',
-              left: '450px'
-            });
-          },
-          stop: function(event, ui) {
-            highestZIndex++;
-            $('#graph-layout').css({
-              zIndex: highestZIndex
-            });
-          }
-        });
+        };
 
         var collapsibleSettings = {
           collapsible: true,
@@ -1275,12 +1337,23 @@ sigma:true, clearTimeout */
                 marginRight: ''
               });
             }
+
+            updateBoxPositions(event.target.id, ui)
           }
         };
 
-        $('#graph-node-types').accordion(collapsibleSettings);
-        $('#graph-rel-types').accordion(collapsibleSettings);
-        $('#graph-layout').accordion(collapsibleSettings);
+        for (var i = 0; i < sylva.collapsibles.length; i++) {
+          var name = sylva.collapsibles[i];
+          $('#' + name).draggable(draggableSettings);
+
+          if (sylva.positions[name][2]) {
+            $('#' + name).accordion(collapsibleSettings);
+          } else {
+            $('#' + name).accordion($.extend({}, collapsibleSettings, {
+              active: sylva.positions[name][2]
+            }));
+          }
+        }
 
         sigInst.settings({
           maxNodeSize: analyticsMaxNodeSize * sizeMultiplier

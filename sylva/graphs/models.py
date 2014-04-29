@@ -1,4 +1,9 @@
 # -*- coding: utf-8 -*-
+try:
+    import ujson as json
+except ImportError:
+    import json  # NOQA
+
 from django.contrib.auth.models import User
 from django.utils.translation import gettext as _
 from django.conf import settings
@@ -189,6 +194,28 @@ class Graph(models.Model, GraphMixin):
             else:
                 return list(all_collaborators.exclude(
                     id__in=[self.owner.id, settings.ANONYMOUS_USER_ID]))
+
+    def get_options(self):
+        options = json.loads(self.options or "{}")
+        return options
+
+    def set_options(self, dic):
+        if isinstance(dic, dict):
+            self.options = json.dumps(dic)
+
+    def update_options(self, dic):
+        options = self.get_options()
+        options.update(dic)
+        self.options = json.dumps(options)
+
+    def get_option(self, key=None):
+        return self.get_options()[key]
+
+    def set_option(self, key, value):
+        if key and value:
+            options = self.get_options()
+            options[key] = value
+            self.options = json.dumps(options)
 
 
 @receiver(pre_save, sender=Graph)

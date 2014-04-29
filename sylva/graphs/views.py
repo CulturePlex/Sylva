@@ -104,6 +104,8 @@ def graph_view(request, graph_slug, node_id=None):
         'schemas.views.schema_nodetype_edit_color', args=[graph.slug])
     edit_reltype_color_ajax_url = reverse(
         'schemas.views.schema_reltype_edit_color', args=[graph.slug])
+    graph_analytics_boxes_edit_position = reverse(
+        'graph_analytics_boxes_edit_position', args=[graph.slug])
     node = None
     if node_id:
         node = graph.nodes.get(node_id)
@@ -122,7 +124,9 @@ def graph_view(request, graph_slug, node_id=None):
                                "edit_nodetype_color_ajax_url":
                                   edit_nodetype_color_ajax_url,
                                "edit_reltype_color_ajax_url":
-                                  edit_reltype_color_ajax_url},
+                                  edit_reltype_color_ajax_url,
+                               "graph_analytics_boxes_edit_position":
+                                  graph_analytics_boxes_edit_position},
                               context_instance=RequestContext(request))
 
 
@@ -385,14 +389,42 @@ def graph_data(request, graph_slug, node_id=None):
         else:
             nodes_list = graph.nodes.all()
             relations_list = graph.relationships.all()
-        graph, nodetypes, reltypes = _jsonify_graph(nodes_list, relations_list)
+        graph_json, nodetypes, reltypes = _jsonify_graph(nodes_list, relations_list)
         size = len(nodes_list)
+
+        collapsibles = []
+        positions = {}
+        if 'collapsibles' in graph.get_options():
+            collapsibles = graph.get_option('collapsibles')
+            positions = graph.get_option('positions')
+
         json_data = {
-            'graph': graph,
+            'graph': graph_json,
             'nodetypes': nodetypes,
             'reltypes': reltypes,
-            'size': size
+            'size': size,
+            'collapsibles': collapsibles,
+            'positions': positions
         }
         return HttpResponse(json.dumps(json_data), status=200,
                             mimetype='application/json')
     raise Http404(_("Error: Invalid request (expected an AJAX request)"))
+
+
+@permission_required("graphs.view_graph", (Graph, "slug", "graph_slug"),
+                     return_403=True)
+def graph_analytics_boxes_edit_position(request, graph_slug):
+    if ((request.is_ajax() or settings.DEBUG) and request.POST):
+        data = request.POST.copy()
+        params = None
+        for key in data:
+            params = key
+            break
+        params = json.decode(params)
+        graph = get_object_or_404(Graph, slug=graph_slug)
+        with transaction.atomic():
+            graph.set_option('collapsibles', params['collapsibles'])
+            graph.set_option('positions', params['positions'])
+            graph.save()
+        return HttpResponse(status=200, mimetype='application/json')
+    raise Http404(_("Error: Invalid request (expected an AJAX POST request)"))

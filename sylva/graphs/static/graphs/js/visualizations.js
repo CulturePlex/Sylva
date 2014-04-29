@@ -74,6 +74,8 @@ sylva:true, alert:true */
         sylva.nodetypes = data.nodetypes;
         sylva.reltypes = data.reltypes;
         sylva.size = data.size;
+        sylva.collapsibles = data.collapsibles;
+        sylva.positions = data.positions;
 
         $('#graph-support').hide();
         $('#graph-node-types').show();

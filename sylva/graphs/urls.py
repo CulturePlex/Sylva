@@ -45,4 +45,9 @@ urlpatterns = patterns('graphs.views',
     # nodes data (JSON)
     url(r'^(?P<graph_slug>[\w-]+)/data/(?P<node_id>\d+)/$', 'graph_data',
         name="nodes_data"),
+
+    # edit analytics boxes position / graph_analytics_boxes_edit_position
+    url(r'^(?P<graph_slug>[\w-]+)/edit_boxes_position/$',
+        'graph_analytics_boxes_edit_position',
+        name="graph_analytics_boxes_edit_position"),
 )

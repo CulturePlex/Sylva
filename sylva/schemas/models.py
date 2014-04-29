@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
-import json
+try:
+    import ujson as json
+except ImportError:
+    import json  # NOQA
 
 from django.db import models, transaction
 from django.db.models import F, Q
