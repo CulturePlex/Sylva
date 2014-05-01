@@ -34,6 +34,7 @@ sylva:true, alert:true */
     }
 
     if (msg !== '') {
+      $('#sigma-wrapper').css('margin-top', '0px');
       $('#sigma-container').html('<div class="graph-empty-message">' + msg + '</div>');
     } else {
       var spinnerOpts = {
