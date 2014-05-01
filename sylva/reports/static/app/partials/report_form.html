@@ -1,22 +1,15 @@
 <div class="cont">
 
   <!--Meta Form/Queries-->
-  <div class="content2-first">
+  <div class="content2-first" ng-hide="editable">
     
     <div class="input-container">
       <h2>Report</h2>
       <!--Design Report View-->
-      <div ng-show="queries">
-        <ul>
-          <li ng-repeat="query in queries">
-            <div draggable id="{{ query.name }}"><h2>{{ query.name }}</h2></div>
-          </li>
-        </ul>
-      </div><!--queries container-->
       <!--Metadata Form-->
       <div id="formContainer">
         <form id="reportForm">
-          <div ng-hide="queries" id="innerForm">
+          <div id="innerForm">
             <p>
               <label>Name:
                 <input sylva-update-text type="text" ng-model="report.name" placeholder="Report Name" ng-maxlength="25">
@@ -60,70 +53,74 @@
   </div><!--content2-first-->
 
   <!--Report Info/Designer-->
-  <div class="content-divider"></div>
+  <div class="content-divider" ng-hide="editable"></div>
 
-  <div class="content2-cont">
+  <div class="content2-cont" ng-hide="editable">
 
-    <div id="row1">
+    <div class="row1">
 
-      <div id="col1">
+      <div class="col1">
 
-        <div ng-hide="queries">
+        <div>
           <h2 ng-bind-html="report.name" sylva-update-text></h2>
-        </div>
-
-        <div ng-show="queries">
-          <h2 ng-bind-html="report.name"></h2>
         </div>
 
       </div>
 
-      <div id="col2">
-
-        <div ng-hide="queries">
-          <a class="button" href="" ng-click="designReport()">Design Report</a>
-        </div>
-
-        <div ng-show="queries">
-          <a class="button" href="" ng-click="editMeta()">Edit Metadata</a>
-          <a ng-show="report.table" class="button" href="" ng-click="format()">Format Report</a>
-          
-        </div>
-
+      <div class="col2">
+        <a class="button" href="" ng-click="designReport()">Design Report</a>
       </div>
 
     </div><!--row1-->
 
-    <div id="row2">
-      <div ng-show="queries">
-          <div sylva-editable-table class="editable-table">
-            <!--<div class="report-table">-->
-              <div class="rows">
-                <div class="trow">
-                  <div class="tcell" id="cell1" sylva-droppable sylva-merge-cells row="0" col="0" colspan="1" rowspan="1" query="" style="width: 322px;"></div>
-                  <div class="tcell final" id="cell2" sylva-droppable sylva-merge-cells row="0" col="1" colspan="1" rowspan="1" query="" style="width: 322px;"></div>
-                </div>
-                <div class="trow bottom">
-                  <div class="tcell" id="cell3" sylva-droppable sylva-merge-cells row="1" col="0" colspan="1" rowspan="1" query="" style="width: 322px;"></div>
-                  <div class="tcell final" id="cell4" sylva-droppable sylva-merge-cells row="1" col="1" colspan="1" rowspan="1" query="" style="width: 322px;"></div>
-                </div>
-              </div>
-              <div>
-                <a class="button table-button" href="">add row</a>
-                <a class="button table-button" href="">add column</a>
-                <a class="button table-button" href="">delete row</a>
-                <a class="button table-button" href="">delete column</a>
-              </div>
-            <!--</div>-->
+    <div class="row2">
+      <div class="editable-table" sylva-display-table>
+        <div class="rows">
+          <div class="trow">
+            <div class="tcell" id="cell1" row="0" col="0" colspan="1" rowspan="1" query="" style="width: 322px;"></div>
+            <div class="tcell final" row="0" col="1" colspan="1" rowspan="1" query="" style="width: 322px;"></div>
           </div>
-
-      </div> <!--show queries-->
-
+          <div class="trow bottom">
+            <div class="tcell" id="cell3"row="1" col="0" colspan="1" rowspan="1" query="" style="width: 322px;"></div>
+            <div class="tcell final" id="cell4" row="1" col="1" colspan="1" rowspan="1" query="" style="width: 322px;"></div>
+          </div>
+          </div>
+      </div>
     </div> <!--row2-->
     
 
-  </div>
+  </div> <!--content2-->
 
+  <div class="table-edit" ng-show="editable">
+    <div class="row1">
+      <div class="col1">
+          <h2 ng-bind-html="report.name"></h2>
+      </div>
+      <div class="col2">
+        <a class="button" href="" ng-click="editMeta()">Edit Metadata</a>      
+      </div>
+    </div>
+    <div class="row2">
+      <div sylva-editable-table class="editable-table">
+          <div class="edit-rows">
+            <div class="trow">
+              <div class="tcell" id="cell1" sylva-droppable sylva-merge-cells row="0" col="0" colspan="1" rowspan="1" query="" style="width:569px;"></div>
+              <div class="tcell final" id="cell2" sylva-droppable sylva-merge-cells row="0" col="1" colspan="1" rowspan="1" query="" style="width:569px;"></div>
+            </div>
+            <div class="trow bottom">
+              <div class="tcell" id="cell3" sylva-droppable sylva-merge-cells row="1" col="0" colspan="1" rowspan="1" query="" style="width:569px;"></div>
+              <div class="tcell final" id="cell4" sylva-droppable sylva-merge-cells row="1" col="1" colspan="1" rowspan="1" query="" style="width:569px;"></div>
+            </div>
+          </div>
+          <div>
+            <a class="button table-button" href="">add row</a>
+            <a class="button table-button" href="">add column</a>
+            <a class="button table-button" href="">delete row</a>
+            <a class="button table-button" href="">delete column</a>
+          </div>
+      </div>
+    </div><!--row2-->
+  </div>  
 </div>
 
         

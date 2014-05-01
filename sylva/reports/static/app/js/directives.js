@@ -35,6 +35,17 @@ directives.directive('sylvaDatepicker', function () {
 });
 
 
+directives.directive('sylvaDisplayTable', ['tableArray', function (tableArray) {
+    return {
+        restrict: 'A',
+        templateUrl: '/static/app/partials/directives/display_table.html', 
+        link: function(scope, elem, attrs) {
+            console.log('link')
+        }
+    }
+}]);
+
+
 directives.directive('sylvaEditableTable', ['$compile', 'tableArray', function ($compile, tableArray) {
     return {
         restrict: 'A',

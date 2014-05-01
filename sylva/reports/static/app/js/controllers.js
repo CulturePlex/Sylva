@@ -33,11 +33,13 @@ controllers.controller('BaseReportFormCtrl', [
         $scope.designReport = function () {
             api.queries.query({graphSlug: $scope.graph}, function (data) {
                 $scope.queries = data;
-            });  
+            });
+            $scope.editable = true;  
         };
 
         $scope.editMeta = function () {
             $scope.queries = [];
+            $scope.editable = false;
         }
 
         $scope.handleDrop = function (binId, drop) {

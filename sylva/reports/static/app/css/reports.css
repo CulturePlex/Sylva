@@ -15,19 +15,19 @@
     padding-left: 30px;    
 }
 
- #col1, #col2 {
+ .col1, .col2 {
     float: left;
     width: auto;
     padding: 10px;
  }
 
-#row1, #row2{
+.row1, .row2{
   float: left;
   width: 100%;
 }
 
 .table-button {
-    float: left;
+  margin: 1px;
 }
 
 .editable-table {
@@ -42,6 +42,10 @@
 
 .rows {
   width: 650px;
+}
+
+.edit-rows {
+  width: 1100px;
 }
 
 .trow {  width: 100%;
