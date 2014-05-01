@@ -90,21 +90,21 @@ diagram.lookupsTextValues = [
 ];
 
 diagram.lookupsValuesType = {
-    'u': diagram.lookupsAllValues,
-    's': diagram.lookupsTextValues,
-    'b': diagram.lookupsSpecificValues,
-    'n': diagram.lookupsAllValues,
-    'x': diagram.lookupsTextValues,
-    'd': diagram.lookupsAllValues,
-    't': diagram.lookupsAllValues,
-    'c': diagram.lookupsSpecificValues,
-    'f': diagram.lookupsAllValues,
-    'r': diagram.lookupsSpecificValues,
-    'w': diagram.lookupsAllValues,
-    'a': diagram.lookupsAllValues,
-    'i': diagram.lookupsAllValues,
-    'o': diagram.lookupsAllValues,
-    'e': diagram.lookupsSpecificValues
+    'default': diagram.lookupsAllValues,
+    'string': diagram.lookupsTextValues,
+    'boolean': diagram.lookupsSpecificValues,
+    'number': diagram.lookupsAllValues,
+    'text': diagram.lookupsTextValues,
+    'date': diagram.lookupsAllValues,
+    'time': diagram.lookupsAllValues,
+    'choices': diagram.lookupsSpecificValues,
+    'float': diagram.lookupsAllValues,
+    'collaborator': diagram.lookupsSpecificValues,
+    'auto_now': diagram.lookupsAllValues,
+    'auto_now_add': diagram.lookupsAllValues,
+    'auto_increment': diagram.lookupsAllValues,
+    'auto_increment_update': diagram.lookupsAllValues,
+    'auto_user': diagram.lookupsSpecificValues
 };
 
 (function($) {
@@ -507,7 +507,7 @@ diagram.lookupsValuesType = {
                 "width": "46%",
                 "float": "left",
                 "padding": "0",
-                "margin-left": "3%"
+                "margin-left": "10%"
             });
             optionNodetype = $("<OPTION>");
             optionNodetype.addClass("option-nodetype-" + typeName);
@@ -526,11 +526,11 @@ diagram.lookupsValuesType = {
             }
             selectNodetype.append(optionNodetype);
             // Checkbox for select type
-            checkboxType = $("<INPUT>");
-            checkboxType.addClass("checkbox-select-type");
-            checkboxType.attr("id", "checkbox-" + idBox);
-            checkboxType.attr("type", "checkbox");
-            divTitle.append(checkboxType);
+            // checkboxType = $("<INPUT>");
+            // checkboxType.addClass("checkbox-select-type");
+            // checkboxType.attr("id", "checkbox-" + idBox);
+            // checkboxType.attr("type", "checkbox");
+            // divTitle.append(checkboxType);
             diagram.setName(divTitle, model.name);
             divTitle.append(selectNodetype);
             anchorShowHide = $("<A>");
@@ -612,7 +612,7 @@ diagram.lookupsValuesType = {
                 "width": "46%",
                 "float": "left",
                 "padding": "0",
-                "margin-left": "3%"
+                "margin-left": "15%"
             });
             optionNodetype = $("<OPTION>");
             optionNodetype.addClass("option-nodetype-" + typeName);
@@ -632,11 +632,11 @@ diagram.lookupsValuesType = {
             }
             selectNodetype.append(optionNodetype);
             // Checkbox for select type
-            checkboxType = $("<INPUT>");
-            checkboxType.addClass("checkbox-select-type");
-            checkboxType.attr("id", "checkbox-" + idBox);
-            checkboxType.attr("type", "checkbox");
-            divTitle.append(checkboxType);
+            // checkboxType = $("<INPUT>");
+            // checkboxType.addClass("checkbox-select-type");
+            // checkboxType.attr("id", "checkbox-" + idBox);
+            // checkboxType.attr("type", "checkbox");
+            // divTitle.append(checkboxType);
             diagram.setName(divTitle, modelName);
             divTitle.append(selectNodetype);
             anchorShowHide = $("<A>");
@@ -713,9 +713,9 @@ diagram.lookupsValuesType = {
          * Set the name fo the model box getting shorter and adding ellipsis
          */
         diagram.setName = function (div, name) {
-            var html = "<span style='float: left; margin-left: 3%;'>" + name + " " + gettext("as") + " </span>";
-            if (name.length > 5) {
-                html = "<span style='float: left; margin-left: 3%;'>" + name.substr(0, 5) + "…" + " " + gettext("as") + " </span>";
+            var html = "<span style='float: left; margin-left: 3%; margin-top: 1px;'>" + name + " " + gettext("as") + " </span>";
+            if (name.length > 10) {
+                html = "<span style='float: left; margin-left: 3%; margin-top: 1px;'>" + name.substr(0, 10) + "…" + " " + gettext("as") + " </span>";
             }
             div.append(html);
             return div;
@@ -1052,8 +1052,8 @@ diagram.lookupsValuesType = {
           * - text
           */
          diagram.replaceChars = function (text) {
-            var specials = "ÃÀÁÄÂÈÉËÊÌÍÏÎÒÓÖÔÙÚÜÛãàáäâèéëêìíïîòóöôùúüûÑñÇç";
-            var originals = "AAAAAEEEEIIIIOOOOUUUUaaaaaeeeeiiiioooouuuunncc";
+            var specials = "ÃÀÁÄÂÈÉËÊÌÍÏÎÒÓÖÔÙÚÜÛãàáäâèéëêìíïîòóöôùúüûÑñÇç ";
+            var originals = "AAAAAEEEEIIIIOOOOUUUUaaaaaeeeeiiiioooouuuunncc_";
 
             if(text != null) {
                 for (var i=0; i<specials.length; i++) {
@@ -1113,7 +1113,7 @@ diagram.lookupsValuesType = {
                               };
             } else if(type == 'target') {
                 relationshipOptions = { endpoint: ["Rectangle",
-                {width: 350,
+                {width: 360,
                  height: 30,
                  cssClass: 'query-box-endpoint-target'}],
                                 //anchor: [1, anchor, -1, 0],
@@ -1166,6 +1166,10 @@ diagram.lookupsValuesType = {
             var propertyName = $(property).val();
             var propertyValue = $(property).next().next().val();
 
+            // We store the datatype
+            var fieldId = $(property).parent().attr('id');
+            var datatype = $('#' + fieldId + ' .select-property option:selected').data('datatype');
+
             // We store the checked properties
             if(!propertiesChecked[alias])
                 propertiesChecked[alias] = new Array();
@@ -1191,6 +1195,12 @@ diagram.lookupsValuesType = {
                     conditionArray.push(andOrVal);
                 } else {
                     conditionArray.push("not");
+                }
+
+                if(datatype) {
+                    conditionArray.push(datatype);
+                } else {
+                    conditionArray.push("undefined");
                 }
 
                 conditionsArray.push(conditionArray);
@@ -1666,7 +1676,7 @@ diagram.lookupsValuesType = {
 
         // This if is for check if the select-property is for a wildcard input
         if(!arrayOptions) {
-            datatype = 'u';
+            datatype = 'default';
             arrayOptions = diagram.lookupOptions(datatype);
         }
 
@@ -1682,10 +1692,11 @@ diagram.lookupsValuesType = {
 
         // Here we ask if the datatype needs a special input
         var tagName = $this.next().next().prop("tagName");
-        if(datatype == 'b') {
+        if(datatype == 'boolean') {
             // Boolean select
             if(tagName == "INPUT" || tagName == "SELECT") {
                 $this.next().next().remove();
+                var tagName = $this.next().next().prop("tagName");
                 if(tagName == "INPUT") {
                     $this.next().next().remove();
                 }
@@ -1701,11 +1712,12 @@ diagram.lookupsValuesType = {
             select.append('<option class="lookup-value" value="true">True</option>');
             select.append('<option class="lookup-value" value="false">False</option>');
             $(inputLookup).insertAfter($('#' + fieldId + ' .select-lookup'))
-        } else if(datatype == 'c') {
+        } else if(datatype == 'choices') {
             // Choices select
             var choicesArray = choices.split(',');
             if(tagName == "INPUT" || tagName == "SELECT") {
                 $this.next().next().remove();
+                var tagName = $this.next().next().prop("tagName");
                 if(tagName == "INPUT") {
                     $this.next().next().remove();
                 }
@@ -1723,51 +1735,66 @@ diagram.lookupsValuesType = {
                 select.append('<option class="lookup-value" value="' + choicesArray[j] +'">' + choicesArray[j] + '</option>');
             }
             $(inputLookup).insertAfter($('#' + fieldId + ' .select-lookup'))
-        } else if(datatype == 'w') {
+        } else if(datatype == 'auto_now') {
             // Datepicker input
             if(tagName == "INPUT" || tagName == "SELECT") {
                 $this.next().next().remove();
+                var tagName = $this.next().next().prop("tagName");
                 if(tagName == "INPUT") {
                     $this.next().next().remove();
                 }
             }
             var inputLookup = $("<INPUT>");
             inputLookup.addClass("lookup-value");
+            inputLookup.attr("type", "text");
             inputLookup.css({
                 "width": "60px",
-                "margin-left": "8px"
+                "margin-left": "8px",
+                "padding": "2px 2px 1px 2px",
+                "margin-top": "-4px",
+                "display": "inline"
             });
             inputLookup.timepicker();
             $(inputLookup).insertAfter($('#' + fieldId + ' .select-lookup'))
-        } else if(datatype == 'a') {
+        } else if(datatype == 'auto_now_add') {
             // Datepicker input
             if(tagName == "INPUT" || tagName == "SELECT") {
                 $this.next().next().remove();
+                var tagName = $this.next().next().prop("tagName");
                 if(tagName == "INPUT") {
                     $this.next().next().remove();
                 }
             }
             var inputLookup = $("<INPUT>");
             inputLookup.addClass("lookup-value time");
+            inputLookup.attr("type", "text");
             inputLookup.css({
                 "width": "60px",
-                "margin-left": "8px"
+                "margin-left": "8px",
+                "padding": "2px 2px 1px 2px",
+                "margin-top": "-4px",
+                "display": "inline"
             });
             inputLookup.timepicker();
             $(inputLookup).insertAfter($('#' + fieldId + ' .select-lookup'))
-        } else if(datatype == 'd') {
+        } else if(datatype == 'date') {
             // Datepicker input
             if(tagName == "INPUT" || tagName == "SELECT") {
                 $this.next().next().remove();
+                var tagName = $this.next().next().prop("tagName");
                 if(tagName == "INPUT") {
                     $this.next().next().remove();
                 }
             }
             var inputLookup = $("<INPUT>");
             inputLookup.addClass("lookup-value time");
+            inputLookup.attr("type", "text");
             inputLookup.css({
                 "width": "60px",
-                "margin-left": "8px"
+                "margin-left": "8px",
+                "padding": "2px 2px 1px 2px",
+                "margin-top": "-4px",
+                "display": "inline"
             });
             var options = {
                 appendText: "(yyyy-mm-dd)",
@@ -1778,19 +1805,24 @@ diagram.lookupsValuesType = {
             };
             inputLookup.datepicker(options);
             $(inputLookup).insertAfter($('#' + fieldId + ' .select-lookup'))
-        } else if(datatype == 'e') {
+        } else if(datatype == 'auto_user') {
             // Users select
             if(tagName == "INPUT" || tagName == "SELECT") {
                 $this.next().next().remove();
+                var tagName = $this.next().next().prop("tagName");
                 if(tagName == "INPUT") {
                     $this.next().next().remove();
                 }
             }
-            var select = $("<INPUT>");
-            select.addClass("lookup-value autocomplete");
-            select.css({
+            var inputLookup = $("<INPUT>");
+            inputLookup.addClass("lookup-value autocomplete");
+            inputLookup.attr("type", "text");
+            inputLookup.css({
                 "width": "60px",
-                "margin-left": "8px"
+                "margin-left": "8px",
+                "padding": "2px 2px 1px 2px",
+                "margin-top": "-4px",
+                "display": "inline"
             });
 
             $(inputLookup).insertAfter($('#' + fieldId + ' .select-lookup'))
@@ -1805,14 +1837,18 @@ diagram.lookupsValuesType = {
             }
             var inputLookup = $("<INPUT>");
             inputLookup.addClass("lookup-value");
+            inputLookup.attr("type", "text");
             inputLookup.css({
                 "width": "60px",
-                "margin-left": "8px"
+                "margin-left": "8px",
+                "padding": "2px 2px 1px 2px",
+                "margin-top": "-4px",
+                "display": "inline"
             });
             $(inputLookup).insertAfter($('#' + fieldId + ' .select-lookup'))
         }
 
-        if(datatype == 'e') {
+        if(datatype == 'auto_user') {
             $(".autocomplete").autocomplete({
                 source: function (request, response) {
                     $.ajax({
@@ -1847,12 +1883,12 @@ diagram.lookupsValuesType = {
         var fieldId = $this.data("fieldid");
 
         var datatype = $('#' + fieldId + ' .select-property option:selected').data("datatype");
-        var condition = datatype != 'd'
-                        && datatype != 'b'
-                        && datatype != 'c'
-                        && datatype != 'w'
-                        && datatype != 'a'
-                        && datatype != 'e';
+        var condition = datatype != 'date'
+                        && datatype != 'boolean'
+                        && datatype != 'choices'
+                        && datatype != 'auto_now'
+                        && datatype != 'auto_now_add'
+                        && datatype != 'auto_user';
         if(condition) {
             if(value == "is between") {
                 // two inputs - we check if we have introduced an input field
@@ -1865,8 +1901,8 @@ diagram.lookupsValuesType = {
                         $this.next().remove();
                     }
                 }
-                $this.after("<input class='lookup-value' style=\"width: 35px; margin-left: 5%; margin-top:3%;\" />");
-                $this.after("<input class='lookup-value' style=\"width: 35px; margin-left: 5%; margin-top:3%;\" />");
+                $this.after("<input class='lookup-value' type='text' style=\"width: 25px; margin-left: 2%; padding: 2px 2px 1px 2px; margin-top: -4px; display: inline;\" />");
+                $this.after("<input class='lookup-value' type='text' style=\"width: 25px; margin-left: 2%; padding: 2px 2px 1px 2px; margin-top: -4px; display: inline;\" />");
                 // We keep the value of the inputs
                 if(inputValueFirst) {
                     $this.next().val(inputValueFirst);
@@ -1892,7 +1928,7 @@ diagram.lookupsValuesType = {
                         $this.next().remove();
                     }
                 }
-                $this.after("<input class='lookup-value' style=\"width: 60px; margin-left: 8px;\" />");
+                $this.after("<input class='lookup-value' type='text' style='width: 60px; margin-left: 8px; padding: 2px 2px 1px 2px; margin-top: -4px; display: inline;' />");
                 // We keep the value of the input
                 if(inputValue) {
                     $this.next().val(inputValue);
