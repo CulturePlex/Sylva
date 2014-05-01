@@ -35,19 +35,19 @@ class Q(BaseQ):
             match = u"'(?i){0}'".format(self.match)
         elif self.lookup == "contains":
             lookup = u"=~"
-            match = u".*{0}.*".format(self.match)
+            match = u"'.*{0}.*'".format(self.match)
         elif self.lookup == "icontains":
             lookup = u"=~"
             match = u"(?i).*{0}.*".format(self.match)
         elif self.lookup == "startswith":
             lookup = u"=~"
-            match = u"{0}.*".format(self.match)
+            match = u"'{0}.*'".format(self.match)
         elif self.lookup == "istartswith":
             lookup = u"=~"
             match = u"(?i){0}.*".format(self.match)
         elif self.lookup == "endswith":
             lookup = u"=~"
-            match = u".*{0}".format(self.match)
+            match = u"'.*{0}'".format(self.match)
         elif self.lookup == "iendswith":
             lookup = u"=~"
             match = u"(?i).*{0}".format(self.match)
@@ -59,16 +59,28 @@ class Q(BaseQ):
             match = u"(?i){0}".format(self.match)
         elif self.lookup == "gt":
             lookup = u">"
-            match = u"{0}".format(self.match)
+            if self.datatype == 'date':
+                match = u"'{0}'".format(self.match)
+            else:
+                match = u"{0}".format(self.match)
         elif self.lookup == "gte":
             lookup = u">"
-            match = u"{0}".format(self.match)
+            if self.datatype == 'date':
+                match = u"'{0}'".format(self.match)
+            else:
+                match = u"{0}".format(self.match)
         elif self.lookup == "lt":
             lookup = u"<"
-            match = u"{0}".format(self.match)
+            if self.datatype == 'date':
+                match = u"'{0}'".format(self.match)
+            else:
+                match = u"{0}".format(self.match)
         elif self.lookup == "lte":
             lookup = u"<"
-            match = u"{0}".format(self.match)
+            if self.datatype == 'date':
+                match = u"'{0}'".format(self.match)
+            else:
+                match = u"{0}".format(self.match)
         elif self.lookup in ["in", "inrange"]:
             lookup = u"IN"
             match = u"['{0}']".format(u"', '".join([self._escape(m)

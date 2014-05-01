@@ -42,7 +42,7 @@ diagram.lookupsBackendValues = {
     'is less than': 'lt',
     'is greater than': 'gt',
     'is greater than or equal to': 'gte',
-    'is between': 'is between',
+    'is between': 'in',
     'does not equal': 'neq',
     'has some value': 'has some value',
     'has no value': 'has no value',
@@ -407,11 +407,11 @@ diagram.lookupsValuesType = {
             }
             selectReltype.append(optionReltype);
             // Checkbox for select type
-            checkboxType = $("<INPUT>");
-            checkboxType.addClass("checkbox-select-type");
-            checkboxType.attr("id", "checkbox");
-            checkboxType.attr("type", "checkbox");
-            divTitle.append(checkboxType);
+            // checkboxType = $("<INPUT>");
+            // checkboxType.addClass("checkbox-select-type");
+            // checkboxType.attr("id", "checkbox");
+            // checkboxType.attr("type", "checkbox");
+            // divTitle.append(checkboxType);
             diagram.setName(divTitle, label);
             divTitle.append(selectReltype);
 
@@ -430,7 +430,7 @@ diagram.lookupsValuesType = {
             divBox.css({
                 "left": (parseInt(Math.random() * 55 + 1) * 10) + "px",
                 "top": (parseInt(Math.random() * 25 + 1) * 10) + "px",
-                "width": "160px",
+                "width": "180px",
                 "background-color": "white",
                 "border": "2px solid #AEAA78"
                 //"width": "33%"
@@ -1754,7 +1754,10 @@ diagram.lookupsValuesType = {
                 "margin-top": "-4px",
                 "display": "inline"
             });
-            inputLookup.timepicker();
+            inputLookup.timepicker({
+                timeOnly: true,
+                showSecond: true,
+            });
             $(inputLookup).insertAfter($('#' + fieldId + ' .select-lookup'))
         } else if(datatype == 'auto_now_add') {
             // Datepicker input
@@ -1775,7 +1778,10 @@ diagram.lookupsValuesType = {
                 "margin-top": "-4px",
                 "display": "inline"
             });
-            inputLookup.timepicker();
+            inputLookup.timepicker({
+                timeOnly: true,
+                showSecond: true,
+            });
             $(inputLookup).insertAfter($('#' + fieldId + ' .select-lookup'))
         } else if(datatype == 'date') {
             // Datepicker input
@@ -1805,6 +1811,30 @@ diagram.lookupsValuesType = {
             };
             inputLookup.datepicker(options);
             $(inputLookup).insertAfter($('#' + fieldId + ' .select-lookup'))
+        } else if(datatype == 'time') {
+            // Datepicker input
+            if(tagName == "INPUT" || tagName == "SELECT") {
+                $this.next().next().remove();
+                var tagName = $this.next().next().prop("tagName");
+                if(tagName == "INPUT") {
+                    $this.next().next().remove();
+                }
+            }
+            var inputLookup = $("<INPUT>");
+            inputLookup.addClass("lookup-value time");
+            inputLookup.attr("type", "text");
+            inputLookup.css({
+                "width": "60px",
+                "margin-left": "8px",
+                "padding": "2px 2px 1px 2px",
+                "margin-top": "-4px",
+                "display": "inline"
+            });
+            inputLookup.timepicker({
+                timeOnly: true,
+                showSecond: true,
+            });
+            $(inputLookup).insertAfter($('#' + fieldId + ' .select-lookup'))
         } else if(datatype == 'auto_user') {
             // Users select
             if(tagName == "INPUT" || tagName == "SELECT") {
@@ -1824,7 +1854,6 @@ diagram.lookupsValuesType = {
                 "margin-top": "-4px",
                 "display": "inline"
             });
-
             $(inputLookup).insertAfter($('#' + fieldId + ' .select-lookup'))
         } else {
             // Initial input
