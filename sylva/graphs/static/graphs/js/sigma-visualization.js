@@ -24,8 +24,6 @@ sigma:true, clearTimeout */
   var timeout = 0;
   // setTimeout id.
   var timeout_id = 0;
-  // An array with the IDs of the selected nodes
-  var selectedNodes = [];
   // Arrays with the IDs of the visible elments.
   var visibleNodesIds = [];
   var visibleRelsIds = [];
@@ -43,8 +41,8 @@ sigma:true, clearTimeout */
   var degreesCalculated = false;
   // It's used when the user select a diferent edge shape than the original.
   var defaultEdgeShapeSaved = false;
-  // The grey color.
-  var grey = '#EEE';
+  // The gray color.
+  var gray = '#EEE';
   // It's used for keep the last dragged analytics control on top.
   var highestZIndex = 200;
   // Node sizes variables.
@@ -65,9 +63,11 @@ sigma:true, clearTimeout */
   var mouseMovedOnNode = false;
   var mouseMovedOnStage = false;
   var isOverNode = false;
-  var centeredNodeForGreify = null;
+  var neighborMainNode = null;
   var isMouseOverCanvas = false;
   var isZoomWheelPossible = false;
+  var colorWidgetOpened = false;
+  var selectedSelectingTool = '';
   var canSaveBoxes = true;
   var currentNodeX = 0;
   var currentNodeY = 0;
@@ -77,7 +77,7 @@ sigma:true, clearTimeout */
     init: function() {
 
       that = this;
-      selectedNodes = sylva.nodeIds;
+      sylva.selectedNodes = sylva.nodeIds;
       size = sylva.size;
 
       // Creating visible elements arrays.
@@ -232,6 +232,19 @@ sigma:true, clearTimeout */
         that.reCenter();
       });
 
+      // Selecting tool.
+      $('#sigma-filter-rectangle').on('click', function() {
+        that.enableDisableSelectingTool('rectangle');
+      });
+
+      $('#sigma-filter-free-hand').on('click', function() {
+        that.enableDisableSelectingTool('freeHand');
+      });
+
+      $('#sigma-filter-click').on('click', function() {
+        that.enableDisableSelectingTool('click');
+      });
+
       sigInst.startForceAtlas2();
       isDrawing = true;
 
@@ -248,10 +261,6 @@ sigma:true, clearTimeout */
 
       sigma.canvas.hovers.defBackup = sigma.canvas.hovers.def;
       sigInst.refresh();
-
-      // TODO: Testing with filtering
-      paper.setup($('.sigma-mouse')[0]);
-      $('#sigma-filter-rectangle').on('click', that.testingRectangle);
     },
 
 
@@ -402,33 +411,42 @@ sigma:true, clearTimeout */
     },
 
     nodeMouseDown: function(event) {
-      var dom = $('.sigma-mouse')[0];
-      currentNodeX = sigma.utils.getX(event) - dom.offsetWidth / 2;
-      currentNodeY = sigma.utils.getY(event) - dom.offsetHeight / 2;
-
-      $('.sigma-mouse').off('mousedown', that.nodeMouseDown);
-      $('#main').on('mousemove', that.nodeMouseMove);
-      $('#main').on('mouseup', that.nodeMouseUp);
-
-      sigInst.unbind('outNode', that.treatOutNode);
-
-      mouseMovedOnNode = false;
-      isZoomWheelPossible = true;
-
-      $('#main').css('user-select', 'none');
-
       // Deactivate drag graph.
       sigInst.settings({mouseEnabled: false, enableHovering: false});
       sigInst.refresh();
+
+      $('#main').css('user-select', 'none');
+
+      // This is for treating the select node by click feature
+      if (selectedSelectingTool == 'click') {
+        $('#main').on('mouseup', that.nodeMouseUp);
+        sigInst.unbind('outNode', that.treatOutNode);
+
+      } else {
+        var dom = $('.sigma-mouse')[0];
+        currentNodeX = sigma.utils.getX(event) - dom.offsetWidth / 2;
+        currentNodeY = sigma.utils.getY(event) - dom.offsetHeight / 2;
+
+        $('.sigma-mouse').off('mousedown', that.nodeMouseDown);
+        $('#main').on('mousemove', that.nodeMouseMove);
+        $('#main').on('mouseup', that.nodeMouseUp);
+
+        sigInst.unbind('outNode', that.treatOutNode);
+
+        mouseMovedOnNode = false;
+        isZoomWheelPossible = true;
+      }
     },
 
     nodeMouseUp: function(event) {
-      $('.sigma-mouse').on('mousedown', that.nodeMouseDown);
-      $('#main').off('mousemove', that.nodeMouseMove);
-      $('#main').off('mouseup', that.nodeMouseUp);
+      // Activate drag graph.
+      sigInst.settings({mouseEnabled: true, enableHovering: true});
+      sigInst.refresh();
+
+      $('#main').css('user-select', 'all');
+
 
       var near = false;
-
       var offset = $('.sigma-mouse').offset()
       var nodeX = nodeOvered['renderer1:x'];
       var nodeY = nodeOvered['renderer1:y'];
@@ -446,24 +464,29 @@ sigma:true, clearTimeout */
       }
       sigInst.bind('outNode', that.treatOutNode);
 
-      isZoomWheelPossible = false;
+      // This is for treating the select node by click feature
+      if (selectedSelectingTool == 'click') {
+        $('#main').off('mouseup', that.nodeMouseUp);
+        that.selectDeselectNode(nodeOvered);
 
-      if (mouseMovedOnNode) {
-        mouseMovedOnNode = false;
       } else {
-        centeredNodeForGreify = nodeOvered;
-        that.grayfyNonNeighborhoodOnly(nodeOvered);
-        if (isAnalyticsMode) {
-          that.updateNodeLegend(nodeOvered, '#node-info');
-          that.updateSizes();
+        $('.sigma-mouse').on('mousedown', that.nodeMouseDown);
+        $('#main').off('mousemove', that.nodeMouseMove);
+        $('#main').off('mouseup', that.nodeMouseUp);
+
+        isZoomWheelPossible = false;
+
+        if (mouseMovedOnNode) {
+          mouseMovedOnNode = false;
+        } else {
+          neighborMainNode = nodeOvered;
+          that.grayfyNonNeighborhoodOnly(nodeOvered);
+          if (isAnalyticsMode) {
+            that.updateNodeLegend(nodeOvered, '#node-info');
+            that.updateSizes();
+          }
         }
       }
-
-      $('#main').css('user-select', 'all');
-
-      // Activate drag graph.
-      sigInst.settings({mouseEnabled: true, enableHovering: true});
-      sigInst.refresh();
     },
 
     nodeMouseMove: function(event) {
@@ -510,15 +533,17 @@ sigma:true, clearTimeout */
     },
 
     stageMouseDown: function(event) {
-      $('.sigma-mouse').off('mousedown', that.stageMouseDown);
-      $('.sigma-mouse').on('mousemove', that.stageMouseMove);
-      $('.sigma-mouse').on('mouseup', that.stageMouseUp);
-
-      mouseMovedOnStage = false;
-
       $('#main').css('user-select', 'none');
 
-      sigInst.unbind('overNode', that.treatOverNode);
+      if (selectedSelectingTool != 'click') {
+        $('.sigma-mouse').off('mousedown', that.stageMouseDown);
+        $('.sigma-mouse').on('mousemove', that.stageMouseMove);
+        $('.sigma-mouse').on('mouseup', that.stageMouseUp);
+
+        mouseMovedOnStage = false;
+
+        sigInst.unbind('overNode', that.treatOverNode);
+      }
     },
 
     stageMouseUp: function(event) {
@@ -527,18 +552,20 @@ sigma:true, clearTimeout */
       $('.sigma-mouse').off('mouseup', that.stageMouseUp);
 
       sigInst.bind('overNode', that.treatOverNode);
-
       $('#main').css('user-select', 'all');
-
       if (mouseMovedOnStage) {
         mouseMovedOnStage = false;
-      } else if (centeredNodeForGreify) {
-        centeredNodeForGreify = null;
+      } else if (colorWidgetOpened) {
+        colorWidgetOpened = false;
+      } else if (neighborMainNode) {
+        neighborMainNode = null;
         that.ungrayfyAllNodes();
         if (isAnalyticsMode) {
           that.cleanNodeLegend('#node-info');
           that.updateSizes();
         }
+      } else if (sylva.selectedNodes.length < size) {
+        that.ungrayfyAllNodes();
       }
     },
 
@@ -586,7 +613,8 @@ sigma:true, clearTimeout */
         if (nodeList.indexOf(n.id) >= 0) {
           n.color = sylva.nodetypes[n.nodetypeId].color;
         } else {
-          n.color = grey;
+          n.color = gray;
+          n.type = 'gray';
         }
       });
 
@@ -595,17 +623,19 @@ sigma:true, clearTimeout */
           if (relList.indexOf(e.id) >= 0) {
             e.color = sylva.reltypes[e.reltypeId].color;
           } else {
-            e.color = grey;
+            e.color = gray;
+            e.type = 'gray';
           }
         });
 
       } else {
         sigInst.graph.edges().forEach(function(e) {
           if (nodeList.indexOf(e.source) >= 0 && nodeList.indexOf(e.target) >= 0) {
-          //if (neighborhoodIds['edges'].indexOf(e.id) >= 0) {
             e.color = sylva.reltypes[e.reltypeId].color;
+            delete e['type'];
           } else {
-            e.color = grey;
+            e.color = gray;
+            e.type = 'gray';
           }
         });
       }
@@ -617,20 +647,22 @@ sigma:true, clearTimeout */
     grayfyNonNeighborhoodOnly: function(center) {
       var neighborhood = sigInst.graph.neighborhood(center.id);
       var neighborhoodIds = that.graphToIds(neighborhood);
-      selectedNodes = neighborhoodIds['nodes'];
+      sylva.selectedNodes = neighborhoodIds['nodes'];
 
       that.grayfyNonListedNodes(neighborhoodIds['nodes'], neighborhoodIds['edges']);
     },
 
     ungrayfyAllNodes: function() {
-      selectedNodes = sylva.nodeIds;
+      sylva.selectedNodes = sylva.nodeIds;
 
       sigInst.graph.nodes().forEach(function(n) {
         n.color = sylva.nodetypes[n.nodetypeId].color
+        delete n['type'];
       });
 
       sigInst.graph.edges().forEach(function(e) {
         e.color = sylva.reltypes[e.reltypeId].color;
+        delete e['type'];
       });
 
       // Re-draw graph.
@@ -644,7 +676,11 @@ sigma:true, clearTimeout */
       currentColor = new RGBColor(currentColor).toHex().toUpperCase();
       if (currentColor != color) {
         sigInst.graph.nodes(nodesId).forEach(function(n) {
-          n.color = color;
+          if (n.type && n.type == 'gray') {
+            n.colorBackup = color;
+          } else {
+            n.color = color;
+          }
         });
         $(span).css({
           backgroundColor: color
@@ -673,6 +709,10 @@ sigma:true, clearTimeout */
         var oldColor = $(span).attr('data-color');
         $(span).colpickSetColor(oldColor.substr(1));
         that.changeNodesColor(nodetypeId, oldColor, span);
+
+        setTimeout(function() {
+          colorWidgetOpened = false;
+        }, 300);
       }
     },
 
@@ -692,6 +732,7 @@ sigma:true, clearTimeout */
           'nodetypeId': nodetypeId,
           'color': newColor
         };
+
         var jqxhr = $.ajax({
           url: sylva.edit_nodetype_color_ajax_url,
           type: 'POST',
@@ -705,6 +746,8 @@ sigma:true, clearTimeout */
           alert(gettext("Oops! Something went wrong with the server."));
         });
       }
+
+      colorWidgetOpened = false;
     },
 
     // Change the color of the rels and the legend.
@@ -714,7 +757,11 @@ sigma:true, clearTimeout */
       currentColor = new RGBColor(currentColor).toHex().toUpperCase();
       if (currentColor != color) {
         sigInst.graph.edges(relsId).forEach(function(e) {
-          e.color = color;
+          if (e.type && e.type == 'gray') {
+            e.colorBackup = color;
+          } else {
+            e.color = color;
+          }
         });
         $(span).css({
           backgroundColor: color
@@ -751,6 +798,10 @@ sigma:true, clearTimeout */
       var reltypeId = $(span).attr('data-reltype-id');
       var oldColor = $(span).attr('data-color');
       that.changeRelsColor(reltypeId, oldColor, span);
+
+      setTimeout(function() {
+        colorWidgetOpened = false;
+      }, 300);
     },
 
     /* Change the color of the nodes and the legend and submit to server.
@@ -774,6 +825,7 @@ sigma:true, clearTimeout */
           'color': newColor,
           'colorMode': newColorMode
         };
+
         var jqxhr = $.ajax({
           url: sylva.edit_reltype_color_ajax_url,
           type: 'POST',
@@ -789,6 +841,8 @@ sigma:true, clearTimeout */
           alert(gettext("Oops! Something went wrong with the server."));
         });
       }
+
+      colorWidgetOpened = false;
     },
 
     // Add the 'colorPicker' widget to the 'selectColor' widget of the rels.
@@ -849,7 +903,11 @@ sigma:true, clearTimeout */
           var source = sigInst.graph.nodes(e.source).color;
           relColor = $.xcolor.average(target, source).getHex();
         }
-        e.color = relColor;
+        if (e.type && e.type == 'gray') {
+          e.colorBackup = relColor;
+        } else {
+          e.color = relColor;
+        }
         spanRel.css({
           backgroundColor: relColor
         });
@@ -909,8 +967,10 @@ sigma:true, clearTimeout */
     /* Update some sizes in analytics mode. This function will be called
      * when changes in the size of the screen occurr, e.g., when the user
      * open the developers tools in analytics mode.
+     * The parameter is used when you don't want that this function to
+     * update the position of the floating boxes.
      */
-    updateSizes: function() {
+    updateSizes: function(noUpdateBoxesPositions) {
       var height = Math.max(document.documentElement.clientHeight,
         window.innerHeight || 0);
       var width = Math.max(document.documentElement.clientWidth,
@@ -953,7 +1013,11 @@ sigma:true, clearTimeout */
       renderer.resize(container.width(), container.height());
       sigInst.refresh();
 
-      that.putBoxesInsideCanvas();
+      if (!noUpdateBoxesPositions) {
+        that.putBoxesInsideCanvas();
+      }
+
+      paper.setup($('.sigma-mouse')[0]);
     },
 
     /* Update some sizes and styles in analytics mode, but only needed when
@@ -1203,7 +1267,7 @@ sigma:true, clearTimeout */
           maxWidth: '250',
           stop: function(event, ui) {
             analyticsSidebarWidth = ui.size.width + analyticsSidebarBorder;
-            that.updateSizes();
+            that.updateSizes(true);
             that.putBoxesInsideCanvas();
           }
         });
@@ -1291,8 +1355,8 @@ sigma:true, clearTimeout */
         maxNodeSize: analyticsMaxNodeSize * sizeMultiplier
       });
 
-      if (centeredNodeForGreify) {
-        that.updateNodeLegend(centeredNodeForGreify, '#node-info');
+      if (neighborMainNode) {
+        that.updateNodeLegend(neighborMainNode, '#node-info');
         that.updateSizes();
       }
 
@@ -1611,6 +1675,9 @@ sigma:true, clearTimeout */
         onChange: function(hsb, hex, rgb, el, bySetColor) {
           that.changeNodeColorWidget(span, hex.toUpperCase());
         },
+        onShow: function(picker) {
+          colorWidgetOpened = true;
+        },
         onHide: function(picker) {
           that.hideNodeColorWidget(span, picker);
         },
@@ -1623,6 +1690,8 @@ sigma:true, clearTimeout */
     // Creates a widget for change the color of the rels.
     setRelsColorWidget: function(i, span) {
       $(span).on('click', function(event) {
+        colorWidgetOpened = true;
+
         var reltypeId = $(span).attr('data-reltype-id');
         var currentColor = $(span).attr('data-color');
         var currentColorMode = $(span).attr('data-color-mode')
@@ -1700,11 +1769,14 @@ sigma:true, clearTimeout */
           container.remove();
         });
 
-        $('body').on('mousedown', function() {
+        var auxHideRelColorWidget = function() {
           that.restoreRelColorWidget(container);
           that.hideRelColorWidget(span);
           container.remove();
-        });
+          $('body').off('mousedown', auxHideRelColorWidget);
+        }
+
+        $('body').on('mousedown', auxHideRelColorWidget);
 
         container.on('mousedown', function(event){
             event.stopPropagation();
@@ -2023,7 +2095,7 @@ sigma:true, clearTimeout */
       }
       setTimeout(function() {
         canSaveBoxes = true;
-      }, 1000);
+      }, 300);
     },
 
     // Translate coordinates from Sigma to the regular canvas.
@@ -2034,13 +2106,72 @@ sigma:true, clearTimeout */
       };
     },
 
-    // TODO: The function!
-    testingRectangle: function(event) {
-      if (!paperTool || !paperTool._scope) {
+    selectDeselectNode: function(nodeOvered) {
+      var index = sylva.selectedNodes.indexOf(nodeOvered.id);
+
+      if (index  >= 0) {
+        sylva.selectedNodes.splice(index, 1);
+      } else {
+        sylva.selectedNodes.push(nodeOvered.id);
+      }
+
+      that.grayfyNonListedNodes(sylva.selectedNodes);
+    },
+
+    enableDisableSelectingTool: function(type) {
+      that.stop();
+
+      var selectingToolDict = {
+        'rectangle': 'sigma-filter-rectangle',
+        'freeHand': 'sigma-filter-free-hand',
+        'click': 'sigma-filter-click'
+      };
+
+      if (selectedSelectingTool == '') {
+        // Activate a tool.
+        selectedSelectingTool = type;
+        $('#' + selectingToolDict[type]).addClass('active');
+
+        if (type != 'click') {
+          that.activateSelectingWithMouse(type);
+        }
+
+      } else if(selectedSelectingTool == type) {
+        // Deactivate a tool.
+        selectedSelectingTool = '';
+        $('#' + selectingToolDict[type]).removeClass('active');
+
+        if (type != 'click') {
+          that.deactivateSelectingWithMouse(type);
+        }
+
+      } else {
+        // Deactivate a tool and activate another.
+        if(selectedSelectingTool != 'click') {
+          that.deactivateSelectingWithMouse(type);
+        }
+
+        $('#' + selectingToolDict[selectedSelectingTool]).removeClass('active');
+        selectedSelectingTool = type;
+        $('#' + selectingToolDict[type]).addClass('active');
+
+        if (type != 'click') {
+          that.activateSelectingWithMouse(type);
+        }
+      }
+    },
+
+    activateSelectingWithMouse: function(type) {
         sigInst.settings({mouseEnabled: false, enableHovering: false});
         sigInst.refresh();
+        $('.sigma-mouse').css({
+          cursor: 'crosshair'
+        });
 
         paperTool = new paper.Tool();
+        if (type == 'freeHand') {
+          paperTool.minDistance = 20;
+        }
 
         var path;
         var origin;
@@ -2051,7 +2182,6 @@ sigma:true, clearTimeout */
           }
           path = new paper.Path();
           path.fillColor = new paper.Color(0, 0, 125, 0.075);
-          path.strokeColor = 'black';
           path.fullySelected = true;
 
           origin = event.point;
@@ -2059,36 +2189,55 @@ sigma:true, clearTimeout */
 
         paperTool.onMouseDrag = function(event) {
           var point = event.point;
-          path.removeSegments();
 
-          path.add(origin);
-          path.add([point.x, origin.y]);
-          path.add(point);
-          path.add([origin.x, point.y]);
-          path.add(origin);
+          if (type == 'rectangle') {
+            path.removeSegments();
+
+            path.add(origin);
+            path.add([point.x, origin.y]);
+            path.add(point);
+            path.add([origin.x, point.y]);
+            path.add(origin);
+          } else if ('freeHand') {
+            path.add(event.point);
+          }
 
           paper.view.draw();
         };
 
         paperTool.onMouseUp = function(event) {
-          // TODO: obtain the ids of the nodes inside the square
-          selectedNodes = [];
+          sylva.selectedNodes = [];
           sigInst.graph.nodes().forEach(function(n) {
-            var translatedNode = that.translateCoordinates(n);
-            var point = new paper.Point(translatedNode.x, translatedNode.y);
+            var point = new paper.Point(n['renderer1:x'], n['renderer1:y']);
             if (path.contains(point)) {
-              selectedNodes.push(n.id);
+              sylva.selectedNodes.push(n.id);
             }
           });
-          that.grayfyNonListedNodes(selectedNodes);
+
+          that.grayfyNonListedNodes(sylva.selectedNodes);
+          $('.sigma-mouse').css({
+            cursor: ''
+          });
+
+          sigInst.settings({mouseEnabled: true, enableHovering: true});
+          sigInst.refresh();
 
           path.removeSegments();
           paperTool.remove();
-          sigInst.settings({mouseEnabled: true, enableHovering: true});
-          sigInst.refresh();
+          that.enableDisableSelectingTool(type);
         };
-      }
-    }
+    },
+
+    deactivateSelectingWithMouse: function(type) {
+      paperTool.remove();
+
+      sigInst.settings({mouseEnabled: true, enableHovering: true});
+      sigInst.refresh();
+
+      $('.sigma-mouse').css({
+        cursor: ''
+      });
+    },
 
   };
 

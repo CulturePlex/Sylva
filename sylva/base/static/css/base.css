@@ -188,6 +188,7 @@ select:active {
 }
 
 .button:active,
+.button.active,
 input[type="button"]:active,
 input[type="submit"]:active {
     box-shadow: 0 0 5px rgba(52,142,130,0.75);
