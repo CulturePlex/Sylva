@@ -57,11 +57,11 @@ def _jsonify_graph(nodes_list, relations_list):
         json_node['size'] = 1
         nodes.append(json_node)
         nodetypes[nodetype.id]['nodes'].append(str(node.id))
-        node_ids.append(node.id)
+        node_ids.append(str(node.id))
     for rel in relations_list:
         source_id = rel.source.id
         target_id = rel.target.id
-        if (source_id in node_ids and target_id in node_ids):
+        if (str(source_id) in node_ids and str(target_id) in node_ids):
             reltype = rel.get_type()
             if reltype.id not in reltypes:
                 htmlFullName = reltype.source.name + \
@@ -90,7 +90,7 @@ def _jsonify_graph(nodes_list, relations_list):
             rels.append(rel_json)
             reltypes[reltype.id]['relationships'].append(rel_json['id'])
     graph = {'nodes': nodes, 'edges': rels}
-    return (graph, nodetypes, reltypes)
+    return (graph, nodetypes, reltypes, node_ids)
 
 
 @permission_required("graphs.view_graph", (Graph, "slug", "graph_slug"),
@@ -389,7 +389,7 @@ def graph_data(request, graph_slug, node_id=None):
         else:
             nodes_list = graph.nodes.all()
             relations_list = graph.relationships.all()
-        graph_json, nodetypes, reltypes = _jsonify_graph(nodes_list, relations_list)
+        graph_json, nodetypes, reltypes, node_ids = _jsonify_graph(nodes_list, relations_list)
         size = len(nodes_list)
 
         collapsibles = []
@@ -402,6 +402,7 @@ def graph_data(request, graph_slug, node_id=None):
             'graph': graph_json,
             'nodetypes': nodetypes,
             'reltypes': reltypes,
+            'nodeIds': node_ids,
             'size': size,
             'collapsibles': collapsibles,
             'positions': positions

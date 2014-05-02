@@ -12,6 +12,9 @@
   </div>
   <div id="graph-controls">
     <div style="float: right;">
+      <div class="sigma-control analytics-mode" style="display: none; float: left; margin-right: 10px">
+        <a id="sigma-filter-rectangle" class="button" style="font-size:100%;" title="{% trans "Rectangle" %}"">{% trans "Rectangle" %}</a>
+      </div>
       <div class="sigma-control" style="display: none; float: right;">
         <a id="sigma-zoom-in" class="button icon-plus control-button zoom-left" title="{% trans "Zoom in" %}"></a>
         <a id="sigma-zoom-home" class="button icon-home control-button zoom-home" style="font-size:100%;" title="{% trans "Re-center graph" %}"></a>
@@ -33,43 +36,45 @@
     <h2 class="collapsible-header">{% trans "Layout" %}</h2>
     <div>
       <div>
+        <select id="sigma-graph-layout" style="margin-left: 0;">
+          <option id="force-atlas-2" disabled="disabled" selected="selected">{% trans "Force Atlas 2" %}</option>
+          <option id="grid">{% trans "Grid" %}</option>
+          <option id="circular">{% trans "Circular" %}</option>
+        </select>
         <div class="sigma-control">
-          <a id="sigma-pause" class="button control-button pause-button" style="font-size:100%;" title="{% trans "Play / puase layout algorithm" %}"></a>
+          <a id="sigma-pause" class="button control-button pause-button" style="font-size:100%; margin-top: 0; margin-bottom: 7px;" title="{% trans "Play / puase layout algorithm" %}"></a>
         </div>
         <div class="sigma-control">
           <input type="checkbox" id="sigma-hidden-layout" checked="checked">
           <label for="sigma-hidden-layout" title="{% trans "Ignore the hidden nodes for apply the layout" %}">{% trans "Ignore hidden nodes" %}</label>
         </div>
       </div>
-      <div style="margin-top: 5px; margin-bottom: 10px;">
-        <select id="sigma-graph-layout">
-          <option id="label" disabled="disabled" selected="selected">{% trans "Graph layout" %}</option>
-          <option id="force-atlas-2" disabled="disabled">{% trans "Force Atlas 2" %}</option>
-          <option id="grid">{% trans "Grid" %}</option>
-          <option id="circular">{% trans "Circular" %}</option>
+      <div style="margin-top: 5px; margin-bottom: 10px; display: none;">
+        <label style="margin-right: 50px; font-weight: normal;">{% trans "Node order:" %}</label>
+        <select id="sigma-graph-layout-degree-order">
+          <option id="nt" disabled="disabled" selected="selected">{% trans "Node type" %}</option>
+          <option id="td">{% trans "Total degree" %}</option>
+          <option id="id">{% trans "In degree" %}</option>
+          <option id="od">{% trans "Out degree" %}</option>
         </select>
-        <select id="sigma-graph-layout-order" style="display: none;">
-          <option id="label" disabled="disabled" selected="selected">{% trans "Node order" %}</option>
-          <option id="def" disabled="disabled">{% trans "Default" %}</option>
-          <option id="tdd">{% trans "Total degree, desc" %}</option>
-          <option id="tda">{% trans "Total degree, asc" %}</option>
-          <option id="idd">{% trans "In degree, desc" %}</option>
-          <option id="ida">{% trans "In degree, asc" %}</option>
-          <option id="odd">{% trans "Out degree, desc" %}</option>
-          <option id="oda">{% trans "Out degree, asc" %}</option>
+        <select id="sigma-graph-layout-order">
+          <option id="d" disabled="disabled" selected="selected">{% trans "Desc" %}</option>
+          <option id="a">{% trans "Asc" %}</option>
         </select>
       </div>
-      <div>
+      <div style="margin-top: 5px; margin-bottom: 10px;">
+        <label style="margin-right: 58px; font-weight: normal;">{% trans "Node size:" %}</label>
         <select id="sigma-node-size">
-          <option id="label" disabled="disabled" selected="selected">{% trans "Node size" %}</option>
-          <option id="same" disabled="disabled">{% trans "Same for all" %}</option>
+          <option id="same" disabled="disabled" selected="selected">{% trans "Same for all" %}</option>
           <option id="total-degree">{% trans "Total degree" %}</option>
           <option id="in-degree">{% trans "In degree" %}</option>
           <option id="out-degree">{% trans "Out degree" %}</option>
         </select>
+      </div>
+      <div>
+        <label style="font-weight: normal;">{% trans "Relationship shape:" %}</label>
         <select id="sigma-edge-shape">
-          <option id="label" disabled="disabled" selected="selected">{% trans "Edge shape" %}</option>
-          <option id="straight" disabled="disabled">{% trans "Straight" %}</option>
+          <option id="straight" disabled="disabled" selected="selected">{% trans "Straight" %}</option>
           <option id="arrow">{% trans "Arrow" %}</option>
           <option id="curve">{% trans "Curve" %}</option>\
           <option id="curved-arrow">{% trans "Curved arrow" %}</option>
