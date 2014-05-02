@@ -5,6 +5,7 @@ var reports = angular.module('reports', [
     'ngCookies',
     'ngRoute',
     'ngSanitize',
+    'highcharts-ng',
     'reports.controllers',
     'reports.services',
     'reports.directives', 
