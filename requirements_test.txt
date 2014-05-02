@@ -1,4 +1,5 @@
 Django==1.6.2
+GraphLab-Create==0.2.0
 Parsley==1.1
 Pillow==2.4.0
 PyYAML==3.10
@@ -30,7 +31,8 @@ ipdb==0.7
 ipython==0.13.1
 kombu==3.0.15
 lucene-querybuilder==0.1.5
-neo4jrestclient==1.7.0
+neo4jrestclient==2.0.2
+networkx==1.8.1
 psycopg2==2.4.5
 pyblueprints==0.5.1
 pycrypto==2.6

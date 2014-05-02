@@ -38,9 +38,6 @@ urlpatterns = patterns('',
     # graphs
     url(r'^graphs/', include('graphs.urls')),
 
-    # operators
-    url(r'^operators/', include('operators.urls')),
-
     # schemas
     url(r'^schemas/', include('schemas.urls')),
 
@@ -58,13 +55,8 @@ urlpatterns = patterns('',
 
     # payments
     url(r'^payments/', include('payments.urls')),
-    url(r'^zebra/', include('zebra.urls', namespace="zebra", app_name='zebra')),
-
-    # reports
-    url(r'^reports/', include('reports.urls')),
-
-    # analytics
-    url(r'^analytics/', include('analytics.urls')),
+    url(r'^zebra/', include('zebra.urls', namespace="zebra",
+                            app_name='zebra')),
 )
 
 urlpatterns += patterns('django.contrib.flatpages.views',
@@ -72,6 +64,24 @@ urlpatterns += patterns('django.contrib.flatpages.views',
     url(r'^terms/$', 'flatpage', {'url': '/terms/'}, name='terms'),
     url(r'^privacy/$', 'flatpage', {'url': '/privacy/'}, name='privacy'),
 )
+
+if settings.ENABLE_QUERIES:
+    urlpatterns += patterns('',
+        # operators
+        url(r'^operators/', include('operators.urls')),
+    )
+
+if settings.ENABLE_REPORTS:
+    urlpatterns += patterns('',
+        # reports
+        url(r'^reports/', include('reports.urls')),
+    )
+
+if settings.ENABLE_ANALYTICS:
+    urlpatterns += patterns('',
+        # analytics
+        url(r'^analytics/', include('analytics.urls')),
+    )
 
 if settings.DEBUG:
     urlpatterns += patterns('',
