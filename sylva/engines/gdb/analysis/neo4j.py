@@ -1,107 +1,183 @@
 # -*- coding: utf-8 -*-
 
-from django.conf import settings
-from celery import Celery
+# from django.conf import settings
+# from subprocess import call
+# import subprocess
+from django.utils.translation import gettext as _
 from engines.gdb.analysis import BaseAnalysis
-from datetime import datetime
-#from subprocess import call
-import subprocess
 import json
 
+import graphlab
+import networkx as nx
 
-app = Celery('tasks', backend='amqp', broker='amqp://')
+
+# app = Celery('tasks', backend='amqp', broker='amqp://')
+# We gonna use graphlab for python
 # analyticsEngine = settings.BACKEND_ANALYTICS["graphchi"]
-analyticsEngine = settings.BACKEND_ANALYTICS["graphlab"]
+# analyticsEngine = settings.BACKEND_ANALYTICS["graphlab"]
 
 
 PROC_INIT = 0
-RUN_ALGOS = 1
-PROC_FINA = 2
+LOAD_FILE = 1
+RUN_ALGOS = 2
+PROC_FINA = 3
 
 
 class Analysis(BaseAnalysis):
 
-    @app.task(name="tasks.pagerank")
-    def pagerank(graph, analytic):
-        #call([PAGERANK_URL, "file", "dump_files/file.txt"])
-        url_dump = "../dump_files/" + graph.slug + ".txt"
-        url_result = "../results_files/" + graph.slug + "-pagerank.txt"
-        proc = subprocess.Popen(analyticsEngine["pagerank"] + " file " + url_dump + " edgelist", shell=True, stdout=subprocess.PIPE, )
-        output = proc.communicate()[0]
-        f = open(url_result, "w+")
-        f.write(output)
-        f.close()
+    def list_algorithms(self):
+        return {'connected_components': _("Connected components"),
+                'graph_coloring': _("Graph coloring"),
+                'kcore': _("Kcore"),
+                'pagerank': _("Pagerank"),
+                'triangle_counting': _("Triangle counting"),
+                'betweenness_centrality': _("Betweenness centrality")}
 
-    @app.task(name="tasks.pagerankAux")
-    def pagerankAux(graph, analytic):
-        url_dump = "../dump_files/" + graph.slug + ".txt"
-        url_result = "../results_files/" + graph.slug + "-pagerank.txt"
-        try:
-            try:
-                analytic.task_status = "Starting"
-                analytic.task_start = datetime.now()
-                # analytic.dump = url_dump
-                # analytic.results = url_result
-                analytic.save()
-            except Exception as e:
-                raise Exception(PROC_INIT, "Error starting the task")
-            try:
-                proc = subprocess.Popen(analyticsEngine["pagerank"] + " --graph " + url_dump + " --format tsv " + "--saveprefix " + url_result, shell=True, stdout=subprocess.PIPE, )
-            except Exception as e:
-                raise Exception(RUN_ALGOS, "Error executing the task")
-            try:
-                analytic.task_status = "Ready"
-                analytic.task_end = datetime.now()
-                output = proc.communicate()[0]
-            except Exception as e:
-                raise Exception(PROC_FINA, "Error finishing the task")
-        except Exception as e:
-            analytic.task_status = "Failed"
-            if e.args[0] == PROC_INIT:
-                analytic.task_error = \
-                    'Process could not be initialized: ' + e.args[1]
-            elif e.args[0] == RUN_ALGOS:
-                analytic.task_error = \
-                    'Algorithm could not be processed: ' + e.args[1]
-            elif e.args[0] == PROC_FINA:
-                analytic.task_error = \
-                    'File system could not be created: ' + e.args[1]
-            else:
-                analytic.task_error = \
-                    'Unknown error: ' + e.args[0]
-        finally:
-            analytic.save()
-        return output
-
-    @app.task(name="tasks.connectedComponents")
-    def connected_components(graph, analytic):
-        #call([PAGERANK_URL, "file", "dump_files/file.txt"])
-        url_dump = "../dump_files/" + graph.slug + ".txt"
-        url_result = "../results_files/" + graph.slug + "-connectedcomponents.txt"
-        proc = subprocess.Popen(analyticsEngine["connectedComponents"] + " file " + url_dump + " edgelist", shell=True, stdout=subprocess.PIPE, )
-        output = proc.communicate()[0]
-        f = open(url_result, "w+")
-        f.write(output)
-        f.close()
-
-    @app.task(name="tasks.dump")
-    def dump(graph, analytic):
+    def dump(self, analytic):
         """
         This is a example function that prints
         the edgelist of the relationships of a graph
         """
-        url_file = "../dump_files/" + graph.slug + ".txt"
-        f = open(url_file, "w+")
+        graph = analytic.graph
+        f = open(analytic.dump, "w+")
+        line = "src,dest\n"
+        f.write(line)
         if analytic.affected_nodes:
-            arrayId = json.loads(analytic.affected_nodes)
+            array_id = json.loads(analytic.affected_nodes)
             for relationship in graph.relationships.all():
-                sourceId = relationship.source.id
-                targetId = relationship.target.id
-                if (sourceId in arrayId) and (targetId in arrayId):
-                    line = "{0}  {1}\n".format(relationship.source.id, relationship.target.id)
+                source_id = relationship.source.id
+                target_id = relationship.target.id
+                if (source_id in array_id) and (target_id in array_id):
+                    line = "{0},{1}\n".format(relationship.source.id,
+                                              relationship.target.id)
                     f.write(line)
         else:
             for relationship in graph.relationships.all():
-                line = "{0}  {1}\n".format(relationship.source.id, relationship.target.id)
+                line = "{0},{1}\n".format(relationship.source.id,
+                                          relationship.target.id)
                 f.write(line)
         f.close()
+
+    def connected_components(self, analytic):
+        try:
+            sf = graphlab.SFrame(analytic.dump)
+            g = graphlab.Graph()
+            g = g.add_edges(sf, 'src', 'dest')
+        except Exception as e:
+            raise Exception(LOAD_FILE, "Error loading the file")
+        try:
+            cc = graphlab.connected_components.create(g)
+        except Exception as e:
+            raise Exception(RUN_ALGOS, "Error executing the task")
+        try:
+            return cc.get('componentid')
+        except Exception as e:
+            raise Exception(PROC_FINA, "Error finishing the task")
+
+    def graph_coloring(self, analytic):
+        try:
+            sf = graphlab.SFrame(analytic.dump)
+            g = graphlab.Graph()
+            g = g.add_edges(sf, 'src', 'dest')
+        except Exception as e:
+            raise Exception(LOAD_FILE, "Error loading the file")
+        try:
+            gc = graphlab.graph_coloring.create(g)
+        except Exception as e:
+            raise Exception(RUN_ALGOS, "Error executing the task")
+        try:
+            return gc.get('colorid')
+        except Exception as e:
+            raise Exception(PROC_FINA, "Error finishing the task")
+
+    def kcore(self, analytic):
+        try:
+            sf = graphlab.SFrame(analytic.dump)
+            g = graphlab.Graph()
+            g = g.add_edges(sf, 'src', 'dest')
+        except Exception as e:
+            raise Exception(LOAD_FILE, "Error loading the file")
+        try:
+            kc = graphlab.kcore.create(g)
+        except Exception as e:
+            raise Exception(RUN_ALGOS, "Error executing the task")
+        try:
+            return kc.get('coreid')
+        except Exception as e:
+            raise Exception(PROC_FINA, "Error finishing the task")
+
+    def pagerank(self, analytic):
+        try:
+            sf = graphlab.SFrame(analytic.dump)
+            g = graphlab.Graph()
+            g = g.add_edges(sf, 'src', 'dest')
+        except Exception as e:
+            raise Exception(LOAD_FILE, "Error loading the file")
+        try:
+            pr = graphlab.pagerank.create(g)
+        except Exception as e:
+            raise Exception(RUN_ALGOS, "Error executing the task")
+        try:
+            return pr.get('pagerank')
+        except Exception as e:
+            raise Exception(PROC_FINA, "Error finishing the task")
+
+    def shortest_path(self, analytic):
+        try:
+            sf = graphlab.SFrame(analytic.dump)
+            g = graphlab.Graph()
+            g = g.add_edges(sf, 'src', 'dest')
+        except Exception as e:
+            raise Exception(LOAD_FILE, "Error loading the file")
+        try:
+            sp = graphlab.shortest_path.create(g)
+        except Exception as e:
+            raise Exception(RUN_ALGOS, "Error executing the task")
+        try:
+            return sp.get('distance')
+        except Exception as e:
+            raise Exception(PROC_FINA, "Error finishing the task")
+
+    def triangle_counting(self, analytic):
+        try:
+            sf = graphlab.SFrame(analytic.dump)
+            g = graphlab.Graph()
+            g = g.add_edges(sf, 'src', 'dest')
+        except Exception as e:
+            raise Exception(LOAD_FILE, "Error loading the file")
+        try:
+            tc = graphlab.triangle_counting.create(g)
+        except Exception as e:
+            raise Exception(RUN_ALGOS, "Error executing the task")
+        try:
+            return tc.get('triangle_count')
+        except Exception as e:
+            raise Exception(PROC_FINA, "Error finishing the task")
+
+    def betweenness_centrality(self, analytic):
+        try:
+            g = nx.read_edgelist(analytic.dump, delimiter=',')
+        except Exception as e:
+            raise Exception(LOAD_FILE, "Error loading the file")
+        try:
+            bc = nx.betweenness_centrality(g).items()
+        except Exception as e:
+            raise Exception(RUN_ALGOS, "Error executing the task")
+        try:
+            return bc
+        except Exception as e:
+            raise Exception(PROC_FINA, "Error finishing the task")
+
+    def save(self, results, analytic):
+        # this branch is for the betweenness centrality algorithm
+        if type(results) == list:
+            f = open(analytic.results + '.csv', 'w')
+            elem = '"{0}",{1}\n'.format("__id", "betweenness_centrality")
+            f.write(elem)
+            for key, value in results:
+                # this is to avoid the first attributes of the columns
+                if key is not "src" or "dest":
+                    elem = '"{0}",{1}\n'.format(key, value)
+                    f.write(elem)
+        else:
+            results.save(analytic.results, 'csv')

@@ -34,3 +34,202 @@
 <link type="text/css" rel="stylesheet" href="{{ STATIC_PREFIX }}graphs/css/colpick/colpick.css" />
 <link type="text/css" rel="stylesheet" href="{{ STATIC_PREFIX }}graphs/css/colpick/colpick.mod.css" />
 <link type="text/css" rel="stylesheet" href="{{ STATIC_PREFIX }}graphs/css/jquery-ui-1.10.4.min.css" />
+
+<!-- Begin code for the analytics side -->
+<script src="//cdnjs.cloudflare.com/ajax/libs/jquery.blockUI/2.66.0-2013.10.09/jquery.blockUI.min.js"></script>
+<script src="//code.highcharts.com/highcharts.js"></script>
+<script src="//code.highcharts.com/modules/exporting.js"></script>
+<script type="text/javascript">
+
+// Variable to store the ids to plot the results of the analytics
+var analyticsId = {};
+
+jQuery(document).ready(function() {
+      /**
+      * AJAX Setup for CSRF Django token
+      */
+    $.ajaxSetup({
+         beforeSend: function(xhr, settings) {
+             function getCookie(name) {
+                 var cookieValue = null;
+                 if (document.cookie && document.cookie != '') {
+                     var cookies = document.cookie.split(';');
+                     for (var i = 0; i < cookies.length; i++) {
+                         var cookie = jQuery.trim(cookies[i]);
+                         // Does this cookie string begin with the name we want?
+                     if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                         cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                         break;
+                     }
+                 }
+             }
+             return cookieValue;
+             }
+             if (!(/^http:.*/.test(settings.url) || /^https:.*/.test(settings.url))) {
+                 // Only send the token to relative URLs i.e. locally.
+                 xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
+             }
+         }
+    });
+    // get results of the analytic
+    var getResults = function(task_id, algorithm) {
+      $.ajax({
+          type: "GET",
+          dataType: 'json',
+          url: "/analytics/{{ graph.slug}}/get_results",
+          data: {"task_id": task_id,
+                 "algorithm": algorithm},
+          success: function (data) {
+            var options = {
+                chart: {
+                    renderTo: analyticsId[algorithm],
+                    type: 'scatter'
+                },
+                title: {
+                    text: algorithm
+                },
+                xAxis: {
+                    categories: []
+                },
+                yAxis: {
+                    title: {
+                        text: 'Units'
+                    }
+                },
+                plotOptions: {
+                    scatter: {
+                        marker: {
+                            radius: 5,
+                            states: {
+                                hover: {
+                                    enabled: true,
+                                    lineColor: 'rgb(100,100,100)'
+                                }
+                            }
+                        },
+                        states: {
+                            hover: {
+                                marker: {
+                                    enabled: false
+                                }
+                            }
+                        },
+                        tooltip: {
+                            headerFormat: '<b>{series.name}</b><br>',
+                            pointFormat: '{point.y} with {point.x} ' + algorithm + ''
+                        }
+                    }
+                },
+                series: [{
+                  name: algorithm,
+                  color: 'rgba(223, 83, 83, .5)',
+                  data: data
+                }]
+            };
+
+            // Create the chart
+            var chart = new Highcharts.Chart(options);
+          },
+          error: function () {
+              alert("Error");
+          }
+      });
+    }
+
+    // pole state of the current task
+    var TaskState = function(task_id, algorithm) {
+      jQuery.ajax({
+        type: "POST",
+        url: "/analytics/{{ graph.slug }}/task_state/",
+        data: {"task_id": task_id,
+               "algorithm": algorithm}
+      }).done(function(task){
+        if(!task) {
+            window.setTimeout(function() {
+              TaskState(task_id, algorithm);
+            }, 1000);
+        } else {
+          $.unblockUI();
+          getResults(task_id, algorithm);
+        }
+        // create the infinite loop of Ajax calls to check the state
+        // of the current task
+      });
+    }
+
+    $('.play-algorithm').on('click', function() {
+        var $this = $(this);
+        var measure = $this.data('measure');
+        var plotId = $this.data('plot');
+
+        analyticsId[measure] = plotId;
+
+        jQuery.ajax({
+            type: "POST",
+            url: "/analytics/{{ graph.slug }}/" + measure + "/"
+        }).done(function(data){
+            var task_id = data[0];
+            var algorithm = data[1];
+            TaskState(task_id, algorithm);
+            $.blockUI({
+              message: '<span>Calculating measure</span>',
+              centerY: 0,
+              css: {
+                  border: 'none',
+                  padding: '15px',
+                  backgroundColor: '#000',
+                  '-webkit-border-radius': '10px',
+                  '-moz-border-radius': '10px',
+                  opacity: .5,
+                  color: '#fff',
+                  top: '2%',
+                  left: '',
+                  right: '35%'
+              },
+              overlayCSS: {
+                  opacity: 0.0
+              },
+              onOverlayClick: $.unblockUI
+            });
+        });
+    });
+
+    $('#connected-components').accordion({
+      collapsible: true,
+      active: false,
+      heightStyle: 'content'
+    });
+
+    $('#graph-coloring').accordion({
+      collapsible: true,
+      active: false,
+      heightStyle: 'content'
+    });
+
+    $('#kcore').accordion({
+      collapsible: true,
+      active: false,
+      heightStyle: 'content'
+    });
+
+    $('#pagerank').accordion({
+      collapsible: true,
+      active: false,
+      heightStyle: 'content'
+    });
+
+    $('#triangle-counting').accordion({
+      collapsible: true,
+      active: false,
+      heightStyle: 'content'
+    });
+
+    $('#betweenness-centrality').accordion({
+      collapsible: true,
+      active: false,
+      heightStyle: 'content'
+    });
+});
+</script>
+<!-- End code for the analytics side -->
+

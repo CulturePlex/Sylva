@@ -7,7 +7,7 @@ from engines.gdb.backends import (GraphDatabaseConnectionError,
                                   GraphDatabaseInitializationError)
 from engines.gdb.backends.blueprints import BlueprintsGraphDatabase
 from engines.gdb.lookups.neo4j import Q as q_lookup_builder
-# from engines.gdb.analysis.neo4j import Analysis
+from engines.gdb.analysis.neo4j import Analysis
 
 
 WILDCARD_TYPE = -1
@@ -525,7 +525,5 @@ class GraphDatabase(BlueprintsGraphDatabase):
         self.ridx.delete()
         self = None
 
-    '''
     def analysis(self):
         return Analysis()
-    '''
