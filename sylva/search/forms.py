@@ -11,6 +11,9 @@ class SearchForm(forms.Form):
                             'class': 'searchBox',
                         }))
 
+    analytics = forms.BooleanField(required=False,
+                                widget=forms.HiddenInput())
+
     def q_clean(self):
         q = super(SearchForm, self).q_clean()
         return q.strip()

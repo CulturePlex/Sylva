@@ -245,6 +245,23 @@ sigma:true, clearTimeout */
         that.enableDisableSelectingTool('click');
       });
 
+      // TODO: Analytics sidebar hover-scrollbar
+      /*
+      // Analytics sidebar scrollbar.
+      $('#analytics').css({
+          whiteSpace: 'nowrap'
+        });
+      $('#analytics').hover(function() {
+        $('#analytics').css({
+          overflowY: 'visible'
+        });
+      }, function(){
+        $('#analytics').css({
+          overflowY: 'hidden'
+        });
+      });
+      */
+
       sigInst.startForceAtlas2();
       isDrawing = true;
 
@@ -1232,6 +1249,9 @@ sigma:true, clearTimeout */
      */
     goAnalyticsMode: function() {
       isAnalyticsMode = true;
+      $('#id_analytics').val('true');
+      $('#searchBox').attr('onsubmit', 'return sylva.Sigma.search()');
+
       analyticsSidebarBorder = parseInt($('#analytics').css(
         'border-left-width'), 10);
 
@@ -1318,6 +1338,10 @@ sigma:true, clearTimeout */
           span.remove();
         },
         activate: function(event, ui) {
+          highestZIndex++;
+          $('#' + event.target.id).css({
+            zIndex: highestZIndex,
+          });
           var span = $(event.target).children().first().children().first();
           if (span.hasClass('icon-caret-down')) {
             span.removeClass('icon-caret-down');
@@ -1373,6 +1397,8 @@ sigma:true, clearTimeout */
      */
     exitAnalyticsMode: function() {
       isAnalyticsMode = false;
+      $('#id_analytics').val('');
+      $('#searchBox').removeAttr('onsubmit');
 
       $(window).off('resize', that.updateSizes);
 
@@ -2238,6 +2264,41 @@ sigma:true, clearTimeout */
         cursor: ''
       });
     },
+
+    search: function() {
+      var searchBox = $('#searchBox');
+      var ipnuts = searchBox.find('input');
+      $('#id_q').css({
+        backgroundImage: 'url(' + sylva.searchLoadingImage + ')'
+      });
+
+      var params = {};
+      for (var i = 0; i < ipnuts.length; i++) {
+        params[$(ipnuts[i]).attr('name')] = $(ipnuts[i]).attr('value');
+      }
+
+      var jqxhr = $.ajax({
+        url: searchBox.attr('action'),
+        type: 'POST',
+        data: params,
+        dataType: 'json'
+      });
+      jqxhr.success(function(data) {
+        $('#id_q').val('');
+        $('#id_q').trigger('blur');
+
+        sylva.selectedNodes = data.nodeIds;
+        that.grayfyNonListedNodes(sylva.selectedNodes);
+      });
+      jqxhr.error(function() {
+        alert(gettext("Oops! Something went wrong with the server."));
+      });
+      jqxhr.complete(function() {
+        $('#id_q').removeAttr('style');
+      });
+
+      return false;
+    }
 
   };
 

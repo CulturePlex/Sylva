@@ -1,6 +1,15 @@
 # -*- coding: utf-8 -*-
-from django.shortcuts import render_to_response, get_object_or_404
+try:
+    import ujson as json
+except ImportError:
+    import json  # NOQA
+
+from django.conf import settings
+from django.http import Http404
+from django.shortcuts import (render_to_response, get_object_or_404,
+                              HttpResponse)
 from django.template import RequestContext
+from django.utils.translation import gettext as _
 
 from guardian.decorators import permission_required
 
@@ -11,12 +20,17 @@ from schemas.models import NodeType, RelationshipType
 
 def search(request, graph_slug, node_type_id=None, relationship_type_id=None):
     graph = get_object_or_404(Graph, slug=graph_slug)
-    data = request.GET.copy()
+    if request.GET:
+        data = request.GET.copy()
+    else:
+        data = request.POST.copy()
     node_results = []
     relationship_results = []
     if data:
         q = data.get("q", "")
+        analytics = bool(data.get("analytics", False))
         display = bool(data.get("display", True))
+
         if node_type_id:
             node_types = NodeType.objects.filter(id=node_type_id,
                                                  schema__graph=graph)
@@ -39,31 +53,46 @@ def search(request, graph_slug, node_type_id=None, relationship_type_id=None):
             if nodes:
                 result["list"] = nodes
                 node_results.append(result)
-        if relationship_type_id:
-            filter_args = {
-                "id": relationship_type_id,
-                "schema__graph": graph}
-            relationship_types = RelationshipType.objects.filter(**filter_args)
+        # Everything before this point is for normal and analytics mode searchs
+        if analytics:
+            if ((request.is_ajax() or settings.DEBUG) and request.POST):
+                node_ids = []
+                for node_result in node_results:
+                    node_ids.extend(
+                        [str(node.id) for node in node_result["list"]])
+                result = {'nodeIds': node_ids}
+                return HttpResponse(json.dumps(result))
+            raise Http404(
+                _("Error: Invalid request (expected an AJAX request)"))
         else:
-            relationship_types = graph.schema.relationshiptype_set.all()
-        for relationship_type in relationship_types:
-            result = {}
-            result["type"] = relationship_type
-            result["key"] = relationship_type.name
-            query = graph.Q()
-            if display:
-                properties = relationship_type.properties.filter(display=True)
-                if not properties:
-                    properties = relationship_type.properties.all()[:2]
+            # Beyond this point everythin is for normal search
+            if relationship_type_id:
+                filter_args = {
+                    "id": relationship_type_id,
+                    "schema__graph": graph}
+                relationship_types = RelationshipType.objectsfilter(
+                    **filter_args)
             else:
-                properties = relationship_type.properties.all()
-            for prop in properties:
-                query |= graph.Q(prop.key, icontains=q, nullable=True)
-            rels = graph.relationships
-            relationships = rels.filter(query, label=relationship_type.id)
-            if relationships:
-                result["list"] = relationships
-                relationship_results.append(result)
+                relationship_types = graph.schema.relationshiptype_set.all()
+            for relationship_type in relationship_types:
+                result = {}
+                result["type"] = relationship_type
+                result["key"] = relationship_type.name
+                query = graph.Q()
+                if display:
+                    properties = relationship_type.properties.filter(
+                        display=True)
+                    if not properties:
+                        properties = relationship_type.properties.all()[:2]
+                else:
+                    properties = relationship_type.properties.all()
+                for prop in properties:
+                    query |= graph.Q(prop.key, icontains=q, nullable=True)
+                rels = graph.relationships
+                relationships = rels.filter(query, label=relationship_type.id)
+                if relationships:
+                    result["list"] = relationships
+                    relationship_results.append(result)
     return render_to_response('search_results.html', {
                               "graph": graph,
                               "node_results": node_results,
