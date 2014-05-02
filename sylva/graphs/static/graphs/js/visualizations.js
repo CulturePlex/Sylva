@@ -74,6 +74,7 @@ sylva:true, alert:true */
         // Other data
         sylva.nodetypes = data.nodetypes;
         sylva.reltypes = data.reltypes;
+        sylva.nodeIds = data.nodeIds;
         sylva.size = data.size;
         sylva.collapsibles = data.collapsibles;
         sylva.positions = data.positions;

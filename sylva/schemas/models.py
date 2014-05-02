@@ -80,8 +80,8 @@ class Schema(models.Model, SchemaMixin):
             for node_property in node_type.properties.all().select_related():
                 field = {
                     "label": node_property.key,
-                    #"type": node_property.get_datatype(),
-                    "type": node_property.datatype,
+                    "type": node_property.get_datatype_value(),
+                    #"type": node_property.datatype,
                     "name": node_property.slug,
                     "primary": False,
                     "blank": False,
@@ -93,8 +93,8 @@ class Schema(models.Model, SchemaMixin):
                 for rel_property in rel_type.properties.all().select_related():
                     field = {
                         "label": rel_property.key,
-                        #"type": rel_property.get_datatype(),
-                        "type": rel_property.datatype,
+                        "type": rel_property.get_datatype_value(),
+                        #"type": rel_property.datatype,
                         "name": rel_property.slug,
                     }
                     rel_fields.append(field)
@@ -119,7 +119,7 @@ class Schema(models.Model, SchemaMixin):
         slug = self.graph.slug
         diagram = {slug: schema}
         if settings.DEBUG:
-            return json.dumps(diagram, indent=4)
+            return json.dumps(diagram)
         else:
             return json.dumps(diagram)
 
@@ -505,7 +505,7 @@ class BaseProperty(models.Model):
             "boolean": u"b",
             "date": u"d",
             "time": u"t",
-            "choice": u"c",
+            "choices": u"c",
             "text": u"x",
             "float": u"f",
             "collaborator": u"r",
@@ -519,6 +519,11 @@ class BaseProperty(models.Model):
     def get_datatype(self):
         datatype_dict = dict(self.DATATYPE_CHOICES)
         return datatype_dict.get(self.datatype)
+
+    def get_datatype_value(self):
+        dd = self.get_datatype_dict()
+        value = dd.keys()[dd.values().index(self.datatype)]
+        return value
 
     def get_choices(self):
         choices = []

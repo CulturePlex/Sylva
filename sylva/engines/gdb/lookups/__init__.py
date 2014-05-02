@@ -21,7 +21,7 @@ class BaseQ(object):
               "eq", "equals", "neq", "notequals")
 
     def __init__(self, property=None, lookup=None, match=None,
-                 nullable=None, var=u"n", **kwargs):
+                 nullable=None, var=u"n", datatype=None, **kwargs):
         self._and = None
         self._or = None
         self._not = None
@@ -30,6 +30,7 @@ class BaseQ(object):
         self.match = match
         self.nullable = nullable
         self.var = var
+        self.datatype = datatype
         if property and (not self.lookup or not self.match):
             for m in self.matchs:
                 if m in kwargs:

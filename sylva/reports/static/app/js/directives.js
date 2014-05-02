@@ -35,18 +35,41 @@ directives.directive('sylvaDatepicker', function () {
 });
 
 
-directives.directive('sylvaDisplayTable', ['tableArray', function (tableArray) {
+directives.directive('sylvaDisplayTable', ['tableArray', 'api', function (tableArray, api) {
     return {
         restrict: 'A',
-        templateUrl: '/static/app/partials/directives/display_table.html', 
+        //templateUrl: '/static/app/partials/directives/display_table.html',
         link: function(scope, elem, attrs) {
-            console.log('link')
+            var ang = angular.element
+            ,   rows = ang(elem.children()[0])
+            ,   rowWidth = parseInt(rows.css('width'))
+            // need a display
+            try {
+                var html = scope.tableArray.displayHtml(rowWidth);
+                rows.html(html);
+            } catch (e) {
+                api.reports.query({
+                    graphSlug: scope.graph,
+                    slug: scope.report.slug  
+                }, function (data) {
+                    scope.report = data[0];
+                    scope.tableArray = tableArray(scope.report.table)
+                    var html = scope.tableArray.displayHtml(rowWidth);
+                    rows.html(html);
+                });
+            }
+            console.log('dir', scope.tableDisplay)
+            scope.$watch('editable', function (newVal, oldVal) {
+                if (newVal == oldVal) return;
+                var html = scope.tableArray.displayHtml(rowWidth);
+                rows.html(html); 
+            });
         }
     }
 }]);
 
 
-directives.directive('sylvaEditableTable', ['$compile', 'tableArray', function ($compile, tableArray) {
+directives.directive('sylvaEditableTable', ['$compile', 'tableArray', 'api', function ($compile, tableArray, api) {
     return {
         restrict: 'A',
         controller: function ($scope) {
@@ -59,7 +82,6 @@ directives.directive('sylvaEditableTable', ['$compile', 'tableArray', function (
 
             this.setHtml = function() {
                 $scope.setHtml++;
-                console.log('set', $scope.setHtml)
             };
         },
         link: function(scope, elem, attrs) {
@@ -71,10 +93,23 @@ directives.directive('sylvaEditableTable', ['$compile', 'tableArray', function (
             ,   addCol = ang(buttons.children()[1])
             ,   delRow = ang(buttons.children()[2])
             ,   delCol = ang(buttons.children()[3])
-            ,   table = prepTable(rows)
-            ,   tarray = tableArray(table, rowWidth);
+            
 
-            scope.tableArray = tarray; 
+            try {
+                var html = scope.tableArray.htmlify(rowWidth);
+                // hmmmm no compile here but it seems to be working
+                $compile(rows.html(html))(scope);
+            } catch (e) {
+                api.reports.query({
+                    graphSlug: scope.graph,
+                    slug: scope.report.slug  
+                }, function (data) {
+                    scope.report = data[0];
+                    scope.tableArray = tableArray(scope.report.table)
+                    var html = scope.tableArray.htmlify(rowWidth);
+                    $compile(rows.html(html))(scope);
+                });
+            }
 
             scope.getMerge = function() {
                 return scope.merge;
@@ -86,21 +121,39 @@ directives.directive('sylvaEditableTable', ['$compile', 'tableArray', function (
 
             scope.$watchCollection(scope.getMerge, function (newVal, oldVal) {
                 if (newVal === oldVal) return;
-                scope.tableArray.mergeCol(newVal);
-                var html = scope.tableArray.htmlify();
+                console.log('newVal', newVal)
+                var dir = mergeDirection(newVal);
+                if (dir === 'col') {
+                    scope.tableArray.mergeCol(newVal);
+                } else {
+                    scope.tableArray.mergeRow(newVal);
+                }
+                var html = scope.tableArray.htmlify(rowWidth);
                 $compile(rows.html(html))(scope);          
             });
 
+            function mergeDirection(merge) {
+                var a = merge[0]
+                ,   b = merge[1]
+                ,   dir;
+                if (a[0] === b[0]) {
+                    dir = 'col'
+                } else {
+                    dir = 'row'
+                }
+                return dir;
+            }
+
             scope.$watch(scope.getHtml, function (newVal, oldVal) {
-                console.log('watechefasdaafadsfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfas')
-                var html = scope.tableArray.htmlify();
+                if (newVal === oldVal) return;
+                var html = scope.tableArray.htmlify(rowWidth);
                 $compile(rows.html(html))(scope);
             });
 
             addRow.bind('click', function () {
                 scope.$apply(function () {
                     scope.tableArray.addRow();
-                    var html = scope.tableArray.htmlify();
+                    var html = scope.tableArray.htmlify(rowWidth);
                     $compile(rows.html(html))(scope);
                 });
             });
@@ -108,7 +161,7 @@ directives.directive('sylvaEditableTable', ['$compile', 'tableArray', function (
             addCol.bind('click', function () {
                 scope.$apply(function () {
                     scope.tableArray.addCol();
-                    var html = scope.tableArray.htmlify();
+                    var html = scope.tableArray.htmlify(rowWidth);
                     $compile(rows.html(html))(scope);
                 });
             });
@@ -116,7 +169,7 @@ directives.directive('sylvaEditableTable', ['$compile', 'tableArray', function (
             delRow.bind('click', function () {
                 scope.$apply(function () {
                     scope.tableArray.delRow();
-                    var html = scope.tableArray.htmlify();
+                    var html = scope.tableArray.htmlify(rowWidth);
                     $compile(rows.html(html))(scope);
                 });
             });
@@ -124,38 +177,10 @@ directives.directive('sylvaEditableTable', ['$compile', 'tableArray', function (
             delCol.bind('click', function () {
                 scope.$apply(function () {
                     scope.tableArray.delCol();
-                    var html = scope.tableArray.htmlify();
+                    var html = scope.tableArray.htmlify(rowWidth);
                     $compile(rows.html(html))(scope);
                 });
             });
-
-            function prepTable(table) {
-                var tableArray = []
-                ,   rowArr = ang(rows).children();
-                angular.forEach(rowArr, function (el) {
-                    var row = mapper(el);
-                    tableArray.push(row);
-                });
-                return tableArray;
-            };
-
-            function mapper(tr) {
-                var row = []
-                ,   tr = ang(tr).children();
-                for(var i=0; i<tr.length; i++) {
-                    var cell = ang(tr[i])
-                    ,   cellObj = {
-                        id: cell.attr('id'),
-                        row: cell.attr('row'),
-                        col: cell.attr('col'),
-                        rowspan: cell.attr('rowspan'),
-                        colspan: cell.attr('colspan'),
-                        query: cell.attr('query')
-                    };
-                    row.push(cellObj);        
-                }
-                return row;
-            };
         }
     } 
 }]);
@@ -165,6 +190,7 @@ directives.directive('sylvaMergeCells', ['$compile', function ($compile) {
     return {
         require: '^sylvaEditableTable',
         scope: true,
+        templateUrl: '/static/app/partials/directives/edit_cell.html', 
         link: function (scope, elem, attrs, sylvaEditableTableCtrl) {
             var ang = angular.element
             ,   arrows = false
@@ -176,7 +202,18 @@ directives.directive('sylvaMergeCells', ['$compile', function ($compile) {
                     up: '<a class="arrow up" href="" ng-click="merge(1)">&#8593</a>',
                     right: '<a class="arrow right" href="" ng-click="merge(2)">&#8594</a>',
                     down: '<a class="arrow down" href="" ng-click="merge(3)">&#8595</a>'
-            };
+            };  
+
+            scope.query = scope.tableArray.table[row][col].query;
+            scope.$watch('query', function (newVal, oldVal) {
+                if (newVal == oldVal) return;
+                scope.tableArray.addQuery([row, col], newVal)
+                if (newVal === 'markdown') {
+                    scope.markdown = true;
+                } else {
+                    scope.markdown = false;
+                }
+            }); 
 
             scope.merge = function(ndx) {
                 var merges = [[row, col - 1], [row - 1, col], [row, col + 1], [row + 1, col]];

@@ -24,11 +24,15 @@ sigma:true, clearTimeout */
   var timeout = 0;
   // setTimeout id.
   var timeout_id = 0;
+  // An array with the IDs of the selected nodes
+  var selectedNodes = [];
   // Arrays with the IDs of the visible elments.
   var visibleNodesIds = [];
   var visibleRelsIds = [];
   // It's used for check if a ColorPicker for relatinships exists.
   var relColorPicker = null;
+  // A variable for containing the Tool object of Paper.js.
+  var paperTool = null;
   // Layout algorithm state.
   var isDrawing = false;
   // True when the "Analytics" button is clicked.
@@ -64,6 +68,7 @@ sigma:true, clearTimeout */
   var centeredNodeForGreify = null;
   var isMouseOverCanvas = false;
   var isZoomWheelPossible = false;
+  var canSaveBoxes = true;
   var currentNodeX = 0;
   var currentNodeY = 0;
 
@@ -72,6 +77,7 @@ sigma:true, clearTimeout */
     init: function() {
 
       that = this;
+      selectedNodes = sylva.nodeIds;
       size = sylva.size;
 
       // Creating visible elements arrays.
@@ -197,13 +203,16 @@ sigma:true, clearTimeout */
       $('#sigma-hidden-layout').change(function () {
         if (visibleNodesIds.length < size) {
           var type = $('#sigma-graph-layout').find('option:selected').attr('id');
+          var degreeOrder = $('#sigma-graph-layout-degree-order').find('option:selected').attr('id');
           var order = $('#sigma-graph-layout-order').find('option:selected').attr('id');
           var drawHidden = $('#sigma-hidden-layout').prop('checked');
-          that.redrawLayout(type, order, drawHidden);
+          that.redrawLayout(type, degreeOrder, order, drawHidden);
         }
       });
 
       $('#sigma-graph-layout').change(that.controlGraphLayout);
+
+      $('#sigma-graph-layout-degree-order').change(that.controlGraphLayoutDegreeOrder);
 
       $('#sigma-graph-layout-order').change(that.controlGraphLayoutOrder);
 
@@ -239,6 +248,10 @@ sigma:true, clearTimeout */
 
       sigma.canvas.hovers.defBackup = sigma.canvas.hovers.def;
       sigInst.refresh();
+
+      // TODO: Testing with filtering
+      paper.setup($('.sigma-mouse')[0]);
+      $('#sigma-filter-rectangle').on('click', that.testingRectangle);
     },
 
 
@@ -564,31 +577,54 @@ sigma:true, clearTimeout */
      * Functions for control the colors of the graph.
      ***** */
 
-    grayfyNonNeighborhoodOnly: function(center) {
-      neighborhood = sigInst.graph.neighborhood(center.id);
-      neighborhoodIds = that.graphToIds(neighborhood);
-
+    /* It will grayfy all the given nodes. If you also pass a list
+     * relationships it will take the rels from there, if not, it will calcule
+     * it.
+     */
+    grayfyNonListedNodes: function(nodeList, relList) {
       sigInst.graph.nodes().forEach(function(n) {
-        if (neighborhoodIds['nodes'].indexOf(n.id) >= 0) {
+        if (nodeList.indexOf(n.id) >= 0) {
           n.color = sylva.nodetypes[n.nodetypeId].color;
         } else {
           n.color = grey;
         }
       });
 
-      sigInst.graph.edges().forEach(function(e) {
-        if (neighborhoodIds['edges'].indexOf(e.id) >= 0) {
-          e.color = sylva.reltypes[e.reltypeId].color;
-        } else {
-          e.color = grey;
-        }
-      });
+      if (relList != null) {
+        sigInst.graph.edges().forEach(function(e) {
+          if (relList.indexOf(e.id) >= 0) {
+            e.color = sylva.reltypes[e.reltypeId].color;
+          } else {
+            e.color = grey;
+          }
+        });
+
+      } else {
+        sigInst.graph.edges().forEach(function(e) {
+          if (nodeList.indexOf(e.source) >= 0 && nodeList.indexOf(e.target) >= 0) {
+          //if (neighborhoodIds['edges'].indexOf(e.id) >= 0) {
+            e.color = sylva.reltypes[e.reltypeId].color;
+          } else {
+            e.color = grey;
+          }
+        });
+      }
 
       // Re-draw graph.
       sigInst.refresh();
     },
 
+    grayfyNonNeighborhoodOnly: function(center) {
+      var neighborhood = sigInst.graph.neighborhood(center.id);
+      var neighborhoodIds = that.graphToIds(neighborhood);
+      selectedNodes = neighborhoodIds['nodes'];
+
+      that.grayfyNonListedNodes(neighborhoodIds['nodes'], neighborhoodIds['edges']);
+    },
+
     ungrayfyAllNodes: function() {
+      selectedNodes = sylva.nodeIds;
+
       sigInst.graph.nodes().forEach(function(n) {
         n.color = sylva.nodetypes[n.nodetypeId].color
       });
@@ -916,6 +952,8 @@ sigma:true, clearTimeout */
       var container = $(renderer.container);
       renderer.resize(container.width(), container.height());
       sigInst.refresh();
+
+      that.putBoxesInsideCanvas();
     },
 
     /* Update some sizes and styles in analytics mode, but only needed when
@@ -925,6 +963,10 @@ sigma:true, clearTimeout */
       $('header').css({
         paddingLeft: 0,
         paddingRight: 0
+      });
+
+      $('body').css({
+        overflow: 'hidden'
       });
 
       $('nav.menu').css({
@@ -1076,6 +1118,7 @@ sigma:true, clearTimeout */
       $('div.inside.clearfix').removeAttr('style');
       $('header').removeAttr('style');
       $('#main').removeAttr('style');
+      $('body').removeAttr('style');
 
       sigInst.renderers[0].resize();
       sigInst.refresh();
@@ -1083,39 +1126,41 @@ sigma:true, clearTimeout */
 
     // Saves the boxes position and state in the server.
     updateBoxPositions: function(key, ui) {
-      var box = $('#' + key);
-      var top = box.css('top');
-      var left = box.css('left');
+      if (canSaveBoxes) {
+        var box = $('#' + key);
+        var top = box.css('top');
+        var left = box.css('left');
 
-      if (ui) {
-        var collapsed = true;
-        if (ui.newPanel.hasOwnProperty('selector')) {
-          collapsed = false;
+        if (ui) {
+          var collapsed = true;
+          if (ui.newPanel.hasOwnProperty('selector')) {
+            collapsed = false;
+          }
+          sylva.positions[key] = {
+            top: top,
+            left: left,
+            collapsed: collapsed
+          };
+        } else {
+          sylva.positions[key].top = top;
+          sylva.positions[key].left = left;
         }
-        sylva.positions[key] = {
-          top: top,
-          left: left,
-          collapsed: collapsed
+
+        var params = {
+          'collapsibles': sylva.collapsibles,
+          'positions': sylva.positions
         };
-      } else {
-        sylva.positions[key].top = top;
-        sylva.positions[key].left = left;
+
+        var jqxhr = $.ajax({
+          url: sylva.graph_analytics_boxes_edit_position,
+          type: 'POST',
+          data: JSON.stringify(params),
+          dataType: 'json'
+        });
+        jqxhr.error(function() {
+          alert(gettext("Oops! Something went wrong with the server."));
+        });
       }
-
-      var params = {
-        'collapsibles': sylva.collapsibles,
-        'positions': sylva.positions
-      };
-
-      var jqxhr = $.ajax({
-        url: sylva.graph_analytics_boxes_edit_position,
-        type: 'POST',
-        data: JSON.stringify(params),
-        dataType: 'json'
-      });
-      jqxhr.error(function() {
-        alert(gettext("Oops! Something went wrong with the server."));
-      });
     },
 
     /* Perform the 'real' analytics action. Also perform 'sytle' actions
@@ -1159,12 +1204,13 @@ sigma:true, clearTimeout */
           stop: function(event, ui) {
             analyticsSidebarWidth = ui.size.width + analyticsSidebarBorder;
             that.updateSizes();
+            that.putBoxesInsideCanvas();
           }
         });
       }
 
       var draggableSettings = {
-        containment: '#body',
+        containment: '#sigma-wrapper',
         cursor: 'move',
         zIndex: 9999,
         create: function(event, ui) {
@@ -1173,12 +1219,21 @@ sigma:true, clearTimeout */
             left: sylva.positions[event.target.id].left
           });
         },
+        start: function(event, ui) {
+          $('#' + event.target.id).accordion('disable');
+        },
+        drag: function( event, ui ) {
+          $(document).scrollTop(0);
+          $(document).scrollLeft(0);
+        },
         stop: function(event, ui) {
           highestZIndex++;
           $('#' + event.target.id).css({
             zIndex: highestZIndex,
           });
-
+          setTimeout(function() {
+            $('#' + event.target.id).accordion('enable');
+          }, 50);
           that.updateBoxPositions(event.target.id);
         }
       };
@@ -1214,7 +1269,7 @@ sigma:true, clearTimeout */
             });
           }
 
-          that.updateBoxPositions(event.target.id, ui)
+          that.updateBoxPositions(event.target.id, ui);
         }
       };
 
@@ -1284,12 +1339,12 @@ sigma:true, clearTimeout */
       });
 
       $('#analytics').resizable('disable');
-      $('#graph-node-types').draggable('destroy');
-      $('#graph-rel-types').draggable('destroy');
-      $('#graph-layout').draggable('destroy');
-      $('#graph-node-types').accordion('destroy');
-      $('#graph-rel-types').accordion('destroy');
-      $('#graph-layout').accordion('destroy');
+
+      for (var i = 0; i < sylva.collapsibles.length; i++) {
+        var name = sylva.collapsibles[i];
+        $('#' + name).draggable('destroy');
+        $('#' + name).accordion('destroy');
+      }
 
       that.cleanNodeLegend('#node-info');
 
@@ -1356,11 +1411,18 @@ sigma:true, clearTimeout */
     },
 
     // Returns a function for order the nodes for use some layouts.
-    layoutSort: function(order) {
-      switch (order) {
-        case 'label':
-        case 'def':
-          return null;
+    layoutSort: function(degreeOrder, order) {
+      var completeOrder = degreeOrder + order;
+      switch (completeOrder) {
+        case 'ntd':
+          return function(a, b) {
+            return a.nodetypeId - b.nodetypeId;
+          };
+          break;
+        case 'nta':
+          return function(a, b) {
+            return b.nodetypeId - a.nodetypeId;
+          };
           break;
         case 'tdd':
           return function(a, b) {
@@ -1397,12 +1459,11 @@ sigma:true, clearTimeout */
       }
     },
 
-    redrawLayout: function(type, order, drawHidden) {
+    redrawLayout: function(type, degreeOrder, order, drawHidden) {
       var xPos = '';
       var yPos = '';
 
       switch (type) {
-        case 'label':
         case 'force-atlas-2':
           if (visibleNodesIds.length == 0) {
             return;
@@ -1410,18 +1471,21 @@ sigma:true, clearTimeout */
           that.stop();
           that.start(drawHidden);
           that.addTimeout(timeout);
+          $('#sigma-pause').parent().show();
           return;
           break;
         case 'grid':
           that.stop();
-          var sortFunc = that.layoutSort(order);
+          $('#sigma-pause').parent().hide();
+          var sortFunc = that.layoutSort(degreeOrder, order);
           that.gridLayout(sortFunc, drawHidden);
           xPos = 'gridX';
           yPos = 'gridY';
           break;
         case 'circular':
           that.stop();
-          var sortFunc = that.layoutSort(order);
+          $('#sigma-pause').parent().hide();
+          var sortFunc = that.layoutSort(degreeOrder, order);
           that.circularLayout(sortFunc, drawHidden);
           xPos = 'circularX';
           yPos = 'circularY';
@@ -1448,7 +1512,7 @@ sigma:true, clearTimeout */
         // If graph-layout isn't 'label' or FA2 set in FA2.
         var option = $('#sigma-graph-layout').find('option:selected');
         var type = option.attr('id');
-        if ((type != 'label') && (type != 'force-atlas-2')) {
+        if (type != 'force-atlas-2') {
           option.prop('selected', false);
 
           option = $('#force-atlas-2');
@@ -1456,12 +1520,13 @@ sigma:true, clearTimeout */
           type = option.attr('id');
 
           that.disableOptions(option, type);
-          $('#sigma-graph-layout-order').hide();
+          $('#sigma-graph-layout-degree-order').parent().hide();
         }
 
+        var degreeOrder = $('#sigma-graph-layout-degree-order').find('option:selected').attr('id');
         var order = $('#sigma-graph-layout-order').find('option:selected').attr('id');
         var drawHidden = $('#sigma-hidden-layout').prop('checked');
-        that.redrawLayout(type, order, drawHidden);
+        that.redrawLayout(type, degreeOrder, order, drawHidden);
       }
     },
 
@@ -1496,8 +1561,9 @@ sigma:true, clearTimeout */
       var drawHidden = $('#sigma-hidden-layout').prop('checked');
       if (drawHidden && visibleNodesIds.length > 0) {
         var type = $('#sigma-graph-layout').find('option:selected').attr('id');
+        var degreeOrder = $('#sigma-graph-layout-degree-order').find('option:selected').attr('id');
         var order = $('#sigma-graph-layout-order').find('option:selected').attr('id');
-        that.redrawLayout(type, order, drawHidden);
+        that.redrawLayout(type, degreeOrder, order, drawHidden);
       } else {
         sigInst.refresh();
       }
@@ -1676,20 +1742,33 @@ sigma:true, clearTimeout */
 
       that.disableOptions(option, type);
 
-      if (type != 'label') {
-        if (type != 'force-atlas-2') {
-          $('#sigma-graph-layout-order').show();
-        } else {
-          $('#sigma-graph-layout-order').hide();
-        }
-
-        var order = $('#sigma-graph-layout-order').find('option:selected').attr('id');
-        var drawHidden = $('#sigma-hidden-layout').prop('checked');
-        that.redrawLayout(type, order, drawHidden);
+      if (type != 'force-atlas-2') {
+        $('#sigma-graph-layout-degree-order').parent().show();
+      } else {
+        $('#sigma-graph-layout-degree-order').parent().hide();
       }
+
+      var degreeOrder = $('#sigma-graph-layout-degree-order').find('option:selected').attr('id');
+      var order = $('#sigma-graph-layout-order').find('option:selected').attr('id');
+      var drawHidden = $('#sigma-hidden-layout').prop('checked');
+      that.redrawLayout(type, degreeOrder, order, drawHidden);
     },
 
-    // Changes the order of the nodes in a graph layout.
+    // Changes the order of the nodes in a graph layout: Type / Degree.
+    controlGraphLayoutDegreeOrder: function() {
+      var option = $(this).find('option:selected');
+      var degreeOrder = option.attr('id');
+
+      that.disableOptions(option, degreeOrder);
+
+      var layoutType = $('#sigma-graph-layout').find('option:selected').attr('id');
+      var degreeOrder = $('#sigma-graph-layout-degree-order').find('option:selected').attr('id');
+      var order = $('#sigma-graph-layout-order').find('option:selected').attr('id');
+      var drawHidden = $('#sigma-hidden-layout').prop('checked');
+      that.redrawLayout(layoutType, degreeOrder, order, drawHidden);
+    },
+
+    // Changes the order of the nodes in a graph layout: Desc / Asc.
     controlGraphLayoutOrder: function() {
       var option = $(this).find('option:selected');
       var order = option.attr('id');
@@ -1697,9 +1776,10 @@ sigma:true, clearTimeout */
       that.disableOptions(option, order);
 
       var layoutType = $('#sigma-graph-layout').find('option:selected').attr('id');
+      var degreeOrder = $('#sigma-graph-layout-degree-order').find('option:selected').attr('id');
       var order = $('#sigma-graph-layout-order').find('option:selected').attr('id');
       var drawHidden = $('#sigma-hidden-layout').prop('checked');
-      that.redrawLayout(layoutType, order, drawHidden);
+      that.redrawLayout(layoutType, degreeOrder, order, drawHidden);
     },
 
     // Changes the size of the nodes.
@@ -1718,8 +1798,6 @@ sigma:true, clearTimeout */
       var auxMinNodeSize = sigInst.settings('minNodeSize');
       var auxMaxNodeSize = sigInst.settings('maxNodeSize') / sizeMultiplier;
       switch (type) {
-        case 'label':
-          break;
         case 'same':
           animationSize = 'defaultSize';
           sizeMultiplier = defaultMultiplier;
@@ -1758,8 +1836,6 @@ sigma:true, clearTimeout */
       that.disableOptions(option, type);
 
       switch (type) {
-        case 'label':
-          break;
         case 'straight':
           if (defaultEdgeShapeSaved) {
             sigma.canvas.edges.def = sigma.canvas.edges.defBackup;
@@ -1885,7 +1961,7 @@ sigma:true, clearTimeout */
       option.prop('disabled', 'disabled');
       $('#' + parentId + ' option').each(function() {
         var id = $(this).attr('id');
-        if ((id != 'label') && (id != type)) {
+        if (id != type) {
           $(this).prop('disabled', false);
         }
       });
@@ -1936,6 +2012,82 @@ sigma:true, clearTimeout */
         n.inDegree = inDegrees[index];
         n.outDegree = outDegrees[index];
       });
+    },
+
+    putBoxesInsideCanvas: function() {
+      canSaveBoxes = false;
+      for (var i = 0; i < sylva.collapsibles.length; i++) {
+        var name = sylva.collapsibles[i];
+        $('#' + name).simulate('drag', {dx: -1, dy: -1});
+        $('#' + name).simulate('drag', {dx: 1, dy: 1});
+      }
+      setTimeout(function() {
+        canSaveBoxes = true;
+      }, 1000);
+    },
+
+    // Translate coordinates from Sigma to the regular canvas.
+    translateCoordinates: function(node) {
+      return {
+        x: node['renderer1:x'],
+        y: node['renderer1:y']
+      };
+    },
+
+    // TODO: The function!
+    testingRectangle: function(event) {
+      if (!paperTool || !paperTool._scope) {
+        sigInst.settings({mouseEnabled: false, enableHovering: false});
+        sigInst.refresh();
+
+        paperTool = new paper.Tool();
+
+        var path;
+        var origin;
+
+        paperTool.onMouseDown = function(event) {
+          if (path) {
+            path.removeSegments();
+          }
+          path = new paper.Path();
+          path.fillColor = new paper.Color(0, 0, 125, 0.075);
+          path.strokeColor = 'black';
+          path.fullySelected = true;
+
+          origin = event.point;
+        };
+
+        paperTool.onMouseDrag = function(event) {
+          var point = event.point;
+          path.removeSegments();
+
+          path.add(origin);
+          path.add([point.x, origin.y]);
+          path.add(point);
+          path.add([origin.x, point.y]);
+          path.add(origin);
+
+          paper.view.draw();
+        };
+
+        paperTool.onMouseUp = function(event) {
+          // TODO: obtain the ids of the nodes inside the square
+          selectedNodes = [];
+          sigInst.graph.nodes().forEach(function(n) {
+            var translatedNode = that.translateCoordinates(n);
+            var point = new paper.Point(translatedNode.x, translatedNode.y);
+            if (path.contains(point)) {
+              selectedNodes.push(n.id);
+            }
+          });
+          that.grayfyNonListedNodes(selectedNodes);
+
+          path.removeSegments();
+          paperTool.remove();
+          sigInst.settings({mouseEnabled: true, enableHovering: true});
+          sigInst.refresh();
+        };
+      }
     }
 
   };

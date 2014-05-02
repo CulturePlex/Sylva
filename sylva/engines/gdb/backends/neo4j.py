@@ -363,75 +363,25 @@ class GraphDatabase(BlueprintsGraphDatabase):
 
     def _query_generator(self, query_dict):
         conditions_list = []
-        for lookup, property_tuple, match, connector in query_dict["conditions"]:
-            #if property_tuple == u"property":
-            type_property = u"{0}.`{1}`".format(*property_tuple[1:])
-            if lookup == "exact":
-                lookup = u"="
-                match = u"'{0}'".format(match)
-            elif lookup == "iexact":
-                lookup = u"=~"
-                match = u"'(?i){0}'".format(match)
-            elif lookup == "contains":
-                lookup = u"=~"
-                match = u"'.*{0}.*'".format(match)
-            elif lookup == "icontains":
-                lookup = u"=~"
-                match = u"'(?i).*{0}.*'".format(match)
-            elif lookup == "startswith":
-                lookup = u"=~"
-                match = u"'{0}.*'".format(match)
-            elif lookup == "istartswith":
-                lookup = u"=~"
-                match = u"'(?i){0}.*'".format(match)
-            elif lookup == "endswith":
-                lookup = u"=~"
-                match = u"'.*{0}'".format(match)
-            elif lookup == "iendswith":
-                lookup = u"=~"
-                match = u"'(?i).*{0}'".format(match)
-            elif lookup == "regex":
-                lookup = u"=~"
-                match = u"'{0}'".format(match)
-            elif lookup == "iregex":
-                lookup = u"=~"
-                match = u"'(?i){0}'".format(match)
-            elif lookup == "gt":
-                lookup = u">"
-                match = u"{0}".format(match)
-            elif lookup == "gte":
-                lookup = u">"
-                match = u"{0}".format(match)
-            elif lookup == "lt":
-                lookup = u"<"
-                match = u"{0}".format(match)
-            elif lookup == "lte":
-                lookup = u"<"
-                match = u"{0}".format(match)
-            # elif lookup in ["in", "inrange"]:
-            #     lookup = u"IN"
-            #     match = u"['{0}']".format(u"', '".join([_escape(m)
-            #                               for m in match]))
-            # elif lookup == "isnull":
-            #     if match:
-            #         lookup = u"="
-            #     else:
-            #         lookup = u"<>"
-            #     match = u"null"
-            elif lookup in ["eq", "equals"]:
-                lookup = u"="
-                match = u"'{0}'".format(match)
-            # elif lookup in ["neq", "notequals"]:
-            #     lookup = u"<>"
-            #     match = u"'{0}'".format(_escape(match))
-            else:
-                lookup = lookup
-                match = u""
-            condition = u"{0} {1} {2}".format(type_property, lookup, match)
-            conditions_list.append(condition)
+        conditions_indexes = enumerate(query_dict["conditions"])
+        conditions_length = len(query_dict["conditions"]) - 1
+        for lookup, property_tuple, match, connector, datatype in query_dict["conditions"]:
+            condition = q_lookup_builder(property=property_tuple[2],
+                                         lookup=lookup,
+                                         match=match,
+                                         var=property_tuple[1],
+                                         datatype=datatype)
+            conditions_list.append(str(condition))
             if connector != 'not':
+                # We have to get the next element to keep the concordance
+                elem = conditions_indexes.next()
                 connector = u' {} '.format(connector.upper())
                 conditions_list.append(connector)
+            elif connector == 'not':
+                elem = conditions_indexes.next()
+                if elem[0] < conditions_length:
+                    connector = u' AND '
+                    conditions_list.append(connector)
         conditions = u" ".join(conditions_list)
         origins_list = []
         for origin_dict in query_dict["origins"]:
