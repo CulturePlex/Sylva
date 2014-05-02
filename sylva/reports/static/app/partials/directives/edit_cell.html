@@ -1,0 +1,19 @@
+<div class="query">
+  <label class="chart-select">
+    Query:
+  </label>
+  <select ng-model="query" ng-options="query for query in queries">
+    <option value="">-- choose query --</option>   
+  </select> 
+  <div ng-hide="markdown">
+    <label class="chart-select">
+      Chart Type:
+    </label>
+    <select>
+      <option value="bar">Bar</option>
+      <option value="line">Line</option>
+      <option value="scatter">Scatter</option>
+      <option value="pie">Pie</option>
+    </select> 
+  </div>
+</div>
