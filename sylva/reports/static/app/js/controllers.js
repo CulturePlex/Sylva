@@ -26,43 +26,35 @@ controllers.controller('BaseReportFormCtrl', [
         $scope.graph = parser.parse();
         $scope.report = {};
         $scope.queries = [];
+        $scope.chartTypes = ['column', 'scatter', 'pie', 'line']
 
         api.queries.query({
             graphSlug: $scope.graph,
             slug: $scope.report.slug
         }, function (data) {
             var queries = data.map(function (el) {
-                return el.name
+                return {name: el.name, series: el.series} 
             });
             queries.unshift('markdown')
             $scope.queries = queries
-            console.log($scope.queries)
+            console.log('scopq', $scope.queries)
         });
     
 
         $scope.designReport = function () {
-            $scope.editable = true;  
-            console.log('prequeriesmeta', $scope.queries)
+            $scope.editable = true;
 
         };
 
         $scope.editMeta = function () {
             $scope.editable = false;
-
-
-            console.log('queriesmeta', $scope.queries)
         }
 
-        $scope.handleDrop = function (binId, drop) {
-            console.log('drop')
-            if ($scope.report.queries[binId] === undefined) {
-                $scope.report.queries[binId] = drop;
-            }
-        }; 
-
-        $scope.format = function () {
-            $scope.report.table = false;
-        }
+        $scope.getQuery = function(name) {
+            return $scope.queries.filter(function (el) {
+                return el['name'] === name
+            });
+        };
 
         $scope.removeQuery = function (key) {
             $scope.report.queries[key] = undefined;
@@ -77,18 +69,6 @@ controllers.controller('BaseReportFormCtrl', [
                 $location.path(redirect);
             });
         };
-
-        $scope.mergeCells = function(coords) {
-            console.log('merge', coords)
-        }
-
-        $scope.addRow = function() {
-            //$scope.tableArray.addRow()
-        }
-
-        $scope.addCol = function() {
-            //$scope.tableArray.addCol()
-        }
 }]);
 
 

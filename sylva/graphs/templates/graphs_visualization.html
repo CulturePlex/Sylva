@@ -98,6 +98,32 @@
 </div>
 <div id="analytics" class="analytics-mode" style="display: none;">
   <h2 style="margin-top: 5px; margin-left: 10px;">{% trans "Analytics" %}</h2>
+  <div id="analytics-algorithms">
+    {% for key, value in algorithms.items %}
+      <div id="{{ key }}">
+        <h2>{{ value }}</h2>
+        <div id="analytics-menu" style="display: block; height: '15px';">
+          <div id="play-button" style="display: block;">
+            <a id="play-algorithm" class="play-algorithm button icon-play" data-measure='{{ key }}' data-plot="{{ key }}-results" title="Play algorithm" style="height: 15px;"></a>
+            <label style="font-size: 10px; margin-left: 10px;"><input type='checkbox' />{% trans "Feedback results back to the nodes" %}</label>
+            <select class="last-analytics" style="width: 120px; padding: 0; margin-top: 10px; margin-bottom: 10px; font-size; 11px;">
+              <option value="1">Analytic 1</option>
+              <option value="2">Analytic 2</option>
+              <option value="3">Analytic 3</option>
+              <option value="4">Analytic 4</option>
+              <option value="5">Analytic 5</option>
+              <option value="6">Analytic 6</option>
+              <option value="7">Analytic 7</option>
+              <option value="8">Analytic 8</option>
+              <option value="9">Analytic 9</option>
+              <option value="10">Analytic 10</option>
+            </select>
+            <div id="{{ key }}-results" class="ui-resizable" style="width: 70%;"></div>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
 </div>
 
   <!-- Start of DOM elements working as memory system and debugging -->

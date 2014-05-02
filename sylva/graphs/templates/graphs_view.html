@@ -23,8 +23,9 @@
 
 {% block content %}
 
-{% graph_visualization analytics=True %}
-
+{% if options.ENABLE_ANALYTICS %}
+{% graph_visualization graph analytics=True %}
+{% endif %}
 {% graph_info graph "show_edit" %}
 
 <!-- Features Tour -->

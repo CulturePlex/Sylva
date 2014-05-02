@@ -50,8 +50,10 @@ def breadcrumb(context, *links):
 
 
 @register.inclusion_tag('graphs_visualization.html', takes_context=True)
-def graph_visualization(context, analytics=True):
-    return {'analytics': bool(analytics)}
+def graph_visualization(context, graph, analytics=True):
+    algorithms = graph.gdb.analysis().list_algorithms()
+    return {'analytics': bool(analytics),
+            'algorithms': algorithms}
 
 
 @register.inclusion_tag('graphs_visualization_resources.html',
