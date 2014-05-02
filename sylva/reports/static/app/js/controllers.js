@@ -24,22 +24,33 @@ controllers.controller('BaseReportFormCtrl', [
     'tableArray', 
     function ($scope, $location, api, parser, tableArray) {
         $scope.graph = parser.parse();
+        $scope.report = {};
         $scope.queries = [];
-        $scope.report = {
-            table: null
-        };
-        $scope.tCells = [];
+
+        api.queries.query({
+            graphSlug: $scope.graph,
+            slug: $scope.report.slug
+        }, function (data) {
+            var queries = data.map(function (el) {
+                return el.name
+            });
+            queries.unshift('markdown')
+            $scope.queries = queries
+            console.log($scope.queries)
+        });
+    
 
         $scope.designReport = function () {
-            api.queries.query({graphSlug: $scope.graph}, function (data) {
-                $scope.queries = data;
-            });
             $scope.editable = true;  
+            console.log('prequeriesmeta', $scope.queries)
+
         };
 
         $scope.editMeta = function () {
-            $scope.queries = [];
             $scope.editable = false;
+
+
+            console.log('queriesmeta', $scope.queries)
         }
 
         $scope.handleDrop = function (binId, drop) {
@@ -60,8 +71,8 @@ controllers.controller('BaseReportFormCtrl', [
         $scope.saveReport = function (report) {
             var post = new api.reports();
             post.report = $scope.report;
+            post.table = $scope.tableArray;
             post.$save({graphSlug: $scope.graph}, function (data) {
-                console.log(data)
                 var redirect = '/';
                 $location.path(redirect);
             });
@@ -84,7 +95,10 @@ controllers.controller('BaseReportFormCtrl', [
 controllers.controller('NewReportCtrl', [
     '$scope', 
     '$controller',
-    function ($scope, $controller) {
+    'api',
+    'tableArray',
+    '$sce',
+    function ($scope, $controller, api, tableArray, $sce) {
         $controller('BaseReportFormCtrl', {$scope: $scope});
         $scope.report = {
             name: 'New Report',
@@ -95,8 +109,38 @@ controllers.controller('NewReportCtrl', [
             description: '',
             // move this to directive
             nameHtml: '<h2>New Report</h2>',
-            queries: {}
         };
+
+        $scope.tableArray = tableArray([[{
+            col: 0,
+            colspan: '1',
+            id: 'cell1',
+            row: 0,
+            rowspan: '1',
+            query: ''
+        }, {
+            col: 1,
+            colspan: '1',
+            id: 'cell2',
+            row: 0,
+            rowspan: '1',
+            query: ''
+        }],[{
+            col: 0,
+            colspan: '1',
+            id: 'cell3',
+            row: 1,
+            rowspan: '1',
+            query: ''
+        }, {
+            col: 1,
+            colspan: '1',
+            id: 'cell4',
+            row: 1,
+            rowspan: '1',
+            query: ''
+        }]]);
+        $scope.tableDisplay = $scope.tableArray.displayHtml();
 }]);
 
 
@@ -105,15 +149,13 @@ controllers.controller('EditReportCtrl', [
     '$routeParams',
     '$controller',
     'api',
-    function ($scope, $routeParams, $controller, api) {
+    'tableArray',
+    function ($scope, $routeParams, $controller, api, tableArray) {
         $controller('BaseReportFormCtrl', {$scope: $scope});
         $scope.report.slug = $routeParams.reportSlug;
-        api.reports.query({
-            graphSlug: $scope.graph,
-            slug: $scope.report.slug  
-        }, function (data) {
-            $scope.report = data[0];
-        });
+        $scope.tableArray = [];
+        $scope.tableLength = $scope.tableArray.length;
+
 }]);
 
 
@@ -130,7 +172,6 @@ controllers.controller('ReportHistoryCtrl', [
             graphSlug: $scope.graph,
             slug: $scope.report.slug  
         }, function (data) {
-            console.log(data)
             $scope.report = data[0];
             if ($scope.report.history != undefined) {
                 $scope.currentContext = $scope.report.history.sort(function (a, b) {
