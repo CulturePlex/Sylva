@@ -1,4 +1,5 @@
 {% load i18n %}
+{% load graph_filters %}
 <div id="canvas-container">
   <div id="graph-node-types">
   </div>
@@ -13,7 +14,7 @@
   <div id="graph-controls">
     <div style="float: right;">
       <div class="sigma-control analytics-mode" style="display: none; float: left; margin-right: 10px">
-        <a id="sigma-filter-rectangle" class="button" style="font-size:100%;" title="{% trans "Rectangle" %}"">{% trans "Rectangle" %}</a>
+        <a id="sigma-filter-rectangle" class="button" style="font-size:100%;" title="{% trans "Rectangle" %}">{% trans "Rectangle" %}</a>
       </div>
       <div class="sigma-control" style="display: none; float: right;">
         <a id="sigma-zoom-in" class="button icon-plus control-button zoom-left" title="{% trans "Zoom in" %}"></a>
@@ -90,29 +91,22 @@
     <canvas id="graph-support">{% trans "Your browser does not support graph visualization" %}</canvas>
   </div>
 </div>
-<div id="analytics" class="analytics-mode" style="display: none;">
+<div id="analytics" class="analytics-mode" style="display: none; overflow-y: auto;">
   <h2 style="margin-top: 5px; margin-left: 10px;">{% trans "Analytics" %}</h2>
   <div id="analytics-algorithms">
     {% for key, value in algorithms.items %}
       <div id="{{ key }}">
         <h2>{{ value }}</h2>
-        <div id="analytics-menu" style="display: block; height: '15px';">
+        <div id="analytics-menu" style="display: block;">
           <div id="play-button" style="display: block;">
             <a id="play-algorithm" class="play-algorithm button icon-play" data-measure='{{ key }}' data-plot="{{ key }}-results" title="Play algorithm" style="height: 15px;"></a>
             <label style="font-size: 10px; margin-left: 10px;"><input type='checkbox' />{% trans "Feedback results back to the nodes" %}</label>
             <select class="last-analytics" style="width: 120px; padding: 0; margin-top: 10px; margin-bottom: 10px; font-size; 11px;">
-              <option value="1">Analytic 1</option>
-              <option value="2">Analytic 2</option>
-              <option value="3">Analytic 3</option>
-              <option value="4">Analytic 4</option>
-              <option value="5">Analytic 5</option>
-              <option value="6">Analytic 6</option>
-              <option value="7">Analytic 7</option>
-              <option value="8">Analytic 8</option>
-              <option value="9">Analytic 9</option>
-              <option value="10">Analytic 10</option>
+              {% for analytic in graph|list_analytics:key %}
+                  <option value="{{ analytic.id }}">{{ analytic.task_start }}</option>
+              {% endfor %}
             </select>
-            <div id="{{ key }}-results" class="ui-resizable" style="width: 70%;"></div>
+            <div id="{{ key }}-results" class="ui-resizable"></div>
           </div>
         </div>
       </div>

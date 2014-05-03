@@ -75,14 +75,19 @@ jQuery(document).ready(function() {
          }
     });
     // get results of the analytic
-    var getResults = function(task_id, algorithm) {
+    var getResults = function(results_url, algorithm) {
       $.ajax({
           type: "GET",
           dataType: 'json',
-          url: "/analytics/{{ graph.slug}}/get_results",
-          data: {"task_id": task_id,
-                 "algorithm": algorithm},
+          url: results_url,
           success: function (data) {
+            var parentArray = new Array();
+            for(var i in data) {
+              var childArray = new Array();
+              childArray.push(i);
+              childArray.push(data[i]);
+              parentArray.push(childArray);
+            }
             var options = {
                 chart: {
                     renderTo: analyticsId[algorithm],
@@ -126,7 +131,7 @@ jQuery(document).ready(function() {
                 series: [{
                   name: algorithm,
                   color: 'rgba(223, 83, 83, .5)',
-                  data: data
+                  data: parentArray
                 }]
             };
 
@@ -141,7 +146,7 @@ jQuery(document).ready(function() {
 
     // pole state of the current task
     var TaskState = function(task_id, algorithm) {
-      jQuery.ajax({
+      $.ajax({
         type: "POST",
         url: "/analytics/{{ graph.slug }}/task_state/",
         data: {"task_id": task_id,
@@ -153,7 +158,7 @@ jQuery(document).ready(function() {
             }, 1000);
         } else {
           $.unblockUI();
-          getResults(task_id, algorithm);
+          getResults(task, algorithm);
         }
         // create the infinite loop of Ajax calls to check the state
         // of the current task
@@ -197,13 +202,13 @@ jQuery(document).ready(function() {
         });
     });
 
-    $('#connected-components').accordion({
+    $('#connected_components').accordion({
       collapsible: true,
       active: false,
       heightStyle: 'content'
     });
 
-    $('#graph-coloring').accordion({
+    $('#graph_coloring').accordion({
       collapsible: true,
       active: false,
       heightStyle: 'content'
@@ -221,13 +226,13 @@ jQuery(document).ready(function() {
       heightStyle: 'content'
     });
 
-    $('#triangle-counting').accordion({
+    $('#triangle_counting').accordion({
       collapsible: true,
       active: false,
       heightStyle: 'content'
     });
 
-    $('#betweenness-centrality').accordion({
+    $('#betweenness_centrality').accordion({
       collapsible: true,
       active: false,
       heightStyle: 'content'

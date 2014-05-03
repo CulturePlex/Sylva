@@ -14,8 +14,6 @@ from guardian.decorators import permission_required
 
 from base.decorators import is_enabled
 from graphs.models import Graph, Data
-import pandas as pd
-from collections import defaultdict
 
 
 @is_enabled(settings.ENABLE_ANALYTICS)
@@ -180,7 +178,13 @@ def task_state(request, graph_slug):
         if 'task_id' in request.POST.keys() and request.POST['task_id']:
             task_id = request.POST['task_id']
             task = AsyncResult(task_id)
-            data = task.ready()
+            if task.ready():
+                graph = get_object_or_404(Graph, slug=graph_slug)
+                analytic = graph.analytics.filter(task_id=task_id)[0]
+                data = "{0}{1}".format(settings.MEDIA_URL,
+                                       analytic.results.name)
+            else:
+                data = False
         else:
             data = 'No task_id in the request'
     else:
@@ -192,42 +196,18 @@ def task_state(request, graph_slug):
 
 
 @is_enabled(settings.ENABLE_ANALYTICS)
-@permission_required("analytics.get_results",
+@permission_required("analytics.get_eta",
                     (Data, "graph__slug", "graph_slug"), return_403=True)
-def get_results(request, graph_slug):
-    data = 'Fail'
-    if request.is_ajax():
-        if 'task_id' in request.GET.keys() and request.GET['task_id']:
-            task_id = request.GET['task_id']
-            algorithm = request.GET['algorithm']
-            result = ""
-            if algorithm == 'pagerank':
-                result = 'pagerank'
-            elif algorithm == 'connected_components':
-                result = 'componentid'
-            elif algorithm == 'graph_coloring':
-                result = 'colorid'
-            elif algorithm == 'kcore':
-                result = 'coreid'
-            elif algorithm == 'shortest_path':
-                result = 'distance'
-            elif algorithm == 'triangle_counting':
-                result = 'triangle_count'
-            elif algorithm == 'betweenness_centrality':
-                result = 'betweenness_centrality'
+def get_eta(request, graph_slug):
+    graph = get_object_or_404(Graph, slug=graph_slug)
+    analytic = graph.analysis.run('betweenness_centrality')
+    eta = graph.analysis.estimated_time(analytic.algorithm)
+    task_eta = AsyncResult(eta.id)
 
-            graph = get_object_or_404(Graph, slug=graph_slug)
-            analytic = graph.analytics.filter(task_id=task_id)[0]
-            url_results = analytic.results + '.csv'
-            dt = pd.read_csv(url_results)
-            counters = defaultdict(int)
-            for k, v in dt[[result]].itertuples():
-                counters[v] += 1
-            data = counters.items()
-        else:
-            data = 'No task_id in the request'
-    else:
-        data = 'This is not an ajax request'
+    while not task_eta.ready():
+        True
+
+    data = [analytic.algorithm, task_eta.result]
 
     json_data = json.dumps(data)
 

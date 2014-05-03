@@ -45,7 +45,7 @@ urlpatterns = patterns('analytics.views',
     url(r'^(?P<graph_slug>[\w-]+)/task_state/$',
         'task_state', name="task_state"),
 
-    # get results
-    url(r'^(?P<graph_slug>[\w-]+)/get_results/$',
-        'get_results', name="get_results"),
+    # eta test
+    url(r'^(?P<graph_slug>[\w-]+)/get_eta/$',
+        'get_eta', name="get_eta"),
 )
