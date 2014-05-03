@@ -143,8 +143,12 @@ services.factory('tableArray', function () {
     }
 
     TableArray.prototype.addQuery = function(coords, query) {
-        
-        this.table[coords[0]][coords[1]].query = query;
+        console.log('addedquery', query)
+        this.table[coords[0]][coords[1]].displayQuery = query;
+    }
+
+    TableArray.prototype.addChart = function(coords, chart) {
+        this.table[coords[0]][coords[1]].chartType = chart;
     }
 
     TableArray.prototype.delQuery = function(coords) {
@@ -200,11 +204,10 @@ services.factory('tableArray', function () {
                 if (cell.rowspan === 0) {
                     var height = '0px'
                 } else {
-                   var height = 200 * cell.rowspan - 2 * this.numRows + (cell.rowspan -1) * 2 + 'px';
+                   var height = 175 * cell.rowspan - 2 * this.numRows + (cell.rowspan -1) * 2 + 'px';
                 }
-                console.log('height', height)
                 if (j === rlen - 1) {
-                    cells += '<div class="tcell final" id=' + cell.id + 
+                    cells += '<div sylva-display-cell class="tcell final" id=' + cell.id + 
                         '" style="width:' + width + 
                         '; height:' + height +
                         ';" row="' + i +
@@ -213,12 +216,12 @@ services.factory('tableArray', function () {
                         '" colspan="' + cell.colspan + 
                         '" query="' + cell['query'] +
                         '">';
-                    if (cell.query  !== '') {
-                        cells += '<div>' + '<h2>' + cell.query + '</h2>' + '</div>';
-                    }
+                    //if (cell.query  !== '') {
+                    //    cells += '<div>' + '<h2>' + cell.query + '</h2>' + '</div>';
+                    //}
                     cells += '</div>'
                 } else {
-                    cells += '<div class="tcell" id=' + cell.id + 
+                    cells += '<div sylva-display-cell class="tcell" id=' + cell.id + 
                         '" style="width:' + width + 
                         '; height:' + height +
                         ';" row="' + i +
@@ -227,9 +230,9 @@ services.factory('tableArray', function () {
                         '" colspan="' + cell.colspan + 
                         '" query="' + cell['query'] +
                         '">';
-                    if (cell.query !== '') {
-                        cells += '<div>' + '<h2>' + cell.query + '</h2>' + '</div>';
-                    }
+                    //if (cell.query !== '') {
+                    //    cells += '<div>' + '<h2>' + cell.query + '</h2>' + '</div>';
+                    //}
                     cells += '</div>'
                 }
             }
@@ -255,7 +258,7 @@ services.factory('tableArray', function () {
                 if (cell.rowspan === 0) {
                     var height = '0px'
                 } else {
-                   var height = 200 * cell.rowspan - 2 * this.numRows + (cell.rowspan -1) * 2 + 'px';
+                   var height = 175 * cell.rowspan - 2 * this.numRows + (cell.rowspan -1) * 2 + 'px';
                 }
                 if (j === rlen - 1) {
                     cells += '<div sylva-droppable sylva-merge-cells class="tcell final" id=' + cell.id + 

@@ -34,8 +34,58 @@ directives.directive('sylvaDatepicker', function () {
     };
 });
 
+directives.directive('sylvaPreviewCell', ['$routeParams', 'api', 'parser', function ($routeParams, api, parser) {
+    return {
+        templateUrl: '/static/app/partials/directives/preview_cell.html',
+        scope: {
+            colspan: '@',
+            query: '@',
+            chartType: '@'
+        },
+        link: function (scope, elem, attrs) {
+            var graph = parser.parse();
+            var slug = $routeParams.reportSlug;
+            api.queries.query({ // I want this shit out of the fucking directives
+                graphSlug: graph,
+                slug: slug
+            }, function (data) {
+                var queries = data.map(function (el) {
+                    return {name: el.name, series: el.series} 
+                });
+                scope.series = queries.filter(function (el) {
+                    return el.name == scope.query
+                })[0].series
+                //.console.log('series', series, scope.chartType, scope.query)
+                scope.config.options.chart.type = scope.chartType;
+                scope.config.title.text = scope.query;
+                scope.config.series[0].data = scope.series;
 
-directives.directive('sylvaDisplayTable', ['tableArray', 'api', function (tableArray, api) {
+            });
+            scope.displayQuery = true;
+            scope.config = {
+                    options: {
+                        chart: {
+                            type: 'line'
+                        }
+                    },
+                    xAxis: {
+                        catagories: []
+                    },
+                    series: [{
+                        data: []
+                    }],
+                       title: {
+                        text: ''
+                    },
+                    
+                    loading: false
+                }
+        }
+    }
+}]);
+
+
+directives.directive('sylvaDisplayTable', ['$compile', 'tableArray', 'api', function ($compile, tableArray, api) {
     return {
         restrict: 'A',
         //templateUrl: '/static/app/partials/directives/display_table.html',
@@ -43,10 +93,10 @@ directives.directive('sylvaDisplayTable', ['tableArray', 'api', function (tableA
             var ang = angular.element
             ,   rows = ang(elem.children()[0])
             ,   rowWidth = parseInt(rows.css('width'))
-            // need a display
+            // need to change to full async here
             try {
                 var html = scope.tableArray.displayHtml(rowWidth);
-                rows.html(html);
+                $compile(rows.html(html))(scope);
             } catch (e) {
                 api.reports.query({
                     graphSlug: scope.graph,
@@ -55,15 +105,62 @@ directives.directive('sylvaDisplayTable', ['tableArray', 'api', function (tableA
                     scope.report = data[0];
                     scope.tableArray = tableArray(scope.report.table)
                     var html = scope.tableArray.displayHtml(rowWidth);
-                    rows.html(html);
+                    $compile(rows.html(html))(scope);
                 });
             }
-            console.log('dir', scope.tableDisplay)
             scope.$watch('editable', function (newVal, oldVal) {
                 if (newVal == oldVal) return;
                 var html = scope.tableArray.displayHtml(rowWidth);
-                rows.html(html); 
+                $compile(rows.html(html))(scope); 
             });
+        }
+    }
+}]);
+
+directives.directive('sylvaDisplayCell', ['$compile', function ($compile) {
+    return {
+        scope: true,
+        templateUrl: '/static/app/partials/directives/display_cell.html', 
+        link: function(scope, elem, attrs) {
+            var ang = angular.element
+            ,   arrows = false
+            ,   row = parseInt(elem.attr('row')) 
+            ,   col = parseInt(elem.attr('col'));
+
+            scope.$watch('tableArray', function (newVal, oldVal) {
+                                
+                var cell = scope.tableArray.table[row][col];
+                if (cell && cell.displayQuery) {
+                    var query = scope.getQuery(cell.displayQuery)[0]
+                    
+                    ,   series = query.series;
+                    scope.displayQuery = cell.displayQuery;
+                    scope.config.options.chart.type = cell.chartType;
+                    scope.config.title.text = cell.displayQuery.name;
+                    scope.config.series[0].data = series;
+                } else {
+                    scope.displayQuery = ''
+                }
+            }, true);
+
+            scope.config = {
+                options: {
+                    chart: {
+                        type: 'line'
+                    }
+                },
+                xAxis: {
+                    catagories: []
+                },
+                series: [{
+                    data: []
+                }],
+                   title: {
+                    text: ''
+                },
+                
+                loading: false
+            }
         }
     }
 }]);
@@ -97,6 +194,7 @@ directives.directive('sylvaEditableTable', ['$compile', 'tableArray', 'api', fun
 
             try {
                 var html = scope.tableArray.htmlify(rowWidth);
+                console.log(scope.tableArray.table)
                 // hmmmm no compile here but it seems to be working
                 $compile(rows.html(html))(scope);
             } catch (e) {
@@ -121,7 +219,6 @@ directives.directive('sylvaEditableTable', ['$compile', 'tableArray', 'api', fun
 
             scope.$watchCollection(scope.getMerge, function (newVal, oldVal) {
                 if (newVal === oldVal) return;
-                console.log('newVal', newVal)
                 var dir = mergeDirection(newVal);
                 if (dir === 'col') {
                     scope.tableArray.mergeCol(newVal);
@@ -204,16 +301,29 @@ directives.directive('sylvaMergeCells', ['$compile', function ($compile) {
                     down: '<a class="arrow down" href="" ng-click="merge(3)">&#8595</a>'
             };  
 
-            scope.query = scope.tableArray.table[row][col].query;
-            scope.$watch('query', function (newVal, oldVal) {
+            scope.chartType = scope.tableArray.table[row][col].chartType;
+            scope.displayQuery = scope.tableArray.table[row][col].displayQuery;
+
+            scope.$watch('displayQuery', function (newVal, oldVal) {
                 if (newVal == oldVal) return;
-                scope.tableArray.addQuery([row, col], newVal)
+                console.log('addedquery', newVal)
+                scope.tableArray.addQuery([row, col], newVal.name)
                 if (newVal === 'markdown') {
                     scope.markdown = true;
                 } else {
                     scope.markdown = false;
                 }
             }); 
+
+            scope.$watch('chartType', function (newVal, oldVal) {
+                //write a method for this on the TableArray
+                if (newVal == oldVal) return;
+                //scope.$apply(function () {
+                    scope.tableArray.addChart([row, col], newVal)
+                //})
+                
+
+            })
 
             scope.merge = function(ndx) {
                 var merges = [[row, col - 1], [row - 1, col], [row, col + 1], [row + 1, col]];
@@ -249,75 +359,4 @@ directives.directive('sylvaMergeCells', ['$compile', function ($compile) {
 }]);
 
 
-directives.directive('sylvaDroppable', function() {
-    return {
-        require: '^sylvaEditableTable',
-        restrict: 'A',
-        link: function(scope, elem, attrs, sylvaEditableTableCtrl) {
-        // again we need the native object
-            var row = parseInt(elem.attr('row')) //this can be moved to scope.merge if necessary
-            ,   col = parseInt(elem.attr('col'))
-            ,   el = elem[0];
-            el.addEventListener('dragover', function(e) {
-                console.log('dragover')
-                e.dataTransfer.dropEffect = 'move';
-                // allows us to drop
-                if (e.preventDefault) e.preventDefault();
-                this.classList.add('over');
-                return false;
-            }, false);
-          
-            el.addEventListener('dragenter', function(e) {
-                console.log('dragcenter')
-                this.classList.add('over');
-                return false;
-            }, false);
-          
-            el.addEventListener('dragleave', function(e) {
-                this.classList.remove('over');
-                return false;
-            }, false);
-          
-            el.addEventListener('drop', function(e) {
-                if (e.stopPropagation) e.stopPropagation();
-                this.classList.remove('over');
-                var binId = this.id;
-                var item = document.getElementById(e.dataTransfer.getData('Text'));
-                console.log('drop', this, item)
-                scope.$apply(function(scope) {
-                    scope.tableArray.addQuery([row, col], item.id);
-                    sylvaEditableTableCtrl.setHtml();    
-                });
-              return false;
-            }, false);  
-        }
-    }
-});
 
-
-directives.directive('draggable', function() {
-    return function(scope, element) {
-        // this gives us the native JS object
-        var el = element[0];
-    
-        el.draggable = true;
-        
-        el.addEventListener(
-            'dragstart',
-            function(e) {
-                e.dataTransfer.effectAllowed = 'move';
-                e.dataTransfer.setData('Text', this.id);
-                this.classList.add('drag');
-                return false;
-            }, false
-        );
-        
-        el.addEventListener(
-            'dragend',
-            function(e) {
-                this.classList.remove('drag');
-                return false;
-            }, false
-        );
-    }
-});

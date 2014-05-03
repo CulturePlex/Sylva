@@ -5,6 +5,7 @@ var reports = angular.module('reports', [
     'ngCookies',
     'ngRoute',
     'ngSanitize',
+    'highcharts-ng',
     'reports.controllers',
     'reports.services',
     'reports.directives', 
@@ -40,6 +41,9 @@ reports.config([
             }).when('/history/:reportSlug', {
                 templateUrl: '/static/app/partials/report_history.html',
                 controller: 'ReportHistoryCtrl'
+            }).when('/preview/:reportSlug', {
+                templateUrl: '/static/app/partials/report_preview.html',
+                controller: 'ReportPreviewCtrl'
             }).
             otherwise({
                 redirectTo: '/'

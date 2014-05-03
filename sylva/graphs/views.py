@@ -17,6 +17,7 @@ from django.shortcuts import (get_object_or_404, render_to_response, redirect,
 from django.http import Http404
 from django.utils.translation import gettext as _
 from django.template import RequestContext
+from django.templatetags.static import static
 
 from guardian import shortcuts as guardian
 from guardian.decorators import permission_required
@@ -398,6 +399,8 @@ def graph_data(request, graph_slug, node_id=None):
             collapsibles = graph.get_option('collapsibles')
             positions = graph.get_option('positions')
 
+        search_loading_image = static('img/loading_24.gif')
+
         json_data = {
             'graph': graph_json,
             'nodetypes': nodetypes,
@@ -405,7 +408,8 @@ def graph_data(request, graph_slug, node_id=None):
             'nodeIds': node_ids,
             'size': size,
             'collapsibles': collapsibles,
-            'positions': positions
+            'positions': positions,
+            'searchLoadingImage': search_loading_image
         }
         return HttpResponse(json.dumps(json_data), status=200,
                             mimetype='application/json')

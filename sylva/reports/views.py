@@ -48,28 +48,32 @@ def reports_endpoint(request, graph_slug):
             'id': 'cell1',
             'row': 0,
             'rowspan': '1',
-            'query': 'query3'
+            'displayQuery': 'query3',
+            'chartType': 'line'
         }, {
             'col': 1,
             'colspan': '1',
             'id': 'cell2',
             'row': 0,
             'rowspan': '1',
-            'query': ''
+            'displayQuery': 'query4',
+            'chartType': 'scatter'
         }], [{
             'col': 0,
             'colspan': '1',
             'id': 'cell3',
             'row': 1,
             'rowspan': '1',
-            'query': 'query1'
+            'displayQuery': 'query1',
+            'chartType': 'pie'
         }, {
             'col': 1,
             'colspan': '1',
             'id': 'cell4',
             'row': 1,
             'rowspan': '1',
-            'query': 'query2'
+            'displayQuery': 'query2',
+            'chartType': 'column'
         }]],
         'numRows': 2,
         'numCols': 2,
@@ -113,12 +117,22 @@ def reports_endpoint(request, graph_slug):
 @permission_required("schemas.view_schema",
                      (Schema, "graph__slug", "graph_slug"), return_403=True)
 def queries_endpoint(request, graph_slug):
+    series = [
+        ["5", 0.279767],
+        ["2", 0.15],
+        ["6", 0.484065],
+        ["8", 0.1925],
+        ["7", 0.918638],
+        ["1", 0.1925],
+        ["4", 0.394192],
+        ["3", 0.182725]
+    ]
     queries = [
-        {'name': 'query1'},
-        {'name': 'query2'},
-        {'name': 'query3'},
-        {'name': 'query4'},
-        {'name': 'query5'}
+        {'name': 'query1', 'series': series},
+        {'name': 'query2', 'series': series},
+        {'name': 'query3', 'series': series},
+        {'name': 'query4', 'series': series},
+        {'name': 'query5', 'series': series}
     ]
     json_data = json.dumps(queries)
     print json_data
