@@ -15,13 +15,13 @@
     padding-left: 30px;    
 }
 
- .col1, .col2 {
+ .col {
     float: left;
     width: auto;
     padding: 10px;
  }
 
-.row1, .row2{
+.row {
   float: left;
   width: 100%;
 }
@@ -74,6 +74,19 @@
   width: 100%;
 }
 
+.preview-canvas {
+  height: 500px;
+  width: 500px;
+}
+
+.prev-cont {
+  height: 450px;
+  overflow: hidden
+}
+
+.prev-cont:hover {
+  overflow-y: scroll;
+}
 
 .arrow {
   position: absolute;

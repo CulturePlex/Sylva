@@ -57,7 +57,7 @@
 
   <div class="content2-cont" ng-hide="editable">
 
-    <div class="row1">
+    <div class="row">
 
       <div class="col1">
 
@@ -71,20 +71,20 @@
         <a class="button" href="" ng-click="designReport()">Design Report</a>
       </div>
 
-    </div><!--row1-->
+    </div><!--row-->
 
-    <div class="row2">
+    <div class="row">
       <div class="editable-table" sylva-display-table>
         <div class="rows">
         </div>
       </div>
-    </div> <!--row2-->
+    </div> <!--row-->
     
 
   </div> <!--content2-->
 
   <div class="table-edit" ng-show="editable">
-    <div class="row1">
+    <div class="row">
       <div class="col1">
           <h2 ng-bind-html="report.name"></h2>
       </div>
@@ -92,7 +92,7 @@
         <a class="button" href="" ng-click="editMeta()">Edit Metadata</a>      
       </div>
     </div>
-    <div class="row2">
+    <div class="row">
       <div sylva-editable-table class="editable-table">
           <div class="edit-rows">
           </div>
@@ -103,6 +103,6 @@
             <a class="button table-button" href="">delete column</a>
           </div>
       </div>
-    </div><!--row2-->
+    </div><!--row-->
   </div>  
 </div>
