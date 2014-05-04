@@ -7,8 +7,10 @@ from django.utils.translation import gettext as _
 from engines.gdb.analysis import BaseAnalysis
 import json
 
+from django.core.files.uploadedfile import SimpleUploadedFile
 import graphlab
 import networkx as nx
+import pandas as pd
 
 
 # app = Celery('tasks', backend='amqp', broker='amqp://')
@@ -21,6 +23,8 @@ PROC_INIT = 0
 LOAD_FILE = 1
 RUN_ALGOS = 2
 PROC_FINA = 3
+
+INST_TIME = 1e-04
 
 
 class Analysis(BaseAnalysis):
@@ -74,6 +78,14 @@ class Analysis(BaseAnalysis):
         except Exception as e:
             raise Exception(PROC_FINA, "Error finishing the task")
 
+    def connected_components_eta(self, graph):
+        nodes = graph.nodes.count()
+        rels = graph.relationships.count()
+
+        result = nodes + rels
+
+        return result * INST_TIME
+
     def graph_coloring(self, analytic):
         try:
             sf = graphlab.SFrame(analytic.dump)
@@ -89,6 +101,13 @@ class Analysis(BaseAnalysis):
             return gc.get('colorid')
         except Exception as e:
             raise Exception(PROC_FINA, "Error finishing the task")
+
+    def graph_coloring_eta(self, graph):
+        nodes = graph.nodes.count()
+
+        result = 2 * nodes
+
+        return result * INST_TIME
 
     def kcore(self, analytic):
         try:
@@ -106,6 +125,9 @@ class Analysis(BaseAnalysis):
         except Exception as e:
             raise Exception(PROC_FINA, "Error finishing the task")
 
+    # def kcore_eta(self, graph):
+        # TODO
+
     def pagerank(self, analytic):
         try:
             sf = graphlab.SFrame(analytic.dump)
@@ -121,6 +143,14 @@ class Analysis(BaseAnalysis):
             return pr.get('pagerank')
         except Exception as e:
             raise Exception(PROC_FINA, "Error finishing the task")
+
+    def pagerank_eta(self, graph):
+        nodes = graph.nodes.count()
+        rels = graph.relationships.count()
+
+        result = nodes + rels
+
+        return result * INST_TIME
 
     def shortest_path(self, analytic):
         try:
@@ -138,6 +168,9 @@ class Analysis(BaseAnalysis):
         except Exception as e:
             raise Exception(PROC_FINA, "Error finishing the task")
 
+    # def shortest_path_eta(self, graph):
+        # TODO
+
     def triangle_counting(self, analytic):
         try:
             sf = graphlab.SFrame(analytic.dump)
@@ -154,30 +187,74 @@ class Analysis(BaseAnalysis):
         except Exception as e:
             raise Exception(PROC_FINA, "Error finishing the task")
 
+    def triangle_counting_eta(self, graph):
+        nodes = graph.nodes.count()
+
+        result = nodes ** 2.3
+
+        return result * INST_TIME
+
     def betweenness_centrality(self, analytic):
         try:
             g = nx.read_edgelist(analytic.dump, delimiter=',')
-        except Exception as e:
+        except Exception:
             raise Exception(LOAD_FILE, "Error loading the file")
         try:
-            bc = nx.betweenness_centrality(g).items()
-        except Exception as e:
+            bc = nx.betweenness_centrality(g).items()[2:]
+            bc = pd.DataFrame(bc, columns=['__id',
+                                           'betweenness_centrality'])
+        except Exception:
             raise Exception(RUN_ALGOS, "Error executing the task")
         try:
             return bc
         except Exception as e:
-            raise Exception(PROC_FINA, "Error finishing the task")
+            raise Exception(PROC_FINA,
+                            "Error finishing the task: " % str(e))
+
+    def betweenness_centrality_eta(self, graph):
+        nodes = graph.nodes.count()
+        rels = graph.relationships.count()
+
+        result = nodes * rels
+
+        return result * INST_TIME
 
     def save(self, results, analytic):
-        # this branch is for the betweenness centrality algorithm
-        if type(results) == list:
-            f = open(analytic.results + '.csv', 'w')
-            elem = '"{0}",{1}\n'.format("__id", "betweenness_centrality")
-            f.write(elem)
-            for key, value in results:
-                # this is to avoid the first attributes of the columns
-                if key is not "src" or "dest":
-                    elem = '"{0}",{1}\n'.format(key, value)
-                    f.write(elem)
+        result = ''
+        algorithm = analytic.algorithm
+        suf_raw = SimpleUploadedFile(analytic.algorithm + '.csv', "",
+                                     "text/csv")
+        analytic.raw = suf_raw
+        analytic.save()
+        if algorithm == 'pagerank':
+            result = 'pagerank'
+        elif algorithm == 'connected_components':
+            result = 'componentid'
+        elif algorithm == 'graph_coloring':
+            result = 'colorid'
+        elif algorithm == 'kcore':
+            result = 'coreid'
+        elif algorithm == 'shortest_path':
+            result = 'distance'
+        elif algorithm == 'triangle_counting':
+            result = 'triangle_count'
+        elif algorithm == 'betweenness_centrality':
+            result = 'betweenness_centrality'
+        if not isinstance(results, pd.DataFrame):
+            results.rename({
+                "__id": "node_id",
+                result: algorithm,
+            })
+            results.save(analytic.raw.path, 'csv')
         else:
-            results.save(analytic.results, 'csv')
+            results.to_csv(analytic.raw.path,
+                           index=False,
+                           header=['node_id', algorithm])
+        dt_results = pd.read_csv(analytic.raw.path)
+        freq_dist = dt_results[algorithm].value_counts()
+        suf_results = SimpleUploadedFile(
+            analytic.algorithm + '.json',
+            freq_dist.to_json(),
+            "application/json")
+        analytic.results = suf_results
+        analytic.save()

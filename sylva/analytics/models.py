@@ -6,6 +6,11 @@ from django.utils.translation import gettext as _
 from graphs.models import Graph
 
 
+def get_upload_to(self, filename):
+    return u"%s/%s/analytics/%s" % (self.graph.owner.username,
+                                    self.graph.slug, filename)
+
+
 class Analytic(models.Model):
     graph = models.ForeignKey(Graph, related_name='analytics')
     #dump = models.ForeignKey(Dump, related_name='dump')
@@ -23,11 +28,13 @@ class Analytic(models.Model):
     )
 
     algorithm = models.CharField(max_length=8, choices=ALGOS)
-    results = models.CharField(_("results"), max_length=250, null=True,
-                               blank=True)
-    affected_nodes = models.CharField(_("affected_nodes"),
-                                      max_length=250, null=True,
-                                      blank=True)
+    raw = models.FileField(_("Raw file"), upload_to=get_upload_to,
+                           null=True, blank=True)
+    results = models.FileField(_("Results file"), upload_to=get_upload_to,
+                               null=True, blank=True)
+    subgraph = models.CharField(_("Subgraph"),
+                                max_length=250, null=True,
+                                blank=True)
 
     # tasks attributes
 
@@ -58,7 +65,7 @@ class AnalysisManager(models.Manager):
                                            algorithm=algorithm)
         # algorithm_task = analysis.run_task(algorithm, self._graph,
         #                                    analytic)
-        task = analysis.run_task.apply_async(
+        task = analysis.run_algorithm.apply_async(
             kwargs={'analytic': analytic,
                     'analysis': analysis})
 
@@ -66,3 +73,12 @@ class AnalysisManager(models.Manager):
         analytic.save()
 
         return analytic
+
+    def estimated_time(self, algorithm, **kwargs):
+        analysis = self._graph.gdb.analysis()
+        task = analysis.run_estimated_time.apply_async(
+            kwargs={'analysis': analysis,
+                    'graph': self._graph,
+                    'algorithm': algorithm})
+
+        return task

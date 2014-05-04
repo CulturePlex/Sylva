@@ -34,6 +34,56 @@ directives.directive('sylvaDatepicker', function () {
     };
 });
 
+directives.directive('sylvaPreviewCell', ['$routeParams', 'api', 'parser', function ($routeParams, api, parser) {
+    return {
+        templateUrl: '/static/app/partials/directives/preview_cell.html',
+        scope: {
+            colspan: '@',
+            query: '@',
+            chartType: '@'
+        },
+        link: function (scope, elem, attrs) {
+            var graph = parser.parse();
+            var slug = $routeParams.reportSlug;
+            api.queries.query({ // I want this shit out of the fucking directives
+                graphSlug: graph,
+                slug: slug
+            }, function (data) {
+                var queries = data.map(function (el) {
+                    return {name: el.name, series: el.series} 
+                });
+                scope.series = queries.filter(function (el) {
+                    return el.name == scope.query
+                })[0].series
+                //.console.log('series', series, scope.chartType, scope.query)
+                scope.config.options.chart.type = scope.chartType;
+                scope.config.title.text = scope.query;
+                scope.config.series[0].data = scope.series;
+
+            });
+            scope.displayQuery = true;
+            scope.config = {
+                    options: {
+                        chart: {
+                            type: 'line'
+                        }
+                    },
+                    xAxis: {
+                        catagories: []
+                    },
+                    series: [{
+                        data: []
+                    }],
+                       title: {
+                        text: ''
+                    },
+                    
+                    loading: false
+                }
+        }
+    }
+}]);
+
 
 directives.directive('sylvaDisplayTable', ['$compile', 'tableArray', 'api', function ($compile, tableArray, api) {
     return {
@@ -76,16 +126,23 @@ directives.directive('sylvaDisplayCell', ['$compile', function ($compile) {
             ,   arrows = false
             ,   row = parseInt(elem.attr('row')) 
             ,   col = parseInt(elem.attr('col'));
+
             scope.$watch('tableArray', function (newVal, oldVal) {
-                var cell = scope.tableArray.table[row][col]
-                ,   query = scope.getQuery(cell.displayQuery)[0]
-                ,   series = query.series;
-                scope.displayQuery = cell.displayQuery;
-                scope.config.options.chart.type = cell.chartType;
-                scope.config.title.text = cell.displayQuery;
-                scope.config.series[0].data = series
+                                
+                var cell = scope.tableArray.table[row][col];
+                if (cell && cell.displayQuery) {
+                    var query = scope.getQuery(cell.displayQuery)[0]
+                    
+                    ,   series = query.series;
+                    scope.displayQuery = cell.displayQuery;
+                    scope.config.options.chart.type = cell.chartType;
+                    scope.config.title.text = cell.displayQuery.name;
+                    scope.config.series[0].data = series;
+                } else {
+                    scope.displayQuery = ''
+                }
             }, true);
-        
+
             scope.config = {
                 options: {
                     chart: {
@@ -243,12 +300,14 @@ directives.directive('sylvaMergeCells', ['$compile', function ($compile) {
                     right: '<a class="arrow right" href="" ng-click="merge(2)">&#8594</a>',
                     down: '<a class="arrow down" href="" ng-click="merge(3)">&#8595</a>'
             };  
+
             scope.chartType = scope.tableArray.table[row][col].chartType;
             scope.displayQuery = scope.tableArray.table[row][col].displayQuery;
-            console.log('dq', scope.displayQuery)
+
             scope.$watch('displayQuery', function (newVal, oldVal) {
                 if (newVal == oldVal) return;
-                scope.tableArray.addQuery([row, col], newVal)
+                console.log('addedquery', newVal)
+                scope.tableArray.addQuery([row, col], newVal.name)
                 if (newVal === 'markdown') {
                     scope.markdown = true;
                 } else {

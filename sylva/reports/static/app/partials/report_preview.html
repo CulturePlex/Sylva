@@ -1,0 +1,13 @@
+<div class="prev-cont">
+  <div ng-repeat="row in tableArray.table">
+
+      <div ng-repeat="cell in row">
+        <div class="col">
+          <!---here just pass whole cell-->
+          <div sylva-preview-cell query="{{cell.displayQuery}}" colspan="{{cell.colspan}}" chart-type="{{cell.chartType}}" getter="getQuery" queries="queries">
+          </div>
+        </div>
+      </div>
+
+  </div>
+</div>

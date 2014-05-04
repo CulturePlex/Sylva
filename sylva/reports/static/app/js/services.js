@@ -143,6 +143,7 @@ services.factory('tableArray', function () {
     }
 
     TableArray.prototype.addQuery = function(coords, query) {
+        console.log('addedquery', query)
         this.table[coords[0]][coords[1]].displayQuery = query;
     }
 

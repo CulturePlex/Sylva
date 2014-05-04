@@ -1716,6 +1716,7 @@ div[id^='collorpicker_'] {
     background-color: #EEE;
     float: right;
     border-left: 1px solid #348E82;
+    overflow: hidden;
 }
 
 div.relationships-box {

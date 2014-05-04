@@ -26,7 +26,7 @@ controllers.controller('BaseReportFormCtrl', [
         $scope.graph = parser.parse();
         $scope.report = {};
         $scope.queries = [];
-        $scope.chartTypes = ['column', 'scatter', 'pie', 'line']
+        $scope.chartTypes = ['column', 'scatter', 'pie', 'line'];
 
         api.queries.query({
             graphSlug: $scope.graph,
@@ -91,36 +91,47 @@ controllers.controller('NewReportCtrl', [
             nameHtml: '<h2>New Report</h2>',
         };
 
+        api.queries.query({
+            graphSlug: $scope.graph,
+            slug: $scope.report.slug
+        }, function (data) {
+            var queries = data.map(function (el) {
+                return {name: el.name, series: el.series} 
+            });
+            queries.unshift('markdown')
+            $scope.queries = queries
+            console.log('scopq', $scope.queries)
+        });
+
         $scope.tableArray = tableArray([[{
             col: 0,
             colspan: '1',
             id: 'cell1',
             row: 0,
             rowspan: '1',
-            query: ''
+            displayQuery: ''
         }, {
             col: 1,
             colspan: '1',
             id: 'cell2',
             row: 0,
             rowspan: '1',
-            query: ''
+            displayQuery: ''
         }],[{
             col: 0,
             colspan: '1',
             id: 'cell3',
             row: 1,
             rowspan: '1',
-            query: ''
+            displayQuery: ''
         }, {
             col: 1,
             colspan: '1',
             id: 'cell4',
             row: 1,
             rowspan: '1',
-            query: ''
+            displayQuery: ''
         }]]);
-        $scope.tableDisplay = $scope.tableArray.displayHtml();
 }]);
 
 
@@ -135,6 +146,17 @@ controllers.controller('EditReportCtrl', [
         $scope.report.slug = $routeParams.reportSlug;
         $scope.tableArray = [];
         $scope.tableLength = $scope.tableArray.length;
+        api.queries.query({
+            graphSlug: $scope.graph,
+            slug: $scope.report.slug
+        }, function (data) {
+            var queries = data.map(function (el) {
+                return {name: el.name, series: el.series} 
+            });
+            queries.unshift('markdown')
+            $scope.queries = queries
+            console.log('scopq', $scope.queries)
+        });
 
 }]);
 
@@ -168,3 +190,41 @@ controllers.controller('ReportHistoryCtrl', [
             })[0];
         }
 }]);
+
+controllers.controller('ReportPreviewCtrl', [
+    '$scope',
+    '$routeParams',
+    'api',
+    'parser',
+    'tableArray',
+    function ($scope, $routeParams, api, parser, tableArray) {
+        $scope.report = {};
+        $scope.graph = parser.parse();
+        $scope.report.slug = $routeParams.reportSlug;
+        api.reports.query({
+            graphSlug: $scope.graph,
+            slug: $scope.report.slug  
+        }, function (data) {
+            $scope.report = data[0];
+            $scope.tableArray = tableArray($scope.report.table)
+            console.log('ta', $scope.tableArray)
+        });
+
+        api.queries.query({
+            graphSlug: $scope.graph,
+            slug: $scope.report.slug
+        }, function (data) {
+            var queries = data.map(function (el) {
+                return {name: el.name, series: el.series} 
+            });
+            $scope.queries = queries
+
+        });
+
+        $scope.getQuery = function(name) {
+            console.log('filter', $scope.queries)
+            return $scope.queries.filter(function (el) {
+                return el['name'] === name
+            });
+        };
+    }]);

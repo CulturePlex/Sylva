@@ -64,18 +64,17 @@ class BaseAnalysis(object):
         raise NotImplementedError("Method has to be implemented")
 
     @app.task(bind=True, name="tasks.analytic")
-    def run_task(self, analytic, analysis):
+    def run_algorithm(self, analytic, analysis):
         graph = analytic.graph
         algorithm = analytic.algorithm
         analytic.task_id = self.request.id
         url_dump = "../dump_files/" + graph.slug + ".csv"
-        url_result = "../results_files/" + graph.slug + "-" + algorithm
         try:
             try:
                 analytic.task_status = "Starting"
                 analytic.task_start = datetime.datetime.now()
                 analytic.dump = url_dump
-                analytic.results = url_result
+                # analytic.results = url_result
             except Exception as e:
                 raise Exception(PROC_INIT, "Error starting the task")
             algorithm_func = getattr(analysis, algorithm)
@@ -100,8 +99,15 @@ class BaseAnalysis(object):
                     'File system could not be created: ' + e.args[1]
             else:
                 analytic.task_error = \
-                    'Unknown error: ' + e.args[0]
+                    'Unknown error: ' + str(e.args[0])
         finally:
             analytic.save()
             print analytic.task_error
         return analytic.task_status
+
+    @app.task(bind=True, name="tasks.estimated_time")
+    def run_estimated_time(self, analysis, graph, algorithm):
+        eta_func = getattr(analysis, algorithm + '_eta')
+        result = eta_func(graph)
+
+        return result

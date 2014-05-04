@@ -2,7 +2,7 @@
   <label class="chart-select">
     Query:
   </label>
-  <select ng-model="displayQuery" ng-options="query for query in queries">
+  <select ng-model="displayQuery" ng-options="query.name for query in queries">
     <option value="">-- choose query --</option>   
   </select> 
   <div ng-hide="markdown">

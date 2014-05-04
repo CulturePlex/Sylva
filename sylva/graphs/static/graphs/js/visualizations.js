@@ -78,6 +78,7 @@ sylva:true, alert:true */
         sylva.size = data.size;
         sylva.collapsibles = data.collapsibles;
         sylva.positions = data.positions;
+        sylva.searchLoadingImage = data.searchLoadingImage;
 
         $('#graph-support').hide();
         $('#graph-node-types').show();

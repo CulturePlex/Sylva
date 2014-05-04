@@ -63,7 +63,7 @@ sigma:true, clearTimeout */
   var mouseMovedOnNode = false;
   var mouseMovedOnStage = false;
   var isOverNode = false;
-  var neighborMainNode = null;
+  var nodeInfoShowed = false;
   var isMouseOverCanvas = false;
   var isZoomWheelPossible = false;
   var colorWidgetOpened = false;
@@ -241,9 +241,30 @@ sigma:true, clearTimeout */
         that.enableDisableSelectingTool('freeHand');
       });
 
+      $('#sigma-filter-neighbors').on('click', function() {
+        that.enableDisableSelectingTool('neighbors');
+      });
+
       $('#sigma-filter-click').on('click', function() {
         that.enableDisableSelectingTool('click');
       });
+
+      // TODO: Analytics sidebar hover-scrollbar
+      /*
+      // Analytics sidebar scrollbar.
+      $('#analytics').css({
+          whiteSpace: 'nowrap'
+        });
+      $('#analytics').hover(function() {
+        $('#analytics').css({
+          overflowY: 'visible'
+        });
+      }, function(){
+        $('#analytics').css({
+          overflowY: 'hidden'
+        });
+      });
+      */
 
       sigInst.startForceAtlas2();
       isDrawing = true;
@@ -365,6 +386,7 @@ sigma:true, clearTimeout */
 
     // Update node legend frame.
     updateNodeLegend: function(node, selector) {
+      nodeInfoShowed = true;
       var nodeEditURL = sylva.nodeEditURL.replace(/nodes\/0\/edit/, 'nodes/' + node.id + '/edit');
       var nodeViewURL = sylva.nodeViewURL.replace(/nodes\/0\/view/, 'nodes/' + node.id + '/view');
       var title = (node.label.length < 22) ? node.label : node.label.substring(0, 16) + "...";
@@ -388,6 +410,7 @@ sigma:true, clearTimeout */
 
     // Clean node legend frame.
     cleanNodeLegend: function(selector) {
+      nodeInfoShowed = false;
       $(selector).html('');
     },
 
@@ -418,7 +441,7 @@ sigma:true, clearTimeout */
       $('#main').css('user-select', 'none');
 
       // This is for treating the select node by click feature
-      if (selectedSelectingTool == 'click') {
+      if (selectedSelectingTool == 'click' || selectedSelectingTool == 'neighbors') {
         $('#main').on('mouseup', that.nodeMouseUp);
         sigInst.unbind('outNode', that.treatOutNode);
 
@@ -445,7 +468,6 @@ sigma:true, clearTimeout */
 
       $('#main').css('user-select', 'all');
 
-
       var near = false;
       var offset = $('.sigma-mouse').offset()
       var nodeX = nodeOvered['renderer1:x'];
@@ -463,27 +485,30 @@ sigma:true, clearTimeout */
         that.treatOutNode();
       }
       sigInst.bind('outNode', that.treatOutNode);
+      $('#main').off('mouseup', that.nodeMouseUp);
 
-      // This is for treating the select node by click feature
+      // This is for treating the select node by click feature.
       if (selectedSelectingTool == 'click') {
-        $('#main').off('mouseup', that.nodeMouseUp);
         that.selectDeselectNode(nodeOvered);
+
+      } else if(selectedSelectingTool == 'neighbors') {
+        neighborhoodIds = that.obtaingNeighborhood(nodeOvered);
+        sylva.selectedNodes = neighborhoodIds['nodes'];
+        that.grayfyNonListedNodes(sylva.selectedNodes, neighborhoodIds['edges']);
+        that.enableDisableSelectingTool('neighbors');
 
       } else {
         $('.sigma-mouse').on('mousedown', that.nodeMouseDown);
         $('#main').off('mousemove', that.nodeMouseMove);
-        $('#main').off('mouseup', that.nodeMouseUp);
 
         isZoomWheelPossible = false;
 
         if (mouseMovedOnNode) {
           mouseMovedOnNode = false;
         } else {
-          neighborMainNode = nodeOvered;
-          that.grayfyNonNeighborhoodOnly(nodeOvered);
           if (isAnalyticsMode) {
             that.updateNodeLegend(nodeOvered, '#node-info');
-            that.updateSizes();
+            that.updateSizes(true);
           }
         }
       }
@@ -535,7 +560,7 @@ sigma:true, clearTimeout */
     stageMouseDown: function(event) {
       $('#main').css('user-select', 'none');
 
-      if (selectedSelectingTool != 'click') {
+      if (selectedSelectingTool != 'click' && selectedSelectingTool != 'neighbors') {
         $('.sigma-mouse').off('mousedown', that.stageMouseDown);
         $('.sigma-mouse').on('mousemove', that.stageMouseMove);
         $('.sigma-mouse').on('mouseup', that.stageMouseUp);
@@ -557,13 +582,9 @@ sigma:true, clearTimeout */
         mouseMovedOnStage = false;
       } else if (colorWidgetOpened) {
         colorWidgetOpened = false;
-      } else if (neighborMainNode) {
-        neighborMainNode = null;
-        that.ungrayfyAllNodes();
-        if (isAnalyticsMode) {
+      } else if (nodeInfoShowed && isAnalyticsMode) {
           that.cleanNodeLegend('#node-info');
-          that.updateSizes();
-        }
+          that.updateSizes(true);
       } else if (sylva.selectedNodes.length < size) {
         that.ungrayfyAllNodes();
       }
@@ -644,17 +665,7 @@ sigma:true, clearTimeout */
       sigInst.refresh();
     },
 
-    grayfyNonNeighborhoodOnly: function(center) {
-      var neighborhood = sigInst.graph.neighborhood(center.id);
-      var neighborhoodIds = that.graphToIds(neighborhood);
-      sylva.selectedNodes = neighborhoodIds['nodes'];
-
-      that.grayfyNonListedNodes(neighborhoodIds['nodes'], neighborhoodIds['edges']);
-    },
-
     ungrayfyAllNodes: function() {
-      sylva.selectedNodes = sylva.nodeIds;
-
       sigInst.graph.nodes().forEach(function(n) {
         n.color = sylva.nodetypes[n.nodetypeId].color
         delete n['type'];
@@ -1232,6 +1243,9 @@ sigma:true, clearTimeout */
      */
     goAnalyticsMode: function() {
       isAnalyticsMode = true;
+      $('#id_analytics').val('true');
+      $('#searchBox').attr('onsubmit', 'return sylva.Sigma.search()');
+
       analyticsSidebarBorder = parseInt($('#analytics').css(
         'border-left-width'), 10);
 
@@ -1254,7 +1268,7 @@ sigma:true, clearTimeout */
         sigma.canvas.hovers.def = sigma.canvas.hovers.defBackup;
       }
 
-      // Makes the analytics colum resizable.
+      // Makes the analytics column resizable.
       try {
         if ($('#analytics').resizable('option', 'disabled')) {
           $('#analytics').resizable('enable');
@@ -1318,6 +1332,10 @@ sigma:true, clearTimeout */
           span.remove();
         },
         activate: function(event, ui) {
+          highestZIndex++;
+          $('#' + event.target.id).css({
+            zIndex: highestZIndex,
+          });
           var span = $(event.target).children().first().children().first();
           if (span.hasClass('icon-caret-down')) {
             span.removeClass('icon-caret-down');
@@ -1355,11 +1373,6 @@ sigma:true, clearTimeout */
         maxNodeSize: analyticsMaxNodeSize * sizeMultiplier
       });
 
-      if (neighborMainNode) {
-        that.updateNodeLegend(neighborMainNode, '#node-info');
-        that.updateSizes();
-      }
-
       that.updateStyles();
       that.updateSizes();
       $(window).on('resize', that.updateSizes);
@@ -1373,6 +1386,8 @@ sigma:true, clearTimeout */
      */
     exitAnalyticsMode: function() {
       isAnalyticsMode = false;
+      $('#id_analytics').val('');
+      $('#searchBox').removeAttr('onsubmit');
 
       $(window).off('resize', that.updateSizes);
 
@@ -2098,6 +2113,13 @@ sigma:true, clearTimeout */
       }, 300);
     },
 
+    obtaingNeighborhood: function(center) {
+      var neighborhood = sigInst.graph.neighborhood(center.id);
+      var neighborhoodIds = that.graphToIds(neighborhood);
+
+      return neighborhoodIds;
+    },
+
     // Translate coordinates from Sigma to the regular canvas.
     translateCoordinates: function(node) {
       return {
@@ -2124,6 +2146,7 @@ sigma:true, clearTimeout */
       var selectingToolDict = {
         'rectangle': 'sigma-filter-rectangle',
         'freeHand': 'sigma-filter-free-hand',
+        'neighbors': 'sigma-filter-neighbors',
         'click': 'sigma-filter-click'
       };
 
@@ -2132,8 +2155,8 @@ sigma:true, clearTimeout */
         selectedSelectingTool = type;
         $('#' + selectingToolDict[type]).addClass('active');
 
-        if (type != 'click') {
-          that.activateSelectingWithMouse(type);
+        if (type != 'click' && type != 'neighbors') {
+          that.activateSelectingAreaTool(type);
         }
 
       } else if(selectedSelectingTool == type) {
@@ -2141,27 +2164,27 @@ sigma:true, clearTimeout */
         selectedSelectingTool = '';
         $('#' + selectingToolDict[type]).removeClass('active');
 
-        if (type != 'click') {
-          that.deactivateSelectingWithMouse(type);
+        if (type != 'click' && type != 'neighbors') {
+          that.deactivateSelectingAreaTool(type);
         }
 
       } else {
         // Deactivate a tool and activate another.
-        if(selectedSelectingTool != 'click') {
-          that.deactivateSelectingWithMouse(type);
+        if(selectedSelectingTool != 'click' && selectedSelectingTool != 'neighbors') {
+          that.deactivateSelectingAreaTool(type);
         }
 
         $('#' + selectingToolDict[selectedSelectingTool]).removeClass('active');
         selectedSelectingTool = type;
         $('#' + selectingToolDict[type]).addClass('active');
 
-        if (type != 'click') {
-          that.activateSelectingWithMouse(type);
+        if (type != 'click' && type != 'neighbors') {
+          that.activateSelectingAreaTool(type);
         }
       }
     },
 
-    activateSelectingWithMouse: function(type) {
+    activateSelectingAreaTool: function(type) {
         sigInst.settings({mouseEnabled: false, enableHovering: false});
         sigInst.refresh();
         $('.sigma-mouse').css({
@@ -2228,7 +2251,7 @@ sigma:true, clearTimeout */
         };
     },
 
-    deactivateSelectingWithMouse: function(type) {
+    deactivateSelectingAreaTool: function(type) {
       paperTool.remove();
 
       sigInst.settings({mouseEnabled: true, enableHovering: true});
@@ -2238,6 +2261,41 @@ sigma:true, clearTimeout */
         cursor: ''
       });
     },
+
+    search: function() {
+      var searchBox = $('#searchBox');
+      var ipnuts = searchBox.find('input');
+      $('#id_q').css({
+        backgroundImage: 'url(' + sylva.searchLoadingImage + ')'
+      });
+
+      var params = {};
+      for (var i = 0; i < ipnuts.length; i++) {
+        params[$(ipnuts[i]).attr('name')] = $(ipnuts[i]).attr('value');
+      }
+
+      var jqxhr = $.ajax({
+        url: searchBox.attr('action'),
+        type: 'POST',
+        data: params,
+        dataType: 'json'
+      });
+      jqxhr.success(function(data) {
+        $('#id_q').val('');
+        $('#id_q').trigger('blur');
+
+        sylva.selectedNodes = data.nodeIds;
+        that.grayfyNonListedNodes(sylva.selectedNodes);
+      });
+      jqxhr.error(function() {
+        alert(gettext("Oops! Something went wrong with the server."));
+      });
+      jqxhr.complete(function() {
+        $('#id_q').removeAttr('style');
+      });
+
+      return false;
+    }
 
   };
 
