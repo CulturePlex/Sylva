@@ -6,7 +6,7 @@ PyYAML==3.10
 South==0.8.4
 amqp==1.4.5
 anyjson==0.3.3
-argparse==1.2.1
+# argparse==1.2.1
 billiard==3.3.0.17
 boto==2.8.0
 celery==3.1.11
