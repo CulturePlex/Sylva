@@ -56,7 +56,7 @@ def get_connection_string(properties):
 
 def get_connection_params(properties):
     return {
-        "username": properties.get("USERNAME", None),
+        "username": properties.get("USER", properties.get("USERNAME", None)),
         "password": properties.get("PASSWORD", None),
         "key_file": properties.get("KEY_FILE", None),
         "cert_file": properties.get("CERT_FILE", None),
