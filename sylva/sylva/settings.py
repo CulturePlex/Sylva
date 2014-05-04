@@ -188,6 +188,7 @@ INSTALLED_APPS = (
     'payments',
     'south',
     'reports',
+    'analytics',
 )
 
 AUTHENTICATION_BACKENDS = (
