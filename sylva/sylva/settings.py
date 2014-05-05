@@ -188,6 +188,7 @@ INSTALLED_APPS = (
     'payments',
     'south',
     'reports',
+    'analytics',
 )
 
 AUTHENTICATION_BACKENDS = (
@@ -277,9 +278,6 @@ USERENA_USE_MESSAGES = False
 # Add to do the tests correctly, check mail is not necessary by now
 USERENA_ACTIVATION_REQUIRED = False
 
-# Add to do the tests correctly, check mail is not necessary by now
-USERENA_ACTIVATION_REQUIRED = False
-
 # Guardian
 GUARDIAN_RENDER_403 = True
 GUARDIAN_TEMPLATE_403 = '403.html'
@@ -336,8 +334,10 @@ OPTIONS = {
     "ACTIVATION_EMAIL_BETA_MESSAGE": ACTIVATION_EMAIL_BETA_MESSAGE,
 }
 
-# django-zebra
+# debug-toolbar
+DEBUG_TOOLBAR_PATCH_SETTINGS = False
 
+# django-zebra
 STRIPE_SECRET = ""  # set in local settings
 STRIPE_PUBLISHABLE = ""  # set in local settings
 
