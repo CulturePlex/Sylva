@@ -34,6 +34,383 @@ directives.directive('sylvaDatepicker', function () {
     };
 });
 
+
+directives.directive('sylvaPvRowRepeat', ['tableArray', function (tableArray) {
+    return {
+        transclude: 'element',
+        scope: {
+            resp: '='
+        },
+        controller: function ($scope) {
+
+            this.getQueries = function() {
+                return $scope.queries;
+            };
+
+            this.getTableWidth = function() {
+                return $scope.tableWidth;
+            };
+
+            this.getTableArray = function() {
+                return $scope.tableArray;
+            }
+        },
+        link: function (scope, elem, attrs, ctrl, transclude) {
+
+            scope.$watch('resp', function (newVal, oldVal) {
+
+                if (newVal == oldVal) return;
+
+                scope.queries = scope.resp.queries;
+                scope.tableArray = tableArray(scope.resp.table);
+                scope.tableWidth = parseInt(angular.element(elem.parents()[0]).css('width'));
+                
+
+                var previous = elem
+                ,   childScope
+                ,   len = scope.tableArray.table.length;
+                for (var i=0; i<len; i++) {
+                    childScope = scope.$new();
+                    childScope.$index = i;
+
+                    transclude(childScope, function (clone) {
+                        childScope.row = scope.tableArray.table[i];
+                        previous.after(clone);
+                        previous = clone;
+                    });
+                }  
+            }, true);
+        }
+    };
+}]);
+
+
+directives.directive('sylvaPvCellRepeat', [function () {
+    return {
+        transclude: 'element',
+        require: '^sylvaPvRowRepeat',
+        scope: {
+            row: '='
+        },
+        link: function(scope, elem, attrs, ctrl, transclude) {
+
+            scope.$watch(ctrl.getQueries, function (newVal, oldVal) {
+                console.log('transclude')
+                //if (newVal == oldVal) return;
+                var previous = elem
+                ,   childScope
+                ,   len = scope.row.length
+                ,   tableWidth = ctrl.getTableWidth()
+                ,   tableArray = ctrl.getTableArray()
+                ,   numCols = tableArray.numCols;
+                console.log('stuff', tableArray)
+                for (var i=0; i<len; i++) {
+
+                    var cell = scope.row[i]
+                    ,   query = cell.displayQuery
+                    ,   cellWidth = tableWidth / numCols * parseInt(cell.colspan) - (numCols + 1) * 15 + 'px'
+                    ,   series = ctrl.getQueries().filter(function (el) {
+                        return el.name === query;
+                    })[0].series;
+                    
+
+                    childScope = scope.$new();
+                    childScope.$index = i;
+                    childScope.cellStyle = {width: cellWidth, height: '500px'};
+
+                    childScope.chartConfig = {
+                        options: {chart: {type: cell.chartType}},
+                        xAxis: {catagories: []},
+                        series: [{data: series}],
+                        title: {text: query},     
+                        loading: false
+                    };
+                    console.log('row', childScope.chartConfig)
+                    transclude(childScope, function (clone) {
+                        previous.after(clone);
+                        previous = clone
+                    });
+                } 
+            });
+        }
+    };
+}]);
+
+
+
+directives.directive('syEditableTable', ['$compile', 'tableArray', function ($compile, tableArray) {
+    return {
+        transclude: true,
+        scope: {
+            resp: '='
+        },
+        templateUrl: '/static/app/partials/directives/editable_table.html',
+        controller: function($scope) {
+
+            this.getTableArray = function() {
+                return $scope.tableArray;
+            }
+
+            this.getQueries = function() {
+                return $scope.queries;
+            };
+
+            this.getTableWidth = function() {
+                return $scope.tableWidth;
+            };
+        },
+        link: function(scope, elem, attrs) {
+
+            var ang = angular.element
+            ,   rows = ang(elem.children()[0])
+            ,   rowWidth = parseInt(rows.css('width'))
+            ,   buttons = ang(elem.children()[1])
+            ,   addRow = ang(buttons.children()[0])
+            ,   addCol = ang(buttons.children()[1])
+            ,   delRow = ang(buttons.children()[2])
+            ,   delCol = ang(buttons.children()[3]);
+
+            scope.$watch('resp', function (newVal, oldVal) {  
+
+                if (newVal === oldVal) return;
+                scope.queries = scope.resp.queries;
+                scope.tableArray = tableArray(scope.resp.table);
+
+                scope.tableWidth = parseInt(angular.element(elem.children()[0]).css('width'));
+        
+            }, true);
+
+            addRow.bind('click', function () {
+                scope.$apply(function () {
+                    scope.tableArray.addRow();
+                    console.log('addRow', scope.tableArray)
+                });
+            });
+
+            addCol.bind('click', function () {
+                scope.$apply(function () {
+                    scope.tableArray.addCol();
+                    console.log('addCol', scope.tableArray)
+                });
+            });
+
+            delRow.bind('click', function () {
+                scope.$apply(function () {
+                    scope.tableArray.delRow();
+                    console.log('delRow', scope.tableArray)
+                });
+            });
+
+            delCol.bind('click', function () {
+                scope.$apply(function () {
+                    scope.tableArray.delCol();
+                    console.log('delRow', scope.tableArray)
+                });
+            });
+        }
+    };
+}]);
+
+
+directives.directive('syEtRowRepeat', ['tableArray', '$animate', function (tableArray, $animate) {
+    return {
+        transclude: 'element',
+        require: '^syEditableTable',
+        scope: {
+            queries: '='
+        },
+        link: function(scope, elem, attrs, ctrl, transclude) {
+
+            //scope.$watch('queries', function (newVal, oldVal) {
+            //    if (newVal == oldVal) return;
+            //    drawTable()
+            //}, true); 
+
+            // store old child scopes
+            var childScopes = {}
+
+            scope.$watch(ctrl.getTableArray, function (newVal, oldVal) {
+                if (newVal === oldVal) return;
+
+                var nextTable = {}
+                ,   table = false
+                ,   rowIds = {}
+                ,   previous = elem
+                ,   childScope
+                ,   tableArray = ctrl.getTableArray()
+                ,   len = tableArray.table.length;
+
+
+                // remove old child scopes and elements on redraw
+                for (var j in childScopes) {
+                    if (childScopes[j]) {
+                        childScopes[j].scope.$destroy() 
+                        childScopes[j].element.remove()
+                        delete childScopes[j]
+                    }
+                }
+
+                for (var i=0; i<len; i++) {
+                    var rowId = 'row' + i;
+                
+
+                    rowIds[rowId] = true;
+                    childScope = scope.$new();
+                    childScope.$index = i;
+                    childScopes[i] = {scope: childScope}
+                    childScope.row = tableArray.table[i];
+
+                    transclude(childScope, function (clone) {
+
+                        if (i === len - 1) clone.addClass('bottom')
+                        
+                        clone.attr('id', rowId);
+                        clone.addClass('trow');
+                        previous.after(clone);
+                        previous = clone
+                        childScopes[i].element = previous
+                    });
+                }
+            });
+        }
+    };
+}]);
+
+
+// SHould be able to combine this with sylvaPvCellRepeat
+directives.directive('sylvaEtCellRepeat', [function () {
+    return {
+        transclude: 'element',
+        require: '^syEditableTable',
+        replace: false,
+        scope: {
+            row: '='
+        },
+        link: function(scope, elem, attrs, ctrl, transclude) {
+
+            var previous = elem
+            ,   childScope
+            ,   len = scope.row.length
+            ,   tableWidth = ctrl.getTableWidth()
+            ,   tableArray = ctrl.getTableArray()
+            ,   numCols = tableArray.numCols
+            ,   childScopes = {};
+
+            for (var i=0; i<len; i++) {
+                var cell = scope.row[i];
+                var query = cell.displayQuery
+                ,   colspan = parseInt(cell.colspan)
+                ,   cellWidth = (tableWidth / numCols - ((numCols + 1) * 2 / numCols)) * colspan + (2 * (colspan - 1)) + 'px'
+                ,   activeQuery = ctrl.getQueries().filter(function (el) {
+                    return el.name === query;
+                })[0];
+
+                childScope = scope.$new();
+                childScope.$index = i;
+                childScopes[i] = childScope;
+                childScope.config = {
+                    row: cell.row,
+                    col: cell.col,
+                    queries: ctrl.getQueries(),
+                    activeQuery: activeQuery,
+                    chartTypes: ['column', 'scatter', 'pie', 'line'],
+                    chartType: cell.chartType,
+                }
+
+                //childScope.id = cell.id
+                childScope.cellStyle = {width: cellWidth, height: '175px'},
+                transclude(childScope, function (clone) {
+                    if (i === len - 1) clone.addClass('final')
+                    clone.attr('id', cell.id)
+                    previous.after(clone);
+                    previous = clone;
+                });
+            } 
+        }
+    };
+}]);
+
+
+directives.directive('sylvaEtCell', function () {
+    return {
+        require: '^syEditableTable',
+        scope: {
+            config: '='
+        },
+        templateUrl: '/static/app/partials/directives/edit_cell.html',
+        link: function(scope, elem, attrs, ctrl) {
+
+            scope.$watch('config', function (newVal, oldVal) {
+                scope.row = scope.config.row;
+                scope.col = scope.config.col;
+                scope.queries = scope.config.queries;
+                scope.activeQuery = scope.config.activeQuery;
+                scope.chartTypes = scope.config.chartTypes;
+                scope.chartType = scope.config.chartType;
+                scope.tableArray = ctrl.getTableArray();
+            }, true);
+
+
+            scope.$watch('activeQuery', function (newVal, oldVal) {
+                if (newVal == oldVal) return;
+                scope.tableArray.addQuery([scope.row, scope.col], newVal.name)
+                if (newVal === 'markdown') {
+                    scope.markdown = true;
+                } else {
+                    scope.markdown = false;
+                }
+            }); 
+
+            scope.$watch('chartType', function (newVal, oldVal) {
+                if (newVal == oldVal) return;
+                scope.tableArray.addChart([scope.row, scope.col], newVal)
+            });
+        }
+    };
+});
+
+
+directives.directive('sylvaEtDispalyCell', function () {
+    return {
+        require: '^syEditableTable',
+        scope: {
+            config: '='
+        },
+        templateUrl: '/static/app/partials/directives/display_cell.html',
+        link: function(scope, elem, attrs, ctrl) {
+
+            scope.$watch('config', function (newVal, oldVal) {
+                scope.row = scope.config.row
+                scope.col = scope.config.col;
+                scope.activeQuery = scope.config.activeQuery;
+                scope.query = scope.activeQuery.name;
+                scope.series = scope.activeQuery.series
+                scope.chartType = scope.config.chartType;
+                scope.tableArray = ctrl.getTableArray()
+
+
+                scope.chartConfig = {
+                    options: {chart: {type: scope.chartType}},
+                    xAxis: {catagories: []},
+                    series: [{data: scope.series}],
+                    title: {text: scope.query},     
+                    loading: false
+                };
+            }, true);
+        }
+    };
+});
+
+
+
+
+
+
+
+
+
+
+
 directives.directive('sylvaPreviewCell', ['$routeParams', 'api', 'parser', function ($routeParams, api, parser) {
     return {
         templateUrl: '/static/app/partials/directives/preview_cell.html',
@@ -55,7 +432,6 @@ directives.directive('sylvaPreviewCell', ['$routeParams', 'api', 'parser', funct
                 scope.series = queries.filter(function (el) {
                     return el.name == scope.query
                 })[0].series
-                //.console.log('series', series, scope.chartType, scope.query)
                 scope.config.options.chart.type = scope.chartType;
                 scope.config.title.text = scope.query;
                 scope.config.series[0].data = scope.series;
@@ -191,10 +567,8 @@ directives.directive('sylvaEditableTable', ['$compile', 'tableArray', 'api', fun
             ,   delRow = ang(buttons.children()[2])
             ,   delCol = ang(buttons.children()[3])
             
-
             try {
                 var html = scope.tableArray.htmlify(rowWidth);
-                console.log(scope.tableArray.table)
                 // hmmmm no compile here but it seems to be working
                 $compile(rows.html(html))(scope);
             } catch (e) {
@@ -306,7 +680,6 @@ directives.directive('sylvaMergeCells', ['$compile', function ($compile) {
 
             scope.$watch('displayQuery', function (newVal, oldVal) {
                 if (newVal == oldVal) return;
-                console.log('addedquery', newVal)
                 scope.tableArray.addQuery([row, col], newVal.name)
                 if (newVal === 'markdown') {
                     scope.markdown = true;

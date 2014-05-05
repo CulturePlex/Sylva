@@ -43,8 +43,16 @@ services.factory('tableArray', function () {
     function TableArray(table) {
         this.table = table;
         this.numRows = table.length;
-        this.numCols = table[0].length;
+        this.numCols = getNumCols(table[0]);
     };
+
+    function getNumCols(row) {
+        var count = 0;
+        angular.forEach(row, function (el) {
+            count += parseInt(el.colspan)
+        });
+        return count;
+    }
 
     TableArray.prototype.getAdjCells = function(row, col) {
         //var upMerge = this.rowMerge(row, col, 'up');
@@ -143,7 +151,6 @@ services.factory('tableArray', function () {
     }
 
     TableArray.prototype.addQuery = function(coords, query) {
-        console.log('addedquery', query)
         this.table[coords[0]][coords[1]].displayQuery = query;
     }
 
@@ -253,7 +260,7 @@ services.factory('tableArray', function () {
             ,   cells = '';
             for (var j=0; j<rlen; j++) {
                 var cell = row[j]
-                ,   width = (rowWidth / this.numCols - ((this.numCols + 1) * 2 / this.numCols)) * cell.colspan + (2 * (cell.colspan - 1)) + 'px'
+                ,   width = (rowWidth / this.numCols - ((this.numCols + 1) * 2 / this.numCols)) * cell.colspan + (25 * (cell.colspan - 1)) + 'px'
                 // will implement later
                 if (cell.rowspan === 0) {
                     var height = '0px'

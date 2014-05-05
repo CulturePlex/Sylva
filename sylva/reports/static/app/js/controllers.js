@@ -18,27 +18,37 @@ controllers.controller('ReportListCtrl', [
 
 controllers.controller('BaseReportFormCtrl', [
     '$scope',
-    '$location', 
+    '$location',
+    '$routeParams', 
     'api',
     'parser',
-    'tableArray', 
-    function ($scope, $location, api, parser, tableArray) {
+    'tableArray',
+    function ($scope, $location, $routeParams, api, parser, tableArray) {
         $scope.graph = parser.parse();
         $scope.report = {};
         $scope.queries = [];
-        $scope.chartTypes = ['column', 'scatter', 'pie', 'line'];
 
-        api.queries.query({
-            graphSlug: $scope.graph,
-            slug: $scope.report.slug
-        }, function (data) {
-            var queries = data.map(function (el) {
-                return {name: el.name, series: el.series} 
+
+        $scope.report.slug = $routeParams.reportSlug;
+
+            api.reports.query({
+                graphSlug: $scope.graph,
+                slug: $scope.report.slug  
+            }, function (data) {
+                $scope.report = data[0];
+                $scope.resp = {table: $scope.report.table, queries: $scope.report.queries}
             });
-            queries.unshift('markdown')
-            $scope.queries = queries
-            console.log('scopq', $scope.queries)
-        });
+
+        //api.queries.query({
+        //    graphSlug: $scope.graph,
+        //    slug: $scope.report.slug
+        //}, function (data) {
+        //    var queries = data[1].map(function (el) {
+        //        return {name: el.name, series: el.series} 
+        //    });
+        //    $scope.queries = queries
+        //    console.log('ctrlqerw', $scope.queries)
+        //});
     
 
         $scope.designReport = function () {
@@ -64,7 +74,9 @@ controllers.controller('BaseReportFormCtrl', [
             var post = new api.reports();
             post.report = $scope.report;
             post.table = $scope.tableArray;
+
             post.$save({graphSlug: $scope.graph}, function (data) {
+                console.log('data', data)
                 var redirect = '/';
                 $location.path(redirect);
             });
@@ -100,7 +112,6 @@ controllers.controller('NewReportCtrl', [
             });
             queries.unshift('markdown')
             $scope.queries = queries
-            console.log('scopq', $scope.queries)
         });
 
         $scope.tableArray = tableArray([[{
@@ -146,17 +157,9 @@ controllers.controller('EditReportCtrl', [
         $scope.report.slug = $routeParams.reportSlug;
         $scope.tableArray = [];
         $scope.tableLength = $scope.tableArray.length;
-        api.queries.query({
-            graphSlug: $scope.graph,
-            slug: $scope.report.slug
-        }, function (data) {
-            var queries = data.map(function (el) {
-                return {name: el.name, series: el.series} 
-            });
-            queries.unshift('markdown')
-            $scope.queries = queries
-            console.log('scopq', $scope.queries)
-        });
+        $scope.$watch('tableArray', function () {
+            console.log('changedArray', $scope.tableArray)
+        })
 
 }]);
 
@@ -201,28 +204,16 @@ controllers.controller('ReportPreviewCtrl', [
         $scope.report = {};
         $scope.graph = parser.parse();
         $scope.report.slug = $routeParams.reportSlug;
-        api.reports.query({
-            graphSlug: $scope.graph,
-            slug: $scope.report.slug  
-        }, function (data) {
-            $scope.report = data[0];
-            $scope.tableArray = tableArray($scope.report.table)
-            console.log('ta', $scope.tableArray)
-        });
 
-        api.queries.query({
-            graphSlug: $scope.graph,
-            slug: $scope.report.slug
-        }, function (data) {
-            var queries = data.map(function (el) {
-                return {name: el.name, series: el.series} 
+            api.reports.query({
+                graphSlug: $scope.graph,
+                slug: $scope.report.slug  
+            }, function (data) {
+                $scope.report = data[0];
+                $scope.resp = {table: $scope.report.table, queries: $scope.report.queries}
             });
-            $scope.queries = queries
-
-        });
 
         $scope.getQuery = function(name) {
-            console.log('filter', $scope.queries)
             return $scope.queries.filter(function (el) {
                 return el['name'] === name
             });

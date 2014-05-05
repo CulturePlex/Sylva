@@ -39,7 +39,25 @@ def reports_index_view(request, graph_slug):
 @permission_required("schemas.view_schema",
                      (Schema, "graph__slug", "graph_slug"), return_403=True)
 def reports_endpoint(request, graph_slug):
+    series = [
+        ["5", 0.279767],
+        ["2", 0.15],
+        ["6", 0.484065],
+        ["8", 0.1925],
+        ["7", 0.918638],
+        ["1", 0.1925],
+        ["4", 0.394192],
+        ["3", 0.182725]
+    ]
+    queries = [
+        {'name': 'query1', 'series': series},
+        {'name': 'query2', 'series': series},
+        {'name': 'query3', 'series': series},
+        {'name': 'query4', 'series': series},
+        {'name': 'query5', 'series': series}
+    ]
     reports = [{
+        'queries': queries,
         'name': 'report1',
         'slug': 'report1',
         'table': [[{
@@ -52,7 +70,7 @@ def reports_endpoint(request, graph_slug):
             'chartType': 'line'
         }, {
             'col': 1,
-            'colspan': '1',
+            'colspan': '2',
             'id': 'cell2',
             'row': 0,
             'rowspan': '1',
@@ -74,9 +92,17 @@ def reports_endpoint(request, graph_slug):
             'rowspan': '1',
             'displayQuery': 'query2',
             'chartType': 'column'
+        }, {
+            'col': 2,
+            'colspan': '1',
+            'id': 'cell5',
+            'row': 1,
+            'rowspan': '1',
+            'displayQuery': 'query5',
+            'chartType': 'column'
         }]],
         'numRows': 2,
-        'numCols': 2,
+        'numCols': 3,
         'periodicity': 'weekly',
         'start_time': '08:30',
         'start_date': "11/02/2014",

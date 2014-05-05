@@ -1,13 +1,7 @@
 <div class="prev-cont">
-  <div ng-repeat="row in tableArray.table">
-
-      <div ng-repeat="cell in row">
-        <div class="col">
-          <!---here just pass whole cell-->
-          <div sylva-preview-cell query="{{cell.displayQuery}}" colspan="{{cell.colspan}}" chart-type="{{cell.chartType}}" getter="getQuery" queries="queries">
-          </div>
-        </div>
-      </div>
-
+  <div sylva-pv-row-repeat class="row" resp="resp">
+    <div sylva-pv-cell-repeat class="col" row="row">
+      <div highchart config="chartConfig" ng-style="cellStyle"></div>
+    </div>
   </div>
 </div>
