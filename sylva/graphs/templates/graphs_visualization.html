@@ -35,7 +35,10 @@
       </div>
       {% if analytics %}
         <div class="sigma-control" style="display: none; float: right;">
+          {% if settings.ENABLE_ANALYTICS %}
           <a id="sigma-go-analytics" class="button" style="font-size:100%;" title="{% trans "Analytics" %}">{% trans "Analytics" %}</a>
+          {% endif %}
+          <a id="sigma-go-analytics" class="button" style="font-size:100%;" title="{% trans "Explore" %}">{% trans "Explore" %}</a>
         </div>
       {% endif %}
     </div>
@@ -101,6 +104,7 @@
   </div>
 </div>
 <div id="analytics" class="analytics-mode" style="display: none;">
+{% if settings.ENABLE_ANALYTICS %}
   <h2 style="margin-top: 5px; margin-left: 10px;">{% trans "Analytics" %}</h2>
   <div id="analytics-algorithms">
     {% for key, value in algorithms.items %}
@@ -121,6 +125,7 @@
       </div>
     {% endfor %}
   </div>
+{% endif %}
 </div>
 
   <!-- Start of DOM elements working as memory system and debugging -->

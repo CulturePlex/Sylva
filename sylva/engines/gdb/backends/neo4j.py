@@ -7,7 +7,10 @@ from engines.gdb.backends import (GraphDatabaseConnectionError,
                                   GraphDatabaseInitializationError)
 from engines.gdb.backends.blueprints import BlueprintsGraphDatabase
 from engines.gdb.lookups.neo4j import Q as q_lookup_builder
-from engines.gdb.analysis.neo4j import Analysis
+try:
+    from engines.gdb.analysis.neo4j import Analysis
+except ImportError:
+    Analysis = None
 
 
 WILDCARD_TYPE = -1
@@ -476,4 +479,7 @@ class GraphDatabase(BlueprintsGraphDatabase):
         self = None
 
     def analysis(self):
-        return Analysis()
+        if Analysis is not None:
+            return Analysis()
+        else:
+            return None

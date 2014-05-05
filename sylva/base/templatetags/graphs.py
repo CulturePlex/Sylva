@@ -51,7 +51,11 @@ def breadcrumb(context, *links):
 
 @register.inclusion_tag('graphs_visualization.html', takes_context=True)
 def graph_visualization(context, graph, analytics=True):
-    algorithms = graph.gdb.analysis().list_algorithms()
+    analysis = graph.gdb.analysis()
+    if analysis:
+        algorithms = analysis.list_algorithms()
+    else:
+        algorithms = []
     return {'analytics': bool(analytics),
             'algorithms': algorithms,
             'graph': graph}
