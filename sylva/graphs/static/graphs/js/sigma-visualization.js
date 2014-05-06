@@ -342,6 +342,12 @@ sigma:true, clearTimeout */
         marginTop: '5px'
       });
       $.each(types, function(typeId, type) {
+        if (kind == 'rel') {
+          type[label] = type.sourceName +
+                    ' <span style="font-style: italic;">' +
+                    type.name + '</span> ' + type.targetName
+        }
+
         list.append($('<li>')
           .css({
             minHeight: '20px',

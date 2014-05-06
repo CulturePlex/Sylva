@@ -65,15 +65,12 @@ def _jsonify_graph(nodes_list, relations_list):
         if (str(source_id) in node_ids and str(target_id) in node_ids):
             reltype = rel.get_type()
             if reltype.id not in reltypes:
-                htmlFullName = reltype.source.name + \
-                    ' <span style="font-style: italic;">' + \
-                    reltype.name + '</span> ' + \
-                    reltype.target.name
                 reltypes[reltype.id] = {
                     'id': reltype.id,
                     'name': reltype.name,
                     'fullName': reltype.__unicode__(),
-                    'htmlFullName': htmlFullName,
+                    'sourceName': reltype.source.name,
+                    'targetName': reltype.target.name,
                     'color': reltype.get_color(),
                     'colorMode': reltype.get_color_mode(),
                     'relationships': []
