@@ -6,39 +6,41 @@
   <div id="graph-rel-types" class="analytics-mode" style="display: none;">
   </div>
   <div id="graph-node-info">
-    <div class="sigma-control" style="display: none; float: left;">
+    <div class="sigma-control left" style="display: none;">
       <input type="checkbox" id="sigma-node-info">
       <label for="sigma-node-info" title="{% trans "Show node info" %}">{% trans "Node info" %}</label>
     </div>
   </div>
-  <div id="graph-controls">
-    <div style="float: right;">
-      <div class="sigma-control analytics-mode" style="display: none; float: left; margin-right: 10px">
-        <a id="sigma-filter-rectangle" class="button" style="font-size:100%;" title="{% trans "Rect" %}">{% trans "Rect" %}</a>
-      </div>
-      <div class="sigma-control analytics-mode" style="display: none; float: left; margin-right: 10px; margin-left: 2px">
-        <a id="sigma-filter-free-hand" class="button" style="font-size:100%;" title="{% trans "Free hand" %}">{% trans "F. hand" %}</a>
-      </div>
-      <div class="sigma-control analytics-mode" style="display: none; float: left; margin-right: 10px; margin-left: 2px">
-        <a id="sigma-filter-neighbors" class="button" style="font-size:100%;" title="{% trans "Neighbors" %}">{% trans "Neighbors" %}</a>
-      </div>
-      <div class="sigma-control analytics-mode" style="display: none; float: left; margin-right: 10px; margin-left: 2px">
-        <a id="sigma-filter-click" class="button" style="font-size:100%;" title="{% trans "Click" %}">{% trans "Click" %}</a>
-      </div>
-      <div class="sigma-control" style="display: none; float: right;">
+  <div id="graph-controls-and-info">
+    <div id="graph-controls">
+
+              <div class="sigma-control analytics-mode" style="display: none; float: left; margin-right: 10px">
+                <a id="sigma-filter-rectangle" class="button" style="font-size: 100%;" title="{% trans "Rect" %}">{% trans "Rect" %}</a>
+              </div>
+              <div class="sigma-control analytics-mode" style="display: none; float: left; margin-right: 10px; margin-left: 2px">
+                <a id="sigma-filter-free-hand" class="button" style="font-size: 100%;" title="{% trans "Free hand" %}">{% trans "F. hand" %}</a>
+              </div>
+              <div class="sigma-control analytics-mode" style="display: none; float: left; margin-right: 10px; margin-left: 2px">
+                <a id="sigma-filter-neighbors" class="button" style="font-size: 100%;" title="{% trans "Neighbors" %}">{% trans "Neighbors" %}</a>
+              </div>
+              <div class="sigma-control analytics-mode" style="display: none; float: left; margin-right: 10px; margin-left: 2px">
+                <a id="sigma-filter-click" class="button" style="font-size: 100%;" title="{% trans "Click" %}">{% trans "Click" %}</a>
+              </div>
+
+      <div class="sigma-control right" style="display: none;">
         <a id="sigma-zoom-in" class="button icon-plus control-button zoom-left" title="{% trans "Zoom in" %}"></a>
-        <a id="sigma-zoom-home" class="button icon-home control-button zoom-home" style="font-size:100%;" title="{% trans "Re-center graph" %}"></a>
-        <a id="sigma-zoom-out" class="button icon-minus control-button zoom-right" style="font-size:100%;" title="{% trans "Zoom out" %}"></a>
+        <a id="sigma-zoom-home" class="button icon-home control-button zoom-home" title="{% trans "Re-center graph" %}"></a>
+        <a id="sigma-zoom-out" class="button icon-minus control-button zoom-right" title="{% trans "Zoom out" %}"></a>
       </div>
-      <div class="sigma-control analytics-mode" style="display: none; float: left;">
-        <a id="sigma-export-image" class="button" style="font-size:100%;" title="{% trans "Save as a PNG image" %}" download="{{ graph.slug }}.png">{% trans "Save as image" %}</a>
+      <div class="sigma-control left analytics-mode" style="display: none;">
+        <a id="sigma-export-image" class="button" style="font-size: 100%;" title="{% trans "Save as a PNG image" %}" download="{{ graph.slug }}.png">{% trans "Save as image" %}</a>
       </div>
       {% if analytics %}
-        <div class="sigma-control" style="display: none; float: right;">
+        <div class="sigma-control right" style="display: none;">
           {% if settings.ENABLE_ANALYTICS %}
-          <a id="sigma-go-analytics" class="button" style="font-size:100%;" title="{% trans "Analytics" %}">{% trans "Analytics" %}</a>
+          <a id="sigma-go-analytics" class="button" style="font-size: 100%;" title="{% trans "Analytics" %}">{% trans "Analytics" %}</a>
           {% endif %}
-          <a id="sigma-go-analytics" class="button" style="font-size:100%;" title="{% trans "Explore" %}">{% trans "Explore" %}</a>
+          <a id="sigma-go-analytics" class="button" style="font-size: 100%;" title="{% trans "Explore" %}">{% trans "Explore" %}</a>
         </div>
       {% endif %}
     </div>
@@ -49,21 +51,21 @@
     <h2 class="collapsible-header">{% trans "Layout" %}</h2>
     <div>
       <div>
-        <select id="sigma-graph-layout" style="margin-left: 0;">
+        <select id="sigma-graph-layout">
           <option id="force-atlas-2" disabled="disabled" selected="selected">{% trans "Force Atlas 2" %}</option>
           <option id="grid">{% trans "Grid" %}</option>
           <option id="circular">{% trans "Circular" %}</option>
         </select>
         <div class="sigma-control">
-          <a id="sigma-pause" class="button control-button pause-button" style="font-size:100%; margin-top: 0; margin-bottom: 7px;" title="{% trans "Play / puase layout algorithm" %}"></a>
+          <a id="sigma-pause" class="button control-button pause-button" style="font-size: 100%;" title="{% trans "Play / puase layout algorithm" %}"></a>
         </div>
         <div class="sigma-control">
           <input type="checkbox" id="sigma-hidden-layout" checked="checked">
           <label for="sigma-hidden-layout" title="{% trans "Ignore the hidden nodes for apply the layout" %}">{% trans "Ignore hidden nodes" %}</label>
         </div>
       </div>
-      <div style="margin-top: 5px; margin-bottom: 10px; display: none;">
-        <label style="margin-right: 50px; font-weight: normal;">{% trans "Node order:" %}</label>
+      <div class="graph-layout-option" style="display: none;">
+        <label class="label-node-order" style="margin-right: 50px; font-weight: normal;">{% trans "Node order:" %}</label>
         <select id="sigma-graph-layout-degree-order">
           <option id="nt" disabled="disabled" selected="selected">{% trans "Node type" %}</option>
           <option id="td">{% trans "Total degree" %}</option>
@@ -75,8 +77,8 @@
           <option id="a">{% trans "Asc" %}</option>
         </select>
       </div>
-      <div style="margin-top: 5px; margin-bottom: 10px;">
-        <label style="margin-right: 58px; font-weight: normal;">{% trans "Node size:" %}</label>
+      <div class="graph-layout-option">
+        <label class="label-node-size">{% trans "Node size:" %}</label>
         <select id="sigma-node-size">
           <option id="same" disabled="disabled" selected="selected">{% trans "Same for all" %}</option>
           <option id="total-degree">{% trans "Total degree" %}</option>

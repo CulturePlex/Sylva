@@ -1533,11 +1533,15 @@ table.content-table {
   overflow-y: auto;
 }
 
-#graph-controls {
+#graph-controls-and-info {
     display: block;
     position: relative;
     z-index: 9999;
     margin-right: -15px;
+}
+
+#graph-controls {
+    float: right;
 }
 
 #graph-node-info {
@@ -1549,6 +1553,7 @@ table.content-table {
 
 #sigma-graph-layout {
     width: 125px;
+    margin-left: 0;
 }
 
 #sigma-graph-layout-degree-order {
@@ -1557,6 +1562,23 @@ table.content-table {
 
 #sigma-graph-layout-order {
     width: 75px;
+}
+
+.graph-layout-option {
+    margin-top: 5px;
+    margin-bottom: 10px;
+}
+
+.graph-layout-option label {
+    font-weight: normal;
+}
+
+.graph-layout-option label.label-node-order {
+    margin-right: 50px;
+}
+
+.graph-layout-option label.label-node-size {
+    margin-right: 58px;
 }
 
 #sigma-node-size {
@@ -1576,7 +1598,6 @@ table.content-table {
 #graph-layout select {
     height: 34px;
     margin-top: -2px;
-    margin-left: 12px;
     border: 3px solid #D8E8DE;
     color: #555;
     display: inline-block;
@@ -1601,6 +1622,14 @@ table.content-table {
 
 .sigma-control {
     margin-left: 12px;
+}
+
+.sigma-control.left {
+    float: left;
+}
+
+.sigma-control.right {
+    float: right;
 }
 
 .sigma-control label {
@@ -1629,6 +1658,8 @@ table.content-table {
 
 .pause-button {
     width: 10px;
+    margin-top: 0;
+    margin-bottom: 7px;
 }
 
 .zoom-left {

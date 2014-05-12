@@ -248,23 +248,6 @@ sigma:true, clearTimeout */
         that.enableDisableSelectingTool('click');
       });
 
-      // TODO: Analytics sidebar hover-scrollbar
-      /*
-      // Analytics sidebar scrollbar.
-      $('#analytics').css({
-          whiteSpace: 'nowrap'
-        });
-      $('#analytics').hover(function() {
-        $('#analytics').css({
-          overflowY: 'visible'
-        });
-      }, function(){
-        $('#analytics').css({
-          overflowY: 'hidden'
-        });
-      });
-      */
-
       sigInst.startForceAtlas2();
       isDrawing = true;
 
@@ -439,26 +422,19 @@ sigma:true, clearTimeout */
     },
 
     nodeMouseDown: function(event) {
-      console.log('NODE MOUSE DOWN - BEGINS');
-
-      //that.setDefaultSigmaNodeActions(false, false);
-
       $('#main').css('user-select', 'none');
 
       // This is for treating the select node by click feature
       if (selectedSelectingTool == 'click' || selectedSelectingTool == 'neighbors') {
-        console.log('NODE MOUSE DOWN - SELECTING TOOL');
         $('#main').on('mouseup', that.nodeMouseUp);
         sigInst.unbind('outNode', that.treatOutNode);
 
       } else {
-        console.log('NODE MOUSE DOWN - REGULAR CLICK');
         var dom = $('.sigma-mouse')[0];
         currentNodeX = sigma.utils.getX(event) - dom.offsetWidth / 2;
         currentNodeY = sigma.utils.getY(event) - dom.offsetHeight / 2;
 
         $('.sigma-mouse').off('mousedown', that.nodeMouseDown);
-        console.log('ACTIVATING NODE MOUSE DOWN');
         $('#main').on('mousemove', that.nodeMouseMove);
         $('#main').on('mouseup', that.nodeMouseUp);
 
@@ -471,7 +447,6 @@ sigma:true, clearTimeout */
         that.setDefaultSigmaNodeActions(false, false);
       }
 
-      console.log('NODE MOUSE DOWN - ENDS');
     },
 
     nodeMouseUp: function(event) {
@@ -492,9 +467,7 @@ sigma:true, clearTimeout */
       $('#main').off('mouseup', that.nodeMouseUp);
 
       // This is for treating the select node by click feature.
-      console.log('NODE MOUSE UP');
       if (selectedSelectingTool == 'click') {
-        console.log('SELECT / DESELECT');
         that.selectDeselectNode(nodeOvered);
 
       } else if(selectedSelectingTool == 'neighbors') {
@@ -521,7 +494,6 @@ sigma:true, clearTimeout */
     },
 
     nodeMouseMove: function(event) {
-      console.log('NODE MOUSE MOVE - BEGINS');
       that.stop();
 
       var dom = $('.sigma-mouse')[0];
@@ -602,9 +574,7 @@ sigma:true, clearTimeout */
     },
 
     treatOverNode: function(event) {
-      console.log('ALMOST OVERNODE');
       if (!nodeOvered) {
-        console.log('OVERNODE');
         nodeOvered = event.data.node;
 
         // Binding mouse node events.
@@ -616,9 +586,7 @@ sigma:true, clearTimeout */
     },
 
     treatOutNode: function(event) {
-      console.log('ALMOST OUTNODE');
       if (nodeOvered) {
-        console.log('OUTNODE');
         // Unbinding mouse node events.
         $('.sigma-mouse').off('mousedown', that.nodeMouseDown);
 
@@ -1024,8 +992,8 @@ sigma:true, clearTimeout */
       $('#analytics').resizable('option', 'minWidth', width * 0.15);
       $('#analytics').resizable('option', 'maxWidth', width * 0.33);
 
-      $('#graph-controls').css({
-        left: width - analyticsSidebarWidth - $('#graph-controls').width() - 20
+      $('#graph-controls-and-info').css({
+        left: width - analyticsSidebarWidth - $('#graph-controls-and-info').width() - 20
       });
 
       var renderer = sigInst.renderers[0];
@@ -1137,7 +1105,7 @@ sigma:true, clearTimeout */
         });
       });
 
-      $('#graph-controls').css({
+      $('#graph-controls-and-info').css({
         position: 'absolute',
         height: 'auto',
         padding: '10px',
@@ -1192,7 +1160,7 @@ sigma:true, clearTimeout */
         marginLeft: ''
       });
 
-      $('#graph-controls').removeAttr('style');
+      $('#graph-controls-and-info').removeAttr('style');
       $('#graph-node-types').removeAttr('style');
       $('#graph-node-types ul').removeAttr('style');
       $('#sigma-wrapper').removeAttr('style');
