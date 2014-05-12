@@ -62,7 +62,6 @@ sigma:true, clearTimeout */
   var nodeOvered = null;
   var mouseMovedOnNode = false;
   var mouseMovedOnStage = false;
-  var isOverNode = false;
   var nodeInfoShowed = false;
   var isMouseOverCanvas = false;
   var isZoomWheelPossible = false;
@@ -440,23 +439,26 @@ sigma:true, clearTimeout */
     },
 
     nodeMouseDown: function(event) {
-      // Deactivate drag graph.
-      sigInst.settings({mouseEnabled: false, enableHovering: false});
-      sigInst.refresh();
+      console.log('NODE MOUSE DOWN - BEGINS');
+
+      //that.setDefaultSigmaNodeActions(false, false);
 
       $('#main').css('user-select', 'none');
 
       // This is for treating the select node by click feature
       if (selectedSelectingTool == 'click' || selectedSelectingTool == 'neighbors') {
+        console.log('NODE MOUSE DOWN - SELECTING TOOL');
         $('#main').on('mouseup', that.nodeMouseUp);
         sigInst.unbind('outNode', that.treatOutNode);
 
       } else {
+        console.log('NODE MOUSE DOWN - REGULAR CLICK');
         var dom = $('.sigma-mouse')[0];
         currentNodeX = sigma.utils.getX(event) - dom.offsetWidth / 2;
         currentNodeY = sigma.utils.getY(event) - dom.offsetHeight / 2;
 
         $('.sigma-mouse').off('mousedown', that.nodeMouseDown);
+        console.log('ACTIVATING NODE MOUSE DOWN');
         $('#main').on('mousemove', that.nodeMouseMove);
         $('#main').on('mouseup', that.nodeMouseUp);
 
@@ -464,17 +466,20 @@ sigma:true, clearTimeout */
 
         mouseMovedOnNode = false;
         isZoomWheelPossible = true;
+
+        // Deactivate drag graph.
+        that.setDefaultSigmaNodeActions(false, false);
       }
+
+      console.log('NODE MOUSE DOWN - ENDS');
     },
 
     nodeMouseUp: function(event) {
-      // Activate drag graph.
-      sigInst.settings({mouseEnabled: true, enableHovering: true});
-      sigInst.refresh();
+      // Activate drag graph if it was desactivated.
+      that.setDefaultSigmaNodeActions(true, true);
 
       $('#main').css('user-select', 'all');
 
-      var near = false;
       var offset = $('.sigma-mouse').offset()
       var nodeX = nodeOvered['renderer1:x'];
       var nodeY = nodeOvered['renderer1:y'];
@@ -483,18 +488,13 @@ sigma:true, clearTimeout */
       x = nodeX - x;
       y = nodeY - y;
 
-      if (x >= -5 && x <= 5 && y >= -5 && y <= 5) {
-        near = true;
-      }
-
-      if (!near) {
-        that.treatOutNode();
-      }
       sigInst.bind('outNode', that.treatOutNode);
       $('#main').off('mouseup', that.nodeMouseUp);
 
       // This is for treating the select node by click feature.
+      console.log('NODE MOUSE UP');
       if (selectedSelectingTool == 'click') {
+        console.log('SELECT / DESELECT');
         that.selectDeselectNode(nodeOvered);
 
       } else if(selectedSelectingTool == 'neighbors') {
@@ -521,6 +521,7 @@ sigma:true, clearTimeout */
     },
 
     nodeMouseMove: function(event) {
+      console.log('NODE MOUSE MOVE - BEGINS');
       that.stop();
 
       var dom = $('.sigma-mouse')[0];
@@ -601,7 +602,9 @@ sigma:true, clearTimeout */
     },
 
     treatOverNode: function(event) {
-      if (!isOverNode) {
+      console.log('ALMOST OVERNODE');
+      if (!nodeOvered) {
+        console.log('OVERNODE');
         nodeOvered = event.data.node;
 
         // Binding mouse node events.
@@ -609,20 +612,20 @@ sigma:true, clearTimeout */
 
         // Unbinding stage mouse events.
         $('.sigma-mouse').off('mousedown', that.stageMouseDown);
-
-        isOverNode = true;
       }
     },
 
     treatOutNode: function(event) {
-      if (isOverNode) {
+      console.log('ALMOST OUTNODE');
+      if (nodeOvered) {
+        console.log('OUTNODE');
         // Unbinding mouse node events.
         $('.sigma-mouse').off('mousedown', that.nodeMouseDown);
 
         // Binding stage mouse events.
         $('.sigma-mouse').on('mousedown', that.stageMouseDown);
 
-        isOverNode = false;
+        nodeOvered = null;
       }
     },
 
@@ -2191,8 +2194,7 @@ sigma:true, clearTimeout */
     },
 
     activateSelectingAreaTool: function(type) {
-        sigInst.settings({mouseEnabled: false, enableHovering: false});
-        sigInst.refresh();
+        that.setDefaultSigmaNodeActions(false, false);
         $('.sigma-mouse').css({
           cursor: 'crosshair'
         });
@@ -2248,9 +2250,6 @@ sigma:true, clearTimeout */
             cursor: ''
           });
 
-          sigInst.settings({mouseEnabled: true, enableHovering: true});
-          sigInst.refresh();
-
           path.removeSegments();
           paperTool.remove();
           that.enableDisableSelectingTool(type);
@@ -2260,8 +2259,7 @@ sigma:true, clearTimeout */
     deactivateSelectingAreaTool: function(type) {
       paperTool.remove();
 
-      sigInst.settings({mouseEnabled: true, enableHovering: true});
-      sigInst.refresh();
+      that.setDefaultSigmaNodeActions(true, true);
 
       $('.sigma-mouse').css({
         cursor: ''
@@ -2301,6 +2299,14 @@ sigma:true, clearTimeout */
       });
 
       return false;
+    },
+
+    setDefaultSigmaNodeActions: function(mouse, hover) {
+      sigInst.settings({
+        mouseEnabled: mouse,
+        enableHovering: hover
+      });
+      sigInst.refresh();
     }
 
   };
