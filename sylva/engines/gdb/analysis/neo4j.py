@@ -59,6 +59,7 @@ class Analysis(BaseAnalysis):
             for relationship in graph.relationships.all():
                 line = "{0},{1}\n".format(relationship.source.id,
                                           relationship.target.id)
+                print line
                 f.write(line)
         f.close()
 
@@ -125,8 +126,13 @@ class Analysis(BaseAnalysis):
         except Exception as e:
             raise Exception(PROC_FINA, "Error finishing the task")
 
-    # def kcore_eta(self, graph):
-        # TODO
+    def kcore_eta(self, graph):
+        nodes = graph.nodes.count()
+        rels = graph.relationships.count()
+
+        result = nodes + rels
+
+        return result * INST_TIME
 
     def pagerank(self, analytic):
         try:
@@ -189,8 +195,8 @@ class Analysis(BaseAnalysis):
 
     def triangle_counting_eta(self, graph):
         nodes = graph.nodes.count()
-
-        result = nodes ** 2.3
+        exp = 3/float(2)
+        result = nodes ** exp
 
         return result * INST_TIME
 

@@ -58,7 +58,8 @@ def graph_visualization(context, graph, analytics=True):
         algorithms = []
     return {'analytics': bool(analytics),
             'algorithms': algorithms,
-            'graph': graph}
+            'graph': graph,
+            'settings': settings}
 
 
 @register.inclusion_tag('graphs_visualization_resources.html',

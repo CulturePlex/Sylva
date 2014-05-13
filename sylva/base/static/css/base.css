@@ -1750,6 +1750,31 @@ div[id^='collorpicker_'] {
     overflow: hidden;
 }
 
+#analytics-menu {
+    display: block;
+}
+
+#play-button {
+    display: block;
+}
+
+.play-algorithm {
+    height: 15px;
+}
+
+.label-analytics {
+    font-size: 10px;
+    margin-left: 10px;
+}
+
+.last-analytics {
+    width: 120px;
+    padding: 0;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    font-size: 11px;
+}
+
 div.relationships-box {
     overflow: auto;
     line-height: 17px;

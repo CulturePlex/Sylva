@@ -44,8 +44,8 @@ diagram.lookupsBackendValues = {
     'is greater than or equal to': 'gte',
     'is between': 'in',
     'does not equal': 'neq',
-    'has some value': 'has some value',
-    'has no value': 'has no value',
+    'has some value': 'isnotnull',
+    'has no value': 'isnull',
     'contains': 'contains',
     "doesn't contain": "doesn't contain",
     'starts with': 'startswith',
@@ -77,6 +77,19 @@ diagram.lookupsSpecificValues = [
     diagram.stringValues['nv']
 ];
 
+diagram.lookupsNumberValues = [
+    diagram.stringValues['em'],
+    diagram.stringValues['e'],
+    diagram.stringValues['le'],
+    diagram.stringValues['lt'],
+    diagram.stringValues['gt'],
+    diagram.stringValues['ge'],
+    diagram.stringValues['b'],
+    diagram.stringValues['ne'],
+    diagram.stringValues['v'],
+    diagram.stringValues['nv']
+];
+
 diagram.lookupsTextValues = [
     diagram.stringValues['em'],
     diagram.stringValues['e'],
@@ -93,17 +106,17 @@ diagram.lookupsValuesType = {
     'default': diagram.lookupsAllValues,
     'string': diagram.lookupsTextValues,
     'boolean': diagram.lookupsSpecificValues,
-    'number': diagram.lookupsAllValues,
+    'number': diagram.lookupsNumberValues,
     'text': diagram.lookupsTextValues,
     'date': diagram.lookupsAllValues,
     'time': diagram.lookupsAllValues,
     'choices': diagram.lookupsSpecificValues,
-    'float': diagram.lookupsAllValues,
+    'float': diagram.lookupsNumberValues,
     'collaborator': diagram.lookupsSpecificValues,
     'auto_now': diagram.lookupsAllValues,
     'auto_now_add': diagram.lookupsAllValues,
-    'auto_increment': diagram.lookupsAllValues,
-    'auto_increment_update': diagram.lookupsAllValues,
+    'auto_increment': diagram.lookupsNumberValues,
+    'auto_increment_update': diagram.lookupsNumberValues,
     'auto_user': diagram.lookupsSpecificValues
 };
 
@@ -163,8 +176,6 @@ diagram.lookupsValuesType = {
                 "left": (parseInt(Math.random() * 55 + 1) * 10) + "px",
                 "top": (parseInt(Math.random() * 25 + 1) * 10) + "px",
                 "width": "360px"
-                //"width": "245px"
-                //"width": "33%"
             });
             divBox.addClass("body");
             // Allowed relationships
@@ -1165,6 +1176,13 @@ diagram.lookupsValuesType = {
             var alias = diagram.replaceChars($('#' + parentId + ' .title select').val());
             var propertyName = $(property).val();
             var propertyValue = $(property).next().next().val();
+
+            if(lookup === 'isnull') {
+                propertyValue = true;
+            } else if(lookup === 'isnotnull') {
+                lookup = 'isnull';
+                propertyValue = false;
+            }
 
             // We store the datatype
             var fieldId = $(property).parent().attr('id');

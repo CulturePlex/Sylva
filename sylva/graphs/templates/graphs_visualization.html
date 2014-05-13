@@ -38,9 +38,10 @@
       {% if analytics %}
         <div class="sigma-control right" style="display: none;">
           {% if settings.ENABLE_ANALYTICS %}
-          <a id="sigma-go-analytics" class="button" style="font-size: 100%;" title="{% trans "Analytics" %}">{% trans "Analytics" %}</a>
+          <a id="sigma-go-analytics" class="button" style="font-size:100%;" title="{% trans "Analytics" %}">{% trans "Analytics" %}</a>
+          {% else %}
+          <a id="sigma-go-analytics" class="button" style="font-size:100%;" title="{% trans "Explore" %}">{% trans "Explore" %}</a>
           {% endif %}
-          <a id="sigma-go-analytics" class="button" style="font-size: 100%;" title="{% trans "Explore" %}">{% trans "Explore" %}</a>
         </div>
       {% endif %}
     </div>
@@ -112,15 +113,16 @@
     {% for key, value in algorithms.items %}
       <div id="{{ key }}">
         <h2>{{ value }}</h2>
-        <div id="analytics-menu" style="display: block;">
-          <div id="play-button" style="display: block;">
-            <a id="play-algorithm" class="play-algorithm button icon-play" data-measure='{{ key }}' data-plot="{{ key }}-results" title="Play algorithm" style="height: 15px;"></a>
-            <label style="font-size: 10px; margin-left: 10px;"><input type='checkbox' />{% trans "Feedback results back to the nodes" %}</label>
-            <select class="last-analytics" style="width: 120px; padding: 0; margin-top: 10px; margin-bottom: 10px; font-size; 11px;">
+        <div id="analytics-menu">
+          <div id="play-button">
+            <a id="play-algorithm" class="play-algorithm button icon-play" data-measure='{{ key }}' data-plot="{{ key }}-results" data-eta="{{ key }}-eta" title="Play algorithm"></a>
+            <label class="label-analytics"><input type='checkbox' />{% trans "Feedback results back to the nodes" %}</label>
+            <select class="last-analytics">
               {% for analytic in graph|list_analytics:key %}
                   <option value="{{ analytic.id }}">{{ analytic.task_start }}</option>
               {% endfor %}
             </select>
+            <h2 id="{{ key }}-eta"></h2>
             <div id="{{ key }}-results" class="ui-resizable"></div>
           </div>
         </div>
