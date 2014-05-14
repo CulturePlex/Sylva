@@ -62,7 +62,6 @@ sigma:true, clearTimeout */
   var nodeOvered = null;
   var mouseMovedOnNode = false;
   var mouseMovedOnStage = false;
-  var isOverNode = false;
   var nodeInfoShowed = false;
   var isMouseOverCanvas = false;
   var isZoomWheelPossible = false;
@@ -249,23 +248,6 @@ sigma:true, clearTimeout */
         that.enableDisableSelectingTool('click');
       });
 
-      // TODO: Analytics sidebar hover-scrollbar
-      /*
-      // Analytics sidebar scrollbar.
-      $('#analytics').css({
-          whiteSpace: 'nowrap'
-        });
-      $('#analytics').hover(function() {
-        $('#analytics').css({
-          overflowY: 'visible'
-        });
-      }, function(){
-        $('#analytics').css({
-          overflowY: 'hidden'
-        });
-      });
-      */
-
       sigInst.startForceAtlas2();
       isDrawing = true;
 
@@ -440,10 +422,6 @@ sigma:true, clearTimeout */
     },
 
     nodeMouseDown: function(event) {
-      // Deactivate drag graph.
-      sigInst.settings({mouseEnabled: false, enableHovering: false});
-      sigInst.refresh();
-
       $('#main').css('user-select', 'none');
 
       // This is for treating the select node by click feature
@@ -464,17 +442,19 @@ sigma:true, clearTimeout */
 
         mouseMovedOnNode = false;
         isZoomWheelPossible = true;
+
+        // Deactivate drag graph.
+        that.setDefaultSigmaNodeActions(false, false);
       }
+
     },
 
     nodeMouseUp: function(event) {
-      // Activate drag graph.
-      sigInst.settings({mouseEnabled: true, enableHovering: true});
-      sigInst.refresh();
+      // Activate drag graph if it was desactivated.
+      that.setDefaultSigmaNodeActions(true, true);
 
       $('#main').css('user-select', 'all');
 
-      var near = false;
       var offset = $('.sigma-mouse').offset()
       var nodeX = nodeOvered['renderer1:x'];
       var nodeY = nodeOvered['renderer1:y'];
@@ -483,13 +463,6 @@ sigma:true, clearTimeout */
       x = nodeX - x;
       y = nodeY - y;
 
-      if (x >= -5 && x <= 5 && y >= -5 && y <= 5) {
-        near = true;
-      }
-
-      if (!near) {
-        that.treatOutNode();
-      }
       sigInst.bind('outNode', that.treatOutNode);
       $('#main').off('mouseup', that.nodeMouseUp);
 
@@ -601,7 +574,7 @@ sigma:true, clearTimeout */
     },
 
     treatOverNode: function(event) {
-      if (!isOverNode) {
+      if (!nodeOvered) {
         nodeOvered = event.data.node;
 
         // Binding mouse node events.
@@ -609,20 +582,18 @@ sigma:true, clearTimeout */
 
         // Unbinding stage mouse events.
         $('.sigma-mouse').off('mousedown', that.stageMouseDown);
-
-        isOverNode = true;
       }
     },
 
     treatOutNode: function(event) {
-      if (isOverNode) {
+      if (nodeOvered) {
         // Unbinding mouse node events.
         $('.sigma-mouse').off('mousedown', that.nodeMouseDown);
 
         // Binding stage mouse events.
         $('.sigma-mouse').on('mousedown', that.stageMouseDown);
 
-        isOverNode = false;
+        nodeOvered = null;
       }
     },
 
@@ -1021,8 +992,8 @@ sigma:true, clearTimeout */
       $('#analytics').resizable('option', 'minWidth', width * 0.15);
       $('#analytics').resizable('option', 'maxWidth', width * 0.33);
 
-      $('#graph-controls').css({
-        left: width - analyticsSidebarWidth - $('#graph-controls').width() - 20
+      $('#graph-controls-and-info').css({
+        left: width - analyticsSidebarWidth - $('#graph-controls-and-info').width() - 20
       });
 
       var renderer = sigInst.renderers[0];
@@ -1134,7 +1105,7 @@ sigma:true, clearTimeout */
         });
       });
 
-      $('#graph-controls').css({
+      $('#graph-controls-and-info').css({
         position: 'absolute',
         height: 'auto',
         padding: '10px',
@@ -1189,7 +1160,7 @@ sigma:true, clearTimeout */
         marginLeft: ''
       });
 
-      $('#graph-controls').removeAttr('style');
+      $('#graph-controls-and-info').removeAttr('style');
       $('#graph-node-types').removeAttr('style');
       $('#graph-node-types ul').removeAttr('style');
       $('#sigma-wrapper').removeAttr('style');
@@ -2191,8 +2162,7 @@ sigma:true, clearTimeout */
     },
 
     activateSelectingAreaTool: function(type) {
-        sigInst.settings({mouseEnabled: false, enableHovering: false});
-        sigInst.refresh();
+        that.setDefaultSigmaNodeActions(false, false);
         $('.sigma-mouse').css({
           cursor: 'crosshair'
         });
@@ -2248,9 +2218,6 @@ sigma:true, clearTimeout */
             cursor: ''
           });
 
-          sigInst.settings({mouseEnabled: true, enableHovering: true});
-          sigInst.refresh();
-
           path.removeSegments();
           paperTool.remove();
           that.enableDisableSelectingTool(type);
@@ -2260,8 +2227,7 @@ sigma:true, clearTimeout */
     deactivateSelectingAreaTool: function(type) {
       paperTool.remove();
 
-      sigInst.settings({mouseEnabled: true, enableHovering: true});
-      sigInst.refresh();
+      that.setDefaultSigmaNodeActions(true, true);
 
       $('.sigma-mouse').css({
         cursor: ''
@@ -2301,6 +2267,14 @@ sigma:true, clearTimeout */
       });
 
       return false;
+    },
+
+    setDefaultSigmaNodeActions: function(mouse, hover) {
+      sigInst.settings({
+        mouseEnabled: mouse,
+        enableHovering: hover
+      });
+      sigInst.refresh();
     }
 
   };

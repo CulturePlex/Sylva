@@ -84,7 +84,7 @@ jQuery(document).ready(function() {
             var parentArray = new Array();
             for(var i in data) {
               var childArray = new Array();
-              childArray.push(i);
+              childArray.push(parseFloat(i));
               childArray.push(data[i]);
               parentArray.push(childArray);
             }
@@ -97,7 +97,9 @@ jQuery(document).ready(function() {
                     text: algorithm
                 },
                 xAxis: {
-                    categories: []
+                    title: {
+                        text: 'Algorithm value'
+                    }
                 },
                 yAxis: {
                     title: {
@@ -169,6 +171,7 @@ jQuery(document).ready(function() {
         var $this = $(this);
         var measure = $this.data('measure');
         var plotId = $this.data('plot');
+        var etaId = $this.data('eta');
 
         analyticsId[measure] = plotId;
 
@@ -199,6 +202,14 @@ jQuery(document).ready(function() {
               },
               onOverlayClick: $.unblockUI
             });
+        });
+        jQuery.ajax({
+            type: "POST",
+            url: "/analytics/{{ graph.slug }}/get_eta_" + measure + "/"
+        }).done(function(data){
+            var algorithm = data[0];
+            var eta_time = data[1];
+            $('#' + etaId).html("Estimated time " + eta_time);
         });
     });
 

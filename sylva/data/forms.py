@@ -96,7 +96,7 @@ class ItemForm(forms.Form):
                 field = forms.IntegerField(**field_attrs)
             elif item_property.datatype == datatype_dict["float"]:
                 field = forms.FloatField(**field_attrs)
-            elif item_property.datatype == datatype_dict["choice"]:
+            elif item_property.datatype == datatype_dict["choices"]:
                 field_attrs["choices"] = item_property.get_choices()
                 field_attrs["initial"] = slugify(field_attrs["initial"] or "")
                 if initial and item_property.key in initial:
