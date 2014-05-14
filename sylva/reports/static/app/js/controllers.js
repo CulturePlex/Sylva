@@ -213,6 +213,7 @@ controllers.controller('ReportPreviewCtrl', [
                 $scope.resp = {table: $scope.report.table, queries: $scope.report.queries}
             });
 
+        $scope.editable = true; // this for now to deal with table width
         $scope.getQuery = function(name) {
             return $scope.queries.filter(function (el) {
                 return el['name'] === name
