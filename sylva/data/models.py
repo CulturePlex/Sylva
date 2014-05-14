@@ -23,8 +23,12 @@ class Data(models.Model, DataMixin):
     total_queries = models.IntegerField(_("total queries"), default=0)
     total_storage = models.IntegerField(_("total storage"), default=0)
     options = models.TextField(_('options'), null=True, blank=True)
-    total_analytics = models.IntegerField(_("total analytics"),
-                                          default=0)
+    total_analytics = models.IntegerField(_("total analytics"), null=True,
+                                          blank=True)
+    last_modified_nodes = models.DateTimeField(_("last modified nodes"),
+                                               null=True, blank=True)
+    last_modified_relationships = models.DateTimeField(
+        _("last modified relationships"), null=True, blank=True)
 
     class Meta:
         verbose_name_plural = _("data")
@@ -116,3 +120,20 @@ def delete_schema_graph(*args, **kwargs):
     data = instance.media_node.data
     data.total_storage -= size
     data.save()
+
+
+@receiver(post_save, sender=Data)
+def update_graph_last_modified(*args, **kwargs):
+    instance = kwargs.get("instance", None)
+    date_nodes = instance.last_modified_nodes
+    date_rels = instance.last_modified_relationships
+    last_modified = None
+    if date_nodes is not None and date_rels is not None:
+        last_modified = max(date_nodes, date_rels)
+    elif date_nodes is not None and date_rels is None:
+        last_modified = date_nodes
+    elif date_nodes is None and date_rels is not None:
+        last_modified = date_rels
+    if (last_modified is not None
+            and last_modified != instance.graph.last_modified):
+        instance.graph.save()

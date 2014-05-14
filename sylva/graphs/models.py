@@ -56,6 +56,8 @@ class Graph(models.Model, GraphMixin):
                                   null=True, blank=True)
     relaxed = models.BooleanField(_('Is schema-relaxed?'), default=False)
     options = models.TextField(_('options'), null=True, blank=True)
+    last_modified = models.DateTimeField(_("last modified"),
+                                         null=True, blank=True)
 
     class Meta:
         unique_together = ["owner", "name"]  # TODO: Add constraint in forms
