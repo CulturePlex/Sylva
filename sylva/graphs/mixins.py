@@ -1,5 +1,6 @@
     # -*- coding: utf-8 -*-
 from collections import Sequence
+from datetime import datetime
 
 from django.db import transaction
 
@@ -205,6 +206,7 @@ class NodesManager(BaseManager):
                     nodetype.total += 1
                     nodetype.save()
                 self.data.total_nodes += 1
+                self.data.last_modified_nodes = datetime.now()
                 self.data.save()
             node_id = self.gdb.create_node(label=label, properties=properties)
             node = Node(node_id, self.graph, initial=properties, label=label)
@@ -270,6 +272,7 @@ class NodesManager(BaseManager):
             count = self.gdb.delete_nodes(nodes_id)
             with transaction.atomic():
                 self.data.total_nodes -= count
+                self.data.last_modified_nodes = datetime.now()
                 self.data.save()
                 if self.schema:
                     schema = self.schema
@@ -288,12 +291,19 @@ class NodesManager(BaseManager):
                                    for node_id, n_props, n_label in eltos])
             with transaction.atomic():
                 self.data.total_relationships = 0
+                self.data.total_nodes = 0
+                now = datetime.now()
+                self.data.last_modified_nodes = now
+                self.data.last_modified_relationships = now
                 self.data.save()
                 if self.schema:
                     schema = self.schema
                     for nodetype in schema.nodetype_set.all():
                         nodetype.total = 0
                         nodetype.save()
+                    for reltype in schema.relationshiptype_set.all():
+                        reltype.total = 0
+                        reltype.save()
 
     def count(self, label=None):
         return self.gdb.get_nodes_count(label=label)
@@ -343,6 +353,7 @@ class RelationshipsManager(BaseManager):
                     reltype.total += 1
                     reltype.save()
                 self.data.total_relationships += 1
+                self.data.last_modified_relationships = datetime.now()
                 self.data.save()
             relationship_id = self.gdb.create_relationship(source_id, target_id,
                                                            label, properties)
@@ -414,6 +425,7 @@ class RelationshipsManager(BaseManager):
             )
             with transaction.atomic():
                 self.data.total_relationships -= count
+                self.data.last_modified_relationships = datetime.now()
                 self.data.save()
                 if self.schema:
                     schema = self.schema
@@ -431,6 +443,7 @@ class RelationshipsManager(BaseManager):
             self.gdb.delete_relationships(eltos)
             with transaction.atomic():
                 self.data.total_relationships = 0
+                self.data.last_modified_relationships = datetime.now()
                 self.data.save()
                 if self.schema:
                     schema = self.schema
@@ -719,6 +732,7 @@ class Node(BaseElement):
             label = self.label
             with transaction.atomic():
                 self.data.total_nodes -= 1
+                self.data.last_modified_nodes = datetime.now()
                 self.data.save()
                 if self.schema:
                     nodetype = self.schema.nodetype_set.get(pk=label)
