@@ -14,39 +14,28 @@ def get_upload_to(self, filename):
 class Analytic(models.Model):
     graph = models.ForeignKey(Graph, related_name='analytics')
     #dump = models.ForeignKey(Dump, related_name='dump')
-    dump = models.CharField(_("dump"), max_length=250, null=True,
+    dump = models.CharField(_("dump"), max_length=255, null=True,
                             blank=True)
-
-    ALGOS = (
-        ("connected_components", _("Connected components")),
-        ("graph_coloring", _("Graph coloring")),
-        ("kcore", _("Kcore")),
-        ("pagerank", _("Page Rank")),
-        ("shortest_path", _("Shortest path")),
-        ("triangle_counting", _("Triangle counting")),
-        ("betweenness_centrality", _("Betweenness centrality")),
-    )
-
-    algorithm = models.CharField(max_length=8, choices=ALGOS)
+    algorithm = models.CharField(_("Algorithm"), max_length=255)
     raw = models.FileField(_("Raw file"), upload_to=get_upload_to,
                            null=True, blank=True)
     results = models.FileField(_("Results file"), upload_to=get_upload_to,
                                null=True, blank=True)
     subgraph = models.CharField(_("Subgraph"),
-                                max_length=250, null=True,
+                                max_length=255, null=True,
                                 blank=True)
 
     # tasks attributes
 
-    task_id = models.CharField(_("task_id"), max_length=250, null=True,
+    task_id = models.CharField(_("task_id"), max_length=255, null=True,
                                blank=True)
     task_start = models.DateTimeField(_("task_start"), null=True,
                                       blank=True)
     task_end = models.DateTimeField(_("task_end"), null=True,
                                     blank=True)
-    task_status = models.CharField(_("task_status"), max_length=250,
+    task_status = models.CharField(_("task_status"), max_length=255,
                                    null=True, blank=True)
-    task_error = models.CharField(_("task_error"), max_length=250,
+    task_error = models.CharField(_("task_error"), max_length=255,
                                   null=True, blank=True)
 
 

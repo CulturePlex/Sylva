@@ -246,15 +246,6 @@ LOGGING = {
     }
 }
 
-# TinyMCE
-TINYMCE_DEFAULT_CONFIG = {
-    'theme': 'advanced',
-    'theme_advanced_toolbar_location': 'top',
-    'theme_advanced_buttons1': 'bold,italic,underline,strikethrough,separator,link,separator,undo,redo,separator,cleanup,separator,bullist,numlist,separator,code',
-    'theme_advanced_buttons2': '',
-    'theme_advanced_buttons3': '',
-}
-
 # Django settings
 MESSAGE_STORAGE = 'django.contrib.messages.storage.session.SessionStorage'
 DEFAULT_FROM_EMAIL = "\"SylvaDB\" <info@sylvadb.com>"
@@ -292,6 +283,7 @@ ACCOUNT_FREE = {
     "relationships": 10000,
     "storage": 100 * 1024 * 1024,
     "queries": 10,
+    "analytics": 10,
 }
 
 ENABLE_INSTANCES = False

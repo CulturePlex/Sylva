@@ -23,6 +23,8 @@ class Data(models.Model, DataMixin):
     total_queries = models.IntegerField(_("total queries"), default=0)
     total_storage = models.IntegerField(_("total storage"), default=0)
     options = models.TextField(_('options'), null=True, blank=True)
+    total_analytics = models.IntegerField(_("total analytics"),
+                                          default=0)
 
     class Meta:
         verbose_name_plural = _("data")

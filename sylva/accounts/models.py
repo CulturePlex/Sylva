@@ -33,6 +33,8 @@ class Account(models.Model):
     privacy = models.NullBooleanField(
         _('privacy'), blank=True, null=True, default=False,
         help_text=_('Can change graphs\' privacy?'))
+    analytics = models.IntegerField(_('analytics'), blank=True, null=True,
+                                    help_text=_('Saved analytics'))
 
     def __unicode__(self):
         return u"%s (%s)" % (self.name, self.get_type_display().lower())
