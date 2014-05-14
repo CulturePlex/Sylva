@@ -15,6 +15,7 @@ from django.shortcuts import (render_to_response, get_object_or_404,
                               redirect, HttpResponse)
 from django.template import RequestContext
 from django.template.defaultfilters import slugify
+from django.template.loader import render_to_string
 from django.utils.datastructures import SortedDict
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
@@ -281,7 +282,8 @@ def nodes_create(request, graph_slug, node_type_id):
                                "incoming_formsets": incoming_formsets,
                                "mediafile_formset": mediafile_formset,
                                "medialink_formset": medialink_formset,
-                               "action": u"%s %s" % (_("New"), nodetype.name)},
+                               "action": u"%s %s" % (_("New"), nodetype.name),
+                               "base_template": 'base.html'},
                               context_instance=RequestContext(request))
 
 
@@ -371,6 +373,7 @@ def nodes_edit(request, graph_slug, node_id):
         media_node = media_nodes.latest("id")
     if request.POST:
         data = request.POST.copy()
+        as_modal = bool(data.get("asModal", False))
         mediafile_formset = MediaFileFormSet(instance=media_node,
                                              data=data, files=request.FILES,
                                              prefix="__files")
@@ -379,6 +382,7 @@ def nodes_edit(request, graph_slug, node_id):
                                              prefix="__links")
     else:
         data = None
+        as_modal = bool(request.GET.copy().get("asModal", False))
         mediafile_formset = MediaFileFormSet(instance=media_node,
                                              data=data, prefix="__files")
         medialink_formset = MediaLinkFormSet(instance=media_node,
@@ -542,23 +546,43 @@ def nodes_edit(request, graph_slug, node_id):
             if (media_node.pk and not media_node.files.exists() and
                     not media_node.links.exists()):
                 media_node.delete()
-        redirect_url = reverse("nodes_list_full",
-                               args=[graph.slug, nodetype.id])
-        return redirect(redirect_url)
-    return render_to_response('nodes_editcreate.html',
-                              {"graph": graph,
-                               "nodetype": nodetype,
-                               "node_form": node_form,
-                               "node": node,
-                               "prefixes": prefixes,
-                               "outgoing_formsets": outgoing_formsets,
-                               "incoming_formsets": incoming_formsets,
-                               "mediafile_formset": mediafile_formset,
-                               "medialink_formset": medialink_formset,
-                               "action": _("Edit"),
-                               "delete": True,
-                               "as_new": True},
-                              context_instance=RequestContext(request))
+        # If we are here it means that the form was valid and we don't need
+        # to return a form again.
+        if as_modal:
+            changes = {}
+            return HttpResponse(json.dumps(changes), status=200,
+                                mimetype='application/json')
+        else:
+            redirect_url = reverse("nodes_list_full",
+                                   args=[graph.slug, nodetype.id])
+            return redirect(redirect_url)
+    # If we are here, we need to return the HTML form, empty or with errors.
+    if as_modal:
+        base_template = 'empty.html'
+        render = render_to_string
+    else:
+        base_template = 'base.html'
+        render = render_to_response
+    broader_context = {"graph": graph,
+                       "nodetype": nodetype,
+                       "node_form": node_form,
+                       "node": node,
+                       "prefixes": prefixes,
+                       "outgoing_formsets": outgoing_formsets,
+                       "incoming_formsets": incoming_formsets,
+                       "mediafile_formset": mediafile_formset,
+                       "medialink_formset": medialink_formset,
+                       "action": _("Edit"),
+                       "delete": True,
+                       "as_new": True,
+                       "base_template": base_template,
+                       "as_modal": as_modal}
+    response = render('nodes_editcreate.html', broader_context,
+                      context_instance=RequestContext(request))
+    if as_modal:
+        return HttpResponse(response, status=200)
+    else:
+        return response
 
 
 def can_media_save_as_new(form):

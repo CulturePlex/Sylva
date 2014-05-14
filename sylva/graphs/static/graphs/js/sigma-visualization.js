@@ -373,16 +373,21 @@ sigma:true, clearTimeout */
     },
 
     // Update node legend frame.
-    updateNodeLegend: function(node, selector) {
+    updateNodeInfo: function(node, selector) {
+      if (nodeInfoShowed) {
+        that.cleanNodeInfo(selector);
+      }
       nodeInfoShowed = true;
       var nodeEditURL = sylva.nodeEditURL.replace(/nodes\/0\/edit/, 'nodes/' + node.id + '/edit');
       var nodeViewURL = sylva.nodeViewURL.replace(/nodes\/0\/view/, 'nodes/' + node.id + '/view');
       var title = (node.label.length < 22) ? node.label : node.label.substring(0, 16) + "...";
       var properties = '';
+
       for (var key in node.properties) {
         var property = (node.properties[key].length < 22) ? node.properties[key] : node.properties[key].substring(0, 30) + "...";
         properties = properties + '<span style="font-style: italic;">' + key + '</span>: ' + property + '<br>';
       }
+
       $(selector).html(
         '<h2 style="padding-top: 40px;" title="' + node.label + '" style="font-size: 18px;">' + title + '</h2>' +
         properties +
@@ -390,15 +395,18 @@ sigma:true, clearTimeout */
           '<i style="margin-top: 5px; "class="sylva-icon-nodes16"></i> ' + gettext('View node data') +
         '</a>' +
         '<br>' +
-        '<a href="' + nodeEditURL + '">' +
+        '<a id="edit-node-modal-link" data-url="' + nodeEditURL + '">' +
           '<i class="sylva-icon-edit-node16"></i> ' + gettext('Edit node data') +
         '</a>'
       );
+
+      $('#edit-node-modal-link').on('click', that.showEditNodeModal);
     },
 
     // Clean node legend frame.
-    cleanNodeLegend: function(selector) {
+    cleanNodeInfo: function(selector) {
       nodeInfoShowed = false;
+      $('#edit-node-modal-link').off('click', that.showEditNodeModal);
       $(selector).html('');
     },
 
@@ -444,14 +452,14 @@ sigma:true, clearTimeout */
         isZoomWheelPossible = true;
 
         // Deactivate drag graph.
-        that.setDefaultSigmaNodeActions(false, false);
+        that.setUsualSigmaSettings(false, false);
       }
 
     },
 
     nodeMouseUp: function(event) {
       // Activate drag graph if it was desactivated.
-      that.setDefaultSigmaNodeActions(true, true);
+      that.setUsualSigmaSettings(true, true);
 
       $('#main').css('user-select', 'all');
 
@@ -486,7 +494,7 @@ sigma:true, clearTimeout */
           mouseMovedOnNode = false;
         } else {
           if (isAnalyticsMode) {
-            that.updateNodeLegend(nodeOvered, '#node-info');
+            that.updateNodeInfo(nodeOvered, '#node-info');
             that.updateSizes(true);
           }
         }
@@ -562,7 +570,7 @@ sigma:true, clearTimeout */
       } else if (colorWidgetOpened) {
         colorWidgetOpened = false;
       } else if (nodeInfoShowed && isAnalyticsMode) {
-          that.cleanNodeLegend('#node-info');
+          that.cleanNodeInfo('#node-info');
           that.updateSizes(true);
       } else if (sylva.selectedNodes.length < size) {
         that.ungrayfyAllNodes();
@@ -1402,7 +1410,7 @@ sigma:true, clearTimeout */
         $('#' + name).accordion('destroy');
       }
 
-      that.cleanNodeLegend('#node-info');
+      that.cleanNodeInfo('#node-info');
 
       that.restoreSizesAndStyles();
       that.reCenter();
@@ -2059,6 +2067,7 @@ sigma:true, clearTimeout */
       };
     },
 
+    // It calculates the three degrees of each node: total, in and out.
     calculateNodesDegrees: function() {
       var nodes = [];
       for (var key in sylva.nodetypes) {
@@ -2078,6 +2087,9 @@ sigma:true, clearTimeout */
       });
     },
 
+    /* It moves the draggable graph controls inside the canvas if they are
+     * outside in any monent.
+     */
     putBoxesInsideCanvas: function() {
       canSaveBoxes = false;
       for (var i = 0; i < sylva.collapsibles.length; i++) {
@@ -2090,6 +2102,7 @@ sigma:true, clearTimeout */
       }, 300);
     },
 
+    // It returns the neighbors of a given node.
     obtaingNeighborhood: function(center) {
       var neighborhood = sigInst.graph.neighborhood(center.id);
       var neighborhoodIds = that.graphToIds(neighborhood);
@@ -2105,18 +2118,20 @@ sigma:true, clearTimeout */
       };
     },
 
-    selectDeselectNode: function(nodeOvered) {
-      var index = sylva.selectedNodes.indexOf(nodeOvered.id);
+    // Select or deselect only
+    selectDeselectNode: function(node) {
+      var index = sylva.selectedNodes.indexOf(node.id);
 
       if (index  >= 0) {
         sylva.selectedNodes.splice(index, 1);
       } else {
-        sylva.selectedNodes.push(nodeOvered.id);
+        sylva.selectedNodes.push(node.id);
       }
 
       that.grayfyNonListedNodes(sylva.selectedNodes);
     },
 
+    // It manages the buttons of the selecting tools.
     enableDisableSelectingTool: function(type) {
       that.stop();
 
@@ -2161,8 +2176,11 @@ sigma:true, clearTimeout */
       }
     },
 
+    /* It manages the activation and behavior of the two selecting tools that
+     * use areas: rectangle and free hand.
+     */
     activateSelectingAreaTool: function(type) {
-        that.setDefaultSigmaNodeActions(false, false);
+        that.setUsualSigmaSettings(false, false);
         $('.sigma-mouse').css({
           cursor: 'crosshair'
         });
@@ -2224,16 +2242,22 @@ sigma:true, clearTimeout */
         };
     },
 
+    /* It manages the deactivation of the two selecting tools that use areas:
+     * rectangle and free hand.
+     */
     deactivateSelectingAreaTool: function(type) {
       paperTool.remove();
 
-      that.setDefaultSigmaNodeActions(true, true);
+      that.setUsualSigmaSettings(true, true);
 
       $('.sigma-mouse').css({
         cursor: ''
       });
     },
 
+    /* It is special selection tool: use the result of the regular search for
+     * select nodes.
+     */
     search: function() {
       var searchBox = $('#searchBox');
       var ipnuts = searchBox.find('input');
@@ -2269,12 +2293,44 @@ sigma:true, clearTimeout */
       return false;
     },
 
-    setDefaultSigmaNodeActions: function(mouse, hover) {
+    /* A shortcut for change the most usual Sigma's settings.
+     */
+    setUsualSigmaSettings: function(mouse, hover) {
       sigInst.settings({
         mouseEnabled: mouse,
         enableHovering: hover
       });
       sigInst.refresh();
+    },
+
+    // TODO: Comment the function.
+    showEditNodeModal: function(event) {
+      var url = $(event.target).attr('data-url');
+      params = {
+        'asModal': true
+      };
+
+      var jqxhr = $.ajax({
+        url: url,
+        type: 'GET',
+        data: params,
+        dataType: 'text'
+      });
+      jqxhr.success(function(data) {
+        var modal = $('<div id="edit-node-modal">');
+        $('body').append(modal);
+        modal.append(data);
+        modal.css({
+          backgroundColor: 'white',
+          zIndex: 999999,
+          maxWidth: 1150,
+          position: 'absolute',
+          top: 0
+        });
+      });
+      jqxhr.error(function() {
+        alert(gettext("Oops! Something went wrong with the server."));
+      });
     }
 
   };

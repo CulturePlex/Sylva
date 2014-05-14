@@ -61,7 +61,8 @@ def search(request, graph_slug, node_type_id=None, relationship_type_id=None):
                     node_ids.extend(
                         [str(node.id) for node in node_result["list"]])
                 result = {'nodeIds': node_ids}
-                return HttpResponse(json.dumps(result))
+                return HttpResponse(json.dumps(result), status=200,
+                                    mimetype='application/json')
             raise Http404(
                 _("Error: Invalid request (expected an AJAX request)"))
         else:

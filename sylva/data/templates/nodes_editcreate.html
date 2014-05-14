@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends base_template %}
 {% load i18n graphs %}
 {% load string_filters %}
 
@@ -6,22 +6,24 @@
   <link href="{{ STATIC_PREFIX }}css/token.input.css" type="text/css" rel="stylesheet" />
 {% endblock %}
 
-{% block navigation_buttons %}
+{% if not as_modal %}
+  {% block navigation_buttons %}
   {{ block.super }}
-{% endblock %}
+  {% endblock %}
 
-{% block title %}
+  {% block title %}
   {{ graph.name }}
-{% endblock %}
+  {% endblock %}
 
-{% block menu_buttons %}
+  {% block menu_buttons %}
   {% toolbar on="nodes" %}
-{% endblock %}
+  {% endblock %}
 
-{% block content_title %}
+  {% block content_title %}
   {% breadcrumb graph graph.data nodetype action %}
   <!--<h2>{% trans "Graphs" %} » {{ graph.name|truncatewords_html:5 }} » {% trans "Nodes" %} » {{ action }} {{ nodetype.name }}</h2>-->
-{% endblock %}
+  {% endblock %}
+{% endif %}
 
 {% block content %}
   <div id="content3">
@@ -42,19 +44,19 @@
           </p>
         {% endfor %}
         <span class="buttonLinkOption buttonLinkLeft">
-          <input type="submit" value="{% trans "Save" %} {{ nodetype.name|capfirst }}"/>
+          <input id="submit-save" type="submit" value="{% trans "Save" %} {{ nodetype.name|capfirst }}"/>
           {% if as_new %}
           {% trans "or" %}
-          <input type="submit" name="as-new" value="{% trans "Save as new" %} {{ nodetype.name|capfirst }}"/>
+          <input id="submit-save-as-new" type="submit" name="as-new" value="{% trans "Save as new" %} {{ nodetype.name|capfirst }}"/>
           {% endif %}
         </span>
         <span class="buttonLinkOption buttonLinkRight">
           {% if delete %}
           {% trans "or" %}
-          <a href="{% url "nodes_delete" graph.slug node.id %}">{% trans "Remove" %}</a>
+          <a id="submit-remove" href="{% url "nodes_delete" graph.slug node.id %}">{% trans "Remove" %}</a>
           {% endif %}
           {% trans "or" %}
-          <a href="{% url "nodes_list" graph.slug %}">{% trans "Cancel" %}</a>.</span>
+          <a id href="{% url "nodes_list" graph.slug %}">{% trans "Cancel" %}</a>.</span>
       </div>
       {% if outgoing_formsets or incoming_formsets %}
         <div class="content-divider"></div>
@@ -178,43 +180,68 @@
     </form>
   </div>
 
-  <!-- Features Tour -->
-  <ol id="tour" class="hidden" data-tour-id="nodes-editcreate">
-    <li data-id="propertiesTitle" data-button="{% trans "Next" %}" class="joyride-position-data-properties">
-      <h2>{% trans "Properties" %}</h2>
-      <p>{% trans "The properties fields of this Type." %}</p>
-    </li>
-    <li data-id="h2-relationships" data-button="{% trans "Next" %}" class="joyride-position-data-relationships">
-      <h2>{% trans "Relationships" %}</h2>
-      <p>{% trans "By default, all the allowed relationships are showed. Clicking on this box, you can filter by other criteria." %}</p>
-    </li>
-    <li data-class="token-input-input-token" data-button="{% trans "Next" %}" class="joyride-position-data-relationship-input">
-      <h2>{% trans "Create relationship" %}</h2>
-      <p>{% trans "Start typing the label of a node to show it." %}</p>
-    </li>
-    <li data-class="addButton" data-button="{% trans "Next" %}" class="joyride-position-data-more-relationships">
-      <h2>{% trans "More relationships" %}</h2>
-      <p>{% trans "You can create more relationships of this type." %}</p>
-    </li>
-    <li data-id="filesTitle" data-button="{% trans "Next" %}" class="joyride-position-data-files">
-      <h2>{% trans "Files" %}</h2>
-      <p>{% trans "You can add files to this Type." %}</p>
-    </li>
-    <li data-id="linksTitle" data-button="{% trans "Finish" %}" class="joyride-position-data-links">
-      <h2>{% trans "Links" %}</h2>
-      <p>{% trans "Also you can add links." %}</p>
-    </li>
-  </ol>
+  {% if not as_modal %}
+    <!-- Features Tour -->
+    <ol id="tour" class="hidden" data-tour-id="nodes-editcreate">
+      <li data-id="propertiesTitle" data-button="{% trans "Next" %}" class="joyride-position-data-properties">
+        <h2>{% trans "Properties" %}</h2>
+        <p>{% trans "The properties fields of this Type." %}</p>
+      </li>
+      <li data-id="h2-relationships" data-button="{% trans "Next" %}" class="joyride-position-data-relationships">
+        <h2>{% trans "Relationships" %}</h2>
+        <p>{% trans "By default, all the allowed relationships are showed. Clicking on this box, you can filter by other criteria." %}</p>
+      </li>
+      <li data-class="token-input-input-token" data-button="{% trans "Next" %}" class="joyride-position-data-relationship-input">
+        <h2>{% trans "Create relationship" %}</h2>
+        <p>{% trans "Start typing the label of a node to show it." %}</p>
+      </li>
+      <li data-class="addButton" data-button="{% trans "Next" %}" class="joyride-position-data-more-relationships">
+        <h2>{% trans "More relationships" %}</h2>
+        <p>{% trans "You can create more relationships of this type." %}</p>
+      </li>
+      <li data-id="filesTitle" data-button="{% trans "Next" %}" class="joyride-position-data-files">
+        <h2>{% trans "Files" %}</h2>
+        <p>{% trans "You can add files to this Type." %}</p>
+      </li>
+      <li data-id="linksTitle" data-button="{% trans "Finish" %}" class="joyride-position-data-links">
+        <h2>{% trans "Links" %}</h2>
+        <p>{% trans "Also you can add links." %}</p>
+      </li>
+    </ol>
+  {% endif %}
 {% endblock %}
 
 {% block extra_scripts %}
-  {{ node_form.media }}
-  {% for prefix, outgoing_formset in outgoing_formsets.items %}
-    {{ outgoing_formset.media }}
-  {% endfor %}
-  {% for prefix, incoming_formset in incoming_formsets.items %}
-    {{ incoming_formset.media }}
-  {% endfor %}
+
+  <!-- We are separting this for only obtain the JS files, without the CSS, because they cuase conflicts with other CSS clases (all of them are jQuery UI). -->
+  {% if not as_modal %}
+
+    {{ node_form.media }}
+    {% for prefix, outgoing_formset in outgoing_formsets.items %}
+      {{ outgoing_formset.media }}
+    {% endfor %}
+    {% for prefix, incoming_formset in incoming_formsets.items %}
+      {{ incoming_formset.media }}
+    {% endfor %}
+
+  {% else %}
+
+    {% for js in node_form.media.render_js %}
+      {{ js }}
+    {% endfor %}
+    {% for prefix, outgoing_formset in outgoing_formsets.items %}
+      {% for js in outgoing_formset.media.render_js %}
+        {{ js }}
+      {% endfor %}
+    {% endfor %}
+    {% for prefix, incoming_formset in incoming_formsets.items %}
+      {% for js in incoming_formset.media.render_js %}
+        {{ js }}
+      {% endfor %}
+    {% endfor %}
+
+  {% endif %}
+
   <script src="{{ STATIC_PREFIX }}js/jquery.formsets.1.2.min.js"></script>
   <script src="{{ STATIC_PREFIX }}js/jquery.tokeninput.js"></script>
   <script>
@@ -320,6 +347,7 @@
 
         // Enabling autocomplete for nodes
         var nodeAutocomplete = function(input) {
+          console.log('vamo');
           var params = {}, $input = $(input), exclude=$input.attr("data-exclude-id");
           if ($input.attr("class")) {
             if ($input.attr("class").indexOf(" ") > 0) {
