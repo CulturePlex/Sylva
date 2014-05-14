@@ -60,24 +60,20 @@
     <div class="row">
 
       <div class="col">
-
-        <div>
-          <h2 ng-bind-html="report.name" sylva-update-text></h2>
-        </div>
-
+        <a class="button" href="" ng-click="designReport()">Design Report</a>
       </div>
 
       <div class="col">
-        <a class="button" href="" ng-click="designReport()">Design Report</a>
+        <h2 ng-bind-html="report.name" sylva-update-text></h2>
       </div>
 
     </div><!--row-->
 
     <div class="row">
       <div class="prev-cont">
-        <div sylva-pv-row-repeat class="row" resp="resp">
+        <div sylva-pv-row-repeat class="row" resp="resp" width="600">
           <div sylva-pv-cell-repeat class="col" row="row">
-            <div highchart config="chartConfig" ng-style="cellStyle"></div>
+            <div highchart config="chartConfig" ng-style="cellStyle" class="display-cell"></div>
           </div>
         </div>
       </div>
@@ -92,12 +88,11 @@
           <h2 ng-bind-html="report.name"></h2>
       </div>
       <div class="col">
-        <a class="button" href="" ng-click="editMeta()">Edit Metadata</a>      
+        <a class="button" href="" ng-click="editMeta()">Done</a>      
       </div>
     </div>
     <div class="row">
       <div sy-editable-table resp="resp" class="editable-table">
-
       </div>
     </div><!--row-->
   </div>  

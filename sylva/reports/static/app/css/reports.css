@@ -1,6 +1,7 @@
 .cont {
     max-height: 600px;
     min-height: 450px
+    
 }
 
 .content2-first {
@@ -46,7 +47,7 @@
 
 .edit-rows {
   width: 1100px;
-  height: 100%;
+  height: 90%;
 }
 
 .trow {
@@ -120,6 +121,7 @@
   text-align: center;
   width: 70%;
   margin: 0 auto;
+  height: 175px
 }
 
 .query label.chart-select {
@@ -149,4 +151,12 @@
   top: 0;
   left: 1px;
   font-size: 16px;
+}
+
+.display-cell {
+  height: 175px;
+}
+
+.preview-cell {
+  height: 400px;
 }
