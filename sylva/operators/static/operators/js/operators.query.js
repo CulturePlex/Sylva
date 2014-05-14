@@ -20,7 +20,7 @@ diagram.fieldsForRels = {};
 diagram.relindex = {};
 
 diagram.stringValues = {
-    'em': gettext("choose one"),
+    'em': gettext("match"),
     'e' : gettext("equals"),
     'le': gettext("is less than or equal to"),
     'lt': gettext("is less than"),
@@ -288,7 +288,7 @@ diagram.lookupsValuesType = {
             // Create the select for the properties
             var boxalias = divTitle.data('boxalias');
             alias = diagram.replaceChars(boxalias);
-            diagram.fieldsForNodes[alias] =[];
+            diagram.fieldsForNodes[alias] = [];
             divField = diagram.addFieldRow(graphName, modelName, idFields, typeName, boxalias, idBox, idAllRels);
             divFields.append(divField);
             if (countFields < 5 && countFields > 0) {
@@ -829,7 +829,7 @@ diagram.lookupsValuesType = {
                 optionProperty.attr('value', '');
                 optionProperty.attr('disabled', 'disabled');
                 optionProperty.attr('selected', 'selected');
-                optionProperty.html(gettext("choose one..."));
+                optionProperty.html(gettext("choose one"));
                 selectProperty.append(optionProperty);
 
                 // We get the values for the properties select and the values
@@ -941,7 +941,8 @@ diagram.lookupsValuesType = {
                 optionProperty.addClass('option-property');
                 optionProperty.attr('value', '');
                 optionProperty.attr('disabled', 'disabled');
-                optionProperty.html(gettext("Choose one"));
+                optionProperty.attr('selected', 'selected');
+                optionProperty.html(gettext("choose one"));
                 selectProperty.append(optionProperty);
                 // Select lookup
                 selectLookup = $("<SELECT>");
@@ -1043,18 +1044,6 @@ diagram.lookupsValuesType = {
                     endpoint.anchor.y = anchor;
                 }
             }
-         }
-
-        /**
-         * Recalculate the anchor for targets endpoints
-         * - idBox
-         */
-         diagram.recalculateAnchorTarget = function(idBox) {
-            var endpointTarget = jsPlumb.getEndpoints(idBox)[0];
-            // This offset is for centering the endpoint
-            var offset = 7;
-            var anchor = ($('#' + idBox).height() - $('#' + idBox + ' .title').height() + offset) / $('#' + idBox).height();
-            endpointTarget.anchor.y = 1 - anchor;
          }
 
          /**
@@ -1174,6 +1163,7 @@ diagram.lookupsValuesType = {
             var parent = $(property).parent().parent().parent().parent().parent();
             var parentId = $(parent).attr('id');
             var alias = diagram.replaceChars($('#' + parentId + ' .title select').val());
+            // var alias = '`' + $('#' + parentId + ' .title select').val() + '`';
             var propertyName = $(property).val();
             var propertyValue = $(property).next().next().val();
 
@@ -1235,7 +1225,8 @@ diagram.lookupsValuesType = {
             // We check the type of the origin
             if($(element).attr("class").indexOf("nodetype") >= 0)
                 type = "node";
-            var alias = diagram.replaceChars($(element).val());
+            // var alias = diagram.replaceChars($(element).val());
+            var alias = '`' + $(element).val() + '`';
             var type_id = $(element).data('modelid');
             origin.alias = alias;
             origin.type = type;
@@ -1270,21 +1261,24 @@ diagram.lookupsValuesType = {
             }
             var relationAlias = $('#' + relationId + ' .title select').val();
             var relationModelId = relationSelector.data('modelid');
-            relation.alias = diagram.replaceChars(relationAlias);
+            // relation.alias = diagram.replaceChars(relationAlias);
+            relation.alias = '`' + relationAlias + '`';
             relation.type = 'relationship';
             relation.type_id = relationModelId;
 
             var sourceSelector = $('#' + sourceId + ' .title');
             var sourceAlias = $('#' + sourceId + ' .title select').val();
             var sourceModelId = sourceSelector.data('modelid');
-            source.alias = diagram.replaceChars(sourceAlias);
+            // source.alias = diagram.replaceChars(sourceAlias);
+            source.alias = '`' + sourceAlias + '`';
             source.type = 'node';
             source.type_id = sourceModelId;
 
             var targetSelector = $('#' + targetId + ' .title');
             var targetAlias = $('#' + targetId + ' .title select').val();
             var targetModelId = targetSelector.data('modelid');
-            target.alias = diagram.replaceChars(targetAlias);
+            // target.alias = diagram.replaceChars(targetAlias);
+            target.alias = '`' + targetAlias + '`';
             target.type = 'node';
             target.type_id = targetModelId;
 
@@ -1301,7 +1295,8 @@ diagram.lookupsValuesType = {
         var elements = $('option').filter(function(){ return $(this).attr("class") && $(this).attr("class").match(/(option-reltype|option-nodetype)./) && $(this).attr("selected");});
         $.each(elements, function(index, element) {
             var result = {};
-            var alias = diagram.replaceChars($(element).val());
+            // var alias = diagram.replaceChars($(element).val());
+            var alias = '`' + $(element).val() + '`';
             var properties = propertiesChecked[diagram.replaceChars(element.value)];
 
             if(!properties)
@@ -1569,6 +1564,12 @@ diagram.lookupsValuesType = {
         // Recalculate anchor for source endpoints
         diagram.recalculateAnchor(idBox, idAllRels);
 
+        // We select the 'Choose one' value for the last field
+        var newFieldId = $($('#' + parentId).children().last()).attr('id');
+        $('#' + newFieldId + ' .option-and-or:disabled').attr('disabled', false);
+        $('#' + newFieldId + ' .select-and-or').val('Choose one');
+        $('#' + newFieldId + ' .select-and-or').children().first().prop('disabled', 'disabled');
+
         jsPlumb.repaintEverything();
     });
 
@@ -1667,8 +1668,6 @@ diagram.lookupsValuesType = {
         }
         // Recalculate anchor for source endpoints
         diagram.recalculateAnchor(idBox, idAllRels);
-        // Recalculate anchor for target endpoints
-        //diagram.recalculateAnchorTarget(idBox);
 
         $('.endpoint-image').attr("title", "drag me!")
 
@@ -1740,17 +1739,17 @@ diagram.lookupsValuesType = {
                     $this.next().next().remove();
                 }
             }
-            var select = $("<SELECT>");
-            select.addClass("lookup-value");
-            select.css({
+            var inputLookup = $("<SELECT>");
+            inputLookup.addClass("lookup-value");
+            inputLookup.css({
                 "width": "60px",
                 "display": "inline",
                 "margin-left": "8px",
                 "padding": 0
             });
-            select.append('<option class="lookup-value" value=""></option>');
+            inputLookup.append('<option class="lookup-value" value=""></option>');
             for(var j = 3; j < choicesArray.length; j = j + 2) {
-                select.append('<option class="lookup-value" value="' + choicesArray[j] +'">' + choicesArray[j] + '</option>');
+                inputLookup.append('<option class="lookup-value" value="' + choicesArray[j] +'">' + choicesArray[j] + '</option>');
             }
             $(inputLookup).insertAfter($('#' + fieldId + ' .select-lookup'))
         } else if(datatype == 'auto_now') {
@@ -1937,7 +1936,7 @@ diagram.lookupsValuesType = {
                         && datatype != 'auto_now_add'
                         && datatype != 'auto_user';
         if(condition) {
-            if(value == "is between") {
+            if(value == "in") {
                 // two inputs - we check if we have introduced an input field
                 var inputValueFirst = $this.next().val();
                 var inputValueSecond = $this.next().next().val();
@@ -1956,7 +1955,7 @@ diagram.lookupsValuesType = {
                 } else if(inputValueSecond) {
                     $this.next().next().val(inputValueSecond);
                 }
-            } else if((value == "has some value") || (value == "has no value")) {
+            } else if((value == "isnotnull") || (value == "isnull")) {
                 // no inputs
                 if(tagName == "INPUT" || tagName == "SELECT") {
                     $this.next().remove();
@@ -2026,9 +2025,6 @@ diagram.lookupsValuesType = {
             }
         }
 
-        // Recalculate anchor for target endpoints
-        //diagram.recalculateAnchorTarget(idBox);
-
         jsPlumb.repaintEverything();
      });
 
@@ -2056,6 +2052,11 @@ diagram.lookupsValuesType = {
             $($('.select-reltype-' + labelRel + ' #' + labelRel + (diagram.reltypesCounter[labelRel] + 1 - 1))[elem]).attr('selected', 'selected');
 
             diagram.CounterRels++;
+
+            $('.endpoint-image').css('visibility', 'visible');
+            info.sourceEndpoint.addClass("endpointInvisible");
+            info.targetEndpoint.removeClass("dragActive");
+            info.targetEndpoint.removeClass("dropHover");
         } else {
             jsPlumb.detach(info.connection);
         }
@@ -2066,11 +2067,6 @@ diagram.lookupsValuesType = {
                 "box-shadow": ""
             });
         });
-
-        $('.endpoint-image').css('visibility', 'visible');
-        info.sourceEndpoint.addClass("endpointInvisible");
-        info.targetEndpoint.removeClass("dragActive");
-        info.targetEndpoint.removeClass("dropHover");
      });
 
     jsPlumb.bind("connectionDrag", function(connection) {

@@ -31,7 +31,7 @@ class BaseQ(object):
         self.nullable = nullable
         self.var = var
         self.datatype = datatype
-        if property and (not self.lookup or not self.match):
+        if property and (self.lookup is None or self.match is None):
             for m in self.matchs:
                 if m in kwargs:
                     self.lookup = m
@@ -39,8 +39,9 @@ class BaseQ(object):
                     break
             else:
                 all_matchs = ", ".join(self.matchs)
-                raise ValueError("Q objects must have at least a lookup method"
-                                 " (%s) and a match case".format(all_matchs))
+                raise ValueError("Q objects must have at least a "
+                                 "lookup method(%s) and a match "
+                                 "case".format(all_matchs))
 
     def is_valid(self):
         return ((self.property and self.lookup and self.match) or

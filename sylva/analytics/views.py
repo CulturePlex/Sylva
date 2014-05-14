@@ -30,11 +30,10 @@ def analytic(request, graph_slug):
                     (Data, "graph__slug", "graph_slug"), return_403=True)
 def dump(request, graph_slug):
     data = []
-    if request.is_ajax():
-        graph = get_object_or_404(Graph, slug=graph_slug)
-        analytic = graph.analysis.run('dump')
-        task = AsyncResult(analytic.task_id)
-        data = [task.id, analytic.algorithm]
+    graph = get_object_or_404(Graph, slug=graph_slug)
+    analytic = graph.analysis.run('dump')
+    task = AsyncResult(analytic.task_id)
+    data = [task.id, analytic.algorithm]
 
     json_data = json.dumps(data)
 

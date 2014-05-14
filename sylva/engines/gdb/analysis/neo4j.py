@@ -46,8 +46,8 @@ class Analysis(BaseAnalysis):
         f = open(analytic.dump, "w+")
         line = "src,dest\n"
         f.write(line)
-        if analytic.affected_nodes:
-            array_id = json.loads(analytic.affected_nodes)
+        if analytic.subgraph:
+            array_id = json.loads(analytic.subgraph)
             for relationship in graph.relationships.all():
                 source_id = relationship.source.id
                 target_id = relationship.target.id
@@ -83,9 +83,12 @@ class Analysis(BaseAnalysis):
         nodes = graph.nodes.count()
         rels = graph.relationships.count()
 
-        result = nodes + rels
+        result = (nodes + rels) * INST_TIME
 
-        return result * INST_TIME
+        if result < 1:
+            result += 1
+
+        return result
 
     def graph_coloring(self, analytic):
         try:
@@ -106,9 +109,12 @@ class Analysis(BaseAnalysis):
     def graph_coloring_eta(self, graph):
         nodes = graph.nodes.count()
 
-        result = 2 * nodes
+        result = (2 * nodes) * INST_TIME
 
-        return result * INST_TIME
+        if result < 1:
+            result += 1
+
+        return result
 
     def kcore(self, analytic):
         try:
@@ -130,9 +136,12 @@ class Analysis(BaseAnalysis):
         nodes = graph.nodes.count()
         rels = graph.relationships.count()
 
-        result = nodes + rels
+        result = (nodes + rels) * INST_TIME
 
-        return result * INST_TIME
+        if result < 1:
+            result += 1
+
+        return result
 
     def pagerank(self, analytic):
         try:
@@ -154,9 +163,12 @@ class Analysis(BaseAnalysis):
         nodes = graph.nodes.count()
         rels = graph.relationships.count()
 
-        result = nodes + rels
+        result = (nodes + rels) * INST_TIME
 
-        return result * INST_TIME
+        if result < 1:
+            result += 1
+
+        return result
 
     def shortest_path(self, analytic):
         try:
@@ -196,9 +208,13 @@ class Analysis(BaseAnalysis):
     def triangle_counting_eta(self, graph):
         nodes = graph.nodes.count()
         exp = 3/float(2)
-        result = nodes ** exp
 
-        return result * INST_TIME
+        result = (nodes ** exp) * INST_TIME
+
+        if result < 1:
+            result += 1
+
+        return result
 
     def betweenness_centrality(self, analytic):
         try:
@@ -221,9 +237,12 @@ class Analysis(BaseAnalysis):
         nodes = graph.nodes.count()
         rels = graph.relationships.count()
 
-        result = nodes * rels
+        result = (nodes * rels) * INST_TIME
 
-        return result * INST_TIME
+        if result < 1:
+            result += 1
+
+        return result
 
     def save(self, results, analytic):
         result = ''

@@ -108,6 +108,7 @@
 </div>
 <div id="analytics" class="analytics-mode" style="display: none;">
 {% if settings.ENABLE_ANALYTICS %}
+  <progress id="progress-bar"></progress>
   <h2 style="margin-top: 5px; margin-left: 10px;">{% trans "Analytics" %}</h2>
   <div id="analytics-algorithms">
     {% for key, value in algorithms.items %}
