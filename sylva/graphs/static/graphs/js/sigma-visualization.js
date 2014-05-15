@@ -44,7 +44,7 @@ sigma:true, clearTimeout */
   // The gray color.
   var gray = '#EEE';
   // It's used for keep the last dragged analytics control on top.
-  var highestZIndex = 200;
+  var highestZIndex = 102;
   // Node sizes variables.
   var minNodeSize = 1;
   var degreeMinNodeSize = 2;
@@ -1275,7 +1275,6 @@ sigma:true, clearTimeout */
       var draggableSettings = {
         containment: '#sigma-wrapper',
         cursor: 'move',
-        zIndex: 9999,
         create: function(event, ui) {
           $('#' + event.target.id).css({
             top: sylva.positions[event.target.id].top,
@@ -1284,16 +1283,16 @@ sigma:true, clearTimeout */
         },
         start: function(event, ui) {
           $('#' + event.target.id).accordion('disable');
+          highestZIndex++;
+          $('#' + event.target.id).css({
+            zIndex: highestZIndex,
+          });
         },
         drag: function( event, ui ) {
           $(document).scrollTop(0);
           $(document).scrollLeft(0);
         },
         stop: function(event, ui) {
-          highestZIndex++;
-          $('#' + event.target.id).css({
-            zIndex: highestZIndex,
-          });
           setTimeout(function() {
             $('#' + event.target.id).accordion('enable');
           }, 50);
@@ -1311,6 +1310,7 @@ sigma:true, clearTimeout */
           var body = $(children[1]);
           var span = header.children().first();
 
+          // The 4 next lines remove jQueryUI style from the boxes.
           header.removeClass('ui-accordion ui-accordion-icons ui-accordion-header ui-helper-reset');
           body.removeClass('ui-accordion ui-accordion-content ui-accordion-content');
           body.css('height', '');
@@ -2322,7 +2322,7 @@ sigma:true, clearTimeout */
         modal.append(data);
         modal.css({
           backgroundColor: 'white',
-          zIndex: 999999,
+          zIndex: 500,
           maxWidth: 1150,
           position: 'absolute',
           top: 0

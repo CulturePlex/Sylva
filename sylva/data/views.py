@@ -392,15 +392,6 @@ def nodes_edit(request, graph_slug, node_id):
     node_form = NodeForm(graph=graph, itemtype=nodetype, initial=node_initial,
                          data=data, user=request.user.username)
     # Outgoing relationships
-#    initial = []
-#    for relationship in node.relationships.all():
-#        properties = relationship.properties
-#        outgoing_type = RelationshipType.objects.get(id=relationship.label)
-#        properties.update({
-#            outgoing_type.id: relationship.target.id,
-#            ITEM_FIELD_NAME: relationship.id,
-#        })
-#        initial.append(properties)
     prefixes = []
     outgoing_formsets = SortedDict()
     allowed_outgoing_relationships = nodetype.get_outgoing_relationships(
@@ -445,15 +436,6 @@ def nodes_edit(request, graph_slug, node_id):
                                                user=request.user.username)
         outgoing_formsets[formset_prefix] = outgoing_formset
     # Incoming relationships
-#    initial = []
-#    for relationship in node.relationships.all():
-#        properties = relationship.properties
-#        incoming_type = RelationshipType.objects.get(id=relationship.label)
-#        properties.update({
-#            incoming_type.id: relationship.source.id,
-#            ITEM_FIELD_NAME: relationship.id,
-#        })
-#        initial.append(properties)
     incoming_formsets = SortedDict()
     allowed_incoming_relationships = nodetype.get_incoming_relationships(
         reflexive=True
@@ -563,6 +545,11 @@ def nodes_edit(request, graph_slug, node_id):
     else:
         base_template = 'base.html'
         render = render_to_response
+    forms_media = set()
+    for form in [node_form] + outgoing_formsets.values() + \
+            incoming_formsets.values():
+        forms_media |= set(form.media.render_js())
+        forms_media |= set([css for css in form.media.render_css()])
     broader_context = {"graph": graph,
                        "nodetype": nodetype,
                        "node_form": node_form,
@@ -572,6 +559,7 @@ def nodes_edit(request, graph_slug, node_id):
                        "incoming_formsets": incoming_formsets,
                        "mediafile_formset": mediafile_formset,
                        "medialink_formset": medialink_formset,
+                       "forms_media": forms_media,
                        "action": _("Edit"),
                        "delete": True,
                        "as_new": True,

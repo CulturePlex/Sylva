@@ -34,14 +34,17 @@ class ItemDeleteConfirmForm(forms.Form):
 
 class ItemForm(forms.Form):
 
+    # Here isn't jQueryUI because it is needed to be added manually depending
+    # of the template.
     class Media:
         js = (
-            "js/jqueryui.1.8.18.min.js",
             "js/jqueryui.timepicker.js",
-            "js/datatypes.js"
+            "js/datatypes.js",
+            "js/jquery.formsets.1.2.min.js",
+            "js/jquery.tokeninput.js",
         )
         css = {
-            "all": ("css/jqueryui.1.8.18.css", )
+            "all": ("css/jquery-ui-1.10.4.css", )
         }
 
     def __init__(self, graph, itemtype, instance=None, *args, **kwargs):

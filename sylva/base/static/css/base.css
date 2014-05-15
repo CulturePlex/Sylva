@@ -1536,7 +1536,7 @@ table.content-table {
 #graph-controls-and-info {
     display: block;
     position: relative;
-    z-index: 9999;
+    z-index: 499;
     margin-right: -15px;
 }
 

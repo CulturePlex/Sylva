@@ -4,6 +4,9 @@
 
 {% block extra_links %}
   <link href="{{ STATIC_PREFIX }}css/token.input.css" type="text/css" rel="stylesheet" />
+  {% if not as_modal %}
+    <link href="{{ STATIC_PREFIX }}css/jquery-ui-1.10.4.css" type="text/css" rel="stylesheet" />
+  {% endif %}
 {% endblock %}
 
 {% if not as_modal %}
@@ -212,38 +215,13 @@
 {% endblock %}
 
 {% block extra_scripts %}
-
-  <!-- We are separting this for only obtain the JS files, without the CSS, because they cuase conflicts with other CSS clases (all of them are jQuery UI). -->
+  <!-- We are adding here jQueryUI manually because maybe it is already in the template. -->
   {% if not as_modal %}
-
-    {{ node_form.media }}
-    {% for prefix, outgoing_formset in outgoing_formsets.items %}
-      {{ outgoing_formset.media }}
-    {% endfor %}
-    {% for prefix, incoming_formset in incoming_formsets.items %}
-      {{ incoming_formset.media }}
-    {% endfor %}
-
-  {% else %}
-
-    {% for js in node_form.media.render_js %}
-      {{ js }}
-    {% endfor %}
-    {% for prefix, outgoing_formset in outgoing_formsets.items %}
-      {% for js in outgoing_formset.media.render_js %}
-        {{ js }}
-      {% endfor %}
-    {% endfor %}
-    {% for prefix, incoming_formset in incoming_formsets.items %}
-      {% for js in incoming_formset.media.render_js %}
-        {{ js }}
-      {% endfor %}
-    {% endfor %}
-
+    <script src="{{ STATIC_PREFIX }}js/jquery-ui-1.10.4.js"></script>
   {% endif %}
-
-  <script src="{{ STATIC_PREFIX }}js/jquery.formsets.1.2.min.js"></script>
-  <script src="{{ STATIC_PREFIX }}js/jquery.tokeninput.js"></script>
+  {% for media in forms_media %}
+    {{ media }}
+  {% endfor %}
   <script>
     (function($) {
 
@@ -347,7 +325,6 @@
 
         // Enabling autocomplete for nodes
         var nodeAutocomplete = function(input) {
-          console.log('vamo');
           var params = {}, $input = $(input), exclude=$input.attr("data-exclude-id");
           if ($input.attr("class")) {
             if ($input.attr("class").indexOf(" ") > 0) {
