@@ -65,15 +65,16 @@ class BaseAnalysis(object):
 
     @app.task(bind=True, name="tasks.analytic")
     def run_algorithm(self, analytic, analysis):
-        graph = analytic.graph
+        # graph = analytic.graph
         algorithm = analytic.algorithm
         analytic.task_id = self.request.id
-        url_dump = "../dump_files/" + graph.slug + ".csv"
+        # url_dump = "../dump_files/" + graph.slug + ".csv"
         try:
             try:
                 analytic.task_status = "Starting"
                 analytic.task_start = datetime.datetime.now()
-                analytic.dump = url_dump
+                dump = getattr(analysis, 'dump')
+                dump(analytic)
                 # analytic.results = url_result
             except Exception as e:
                 raise Exception(PROC_INIT, "Error starting the task")

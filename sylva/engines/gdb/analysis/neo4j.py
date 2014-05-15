@@ -6,12 +6,14 @@
 from django.utils.translation import gettext as _
 from engines.gdb.analysis import BaseAnalysis
 import json
+from datetime import datetime
 
 from django.core.files.uploadedfile import SimpleUploadedFile
 import graphlab
 import networkx as nx
 import pandas as pd
 
+from analytics.models import DataDump
 
 # app = Celery('tasks', backend='amqp', broker='amqp://')
 # We gonna use graphlab for python
@@ -43,25 +45,26 @@ class Analysis(BaseAnalysis):
         the edgelist of the relationships of a graph
         """
         graph = analytic.graph
-        f = open(analytic.dump, "w+")
         line = "src,dest\n"
-        f.write(line)
         if analytic.subgraph:
             array_id = json.loads(analytic.subgraph)
             for relationship in graph.relationships.all():
                 source_id = relationship.source.id
                 target_id = relationship.target.id
                 if (source_id in array_id) and (target_id in array_id):
-                    line = "{0},{1}\n".format(relationship.source.id,
-                                              relationship.target.id)
-                    f.write(line)
+                    line += "{0},{1}\n".format(relationship.source.id,
+                                               relationship.target.id)
         else:
             for relationship in graph.relationships.all():
-                line = "{0},{1}\n".format(relationship.source.id,
-                                          relationship.target.id)
+                line += "{0},{1}\n".format(relationship.source.id,
+                                           relationship.target.id)
                 print line
-                f.write(line)
-        f.close()
+        dump_file = SimpleUploadedFile('dump.csv', line,
+                                       "text/csv")
+        dump = DataDump.objects.create(creation_date=datetime.now(),
+                                       data_file=dump_file)
+        analytic.dump = dump
+        analytic.save()
 
     def connected_components(self, analytic):
         try:

@@ -42,14 +42,14 @@ diagram.lookupsBackendValues = {
     'is less than': 'lt',
     'is greater than': 'gt',
     'is greater than or equal to': 'gte',
-    'is between': 'in',
+    'is between': 'between',
     'does not equal': 'neq',
     'has some value': 'isnotnull',
     'has no value': 'isnull',
-    'contains': 'contains',
-    "doesn't contain": "doesn't contain",
-    'starts with': 'startswith',
-    'ends with': 'endswith'
+    'contains': 'icontains',
+    "doesn't contain": "idoesnotcontain",
+    'starts with': 'istartswith',
+    'ends with': 'iendswith'
 }
 
 diagram.lookupsAllValues = [
@@ -1167,11 +1167,19 @@ diagram.lookupsValuesType = {
             var propertyName = $(property).val();
             var propertyValue = $(property).next().next().val();
 
+            // Treatment for the lookup 'has some value & has no value'
             if(lookup === 'isnull') {
                 propertyValue = true;
             } else if(lookup === 'isnotnull') {
                 lookup = 'isnull';
                 propertyValue = false;
+            }
+
+            // Treatment for the lookup 'is between'
+            if(lookup === 'between') {
+                propertyValue1 = propertyValue;
+                propertyValue2 = $(property).next().next().next().val();
+                propertyValue = new Array(propertyValue1, propertyValue2);
             }
 
             // We store the datatype
@@ -1402,7 +1410,13 @@ diagram.lookupsValuesType = {
                         // property
                         property = conditions[1];
                         // value
-                        value = conditions[2];
+                        // we check if the lookup is 'is between'
+                        if(lookup == "between") {
+                            value1 = conditions[2][0];
+                            value2 = conditions[2][1];
+                        } else {
+                            value = conditions[2];
+                        }
                         // We have to check the and-or value
                         andOr = conditions[3];
                         // We set the values in the correct position
@@ -1411,7 +1425,13 @@ diagram.lookupsValuesType = {
                         $('#' + id + " #field" + fieldIndex + " .select-property").change();
                         $('#' + id + " #field" + fieldIndex + " .select-lookup").val(lookup);
                         $('#' + id + " #field" + fieldIndex + " .select-lookup").change();
-                        $('#' + id + " #field" + fieldIndex + " .lookup-value").val(value);
+                        // If the lookup is "is between", we have two inputs
+                        if(lookup == "between") {
+                            $($('#' + id + " #field" + fieldIndex + " .lookup-value")[0]).val(value);
+                            $($('#' + id + " #field" + fieldIndex + " .lookup-value")[1]).val(value);
+                        } else {
+                            $('#' + id + " #field" + fieldIndex + " .lookup-value").val(value);
+                        }
                         if(andOr != "not") {
                             $('#' + id + " #field" + fieldIndex + " .select-and-or").val(andOr);
                         }
@@ -1936,7 +1956,7 @@ diagram.lookupsValuesType = {
                         && datatype != 'auto_now_add'
                         && datatype != 'auto_user';
         if(condition) {
-            if(value == "in") {
+            if(value == "between") {
                 // two inputs - we check if we have introduced an input field
                 var inputValueFirst = $this.next().val();
                 var inputValueSecond = $this.next().next().val();

@@ -38,25 +38,25 @@ class Q(BaseQ):
             match = u"'.*{0}.*'".format(self.match)
         elif self.lookup == "icontains":
             lookup = u"=~"
-            match = u"(?i).*{0}.*".format(self.match)
+            match = u"'(?i).*{0}.*'".format(self.match)
         elif self.lookup == "startswith":
             lookup = u"=~"
             match = u"'{0}.*'".format(self.match)
         elif self.lookup == "istartswith":
             lookup = u"=~"
-            match = u"(?i){0}.*".format(self.match)
+            match = u"'(?i){0}.*'".format(self.match)
         elif self.lookup == "endswith":
             lookup = u"=~"
             match = u"'.*{0}'".format(self.match)
         elif self.lookup == "iendswith":
             lookup = u"=~"
-            match = u"(?i).*{0}".format(self.match)
+            match = u"'(?i).*{0}'".format(self.match)
         elif self.lookup == "regex":
             lookup = u"=~"
             match = u"{0}".format(self.match)
         elif self.lookup == "iregex":
             lookup = u"=~"
-            match = u"(?i){0}".format(self.match)
+            match = u"'(?i){0}'".format(self.match)
         elif self.lookup == "gt":
             lookup = u">"
             if self.datatype == 'date':

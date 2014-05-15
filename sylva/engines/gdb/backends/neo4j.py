@@ -368,13 +368,35 @@ class GraphDatabase(BlueprintsGraphDatabase):
         conditions_list = []
         conditions_indexes = enumerate(query_dict["conditions"])
         conditions_length = len(query_dict["conditions"]) - 1
-        for lookup, property_tuple, match, connector, datatype in query_dict["conditions"]:
-            condition = q_lookup_builder(property=property_tuple[2],
-                                         lookup=lookup,
-                                         match=match,
-                                         var=property_tuple[1],
-                                         datatype=datatype)
-            conditions_list.append(str(condition))
+        for lookup, property_tuple, match, connector, datatype \
+                in query_dict["conditions"]:
+            if lookup == "between":
+                gte = q_lookup_builder(property=property_tuple[2],
+                                       lookup="gte",
+                                       match=match[0],
+                                       var=property_tuple[1],
+                                       datatype=datatype)
+                lte = q_lookup_builder(property=property_tuple[2],
+                                       lookup="lte",
+                                       match=match[1],
+                                       var=property_tuple[1],
+                                       datatype=datatype)
+                conditions_list.append(str(gte))
+                conditions_list.append(str(lte))
+            elif lookup == 'idoesnotcontain':
+                condition = ~q_lookup_builder(property=property_tuple[2],
+                                              lookup="icontains",
+                                              match=match,
+                                              var=property_tuple[1],
+                                              datatype=datatype)
+                conditions_list.append(str(condition))
+            else:
+                condition = q_lookup_builder(property=property_tuple[2],
+                                             lookup=lookup,
+                                             match=match,
+                                             var=property_tuple[1],
+                                             datatype=datatype)
+                conditions_list.append(str(condition))
             if connector != 'not':
                 # We have to get the next element to keep the concordance
                 elem = conditions_indexes.next()
