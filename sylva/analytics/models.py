@@ -6,38 +6,36 @@ from graphs.models import Graph
 
 
 def get_upload_to_analytics(self, filename):
-    return u"%s/analytics/%s" % (self.graph.slug, filename)
+    return u"%s/analytics/%s" % (self.dump.graph.slug, filename)
 
 
 def get_upload_to_dump(self, filename):
-    analytic = self.analytics.latest()
-    return u"%s/dumps/%s" % (analytic.graph.slug, filename)
+    return u"%s/dumps/%s" % (self.graph.slug, filename)
 
 
-class DataDump(models.Model):
+class Dump(models.Model):
+    graph = models.ForeignKey(Graph, verbose_name=_("graph"),
+                              related_name='dumps')
     creation_date = models.DateTimeField(_("creation date"), null=True,
                                          blank=True)
     data_file = models.FileField(_("data file"), upload_to=get_upload_to_dump,
                                  null=True, blank=True)
+    data_hash = models.CharField(_("data hash"), max_length=255)
 
     class Meta:
         get_latest_by = "creation_date"
 
 
 class Analytic(models.Model):
-    graph = models.ForeignKey(Graph, verbose_name=_("graph"),
-                              related_name='analytics')
-    dump = models.ForeignKey(DataDump, verbose_name=_("data dump"),
+    # graph = models.ForeignKey(Graph, verbose_name=_("graph"),
+    #                           related_name='analytics')
+    dump = models.ForeignKey(Dump, verbose_name=_("data dump"),
                              related_name='analytics')
     algorithm = models.CharField(_("Algorithm"), max_length=255)
     raw = models.FileField(_("Raw file"), upload_to=get_upload_to_analytics,
                            null=True, blank=True)
     results = models.FileField(_("Results file"), upload_to=
                                get_upload_to_analytics, null=True, blank=True)
-    subgraph = models.CharField(_("Subgraph"),
-                                max_length=255, null=True,
-                                blank=True)
-
     # tasks attributes
     task_id = models.CharField(_("task_id"), max_length=255, null=True,
                                blank=True)
@@ -65,7 +63,8 @@ class AnalysisManager(models.Manager):
         #675, 676, 677, 678, 679, 680, 693, 694, 716]"
         # analytic = Analytic.objects.create(graph=self._graph,
         #    algorithm=algorithm, affected_nodes=affected_nodes_array)
-        analytic = Analytic.objects.create(graph=self._graph,
+        dump = analysis.get_dump(self._graph)
+        analytic = Analytic.objects.create(dump=dump,
                                            algorithm=algorithm)
         # algorithm_task = analysis.run_task(algorithm, self._graph,
         #                                    analytic)

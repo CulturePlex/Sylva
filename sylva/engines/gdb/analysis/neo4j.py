@@ -7,13 +7,14 @@ from django.utils.translation import gettext as _
 from engines.gdb.analysis import BaseAnalysis
 import json
 from datetime import datetime
+from hashlib import sha1
 
 from django.core.files.uploadedfile import SimpleUploadedFile
 import graphlab
 import networkx as nx
 import pandas as pd
 
-from analytics.models import DataDump
+from analytics.models import Dump
 
 # app = Celery('tasks', backend='amqp', broker='amqp://')
 # We gonna use graphlab for python
@@ -39,36 +40,34 @@ class Analysis(BaseAnalysis):
                 'triangle_counting': _("Triangle counting"),
                 'betweenness_centrality': _("Betweenness centrality")}
 
-    def dump(self, analytic):
+    def get_dump(self, graph):
         """
         This is a example function that prints
         the edgelist of the relationships of a graph
         """
-        graph = analytic.graph
-        line = "src,dest\n"
-        if analytic.subgraph:
-            array_id = json.loads(analytic.subgraph)
+        lines = "src,dest\n"
+        dumps = graph.dumps.filter(
+            creation_date__gte=graph.data.last_modified_relationships)
+        if len(dumps) == 0:
             for relationship in graph.relationships.all():
-                source_id = relationship.source.id
-                target_id = relationship.target.id
-                if (source_id in array_id) and (target_id in array_id):
-                    line += "{0},{1}\n".format(relationship.source.id,
-                                               relationship.target.id)
+                lines += "{0},{1}\n".format(relationship.source.id,
+                                            relationship.target.id)
+                print lines
+            dump_file = SimpleUploadedFile('dump.csv', lines,
+                                           "text/csv")
+            data_hash = sha1(lines).hexdigest()
+            dump = Dump.objects.create(graph=graph,
+                                       creation_date=datetime.now(),
+                                       data_file=dump_file,
+                                       data_hash=data_hash)
+            dump.save()
         else:
-            for relationship in graph.relationships.all():
-                line += "{0},{1}\n".format(relationship.source.id,
-                                           relationship.target.id)
-                print line
-        dump_file = SimpleUploadedFile('dump.csv', line,
-                                       "text/csv")
-        dump = DataDump.objects.create(creation_date=datetime.now(),
-                                       data_file=dump_file)
-        analytic.dump = dump
-        analytic.save()
+            dump = dumps.latest()
+        return dump
 
     def connected_components(self, analytic):
         try:
-            sf = graphlab.SFrame(analytic.dump)
+            sf = graphlab.SFrame(analytic.dump.data_file.path)
             g = graphlab.Graph()
             g = g.add_edges(sf, 'src', 'dest')
         except Exception as e:
@@ -95,7 +94,7 @@ class Analysis(BaseAnalysis):
 
     def graph_coloring(self, analytic):
         try:
-            sf = graphlab.SFrame(analytic.dump)
+            sf = graphlab.SFrame(analytic.dump.data_file.path)
             g = graphlab.Graph()
             g = g.add_edges(sf, 'src', 'dest')
         except Exception as e:
@@ -121,7 +120,7 @@ class Analysis(BaseAnalysis):
 
     def kcore(self, analytic):
         try:
-            sf = graphlab.SFrame(analytic.dump)
+            sf = graphlab.SFrame(analytic.dump.data_file.path)
             g = graphlab.Graph()
             g = g.add_edges(sf, 'src', 'dest')
         except Exception as e:
@@ -148,7 +147,7 @@ class Analysis(BaseAnalysis):
 
     def pagerank(self, analytic):
         try:
-            sf = graphlab.SFrame(analytic.dump)
+            sf = graphlab.SFrame(analytic.dump.data_file.path)
             g = graphlab.Graph()
             g = g.add_edges(sf, 'src', 'dest')
         except Exception as e:
@@ -175,7 +174,7 @@ class Analysis(BaseAnalysis):
 
     def shortest_path(self, analytic):
         try:
-            sf = graphlab.SFrame(analytic.dump)
+            sf = graphlab.SFrame(analytic.dump.data_file.path)
             g = graphlab.Graph()
             g = g.add_edges(sf, 'src', 'dest')
         except Exception as e:
@@ -194,7 +193,7 @@ class Analysis(BaseAnalysis):
 
     def triangle_counting(self, analytic):
         try:
-            sf = graphlab.SFrame(analytic.dump)
+            sf = graphlab.SFrame(analytic.dump.data_file.path)
             g = graphlab.Graph()
             g = g.add_edges(sf, 'src', 'dest')
         except Exception as e:
@@ -221,7 +220,7 @@ class Analysis(BaseAnalysis):
 
     def betweenness_centrality(self, analytic):
         try:
-            g = nx.read_edgelist(analytic.dump, delimiter=',')
+            g = nx.read_edgelist(analytic.dump.data_file.path, delimiter=',')
         except Exception:
             raise Exception(LOAD_FILE, "Error loading the file")
         try:

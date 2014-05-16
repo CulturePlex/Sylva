@@ -12,6 +12,7 @@ from celery.result import AsyncResult
 
 from guardian.decorators import permission_required
 
+from analytics.models import Analytic
 from base.decorators import is_enabled
 from graphs.models import Graph, Data
 
@@ -295,12 +296,32 @@ def task_state(request, graph_slug):
             task_id = request.POST['task_id']
             task = AsyncResult(task_id)
             if task.ready():
-                graph = get_object_or_404(Graph, slug=graph_slug)
-                analytic = graph.analytics.filter(task_id=task_id)[0]
+                analytic = Analytic.objects.filter(
+                    dump__graph__slug=graph_slug,
+                    task_id=task_id).latest()
                 data = "{0}{1}".format(settings.MEDIA_URL,
                                        analytic.results.name)
             else:
                 data = False
+
+    json_data = json.dumps(data)
+
+    return HttpResponse(json_data, mimetype='application/json')
+
+
+@is_enabled(settings.ENABLE_ANALYTICS)
+@permission_required("analytics.get_analytic",
+                    (Data, "graph__slug", "graph_slug"), return_403=True)
+def get_analytic(request, graph_slug):
+    data = []
+    if request.is_ajax():
+        if ('analytic_id' in request.POST.keys() and
+                request.POST['analytic_id']):
+            analytic_id = request.POST['analytic_id']
+            analytic = Analytic.objects.get(pk=analytic_id)
+            results_url = "{0}{1}".format(settings.MEDIA_URL,
+                                          analytic.results.name)
+            data = [results_url, analytic.algorithm]
 
     json_data = json.dumps(data)
 

@@ -79,4 +79,8 @@ urlpatterns = patterns('analytics.views',
     # task state
     url(r'^(?P<graph_slug>[\w-]+)/task_state/$',
         'task_state', name="task_state"),
+
+    # get analytic
+    url(r'^(?P<graph_slug>[\w-]+)/get_analytic/$',
+        'get_analytic', name="get_analytic"),
 )

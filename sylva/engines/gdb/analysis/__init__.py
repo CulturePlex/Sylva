@@ -73,15 +73,12 @@ class BaseAnalysis(object):
             try:
                 analytic.task_status = "Starting"
                 analytic.task_start = datetime.datetime.now()
-                dump = getattr(analysis, 'dump')
-                dump(analytic)
                 # analytic.results = url_result
             except Exception as e:
                 raise Exception(PROC_INIT, "Error starting the task")
             algorithm_func = getattr(analysis, algorithm)
             results = algorithm_func(analytic)
-            if algorithm is not 'dump':
-                analysis.save(results, analytic)
+            analysis.save(results, analytic)
             analytic.task_status = "Ready"
             analytic.task_end = datetime.datetime.now()
         except Exception as e:
