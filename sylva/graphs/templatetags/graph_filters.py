@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 from django import template
 
+from analytics.models import Analytic
+
 register = template.Library()
 
 
@@ -11,6 +13,7 @@ def get(value, key, default=None):
 
 @register.filter
 def list_analytics(graph, algorithm):
-    l = graph.analytics.filter(algorithm=algorithm).order_by(
-        '-task_start')[:10]
+    l = Analytic.objects.filter(
+        algorithm=algorithm,
+        dump__graph=graph).order_by('-task_start')[:10]
     return l

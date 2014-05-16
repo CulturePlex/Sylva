@@ -246,6 +246,23 @@ jQuery(document).ready(function() {
       'width': '90%',
       'visibility': 'hidden'
     });
+
+    $(document).on('change', '.last-analytics', function() {
+      var $this = $(this);
+      var analyticId = $('option:selected', $this).val();
+
+      $.ajax({
+        type: "POST",
+        url: "/analytics/{{ graph.slug }}/get_analytic/",
+        data: {"analytic_id": analyticId}
+      }).done(function(result){
+        var resultsUrl = result[0];
+        var algorithm = result[1];
+        console.log(resultsUrl);
+        console.log(algorithm);
+        getResults(resultsUrl, algorithm);
+      });
+    });
 });
 </script>
 <!-- End code for the analytics side -->
