@@ -8,23 +8,23 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        # Adding model 'DataDump'
-        db.create_table(u'analytics_datadump', (
+        # Adding model 'Dump'
+        db.create_table(u'analytics_dump', (
             (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('graph', self.gf('django.db.models.fields.related.ForeignKey')(related_name='dumps', to=orm['graphs.Graph'])),
             ('creation_date', self.gf('django.db.models.fields.DateTimeField')(null=True, blank=True)),
             ('data_file', self.gf('django.db.models.fields.files.FileField')(max_length=100, null=True, blank=True)),
+            ('data_hash', self.gf('django.db.models.fields.CharField')(max_length=255)),
         ))
-        db.send_create_signal(u'analytics', ['DataDump'])
+        db.send_create_signal(u'analytics', ['Dump'])
 
         # Adding model 'Analytic'
         db.create_table(u'analytics_analytic', (
             (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('graph', self.gf('django.db.models.fields.related.ForeignKey')(related_name='analytics', to=orm['graphs.Graph'])),
-            ('dump', self.gf('django.db.models.fields.related.ForeignKey')(related_name='analytics', to=orm['analytics.DataDump'])),
+            ('dump', self.gf('django.db.models.fields.related.ForeignKey')(related_name='analytics', to=orm['analytics.Dump'])),
             ('algorithm', self.gf('django.db.models.fields.CharField')(max_length=255)),
             ('raw', self.gf('django.db.models.fields.files.FileField')(max_length=100, null=True, blank=True)),
             ('results', self.gf('django.db.models.fields.files.FileField')(max_length=100, null=True, blank=True)),
-            ('subgraph', self.gf('django.db.models.fields.CharField')(max_length=255, null=True, blank=True)),
             ('task_id', self.gf('django.db.models.fields.CharField')(max_length=255, null=True, blank=True)),
             ('task_start', self.gf('django.db.models.fields.DateTimeField')(null=True, blank=True)),
             ('task_end', self.gf('django.db.models.fields.DateTimeField')(null=True, blank=True)),
@@ -35,8 +35,8 @@ class Migration(SchemaMigration):
 
 
     def backwards(self, orm):
-        # Deleting model 'DataDump'
-        db.delete_table(u'analytics_datadump')
+        # Deleting model 'Dump'
+        db.delete_table(u'analytics_dump')
 
         # Deleting model 'Analytic'
         db.delete_table(u'analytics_analytic')
@@ -46,22 +46,22 @@ class Migration(SchemaMigration):
         u'analytics.analytic': {
             'Meta': {'object_name': 'Analytic'},
             'algorithm': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
-            'dump': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'analytics'", 'to': u"orm['analytics.DataDump']"}),
-            'graph': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'analytics'", 'to': u"orm['graphs.Graph']"}),
+            'dump': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'analytics'", 'to': u"orm['analytics.Dump']"}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'raw': ('django.db.models.fields.files.FileField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'}),
             'results': ('django.db.models.fields.files.FileField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'}),
-            'subgraph': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
             'task_end': ('django.db.models.fields.DateTimeField', [], {'null': 'True', 'blank': 'True'}),
             'task_error': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
             'task_id': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
             'task_start': ('django.db.models.fields.DateTimeField', [], {'null': 'True', 'blank': 'True'}),
             'task_status': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'})
         },
-        u'analytics.datadump': {
-            'Meta': {'object_name': 'DataDump'},
+        u'analytics.dump': {
+            'Meta': {'object_name': 'Dump'},
             'creation_date': ('django.db.models.fields.DateTimeField', [], {'null': 'True', 'blank': 'True'}),
             'data_file': ('django.db.models.fields.files.FileField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'}),
+            'data_hash': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
+            'graph': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'dumps'", 'to': u"orm['graphs.Graph']"}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'})
         },
         u'auth.group': {
