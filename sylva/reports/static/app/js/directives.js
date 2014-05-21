@@ -106,7 +106,7 @@ directives.directive('sylvaPvRowRepeat', ['tableArray', function (tableArray) {
 }]);
 
 
-directives.directive('sylvaPvCellRepeat', [function () {
+directives.directive('sylvaPvCellRepeat', ['$compile', function ($compile) {
     return {
         transclude: 'element',
         require: '^sylvaPvRowRepeat',
@@ -133,6 +133,8 @@ directives.directive('sylvaPvCellRepeat', [function () {
 
             for (var i=0; i<len; i++) {
 
+                
+
                 var cell = scope.row[i]
                 ,   query = cell.displayQuery
                 ,   colspan = parseInt(cell.colspan)
@@ -148,7 +150,7 @@ directives.directive('sylvaPvCellRepeat', [function () {
                 childScope = scope.$new();
                 childScope.$index = i;
                 childScope.cellStyle = {width: cellWidth};
-
+                childScope.query = query;
                 childScope.chartConfig = {
                     options: {chart: {type: cell.chartType}},
                     xAxis: {catagories: []},
@@ -157,7 +159,11 @@ directives.directive('sylvaPvCellRepeat', [function () {
                     loading: false
                 };
 
+                console.log('query', childScope.query)
                 transclude(childScope, function (clone) {
+
+                    //var test = $compile('<div highchart config="chartConfig" ng-style="cellStyle" class="display-cell"></div>')(childScope)
+                    //clone.append(test)
                     previous.after(clone);
                     block = {}
                     block.element = previous
@@ -252,7 +258,7 @@ directives.directive('syEtRowRepeat', ['tableArray', '$animate', function (table
 
             scope.$watch(ctrl.getTableArray, function (newVal, oldVal) {
                 if (newVal === oldVal) return;
-
+                console.log('table Array', ctrl.getTableArray())
                 var nextTable = {}
                 ,   table = false
                 ,   previous = elem
@@ -387,7 +393,14 @@ directives.directive('sylvaEtCell', function () {
 
             scope.$watch('activeQuery', function (newVal, oldVal) {
                 if (newVal == oldVal) return;
-                scope.tableArray.addQuery([scope.row, scope.col], newVal.name)
+                var name;
+                console.log('newval', newVal)
+                if (newVal != null) {
+                    name = newVal.name || '';
+                } else {
+                    name = '';
+                }
+                scope.tableArray.addQuery([scope.row, scope.col], name)
                 if (newVal === 'markdown') {
                     scope.markdown = true;
                 } else {

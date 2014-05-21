@@ -83,7 +83,8 @@
 
 .prev-cont {
   height: 450px;
-  overflow: hidden
+  overflow: hidden;
+  padding-bottom: 10px;
 }
 
 .prev-cont:hover {

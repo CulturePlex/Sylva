@@ -73,11 +73,12 @@
       <div class="prev-cont">
         <div sylva-pv-row-repeat class="row" resp="resp" width="600">
           <div sylva-pv-cell-repeat class="col" row="row">
-            <div highchart config="chartConfig" ng-style="cellStyle" class="display-cell"></div>
+            <div ng-if="query != '' && query != 'undefined' && query != null" highchart config="chartConfig" ng-style="cellStyle" class="display-cell"></div>
+            <div ng-if="query == '' || query == 'undefined' || query == null" ng-style="cellStyle" class="display-cell"></div>
           </div>
         </div>
       </div>
-    </div> <!--row-->
+    </div> <!--row--> 
     
 
   </div> <!--content2-->
