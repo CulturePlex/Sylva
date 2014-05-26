@@ -30,7 +30,10 @@
 
 {% block content %}
   <div id="content3">
-    <form action="." method="POST" enctype="multipart/form-data">
+    {% if as_modal %}
+      <div id="save-url" data-url="{{ save_url }}" style="display: none;"></div>
+    {% endif %}
+    <form id="edit-node-form" action="." method="POST" enctype="multipart/form-data">
       {% csrf_token %}
       <div class="content3-block">
         <h2 id="propertiesTitle">{% trans "Properties" %}</h2>
@@ -47,10 +50,10 @@
           </p>
         {% endfor %}
         <span class="buttonLinkOption buttonLinkLeft">
-          <input id="submit-save" type="submit" value="{% trans "Save" %} {{ nodetype.name|capfirst }}"/>
+          <input type="submit" value="{% trans "Save" %} {{ nodetype.name|capfirst }}"/>
           {% if as_new %}
           {% trans "or" %}
-          <input id="submit-save-as-new" type="submit" name="as-new" value="{% trans "Save as new" %} {{ nodetype.name|capfirst }}"/>
+          <input type="submit" name="as-new" value="{% trans "Save as new" %} {{ nodetype.name|capfirst }}"/>
           {% endif %}
         </span>
         <span class="buttonLinkOption buttonLinkRight">
@@ -59,7 +62,7 @@
           <a id="submit-remove" href="{% url "nodes_delete" graph.slug node.id %}">{% trans "Remove" %}</a>
           {% endif %}
           {% trans "or" %}
-          <a id href="{% url "nodes_list" graph.slug %}">{% trans "Cancel" %}</a>.</span>
+          <a id="submit-cancel" href="{% url "nodes_list" graph.slug %}">{% trans "Cancel" %}</a>.</span>
       </div>
       {% if outgoing_formsets or incoming_formsets %}
         <div class="content-divider"></div>

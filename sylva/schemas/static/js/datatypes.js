@@ -11,16 +11,9 @@
         $('.time').timepicker({
             timeOnly: true,
             showSecond: true,
+            timeFormat: 'HH:mm:ss',
+            appendText: "(HH:mm:ss)",
         });
-//        var type = $('<input type="date" />').attr('type');
-//        if (type == 'text') { // No HTML5 support
-//            var options = {
-//                dateFormat: 'yy-mm-dd'
-//            };
-//            $('.date').datepicker(options);
-//        } else {
-//            $('.date').attr("type", "date");
-//        };
     };
     $(document).ready(init);
 })(jQuery);

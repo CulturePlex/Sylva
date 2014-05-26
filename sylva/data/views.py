@@ -360,6 +360,7 @@ def nodes_view(request, graph_slug, node_id):
 @permission_required("data.change_data", (Data, "graph__slug", "graph_slug"),
                      return_403=True)
 def nodes_edit(request, graph_slug, node_id):
+    print '@@@@@@@@@@@@@@@@@@@@@@@@@@@'
     graph = get_object_or_404(Graph, slug=graph_slug)
     node = graph.nodes.get(node_id)
     nodetype = get_object_or_404(NodeType, id=node.label)
@@ -531,7 +532,8 @@ def nodes_edit(request, graph_slug, node_id):
         # If we are here it means that the form was valid and we don't need
         # to return a form again.
         if as_modal:
-            changes = {}
+            print '######################'
+            changes = {'betis': 'deLopera'}
             return HttpResponse(json.dumps(changes), status=200,
                                 mimetype='application/json')
         else:
@@ -550,6 +552,7 @@ def nodes_edit(request, graph_slug, node_id):
             incoming_formsets.values():
         forms_media |= set(form.media.render_js())
         forms_media |= set([css for css in form.media.render_css()])
+    save_url = reverse("nodes_edit", args=[graph.slug, node_id])
     broader_context = {"graph": graph,
                        "nodetype": nodetype,
                        "node_form": node_form,
@@ -564,7 +567,8 @@ def nodes_edit(request, graph_slug, node_id):
                        "delete": True,
                        "as_new": True,
                        "base_template": base_template,
-                       "as_modal": as_modal}
+                       "as_modal": as_modal,
+                       "save_url": save_url}
     response = render('nodes_editcreate.html', broader_context,
                       context_instance=RequestContext(request))
     if as_modal:

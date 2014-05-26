@@ -1310,9 +1310,11 @@ sigma:true, clearTimeout */
           var body = $(children[1]);
           var span = header.children().first();
 
-          // The 4 next lines remove jQueryUI style from the boxes.
-          header.removeClass('ui-accordion ui-accordion-icons ui-accordion-header ui-helper-reset');
-          body.removeClass('ui-accordion ui-accordion-content ui-accordion-content');
+          // The next lines remove jQueryUI style from the boxes.
+          box.removeClass('ui-widget ui-accordion');
+          header.removeClass('ui-accordion-icons ' +
+            'ui-accordion-header ui-helper-reset ui-state-default');
+          body.removeClass('ui-accordion-content ui-widget-content');
           body.css('height', '');
           span.remove();
         },
@@ -1321,6 +1323,8 @@ sigma:true, clearTimeout */
           $('#' + event.target.id).css({
             zIndex: highestZIndex,
           });
+
+          // This lines control the arrow icon.
           var span = $(event.target).children().first().children().first();
           if (span.hasClass('icon-caret-down')) {
             span.removeClass('icon-caret-down');
@@ -2314,9 +2318,12 @@ sigma:true, clearTimeout */
         url: url,
         type: 'GET',
         data: params,
-        dataType: 'text'
+        dataType: 'html'
       });
       jqxhr.success(function(data) {
+        // TODO: Change all of this when we choose a modal library.
+
+        // Creating the view.
         var modal = $('<div id="edit-node-modal">');
         $('body').append(modal);
         modal.append(data);
@@ -2327,10 +2334,50 @@ sigma:true, clearTimeout */
           position: 'absolute',
           top: 0
         });
+
+        // Binding the 'events' for the four actions.
+        $('#edit-node-form').attr('onsubmit', 'return sylva.Sigma.TODO()');
+
+        $('#submit-remove').removeAttr('href');
+        $('#submit-remove').on('click', function() {
+          return;
+        });
+
+        $('#submit-cancel').removeAttr('href');
+        $('#submit-cancel').on('click', function() {
+          // Closing modal.
+          that.closeEditNodeModal();
+          return;
+        });
       });
       jqxhr.error(function() {
         alert(gettext("Oops! Something went wrong with the server."));
       });
+    },
+
+    // TODO: Comment the function.
+    // TODO: Change the function according with the modal library.
+    closeEditNodeModal: function() {
+      $('#edit-node-modal').remove();
+    },
+
+    TODO: function() {
+      var serializedForm = $('#edit-node-form').serialize();
+      serializedForm += '$asModal=true';
+      var url = $('save-url').attr('data-url');
+
+      var jqxhr = $.ajax({
+        url: url,
+        type: 'POST',
+        data: serializedForm
+      });
+      jqxhr.success(function(data) {
+        console.log(data)
+      });
+      jqxhr.error(function() {
+        alert(gettext("Oops! Something went wrong with the server."));
+      });
+      return false;
     }
 
   };

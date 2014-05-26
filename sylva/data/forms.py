@@ -44,7 +44,7 @@ class ItemForm(forms.Form):
             "js/jquery.tokeninput.js",
         )
         css = {
-            "all": ("css/jquery-ui-1.10.4.css", )
+            "all": ("css/jqueryui.1.8.18.css", )
         }
 
     def __init__(self, graph, itemtype, instance=None, *args, **kwargs):
