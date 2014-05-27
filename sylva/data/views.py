@@ -360,7 +360,6 @@ def nodes_view(request, graph_slug, node_id):
 @permission_required("data.change_data", (Data, "graph__slug", "graph_slug"),
                      return_403=True)
 def nodes_edit(request, graph_slug, node_id):
-    print '@@@@@@@@@@@@@@@@@@@@@@@@@@@'
     graph = get_object_or_404(Graph, slug=graph_slug)
     node = graph.nodes.get(node_id)
     nodetype = get_object_or_404(NodeType, id=node.label)
@@ -532,7 +531,6 @@ def nodes_edit(request, graph_slug, node_id):
         # If we are here it means that the form was valid and we don't need
         # to return a form again.
         if as_modal:
-            print '######################'
             changes = {'betis': 'deLopera'}
             return HttpResponse(json.dumps(changes), status=200,
                                 mimetype='application/json')
@@ -547,12 +545,14 @@ def nodes_edit(request, graph_slug, node_id):
     else:
         base_template = 'base.html'
         render = render_to_response
+    # This is a way to get the media needed by the form without repeat files
     forms_media = set()
     for form in [node_form] + outgoing_formsets.values() + \
             incoming_formsets.values():
         forms_media |= set(form.media.render_js())
         forms_media |= set([css for css in form.media.render_css()])
-    save_url = reverse("nodes_edit", args=[graph.slug, node_id])
+    save_url = reverse("nodes_edit", args=[graph_slug, node_id])
+    delete_url = reverse("nodes_delete", args=[graph_slug, node_id])
     broader_context = {"graph": graph,
                        "nodetype": nodetype,
                        "node_form": node_form,
@@ -568,7 +568,8 @@ def nodes_edit(request, graph_slug, node_id):
                        "as_new": True,
                        "base_template": base_template,
                        "as_modal": as_modal,
-                       "save_url": save_url}
+                       "save_url": save_url,
+                       "delete_url": delete_url}
     response = render('nodes_editcreate.html', broader_context,
                       context_instance=RequestContext(request))
     if as_modal:
@@ -622,9 +623,13 @@ def nodes_delete(request, graph_slug, node_id):
     form = ItemDeleteConfirmForm()
     if request.POST:
         data = request.POST.copy()
+        as_modal = bool(data.get("asModal", False))
         form = ItemDeleteConfirmForm(data=data)
         if form.is_valid():
-            confirm = form.cleaned_data["confirm"]
+            # confirm = form.cleaned_data["confirm"]
+            # TODO: Take a look to the next line
+            import ast
+            confirm = bool(ast.literal_eval(form.cleaned_data["confirm"]))
             if confirm:
                 for relationship in node.relationships.all():
                     relationship.delete()
@@ -641,21 +646,45 @@ def nodes_delete(request, graph_slug, node_id):
                 if media_node:
                     media_node.delete()
                 node.delete()
-                redirect_url = reverse("nodes_list", args=[graph.slug])
-                return redirect(redirect_url)
-    return render_to_response('nodes_delete.html',
-                              {"graph": graph,
-                               "item_type_label": _("Node"),
-                               "item_type": "node",
-                               "item_type_id": nodetype.id,
-                               "item_type_name": nodetype.name,
-                               "item_type_count": None,  # count,
-                               "item_type_object": nodetype,
-                               "form": form,  # form,
-                               "item": node,
-                               "action": _("Delete")
-                               },
-                              context_instance=RequestContext(request))
+                if as_modal:
+                    changes = {'betis': 'deLoperaBorrated'}
+                    return HttpResponse(json.dumps(changes), status=200,
+                                        mimetype='application/json')
+                else:
+                    redirect_url = reverse("nodes_list", args=[graph.slug])
+                    return redirect(redirect_url)
+            elif not confirm and as_modal:
+                changes = {'betis': 'deLoperaCancel'}
+                return HttpResponse(json.dumps(changes), status=200,
+                                    mimetype='application/json')
+    else:
+        as_modal = bool(request.GET.copy().get("asModal", False))
+    if as_modal:
+        base_template = 'empty.html'
+        render = render_to_string
+    else:
+        base_template = 'base.html'
+        render = render_to_response
+    delete_url = reverse("nodes_delete", args=[graph_slug, node_id])
+    broader_context = {"graph": graph,
+                       "item_type_label": _("Node"),
+                       "item_type": "node",
+                       "item_type_id": nodetype.id,
+                       "item_type_name": nodetype.name,
+                       "item_type_count": None,  # count,
+                       "item_type_object": nodetype,
+                       "form": form,  # form,
+                       "item": node,
+                       "action": _("Delete"),
+                       "base_template": base_template,
+                       "as_modal": as_modal,
+                       "delete_url": delete_url}
+    response = render('nodes_delete.html', broader_context,
+                      context_instance=RequestContext(request))
+    if as_modal:
+        return HttpResponse(response, status=200)
+    else:
+        return response
 
 
 @permission_required("data.view_data", (Data, "graph__slug", "graph_slug"),

@@ -1,41 +1,46 @@
-{% extends "base.html" %}
+{% extends base_template %}
 {% load i18n graphs %}
 
 {% block extra_scripts %}
-    <script type="text/javascript" src="{{ STATIC_PREFIX }}js/jquery.formsets.1.2.min.js"></script>
+  <script type="text/javascript" src="{{ STATIC_PREFIX }}js/jquery.formsets.1.2.min.js"></script>
 {% endblock %}
 
-{% block navigation_buttons %}
-{{ block.super }}
-{% endblock %}
+{% if not as_modal %}
+  {% block navigation_buttons %}
+  {{ block.super }}
+  {% endblock %}
 
-{% block title %}
-{{ graph.name }}
-{% endblock %}
+  {% block title %}
+  {{ graph.name }}
+  {% endblock %}
 
-{% block menu_buttons %}
-{% toolbar on="nodes" %}
-{% endblock %}
+  {% block menu_buttons %}
+  {% toolbar on="nodes" %}
+  {% endblock %}
 
-{% block content_title %}
-{% breadcrumb graph graph.data item_type_object action %}
-<!--<h2>{% trans "Graphs" %} » {{ graph.name|truncatewords_html:5 }} » {% trans "Nodes" %} » {% trans "Delete" %} {{ item_type_name }}</h2>-->
-{% endblock %}
+  {% block content_title %}
+  {% breadcrumb graph graph.data item_type_object action %}
+  <!--<h2>{% trans "Graphs" %} » {{ graph.name|truncatewords_html:5 }} » {% trans "Nodes" %} » {% trans "Delete" %} {{ item_type_name }}</h2>-->
+  {% endblock %}
+{% endif %}
 
 {% block content %}
 <div id="content2">
-<form action="." method="POST" id="itemType">
-{% csrf_token %}
+  {% if as_modal %}
+    <div id="delete-url" data-url="{{ delete_url }}" style="display: none;"></div>
+  {% endif %}
+  <form id="delete-node-form" action="." method="POST" id="itemType">
+    {% csrf_token %}
     <div class="content-main">
-        <h2>{{ item_type_name }}: {{ item.display }}</h2>
-        {{ form.as_p }}
-        <span class="buttonLinkOption buttonLinkLeft">
-          <input type="submit" value="{% trans "Continue" %}"/>
-        </span>
-        <span class="buttonLinkOption buttonLinkRight">
-            {% trans "or" %} <a href="{% url "schema_edit" graph.slug %}">{% trans "Cancel" %}</a>.
-        </span>
+      <h2>{{ item_type_name }}: {{ item.display }}</h2>
+      {{ form.as_p }}
+      <span class="buttonLinkOption buttonLinkLeft">
+        <input id="submit-delete" type="submit" value="{% trans "Continue" %}"/>
+      </span>
+      <span class="buttonLinkOption buttonLinkRight">
+        {% trans "or" %} <a id="submit-cancel" href="{% url "schema_edit" graph.slug %}">{% trans "Cancel" %}</a>.
+      </span>
     </div>
-</form>
+  </form>
 </div>
 {% endblock %}

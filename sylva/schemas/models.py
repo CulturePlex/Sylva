@@ -414,7 +414,7 @@ class RelationshipType(BaseType):
     def create_color(self):
         color = self.target.get_color()
         self.set_color(color)
-        self.set_color_mode('source')
+        self.set_color_mode('target')
         return color
 
     def get_color_mode(self):

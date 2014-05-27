@@ -2308,6 +2308,7 @@ sigma:true, clearTimeout */
     },
 
     // TODO: Comment the function.
+    // TODO: Change the function according with the modal library.
     showEditNodeModal: function(event) {
       var url = $(event.target).attr('data-url');
       params = {
@@ -2321,8 +2322,6 @@ sigma:true, clearTimeout */
         dataType: 'html'
       });
       jqxhr.success(function(data) {
-        // TODO: Change all of this when we choose a modal library.
-
         // Creating the view.
         var modal = $('<div id="edit-node-modal">');
         $('body').append(modal);
@@ -2336,18 +2335,16 @@ sigma:true, clearTimeout */
         });
 
         // Binding the 'events' for the four actions.
-        $('#edit-node-form').attr('onsubmit', 'return sylva.Sigma.TODO()');
+        $('#submit-save').attr('onclick', 'return sylva.Sigma.TODO1(this)');
+        $('#submit-save-as-new').attr('onclick', 'return sylva.Sigma.TODO1(this)');
 
-        $('#submit-remove').removeAttr('href');
-        $('#submit-remove').on('click', function() {
-          return;
-        });
+        $('#submit-delete').removeAttr('href');
+        $('#submit-delete').on('click', that.TODO2);
 
         $('#submit-cancel').removeAttr('href');
         $('#submit-cancel').on('click', function() {
           // Closing modal.
-          that.closeEditNodeModal();
-          return;
+          that.closeNodeModal('#edit-node-modal');
         });
       });
       jqxhr.error(function() {
@@ -2357,14 +2354,20 @@ sigma:true, clearTimeout */
 
     // TODO: Comment the function.
     // TODO: Change the function according with the modal library.
-    closeEditNodeModal: function() {
-      $('#edit-node-modal').remove();
+    closeNodeModal: function(selector) {
+      $(selector).remove();
     },
 
-    TODO: function() {
-      var serializedForm = $('#edit-node-form').serialize();
-      serializedForm += '$asModal=true';
-      var url = $('save-url').attr('data-url');
+    /* This function handles the 'Save' and 'Save as new' options from the
+     * 'edit node modal'.
+     */
+    TODO1: function(button) {
+      var url = $('#save-url').attr('data-url');
+      var serializedForm = $('#edit-node-form').serialize() + '&asModal=true';
+
+      if (button.id == 'submit-save-as-new') {
+        serializedForm += '&as-new=true';
+      }
 
       var jqxhr = $.ajax({
         url: url,
@@ -2372,11 +2375,76 @@ sigma:true, clearTimeout */
         data: serializedForm
       });
       jqxhr.success(function(data) {
-        console.log(data)
+        console.log(data);
       });
       jqxhr.error(function() {
         alert(gettext("Oops! Something went wrong with the server."));
       });
+
+      // False is needed for the form is not sending.
+      return false;
+    },
+
+    /* This function handles the 'Remove' option from the 'edit node modal'. It
+     * will show the 'delete node modal'.
+     */
+    TODO2: function() {
+      var url = $('#delete-url').attr('data-url');
+      var params = 'asModal=true';
+
+      var jqxhr = $.ajax({
+        url: url,
+        type: 'GET',
+        data: params,
+        dataType: 'html'
+      });
+      jqxhr.success(function(data) {
+        that.closeNodeModal('#edit-node-modal');
+        var modal = $('<div id="delete-node-modal">');
+        $('body').append(modal);
+        modal.append(data);
+        modal.css({
+          backgroundColor: 'white',
+          zIndex: 500,
+          maxWidth: 1150,
+          position: 'absolute',
+          top: 0
+        });
+
+        // Binding the 'events' for the two actions.
+        $('#submit-delete').attr('onclick', 'return sylva.Sigma.TODO3()');
+
+        $('#submit-cancel').removeAttr('href');
+        $('#submit-cancel').on('click', function() {
+          // Closing modal.
+          that.closeNodeModal('#delete-node-modal');
+        });
+      });
+      jqxhr.error(function() {
+        alert(gettext("Oops! Something went wrong with the server."));
+      });
+    },
+
+    /* This function handles the 'Continue' options from the
+     * 'delete node modal'.
+     */
+    TODO3: function() {
+      var url = $('#delete-url').attr('data-url');
+      var serializedForm = $('#delete-node-form').serialize() + '&asModal=true';
+
+      var jqxhr = $.ajax({
+        url: url,
+        type: 'POST',
+        data: serializedForm
+      });
+      jqxhr.success(function(data) {
+        console.log(data);
+      });
+      jqxhr.error(function() {
+        alert(gettext("Oops! Something went wrong with the server."));
+      });
+
+      // False is needed for the form is not sending.
       return false;
     }
 

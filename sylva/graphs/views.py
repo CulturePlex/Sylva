@@ -387,7 +387,8 @@ def graph_data(request, graph_slug, node_id=None):
         else:
             nodes_list = graph.nodes.all()
             relations_list = graph.relationships.all()
-        graph_json, nodetypes, reltypes, node_ids = _jsonify_graph(nodes_list, relations_list)
+        graph_json, nodetypes, reltypes, node_ids = _jsonify_graph(
+            nodes_list, relations_list)
         size = len(nodes_list)
 
         collapsibles = []
