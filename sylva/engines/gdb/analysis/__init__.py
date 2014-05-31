@@ -75,9 +75,6 @@ class BaseAnalysis(object):
                     'Unknown error: ' + str(e.args[0])
         finally:
             analytic.save()
-        import logging
-        logging.basicConfig(filename='/tmp/celery.log',level=logging.DEBUG)
-        logging.warning(analytic.task_error) # will print a message to the console
         return analytic.task_status
 
     def estimate(self, analysis, graph, algorithm):
