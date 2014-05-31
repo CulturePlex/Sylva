@@ -24,7 +24,7 @@ if getattr(settings, "PROFILE_MIDDLEWARE_JSON", True):
 class ProfileMiddleware(object):
 
     def __init__(self):
-        if not getattr(settings, "ENABLE_PROFILE", False):
+        if not getattr(settings, "ENABLE_PROFILING", False):
             raise MiddlewareNotUsed("Profiling middleware not used")
 
     def process_view(self, request, callback, args, kwargs):

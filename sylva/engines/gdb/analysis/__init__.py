@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 import datetime
 
-from celery import Celery
-
-app = Celery('tasks', backend='amqp', broker='amqp://')
+from sylva.celery import app
 
 PROC_INIT = 0
 LOAD_FILE = 1
@@ -40,7 +38,7 @@ class BaseAnalysis(object):
     #     """
     #     raise NotImplementedError("Method has to be implemented")
 
-    @app.task(bind=True, name="tasks.run_algorithm")
+    @app.task(bind=True, name="analytics.run_algorithm")
     def run(self, analytic, analysis):
         algorithm = analytic.algorithm
         analytic.task_id = self.request.id

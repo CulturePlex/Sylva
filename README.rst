@@ -73,13 +73,13 @@ Graph Database
 --------------
 
 The last piece to make Sylva works is the Neo4j_ graph database. You can download
-the most current version (1.9.2_ as today). After downloading, we need to unzip
-and setup some parameters::
+the most current version (only branch 1.9.x is supported, 1.9.7_ as today).
+After downloading, we need to unzip and setup some parameters::
 
   $ cd git/sylva
-  $ wget dist.neo4j.org/neo4j-community-1.9.2-unix.tar.gz
-  $ tar -zxvf neo4j-community-1.9.2-unix.tar.gz
-  $ mv neo4j-community-1.9.2-unix neo4j
+  $ wget dist.neo4j.org/neo4j-community-1.9.7-unix.tar.gz
+  $ tar -zxvf neo4j-community-1.9.7-unix.tar.gz
+  $ mv neo4j-community-1.9.7-unix neo4j
 
 Now, as indicated in `settings.py` in section `GRAPHDATABASES`, you need to edit
 the file `neo4j/conf/neo4j-server.properties` and set the next properies (the
@@ -92,10 +92,44 @@ And then you are ready to run the Neo4j_ server::
 
   $ ./neo4j/bin/neo4j console
 
+Analytics
+---------
+
+The analytics feature is only available for Neo4j backend, and only supportyed
+in 64-bits machines due to a limitiation in GraphLab_. To enable them, set the
+next variable to `True` in your local `settings.py`::
+
+  ENABLE_ANALYTICS = True
+
+Analytics are run as Celery_ tasks, so you need a broker and a backend. Of popular
+choice is to install Redis_ as the backend, and RabbitMQ_ as the broker. But in
+order to simplify the process, just the broker is needed when using RabbitMQ.
+
+There are many ways to install RabbitMQ, we recommend a system installation,
+although a local installation might be better for development::
+
+  $ wget http://www.rabbitmq.com/releases/rabbitmq-server/v3.3.1/rabbitmq-server-generic-unix-3.3.1.tar.gz
+  $ tar xvf rabbitmq-server-generic-unix-3.3.1.tar.gz
+  $ ./rabbitmq_server-3.3.1/sbin/rabbitmq-server start
+
+That should expose the URL amqp://guest@localhost// listening for requests. The
+last steps are configure the `BROKER_URL` in your settings::
+
+  BROKER_URL = "amqp://guest@localhost//"
+
+And finally run Celery::
+
+  $ celery -A sylva.celery worker -l
+
+
 .. _Sylva: http://www.sylvadb.com
 .. _Neo4j: http://neo4j.org
-.. _1.9.2: http://dist.neo4j.org/neo4j-community-1.9.2-unix.tar.gz
+.. _1.9.7: http://dist.neo4j.org/neo4j-community-1.9.7-unix.tar.gz
 .. _Django: https://www.djangoproject.com/
+.. _GraphLab: http://graphlab.com/
+.. _RabbitMQ: http://www.rabbitmq.com/
+.. _Celery: http://celery.readthedocs.org/en/latest/
+.. _Redis: http://redis.io/
 .. _pip: http://pypi.python.org/pypi/pip
 .. _virtualenv: http://pypi.python.org/pypi/virtualenv
 .. _virtualenvwrapper: http://www.doughellmann.com/docs/virtualenvwrapper/
