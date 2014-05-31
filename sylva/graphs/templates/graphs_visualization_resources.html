@@ -22,7 +22,7 @@
 <script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/sigma/plugins/sigma.plugins.neighborhoods.min.js"></script>
 <script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/sigma/plugins/sigma.renderers.customShapes.min.js"></script>
 
-<script type="text/javascript" src="{{ STATIC_PREFIX }}/js/jquery-ui-1.10.4.js"></script>
+<script type="text/javascript" src="{{ STATIC_PREFIX }}js/jquery-ui-1.10.4.js"></script>
 <script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/jquery/jquery.simulate.js"></script>
 
 <script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/colpick/colpick.js"></script>
@@ -205,37 +205,7 @@ jQuery(document).ready(function() {
         });
     });
 
-    $('#connected_components').accordion({
-      collapsible: true,
-      active: false,
-      heightStyle: 'content'
-    });
-
-    $('#graph_coloring').accordion({
-      collapsible: true,
-      active: false,
-      heightStyle: 'content'
-    });
-
-    $('#kcore').accordion({
-      collapsible: true,
-      active: false,
-      heightStyle: 'content'
-    });
-
-    $('#pagerank').accordion({
-      collapsible: true,
-      active: false,
-      heightStyle: 'content'
-    });
-
-    $('#triangle_counting').accordion({
-      collapsible: true,
-      active: false,
-      heightStyle: 'content'
-    });
-
-    $('#betweenness_centrality').accordion({
+    $('.analytics-measure').accordion({
       collapsible: true,
       active: false,
       heightStyle: 'content'
