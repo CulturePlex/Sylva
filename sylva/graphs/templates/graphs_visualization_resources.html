@@ -149,10 +149,9 @@ jQuery(document).ready(function() {
     // pole state of the current task
     var getTaskState = function(task_id, algorithm) {
       $.ajax({
-        type: "POST",
-        url: "/analytics/{{ graph.slug }}/task_state/",
-        data: {"task_id": task_id,
-               "algorithm": algorithm}
+        type: "GET",
+        url: "{% url 'analytics_status' graph.slug %}",
+        data: {"id": task_id}
       }).done(function(task){
         if(!task) {
             window.setTimeout(function() {
@@ -180,7 +179,8 @@ jQuery(document).ready(function() {
 
         jQuery.ajax({
             type: "POST",
-            url: "/analytics/{{ graph.slug }}/get_eta_" + measure + "/"
+            url: "{% url 'analytics_estimate' graph.slug %}",
+            data: {"algorithm": measure}
         }).done(function(data){
             var algorithm = data[0];
             var eta_time = data[1];
@@ -193,7 +193,8 @@ jQuery(document).ready(function() {
         });
         jQuery.ajax({
             type: "POST",
-            url: "/analytics/{{ graph.slug }}/" + measure + "/"
+            url: "{% url 'analytics_run' graph.slug %}",
+            data: {"algorithm": measure}
         }).done(function(data){
             var task_id = data[0];
             var algorithm = data[1];
@@ -252,9 +253,9 @@ jQuery(document).ready(function() {
       var analyticId = $('option:selected', $this).val();
 
       $.ajax({
-        type: "POST",
-        url: "/analytics/{{ graph.slug }}/get_analytic/",
-        data: {"analytic_id": analyticId}
+        type: "GET",
+        url: "{% url 'analytics_analytic' graph.slug %}",
+        data: {"id": analyticId}
       }).done(function(result){
         var resultsUrl = result[0];
         var algorithm = result[1];

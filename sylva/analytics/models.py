@@ -74,3 +74,6 @@ class AnalysisManager(models.Manager):
             algorithm=algorithm
         )
         return estimation
+
+    def get_algorithms(self):
+        return self._analysis.get_algorithms()
