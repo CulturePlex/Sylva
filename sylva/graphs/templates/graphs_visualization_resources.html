@@ -45,7 +45,7 @@
 
 // Variable to store the ids to plot the results of the analytics
 var analyticsId = {};
-var task_time = 0;
+var taskTime = 0;
 
 jQuery(document).ready(function() {
       /**
@@ -147,7 +147,7 @@ jQuery(document).ready(function() {
     }
 
     // pole state of the current task
-    var TaskState = function(task_id, algorithm) {
+    var getTaskState = function(task_id, algorithm) {
       $.ajax({
         type: "POST",
         url: "/analytics/{{ graph.slug }}/task_state/",
@@ -156,14 +156,14 @@ jQuery(document).ready(function() {
       }).done(function(task){
         if(!task) {
             window.setTimeout(function() {
-              TaskState(task_id, algorithm);
+              getTaskState(task_id, algorithm);
             }, 1000);
-            task_time = task_time + 7;
-            $('#progress-bar').attr('value', task_time);
+            taskTime = taskTime + 7;
+            $('#progress-bar').attr('value', taskTime);
         } else {
           getResults(task, algorithm);
           $('#progress-bar').attr('value', 100);
-          task_time = 0;
+          taskTime = 0;
         }
         // create the infinite loop of Ajax calls to check the state
         // of the current task
@@ -197,7 +197,7 @@ jQuery(document).ready(function() {
         }).done(function(data){
             var task_id = data[0];
             var algorithm = data[1];
-            TaskState(task_id, algorithm);
+            getTaskState(task_id, algorithm);
             $('#progress-bar').css({
               'visibility': 'visible'
             });

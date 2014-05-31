@@ -137,6 +137,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     "base.context_processors.google_analytics_code",
     "base.context_processors.debug",
     "base.context_processors.logout",
+    "base.context_processors.options",
     "base.context_processors.site",
 )
 

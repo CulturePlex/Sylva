@@ -53,7 +53,7 @@ def breadcrumb(context, *links):
 def graph_visualization(context, graph, analytics=True):
     analysis = graph.gdb.analysis()
     if analysis:
-        algorithms = analysis.list_algorithms()
+        algorithms = analysis.get_algorithms()
     else:
         algorithms = []
     return {'analytics': bool(analytics),

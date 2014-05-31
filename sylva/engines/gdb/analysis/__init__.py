@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
-from celery import Celery
 import datetime
+
+from celery import Celery
 
 app = Celery('tasks', backend='amqp', broker='amqp://')
 
@@ -15,60 +16,34 @@ class BaseAnalysis(object):
     Base class for Analytics with the common API to implement.
     """
 
-    def dump(graph, analytic):
+    def get_algorithms(self):
+        """
+        Returns the list of available algorithms with labels
+        """
+        raise NotImplementedError("Method has to be implemented")
+
+    def get_dump(graph):
         """
         Dump the content of the graph into an edgelist file
         """
         raise NotImplementedError("Method has to be implemented")
 
-    def connected_components(graph, analytic):
-        """
-        Connected components method
-        """
-        raise NotImplementedError("Method has to be implemented")
+    # def run_<algorithm>(analytic):
+    #     """
+    #     Run <algorithm> over the object analytic
+    #     """
+    #     raise NotImplementedError("Method has to be implemented")
 
-    def graph_coloring(graph, analytic):
-        """
-        graph coloring method
-        """
-        raise NotImplementedError("Method has to be implemented")
+    # def estimate_<algorithm>(analytic):
+    #     """
+    #     Estiamte in ms the time of execution of <algorithm>
+    #     """
+    #     raise NotImplementedError("Method has to be implemented")
 
-    def kcore(graph, analytic):
-        """
-        kcore method
-        """
-        raise NotImplementedError("Method has to be implemented")
-
-    def pagerank(graph, analytic):
-        """
-        Pagerank method
-        """
-        raise NotImplementedError("Method has to be implemented")
-
-    def shortest_path(graph, analytic):
-        """
-        Shortest path method
-        """
-        raise NotImplementedError("Method has to be implemented")
-
-    def triangle_counting(graph, analytic):
-        """
-        Triangle counting method
-        """
-        raise NotImplementedError("Method has to be implemented")
-
-    def betweenness_centrality(graph, analytic):
-        """
-        Betweenness centrality method
-        """
-        raise NotImplementedError("Method has to be implemented")
-
-    @app.task(bind=True, name="tasks.analytic")
-    def run_algorithm(self, analytic, analysis):
-        # graph = analytic.graph
+    @app.task(bind=True, name="tasks.run_algorithm")
+    def run(self, analytic, analysis):
         algorithm = analytic.algorithm
         analytic.task_id = self.request.id
-        # url_dump = "../dump_files/" + graph.slug + ".csv"
         try:
             try:
                 analytic.task_status = "Starting"
@@ -76,7 +51,7 @@ class BaseAnalysis(object):
                 # analytic.results = url_result
             except Exception as e:
                 raise Exception(PROC_INIT, "Error starting the task")
-            algorithm_func = getattr(analysis, algorithm)
+            algorithm_func = getattr(analysis, "run_{0}".format(algorithm))
             results = algorithm_func(analytic)
             analysis.save(results, analytic)
             analytic.task_status = "Ready"
@@ -100,12 +75,12 @@ class BaseAnalysis(object):
                     'Unknown error: ' + str(e.args[0])
         finally:
             analytic.save()
-            print analytic.task_error
+        import logging
+        logging.basicConfig(filename='/tmp/celery.log',level=logging.DEBUG)
+        logging.warning(analytic.task_error) # will print a message to the console
         return analytic.task_status
 
-    @app.task(bind=True, name="tasks.estimated_time")
-    def run_estimated_time(self, analysis, graph, algorithm):
-        eta_func = getattr(analysis, algorithm + '_eta')
-        result = eta_func(graph)
-
-        return result
+    def estimate(self, analysis, graph, algorithm):
+        estimate_func = getattr(analysis, "estimate_{0}".format(algorithm))
+        estimation = estimate_func(graph)
+        return estimation

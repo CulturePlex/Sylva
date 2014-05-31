@@ -27,8 +27,6 @@ class Dump(models.Model):
 
 
 class Analytic(models.Model):
-    # graph = models.ForeignKey(Graph, verbose_name=_("graph"),
-    #                           related_name='analytics')
     dump = models.ForeignKey(Dump, verbose_name=_("data dump"),
                              related_name='analytics')
     algorithm = models.CharField(_("Algorithm"), max_length=255)
@@ -56,32 +54,23 @@ class AnalysisManager(models.Manager):
 
     def __init__(self, graph, **kwargs):
         self._graph = graph
+        self._analysis = self._graph.gdb.analysis()
 
     def run(self, algorithm, **kwargs):
-        analysis = self._graph.gdb.analysis()
-        # affected_nodes_array = "[669, 670, 671, 672, 673, 674,
-        #675, 676, 677, 678, 679, 680, 693, 694, 716]"
-        # analytic = Analytic.objects.create(graph=self._graph,
-        #    algorithm=algorithm, affected_nodes=affected_nodes_array)
-        dump = analysis.get_dump(self._graph)
+        dump = self._analysis.get_dump(self._graph)
         analytic = Analytic.objects.create(dump=dump,
                                            algorithm=algorithm)
-        # algorithm_task = analysis.run_task(algorithm, self._graph,
-        #                                    analytic)
-        task = analysis.run_algorithm.apply_async(
+        task = self._analysis.run.apply_async(
             kwargs={'analytic': analytic,
-                    'analysis': analysis})
-
+                    'analysis': self._analysis})
         analytic.task_id = task.id
         analytic.save()
-
         return analytic
 
-    def estimated_time(self, algorithm, **kwargs):
-        analysis = self._graph.gdb.analysis()
-        task = analysis.run_estimated_time.apply_async(
-            kwargs={'analysis': analysis,
-                    'graph': self._graph,
-                    'algorithm': algorithm})
-
-        return task
+    def estimate(self, algorithm):
+        estimation = self._analysis.estimate(
+            analysis=self._analysis,
+            graph=self._graph,
+            algorithm=algorithm
+        )
+        return estimation

@@ -1,58 +1,52 @@
 # -*- coding: utf-8 -*-
+import graphlab
+import math
+import networkx as nx
+import pandas as pd
 
-# from django.conf import settings
-# from subprocess import call
-# import subprocess
-from django.utils.translation import gettext as _
-from engines.gdb.analysis import BaseAnalysis
-import json
 from datetime import datetime
 from hashlib import sha1
 
 from django.core.files.uploadedfile import SimpleUploadedFile
-import graphlab
-import networkx as nx
-import pandas as pd
+from django.utils.translation import gettext as _
 
+from engines.gdb.analysis import (
+    BaseAnalysis, LOAD_FILE, RUN_ALGOS, PROC_FINA
+)
 from analytics.models import Dump
-
-# app = Celery('tasks', backend='amqp', broker='amqp://')
-# We gonna use graphlab for python
-# analyticsEngine = settings.BACKEND_ANALYTICS["graphchi"]
-# analyticsEngine = settings.BACKEND_ANALYTICS["graphlab"]
-
-
-PROC_INIT = 0
-LOAD_FILE = 1
-RUN_ALGOS = 2
-PROC_FINA = 3
 
 INST_TIME = 1e-04
 
 
 class Analysis(BaseAnalysis):
 
-    def list_algorithms(self):
+    def get_algorithms(self):
+        """
+        Returns the list of available algorithms with labels
+        """
         return {'connected_components': _("Connected components"),
                 'graph_coloring': _("Graph coloring"),
-                'kcore': _("Kcore"),
+                'kcore': _("Degeneracy (k-core)"),
                 'pagerank': _("Pagerank"),
                 'triangle_counting': _("Triangle counting"),
                 'betweenness_centrality': _("Betweenness centrality")}
 
     def get_dump(self, graph):
         """
-        This is a example function that prints
-        the edgelist of the relationships of a graph
+        Dump the content of the graph into an edgelist file
         """
         lines = "src,dest\n"
-        dumps = graph.dumps.filter(
-            creation_date__gte=graph.data.last_modified_relationships)
-        if len(dumps) == 0:
+        last_modified_relationships = graph.data.last_modified_relationships
+        if last_modified_relationships is None:
+            dumps = graph.dumps.all()
+        else:
+            dumps = graph.dumps.filter(
+                creation_date__gte=graph.data.last_modified_relationships
+            )
+        if dumps.count() == 0:
             for relationship in graph.relationships.all():
                 lines += "{0},{1}\n".format(relationship.source.id,
                                             relationship.target.id)
-                print lines
             dump_file = SimpleUploadedFile('dump.csv', lines,
                                            "text/csv")
             data_hash = sha1(lines).hexdigest()
@@ -65,7 +59,7 @@ class Analysis(BaseAnalysis):
             dump = dumps.latest()
         return dump
 
-    def connected_components(self, analytic):
+    def run_connected_components(self, analytic):
         try:
             sf = graphlab.SFrame(analytic.dump.data_file.path)
             g = graphlab.Graph()
@@ -79,9 +73,9 @@ class Analysis(BaseAnalysis):
         try:
             return cc.get('componentid')
         except Exception as e:
-            raise Exception(PROC_FINA, "Error finishing the task")
+            raise Exception(PROC_FINA, "Error finishing the task: " + str(e))
 
-    def connected_components_eta(self, graph):
+    def estimate_connected_components(self, graph):
         nodes = graph.nodes.count()
         rels = graph.relationships.count()
 
@@ -92,7 +86,7 @@ class Analysis(BaseAnalysis):
 
         return result
 
-    def graph_coloring(self, analytic):
+    def run_graph_coloring(self, analytic):
         try:
             sf = graphlab.SFrame(analytic.dump.data_file.path)
             g = graphlab.Graph()
@@ -106,9 +100,9 @@ class Analysis(BaseAnalysis):
         try:
             return gc.get('colorid')
         except Exception as e:
-            raise Exception(PROC_FINA, "Error finishing the task")
+            raise Exception(PROC_FINA, "Error finishing the task: " + str(e))
 
-    def graph_coloring_eta(self, graph):
+    def estimate_graph_coloring(self, graph):
         nodes = graph.nodes.count()
 
         result = (2 * nodes) * INST_TIME
@@ -118,7 +112,7 @@ class Analysis(BaseAnalysis):
 
         return result
 
-    def kcore(self, analytic):
+    def run_kcore(self, analytic):
         try:
             sf = graphlab.SFrame(analytic.dump.data_file.path)
             g = graphlab.Graph()
@@ -132,9 +126,9 @@ class Analysis(BaseAnalysis):
         try:
             return kc.get('coreid')
         except Exception as e:
-            raise Exception(PROC_FINA, "Error finishing the task")
+            raise Exception(PROC_FINA, "Error finishing the task: " + str(e))
 
-    def kcore_eta(self, graph):
+    def estimate_kcore(self, graph):
         nodes = graph.nodes.count()
         rels = graph.relationships.count()
 
@@ -145,7 +139,7 @@ class Analysis(BaseAnalysis):
 
         return result
 
-    def pagerank(self, analytic):
+    def run_pagerank(self, analytic):
         try:
             sf = graphlab.SFrame(analytic.dump.data_file.path)
             g = graphlab.Graph()
@@ -159,9 +153,9 @@ class Analysis(BaseAnalysis):
         try:
             return pr.get('pagerank')
         except Exception as e:
-            raise Exception(PROC_FINA, "Error finishing the task")
+            raise Exception(PROC_FINA, "Error finishing the task: " + str(e))
 
-    def pagerank_eta(self, graph):
+    def estimate_pagerank(self, graph):
         nodes = graph.nodes.count()
         rels = graph.relationships.count()
 
@@ -172,7 +166,7 @@ class Analysis(BaseAnalysis):
 
         return result
 
-    def shortest_path(self, analytic):
+    def run_shortest_path(self, analytic):
         try:
             sf = graphlab.SFrame(analytic.dump.data_file.path)
             g = graphlab.Graph()
@@ -186,12 +180,18 @@ class Analysis(BaseAnalysis):
         try:
             return sp.get('distance')
         except Exception as e:
-            raise Exception(PROC_FINA, "Error finishing the task")
+            raise Exception(PROC_FINA, "Error finishing the task: " + str(e))
 
-    # def shortest_path_eta(self, graph):
-        # TODO
+    def estimate_shortest_path(self, graph):
+        # Min priority-queue: |E| + |V|log(|V|)
+        nodes = graph.nodes.count()
+        rels = graph.relationships.count()
+        result = nodes + (rels * math.log(rels))
+        if result < 1:
+            result += 1
+        return result
 
-    def triangle_counting(self, analytic):
+    def run_triangle_counting(self, analytic):
         try:
             sf = graphlab.SFrame(analytic.dump.data_file.path)
             g = graphlab.Graph()
@@ -205,20 +205,17 @@ class Analysis(BaseAnalysis):
         try:
             return tc.get('triangle_count')
         except Exception as e:
-            raise Exception(PROC_FINA, "Error finishing the task")
+            raise Exception(PROC_FINA, "Error finishing the task: " + str(e))
 
-    def triangle_counting_eta(self, graph):
+    def estimate_triangle_counting(self, graph):
         nodes = graph.nodes.count()
-        exp = 3/float(2)
-
+        exp = 3.0 / 2.0
         result = (nodes ** exp) * INST_TIME
-
         if result < 1:
             result += 1
-
         return result
 
-    def betweenness_centrality(self, analytic):
+    def run_betweenness_centrality(self, analytic):
         try:
             g = nx.read_edgelist(analytic.dump.data_file.path, delimiter=',')
         except Exception:
@@ -235,15 +232,12 @@ class Analysis(BaseAnalysis):
             raise Exception(PROC_FINA,
                             "Error finishing the task: " % str(e))
 
-    def betweenness_centrality_eta(self, graph):
+    def estimate_betweenness_centrality(self, graph):
         nodes = graph.nodes.count()
         rels = graph.relationships.count()
-
         result = (nodes * rels) * INST_TIME
-
         if result < 1:
             result += 1
-
         return result
 
     def save(self, results, analytic):
