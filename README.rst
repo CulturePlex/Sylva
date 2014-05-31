@@ -119,7 +119,11 @@ last steps are configure the `BROKER_URL` in your settings::
 
 And finally run Celery::
 
-  $ celery -A sylva.celery worker -l
+  $ celery -A sylva.celery worker -l info
+
+You can also run it in daemon mode by passing the argument `multi`::
+
+  $ celery multi start w1 w2 -A sylva.celery -l info
 
 
 .. _Sylva: http://www.sylvadb.com
