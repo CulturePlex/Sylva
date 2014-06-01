@@ -1,7 +1,11 @@
 # -*- coding: utf-8 -*-
-from django.db import models
+import tempfile
 
+import requests
+
+from django.db import models
 from django.utils.translation import gettext as _
+
 from graphs.models import Graph
 
 
@@ -24,6 +28,17 @@ class Dump(models.Model):
 
     class Meta:
         get_latest_by = "creation_date"
+
+    def get_data_file_path(self):
+        """
+        Returns self.data_file.path or download the file for those storages
+        that don't support absolute paths and return a temporary file path
+        """
+        try:
+            data_file_path = self.data_file.path
+        except NotImplementedError:
+            data_file_path = self.data_file.url
+        return data_file_path
 
 
 class Analytic(models.Model):
@@ -48,6 +63,17 @@ class Analytic(models.Model):
 
     class Meta:
         get_latest_by = "task_start"
+
+    def get_raw_path(self):
+        """
+        Returns self.raw.path or download the file for those storages
+        that don't support absolute paths and return a temporary file path
+        """
+        try:
+            raw_path = self.raw.path
+        except NotImplementedError:
+            raw_path = self.raw.url
+        return raw_path
 
 
 class AnalysisManager(models.Manager):

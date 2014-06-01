@@ -2,11 +2,14 @@
 import graphlab
 import math
 import networkx as nx
+import os
 import pandas as pd
+import tempfile
 
 from datetime import datetime
 from hashlib import sha1
 
+from django.conf import settings
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.utils.translation import gettext as _
 
@@ -16,6 +19,12 @@ from engines.gdb.analysis import (
 from analytics.models import Dump
 
 INST_TIME = 1e-04
+
+if (hasattr(settings, "AWS_ACCESS_KEY_ID")
+        and hasattr(settings, "AWS_SECRET_ACCESS_KEY")):
+    graphlab.aws.set_credentials(
+        settings.AWS_ACCESS_KEY_ID, settings.AWS_SECRET_ACCESS_KEY
+    )
 
 
 class Analysis(BaseAnalysis):
@@ -61,7 +70,7 @@ class Analysis(BaseAnalysis):
 
     def run_connected_components(self, analytic):
         try:
-            sf = graphlab.SFrame(analytic.dump.data_file.path)
+            sf = graphlab.SFrame.read_csv(analytic.dump.get_data_file_path())
             g = graphlab.Graph()
             g = g.add_edges(sf, 'src', 'dest')
         except Exception as e:
@@ -88,7 +97,7 @@ class Analysis(BaseAnalysis):
 
     def run_graph_coloring(self, analytic):
         try:
-            sf = graphlab.SFrame(analytic.dump.data_file.path)
+            sf = graphlab.SFrame.read_csv(analytic.dump.get_data_file_path())
             g = graphlab.Graph()
             g = g.add_edges(sf, 'src', 'dest')
         except Exception as e:
@@ -114,7 +123,7 @@ class Analysis(BaseAnalysis):
 
     def run_kcore(self, analytic):
         try:
-            sf = graphlab.SFrame(analytic.dump.data_file.path)
+            sf = graphlab.SFrame.read_csv(analytic.dump.get_data_file_path())
             g = graphlab.Graph()
             g = g.add_edges(sf, 'src', 'dest')
         except Exception as e:
@@ -141,7 +150,7 @@ class Analysis(BaseAnalysis):
 
     def run_pagerank(self, analytic):
         try:
-            sf = graphlab.SFrame(analytic.dump.data_file.path)
+            sf = graphlab.SFrame.read_csv(analytic.dump.get_data_file_path())
             g = graphlab.Graph()
             g = g.add_edges(sf, 'src', 'dest')
         except Exception as e:
@@ -168,7 +177,7 @@ class Analysis(BaseAnalysis):
 
     def run_shortest_path(self, analytic):
         try:
-            sf = graphlab.SFrame(analytic.dump.data_file.path)
+            sf = graphlab.SFrame.read_csv(analytic.dump.get_data_file_path())
             g = graphlab.Graph()
             g = g.add_edges(sf, 'src', 'dest')
         except Exception as e:
@@ -193,7 +202,7 @@ class Analysis(BaseAnalysis):
 
     def run_triangle_counting(self, analytic):
         try:
-            sf = graphlab.SFrame(analytic.dump.data_file.path)
+            sf = graphlab.SFrame.read_csv(analytic.dump.get_data_file_path())
             g = graphlab.Graph()
             g = g.add_edges(sf, 'src', 'dest')
         except Exception as e:
@@ -217,7 +226,11 @@ class Analysis(BaseAnalysis):
 
     def run_betweenness_centrality(self, analytic):
         try:
-            g = nx.read_edgelist(analytic.dump.data_file.path, delimiter=',')
+            dump_df = pd.read_csv(analytic.dump.get_data_file_path(),
+                                  delimiter=",")
+            g = nx.DiGraph()
+            for row in dump_df.iterrows():
+                g.add_edge(*row[1].values)
         except Exception:
             raise Exception(LOAD_FILE, "Error loading the file")
         try:
@@ -243,9 +256,6 @@ class Analysis(BaseAnalysis):
     def save(self, results, analytic):
         result = ''
         algorithm = analytic.algorithm
-        suf_raw = SimpleUploadedFile(analytic.algorithm + '.csv', "",
-                                     "text/csv")
-        analytic.raw = suf_raw
         analytic.save()
         if algorithm == 'pagerank':
             result = 'pagerank'
@@ -261,17 +271,29 @@ class Analysis(BaseAnalysis):
             result = 'triangle_count'
         elif algorithm == 'betweenness_centrality':
             result = 'betweenness_centrality'
+        raw_file = tempfile.NamedTemporaryFile(delete=False)
+        raw_file.close()
         if not isinstance(results, pd.DataFrame):
             results.rename({
                 "__id": "node_id",
                 result: algorithm,
             })
-            results.save(analytic.raw.path, 'csv')
+            results.save(raw_file.name, 'csv')
+            # SFrame saves the file and appends a .csv at the end :@
+            raw_file_name = raw_file.name + '.csv'
         else:
-            results.to_csv(analytic.raw.path,
+            results.to_csv(raw_file.name,
                            index=False,
                            header=['node_id', algorithm])
-        dt_results = pd.read_csv(analytic.raw.path)
+            raw_file_name = raw_file.name
+        suf_raw = SimpleUploadedFile(
+            analytic.algorithm + '.csv',
+            open(raw_file_name, 'r').read(),
+            "text/csv"
+        )
+        analytic.raw = suf_raw
+        # We load the file again because SFrame does not have value_counts
+        dt_results = pd.read_csv(raw_file_name)
         freq_dist = dt_results[algorithm].value_counts()
         suf_results = SimpleUploadedFile(
             analytic.algorithm + '.json',
@@ -279,3 +301,4 @@ class Analysis(BaseAnalysis):
             "application/json")
         analytic.results = suf_results
         analytic.save()
+        os.unlink(raw_file)

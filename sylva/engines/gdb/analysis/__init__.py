@@ -40,15 +40,11 @@ class BaseAnalysis(object):
 
     @app.task(bind=True, name="analytics.run_algorithm")
     def run(self, analytic, analysis):
-        algorithm = analytic.algorithm
-        analytic.task_id = self.request.id
         try:
-            try:
-                analytic.task_status = "Starting"
-                analytic.task_start = datetime.datetime.now()
-                # analytic.results = url_result
-            except Exception as e:
-                raise Exception(PROC_INIT, "Error starting the task")
+            algorithm = analytic.algorithm
+            analytic.task_id = self.request.id
+            analytic.task_start = datetime.datetime.now()
+            analytic.task_status = "Starting"
             algorithm_func = getattr(analysis, "run_{0}".format(algorithm))
             results = algorithm_func(analytic)
             analysis.save(results, analytic)
@@ -56,9 +52,12 @@ class BaseAnalysis(object):
             analytic.task_end = datetime.datetime.now()
         except Exception as e:
             analytic.task_status = "Failed"
-            if e.args[0] == PROC_INIT:
+            if not e.args:
                 analytic.task_error = \
-                    'Process could not be initialized: ' + e.args[1]
+                    'Totally unknown error: ' + str(e)
+            elif e.args[0] == PROC_INIT:
+                analytic.task_error = \
+                    'Error starting the task: ' + e.args[1]
             elif e.args[0] == LOAD_FILE:
                 analytic.task_error = \
                     'File could not be loaded: ' + e.args[1]
@@ -73,7 +72,10 @@ class BaseAnalysis(object):
                     'Unknown error: ' + str(e.args[0])
         finally:
             analytic.save()
-        return analytic.task_status
+        if not analytic.task_error:
+            return analytic.task_status
+        else:
+            return analytic.task_error
 
     def estimate(self, analysis, graph, algorithm):
         estimate_func = getattr(analysis, "estimate_{0}".format(algorithm))
