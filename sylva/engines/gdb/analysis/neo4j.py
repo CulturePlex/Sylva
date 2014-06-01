@@ -5,6 +5,7 @@ import networkx as nx
 import os
 import pandas as pd
 import tempfile
+import time
 
 from datetime import datetime
 from hashlib import sha1
@@ -57,7 +58,9 @@ class Analysis(BaseAnalysis):
             for relationship in graph.relationships.all():
                 lines += "{0},{1}\n".format(relationship.source.id,
                                             relationship.target.id)
-            dump_file = SimpleUploadedFile('dump.csv', lines,
+            timestamp = "{:.0f}".format(time.time() * 1000)
+            dump_file_name = "{0}_dump_{1}.csv".format(graph.slug, timestamp)
+            dump_file = SimpleUploadedFile(dump_file_name, lines,
                                            "text/csv")
             data_hash = sha1(lines).hexdigest()
             dump = Dump.objects.create(graph=graph,
@@ -246,7 +249,6 @@ class Analysis(BaseAnalysis):
     def save(self, results, analytic):
         result = ''
         algorithm = analytic.algorithm
-        analytic.save()
         if algorithm == 'pagerank':
             result = 'pagerank'
         elif algorithm == 'connected_components':
@@ -261,36 +263,41 @@ class Analysis(BaseAnalysis):
             result = 'triangle_count'
         elif algorithm == 'betweenness_centrality':
             result = 'betweenness_centrality'
-        raw_file = tempfile.NamedTemporaryFile(delete=False)
-        raw_file.close()
+        temp_file = tempfile.NamedTemporaryFile(delete=False)
+        temp_file.close()
         if not isinstance(results, pd.DataFrame):
             results.rename({
                 "__id": "node_id",
                 result: algorithm,
             })
-            results.save(raw_file.name, 'csv')
+            results.save(temp_file.name, 'csv')
+            freq_dist = results.to_dataframe()[algorithm].value_counts()
             # SFrame saves the file and appends a .csv at the end :@
-            raw_file_name = raw_file.name + '.csv'
+            temp_file_name = temp_file.name + '.csv'
         else:
-            results.to_csv(raw_file.name,
+            results.to_csv(temp_file.name,
                            index=False,
                            header=['node_id', algorithm])
-            raw_file_name = raw_file.name
+            freq_dist = results[algorithm].value_counts()
+            temp_file_name = temp_file.name
+        timestamp = "{:.0f}".format(time.time() * 1000)
+        suf_name = "{0}_{1}_{2}".format(
+            analytic.dump.graph.slug, analytic.algorithm, timestamp
+        )
         suf_raw = SimpleUploadedFile(
-            analytic.algorithm + '.csv',
-            open(raw_file_name, 'r').read(),
+            "{0}.csv".format(suf_name),
+            open(temp_file_name, 'r').read(),
             "text/csv"
         )
         analytic.raw = suf_raw
-        # We load the file again because SFrame does not have value_counts
-        dt_results = pd.read_csv(raw_file_name)
-        freq_dist = dt_results[algorithm].value_counts()
         suf_results = SimpleUploadedFile(
-            analytic.algorithm + '.json',
+            "{0}.json".format(suf_name),
             freq_dist.to_json(),
             "application/json")
         analytic.results = suf_results
         analytic.save()
         # Remove the two temp files
-        os.unlink(raw_file.name)
-        os.unlink(raw_file_name)
+        if temp_file_name != temp_file.name:
+            os.unlink(temp_file_name)
+        os.unlink(temp_file.name)
+
