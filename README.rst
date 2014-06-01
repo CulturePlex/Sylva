@@ -102,8 +102,8 @@ next variable to `True` in your local `settings.py`::
   ENABLE_ANALYTICS = True
 
 Analytics are run as Celery_ tasks, so you need a broker and a backend. Of popular
-choice is to install Redis_ as the backend, and RabbitMQ_ as the broker. But in
-order to simplify the process, just the broker is needed when using RabbitMQ.
+choice is to install Redis_ as the results backend, and RabbitMQ_ as the broker.
+But in order to simplify the process, just the broker is needed when using RabbitMQ.
 
 There are many ways to install RabbitMQ, we recommend a system installation,
 although a local installation might be better for development::
@@ -112,10 +112,17 @@ although a local installation might be better for development::
   $ tar xvf rabbitmq-server-generic-unix-3.3.1.tar.gz
   $ ./rabbitmq_server-3.3.1/sbin/rabbitmq-server start
 
-That should expose the URL amqp://guest@localhost// listening for requests. The
-last steps are configure the `BROKER_URL` in your settings::
+That should expose the URL amqp://guest@localhost// listening for requests,
+which is the default `BROKER_URL` in the settings. But if you are using a
+different broker or result backend, don't forget to configure those in your
+local settings::
 
-  BROKER_URL = "amqp://guest@localhost//"
+  BROKER_URL = "amqp://user:pass@hostname/app/"
+  CELERY_RESULT_BACKEND = "redis://:password@hostname:port/db"
+
+Then export the settings if it's not the regular `settings.py` file::
+
+  $ export DJANGO_SETTINGS_MODULE=sylva.your_settings
 
 And finally run Celery::
 
