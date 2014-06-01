@@ -53,6 +53,7 @@ class Analysis(BaseAnalysis):
                 creation_date__gte=graph.data.last_modified_relationships
             )
         if dumps.count() == 0:
+            # TODO: Write to a temp file instad of in memory
             for relationship in graph.relationships.all():
                 lines += "{0},{1}\n".format(relationship.source.id,
                                             relationship.target.id)
@@ -301,4 +302,6 @@ class Analysis(BaseAnalysis):
             "application/json")
         analytic.results = suf_results
         analytic.save()
-        os.unlink(raw_file)
+        # Remove the two temp files
+        os.unlink(raw_file.name)
+        os.unlink(raw_file_name)
