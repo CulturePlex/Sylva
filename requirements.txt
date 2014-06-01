@@ -34,7 +34,7 @@ git+git://github.com/ghewgill/pydkim.git
 python-dateutil==2.1
 python-rexster==0.1.1
 pytz==2014.2
-requests==0.14.2
+requests==2.3.0
 simplejson==2.6.2
 six==1.6.1
 stripe==1.7.8
