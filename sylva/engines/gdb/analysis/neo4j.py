@@ -72,7 +72,7 @@ class Analysis(BaseAnalysis):
     def run_connected_components(self, analytic):
         try:
             sf = graphlab.SFrame.read_csv(analytic.dump.get_data_file_path())
-            g = graphlab.Graph()
+            g = graphlab.SGraph()
             g = g.add_edges(sf, 'src', 'dest')
         except Exception as e:
             raise Exception(LOAD_FILE, "Error loading the file")
@@ -88,9 +88,7 @@ class Analysis(BaseAnalysis):
     def estimate_connected_components(self, graph):
         nodes = graph.nodes.count()
         rels = graph.relationships.count()
-
         result = (nodes + rels) * INST_TIME
-
         if result < 1:
             result += 1
 
@@ -99,7 +97,7 @@ class Analysis(BaseAnalysis):
     def run_graph_coloring(self, analytic):
         try:
             sf = graphlab.SFrame.read_csv(analytic.dump.get_data_file_path())
-            g = graphlab.Graph()
+            g = graphlab.SGraph()
             g = g.add_edges(sf, 'src', 'dest')
         except Exception as e:
             raise Exception(LOAD_FILE, "Error loading the file")
@@ -114,18 +112,15 @@ class Analysis(BaseAnalysis):
 
     def estimate_graph_coloring(self, graph):
         nodes = graph.nodes.count()
-
         result = (2 * nodes) * INST_TIME
-
         if result < 1:
             result += 1
-
         return result
 
     def run_kcore(self, analytic):
         try:
             sf = graphlab.SFrame.read_csv(analytic.dump.get_data_file_path())
-            g = graphlab.Graph()
+            g = graphlab.SGraph()
             g = g.add_edges(sf, 'src', 'dest')
         except Exception as e:
             raise Exception(LOAD_FILE, "Error loading the file")
@@ -141,18 +136,15 @@ class Analysis(BaseAnalysis):
     def estimate_kcore(self, graph):
         nodes = graph.nodes.count()
         rels = graph.relationships.count()
-
         result = (nodes + rels) * INST_TIME
-
         if result < 1:
             result += 1
-
         return result
 
     def run_pagerank(self, analytic):
         try:
             sf = graphlab.SFrame.read_csv(analytic.dump.get_data_file_path())
-            g = graphlab.Graph()
+            g = graphlab.SGraph()
             g = g.add_edges(sf, 'src', 'dest')
         except Exception as e:
             raise Exception(LOAD_FILE, "Error loading the file")
@@ -168,18 +160,15 @@ class Analysis(BaseAnalysis):
     def estimate_pagerank(self, graph):
         nodes = graph.nodes.count()
         rels = graph.relationships.count()
-
         result = (nodes + rels) * INST_TIME
-
         if result < 1:
             result += 1
-
         return result
 
     def run_shortest_path(self, analytic):
         try:
             sf = graphlab.SFrame.read_csv(analytic.dump.get_data_file_path())
-            g = graphlab.Graph()
+            g = graphlab.SGraph()
             g = g.add_edges(sf, 'src', 'dest')
         except Exception as e:
             raise Exception(LOAD_FILE, "Error loading the file")
@@ -204,7 +193,7 @@ class Analysis(BaseAnalysis):
     def run_triangle_counting(self, analytic):
         try:
             sf = graphlab.SFrame.read_csv(analytic.dump.get_data_file_path())
-            g = graphlab.Graph()
+            g = graphlab.SGraph()
             g = g.add_edges(sf, 'src', 'dest')
         except Exception as e:
             raise Exception(LOAD_FILE, "Error loading the file")
