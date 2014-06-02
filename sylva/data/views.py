@@ -5,7 +5,6 @@ except ImportError:
     import json  # NOQA
 
 from ast import literal_eval
-import random
 
 from django.db import transaction
 from django.core.files import File
@@ -275,6 +274,12 @@ def nodes_create(request, graph_slug, node_type_id):
         redirect_url = reverse("nodes_list_full",
                                args=[graph.slug, node_type_id])
         return redirect(redirect_url)
+    # This is a way to get the media needed by the form without repeat files
+    forms_media = set()
+    for form in [node_form] + outgoing_formsets.values() + \
+            incoming_formsets.values():
+        forms_media |= set(form.media.render_js())
+        forms_media |= set([css for css in form.media.render_css()])
     return render_to_response('nodes_editcreate.html',
                               {"graph": graph,
                                "nodetype": nodetype,
@@ -284,6 +289,7 @@ def nodes_create(request, graph_slug, node_type_id):
                                "incoming_formsets": incoming_formsets,
                                "mediafile_formset": mediafile_formset,
                                "medialink_formset": medialink_formset,
+                               "forms_media": forms_media,
                                "action": u"%s %s" % (_("New"), nodetype.name),
                                "base_template": 'base.html'},
                               context_instance=RequestContext(request))
