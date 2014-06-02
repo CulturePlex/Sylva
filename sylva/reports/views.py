@@ -14,11 +14,12 @@ from django.template import RequestContext
 from django.core.context_processors import csrf
 from django.utils.translation import ugettext as _
 from django.core.urlresolvers import reverse
+from django.contrib.staticfiles import finders
 from django.contrib.auth.decorators import login_required
 
 from guardian.decorators import permission_required
 
-from sylva.settings import STATIC_URL
+from sylva.settings import STATIC_URL, STATIC_ROOT
 from base.decorators import is_enabled
 from graphs.models import Graph, Schema
 
@@ -58,14 +59,8 @@ def preview_report_pdf(request, graph_slug):
     parsed_url = urlparse.urlparse(
         request.build_absolute_uri()
     )
-    #import ipdb; ipdb.set_trace()
-    raster_path = os.path.join(
-        os.path.dirname(os.path.abspath(__file__)),
-        STATIC_URL.strip('/'),
-        'phantomjs',
-        'rasterize.js'
-    )
-
+    
+    raster_path = finders.find('phantomjs/rasterize.js')
     temp_path = os.path.join(tempfile.gettempdir(), str(int(time() * 1000)))
     filename = '{0}.pdf'.format(temp_path)
 
