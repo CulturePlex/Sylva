@@ -6,4 +6,5 @@ urlpatterns = patterns('reports.views',
     url(r'^(?P<graph_slug>[\w-]+)/$', 'reports_index_view', name="reports"),
     url(r'^(?P<graph_slug>[\w-]+)/reports$', 'reports_endpoint'),
     url(r'^(?P<graph_slug>[\w-]+)/queries$', 'queries_endpoint'),
+    url(r'^(?P<graph_slug>[\w-]+)/pdf/preview$', 'preview_report_pdf'),
 )

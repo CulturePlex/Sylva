@@ -3,7 +3,6 @@
 
 var services = angular.module('reports.services', ['ngResource']);
 
-
 services.factory('api', ['$resource', function ($resource) {
 
     var reports = $resource('/reports/:graphSlug/reports', {}, {

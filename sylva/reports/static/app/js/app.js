@@ -15,7 +15,9 @@ var reports = angular.module('reports', [
 // Django settings.
 reports.config([
     '$httpProvider',
+
     function($httpProvider) {
+        
         $httpProvider.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded';
         $httpProvider.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 }]);
@@ -25,24 +27,26 @@ reports.config([
 // Routing.
 reports.config([ 
     '$routeProvider',
-    function($routeProvider) {
+    'STATIC_PREFIX',
+    function($routeProvider, STATIC_PREFIX) {
+        console.log('DC', STATIC_PREFIX)
         $routeProvider.
             when('/', {
-                templateUrl: '/static/app/partials/reports.html',
+                templateUrl: STATIC_PREFIX + 'app/partials/reports.html',
                 controller: 'ReportListCtrl'
             }).
             when('/new', {
-                templateUrl: '/static/app/partials/report_form.html',
+                templateUrl: STATIC_PREFIX + 'app/partials/report_form.html',
                 controller: 'NewReportCtrl'
             }).
             when('/edit/:reportSlug', {
-                templateUrl: '/static/app/partials/report_form.html',
+                templateUrl: STATIC_PREFIX + 'app/partials/report_form.html',
                 controller: 'EditReportCtrl'
             }).when('/history/:reportSlug', {
-                templateUrl: '/static/app/partials/report_history.html',
+                templateUrl: STATIC_PREFIX + 'app/partials/report_history.html',
                 controller: 'ReportHistoryCtrl'
             }).when('/preview/:reportSlug', {
-                templateUrl: '/static/app/partials/report_preview.html',
+                templateUrl: STATIC_PREFIX + 'app/partials/report_preview.html',
                 controller: 'ReportPreviewCtrl'
             }).
             otherwise({

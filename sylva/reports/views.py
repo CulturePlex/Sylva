@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 import json
+from subprocess import Popen, STDOUT, PIPE
+
 from django.conf import settings
 from django.shortcuts import (render_to_response, get_object_or_404,
                               HttpResponse)
@@ -33,6 +35,33 @@ def reports_index_view(request, graph_slug):
         'placeholder_name': placeholder_name,
     }))
 
+@login_required
+@is_enabled(settings.ENABLE_REPORTS)
+@permission_required("schemas.view_schema",
+                     (Schema, "graph__slug", "graph_slug"), return_403=True)
+def preview_report_pdf(request, graph_slug):
+    raster_path = '/home/dbshow/git/Sylva/sylva/reports/static/phantomjs/rasterize.js'
+    filename = "/home/dbshow/git/Sylva/sylva/reports/static/phantomjs/pics/report_pdf_test.pdf"
+    url = 'http://localhost:8000/reports/preliminaries-projection/#/preview/report1'
+    csrftoken = request.COOKIES.get('csrftoken', 'nocsrftoken')
+    sessionid = request.COOKIES.get('sessionid', 'nosessionid')
+    Popen([
+        'phantomjs',
+        raster_path,
+        url,
+        filename,
+        csrftoken,
+        sessionid
+    ], stdout=PIPE, stderr=STDOUT)
+    with open('/home/dbshow/git/Sylva/sylva/reports/static/phantomjs/pics/report_pdf_test.pdf') as pdf:
+        response = HttpResponse(pdf.read(), mimetype='application/pdf')
+        response['Content-Disposition'] = 'inline;filename={0}'.format(filename)
+        return response
+    pdf.closed
+
+
+
+    
 
 @login_required
 @is_enabled(settings.ENABLE_REPORTS)

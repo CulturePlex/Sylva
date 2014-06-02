@@ -9,7 +9,8 @@ controllers.controller('ReportListCtrl', [
     '$location',
     'api', 
     'parser',
-    function ($scope, $location, api, parser) {
+    function ($scope, $location, api, parser, DjangoConst) {
+        console.log('cont', DjangoConst)
         $scope.graph = parser.parse();
         $scope.reports = api.reports.query({graphSlug: $scope.graph});
     
@@ -24,6 +25,7 @@ controllers.controller('BaseReportFormCtrl', [
     'parser',
     'tableArray',
     function ($scope, $location, $routeParams, api, parser, tableArray) {
+
         $scope.graph = parser.parse();
         $scope.report = {};
         $scope.queries = [];
@@ -204,7 +206,7 @@ controllers.controller('ReportPreviewCtrl', [
         $scope.report = {};
         $scope.graph = parser.parse();
         $scope.report.slug = $routeParams.reportSlug;
-
+        console.log('params', $scope.report.slug)
             api.reports.query({
                 graphSlug: $scope.graph,
                 slug: $scope.report.slug  
