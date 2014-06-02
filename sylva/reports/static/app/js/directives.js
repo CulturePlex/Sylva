@@ -415,5 +415,3 @@ directives.directive('sylvaEtCell', function () {
         }
     };
 });
-
-

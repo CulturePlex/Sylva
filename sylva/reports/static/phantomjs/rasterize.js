@@ -6,11 +6,11 @@ system = require('system');
 
 url = system.args[1];
 filname = system.args[2];
-domain = system.args[3].split(':')[0];
+domain = system.args[3]; //ask chavi about this
 csrfToken = system.args[4];
 sessionId = system.args[5];
 
-//find domain
+
 phantom.addCookie({'domain': domain, 'name':'csrftoken',
                    'value': csrfToken});
 phantom.addCookie({'domain': domain, 'name':'sessionid',

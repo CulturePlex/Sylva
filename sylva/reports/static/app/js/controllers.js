@@ -41,18 +41,6 @@ controllers.controller('BaseReportFormCtrl', [
                 $scope.resp = {table: $scope.report.table, queries: $scope.report.queries}
             });
 
-        //api.queries.query({
-        //    graphSlug: $scope.graph,
-        //    slug: $scope.report.slug
-        //}, function (data) {
-        //    var queries = data[1].map(function (el) {
-        //        return {name: el.name, series: el.series} 
-        //    });
-        //    $scope.queries = queries
-        //    console.log('ctrlqerw', $scope.queries)
-        //});
-    
-
         $scope.designReport = function () {
             $scope.editable = true;
 

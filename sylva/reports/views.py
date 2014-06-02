@@ -1,17 +1,24 @@
 # -*- coding: utf-8 -*-
 import json
-from subprocess import Popen, STDOUT, PIPE
+import os
+import tempfile
 import urlparse
+
+from subprocess import Popen, STDOUT, PIPE
+from time import time
+
 from django.conf import settings
 from django.shortcuts import (render_to_response, get_object_or_404,
                               HttpResponse)
 from django.template import RequestContext
 from django.core.context_processors import csrf
 from django.utils.translation import ugettext as _
+from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
 
 from guardian.decorators import permission_required
 
+from sylva.settings import STATIC_URL
 from base.decorators import is_enabled
 from graphs.models import Graph, Schema
 
@@ -23,31 +30,62 @@ settings.ENABLE_REPORTS = True
 @permission_required("schemas.view_schema",
                      (Schema, "graph__slug", "graph_slug"), return_403=True)
 def reports_index_view(request, graph_slug):
+    pdf = request.GET.get('pdf', '')
+    if pdf:
+        pdf = True # hmmm gotta fix this
+    else:
+        pdf = False
     c = {}
     c.update(csrf(request))
     report_name = _("New Report")
     placeholder_name = _("Report Name")
     graph = get_object_or_404(Graph, slug=graph_slug)
     return render_to_response('reports_base.html', RequestContext(request, {
+        'pdf': pdf,
         'graph': graph,
         'c': c,
         'report_name': report_name,
         'placeholder_name': placeholder_name,
     }))
 
+
 @login_required
 @is_enabled(settings.ENABLE_REPORTS)
 @permission_required("schemas.view_schema",
                      (Schema, "graph__slug", "graph_slug"), return_403=True)
 def preview_report_pdf(request, graph_slug):
-    """Build the url for the request."""
-    scheme, netloc, path, query, fragment = urlparse.urlsplit(
+
+    parsed_url = urlparse.urlparse(
         request.build_absolute_uri()
     )
-    domain = netloc
-    raster_path = '/home/dbshow/git/Sylva/sylva/reports/static/phantomjs/rasterize.js'
-    filename = "/home/dbshow/git/Sylva/sylva/reports/static/phantomjs/pics/report_pdf_test.pdf"
-    url = 'http://localhost:8000/reports/preliminaries-projection/#/preview/report1'
+    #import ipdb; ipdb.set_trace()
+    raster_path = os.path.join(
+        os.path.dirname(os.path.abspath(__file__)),
+        STATIC_URL.strip('/'),
+        'phantomjs',
+        'rasterize.js'
+    )
+
+    temp_path = os.path.join(tempfile.gettempdir(), str(int(time() * 1000)))
+    filename = '{0}.pdf'.format(temp_path)
+
+    report_slug = request.GET.get('report', '')
+    if request.GET.get('report', ''):
+        download_name = '{0}.pdf'.format(request.GET['report'])
+    else:
+        download_name = temp_path
+
+    url = '{0}://{1}{2}{3}#/preview/{4}'.format(
+        parsed_url.scheme,
+        parsed_url.netloc,
+        reverse(reports_index_view, kwargs={'graph_slug': graph_slug}),
+        '?pdf=true',
+        report_slug,
+        
+    )
+    print 'revers', url
+    #url = 'http://localhost:8000/reports/preliminaries-projection/#/preview/report1'
+    domain = parsed_url.hostname
     csrftoken = request.COOKIES.get('csrftoken', 'nocsrftoken')
     sessionid = request.COOKIES.get('sessionid', 'nosessionid')
     Popen([
@@ -58,11 +96,16 @@ def preview_report_pdf(request, graph_slug):
         domain,
         csrftoken,
         sessionid
-    ], stdout=PIPE, stderr=STDOUT)
-    with open('/home/dbshow/git/Sylva/sylva/reports/static/phantomjs/pics/report_pdf_test.pdf') as pdf:
-        response = HttpResponse(pdf.read(), mimetype='application/pdf')
-        response['Content-Disposition'] = 'inline;filename={0}'.format(filename)
-        return response
+    ], stdout=PIPE, stderr=STDOUT).wait()
+    try:
+        with open(filename) as pdf:
+            response = HttpResponse(pdf.read(), mimetype='application/pdf')
+            response['Content-Disposition'] = 'inline;filename={0}'.format(download_name)
+            pdf.close()
+    except IOError, e:
+        response = HttpResponse('Sorry there has been a IOError:' + e.strerror)
+    os.unlink(filename)
+    return response
 
 
 @login_required
@@ -166,7 +209,7 @@ def reports_endpoint(request, graph_slug):
                 json_data = json.dumps([report])
     else:
         json_data = json.dumps(reports)
-    return HttpResponse(json_data, mimetype='application/json')
+    return HttpResponse(json_data, content_type='application/json')
 
 
 @login_required
@@ -193,4 +236,4 @@ def queries_endpoint(request, graph_slug):
     ]
     json_data = json.dumps(queries)
     print json_data
-    return HttpResponse(json_data, mimetype='application/json')
+    return HttpResponse(json_data, content_type='application/json')
