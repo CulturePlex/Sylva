@@ -38,6 +38,7 @@
 <link type="text/css" rel="stylesheet" href="{{ STATIC_PREFIX }}graphs/css/colpick/colpick.css" />
 <link type="text/css" rel="stylesheet" href="{{ STATIC_PREFIX }}graphs/css/colpick/colpick.mod.css" />
 
+{% if settings.ENABLE_ANALYTICS %}
 <!-- Begin code for the analytics side -->
 <script src="//code.highcharts.com/highcharts.js"></script>
 <script src="//code.highcharts.com/modules/exporting.js"></script>
@@ -237,4 +238,4 @@ jQuery(document).ready(function() {
 });
 </script>
 <!-- End code for the analytics side -->
-
+{% endif %}

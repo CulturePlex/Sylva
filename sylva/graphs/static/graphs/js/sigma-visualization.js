@@ -41,6 +41,8 @@ sigma:true, clearTimeout */
   var degreesCalculated = false;
   // It's used when the user select a diferent edge shape than the original.
   var defaultEdgeShapeSaved = false;
+  // It saves the selected state of a node when is edited in the modal form.
+  var wasDeletedNodeSelected = false;
   // The gray color.
   var gray = '#EEE';
   // It's used for keep the last dragged analytics control on top.
@@ -2513,7 +2515,10 @@ sigma:true, clearTimeout */
        */
       var index = sylva.selectedNodes.indexOf(response.nodeId);
       if (index >= 0) {
+        wasDeletedNodeSelected = true;
         sylva.selectedNodes.splice(index, 1);
+      } else {
+        wasDeletedNodeSelected = false;
       }
 
       /* Deleting the node from the nodes array of the nodetype. It will be
@@ -2568,7 +2573,7 @@ sigma:true, clearTimeout */
 
     newNodeFromModal: function(response) {
       // Adding the node to the 'selectedNodes' array.
-      if (sylva.selectedNodes.length == sylva.size) {
+      if (response.action == 'edit' && wasDeletedNodeSelected) {
         sylva.selectedNodes.push(response.nodeId);
       }
 
