@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import json
 from subprocess import Popen, STDOUT, PIPE
-
+import urlparse
 from django.conf import settings
 from django.shortcuts import (render_to_response, get_object_or_404,
                               HttpResponse)
@@ -40,6 +40,11 @@ def reports_index_view(request, graph_slug):
 @permission_required("schemas.view_schema",
                      (Schema, "graph__slug", "graph_slug"), return_403=True)
 def preview_report_pdf(request, graph_slug):
+    """Build the url for the request."""
+    scheme, netloc, path, query, fragment = urlparse.urlsplit(
+        request.build_absolute_uri()
+    )
+    domain = netloc
     raster_path = '/home/dbshow/git/Sylva/sylva/reports/static/phantomjs/rasterize.js'
     filename = "/home/dbshow/git/Sylva/sylva/reports/static/phantomjs/pics/report_pdf_test.pdf"
     url = 'http://localhost:8000/reports/preliminaries-projection/#/preview/report1'
@@ -50,6 +55,7 @@ def preview_report_pdf(request, graph_slug):
         raster_path,
         url,
         filename,
+        domain,
         csrftoken,
         sessionid
     ], stdout=PIPE, stderr=STDOUT)
@@ -57,11 +63,7 @@ def preview_report_pdf(request, graph_slug):
         response = HttpResponse(pdf.read(), mimetype='application/pdf')
         response['Content-Disposition'] = 'inline;filename={0}'.format(filename)
         return response
-    pdf.closed
 
-
-
-    
 
 @login_required
 @is_enabled(settings.ENABLE_REPORTS)

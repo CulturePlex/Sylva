@@ -5,16 +5,15 @@ page = require('webpage').create();
 system = require('system');
 
 url = system.args[1];
-console.log('url', url)
 filname = system.args[2];
-csrfToken = system.args[3];
-sessionId = system.args[4];
+domain = system.args[3].split(':')[0];
+csrfToken = system.args[4];
+sessionId = system.args[5];
 
 //find domain
-
-phantom.addCookie({'domain':domain, 'name':'csrftoken',
+phantom.addCookie({'domain': domain, 'name':'csrftoken',
                    'value': csrfToken});
-phantom.addCookie({'domain':domain, 'name':'sessionid',
+phantom.addCookie({'domain': domain, 'name':'sessionid',
                    'value': sessionId});
 
 // Set the page size and orientation
