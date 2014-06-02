@@ -89,7 +89,7 @@
                 </label>
                 <span class="helptext">
                   {% trans "Target of the relationship" %}
-                  <a href="{% url "nodes_create" outgoing_formset.itemtype.schema.graph.slug outgoing_formset.itemtype.target.id %}">
+                  <a class="add-node" href="{% url "nodes_create" outgoing_formset.itemtype.schema.graph.slug outgoing_formset.itemtype.target.id %}">
                     {% trans "Add" %} {{ outgoing_formset.itemtype.target.name }}
                   </a>
                 </span>
@@ -121,7 +121,7 @@
                 </label>
                 <span class="helptext">
                   {% trans "Source of the relationship" %}
-                  <a href="{% url "nodes_create" incoming_formset.itemtype.schema.graph.slug incoming_formset.itemtype.source.id %}">
+                  <a class="add-node" href="{% url "nodes_create" incoming_formset.itemtype.schema.graph.slug incoming_formset.itemtype.source.id %}">
                     {% trans "Add" %} {{ incoming_formset.itemtype.source.name }}
                   </a>
                 </span>

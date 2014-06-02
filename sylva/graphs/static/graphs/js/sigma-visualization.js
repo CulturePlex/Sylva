@@ -25,8 +25,8 @@ sigma:true, clearTimeout */
   // setTimeout id.
   var timeout_id = 0;
   // Arrays with the IDs of the visible elments.
-  var visibleNodesIds = [];
-  var visibleRelsIds = [];
+  var visibleNodeIds = [];
+  var visibleRelIds = [];
   // It's used for check if a ColorPicker for relatinships exists.
   var relColorPicker = null;
   // A variable for containing the Tool object of Paper.js.
@@ -81,10 +81,10 @@ sigma:true, clearTimeout */
 
       // Creating visible elements arrays.
       for (var key in sylva.nodetypes) {
-        visibleNodesIds = visibleNodesIds.concat(sylva.nodetypes[key].nodes);
+        visibleNodeIds = visibleNodeIds.concat(sylva.nodetypes[key].nodes);
       }
       for (var key in sylva.reltypes) {
-        visibleRelsIds = visibleRelsIds.concat(
+        visibleRelIds = visibleRelIds.concat(
           sylva.reltypes[key].relationships);
       }
 
@@ -200,7 +200,7 @@ sigma:true, clearTimeout */
 
       // Draw the layout considering the hidden nodes or not.
       $('#sigma-hidden-layout').change(function () {
-        if (visibleNodesIds.length < size) {
+        if (visibleNodeIds.length < size) {
           var type = $('#sigma-graph-layout').find('option:selected').attr('id');
           var degreeOrder = $('#sigma-graph-layout-degree-order').find('option:selected').attr('id');
           var order = $('#sigma-graph-layout-order').find('option:selected').attr('id');
@@ -1433,7 +1433,7 @@ sigma:true, clearTimeout */
 
       var nodes = [];
       if (drawHidden) {
-        nodes = visibleNodesIds;
+        nodes = visibleNodeIds;
       } else {
         for (var key in sylva.nodetypes) {
           nodes = nodes.concat(sylva.nodetypes[key].nodes);
@@ -1460,7 +1460,7 @@ sigma:true, clearTimeout */
       var i = 0;
       var number = size;
       if (drawHidden) {
-        number = visibleNodesIds.length;
+        number = visibleNodeIds.length;
       }
 
       var sorted = sigInst.graph.nodes();
@@ -1533,7 +1533,7 @@ sigma:true, clearTimeout */
 
       switch (type) {
         case 'force-atlas-2':
-          if (visibleNodesIds.length == 0) {
+          if (visibleNodeIds.length == 0) {
             return;
           }
           that.stop();
@@ -1611,15 +1611,15 @@ sigma:true, clearTimeout */
         $(this).addClass('icon-eye-close');
         hidden = true;
         for(var i = 0; i < nodesId.length; i++) {
-          var index = visibleNodesIds.indexOf(nodesId[i]);
-          visibleNodesIds.splice(index, 1);
+          var index = visibleNodeIds.indexOf(nodesId[i]);
+          visibleNodeIds.splice(index, 1);
         }
       } else {
         $(this).attr('data-action', 'hide');
         $(this).removeClass('icon-eye-close');
         $(this).addClass('icon-eye-open');
         hidden = false;
-        visibleNodesIds = visibleNodesIds.concat(nodesId);
+        visibleNodeIds = visibleNodeIds.concat(nodesId);
       }
 
       sigInst.graph.nodes(nodesId).forEach(function(n) {
@@ -1627,7 +1627,7 @@ sigma:true, clearTimeout */
       });
 
       var drawHidden = $('#sigma-hidden-layout').prop('checked');
-      if (drawHidden && visibleNodesIds.length > 0) {
+      if (drawHidden && visibleNodeIds.length > 0) {
         var type = $('#sigma-graph-layout').find('option:selected').attr('id');
         var degreeOrder = $('#sigma-graph-layout-degree-order').find('option:selected').attr('id');
         var order = $('#sigma-graph-layout-order').find('option:selected').attr('id');
@@ -1650,15 +1650,15 @@ sigma:true, clearTimeout */
         $(this).addClass('icon-eye-close');
         hidden = true;
         for(var i = 0; i < relsId.length; i++) {
-          var index = visibleRelsIds.indexOf(relsId[i]);
-          visibleRelsIds.splice(index, 1);
+          var index = visibleRelIds.indexOf(relsId[i]);
+          visibleRelIds.splice(index, 1);
         }
       } else {
         $(this).attr('data-action', 'hide');
         $(this).removeClass('icon-eye-close');
         $(this).addClass('icon-eye-open');
         hidden = false;
-        visibleRelsIds = visibleRelsIds.concat(relsId);
+        visibleRelIds = visibleRelIds.concat(relsId);
       }
 
       sigInst.graph.edges(relsId).forEach(function(e) {
@@ -2322,7 +2322,26 @@ sigma:true, clearTimeout */
         dataType: 'html'
       });
       jqxhr.success(function(data) {
-        // Creating the view.
+        that.TODO0(data);
+      });
+      jqxhr.error(function() {
+        alert(gettext("Oops! Something went wrong with the server."));
+      });
+    },
+
+    // TODO: Comment the function.
+    // TODO: Change the function according with the modal library.
+    closeNodeModal: function() {
+      if ($('#edit-node-modal').length) {
+        $('#edit-node-modal').remove();
+      } else {
+        $('#delete-node-modal').remove();
+      }
+    },
+
+    // This function creates the 'edit node modal' and binds some events.
+    TODO0: function(data) {
+       // Creating the view.
         var modal = $('<div id="edit-node-modal">');
         $('body').append(modal);
         modal.append(data);
@@ -2334,6 +2353,8 @@ sigma:true, clearTimeout */
           top: 0
         });
 
+        $('.add-node').hide();
+
         // Binding the 'events' for the four actions.
         $('#submit-save').attr('onclick', 'return sylva.Sigma.TODO1(this)');
         $('#submit-save-as-new').attr('onclick', 'return sylva.Sigma.TODO1(this)');
@@ -2344,18 +2365,8 @@ sigma:true, clearTimeout */
         $('#submit-cancel').removeAttr('href');
         $('#submit-cancel').on('click', function() {
           // Closing modal.
-          that.closeNodeModal('#edit-node-modal');
+          that.closeNodeModal();
         });
-      });
-      jqxhr.error(function() {
-        alert(gettext("Oops! Something went wrong with the server."));
-      });
-    },
-
-    // TODO: Comment the function.
-    // TODO: Change the function according with the modal library.
-    closeNodeModal: function(selector) {
-      $(selector).remove();
     },
 
     /* This function handles the 'Save' and 'Save as new' options from the
@@ -2375,7 +2386,7 @@ sigma:true, clearTimeout */
         data: serializedForm
       });
       jqxhr.success(function(data) {
-        console.log(data);
+        that.performModalResponse(data);
       });
       jqxhr.error(function() {
         alert(gettext("Oops! Something went wrong with the server."));
@@ -2399,7 +2410,7 @@ sigma:true, clearTimeout */
         dataType: 'html'
       });
       jqxhr.success(function(data) {
-        that.closeNodeModal('#edit-node-modal');
+        that.closeNodeModal();
         var modal = $('<div id="delete-node-modal">');
         $('body').append(modal);
         modal.append(data);
@@ -2417,7 +2428,7 @@ sigma:true, clearTimeout */
         $('#submit-cancel').removeAttr('href');
         $('#submit-cancel').on('click', function() {
           // Closing modal.
-          that.closeNodeModal('#delete-node-modal');
+          that.closeNodeModal();
         });
       });
       jqxhr.error(function() {
@@ -2438,7 +2449,7 @@ sigma:true, clearTimeout */
         data: serializedForm
       });
       jqxhr.success(function(data) {
-        console.log(data);
+        that.performModalResponse(data);
       });
       jqxhr.error(function() {
         alert(gettext("Oops! Something went wrong with the server."));
@@ -2446,6 +2457,162 @@ sigma:true, clearTimeout */
 
       // False is needed for the form is not sending.
       return false;
+    },
+
+    // TODO: Comment the function.
+    // TODO: Change the function according with the modal library.
+    performModalResponse: function(response) {
+      that.closeNodeModal();
+
+      if ($.type(response) == 'string') {
+        that.TODO0(response);
+      } else {
+        switch (response.action) {
+          case 'edit':
+            that.deleteNodeFromModal(response);
+            that.newNodeFromModal(response);
+            break;
+          case 'new':
+            that.newNodeFromModal(response);
+            break;
+          case 'delete':
+            that.deleteNodeFromModal(response);
+            break;
+          case 'nothing':
+          default:
+            break;
+        }
+
+        // Redraw the layout because of the changes.
+        if (response.action != 'nothing') {
+          var type = $('#sigma-graph-layout').find('option:selected').attr('id');
+          var degreeOrder = $('#sigma-graph-layout-degree-order').find('option:selected').attr('id');
+          var order = $('#sigma-graph-layout-order').find('option:selected').attr('id');
+          var drawHidden = $('#sigma-hidden-layout').prop('checked');
+          that.redrawLayout(type, degreeOrder, order, drawHidden);
+        }
+      }
+    },
+
+    deleteNodeFromModal: function(response) {
+      // Obtaining the node.
+      var node = null;
+      if (response.action == 'edit') {
+        // Saving the coordinates.
+        var oldNode = sigInst.graph.nodes(response.nodeId);
+        response.node.x = oldNode.x;
+        response.node.y = oldNode.y;
+
+        node = response.node;
+      } else {
+        node = sigInst.graph.nodes(response.nodeId);
+      }
+
+      /* Deleting the node from the 'selectedNodes' array. It will be added in
+       * 'newNodeFromModal'
+       */
+      var index = sylva.selectedNodes.indexOf(response.nodeId);
+      if (index >= 0) {
+        sylva.selectedNodes.splice(index, 1);
+      }
+
+      /* Deleting the node from the nodes array of the nodetype. It will be
+       * added in 'newNodeFromModal'.
+       */
+      var nodetypeArray = sylva.nodetypes[node.nodetypeId].nodes;
+      var index = nodetypeArray.indexOf(response.nodeId);
+      nodetypeArray.splice(index, 1);
+      sylva.nodetypes[node.nodetypeId].nodes = nodetypeArray;
+
+      /* Deleting the node from the array of visible nodes. It will be added in
+       * 'newNodeFromModal'.
+       */
+      index = visibleNodeIds.indexOf(response.nodeId);
+      if (index >= 0) {
+        visibleNodeIds.splice(index, 1);
+      }
+
+      /* Deleting the relationships from the relationships arrays of the
+       * reltypes, because they will be added in 'newNodeFromModal'. Also we
+       * are deleting them from the array of visible relationships.
+       */
+      for (var i = 0; i < response.oldRelationshipIds.length; i++) {
+        var rel = sigInst.graph.edges(response.oldRelationshipIds[i]);
+        var reltypeArray = sylva.reltypes[rel.reltypeId].relationships;
+        var index = reltypeArray.indexOf(response.oldRelationshipIds[i]);
+        reltypeArray.splice(index, 1);
+        sylva.reltypes[rel.reltypeId].relationships = reltypeArray;
+
+        index = visibleRelIds.indexOf(response.oldRelationshipIds[i]);
+        if (index >= 0) {
+          visibleRelIds.splice(index, 1);
+        }
+      }
+
+      // Cleaning the info box.
+      that.cleanNodeInfo('#node-info');
+
+      /* Deleting the node from the graph, because it will be added in
+       * 'newNodeFromModal'. Also this delete the envolved relationships.
+       */
+      sigInst.graph.dropNode(response.nodeId);
+
+      // Finishing touches.
+      size -= 1;
+      sylva.size -= 1;
+      if (response.action == 'delete') {
+        that.calculateNodesDegrees();
+        sigInst.refresh();
+      }
+    },
+
+    newNodeFromModal: function(response) {
+      // Adding the node to the 'selectedNodes' array.
+      if (sylva.selectedNodes.length == sylva.size) {
+        sylva.selectedNodes.push(response.nodeId);
+      }
+
+      // Adding the node to the nodes array of the nodetype.
+      sylva.nodetypes[response.node.nodetypeId].nodes.push(response.nodeId);
+
+      // Setting the visibility of the node (hidden or not).
+      var visibilityButton = $('.show-hide-nodes[data-nodetype-id="' + response.node.nodetypeId + '"]');
+      if (visibilityButton.attr('data-action') == 'hide') {
+        response.node.hidden = false;
+        visibleNodeIds.push(response.nodeId);
+      } else {
+        response.node.hidden = true;
+      }
+
+      // Adding the node to the graph.
+      sigInst.graph.addNode(response.node);
+
+      /* Adding the relationships to the graph. Also here we are setting the
+       * visibility of the relationships (hidden or not). Finally, we are
+       * adding the relationships to the relationships arrays of the reltypes.
+       */
+      for (var i = 0; i < response.relationships.length; i++) {
+        var rel = response.relationships[i];
+        var visibilityButton = $('.show-hide-rels[data-reltype-id="' + rel.reltypeId + '"]');
+        if (visibilityButton.attr('data-action') == 'hide') {
+          rel.hidden = false;
+          visibleRelIds.push(rel.id);
+        } else {
+          rel.hidden = true;
+        }
+        sylva.reltypes[rel.reltypeId].relationships.push(rel);
+        sigInst.graph.addEdge(rel);
+      }
+
+      // Updating the info box.
+      that.updateNodeInfo(response.node, '#node-info');
+
+      // Finishing touches.
+      size += 1;
+      sylva.size += 1;
+      that.calculateNodesDegrees();
+      sigInst.refresh();
+      that.grayfyNonListedNodes(sylva.selectedNodes);
     }
 
   };

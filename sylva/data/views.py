@@ -4,11 +4,15 @@ try:
 except ImportError:
     import json  # NOQA
 
+from ast import literal_eval
+import random
+
 from django.db import transaction
 from django.core.files import File
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.core.urlresolvers import reverse
 from django.conf import settings
+from django.contrib import messages
 from django.forms.formsets import formset_factory
 from django.http import Http404
 from django.shortcuts import (render_to_response, get_object_or_404,
@@ -19,8 +23,6 @@ from django.template.loader import render_to_string
 from django.utils.datastructures import SortedDict
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
-
-from django.contrib import messages
 
 from guardian.decorators import permission_required
 
@@ -35,7 +37,7 @@ from schemas.models import NodeType, RelationshipType
 
 def create_data(properties, data_list, add_edge_extras=False):
     data = []
-    #TODO In the preview we must cut the number of nodes better
+    #TODO In the preview we must cutthe number of nodes better
     for element in data_list:
         row = []
         if add_edge_extras:
@@ -485,6 +487,17 @@ def nodes_edit(request, graph_slug, node_id):
             and all([rf.is_valid() for rf in incoming_formsets.values()])):
         with transaction.atomic():
             as_new = 'as-new' in request.POST
+            if as_modal and not as_new:
+                # This is only needed for delete these relationships from the
+                # Sigma's internal graph, only when the node is saved not as
+                # new and when we are in modal mode.
+                old_relationship_ids = []
+                for rel in node.relationships.all():
+                    source_id = rel.source.id
+                    target_id = rel.target.id
+                    if (source_id is node.id or target_id is node.id):
+                        old_relationship_ids.append(str(rel.id))
+
             node = node_form.save(as_new=as_new)
             for outgoing_formset in outgoing_formsets.values():
                 for outgoing_form in outgoing_formset.forms:
@@ -531,8 +544,36 @@ def nodes_edit(request, graph_slug, node_id):
         # If we are here it means that the form was valid and we don't need
         # to return a form again.
         if as_modal:
-            changes = {'betis': 'deLopera'}
-            return HttpResponse(json.dumps(changes), status=200,
+            if not as_new:
+                action = 'edit'
+            else:
+                action = 'new'
+
+            relationships = []
+            for rel in node.relationships.all():
+                reltype = rel.get_type()
+                source_id = rel.source.id
+                target_id = rel.target.id
+                if (source_id == node.id or target_id == node.id):
+                    rel_json = {
+                        'id': str(rel.id),
+                        'source': str(source_id),
+                        'target': str(target_id),
+                        'reltypeId': reltype.id,
+                        'reltype': rel.label_display,
+                        'fullReltype': reltype.__unicode__(),
+                        'color': reltype.get_color(),
+                        'properties': rel.properties
+                    }
+                    relationships.append(rel_json)
+
+            response = {'action': action,
+                        'nodeId': str(node.id),
+                        'node': node.to_json(),
+                        'relationships': relationships}
+            if not as_new:
+                response['oldRelationshipIds'] = old_relationship_ids
+            return HttpResponse(json.dumps(response), status=200,
                                 mimetype='application/json')
         else:
             redirect_url = reverse("nodes_list_full",
@@ -626,11 +667,19 @@ def nodes_delete(request, graph_slug, node_id):
         as_modal = bool(data.get("asModal", False))
         form = ItemDeleteConfirmForm(data=data)
         if form.is_valid():
-            # confirm = form.cleaned_data["confirm"]
-            # TODO: Take a look to the next line
-            import ast
-            confirm = bool(ast.literal_eval(form.cleaned_data["confirm"]))
+            confirm = form.cleaned_data["confirm"]
+            # TODO: Take a look to the next line, because confirm is u'0'
+            confirm = bool(literal_eval(confirm))
             if confirm:
+                if as_modal:
+                    # Saving the id of the relationships before deleting the node
+                    old_relationship_ids = []
+                    for rel in node.relationships.all():
+                        source_id = rel.source.id
+                        target_id = rel.target.id
+                        if (source_id is node.id or target_id is node.id):
+                            old_relationship_ids.append(str(rel.id))
+
                 for relationship in node.relationships.all():
                     relationship.delete()
                 media_node = None
@@ -647,14 +696,16 @@ def nodes_delete(request, graph_slug, node_id):
                     media_node.delete()
                 node.delete()
                 if as_modal:
-                    changes = {'betis': 'deLoperaBorrated'}
-                    return HttpResponse(json.dumps(changes), status=200,
+                    response = {'action': 'delete',
+                                'nodeId': node_id,
+                                'oldRelationshipIds': old_relationship_ids}
+                    return HttpResponse(json.dumps(response), status=200,
                                         mimetype='application/json')
                 else:
                     redirect_url = reverse("nodes_list", args=[graph.slug])
                     return redirect(redirect_url)
             elif not confirm and as_modal:
-                changes = {'betis': 'deLoperaCancel'}
+                changes = {'action': 'nothing'}
                 return HttpResponse(json.dumps(changes), status=200,
                                     mimetype='application/json')
     else:

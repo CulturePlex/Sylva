@@ -4,7 +4,6 @@ try:
 except ImportError:
     import json  # NOQA
 
-import random
 
 from django.db import transaction, IntegrityError
 from django.db.models import Q
@@ -48,15 +47,7 @@ def _jsonify_graph(nodes_list, relations_list):
                 'color': nodetype.get_color(),
                 'nodes': []
             }
-        node_display = node.display + ' (' + str(node.id) + ')'
-        json_node = node.to_json()
-        json_node['nodetypeId'] = nodetype.id
-        json_node['label'] = node_display
-        json_node['color'] = nodetype.get_color()
-        json_node['x'] = random.uniform(0, 1)
-        json_node['y'] = random.uniform(0, 1)
-        json_node['size'] = 1
-        nodes.append(json_node)
+        nodes.append(node.to_json())
         nodetypes[nodetype.id]['nodes'].append(str(node.id))
         node_ids.append(str(node.id))
     for rel in relations_list:
@@ -75,16 +66,7 @@ def _jsonify_graph(nodes_list, relations_list):
                     'colorMode': reltype.get_color_mode(),
                     'relationships': []
                 }
-            rel_json = {
-                'id': str(rel.id),
-                'source': str(source_id),
-                'target': str(target_id),
-                'reltypeId': reltype.id,
-                'reltype': rel.label_display,
-                'fullReltype': reltype.__unicode__(),
-                'color': reltype.get_color(),
-                'properties': rel.properties
-            }
+            rel_json = rel.to_json()
             rels.append(rel_json)
             reltypes[reltype.id]['relationships'].append(rel_json['id'])
     graph = {'nodes': nodes, 'edges': rels}

@@ -1,6 +1,7 @@
     # -*- coding: utf-8 -*-
 from collections import Sequence
 from datetime import datetime
+import random
 
 from django.db import transaction
 
@@ -757,7 +758,13 @@ class Node(BaseElement):
         return {
             'id': str(self.id),
             'nodetype': self.label_display,
-            'properties': self.properties.copy()
+            'properties': self.properties.copy(),
+            'nodetypeId': self.get_type().id,
+            'label': self.display + ' (' + str(self.id) + ')',
+            'color': self.get_type().get_color(),
+            'x': random.uniform(0, 1),
+            'y': random.uniform(0, 1),
+            'size': 1
         }
 
     def __getitem__(self, key):
@@ -873,11 +880,14 @@ class Relationship(BaseElement):
 
     def to_json(self):
         return {
-            'id': self.id,
-            'source': self.source.display,
-            'target': self.target.display,
-            'type': self.label_display,
-            'properties': self.properties.copy()
+            'id': str(self.id),
+            'source': str(self.source.id),
+            'target': str(self.target.id),
+            'reltypeId': self.get_type().id,
+            'reltype': self.label_display,
+            'fullReltype': self.get_type().__unicode__(),
+            'color': self.get_type().get_color(),
+            'properties': self.properties
         }
 
     def __getitem__(self, key):
