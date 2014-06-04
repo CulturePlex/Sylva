@@ -21,7 +21,10 @@ sylva:true, alert:true */
   $(function() {
 
     $('#graph-node-types').hide();
-    $('#sigma-wrapper').width($('#body').width());
+    $('#sigma-wrapper').css({
+      'width': $('#body').width(),
+      'margin-top': '0px'
+    });
     var msg = '';
     if (sylva.is_schema_empty) {
       msg += gettext("Your Schema is empty.");
@@ -34,7 +37,6 @@ sylva:true, alert:true */
     }
 
     if (msg !== '') {
-      $('#sigma-wrapper').css('margin-top', '0px');
       $('#sigma-container').html('<div class="graph-empty-message">' + msg + '</div>');
     } else {
       var spinnerOpts = {

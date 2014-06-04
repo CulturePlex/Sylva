@@ -1513,7 +1513,6 @@ table.content-table {
     position: absolute;
     z-index: 500;
     margin-left: -20px;
-    margin-top: 34px;
 }
 
 .graph-loading-inner {

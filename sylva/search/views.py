@@ -53,7 +53,7 @@ def search(request, graph_slug, node_type_id=None, relationship_type_id=None):
             if nodes:
                 result["list"] = nodes
                 node_results.append(result)
-        # Everything before this point is for normal and analytics mode searchs
+        # Everything before this point is for regular and analytics mode search
         if analytics:
             if ((request.is_ajax() or settings.DEBUG) and request.POST):
                 node_ids = []
@@ -66,7 +66,7 @@ def search(request, graph_slug, node_type_id=None, relationship_type_id=None):
             raise Http404(
                 _("Error: Invalid request (expected an AJAX request)"))
         else:
-            # Beyond this point everythin is for normal search
+            # Beyond this point everything is for regular search
             if relationship_type_id:
                 filter_args = {
                     "id": relationship_type_id,

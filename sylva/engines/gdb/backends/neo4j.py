@@ -244,10 +244,9 @@ class GraphDatabase(BlueprintsGraphDatabase):
 
     def get_relationships_by_label(self, label, include_properties=False,
                                    limit=None, offset=None, order_by=None):
-        return self.get_filtered_relationships([], label=label,
-                                        include_properties=include_properties,
-                                        limit=limit, offset=offset,
-                                        order_by=order_by)
+        return self.get_filtered_relationships(
+            [], label=label, include_properties=include_properties,
+            limit=limit, offset=offset, order_by=order_by)
 
     def get_filtered_relationships(self, lookups, label=None,
                                    include_properties=None,
