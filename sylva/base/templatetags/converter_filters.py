@@ -5,12 +5,11 @@ except ImportError:
     import json  # NOQA
 
 from django import template
-from django.template.defaultfilters import stringfilter
+from django.utils.safestring import mark_safe
 
 register = template.Library()
 
 
 @register.filter
-@stringfilter
-def replacechar(value, chars):
-    return value.replace(chars[0], chars[1])
+def to_javascript(value):
+    return mark_safe("JSON.parse('{0}')".format(json.dumps(value)))

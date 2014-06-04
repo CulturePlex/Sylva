@@ -1268,7 +1268,12 @@ sigma:true, clearTimeout */
           maxWidth: '250',
           stop: function(event, ui) {
             analyticsSidebarWidth = ui.size.width + analyticsSidebarBorder;
-            that.updateSizes(true);
+
+            /* The next line is needed instead of call that.updateSizes(),
+             * because some elements need to be resized apart from our Sigma
+             * instance and its elements, like Highcharts.
+             */
+            $(window).trigger('resize');
             that.putBoxesInsideCanvas();
           }
         });
