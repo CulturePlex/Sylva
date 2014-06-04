@@ -1,3 +1,4 @@
+{% load thumbnail %}
 {% load i18n %}
 {% load graph_filters %}
 <div id="canvas-container">
@@ -37,7 +38,7 @@
       </div>
       {% if analytics %}
         <div class="sigma-control right" style="display: none;">
-          {% if OPTIONS.ENABLE_ANALYTICS %}
+          {% if options.ENABLE_ANALYTICS %}
           <a id="sigma-go-analytics" class="button" style="font-size:100%;" title="{% trans "Analytics" %}">{% trans "Analytics" %}</a>
           {% else %}
           <a id="sigma-go-analytics" class="button" style="font-size:100%;" title="{% trans "Explore" %}">{% trans "Explore" %}</a>
@@ -107,8 +108,7 @@
   </div>
 </div>
 <div id="analytics" class="analytics-mode" style="display: none;">
-{% if OPTIONS.ENABLE_ANALYTICS %}
-  <progress id="progress-bar"></progress>
+  {% if options.ENABLE_ANALYTICS %}
   <h2 style="margin-top: 5px; margin-left: 10px;">{% trans "Analytics" %}</h2>
   <div id="analytics-algorithms">
     {% for key, value in algorithms.items %}
@@ -117,12 +117,15 @@
         <div id="analytics-menu">
           <div id="play-button">
             <a id="play-algorithm" class="play-algorithm button icon-play" data-measure='{{ key }}' data-plot="{{ key }}-results" data-eta="{{ key }}-eta" title="Play algorithm"></a>
-            <label class="label-analytics"><input type='checkbox' />{% trans "Feedback results back to the nodes" %}</label>
+            <!--<label class="label-analytics"><input type='checkbox' />{% trans "Feedback results back to the nodes" %}</label>-->
+            <progress id="progress-bar-{{ key }}" class="progress-bar"></progress>
+            {% if graph|list_analytics:key %}
             <select class="last-analytics">
               {% for analytic in graph|list_analytics:key %}
                   <option value="{{ analytic.id }}">{{ analytic.task_start }}</option>
               {% endfor %}
             </select>
+            {% endif %}
             <h2 id="{{ key }}-eta"></h2>
             <div id="{{ key }}-results" class="ui-resizable"></div>
           </div>
@@ -130,7 +133,7 @@
       </div>
     {% endfor %}
   </div>
-{% endif %}
+  {% endif %}
 </div>
 
   <!-- Start of DOM elements working as memory system and debugging -->
