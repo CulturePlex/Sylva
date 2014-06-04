@@ -58,4 +58,5 @@ def graph_visualization(context, graph, analytics=True):
         algorithms = []
     return {'analytics': bool(analytics),
             'algorithms': algorithms,
-            'graph': graph}
+            'graph': graph,
+            'options': context.get("OPTIONS", None)}
