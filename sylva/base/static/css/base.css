@@ -976,6 +976,31 @@ div.initial p:nth-child(3) {
     display: none;
 }
 
+.modal-overlay {
+    opacity: 0.7;
+    height: 100%;
+    width: 100%;
+    position: fixed;
+    left: 0px;
+    top: 0px;
+    z-index: 1001;
+    background-color: #000000;
+}
+
+.modal-content-scrollable-wrapper {
+    overflow: hidden;
+    height: 100%;
+    outline: 0px;
+    width: 100%;
+}
+
+.modal-content-controls {
+    position: absolute;
+    bottom: 10px;
+    background-color: #FFFFFF;
+    width: 98.2%;
+}
+
 
 /* Formsets relationships *****************************************************/
 

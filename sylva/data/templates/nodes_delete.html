@@ -34,6 +34,9 @@
     <div class="content-main">
       <h2>{{ item_type_name }}: {{ item.display }}</h2>
       {{ form.as_p }}
+      {% if as_modal %}
+        <hr/>
+      {% endif %}
       <span class="buttonLinkOption buttonLinkLeft">
         <input id="submit-delete" type="submit" value="{% trans "Continue" %}"/>
       </span>

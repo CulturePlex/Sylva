@@ -571,7 +571,8 @@ def nodes_edit(request, graph_slug, node_id):
                     }
                     relationships.append(rel_json)
 
-            response = {'action': action,
+            response = {'type': 'data',
+                        'action': action,
                         'nodeId': str(node.id),
                         'node': node.to_json(),
                         'relationships': relationships}
@@ -595,7 +596,8 @@ def nodes_edit(request, graph_slug, node_id):
     for form in [node_form] + outgoing_formsets.values() + \
             incoming_formsets.values():
         forms_media |= set(form.media.render_js())
-        forms_media |= set([css for css in form.media.render_css()])
+        if not as_modal:
+            forms_media |= set([css for css in form.media.render_css()])
     save_url = reverse("nodes_edit", args=[graph_slug, node_id])
     delete_url = reverse("nodes_delete", args=[graph_slug, node_id])
     broader_context = {"graph": graph,
@@ -618,7 +620,11 @@ def nodes_edit(request, graph_slug, node_id):
     response = render('nodes_editcreate.html', broader_context,
                       context_instance=RequestContext(request))
     if as_modal:
-        return HttpResponse(response, status=200)
+        response = {'type': 'html',
+                    'action': 'edit',
+                    'html': response}
+        return HttpResponse(json.dumps(response), status=200,
+                            mimetype='application/json')
     else:
         return response
 
@@ -699,7 +705,8 @@ def nodes_delete(request, graph_slug, node_id):
                     media_node.delete()
                 node.delete()
                 if as_modal:
-                    response = {'action': 'delete',
+                    response = {'type': 'data',
+                                'action': 'delete',
                                 'nodeId': node_id,
                                 'oldRelationshipIds': old_relationship_ids}
                     return HttpResponse(json.dumps(response), status=200,
@@ -736,7 +743,11 @@ def nodes_delete(request, graph_slug, node_id):
     response = render('nodes_delete.html', broader_context,
                       context_instance=RequestContext(request))
     if as_modal:
-        return HttpResponse(response, status=200)
+        response = {'type': 'html',
+                    'action': 'delete',
+                    'html': response}
+        return HttpResponse(json.dumps(response), status=200,
+                            mimetype='application/json')
     else:
         return response
 

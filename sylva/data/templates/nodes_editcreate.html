@@ -4,9 +4,6 @@
 
 {% block extra_links %}
   <link href="{{ STATIC_PREFIX }}css/token.input.css" type="text/css" rel="stylesheet" />
-  {% if not as_modal %}
-    <link href="{{ STATIC_PREFIX }}css/jqueryui.1.8.18.css" type="text/css" rel="stylesheet" />
-  {% endif %}
 {% endblock %}
 
 {% if not as_modal %}
@@ -36,154 +33,181 @@
     {% endif %}
     <form id="edit-node-form" action="." method="POST" enctype="multipart/form-data">
       {% csrf_token %}
-      <div class="content3-block">
-        <h2 id="propertiesTitle">{% trans "Properties" %}</h2>
-        {% for field in node_form %}
-          <p {% if field.name in fields_to_hide and not field.value %}class="hidden"{% endif %}>
-          {{ field.errors }}
-          {{ field.label_tag }}
-          {{ field }}
-          {% if field.help_text %}
-            <span class="helptext">
-            {{ field.help_text }}
-            </span>
-          {% endif %}
-          </p>
-        {% endfor %}
-        <span class="buttonLinkOption buttonLinkLeft">
-          <input id="submit-save" type="submit" value="{% trans "Save" %} {{ nodetype.name|capfirst }}"/>
-          {% if as_new %}
-          {% trans "or" %}
-          <input id="submit-save-as-new" type="submit" name="as-new" value="{% trans "Save as new" %} {{ nodetype.name|capfirst }}"/>
-          {% endif %}
-        </span>
-        <span class="buttonLinkOption buttonLinkRight">
-          {% if delete %}
-          {% trans "or" %}
-          <a id="submit-delete" href="{% url "nodes_delete" graph.slug node.id %}">{% trans "Remove" %}</a>
-          {% endif %}
-          {% trans "or" %}
-          <a id="submit-cancel" href="{% url "nodes_list" graph.slug %}">{% trans "Cancel" %}</a>.</span>
-      </div>
-      {% if outgoing_formsets or incoming_formsets %}
-        <div class="content-divider"></div>
-        <div class="content3-block relationships">
-          <select id="h2-relationships">
-            <option value="all">{% trans "All Relationships" %}</option>
-            {% if incoming_formsets %}
-            <option value="incoming">{% trans "Incoming" %}</option>
-            {% endif %}
-            {% if outgoing_formsets %}
-            <option value="outgoing">{% trans "Outgoing" %}</option>
-            {% endif %}
-            {% for p in prefixes %}
-              <option value="{{ p.key }}">{{ p.value }}</option>
-            {% endfor %}
-          </select>
-          {% if outgoing_formsets %}
-            {% for prefix, outgoing_formset in outgoing_formsets.items %}
-              <span class="all-relationships outgoing-relationships {{ prefix }}-relationships">
-                {{ outgoing_formset.management_form }}
-                <label>
-                <span class="symbol-medium">→</span> {{ outgoing_formset.itemtype.name }} ({{ outgoing_formset.itemtype.target.name }})
-                </label>
+      <div id="modal-content-scrollable-wrapper">
+        <div id="modal-content-scrollable">
+          <div class="content3-block">
+            <h2 id="propertiesTitle">{% trans "Properties" %}</h2>
+            {% for field in node_form %}
+              <p {% if field.name in fields_to_hide and not field.value %}class="hidden"{% endif %}>
+              {{ field.errors }}
+              {{ field.label_tag }}
+              {{ field }}
+              {% if field.help_text %}
                 <span class="helptext">
-                  {% trans "Target of the relationship" %}
-                  <a class="add-node" href="{% url "nodes_create" outgoing_formset.itemtype.schema.graph.slug outgoing_formset.itemtype.target.id %}">
-                    {% trans "Add" %} {{ outgoing_formset.itemtype.target.name }}
-                  </a>
+                {{ field.help_text }}
                 </span>
-                {% for outgoing_form in outgoing_formset %}
-                  <span>
-                  {% if forloop.last %}
-                    <div id="{{ prefix }}">
-                    {{ outgoing_form.as_p }}
-                    </div>
-                  {% else %}
-                    <a class="delete-row initial-form floating" href="javascript:void(0)">
-                      <!-- {% trans "Remove" %} {{ outgoing_formset.itemtype.name }} -->
-                    </a>
-                    <div class="initial" id="{{ prefix }}-form-{{ forloop.counter0 }}">
-                    {{ outgoing_form.as_p }}
-                    </div>
-                  {% endif %}
-                  </span>
-                {% endfor %}
+              {% endif %}
+              </p>
+            {% endfor %}
+            {% if not as_modal %}
+              <span class="buttonLinkOption buttonLinkLeft">
+                <input type="submit" value="{% trans "Save" %} {{ nodetype.name|capfirst }}"/>
+                {% if as_new %}
+                {% trans "or" %}
+                <inputtype="submit" name="as-new" value="{% trans "Save as new" %} {{ nodetype.name|capfirst }}"/>
+                {% endif %}
               </span>
-            {% endfor %}
-          {% endif %}
-          {% if incoming_formsets %}
-            {% for prefix, incoming_formset in incoming_formsets.items %}
-              <span class="all-relationships incoming-relationships {{ prefix }}-relationships">
-                {{ incoming_formset.management_form }}
-                <label>
-                <span class="symbol-medium">←</span> {{ incoming_formset.itemtype.name }} ({{ incoming_formset.itemtype.source.name }})
-                </label>
-                <span class="helptext">
-                  {% trans "Source of the relationship" %}
-                  <a class="add-node" href="{% url "nodes_create" incoming_formset.itemtype.schema.graph.slug incoming_formset.itemtype.source.id %}">
-                    {% trans "Add" %} {{ incoming_formset.itemtype.source.name }}
-                  </a>
-                </span>
-                {% for incoming_form in incoming_formset %}
-                  <span>
-                  {% if forloop.last %}
-                    <div id="{{ prefix }}">
-                    {{ incoming_form.as_p }}
-                    </div>
-                  {% else %}
-                    <a class="delete-row initial-form floating" href="javascript:void(0)">
-                      <!--
-                      {% trans "Remove" %}
-                      {% if incoming_formset.itemtype.inverse %}
-                        {{ incoming_formset.itemtype.inverse }}
+              <span class="buttonLinkOption buttonLinkRight">
+                {% if delete %}
+                {% trans "or" %}
+                <a href="{% url "nodes_delete" graph.slug node.id %}">{% trans "Remove" %}</a>
+                {% endif %}
+                {% trans "or" %}
+                <a href="{% url "nodes_list" graph.slug %}">{% trans "Cancel" %}</a>.
+              </span>
+            {% endif %}
+          </div>
+          {% if outgoing_formsets or incoming_formsets %}
+            <div class="content-divider"></div>
+            <div class="content3-block relationships">
+              <select id="h2-relationships">
+                <option value="all">{% trans "All Relationships" %}</option>
+                {% if incoming_formsets %}
+                <option value="incoming">{% trans "Incoming" %}</option>
+                {% endif %}
+                {% if outgoing_formsets %}
+                <option value="outgoing">{% trans "Outgoing" %}</option>
+                {% endif %}
+                {% for p in prefixes %}
+                  <option value="{{ p.key }}">{{ p.value }}</option>
+                {% endfor %}
+              </select>
+              {% if outgoing_formsets %}
+                {% for prefix, outgoing_formset in outgoing_formsets.items %}
+                  <span class="all-relationships outgoing-relationships {{ prefix }}-relationships">
+                    {{ outgoing_formset.management_form }}
+                    <label>
+                    <span class="symbol-medium">→</span> {{ outgoing_formset.itemtype.name }} ({{ outgoing_formset.itemtype.target.name }})
+                    </label>
+                    <span class="helptext">
+                      {% trans "Target of the relationship" %}
+                      <a class="add-node" href="{% url "nodes_create" outgoing_formset.itemtype.schema.graph.slug outgoing_formset.itemtype.target.id %}">
+                        {% trans "Add" %} {{ outgoing_formset.itemtype.target.name }}
+                      </a>
+                    </span>
+                    {% for outgoing_form in outgoing_formset %}
+                      <span>
+                      {% if forloop.last %}
+                        <div id="{{ prefix }}">
+                        {{ outgoing_form.as_p }}
+                        </div>
                       {% else %}
-                        {{ incoming_formset.itemtype.name }}
+                        <a class="delete-row initial-form floating" href="javascript:void(0)">
+                          <!-- {% trans "Remove" %} {{ outgoing_formset.itemtype.name }} -->
+                        </a>
+                        <div class="initial" id="{{ prefix }}-form-{{ forloop.counter0 }}">
+                        {{ outgoing_form.as_p }}
+                        </div>
                       {% endif %}
-                      -->
-                    </a>
-                    <div class="initial" id="{{ prefix }}-form-{{ forloop.counter0 }}">
-                    {{ incoming_form.as_p }}
-                    </div>
-                  {% endif %}
+                      </span>
+                    {% endfor %}
                   </span>
                 {% endfor %}
-              </span>
-            {% endfor %}
+              {% endif %}
+              {% if incoming_formsets %}
+                {% for prefix, incoming_formset in incoming_formsets.items %}
+                  <span class="all-relationships incoming-relationships {{ prefix }}-relationships">
+                    {{ incoming_formset.management_form }}
+                    <label>
+                    <span class="symbol-medium">←</span> {{ incoming_formset.itemtype.name }} ({{ incoming_formset.itemtype.source.name }})
+                    </label>
+                    <span class="helptext">
+                      {% trans "Source of the relationship" %}
+                      <a class="add-node" href="{% url "nodes_create" incoming_formset.itemtype.schema.graph.slug incoming_formset.itemtype.source.id %}">
+                        {% trans "Add" %} {{ incoming_formset.itemtype.source.name }}
+                      </a>
+                    </span>
+                    {% for incoming_form in incoming_formset %}
+                      <span>
+                      {% if forloop.last %}
+                        <div id="{{ prefix }}">
+                        {{ incoming_form.as_p }}
+                        </div>
+                      {% else %}
+                        <a class="delete-row initial-form floating" href="javascript:void(0)">
+                          <!--
+                          {% trans "Remove" %}
+                          {% if incoming_formset.itemtype.inverse %}
+                            {{ incoming_formset.itemtype.inverse }}
+                          {% else %}
+                            {{ incoming_formset.itemtype.name }}
+                          {% endif %}
+                          -->
+                        </a>
+                        <div class="initial" id="{{ prefix }}-form-{{ forloop.counter0 }}">
+                        {{ incoming_form.as_p }}
+                        </div>
+                      {% endif %}
+                      </span>
+                    {% endfor %}
+                  </span>
+                {% endfor %}
+              {% endif %}
+            </div>
           {% endif %}
+          <div class="content-divider"></div>
+          <div class="content3-block">
+            <h2 id="filesTitle">{% trans "Files" %}</h2>
+            {{ mediafile_formset.management_form }}
+            {% for mediafile_form in mediafile_formset.forms %}
+              {% if forloop.last %}
+                <div id="{{ mediafile_formset.prefix }}">
+                {{ mediafile_form.as_p }}
+                </div>
+              {% else %}
+                <div class="initial" id="{{ mediafile_formset.prefix }}-form-{{ forloop.counter0 }}">
+                  {{ mediafile_form.as_p }}
+                  <a class="fileDelete delete-rowupFiles initial-form" href="javascript:void(0)"></a>
+                </div>
+              {% endif %}
+            {% endfor %}
+            <h2 id="linksTitle">{% trans "Links" %}</h2>
+            {{ medialink_formset.management_form }}
+            {% for medialink_form in medialink_formset.forms %}
+              {% if forloop.last %}
+                <div id="{{ medialink_formset.prefix }}">
+                {{ medialink_form.as_p }}
+                </div>
+              {% else %}
+                <div class="initial" id="{{ medialink_formset.prefix }}-form-{{ forloop.counter0 }}">
+                  {{ medialink_form.as_p }}
+                  <a class="linkDelete delete-rowupLinks initial-form" href="javascript:void(0)"></a>
+                </div>
+              {% endif %}
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+      {% if as_modal %}
+        <div id="modal-content-controls">
+          <hr/>
+          <span class="buttonLinkOption buttonLinkLeft">
+            <input id="submit-save" type="submit" value="{% trans "Save" %} {{ nodetype.name|capfirst }}"/>
+            {% if as_new %}
+            {% trans "or" %}
+            <input id="submit-save-as-new" type="submit" name="as-new" value="{% trans "Save as new" %} {{ nodetype.name|capfirst }}"/>
+            {% endif %}
+          </span>
+          <span class="buttonLinkOption buttonLinkRight">
+            {% if delete %}
+            {% trans "or" %}
+            <a id="submit-delete">{% trans "Remove" %}</a>
+            {% endif %}
+            {% trans "or" %}
+            <a id="submit-cancel">{% trans "Cancel" %}</a>.
+          </span>
         </div>
       {% endif %}
-      <div class="content-divider"></div>
-      <div class="content3-block">
-        <h2 id="filesTitle">{% trans "Files" %}</h2>
-        {{ mediafile_formset.management_form }}
-        {% for mediafile_form in mediafile_formset.forms %}
-          {% if forloop.last %}
-            <div id="{{ mediafile_formset.prefix }}">
-            {{ mediafile_form.as_p }}
-            </div>
-          {% else %}
-            <div class="initial" id="{{ mediafile_formset.prefix }}-form-{{ forloop.counter0 }}">
-              {{ mediafile_form.as_p }}
-              <a class="fileDelete delete-rowupFiles initial-form" href="javascript:void(0)"></a>
-            </div>
-          {% endif %}
-        {% endfor %}
-        <h2 id="linksTitle">{% trans "Links" %}</h2>
-        {{ medialink_formset.management_form }}
-        {% for medialink_form in medialink_formset.forms %}
-          {% if forloop.last %}
-            <div id="{{ medialink_formset.prefix }}">
-            {{ medialink_form.as_p }}
-            </div>
-          {% else %}
-            <div class="initial" id="{{ medialink_formset.prefix }}-form-{{ forloop.counter0 }}">
-              {{ medialink_form.as_p }}
-              <a class="linkDelete delete-rowupLinks initial-form" href="javascript:void(0)"></a>
-            </div>
-          {% endif %}
-        {% endfor %}
-      </div>
     </form>
   </div>
 
@@ -222,8 +246,6 @@
   <!-- We are adding here jQueryUI manually because maybe it is already in the template. -->
   {% if not as_modal %}
     <script src="{{ STATIC_PREFIX }}js/jquery-ui-1.10.4.js"></script>
-  {% else %}
-    <!-- DELETE? Space for modal library -->
   {% endif %}
   {% for media in forms_media %}
     {{ media }}
