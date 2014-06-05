@@ -58,7 +58,7 @@ def analytics_status(request, graph_slug):
             analytic = Analytic.objects.filter(
                 dump__graph__slug=graph_slug,
                 task_id=task_id).latest()
-            data = analytic.results.url
+            data = [analytic.results.url, analytic.id, analytic.task_start]
         else:
             data = False
     json_data = json.dumps(data)

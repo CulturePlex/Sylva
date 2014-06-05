@@ -79,7 +79,7 @@ jQuery(document).ready(function() {
          }
     });
     // get results of the analytic
-    var getResults = function(results_url, algorithm) {
+    var getResults = function(results_url, algorithm, analyticId, analyticTaskStart) {
       $.ajax({
           type: "GET",
           dataType: 'json',
@@ -143,6 +143,12 @@ jQuery(document).ready(function() {
 
             // Create the chart
             var chart = new Highcharts.Chart(options);
+
+            if(analyticId != "") {
+              // We need to multiply 1000 times because JavaScript uses millseconds
+              analyticDate = new Date(analyticTaskStart * 1000);
+              $('#last-analytics-' + algorithm).prepend("<option value=" + analyticId + " selected>" + analyticDate.toISOString() + "</option>");
+            }
           },
           error: function () {
               alert("Error");
@@ -164,7 +170,10 @@ jQuery(document).ready(function() {
             taskTime = taskTime + 7;
             $(progressBarId).attr('value', taskTime);
         } else {
-          getResults(task, algorithm);
+          resultsUrl = task[0];
+          analyticId = task[1];
+          analyticTaskStart = task[2];
+          getResults(resultsUrl, algorithm, analyticId, analyticTaskStart);
           $(progressBarId).attr('value', 100);
           taskTime = 0;
         }
@@ -242,9 +251,15 @@ jQuery(document).ready(function() {
       }).done(function(result){
         var resultsUrl = result[0];
         var algorithm = result[1];
+
+        // We check if we have defined the id for render highcharts
+        if(!analyticsId[algorithm]) {
+          analyticsId[algorithm] = algorithm + "-results";
+        }
+
         console.log(resultsUrl);
         console.log(algorithm);
-        getResults(resultsUrl, algorithm);
+        getResults(resultsUrl, algorithm, "", "");
       });
     });
 

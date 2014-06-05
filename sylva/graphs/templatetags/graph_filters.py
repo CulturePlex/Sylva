@@ -17,3 +17,10 @@ def list_analytics(graph, algorithm):
         algorithm=algorithm,
         dump__graph=graph).order_by('-task_start')[:10]
     return l
+
+@register.filter
+def get_iso_format(analytic):
+    result = "unavailable"
+    if analytic is not None:
+        result = analytic.task_start.isoformat()
+    return result
