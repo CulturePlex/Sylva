@@ -1,15 +1,13 @@
 # -*- coding: utf-8 -*-
-try:
-    import ujson as json
-except ImportError:
-    import json  # NOQA
+import json
 
 from django import template
+from django.core.serializers.json import DjangoJSONEncoder
 from django.utils.safestring import mark_safe
 
 register = template.Library()
 
 
 @register.filter
-def to_javascript(value):
-    return mark_safe("JSON.parse('{0}')".format(json.dumps(value)))
+def escape_js(value):
+    return mark_safe(json.dumps(value, cls=DjangoJSONEncoder))

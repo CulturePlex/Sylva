@@ -1,9 +1,4 @@
 # -*- coding: utf-8 -*-
-try:
-    import ujson as json
-except ImportError:
-    import json  # NOQA
-
 from django import template
 from django.template.defaultfilters import stringfilter
 

@@ -3,8 +3,8 @@
   sylva.nodeViewURL = "{% url "nodes_view" graph.slug 0 %}";
   sylva.nodeEditURL = "{% url "nodes_edit" graph.slug 0 %}";
   {% if analytics %}
-      sylva.is_graph_empty = {{ is_graph_empty|to_javascript }};
-      sylva.is_schema_empty = {{ is_graph_empty|to_javascript }};
+      sylva.is_graph_empty = JSON.parse('{{ is_graph_empty|escape_js }}');
+      sylva.is_schema_empty = JSON.parse('{{ is_schema_empty|escape_js }}');
   {% else %}
     sylva.is_graph_empty = false;
     sylva.is_schema_empty = false;
