@@ -2,30 +2,48 @@
 {% load i18n graphs static %}
 {# get_static_prefix as STATIC_PREFIX #}
 
+
 {% block navigation_buttons %}
-  {{ block.super }}
+  {% if pdf == False %}
+    {{ block.super }}
+  {% endif %}
 {% endblock %}
 
 {% block title %}
   {{ graph_slug }}
 {% endblock %}
 
-  {% block extra_links %}
-    <link rel="stylesheet" href="//code.jquery.com/ui/1.10.4/themes/smoothness/jquery-ui.css">
-    <link rel="stylesheet" type="text/css" href="{{ STATIC_PREFIX }}app/css/reports.css" />
-  {% endblock %}
-
-{% block menu_buttons %}
-  {% toolbar on="reports" %}
+{% block extra_links %}
+  <link rel="stylesheet" href="//code.jquery.com/ui/1.10.4/themes/smoothness/jquery-ui.css">
+  <link rel="stylesheet" type="text/css" href="{{ STATIC_PREFIX }}app/css/reports.css" />
 {% endblock %}
 
+
+{% block main_navigation %}
+    {% if pdf == True %}
+      <a href="{% url "dashboard" %}" id="link-logo" title="{% trans "Go to the Dashboard" %}">dashboard</a>
+    {% else %}
+      {{ block.super }}
+    {% endif %}
+{% endblock %}
+
+
+{% block menu_buttons %}
+  {% if pdf == False %}
+    {% toolbar on="reports" %}
+  {% endif %}
+{% endblock %}
+
+
 {% block content_title %}
-<div>  
-  <header class="reports-header">
-    <!-- angular app here for breadcrumbs http://stackoverflow.com/questions/18571301/angularjs-multiple-ng-app-within-a-page -->
-    <h2 >{{ graph }} &raquo; Reports</h2>
-  </header>
-</div>
+  {% if pdf == False %}
+    <div>  
+      <header class="reports-header">
+        <!-- angular app here for breadcrumbs http://stackoverflow.com/questions/18571301/angularjs-multiple-ng-app-within-a-page -->
+        <h2 >{{ graph }} &raquo; Reports</h2>
+      </header>
+    </div>
+  {% endif %}
 {% endblock %}
 
 {% block content %}
@@ -55,6 +73,18 @@
     </script>
 
   {% endblock %}
-
 {% endblock %}
+
+
+
+{% block footer %}
+  {% if pdf == True %}
+    <p>&copy; {{ CURRENT_DATE|date:"Y" }} <a href="{{ site.domain }}">{{ PROJECT_NAME }}</a>. {% trans "All rights reserved" %}.</p>
+  {% else %}
+    {{ block.super }}
+  {% endif %}
+{% endblock %}
+
+
+
 

@@ -36,6 +36,7 @@ def reports_index_view(request, graph_slug):
         pdf = True # hmmm gotta fix this
     else:
         pdf = False
+    print 'pdf', pdf
     c = {}
     c.update(csrf(request))
     report_name = _("New Report")
@@ -75,11 +76,10 @@ def preview_report_pdf(request, graph_slug):
         parsed_url.netloc,
         reverse(reports_index_view, kwargs={'graph_slug': graph_slug}),
         '?pdf=true',
-        report_slug,
+        report_slug
+        
         
     )
-    print 'revers', url
-    #url = 'http://localhost:8000/reports/preliminaries-projection/#/preview/report1'
     domain = parsed_url.hostname
     csrftoken = request.COOKIES.get('csrftoken', 'nocsrftoken')
     sessionid = request.COOKIES.get('sessionid', 'nosessionid')
@@ -176,6 +176,7 @@ def reports_endpoint(request, graph_slug):
         'start_time': '08:30',
         'start_date': "11/02/2014",
         'description': 'Report1 will now form the beginning of the tests',
+        'date': "11/03/2014",
         'history': [
             {'date': "11/03/2014", 'id': 1},
             {'date': "11/05/2014", 'id': 2},

@@ -70,9 +70,9 @@ directives.directive('sylvaPvRowRepeat', ['tableArray', function (tableArray) {
                 scope.queries = scope.resp.queries;
                 scope.tableArray = tableArray(scope.resp.table);
 
-                var scopesLen = childScopes.length;
-                if (scopesLen > 0) {
-                    for (var i=0; i<scopesLen; i++) {
+                var numScopes = childScopes.length;
+                if (numScopes > 0) {
+                    for (var i=0; i<numScopes; i++) {
                         childScopes[i].element.remove();
 
                         childScopes[i].scope.$destroy();
@@ -89,6 +89,11 @@ directives.directive('sylvaPvRowRepeat', ['tableArray', function (tableArray) {
 
                     childScope = scope.$new();
                     childScope.$index = i;
+                    if (i === 0) {
+                        childScope.rowStyle = {'margin-top': '100px'};
+                    } else {
+                        childScope.rowStyle = {'margin-top': '50px'};
+                    }
 
                     transclude(childScope, function (clone) {
                         childScope.row = scope.tableArray.table[i];
@@ -161,9 +166,6 @@ directives.directive('sylvaPvCellRepeat', ['$compile', function ($compile) {
 
                 console.log('query', childScope.query)
                 transclude(childScope, function (clone) {
-
-                    //var test = $compile('<div highchart config="chartConfig" ng-style="cellStyle" class="display-cell"></div>')(childScope)
-                    //clone.append(test)
                     previous.after(clone);
                     block = {}
                     block.element = previous
@@ -215,7 +217,7 @@ directives.directive('syEditableTable', ['$compile', 'tableArray', function ($co
                 scope.queries = scope.resp.queries;
                 scope.tableArray = tableArray(scope.resp.table);
                 scope.tableWidth = parseInt(angular.element(elem.children()[0]).css('width'));
-            }, true);
+            });
 
             addRow.bind('click', function () {
                 scope.$apply(function () {
@@ -230,9 +232,12 @@ directives.directive('syEditableTable', ['$compile', 'tableArray', function ($co
             });
 
             delRow.bind('click', function () {
-                scope.$apply(function () {
-                    scope.tableArray.delRow();
-                });
+                console.log('numRows', tableArray.numRows)
+                if (scope.tableArray.numRows - 1 > 0)  {
+                    scope.$apply(function () {
+                        scope.tableArray.delRow();
+                    });
+                }
             });
 
             delCol.bind('click', function () {
@@ -245,7 +250,7 @@ directives.directive('syEditableTable', ['$compile', 'tableArray', function ($co
 }]);
 
 
-directives.directive('syEtRowRepeat', ['tableArray', '$animate', function (tableArray, $animate) {
+directives.directive('syEtRowRepeat', [function () {
     return {
         transclude: 'element',
         require: '^syEditableTable',
@@ -254,30 +259,63 @@ directives.directive('syEtRowRepeat', ['tableArray', '$animate', function (table
         },
         link: function(scope, elem, attrs, ctrl, transclude) {
 
-            var childScopes = [];
+            var childScopes = []
+            ,   previous
+            ,   block
+            ,   childScope
+            ,   tableArray
+            ,   numScopes
+            ,   len;
+            
+            scope.$watchCollection(ctrl.getTableArray, function (newVal, oldVal) {
+                if (newVal == oldVal) return;
+                if (!previous) return;
+                console.log('childScopes', childScopes)
+                tableArray = ctrl.getTableArray();
+                numScopes = childScopes.length;
+                console.log('ls', newVal, oldVal)
+                if (newVal.numRows > oldVal.numRows) {
+                    childScope = scope.$new();
+                    childScope.$index = numScopes;
+                    childScope.row = tableArray.table[numScopes];
+                    console.log('ingo', childScopes, numScopes)
+                    childScopes[numScopes - 1].element.removeClass('bottom')
+
+                    transclude(childScope, function (clone) {
+                        clone.addClass('bottom')
+                        clone.attr('id', 'row' + numScopes);
+                        clone.addClass('trow');
+                        previous.after(clone);
+                        block = {}
+                        block.element = clone
+                        block.scope = childScope
+                        childScopes.push(block)
+                        previous = clone
+                    });
+                } else {
+                    console.log('modified', childScopes)
+                    var scopeToRemove = childScopes[numScopes - 1]
+                    scopeToRemove.element.remove();
+                    scopeToRemove.scope.$destroy();
+                    childScopes.splice(numScopes - 1, 1)
+                    childScopes[numScopes - 2].element.addClass('bottom');
+                    previous = childScopes[numScopes - 2].element
+                    
+                }
+
+            });
 
             scope.$watch(ctrl.getTableArray, function (newVal, oldVal) {
                 if (newVal === oldVal) return;
-                console.log('table Array', ctrl.getTableArray())
-                var nextTable = {}
-                ,   table = false
-                ,   previous = elem
-                ,   childScope
-                ,   tableArray = ctrl.getTableArray()
-                ,   len = tableArray.table.length
-                ,   scopesLen = childScopes.length;
 
-                if (scopesLen > 0) {
-                    for (var i=0; i<scopesLen; i++) {
-                        childScopes[i].element.remove();
-                        childScopes[i].scope.$destroy();
-                    }
-                    childScopes = [];
-                }
+                previous = elem
+                tableArray = ctrl.getTableArray();
+                numScopes = childScopes.length;
+                len = tableArray.table.length;
+
 
                 for (var i=0; i<len; i++) {
-                    var rowId = 'row' + i
-                    ,   block;
+                    var rowId = 'row' + i;
                 
                     childScope = scope.$new();
                     childScope.$index = i;
@@ -321,18 +359,18 @@ directives.directive('sylvaEtCellRepeat', [function () {
             ,   tableArray = ctrl.getTableArray()
             ,   numCols = tableArray.numCols
             ,   childScopes = []
-            ,   scopesLen = childScopes.length
+            ,   numScopes = childScopes.length
             ,   block;
 
-
-            if (scopesLen > 0) {
-                for (var i=0; i<scopesLen; i++) {
+            scope.$on('$destroy', function () {
+                for (var i=0; i<childScopes.length; i++) {
                     childScopes[i].element.remove();
-                    childScopes[i].scope.$destroy();
-                    
+                    childScopes[i].scope.$destroy(); 
+                    console.log('Scope destroyed:', childScopes[i].scope.$$destroyed)
                 }
+
                 childScopes = [];
-            }
+            })
 
             for (var i=0; i<len; i++) {
                 var cell = scope.row[i];
@@ -365,7 +403,8 @@ directives.directive('sylvaEtCellRepeat', [function () {
                         childScopes.push(block)
                         previous = clone
                 });
-            } 
+            }
+            console.log('cells', childScopes) 
         }
     };
 }]);

@@ -10,7 +10,6 @@ controllers.controller('ReportListCtrl', [
     'api', 
     'parser',
     function ($scope, $location, api, parser, DjangoConst) {
-        console.log('cont', DjangoConst)
         $scope.graph = parser.parse();
         $scope.reports = api.reports.query({graphSlug: $scope.graph});
     
@@ -193,6 +192,8 @@ controllers.controller('ReportPreviewCtrl', [
     function ($scope, $routeParams, api, parser, tableArray) {
         $scope.report = {};
         $scope.graph = parser.parse();
+        $scope.pdf = parser.pdf();
+        console.log('pdf', $scope.pdf)
         $scope.report.slug = $routeParams.reportSlug;
         console.log('params', $scope.report.slug)
             api.reports.query({

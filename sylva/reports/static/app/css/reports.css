@@ -25,6 +25,14 @@
 .row {
   float: left;
   width: 100%;
+  width: 1025
+}
+
+.pdf-row {
+  margin-top: 100px;
+  float: left;
+  width: 100%;
+  width: 1025
 }
 
 .table-button {
@@ -82,14 +90,11 @@
 }
 
 .prev-cont {
-  height: 450px;
-  overflow: hidden;
   padding-bottom: 10px;
+  min-height: 400px;
+  overflow: hidden;
 }
 
-.prev-cont:hover {
-  overflow-y: scroll;
-}
 
 .arrow {
   position: absolute;

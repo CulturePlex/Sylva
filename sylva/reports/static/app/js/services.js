@@ -33,6 +33,17 @@ services.factory('parser', ['$location', function ($location) {
         return this.parser.pathname.split('/')[2]
     }
 
+    Parser.prototype.pdf = function () {
+        var pdf;
+        try {
+            var match = this.parser.href.match(/pdf=(\w*)/)[1]
+            if (match === 'true') pdf = true;
+        } catch (e) {
+            pdf = false;
+        }
+    return pdf
+    }
+
     return new Parser();
 }]);
 
