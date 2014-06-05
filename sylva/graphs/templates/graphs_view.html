@@ -64,5 +64,5 @@
 {% endblock content %}
 
 {% block extra_scripts %}
-{% graph_visualization_resources analytics=True %}
+{% include "graphs_visualization_resources.html" with analytics=True %}
 {% endblock %}

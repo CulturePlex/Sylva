@@ -1,9 +1,10 @@
+{% load converter_filters %}
 <script type="text/javascript">
   sylva.nodeViewURL = "{% url "nodes_view" graph.slug 0 %}";
   sylva.nodeEditURL = "{% url "nodes_edit" graph.slug 0 %}";
   {% if analytics %}
-      sylva.is_graph_empty = {{ is_graph_empty|slugify }};
-      sylva.is_schema_empty = {{ is_schema_empty|slugify }};
+      sylva.is_graph_empty = {{ is_graph_empty|to_javascript }};
+      sylva.is_schema_empty = {{ is_graph_empty|to_javascript }};
   {% else %}
     sylva.is_graph_empty = false;
     sylva.is_schema_empty = false;
@@ -25,6 +26,8 @@
 <script type="text/javascript" src="{{ STATIC_PREFIX }}js/jquery-ui-1.10.4.js"></script>
 <script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/jquery/jquery.simulate.js"></script>
 
+<script src="{{ STATIC_PREFIX }}js/jquery.simplemodal-1.4.4.js"></script>
+
 <script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/colpick/colpick.js"></script>
 <script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/colpick/rgbcolor.js"></script>
 <script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/jquery/jquery.xcolor.js"></script>
@@ -38,7 +41,7 @@
 <link type="text/css" rel="stylesheet" href="{{ STATIC_PREFIX }}graphs/css/colpick/colpick.css" />
 <link type="text/css" rel="stylesheet" href="{{ STATIC_PREFIX }}graphs/css/colpick/colpick.mod.css" />
 
-{% if settings.ENABLE_ANALYTICS %}
+{% if OPTIONS.ENABLE_ANALYTICS %}
 <!-- Begin code for the analytics side -->
 <script src="//code.highcharts.com/highcharts.js"></script>
 <script src="//code.highcharts.com/modules/exporting.js"></script>
@@ -76,7 +79,7 @@ jQuery(document).ready(function() {
          }
     });
     // get results of the analytic
-    var getResults = function(results_url, algorithm) {
+    var getResults = function(results_url, algorithm, analyticId, analyticTaskStart) {
       $.ajax({
           type: "GET",
           dataType: 'json',
@@ -140,6 +143,20 @@ jQuery(document).ready(function() {
 
             // Create the chart
             var chart = new Highcharts.Chart(options);
+
+            // We hide the estimated time and the progress bar
+            etaId = '#' + algorithm +"-eta";
+            progressBarId = '#progress-bar-' + algorithm;
+            $(etaId).html("");
+            $(progressBarId).css({
+              "display": "none"
+            });
+
+            if(analyticId != "") {
+              // We need to multiply 1000 times because JavaScript uses millseconds
+              analyticDate = new Date(analyticTaskStart * 1000);
+              $('#last-analytics-' + algorithm).prepend("<option value=" + analyticId + " selected>" + analyticDate.toISOString() + "</option>");
+            }
           },
           error: function () {
               alert("Error");
@@ -148,7 +165,7 @@ jQuery(document).ready(function() {
     }
 
     // pole state of the current task
-    var getTaskState = function(task_id, algorithm) {
+    var getTaskState = function(task_id, algorithm, progressBarId) {
       $.ajax({
         type: "GET",
         url: "{% url 'analytics_status' graph.slug %}",
@@ -156,13 +173,16 @@ jQuery(document).ready(function() {
       }).done(function(task){
         if(!task) {
             window.setTimeout(function() {
-              getTaskState(task_id, algorithm);
+              getTaskState(task_id, algorithm, progressBarId);
             }, 1000);
             taskTime = taskTime + 7;
-            $('#progress-bar').attr('value', taskTime);
+            $(progressBarId).attr('value', taskTime);
         } else {
-          getResults(task, algorithm);
-          $('#progress-bar').attr('value', 100);
+          resultsUrl = task[0];
+          analyticId = task[1];
+          analyticTaskStart = task[2];
+          getResults(resultsUrl, algorithm, analyticId, analyticTaskStart);
+          $(progressBarId).attr('value', 100);
           taskTime = 0;
         }
         // create the infinite loop of Ajax calls to check the state
@@ -175,8 +195,10 @@ jQuery(document).ready(function() {
         var measure = $this.data('measure');
         var plotId = $this.data('plot');
         var etaId = $this.data('eta');
+        var progressBarId = "#progress-bar-" + measure;
 
         analyticsId[measure] = plotId;
+        $('#' + etaId).html("Estimating time");
 
         jQuery.ajax({
             type: "POST",
@@ -186,9 +208,9 @@ jQuery(document).ready(function() {
             var algorithm = data[0];
             var eta_time = data[1];
             if(eta_time < 10) {
-              $('#progress-bar').attr('max', 100);
+              $(progressBarId).attr('max', 100);
             } else {
-              $('#progress-bar').attr('max', 300);
+              $(progressBarId).attr('max', 300);
             }
             $('#' + etaId).html("Estimated time " + eta_time);
         });
@@ -199,24 +221,32 @@ jQuery(document).ready(function() {
         }).done(function(data){
             var task_id = data[0];
             var algorithm = data[1];
-            getTaskState(task_id, algorithm);
-            $('#progress-bar').css({
-              'visibility': 'visible'
+            getTaskState(task_id, algorithm, progressBarId);
+            $(progressBarId).css({
+              'display': 'inline-block'
             });
         });
     });
 
     $('.analytics-measure').accordion({
       collapsible: true,
+      create: function(event, ui) {
+        var box = $(event.target);
+        var children = box.children();
+        var header =  children.first();
+        var body = $(children[1]);
+        var span = header.children().first();
+
+        // The next lines remove jQueryUI style from the boxes.
+        box.removeClass('ui-widget ui-accordion');
+        header.removeClass('ui-accordion-icons ' +
+          'ui-accordion-header ui-helper-reset ui-state-default');
+        body.removeClass('ui-accordion-content ui-widget-content');
+        body.css('height', '');
+        span.remove();
+      },
       active: false,
       heightStyle: 'content'
-    });
-
-    $('#progress-bar').css({
-      'margin-top': '10px',
-      'margin-left': '10px',
-      'width': '90%',
-      'visibility': 'hidden'
     });
 
     $(document).on('change', '.last-analytics', function() {
@@ -230,11 +260,19 @@ jQuery(document).ready(function() {
       }).done(function(result){
         var resultsUrl = result[0];
         var algorithm = result[1];
+
+        // We check if we have defined the id for render highcharts
+        if(!analyticsId[algorithm]) {
+          analyticsId[algorithm] = algorithm + "-results";
+        }
+
         console.log(resultsUrl);
         console.log(algorithm);
-        getResults(resultsUrl, algorithm);
+        getResults(resultsUrl, algorithm, "", "");
       });
     });
+
+    $('#analytics-algorithms').sortable();
 });
 </script>
 <!-- End code for the analytics side -->

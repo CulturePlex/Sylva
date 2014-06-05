@@ -4,8 +4,6 @@ try:
 except ImportError:
     import json  # NOQA
 
-from ast import literal_eval
-
 from django.db import transaction
 from django.core.files import File
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
@@ -673,9 +671,8 @@ def nodes_delete(request, graph_slug, node_id):
         as_modal = bool(data.get("asModal", False))
         form = ItemDeleteConfirmForm(data=data)
         if form.is_valid():
-            confirm = form.cleaned_data["confirm"]
-            # TODO: Take a look to the next line, because confirm is u'0'
-            confirm = bool(literal_eval(confirm))
+            # We need to do a int() because without that the value is a string
+            confirm = int(form.cleaned_data["confirm"])
             if confirm:
                 if as_modal:
                     # Saving the id of the relationships before deleting the node

@@ -1748,10 +1748,20 @@ div[id^='collorpicker_'] {
     float: right;
     border-left: 1px solid #348E82;
     overflow: hidden;
+    overflow-y: auto;
 }
 
 #analytics-menu {
     display: block;
+}
+
+.analytics-measure {
+    cursor: pointer;
+    margin-left: 10px !important;
+}
+
+.analytics-measure h2 {
+    font-size: 15px;
 }
 
 #play-button {
@@ -1773,6 +1783,13 @@ div[id^='collorpicker_'] {
     margin-top: 10px;
     margin-bottom: 10px;
     font-size: 11px;
+}
+
+.progress-bar {
+    margin-top: 10px;
+    margin-left: 10px;
+    width: 90%;
+    display: none;
 }
 
 div.relationships-box {
