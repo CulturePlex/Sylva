@@ -144,6 +144,14 @@ jQuery(document).ready(function() {
             // Create the chart
             var chart = new Highcharts.Chart(options);
 
+            // We hide the estimated time and the progress bar
+            etaId = '#' + algorithm +"-eta";
+            progressBarId = '#progress-bar-' + algorithm;
+            $(etaId).html("");
+            $(progressBarId).css({
+              "display": "none"
+            });
+
             if(analyticId != "") {
               // We need to multiply 1000 times because JavaScript uses millseconds
               analyticDate = new Date(analyticTaskStart * 1000);
@@ -190,6 +198,7 @@ jQuery(document).ready(function() {
         var progressBarId = "#progress-bar-" + measure;
 
         analyticsId[measure] = plotId;
+        $('#' + etaId).html("Estimating time");
 
         jQuery.ajax({
             type: "POST",
@@ -214,7 +223,7 @@ jQuery(document).ready(function() {
             var algorithm = data[1];
             getTaskState(task_id, algorithm, progressBarId);
             $(progressBarId).css({
-              'visibility': 'visible'
+              'display': 'inline-block'
             });
         });
     });

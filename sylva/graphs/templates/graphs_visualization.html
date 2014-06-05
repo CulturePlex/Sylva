@@ -117,6 +117,7 @@
         <div id="analytics-menu">
           <div id="play-button">
             <a id="play-algorithm" class="play-algorithm button icon-play" data-measure='{{ key }}' data-plot="{{ key }}-results" data-eta="{{ key }}-eta" title="Play algorithm"></a>
+            <h2 id="{{ key }}-eta"></h2>
             <!--<label class="label-analytics"><input type='checkbox' />{% trans "Feedback results back to the nodes" %}</label>-->
             <progress id="progress-bar-{{ key }}" class="progress-bar"></progress>
             {% if graph|list_analytics:key %}
@@ -126,7 +127,6 @@
               {% endfor %}
             </select>
             {% endif %}
-            <h2 id="{{ key }}-eta"></h2>
             <div id="{{ key }}-results" class="ui-resizable"></div>
           </div>
         </div>

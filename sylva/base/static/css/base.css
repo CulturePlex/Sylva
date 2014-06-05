@@ -1755,6 +1755,15 @@ div[id^='collorpicker_'] {
     display: block;
 }
 
+.analytics-measure {
+    cursor: pointer;
+    margin-left: 10px !important;
+}
+
+.analytics-measure h2 {
+    font-size: 15px;
+}
+
 #play-button {
     display: block;
 }
@@ -1779,8 +1788,8 @@ div[id^='collorpicker_'] {
 .progress-bar {
     margin-top: 10px;
     margin-left: 10px;
-    width': 90%;
-    visibility: hidden;
+    width: 90%;
+    display: none;
 }
 
 div.relationships-box {
