@@ -331,14 +331,14 @@ class GraphDatabase(BlueprintsGraphDatabase):
         return q_lookup_builder
 
     def query(self, query_dict, limit=None, offset=None, order_by=None):
-        script = self._query_generator(query_dict)
+        script, query_params = self._query_generator(query_dict)
         cypher = self.cypher
         page = 1000
         skip = offset or 0
         limit = limit or page
         try:
             paged_script = "%s skip %s limit %s" % (script, skip, limit)
-            result = cypher(query=paged_script)
+            result = cypher(query=paged_script, params=query_params)
         except:
             result = None
         while result and "data" in result and len(result["data"]) > 0:
@@ -357,13 +357,14 @@ class GraphDatabase(BlueprintsGraphDatabase):
                 try:
                     paged_script = "%s skip %s limit %s" % (script, skip,
                                                             limit)
-                    result = cypher(query=paged_script)
+                    result = cypher(query=paged_script, params=query_params)
                 except:
                     result = None
             else:
                 break
 
     def _query_generator(self, query_dict):
+        query_params = dict()
         conditions_list = []
         conditions_indexes = enumerate(query_dict["conditions"])
         conditions_length = len(query_dict["conditions"]) - 1
@@ -380,22 +381,34 @@ class GraphDatabase(BlueprintsGraphDatabase):
                                        match=match[1],
                                        var=property_tuple[1],
                                        datatype=datatype)
-                conditions_list.append(str(gte))
-                conditions_list.append(str(lte))
+                conditions_list.append(
+                    str(gte.get_query_objects(params=query_params)[0]))
+                query_params.update(
+                    gte.get_query_objects(params=query_params)[1])
+                conditions_list.append(
+                    str(lte.get_query_objects(params=query_params)[0]))
+                query_params.update(
+                    lte.get_query_objects(params=query_params)[1])
             elif lookup == 'idoesnotcontain':
                 condition = ~q_lookup_builder(property=property_tuple[2],
                                               lookup="icontains",
                                               match=match,
                                               var=property_tuple[1],
                                               datatype=datatype)
-                conditions_list.append(str(condition))
+                conditions_list.append(
+                    str(condition.get_query_objects(params=query_params)[0]))
+                query_params.update(
+                    condition.get_query_objects(params=query_params)[1])
             else:
                 condition = q_lookup_builder(property=property_tuple[2],
                                              lookup=lookup,
                                              match=match,
                                              var=property_tuple[1],
                                              datatype=datatype)
-                conditions_list.append(str(condition))
+                conditions_list.append(
+                    str(condition.get_query_objects(params=query_params)[0]))
+                query_params.update(
+                    condition.get_query_objects(params=query_params)[1])
             if connector != 'not':
                 # We have to get the next element to keep the concordance
                 elem = conditions_indexes.next()
@@ -485,7 +498,7 @@ class GraphDatabase(BlueprintsGraphDatabase):
         q = u"START {0} {1}{2}RETURN DISTINCT {3}".format(origins, match,
                                                           where, results)
         print q
-        return q
+        return q, query_params
 
     def destroy(self):
         """Delete nodes, relationships, and even indices"""

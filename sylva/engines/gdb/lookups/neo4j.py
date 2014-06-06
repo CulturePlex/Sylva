@@ -29,34 +29,34 @@ class Q(BaseQ):
     def _get_lookup_and_match(self):
         if self.lookup == "exact":
             lookup = u"="
-            match = u"'{0}'".format(self.match)
+            match = u"{0}".format(self.match)
         elif self.lookup == "iexact":
             lookup = u"=~"
-            match = u"'(?i){0}'".format(self.match)
+            match = u"(?i){0}".format(self.match)
         elif self.lookup == "contains":
             lookup = u"=~"
-            match = u"'.*{0}.*'".format(self.match)
+            match = u".*{0}.*".format(self.match)
         elif self.lookup == "icontains":
             lookup = u"=~"
-            match = u"'(?i).*{0}.*'".format(self.match)
+            match = u"(?i).*{0}.*".format(self.match)
         elif self.lookup == "startswith":
             lookup = u"=~"
-            match = u"'{0}.*'".format(self.match)
+            match = u"{0}.*".format(self.match)
         elif self.lookup == "istartswith":
             lookup = u"=~"
-            match = u"'(?i){0}.*'".format(self.match)
+            match = u"(?i){0}.*".format(self.match)
         elif self.lookup == "endswith":
             lookup = u"=~"
-            match = u"'.*{0}'".format(self.match)
+            match = u".*{0}".format(self.match)
         elif self.lookup == "iendswith":
             lookup = u"=~"
-            match = u"'(?i).*{0}'".format(self.match)
+            match = u"(?i).*{0}".format(self.match)
         elif self.lookup == "regex":
             lookup = u"=~"
             match = u"{0}".format(self.match)
         elif self.lookup == "iregex":
             lookup = u"=~"
-            match = u"'(?i){0}'".format(self.match)
+            match = u"(?i){0}".format(self.match)
         elif self.lookup == "gt":
             lookup = u">"
             if self.datatype == 'date':
@@ -83,7 +83,7 @@ class Q(BaseQ):
                 match = u"{0}".format(self.match)
         elif self.lookup in ["in", "inrange"]:
             lookup = u"IN"
-            match = u"['{0}']".format(u"', '".join([self._escape(m)
+            match = u"[{0}]".format(u"', '".join([self._escape(m)
                                       for m in self.match]))
         elif self.lookup == "isnull":
             if self.match:
@@ -93,10 +93,10 @@ class Q(BaseQ):
             match = u"null"
         elif self.lookup in ["eq", "equals"]:
             lookup = u"="
-            match = u"'{0}'".format(self._escape(self.match))
+            match = u"{0}".format(self._escape(self.match))
         elif self.lookup in ["neq", "notequals"]:
             lookup = u"<>"
-            match = u"'{0}'".format(self._escape(self.match))
+            match = u"{0}".format(self._escape(self.match))
         else:
             lookup = self.lookup
             match = u""
