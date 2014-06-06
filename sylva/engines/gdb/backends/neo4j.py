@@ -381,34 +381,40 @@ class GraphDatabase(BlueprintsGraphDatabase):
                                        match=match[1],
                                        var=property_tuple[1],
                                        datatype=datatype)
-                conditions_list.append(
-                    str(gte.get_query_objects(params=query_params)[0]))
-                query_params.update(
-                    gte.get_query_objects(params=query_params)[1])
-                conditions_list.append(
-                    str(lte.get_query_objects(params=query_params)[0]))
-                query_params.update(
-                    lte.get_query_objects(params=query_params)[1])
+                gte_query_objects = gte.get_query_objects(params=query_params)
+                lte_query_objects = lte.get_query_objects(params=query_params)
+                gte_condition = gte_query_objects[0]
+                gte_params = gte_query_objects[1]
+                lte_condition = lte_query_objects[0]
+                lte_params = lte_query_objects[1]
+                conditions_list.append(unicode(gte_condition))
+                query_params.update(gte_params)
+                conditions_list.append(unicode(lte_condition))
+                query_params.update(lte_params)
             elif lookup == 'idoesnotcontain':
-                condition = ~q_lookup_builder(property=property_tuple[2],
+                q_element = ~q_lookup_builder(property=property_tuple[2],
                                               lookup="icontains",
                                               match=match,
                                               var=property_tuple[1],
                                               datatype=datatype)
-                conditions_list.append(
-                    str(condition.get_query_objects(params=query_params)[0]))
-                query_params.update(
-                    condition.get_query_objects(params=query_params)[1])
+                query_objects = q_element.get_query_objects(
+                    params=query_params)
+                condition = query_objects[0]
+                params = query_objects[1]
+                conditions_list.append(unicode(condition))
+                query_params.update(params)
             else:
-                condition = q_lookup_builder(property=property_tuple[2],
+                q_element = q_lookup_builder(property=property_tuple[2],
                                              lookup=lookup,
                                              match=match,
                                              var=property_tuple[1],
                                              datatype=datatype)
-                conditions_list.append(
-                    str(condition.get_query_objects(params=query_params)[0]))
-                query_params.update(
-                    condition.get_query_objects(params=query_params)[1])
+                query_objects = q_element.get_query_objects(
+                    params=query_params)
+                condition = query_objects[0]
+                params = query_objects[1]
+                conditions_list.append(unicode(condition))
+                query_params.update(params)
             if connector != 'not':
                 # We have to get the next element to keep the concordance
                 elem = conditions_indexes.next()
