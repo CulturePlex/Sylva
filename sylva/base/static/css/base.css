@@ -1601,6 +1601,11 @@ table.content-table {
     margin-right: 50px;
 }
 
+.graph-layout-option label.label-node-degree-order {
+    margin-left: 15px;
+    margin-right: 5px;
+}
+
 .graph-layout-option label.label-node-size {
     margin-right: 58px;
 }
@@ -1669,6 +1674,7 @@ table.content-table {
 
 .sigma-control a.button {
     margin-top: 3px;
+    margin-bottom: 10px;
 }
 
 #sigma-export-image {
@@ -1767,12 +1773,42 @@ div[id^='collorpicker_'] {
     z-index: 100;
 }
 
-#analytics {
+#full-window-column {
     background-color: #EEE;
     float: right;
     border-left: 1px solid #348E82;
     overflow: hidden;
     overflow-y: auto;
+}
+
+.selection-tools {
+    border-bottom: 1px solid #348E82;
+    padding-bottom: 10px;
+    text-align: center;
+}
+
+.selection-tools-wrapper {
+    margin-left: -8px;
+    display: inline-block;
+}
+
+.selection-tools h2 {
+    text-align: left;
+    padding-left: 10px;
+    padding-top: 10px;
+}
+
+.selection-tools .sigma-control {
+    margin-left: 8px;
+}
+
+#last-queries-label {
+    font-size: 115%
+}
+
+#last-queries-select {
+    width: auto;
+    display: inline-block;
 }
 
 #analytics-menu {

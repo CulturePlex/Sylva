@@ -59,6 +59,11 @@ sigma:true, clearTimeout */
   var sizeMultiplier = defaultMultiplier;
   // For some animations we need the same time that the 'fast' jQuery, 200ms.
   var fast = 200;
+  /* It saves the change of the 'graph controls and info' box, because there
+   * are some problems in the browsers for mantatin the same after the
+   * 'window.resize' event.
+   */
+  var graphControlsAndInfoWidth = 0;
   // The width and border of the analytics sidebar in analytics mode.
   var analyticsSidebarWidth = 0;
   var analyticsSidebarBorder = 0;
@@ -405,6 +410,9 @@ sigma:true, clearTimeout */
       );
 
       $('#edit-node-modal-link').on('click', that.prepareEditNodeModal);
+
+      // It's the moment for update the width of the parent box.
+      graphControlsAndInfoWidth = $('#graph-controls-and-info').width();
     },
 
     // Clean node legend frame.
@@ -998,14 +1006,14 @@ sigma:true, clearTimeout */
       $('#sigma-wrapper').width(width - analyticsSidebarWidth);
       $('#sigma-wrapper').height(height - headerHeight);
 
-      $('#analytics').width(analyticsSidebarWidth - analyticsSidebarBorder);
-      $('#analytics').height(height - headerHeight);
+      $('#full-window-column').width(analyticsSidebarWidth - analyticsSidebarBorder);
+      $('#full-window-column').height(height - headerHeight);
 
-      $('#analytics').resizable('option', 'minWidth', width * 0.15);
-      $('#analytics').resizable('option', 'maxWidth', width * 0.33);
+      $('#full-window-column').resizable('option', 'minWidth', width * 0.15);
+      $('#full-window-column').resizable('option', 'maxWidth', width * 0.33);
 
       $('#graph-controls-and-info').css({
-        left: width - analyticsSidebarWidth - $('#graph-controls-and-info').width() - 20
+        left: width - analyticsSidebarWidth - graphControlsAndInfoWidth - 20
       });
 
       var renderer = sigInst.renderers[0];
@@ -1122,6 +1130,8 @@ sigma:true, clearTimeout */
         height: 'auto',
         padding: '10px',
       });
+      // Now it's the moment for save this box width.
+      graphControlsAndInfoWidth = $('#graph-controls-and-info').width();
 
       $('#graph-layout').css({
         position: 'absolute',
@@ -1235,7 +1245,7 @@ sigma:true, clearTimeout */
       $('#id_analytics').val('true');
       $('#searchBox').attr('onsubmit', 'return sylva.Sigma.search()');
 
-      analyticsSidebarBorder = parseInt($('#analytics').css(
+      analyticsSidebarBorder = parseInt($('#full-window-column').css(
         'border-left-width'), 10);
 
       $('#sigma-go-analytics').hide();
@@ -1259,11 +1269,11 @@ sigma:true, clearTimeout */
 
       // Makes the analytics column resizable.
       try {
-        if ($('#analytics').resizable('option', 'disabled')) {
-          $('#analytics').resizable('enable');
+        if ($('#full-window-column').resizable('option', 'disabled')) {
+          $('#full-window-column').resizable('enable');
         }
       } catch (e) {
-        $('#analytics').resizable({
+        $('#full-window-column').resizable({
           ghost: true,
           handles: 'w',
           minWidth: '250',
@@ -1415,7 +1425,7 @@ sigma:true, clearTimeout */
         maxNodeSize: maxNodeSize * sizeMultiplier
       });
 
-      $('#analytics').resizable('disable');
+      $('#full-window-column').resizable('disable');
 
       for (var i = 0; i < sylva.collapsibles.length; i++) {
         var name = sylva.collapsibles[i];

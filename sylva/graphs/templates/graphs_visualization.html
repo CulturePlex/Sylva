@@ -14,20 +14,6 @@
   </div>
   <div id="graph-controls-and-info">
     <div id="graph-controls">
-
-              <div class="sigma-control analytics-mode" style="display: none; float: left; margin-right: 10px">
-                <a id="sigma-filter-rectangle" class="button" style="font-size: 100%;" title="{% trans "Rect" %}">{% trans "Rect" %}</a>
-              </div>
-              <div class="sigma-control analytics-mode" style="display: none; float: left; margin-right: 10px; margin-left: 2px">
-                <a id="sigma-filter-free-hand" class="button" style="font-size: 100%;" title="{% trans "Free hand" %}">{% trans "F. hand" %}</a>
-              </div>
-              <div class="sigma-control analytics-mode" style="display: none; float: left; margin-right: 10px; margin-left: 2px">
-                <a id="sigma-filter-neighbors" class="button" style="font-size: 100%;" title="{% trans "Neighbors" %}">{% trans "Neighbors" %}</a>
-              </div>
-              <div class="sigma-control analytics-mode" style="display: none; float: left; margin-right: 10px; margin-left: 2px">
-                <a id="sigma-filter-click" class="button" style="font-size: 100%;" title="{% trans "Click" %}">{% trans "Click" %}</a>
-              </div>
-
       <div class="sigma-control right" style="display: none;">
         <a id="sigma-zoom-in" class="button icon-plus control-button zoom-left" title="{% trans "Zoom in" %}"></a>
         <a id="sigma-zoom-home" class="button icon-home control-button zoom-home" title="{% trans "Re-center graph" %}"></a>
@@ -67,7 +53,14 @@
         </div>
       </div>
       <div class="graph-layout-option" style="display: none;">
-        <label class="label-node-order" style="margin-right: 50px; font-weight: normal;">{% trans "Node order:" %}</label>
+        <label class="label-node-order" style="font-weight: normal;">{% trans "Node order:" %}</label>
+        <select id="sigma-graph-layout-degree-order">
+          <option id="nt" disabled="disabled" selected="selected">{% trans "Node type" %}</option>
+          <option id="td">{% trans "Total degree" %}</option>
+          <option id="id">{% trans "In degree" %}</option>
+          <option id="od">{% trans "Out degree" %}</option>
+        </select>
+        <label class="label-node-degree-order" style="font-weight: normal;">{% trans "Node order:" %}</label>
         <select id="sigma-graph-layout-degree-order">
           <option id="nt" disabled="disabled" selected="selected">{% trans "Node type" %}</option>
           <option id="td">{% trans "Total degree" %}</option>
@@ -107,7 +100,34 @@
     <canvas id="graph-support">{% trans "Your browser does not support graph visualization" %}</canvas>
   </div>
 </div>
-<div id="analytics" class="analytics-mode" style="display: none;">
+<div id="full-window-column" class="analytics-mode" style="display: none;">
+  <div class="selection-tools">
+    <h2>{% trans "Selection tools" %}</h2>
+    <div class="selection-tools-wrapper">
+      <div class="sigma-control">
+        <a id="sigma-filter-rectangle" class="button" style="font-size: 100%;" title="{% trans "Rectangle" %}">{% trans "Rect" %}</a>
+      </div>
+      <div class="sigma-control">
+        <a id="sigma-filter-free-hand" class="button" style="font-size: 100%;" title="{% trans "Free hand" %}">{% trans "F. hand" %}</a>
+      </div>
+      <div class="sigma-control">
+        <a id="sigma-filter-neighbors" class="button" style="font-size: 100%;" title="{% trans "Neighbor nodes" %}">{% trans "Neighbors" %}</a>
+      </div>
+      <div class="sigma-control ">
+        <a id="sigma-filter-click" class="button" style="font-size: 100%;" title="{% trans "Click nodes" %}">{% trans "Click" %}</a>
+      </div>
+    </div>
+    <div class="sigma-control selection-tools-wrapper">
+      <label id="last-queries-label" style="font-weight: normal;">{% trans "From queries:" %}</label>
+      <select id="last-queries-select">
+        <option disabled="disabled" selected="selected">{% trans "None" %}</option>
+        <option>{% trans "Option 1" %}</option>
+        <option>{% trans "Option 2" %}</option>
+        <option>{% trans "Option 3" %}</option>
+        <option>{% trans "Option 4 with a long name" %}</option>
+      </select>
+    </div>
+  </div>
   {% if options.ENABLE_ANALYTICS %}
   <h2 style="margin-top: 5px; margin-left: 10px;">{% trans "Analytics" %}</h2>
   <div id="analytics-algorithms">
