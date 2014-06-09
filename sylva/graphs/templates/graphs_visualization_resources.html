@@ -1,4 +1,5 @@
 {% load converter_filters compress %}
+
 {% compress js %}
 <script type="text/javascript">
   sylva.nodeViewURL = "{% url "nodes_view" graph.slug 0 %}";
