@@ -21,6 +21,6 @@ def list_analytics(graph, algorithm):
 @register.filter
 def get_iso_format(analytic):
     result = "unavailable"
-    if analytic is not None:
+    if analytic.task_start is not None:
         result = analytic.task_start.isoformat()
     return result

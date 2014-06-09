@@ -121,10 +121,15 @@
             <!--<label class="label-analytics"><input type='checkbox' />{% trans "Feedback results back to the nodes" %}</label>-->
             <progress id="progress-bar-{{ key }}" class="progress-bar"></progress>
             {% if graph|list_analytics:key %}
+            <!-- This select is for the regular behaviour when we have analytics stored -->
             <select id="last-analytics-{{ key }}" class="last-analytics">
               {% for analytic in graph|list_analytics:key %}
                   <option value="{{ analytic.id }}">{{ analytic|get_iso_format }}</option>
               {% endfor %}
+            </select>
+            {% else %}
+            <!-- This select if for the first case, when we dont have analytics stored and we need to append the algorithm executed -->
+            <select id="last-analytics-{{ key }}" class="last-analytics" style="display: none">
             </select>
             {% endif %}
             <div id="{{ key }}-results" class="ui-resizable"></div>

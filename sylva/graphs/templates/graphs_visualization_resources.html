@@ -155,7 +155,11 @@ jQuery(document).ready(function() {
             if(analyticId != "") {
               // We need to multiply 1000 times because JavaScript uses millseconds
               analyticDate = new Date(analyticTaskStart * 1000);
-              $('#last-analytics-' + algorithm).prepend("<option value=" + analyticId + " selected>" + analyticDate.toISOString() + "</option>");
+              selectAnalyticsId = '#last-analytics-' + algorithm;
+              $(selectAnalyticsId).prepend("<option value=" + analyticId + " selected>" + analyticDate.toISOString() + "</option>");
+              $(selectAnalyticsId).css({
+                'display': 'inline-block'
+              })
             }
           },
           error: function () {
