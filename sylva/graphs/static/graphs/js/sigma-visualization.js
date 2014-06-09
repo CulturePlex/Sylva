@@ -257,6 +257,10 @@ sigma:true, clearTimeout */
         that.enableDisableSelectingTool('click');
       });
 
+      $('#sigma-move-selected').on('click', function() {
+        that.enableDisableSelectingTool('move');
+      });
+
       sigInst.startForceAtlas2();
       isDrawing = true;
 
@@ -525,6 +529,16 @@ sigma:true, clearTimeout */
       currentNodeY = sigma.utils.getY(event) - dom.offsetHeight / 2;
 
       if (size > 1) {
+        // Checking if we need to move the only the selected nodes.
+        var moveSelected = false;
+        if (selectedSelectingTool == 'move') {
+          var index = sylva.selectedNodes.indexOf(nodeOvered.id);
+          if (index >= 0) {
+            moveSelected = true;
+          }
+        }
+
+        // Obtaining the parameters for the calculations.
         var offset = $('.sigma-mouse').offset()
         var x = event.pageX - offset.left;
         var y = event.pageY - offset.top;
@@ -548,9 +562,26 @@ sigma:true, clearTimeout */
         y = ((y - ref[0].renY) / (ref[1].renY - ref[0].renY)) *
           (ref[1].y - ref[0].y) + ref[0].y;
 
+        // Saving it for the move selected nodes feature.
+        var oldX = nodeOvered.x;
+        var oldY = nodeOvered.y;
+
         // Rotating the coordinates.
         nodeOvered.x = x * cos - y * sin;
         nodeOvered.y = y * cos + x * sin;
+
+        // Moving the selected nodes.
+        if (moveSelected) {
+          x = oldX - nodeOvered.x;
+          y = oldY - nodeOvered.y;
+
+          sigInst.graph.nodes(sylva.selectedNodes).forEach(function(n) {
+            if (n.id != nodeOvered.id) {
+              n.x = n.x - x * cos - y * sin;
+              n.y = n.y - y * cos + x * sin;
+            }
+          });
+        }
 
         sigInst.refresh();
       }
@@ -559,7 +590,9 @@ sigma:true, clearTimeout */
     stageMouseDown: function(event) {
       $('#main').css('user-select', 'none');
 
-      if (selectedSelectingTool != 'click' && selectedSelectingTool != 'neighbors') {
+      if (selectedSelectingTool != 'click' &&
+          selectedSelectingTool != 'neighbors' &&
+          selectedSelectingTool != 'move') {
         $('.sigma-mouse').off('mousedown', that.stageMouseDown);
         $('.sigma-mouse').on('mousemove', that.stageMouseMove);
         $('.sigma-mouse').on('mouseup', that.stageMouseUp);
@@ -2162,7 +2195,8 @@ sigma:true, clearTimeout */
         'rectangle': 'sigma-filter-rectangle',
         'freeHand': 'sigma-filter-free-hand',
         'neighbors': 'sigma-filter-neighbors',
-        'click': 'sigma-filter-click'
+        'click': 'sigma-filter-click',
+        'move': 'sigma-move-selected'
       };
 
       if (selectedSelectingTool == '') {
@@ -2170,7 +2204,7 @@ sigma:true, clearTimeout */
         selectedSelectingTool = type;
         $('#' + selectingToolDict[type]).addClass('active');
 
-        if (type != 'click' && type != 'neighbors') {
+        if (type != 'click' && type != 'neighbors' && type != 'move') {
           that.activateSelectingAreaTool(type);
         }
 
@@ -2179,13 +2213,15 @@ sigma:true, clearTimeout */
         selectedSelectingTool = '';
         $('#' + selectingToolDict[type]).removeClass('active');
 
-        if (type != 'click' && type != 'neighbors') {
+        if (type != 'click' && type != 'neighbors' && type != 'move') {
           that.deactivateSelectingAreaTool(type);
         }
 
       } else {
         // Deactivate a tool and activate another.
-        if(selectedSelectingTool != 'click' && selectedSelectingTool != 'neighbors') {
+        if(selectedSelectingTool != 'click' &&
+            selectedSelectingTool != 'neighbors' &&
+            selectedSelectingTool != 'move') {
           that.deactivateSelectingAreaTool(type);
         }
 
@@ -2193,7 +2229,7 @@ sigma:true, clearTimeout */
         selectedSelectingTool = type;
         $('#' + selectingToolDict[type]).addClass('active');
 
-        if (type != 'click' && type != 'neighbors') {
+        if (type != 'click' && type != 'neighbors' && type != 'move') {
           that.activateSelectingAreaTool(type);
         }
       }
