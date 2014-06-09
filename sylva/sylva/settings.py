@@ -110,6 +110,7 @@ STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
     # 'django.contrib.staticfiles.finders.DefaultStorageFinder',
+    'compressor.finders.CompressorFinder',
 )
 
 # Make this unique, and don't share it with anybody.
@@ -190,6 +191,7 @@ INSTALLED_APPS = (
     'south',
     'reports',
     'analytics',
+    'compressor',
 )
 
 AUTHENTICATION_BACKENDS = (
@@ -355,3 +357,6 @@ STRIPE_PLANS = {
         'account_type': 3
     }
 }
+
+# django-compressor
+COMPRESS_ENABLED = True  # By default it's the opposite to 'DEBUG'
