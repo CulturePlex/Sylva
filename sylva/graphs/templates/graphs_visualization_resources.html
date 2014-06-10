@@ -38,6 +38,7 @@
 
 <script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/visualizations.js"></script>
 <script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/sigma-visualization.js"></script>
+<script type="text/javascript" src="{{ STATIC_PREFIX }}js/moment.min.js"></script>
 {% endcompress %}
 
 {% compress css %}
@@ -83,6 +84,7 @@ jQuery(document).ready(function() {
              }
          }
     });
+
     // get results of the analytic
     var getResults = function(results_url, algorithm, analyticId, analyticTaskStart) {
       $.ajax({
@@ -161,7 +163,7 @@ jQuery(document).ready(function() {
               // We need to multiply 1000 times because JavaScript uses millseconds
               analyticDate = new Date(analyticTaskStart * 1000);
               selectAnalyticsId = '#last-analytics-' + algorithm;
-              $(selectAnalyticsId).prepend("<option value=" + analyticId + " selected>" + analyticDate.toISOString() + "</option>");
+              $(selectAnalyticsId).prepend("<option value=" + analyticId + " selected>" + moment.duration(10000).humanize() + "</option>");
               $(selectAnalyticsId).css({
                 'display': 'inline-block'
               })
@@ -207,7 +209,7 @@ jQuery(document).ready(function() {
         var progressBarId = "#progress-bar-" + measure;
 
         analyticsId[measure] = plotId;
-        $('#' + etaId).html("Estimating time");
+        $('#' + etaId).html(gettext("Estimating time"));
 
         jQuery.ajax({
             type: "POST",
@@ -221,18 +223,18 @@ jQuery(document).ready(function() {
             } else {
               $(progressBarId).attr('max', 300);
             }
-            $('#' + etaId).html("Estimated time " + eta_time);
-        });
-        jQuery.ajax({
+            $('#' + etaId).html(gettext("Estimated time ") + eta_time.toFixed(2) + gettext(" seconds"));
+            jQuery.ajax({
             type: "POST",
             url: "{% url 'analytics_run' graph.slug %}",
             data: {"algorithm": measure}
-        }).done(function(data){
-            var task_id = data[0];
-            var algorithm = data[1];
-            getTaskState(task_id, algorithm, progressBarId);
-            $(progressBarId).css({
-              'display': 'inline-block'
+            }).done(function(data){
+                var task_id = data[0];
+                var algorithm = data[1];
+                getTaskState(task_id, algorithm, progressBarId);
+                $(progressBarId).css({
+                  'display': 'inline-block'
+                });
             });
         });
     });
