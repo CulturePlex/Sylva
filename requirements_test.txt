@@ -12,7 +12,9 @@ boto==2.8.0
 celery==3.1.11
 coverage==3.7
 coveralls==0.3
+django-appconf==0.6
 django-celery==3.1.10
+django-compressor==1.4
 django-guardian==1.2.0
 django-maintenancemode==0.10
 django-picklefield==0.2.1

@@ -10,6 +10,8 @@ billiard==3.3.0.17
 boto==2.29.1
 celery==3.1.11
 decorator==3.4.0
+django-appconf==0.6
+django-compressor==1.4
 django-guardian==1.2.0
 django-maintenancemode==0.10
 django-picklefield==0.2.1
