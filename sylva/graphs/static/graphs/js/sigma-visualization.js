@@ -2524,9 +2524,9 @@ sigma:true, clearTimeout */
       var widths = scrollContent.children().map(function(){
         return $(this).outerWidth(true);
       });
-      var modalWidth = 0;
+      var formWidth = 0;
       $.each(widths, function() {
-        modalWidth += this;
+        formWidth += this;
       });
 
       // Creating the modal.
@@ -2553,21 +2553,24 @@ sigma:true, clearTimeout */
           that.closeNodeModal(dialog);
         },
         onShow: function(dialog) {
-          var scrollHeigth = dialog.wrap.height() - contentControls.height();
-
           // It's the content who controls the scrollbars.
           dialog.wrap.css({
             overflow: 'hidden'
           });
 
-          scrollContent.css({
-            width: modalWidth
-          });
-
+          /* Calculatin the height of the wrapper of the form for made it
+           * scrollable.
+           */
+          var scrollHeigth = dialog.wrap.height() - contentControls.height();
           scrollWrapper.css({
-            height: scrollHeigth,
+            height: scrollHeigth
           });
 
+          scrollContent.css({
+            width: formWidth
+          });
+
+          // Attaching the events for make scrollbars appear and disappear.
           scrollWrapper.on('mouseover', function() {
             scrollWrapper.css({
               overflow: 'auto'
@@ -2575,7 +2578,7 @@ sigma:true, clearTimeout */
             /* The next lines are for show de horizontal scrollbar only when
              * it's needed.
              */
-            if (windowWidth >= (modalWidth + modalPadding)) {
+            if (windowWidth >= (formWidth + modalPadding)) {
               scrollWrapper.css({
                 overflowX: 'hidden'
               });
@@ -2687,6 +2690,10 @@ sigma:true, clearTimeout */
       });
 
       // Size variables for the modal library.
+      var windowHeight = Math.max(document.documentElement.clientHeight,
+          window.innerHeight || 0);
+      var windowWidth = Math.max(document.documentElement.clientWidth,
+          window.innerWidth || 0);
       var modalPadding = 10;
 
       // Creating the modal.
@@ -2696,6 +2703,8 @@ sigma:true, clearTimeout */
         escClose: false,
 
         // Styles.
+        maxHeight: windowHeight - (modalPadding * 2),
+        maxWidth: windowWidth - (modalPadding * 2),
         containerCss: {
           backgroundColor: '#FFFFFF',
           borderRadius: modalPadding,
