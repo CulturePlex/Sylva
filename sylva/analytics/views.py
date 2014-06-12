@@ -50,17 +50,26 @@ def analytics_estimate(request, graph_slug):
 @permission_required("data.view_data",
                      (Data, "graph__slug", "graph_slug"), return_403=True)
 def analytics_status(request, graph_slug):
-    data = []
-    task_id = request.GET.get('id')
-    if request.is_ajax() and task_id is not None:
-        task = AsyncResult(task_id)
-        if task.ready():
-            analytic = Analytic.objects.filter(
-                dump__graph__slug=graph_slug,
-                task_id=task_id).latest()
-            data = [analytic.results.url, analytic.id, analytic.task_start]
+    analytics_results = dict()
+    analytics_request = request.GET.get('analytics_request')
+    analytics_executing = json.loads(analytics_request)
+    if request.is_ajax() and analytics_executing is not None:
+        for key, value in analytics_executing.iteritems():
+            algorithm = key
+            task_id = value
+            task = AsyncResult(task_id)
+            if task.ready():
+                analytic = Analytic.objects.filter(
+                    dump__graph__slug=graph_slug,
+                    task_id=task_id).latest()
+                analytics_results[algorithm] = [analytic.results.url,
+                    analytic.id, analytic.task_start]
+        if analytics_executing.keys() == analytics_results.keys():
+            data = analytics_results
         else:
             data = False
+    else:
+        data = False
     json_data = json.dumps(data)
     return HttpResponse(json_data, mimetype='application/json')
 

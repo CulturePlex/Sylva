@@ -73,6 +73,9 @@ var analyticsAxis = {
   "kcore": gettext("degeneracy (k-core)")
 };
 
+// Variable to store the analytics that actually are executing
+var analyticsExecuting = {};
+
 var analyticsId = {};
 var taskTime = 0;
 
@@ -177,6 +180,7 @@ jQuery(document).ready(function() {
             $(progressBarId).css({
               "display": "none"
             });
+            $(progressBarId).attr('value', 0);
 
             if(analyticId != "") {
               // We need to multiply 1000 times because JavaScript uses millseconds
@@ -195,25 +199,37 @@ jQuery(document).ready(function() {
     }
 
     // pole state of the current task
-    var getTaskState = function(task_id, algorithm, progressBarId) {
+    var getTaskState = function(analyticsExecuting, progressBarId) {
+      progressBarMax = $(progressBarId).attr('max');
+      analyticsRequest = JSON.stringify(analyticsExecuting);
       $.ajax({
         type: "GET",
         url: "{% url 'analytics_status' graph.slug %}",
-        data: {"id": task_id}
-      }).done(function(task){
-        if(!task) {
+        data: {"analytics_request": analyticsRequest}
+      }).done(function(analyticsResults){
+        if(!analyticsResults) {
+            // We ask for the analytics until all of them are finished
             window.setTimeout(function() {
-              getTaskState(task_id, algorithm, progressBarId);
+              getTaskState(analyticsExecuting, progressBarId);
             }, 1000);
-            taskTime = taskTime + 7;
-            $(progressBarId).attr('value', taskTime);
+            if(taskTime < progressBarMax) {
+              taskTime = taskTime + 7;
+              $(progressBarId).attr('value', taskTime);
+            }
         } else {
-          resultsUrl = task[0];
-          analyticId = task[1];
-          analyticTaskStart = task[2];
-          getResults(resultsUrl, algorithm, analyticId, analyticTaskStart);
-          $(progressBarId).attr('value', 100);
-          taskTime = 0;
+          // Once we have all the analytics finished, we treat them
+          for(key in analyticsResults) {
+            if(analyticsResults.hasOwnProperty(key)) {
+              algorithm = key;
+              resultsUrl = analyticsResults[key][0];
+              analyticId = analyticsResults[key][1];
+              analyticTaskStart = analyticsResults[key][2];
+              getResults(resultsUrl, algorithm, analyticId, analyticTaskStart);
+              $(progressBarId).attr('value', 100);
+              taskTime = 0;
+              delete analyticsExecuting[algorithm]
+            }
+          }
         }
         // create the infinite loop of Ajax calls to check the state
         // of the current task
@@ -250,7 +266,8 @@ jQuery(document).ready(function() {
             }).done(function(data){
                 var task_id = data[0];
                 var algorithm = data[1];
-                getTaskState(task_id, algorithm, progressBarId);
+                analyticsExecuting[algorithm] = task_id;
+                getTaskState(analyticsExecuting, progressBarId);
                 $(progressBarId).css({
                   'display': 'inline-block'
                 });
