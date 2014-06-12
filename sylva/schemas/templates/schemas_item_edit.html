@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load i18n graphs %}
+{% load i18n graphs compress %}
 
 {% block navigation_buttons %}
 {{ block.super }}
@@ -197,54 +197,56 @@
 {% endblock %}
 
 {% block extra_scripts %}
-<script type="text/javascript" src="{{ STATIC_PREFIX }}js/jquery.formsets.1.2.min.js"></script>
-<script type="text/javascript">
-    (function($) {
+    {% compress js %}
+        <script type="text/javascript" src="{{ STATIC_PREFIX }}js/jquery.formsets.1.2.min.js"></script>
+        <script type="text/javascript">
+            (function($) {
 
-        "use strict";
+                "use strict";
 
-        $(function() {
+                $(function() {
 
-            $("#itemType table.itemtype-properties-table tbody.dynamic").append($("#advancedMode"));
+                    $("#itemType table.itemtype-properties-table tbody.dynamic").append($("#advancedMode"));
 
-            var showAdvancedMode = function($elements) {
-                $elements.show();
-                $(".itemtype-properties-table textarea").addClass("expand");
-            };
+                    var showAdvancedMode = function($elements) {
+                        $elements.show();
+                        $(".itemtype-properties-table textarea").addClass("expand");
+                    };
 
-            var hideAdvancedMode = function($elements) {
-                $elements.hide();
-                $(".itemtype-properties-table textarea").removeClass("expand");
-            };
+                    var hideAdvancedMode = function($elements) {
+                        $elements.hide();
+                        $(".itemtype-properties-table textarea").removeClass("expand");
+                    };
 
-            var rowAdded = function(row) {
-                var $hiddens = $(".formset .hidden");
-                if ($hiddens.is(":visible")) {
-                    showAdvancedMode($hiddens);
-                }
-            };
+                    var rowAdded = function(row) {
+                        var $hiddens = $(".formset .hidden");
+                        if ($hiddens.is(":visible")) {
+                            showAdvancedMode($hiddens);
+                        }
+                    };
 
-            $("#itemType tbody tr.formset").formset({
-                prefix: "properties",
-                addCssClass: "addButton",
-                addText: "{% trans "Add Property" %}",
-                deleteText: "{% trans "Remove" %}",
-                extraClasses: ["row1", "row2"],
-                added: rowAdded
-            });
+                    $("#itemType tbody tr.formset").formset({
+                        prefix: "properties",
+                        addCssClass: "addButton",
+                        addText: "{% trans "Add Property" %}",
+                        deleteText: "{% trans "Remove" %}",
+                        extraClasses: ["row1", "row2"],
+                        added: rowAdded
+                    });
 
-            $("#advancedModeButton").click(function() {
-                var $hiddens = $(".formset .hidden");
+                    $("#advancedModeButton").click(function() {
+                        var $hiddens = $(".formset .hidden");
 
-                if ($hiddens.is(":visible")) {
-                    hideAdvancedMode($hiddens);
-                    $(this).html("{% trans "Advanced Mode" %}");
-                } else {
-                    showAdvancedMode($hiddens);
-                    $(this).html("{% trans "Regular Mode" %}");
-                }
-            });
-        });
-    })(jQuery);
-</script>
+                        if ($hiddens.is(":visible")) {
+                            hideAdvancedMode($hiddens);
+                            $(this).html("{% trans "Advanced Mode" %}");
+                        } else {
+                            showAdvancedMode($hiddens);
+                            $(this).html("{% trans "Regular Mode" %}");
+                        }
+                    });
+                });
+            })(jQuery);
+        </script>
+    {% endcompress %}
 {% endblock %}

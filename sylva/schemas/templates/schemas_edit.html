@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load i18n graphs static %}
+{% load i18n graphs static compress %}
 {% get_static_prefix as STATIC_PREFIX %}
 
 {% block navigation_buttons %}
@@ -202,17 +202,21 @@
 {% endblock content %}
 
 {% block extra_links %}
-  <link rel="stylesheet" type="text/css" href="{{ STATIC_PREFIX }}css/schemas.diagram.css" />
+  {% compress css %}
+    <link rel="stylesheet" type="text/css" href="{{ STATIC_PREFIX }}css/schemas.diagram.css" />
+  {% endcompress %}
 {% endblock %}
 {% block extra_scripts %}
-  <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.9.1/jquery-ui.min.js"></script>
-  <script type="text/javascript" src="{{ STATIC_PREFIX }}js/jquery.jsplumb.1.3.16.min.js"></script>
-  <script type="text/javascript" src="{{ STATIC_PREFIX }}js/jquery.scrollto.min.js"></script>
-  <script type="text/javascript" src="{{ STATIC_PREFIX }}js/schemas.diagram.js"></script>
-  <script type="text/javascript">
-    if (!diagram) {
-      var diagram = {};
-    }
-    diagram.Models = {% autoescape off %}{{ graph.schema.get_schema_diagram }}{% endautoescape %};
-  </script>
+  {% compress js %}
+    <script type="text/javascript" src="{{ STATIC_PREFIX }}js/jquery-ui-1.9.1.js"></script>
+    <script type="text/javascript" src="{{ STATIC_PREFIX }}js/jquery.jsplumb.1.3.16.min.js"></script>
+    <script type="text/javascript" src="{{ STATIC_PREFIX }}js/jquery.scrollto.min.js"></script>
+    <script type="text/javascript" src="{{ STATIC_PREFIX }}js/schemas.diagram.js"></script>
+    <script type="text/javascript">
+      if (!diagram) {
+        var diagram = {};
+      }
+      diagram.Models = {% autoescape off %}{{ graph.schema.get_schema_diagram }}{% endautoescape %};
+    </script>
+  {% endcompress %}
 {% endblock %}

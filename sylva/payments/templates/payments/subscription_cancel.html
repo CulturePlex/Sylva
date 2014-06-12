@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load i18n zebra_tags %}
+{% load i18n zebra_tags compress %}
 
 {% block content %}
   <h2>{% trans "You are going to cancel your subscription" %}</h2>
@@ -10,13 +10,15 @@
 {% endblock %}
 
 {% block extra_scripts %}
-  <script>
-    (function($) {
-      $(function() {
-        $('input[type=submit]').on('click', function(e) {
-          $(this).val('{% trans "Unsubscribing..." %}');
+  {% compress js %}
+    <script>
+      (function($) {
+        $(function() {
+          $('input[type=submit]').on('click', function(e) {
+            $(this).val('{% trans "Unsubscribing..." %}');
+          });
         });
-      });
-    }(jQuery));
-  </script>
+      }(jQuery));
+    </script>
+  {% endcompress %}
 {% endblock extra_scripts %}

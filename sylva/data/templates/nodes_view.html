@@ -1,6 +1,5 @@
 {% extends "base.html" %}
-{% load i18n graphs %}
-{% load data_filters %}
+{% load i18n graphs data_filters compress %}
 
 {% block navigation_buttons %}
     {{ block.super }}
@@ -158,32 +157,34 @@
     </ol>
 {% endblock content %}
 {% block extra_scripts %}
-    <script type="text/javascript">
-        (function($) {
-            $(function() {
-                $('#h2-relationships').on('change', function() {
-                    var option = $(this).val();
-                    if (option === 'all') {
-                        $('.all').show();
-                    } else if (option === 'incoming') {
-                        $('.outgoing').hide();
-                        $('.incoming').show();
-                    } else if (option === 'outgoing') {
-                        $('.incoming').hide();
-                        $('.outgoing').show();
-                    } else {
-                        $('.all').hide();
-                        $('#' + option).show();
-                    }
-                });
+    {% compress js %}
+        <script type="text/javascript">
+            (function($) {
+                $(function() {
+                    $('#h2-relationships').on('change', function() {
+                        var option = $(this).val();
+                        if (option === 'all') {
+                            $('.all').show();
+                        } else if (option === 'incoming') {
+                            $('.outgoing').hide();
+                            $('.incoming').show();
+                        } else if (option === 'outgoing') {
+                            $('.incoming').hide();
+                            $('.outgoing').show();
+                        } else {
+                            $('.all').hide();
+                            $('#' + option).show();
+                        }
+                    });
 
-                $('.relationship').on('click', function() {
-                    if ($(this).find('dl').html().trim() !== '') {
-                        $(this).find('.rel-properties').toggle();
-                    }
+                    $('.relationship').on('click', function() {
+                        if ($(this).find('dl').html().trim() !== '') {
+                            $(this).find('.rel-properties').toggle();
+                        }
+                    });
                 });
-            });
-        })(jQuery);
-    </script>
+            })(jQuery);
+        </script>
+    {% endcompress %}
     {% include "graphs_visualization_resources.html" with analytics=True %}
 {% endblock extra_scripts %}

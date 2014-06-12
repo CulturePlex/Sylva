@@ -1,5 +1,5 @@
 {% extends "results_list.html" %}
-{% load i18n graphs %}
+{% load i18n graphs compress %}
 
 {% block content_title %}
   {% breadcrumb graph graph.data %}
@@ -7,57 +7,58 @@
 
 {% block extra_scripts %}
   {{ block.super }}
-
-  <script type="text/javascript">
-    var retrieveRelationships = function(url, elementId){
-      $.ajax({
-        url: url,
-        success: function(data){
-          var label;
-          var relationships = JSON.parse(data);
-          var divs = [];
-          $.each(relationships, function(direction, rels){
-            html = $('<div>');
-            html.addClass('relationships-box');
-            if (rels != false){
-              html.append($('<span>').text(''));
-            }
-            $.each(rels, function(index, item){
-              if (direction == "outgoing") {
-                label = item.label + ' ' + item.node_display;
-              } else {
-                label = item.node_display + ' ' + item.label;
+  {% compress js %}
+    <script type="text/javascript">
+      var retrieveRelationships = function(url, elementId){
+        $.ajax({
+          url: url,
+          success: function(data){
+            var label;
+            var relationships = JSON.parse(data);
+            var divs = [];
+            $.each(relationships, function(direction, rels){
+              html = $('<div>');
+              html.addClass('relationships-box');
+              if (rels != false){
+                html.append($('<span>').text(''));
               }
-              html.append($('<span>')
-                  .append(label))
-                  .append(' <br/> ');
+              $.each(rels, function(index, item){
+                if (direction == "outgoing") {
+                  label = item.label + ' ' + item.node_display;
+                } else {
+                  label = item.node_display + ' ' + item.label;
+                }
+                html.append($('<span>')
+                    .append(label))
+                    .append(' <br/> ');
+              });
+              divs.push(html);
             });
-            divs.push(html);
-          });
-          $('#'+elementId).parent().next()
-            .replaceWith(divs[1])
-            .addClass('is-loaded');
-          $('#'+elementId)
-            .replaceWith(divs[0])
-            .addClass('is-loaded');
-        },
-        error: function(error){
-          console.log("ERROR: ", error);
-        }
-      });
-    };
+            $('#'+elementId).parent().next()
+              .replaceWith(divs[1])
+              .addClass('is-loaded');
+            $('#'+elementId)
+              .replaceWith(divs[0])
+              .addClass('is-loaded');
+          },
+          error: function(error){
+            console.log("ERROR: ", error);
+          }
+        });
+      };
 
-    // Bind events to data toggle controls to start the auto fetching of relationships
-    $('.data-preview-toggle').live('click', function(){
-      $.each($('.retrieve-relationships'), function(index){
-        var element = $(this);
-        // Fetch elements that are not already loaded and are visible
-        if (!element.hasClass('is-loaded') && element.closest('div').css('display') == "block") {
-          element.click();
-        }
+      // Bind events to data toggle controls to start the auto fetching of relationships
+      $('.data-preview-toggle').on('click', function(){
+        $.each($('.retrieve-relationships'), function(index){
+          var element = $(this);
+          // Fetch elements that are not already loaded and are visible
+          if (!element.hasClass('is-loaded') && element.closest('div').css('display') == "block") {
+            element.click();
+          }
+        });
       });
-    });
-  </script>
+    </script>
+  {% endcompress %}
 {% endblock %}
 
 {% block last_row_element %}

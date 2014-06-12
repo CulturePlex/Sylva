@@ -1,4 +1,4 @@
-{% load i18n thumbnail static flatpages %}
+{% load i18n thumbnail static flatpages compress %}
 
 {% get_static_prefix as STATIC_PREFIX %}
 
@@ -17,9 +17,12 @@
     <meta name="keywords" content="graph, database, graph database, system, sylva, sylva project, schema-less, relaxed schema, management, database management system, DBMS">
 
     <link rel="icon" href="{{ STATIC_PREFIX }}img/favicon.ico">
-    <link rel="stylesheet" type="text/css" href="{{ STATIC_PREFIX }}css/font-awesome.css" />
-    <link rel=" stylesheet" type="text/css" href="{{ STATIC_PREFIX }}joyride/joyride-2.0.3.css">
-    <link rel="stylesheet" type="text/css" href="{{ STATIC_PREFIX }}css/base.css" />
+
+    {% compress css %}
+      <link rel="stylesheet" type="text/css" href="{{ STATIC_PREFIX }}css/font-awesome.css" />
+      <link rel=" stylesheet" type="text/css" href="{{ STATIC_PREFIX }}joyride/joyride-2.0.3.css">
+      <link rel="stylesheet" type="text/css" href="{{ STATIC_PREFIX }}css/base.css" />
+    {% endcompress %}
 
     <!--[if lt IE 7]>
     <link rel="stylesheet" type="text/css" href="{{ STATIC_PREFIX }}css/iefixes.css" />
@@ -131,30 +134,35 @@
 
     {% block scripts %}
       <script src="{% url "django.views.i18n.javascript_catalog" %}"></script>
-      <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
-      <script src="{{ STATIC_PREFIX }}js/jquery.cookie.js"></script>
-      <script src="{{ STATIC_PREFIX }}js/spin.1.2.7.js"></script>
-      <script src="{{ STATIC_PREFIX }}joyride/jquery.joyride-2.0.3.js"></script>
-      <script src="{{ STATIC_PREFIX }}js/base.js"></script>
-      <script>
-        // Sylva global namespace.
-        var sylva = {};
-        sylva.MEDIA_URL = "{{ STATIC_PREFIX }}";
-      </script>
+      {% compress js %}
+        <script src="{{ STATIC_PREFIX }}js/jquery.1.8.3.js"></script>
+        <script src="{{ STATIC_PREFIX }}js/jquery.cookie.js"></script>
+        <script src="{{ STATIC_PREFIX }}js/spin.1.2.7.js"></script>
+        <script src="{{ STATIC_PREFIX }}joyride/jquery.joyride-2.0.3.js"></script>
+        <script src="{{ STATIC_PREFIX }}js/base.js"></script>
+        <script>
+          // Sylva global namespace.
+          var sylva = {};
+          sylva.MEDIA_URL = "{{ STATIC_PREFIX }}";
+        </script>
+      {% endcompress %}
 
-      {% block extra_scripts %}{% endblock %}
+      {% block extra_scripts %}
+      {% endblock %}
 
-      <script type="text/javascript">
-        var _gaq = _gaq || [];
-        _gaq.push(['_setAccount', '{{ GOOGLE_ANALYTICS_CODE }}']);
-        _gaq.push(['_setDomainName', 'sylvadb.com']);
-        _gaq.push(['_trackPageview']);
-        (function() {
-          var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-          ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-          var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-        })();
-      </script>
+      {% compress js %}
+        <script type="text/javascript">
+          var _gaq = _gaq || [];
+          _gaq.push(['_setAccount', '{{ GOOGLE_ANALYTICS_CODE }}']);
+          _gaq.push(['_setDomainName', 'sylvadb.com']);
+          _gaq.push(['_trackPageview']);
+          (function() {
+            var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+          })();
+        </script>
+      {% endcompress %}
     {% endblock scripts %}
   </body>
 </html>

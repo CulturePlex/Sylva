@@ -273,11 +273,12 @@ def nodes_create(request, graph_slug, node_type_id):
                                args=[graph.slug, node_type_id])
         return redirect(redirect_url)
     # This is a way to get the media needed by the form without repeat files
-    forms_media = set()
+    forms_media = {'js': set(),
+                   'css': set()}
     for form in [node_form] + outgoing_formsets.values() + \
             incoming_formsets.values():
-        forms_media |= set(form.media.render_js())
-        forms_media |= set([css for css in form.media.render_css()])
+        forms_media['js'] |= set(form.media.render_js())
+        forms_media['css'] |= set([css for css in form.media.render_css()])
     return render_to_response('nodes_editcreate.html',
                               {"graph": graph,
                                "nodetype": nodetype,
@@ -592,12 +593,13 @@ def nodes_edit(request, graph_slug, node_id):
         base_template = 'base.html'
         render = render_to_response
     # This is a way to get the media needed by the form without repeat files
-    forms_media = set()
+    forms_media = {'js': set(),
+                   'css': set()}
     for form in [node_form] + outgoing_formsets.values() + \
             incoming_formsets.values():
-        forms_media |= set(form.media.render_js())
+        forms_media['js'] |= set(form.media.render_js())
         if not as_modal:
-            forms_media |= set([css for css in form.media.render_css()])
+            forms_media['css'] |= set([css for css in form.media.render_css()])
     save_url = reverse("nodes_edit", args=[graph_slug, node_id])
     delete_url = reverse("nodes_delete", args=[graph_slug, node_id])
     broader_context = {"graph": graph,

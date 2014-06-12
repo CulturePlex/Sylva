@@ -1,9 +1,11 @@
 {% extends "base.html" %}
-{% load i18n graphs %}
+{% load i18n graphs compress %}
 
 {% block extra_scripts %}
+  {% compress js %}
     <script type="text/javascript" src="{{ STATIC_PREFIX }}js/flotr2.min.js"></script>
     <script type="text/javascript" src="{{ STATIC_PREFIX }}js/dashboard.stats.js"></script>
+  {% endcompress %}
 {% endblock %}
 
 {% block title %}

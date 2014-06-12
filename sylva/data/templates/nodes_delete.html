@@ -1,8 +1,10 @@
 {% extends base_template %}
-{% load i18n graphs %}
+{% load i18n graphs compress %}
 
 {% block extra_scripts %}
-  <script type="text/javascript" src="{{ STATIC_PREFIX }}js/jquery.formsets.1.2.min.js"></script>
+  {% compress js %}
+    <script type="text/javascript" src="{{ STATIC_PREFIX }}js/jquery.formsets.1.2.min.js"></script>
+  {% endcompress %}
 {% endblock %}
 
 {% if not as_modal %}

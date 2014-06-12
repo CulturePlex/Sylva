@@ -1,12 +1,14 @@
 {% extends "base.html" %}
-{% load i18n graphs %}
+{% load i18n graphs compress %}
 
 {% block title %}
   {{ graph.name }}
 {% endblock %}
 
 {% block extra_links %}
-  <link rel="stylesheet" type="text/css" href="{{ STATIC_PREFIX }}tools/css/tools.css">
+  {% compress css %}
+    <link rel="stylesheet" type="text/css" href="{{ STATIC_PREFIX }}tools/css/tools.css">
+  {% endcompress %}
 {% endblock %}
 
 {% block menu_buttons %}
@@ -60,12 +62,14 @@
 {% endblock %}
 
 {% block extra_scripts %}
-  <script>
-    sylva.sylvaSchema = JSON.parse("{{ sylva_schema|escapejs }}");
-    sylva.nodesCreateURL = "{% url "ajax_nodes_create" graph.slug %}";
-    sylva.edgesCreateURL = "{% url "ajax_relationships_create" graph.slug %}";
-    sylva.IMPORT_MAX_SIZE = {{ IMPORT_MAX_SIZE }};
-  </script>
-  <script src="{{ STATIC_PREFIX }}tools/js/data-importer.js"></script>
-  <script src="{{ STATIC_PREFIX }}tools/js/tools.js"></script>
+  {% compress js %}
+    <script>
+      sylva.sylvaSchema = JSON.parse("{{ sylva_schema|escapejs }}");
+      sylva.nodesCreateURL = "{% url "ajax_nodes_create" graph.slug %}";
+      sylva.edgesCreateURL = "{% url "ajax_relationships_create" graph.slug %}";
+      sylva.IMPORT_MAX_SIZE = {{ IMPORT_MAX_SIZE }};
+    </script>
+    <script src="{{ STATIC_PREFIX }}tools/js/data-importer.js"></script>
+    <script src="{{ STATIC_PREFIX }}tools/js/tools.js"></script>
+  {% endcompress %}
 {% endblock %}

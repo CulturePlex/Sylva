@@ -1,49 +1,53 @@
 {% extends "base.html" %}
-{% load i18n %}
+{% load i18n compress %}
 
 {% block extra_links %}
-  <link rel="stylesheet" type="text/css" href="{{ STATIC_PREFIX }}css/index.css" />
-  <link rel="stylesheet" type="text/css" href="{{ STATIC_PREFIX }}css/carousel.css" />
+  {% compress css %}
+    <link rel="stylesheet" type="text/css" href="{{ STATIC_PREFIX }}css/index.css" />
+    <link rel="stylesheet" type="text/css" href="{{ STATIC_PREFIX }}css/carousel.css" />
+  {% endcompress %}
 {% endblock %}
 
 {% block extra_scripts %}
   {{ block.super }}
-  <script type="text/javascript" src="{{ STATIC_PREFIX }}js/jquery.slides.min.js"></script>
-  <script type="text/javascript" src="{{ STATIC_PREFIX }}js/jquery.easing.min.js"></script>
-  <script>
-    (function($) {
-      var init = function() {
-        // Slideshow
-        $(function() {
-          $('#slides').slides({
-            /* preload: true, Doesn't work with jQuery 1.8.x */
-            preloadImage: '{{ STATIC_PREFIX }}img/loading.gif',
-            play: 5000,
-            pause: 2500,
-            hoverPause: true,
-          });
-        });
-
-        {% if not user_is_signedin and not is_index %}
-          // Login modal window
-          $("#loginFormButton").click(function(e) {
-            $("#loginForm").modal({
-              overlayClose: true,
-              opacity: 60,
-              overlayCss: {backgroundColor: "#f2f2f2"},
-              modal: true,
-              onClose: function(e) {
-                location.href = "{% url "base.views.index" %}";
-              }
+  {% compress js %}
+    <script type="text/javascript" src="{{ STATIC_PREFIX }}js/jquery.slides.min.js"></script>
+    <script type="text/javascript" src="{{ STATIC_PREFIX }}js/jquery.easing.min.js"></script>
+    <script>
+      (function($) {
+        var init = function() {
+          // Slideshow
+          $(function() {
+            $('#slides').slides({
+              /* preload: true, Doesn't work with jQuery 1.8.x */
+              preloadImage: '{{ STATIC_PREFIX }}img/loading.gif',
+              play: 5000,
+              pause: 2500,
+              hoverPause: true,
             });
-            return false;
           });
-          $("#loginFormButton").click();
-        {% endif %}
-      };
-      $(document).ready(init);
-    })(jQuery);
-  </script>
+
+          {% if not user_is_signedin and not is_index %}
+            // Login modal window
+            $("#loginFormButton").click(function(e) {
+              $("#loginForm").modal({
+                overlayClose: true,
+                opacity: 60,
+                overlayCss: {backgroundColor: "#f2f2f2"},
+                modal: true,
+                onClose: function(e) {
+                  location.href = "{% url "base.views.index" %}";
+                }
+              });
+              return false;
+            });
+            $("#loginFormButton").click();
+          {% endif %}
+        };
+        $(document).ready(init);
+      })(jQuery);
+    </script>
+  {% endcompress %}
 {% endblock %}
 
 {% block menu_navigation %}
