@@ -38,7 +38,6 @@
 
 <script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/visualizations.js"></script>
 <script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/sigma-visualization.js"></script>
-<script type="text/javascript" src="{{ STATIC_PREFIX }}js/moment.min.js"></script>
 {% endcompress %}
 
 {% compress css %}
@@ -51,6 +50,7 @@
 <!-- Begin code for the analytics side -->
 <script src="//code.highcharts.com/highcharts.js"></script>
 <script src="//code.highcharts.com/modules/exporting.js"></script>
+<script type="text/javascript" src="{{ STATIC_PREFIX }}js/moment.min.js"></script>
 <script type="text/javascript">
 
 // Variable to store the ids to plot the results of the analytics

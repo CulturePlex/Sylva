@@ -188,6 +188,8 @@ sigma:true, clearTimeout */
 
       $('#sigma-export-image').on('mouseover', that.stop);
 
+      $('#sigma-export-svg').on('mouseover', that.stop);
+
       $('.show-hide-nodes').on('click', that.showHideNodes);
 
       $('.show-hide-rels').on('click', that.showHideRels);
@@ -195,8 +197,10 @@ sigma:true, clearTimeout */
       $('.change-nodes-color').each(that.setNodesColorWidget);
 
       $('.change-rels-color').each(that.setRelsColorWidget);
-      // Save as a PNG image.
-      $('#sigma-export-image').on('click', that.exportImage);
+
+      // Save as a PNG image and as a SVG.
+      $('#sigma-export-image').on('click', that.exportPNG);
+      $('#sigma-export-svg').on('click', that.exportSVG);
 
       // Show node info in 'Not analytics mode'.
       $('#sigma-node-info').change(function () {
@@ -1847,8 +1851,8 @@ sigma:true, clearTimeout */
       });
     },
 
-    exportImage: function() {
-      var $canvas = $('<canvas id="sigma_export_image">');
+    exportPNG: function() {
+      var $canvas = $('<canvas id="sigma-export-svg-canvas">');
       var width = $('#sigma-container').children().first().width();
       var height = $('#sigma-container').children().first().height();
       $canvas.attr('width', width);
@@ -1858,8 +1862,24 @@ sigma:true, clearTimeout */
       var ctx = canvas.getContext('2d');
       ctx.globalCompositeOperation = 'source-over';
       ctx.drawImage($('.sigma-scene')[0], 0, 0);
-      var img_data = canvas.toDataURL('image/png');
-      $(this).attr('href', img_data.replace('image/png', 'image/octet-stream'));
+      var imgData = canvas.toDataURL('image/png');
+      $(this).attr('href', imgData.replace('image/png', 'image/octet-stream'));
+      $canvas.remove();
+    },
+
+    exportPNG: function() {
+      var $canvas = $('<canvas id="sigma-export-svg-canvas">');
+      var width = $('#sigma-container').children().first().width();
+      var height = $('#sigma-container').children().first().height();
+      $canvas.attr('width', width);
+      $canvas.attr('height', height);
+      $('#sigma-container').append($canvas);
+      var canvas = $canvas[0];
+      var ctx = canvas.getContext('2d');
+      ctx.globalCompositeOperation = 'source-over';
+      ctx.drawImage($('.sigma-scene')[0], 0, 0);
+      var imgData = canvas.toDataURL('image/png');
+      $(this).attr('href', imgData.replace('image/png', 'image/octet-stream'));
       $canvas.remove();
     },
 
