@@ -394,21 +394,35 @@ sigma:true, clearTimeout */
         that.cleanNodeInfo(selector);
       }
       nodeInfoShowed = true;
+
+      var titleMax = 33;
+      var propertyMax = 43;
+
       var nodeEditURL = sylva.nodeEditURL.replace(/nodes\/0\/edit/, 'nodes/' + node.id + '/edit');
       var nodeViewURL = sylva.nodeViewURL.replace(/nodes\/0\/view/, 'nodes/' + node.id + '/view');
-      var title = (node.label.length < 22) ? node.label : node.label.substring(0, 16) + "...";
+      var title = (node.label.length < titleMax) ? node.label : node.label.substring(0, titleMax - 3) + "...";
       var properties = '';
 
       for (var key in node.properties) {
-        var property = (node.properties[key].length < 22) ? node.properties[key] : node.properties[key].substring(0, 30) + "...";
-        properties = properties + '<span style="font-style: italic;">' + key + '</span>: ' + property + '<br>';
+        var length = key.length + node.properties[key].length;
+        var cut = propertyMax - key.length;
+        if (cut > 0) {
+          var property = (length < propertyMax) ? node.properties[key] : node.properties[key].substring(0, cut) + "...";
+        } else {
+          var property = '';
+          var key = key.substring(0, propertyMax - 3);
+        }
+        properties = properties + '<span class="node-info-property-name text-dots">' + key + '</span>: ' + property + '<br>';
       }
 
       $(selector).html(
-        '<h2 style="padding-top: 40px;" title="' + node.label + '" style="font-size: 18px;">' + title + '</h2>' +
+        '<h2 class="node-info-label text-dots" title="' + node.label + '">' + title + '</h2>' +
         properties +
         '<a href="' + nodeViewURL + '">' +
-          '<i style="margin-top: 5px; "class="sylva-icon-nodes16"></i> ' + gettext('View node data') +
+          /* The next line has an style attribute, because another class can't
+           * be added.
+           */
+          '<i style="margin-top: 5px;" class="sylva-icon-nodes16"></i> ' + gettext('View node data') +
         '</a>' +
         '<br>' +
         '<a id="edit-node-modal-link" data-url="' + nodeEditURL + '">' +
@@ -1168,9 +1182,13 @@ sigma:true, clearTimeout */
         position: 'absolute',
         height: 'auto',
         padding: '10px',
+        backgroundColor: 'rgba(255, 255, 255, 0.6)',
+        borderBottomLeftRadius: '10px'
       });
-      // Now it's the moment for save this box width.
-      graphControlsAndInfoWidth = $('#graph-controls-and-info').width();
+      /* Now it's the moment for save this box width. The '-12' is only needed
+      * here, and don't know why.
+       */
+      graphControlsAndInfoWidth = $('#graph-controls-and-info').width() - 12;
 
       $('#graph-layout').css({
         position: 'absolute',
@@ -2604,6 +2622,7 @@ sigma:true, clearTimeout */
         // Options.
         modal: true,
         escClose: false,
+        focus: false,
 
         // Styles.
         maxHeight: windowHeight - (modalPadding * 2),
@@ -2771,6 +2790,7 @@ sigma:true, clearTimeout */
         // Options.
         modal: true,
         escClose: false,
+        focus: false,
 
         // Styles.
         maxHeight: windowHeight - (modalPadding * 2),

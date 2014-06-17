@@ -1575,6 +1575,15 @@ table.content-table {
     float: left;
 }
 
+.node-info-label {
+    padding-top: 40px;
+    font-size: 18px;
+}
+
+.node-info-property-name {
+    font-style: italic;
+}
+
 #sigma-graph-layout {
     width: 125px;
     margin-left: 0;
