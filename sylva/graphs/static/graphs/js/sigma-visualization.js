@@ -59,6 +59,8 @@ sigma:true, clearTimeout */
   var sizeMultiplier = defaultMultiplier;
   // For some animations we need the same time that the 'fast' jQuery, 200ms.
   var fast = 200;
+  // The loading string for the modals, a very used resource.
+  var loadingText = gettext('Loading...');
   /* It saves the change of the 'graph controls and info' box, because there
    * are some problems in the browsers for mantatin the same after the
    * 'window.resize' event.
@@ -1062,6 +1064,8 @@ sigma:true, clearTimeout */
         that.putBoxesInsideCanvas();
       }
 
+      // Setting Paper.js for use the selection tools.
+      paper.projects = [];
       paper.setup($('.sigma-mouse')[0]);
     },
 
@@ -1852,35 +1856,89 @@ sigma:true, clearTimeout */
     },
 
     exportPNG: function() {
-      var $canvas = $('<canvas id="sigma-export-svg-canvas">');
+      var canvas = $('<canvas id="sigma-export-png-canvas">');
       var width = $('#sigma-container').children().first().width();
       var height = $('#sigma-container').children().first().height();
-      $canvas.attr('width', width);
-      $canvas.attr('height', height);
-      $('#sigma-container').append($canvas);
-      var canvas = $canvas[0];
-      var ctx = canvas.getContext('2d');
+      canvas.attr('width', width);
+      canvas.attr('height', height);
+      $('#sigma-container').append(canvas);
+      var canvasElem = canvas[0];
+      var ctx = canvasElem.getContext('2d');
       ctx.globalCompositeOperation = 'source-over';
       ctx.drawImage($('.sigma-scene')[0], 0, 0);
-      var imgData = canvas.toDataURL('image/png');
+      var imgData = canvasElem.toDataURL('image/png');
       $(this).attr('href', imgData.replace('image/png', 'image/octet-stream'));
-      $canvas.remove();
+      canvas.remove();
     },
 
-    exportPNG: function() {
-      var $canvas = $('<canvas id="sigma-export-svg-canvas">');
-      var width = $('#sigma-container').children().first().width();
-      var height = $('#sigma-container').children().first().height();
-      $canvas.attr('width', width);
-      $canvas.attr('height', height);
-      $('#sigma-container').append($canvas);
-      var canvas = $canvas[0];
-      var ctx = canvas.getContext('2d');
-      ctx.globalCompositeOperation = 'source-over';
-      ctx.drawImage($('.sigma-scene')[0], 0, 0);
-      var imgData = canvas.toDataURL('image/png');
-      $(this).attr('href', imgData.replace('image/png', 'image/octet-stream'));
-      $canvas.remove();
+    exportSVG: function() {
+      // Saving the button for use it later.
+      var button = $(this);
+
+      // Setting a wait modal, becuase the generation of the SVG is heavy.
+      that.customTextModal(gettext('Generating SVG, please wait a moment.'), true);
+
+      setTimeout(function() {
+        var canvas = $('<canvas id="sigma-export-svg-canvas">');
+        var width = $('#sigma-container').children().first().width();
+        var height = $('#sigma-container').children().first().height();
+        canvas.attr('width', width);
+        canvas.attr('height', height);
+
+        // Seting Paper.js for create the 'SVG-canvas'.
+        paper.projects = [];
+        paper.setup(canvas[0]);
+
+        sigInst.graph.edges().forEach(function(e) {
+          var source = sigInst.graph.nodes(e.source);
+          var target = sigInst.graph.nodes(e.target);
+          if (!e.hidden && !source.hidden && !target.hidden) {
+            var x1 = source['renderer1:x'];
+            var y1 = source['renderer1:y'];
+            var x2 = target['renderer1:x'];
+            var y2 = target['renderer1:y'];
+            var color = e.color;
+
+            var rel = new paper.Path([
+              new paper.Point(x1, y1),
+              new paper.Point(x2, y2)
+            ]);
+            rel.strokeColor = color;;
+          }
+        });
+
+        sigInst.graph.nodes().forEach(function(n) {
+          if (!n.hidden) {
+            var x = n['renderer1:x'];
+            var y = n['renderer1:y'];
+            var color = n.color;
+            var radius = n['renderer1:size'];
+
+            var circle = new paper.Path.Circle(new paper.Point(x, y), radius);
+            circle.fillColor = color;
+          }
+        });
+
+        var svg = paper.project.exportSVG({
+          asString: true
+        });
+
+        // Setting Paper.js for use the selection tools.
+        paper.projects = [];
+        paper.setup($('.sigma-mouse')[0]);
+        canvas = null;
+
+        that.closeModalLib();
+        setTimeout(function() {
+          var link = document.createElement('a');
+          link.href = 'data:image/svg+xml,' + svg;
+          link.download = button.attr('download');
+          $(document.body).append(link);
+          link.click();
+          $(document.body).remove(link);
+          link = null;
+        }, fast * 2); // We need '* 2' because 'closeModalLib()' take 400 ms.
+      }, fast);
     },
 
     // Changes the graph layout.
@@ -2393,13 +2451,13 @@ sigma:true, clearTimeout */
     },
 
     // The common behaviour for opening the modals.
-    openNodeModal: function(dialog) {
+    openModal: function(dialog) {
       dialog.container.fadeIn('fast');
       dialog.data.fadeIn('fast');
     },
 
     // The common behaviour for closing the modals.
-    closeNodeModal: function(dialog) {
+    closeModal: function(dialog) {
       dialog.container.fadeOut('fast');
       dialog.data.fadeOut('fast');
 
@@ -2408,13 +2466,7 @@ sigma:true, clearTimeout */
        */
       setTimeout(function() {
         $.modal.close();
-        if ($('#edit-node-modal').length) {
-          $('#edit-node-modal').remove();
-        } else if ($('#delete-node-modal').length) {
-          $('#delete-node-modal').remove();
-        } else {
-          $('#loading-node-modal').remove();
-        }
+        $('#current-modal').remove();
       }, fast);
     },
 
@@ -2429,11 +2481,11 @@ sigma:true, clearTimeout */
     /* It creates a mini-modal with for display it while we are getting the
      * data for the form modals.
      */
-    showLoadingModal: function(crateOverlay) {
+    customTextModal: function(message, crateOverlay) {
       // Creating the HTML to show.
-      var modalLoading = $('<div id="loading-node-modal" style="display:none">');
-      $('body').append(modalLoading);
-      modalLoading.text('Loading...');
+      var textModal = $('<div id="current-modal" style="display:none">');
+      $('body').append(textModal);
+      textModal.text(message);
 
       var modalPadding = 10;
 
@@ -2441,7 +2493,7 @@ sigma:true, clearTimeout */
       if (crateOverlay) {
         that.createOverlay();
       }
-      $('#' + modalLoading.attr('id')).modal({
+      $('#' + textModal.attr('id')).modal({
         // Options.
         modal: true,
         escClose: false,
@@ -2456,10 +2508,10 @@ sigma:true, clearTimeout */
 
         // Events.
         onOpen: function(dialog) {
-          that.openNodeModal(dialog);
+          that.openModal(dialog);
         },
         onClose: function(dialog) {
-          that.closeNodeModal(dialog);
+          that.closeModal(dialog);
         },
       });
     },
@@ -2468,7 +2520,7 @@ sigma:true, clearTimeout */
      * link. It will get HTML to show, but won't show it.
      */
     prepareEditNodeModal: function(event) {
-      that.showLoadingModal(true);
+      that.customTextModal(loadingText, true);
 
       var url = $(event.target).attr('data-url');
       var params = {
@@ -2499,7 +2551,7 @@ sigma:true, clearTimeout */
      */
     showEditNodeModal: function(data) {
       // Setting the form into the HTML.
-      var modalForm = $('<div id="edit-node-modal" style="display: none;">');
+      var modalForm = $('<div id="current-modal" style="display: none;">');
       $('body').append(modalForm); // This line need to be executed here, so the internal JS will be executed.
       modalForm.append(data);
 
@@ -2567,10 +2619,10 @@ sigma:true, clearTimeout */
 
         // Events.
         onOpen: function(dialog) {
-          that.openNodeModal(dialog);
+          that.openModal(dialog);
         },
         onClose: function(dialog) {
-          that.closeNodeModal(dialog);
+          that.closeModal(dialog);
         },
         onShow: function(dialog) {
           // It's the content who controls the scrollbars.
@@ -2621,7 +2673,7 @@ sigma:true, clearTimeout */
       // Closing the 'edit node' modal and showing the loading one.
       $.modal.close();
       setTimeout(function() {
-        that.showLoadingModal();
+        that.customTextModal(loadingText);
       }, fast);
 
       // Obtaining the parameters.
@@ -2664,7 +2716,7 @@ sigma:true, clearTimeout */
      * button. It will get HTML to show, but won't show it.
      */
     prepareDeleteNodeModal: function(url) {
-      that.showLoadingModal(false);
+      that.customTextModal(loadingText, false);
 
       var params = 'asModal=true';
 
@@ -2692,7 +2744,7 @@ sigma:true, clearTimeout */
      */
     showDeleteNodeModal: function(data) {
       // Setting the form into the HTML.
-      var modalForm = $('<div id="delete-node-modal" style="display: none;">');
+      var modalForm = $('<div id="current-modal" style="display: none;">');
       $('body').append(modalForm);
       modalForm.append(data);
 
@@ -2734,10 +2786,10 @@ sigma:true, clearTimeout */
 
         // Events.
         onOpen: function(dialog) {
-          that.openNodeModal(dialog);
+          that.openModal(dialog);
         },
         onClose: function(dialog) {
-          that.closeNodeModal(dialog);
+          that.closeModal(dialog);
         }
       });
     },
@@ -2749,7 +2801,7 @@ sigma:true, clearTimeout */
      // Closing the 'delete node' modal and showing the loading one.
       $.modal.close();
       setTimeout(function() {
-        that.showLoadingModal();
+        that.customTextModal(loadingText);
       }, fast);
 
       // Obtaining the parameters.
