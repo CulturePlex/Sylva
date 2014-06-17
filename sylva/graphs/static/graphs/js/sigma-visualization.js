@@ -18,8 +18,6 @@ sigma:true, clearTimeout */
   var camera = null;
   // It saves the link in the Sylva logo when Sylva goes in "Analytics" mode.
   var linkLogo = null;
-  // The size of the graphs in nodes.
-  var size = 0;
   // Timeout for stop layout algorithm.
   var timeout = 0;
   // setTimeout id.
@@ -88,7 +86,6 @@ sigma:true, clearTimeout */
 
       that = this;
       sylva.selectedNodes = sylva.nodeIds;
-      size = sylva.size;
 
       // Creating visible elements arrays.
       for (var key in sylva.nodetypes) {
@@ -113,9 +110,9 @@ sigma:true, clearTimeout */
       });
       camera = sigInst.cameras[0];
 
-      if (size >= mediumGraphSize && size < bigGraphSize) {
+      if (sylva.size >= mediumGraphSize && sylva.size < bigGraphSize) {
         maxNodeSize = 6;
-      } else if (size >= bigGraphSize) {
+      } else if (sylva.size >= bigGraphSize) {
         maxNodeSize = 4;
       }
 
@@ -215,7 +212,7 @@ sigma:true, clearTimeout */
 
       // Draw the layout considering the hidden nodes or not.
       $('#sigma-hidden-layout').change(function () {
-        if (visibleNodeIds.length < size) {
+        if (visibleNodeIds.length < sylva.size) {
           var type = $('#sigma-graph-layout').find('option:selected').attr('id');
           var degreeOrder = $('#sigma-graph-layout-degree-order').find('option:selected').attr('id');
           var order = $('#sigma-graph-layout-order').find('option:selected').attr('id');
@@ -270,11 +267,11 @@ sigma:true, clearTimeout */
       sigInst.startForceAtlas2();
       isDrawing = true;
 
-      if (size <= 20) {
+      if (sylva.size <= 20) {
         timeout = 10000;
-      } else if (size <= 50) {
+      } else if (sylva.size <= 50) {
         timeout = 15000;
-      } else if (size <= 100) {
+      } else if (sylva.size <= 100) {
         timeout = 20000;
       } else {
         timeout = 30000;
@@ -534,10 +531,11 @@ sigma:true, clearTimeout */
       currentNodeX = sigma.utils.getX(event) - dom.offsetWidth / 2;
       currentNodeY = sigma.utils.getY(event) - dom.offsetHeight / 2;
 
-      if (size > 1) {
+      if (sylva.size > 1) {
         // Checking if we need to move the only the selected nodes.
         var moveSelected = false;
-        if (selectedSelectingTool == 'move') {
+        if (sylva.selectedNodes.lenght < sylva.size &&
+            selectedSelectingTool == 'move') {
           var index = sylva.selectedNodes.indexOf(nodeOvered.id);
           if (index >= 0) {
             moveSelected = true;
@@ -623,7 +621,7 @@ sigma:true, clearTimeout */
       } else if (nodeInfoShowed && isAnalyticsMode) {
           that.cleanNodeInfo('#node-info');
           that.updateSizes(true);
-      } else if (sylva.selectedNodes.length < size) {
+      } else if (sylva.selectedNodes.length < sylva.size) {
         that.ungrayfyAllNodes();
       }
     },
@@ -1518,7 +1516,7 @@ sigma:true, clearTimeout */
     // Performs the 'ciruclar layout algorithm'.
     circularLayout: function(sortFunc, drawHidden) {
       var i = 0;
-      var number = size;
+      var number = sylva.size;
       if (drawHidden) {
         number = visibleNodeIds.length;
       }
@@ -2945,7 +2943,6 @@ sigma:true, clearTimeout */
       sigInst.graph.dropNode(response.nodeId);
 
       // Finishing touches.
-      size -= 1;
       sylva.size -= 1;
       if (response.action == 'delete') {
         that.calculateNodesDegrees();
@@ -2998,7 +2995,6 @@ sigma:true, clearTimeout */
       that.updateNodeInfo(response.node, '#node-info');
 
       // Finishing touches.
-      size += 1;
       sylva.size += 1;
       that.calculateNodesDegrees();
       sigInst.refresh();
