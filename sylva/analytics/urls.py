@@ -22,4 +22,8 @@ urlpatterns = patterns(
     # Get analytic object
     url(r'^(?P<graph_slug>[\w-]+)/analytic/$',
         'analytics_analytic', name="analytics_analytic"),
+
+    # Get the list of nodes or relationships of a specific dump
+    url(r'^(?P<graph_slug>[\w-]+)/dump/$',
+        'analytics_dump', name="analytics_dump"),
 )

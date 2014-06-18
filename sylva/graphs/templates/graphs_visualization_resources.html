@@ -65,12 +65,12 @@ var analyticsName = {
 
 // Variable to store the text to plot the x axis
 var analyticsAxis = {
-  "connected_components": gettext("connected components"),
-  "triangle_counting": gettext("triangles"),
-  "graph_coloring": gettext("colors"),
-  "betweenness_centrality": gettext("betweenness centrality"),
-  "pagerank": gettext("pagerank"),
-  "kcore": gettext("degeneracy (k-core)")
+  "connected_components": gettext("Connected components"),
+  "triangle_counting": gettext("Triangles"),
+  "graph_coloring": gettext("Colors"),
+  "betweenness_centrality": gettext("Betweenness centrality"),
+  "pagerank": gettext("Pagerank"),
+  "kcore": gettext("Degeneracy (k-core)")
 };
 
 // Variable to store the analytics that actually are executing
@@ -79,7 +79,7 @@ var analyticsExecuting = {};
 var analyticsId = {};
 var taskTime = 0;
 
-jQuery(document).ready(function() {
+(function($) {
       /**
       * AJAX Setup for CSRF Django token
       */
@@ -131,7 +131,7 @@ jQuery(document).ready(function() {
                 },
                 xAxis: {
                     title: {
-                        text: 'Algorithm value'
+                        text: analyticsAxis[algorithm]
                     }
                 },
                 yAxis: {
@@ -186,7 +186,7 @@ jQuery(document).ready(function() {
               // We need to multiply 1000 times because JavaScript uses millseconds
               analyticDate = new Date(analyticTaskStart * 1000);
               selectAnalyticsId = '#last-analytics-' + algorithm;
-              $(selectAnalyticsId).prepend("<option value=" + analyticId + " selected>" + moment.duration(10000).humanize() + "</option>");
+              $(selectAnalyticsId).prepend("<option value=" + analyticId + " selected>" + gettext(moment.duration(-1, "seconds").humanize(true)) + "</option>");
               $(selectAnalyticsId).css({
                 'display': 'inline-block'
               })
@@ -316,11 +316,22 @@ jQuery(document).ready(function() {
         console.log(resultsUrl);
         console.log(algorithm);
         getResults(resultsUrl, algorithm, "", "");
+
+        $.ajax({
+          type: "GET",
+          url: "{% url 'analytics_dump' graph.slug %}",
+          data: {"id": analyticId},
+          error: function (err) {
+                console.log("AJAX error in request: " + JSON.stringify(err, null, 2));
+          }
+        }).done(function(result){
+          console.log(result);
+        })
       });
     });
 
     $('#analytics-algorithms').sortable();
-});
+})(jQuery);
 </script>
 <!-- End code for the analytics side -->
 {% endif %}

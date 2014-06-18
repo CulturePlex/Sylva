@@ -227,7 +227,7 @@ class Analysis(BaseAnalysis):
         except Exception:
             raise Exception(LOAD_FILE, "Error loading the file")
         try:
-            bc = nx.betweenness_centrality(g).items()[2:]
+            bc = nx.betweenness_centrality(g).items()
             bc = pd.DataFrame(bc, columns=['__id',
                                            'betweenness_centrality'])
         except Exception:
