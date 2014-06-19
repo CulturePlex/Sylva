@@ -137,7 +137,7 @@
 .select-lookup {
     width: 62px;
     padding: 0;
-    display: inline;
+    display: none;
     margin-left: 10px;
     margin-top: -4px;
 }

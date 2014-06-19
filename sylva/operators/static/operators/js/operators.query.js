@@ -21,19 +21,19 @@ diagram.relindex = {};
 
 diagram.stringValues = {
     'em': gettext("match"),
-    'e' : gettext("equals"),
-    'le': gettext("is less than or equal to"),
+    'eq': gettext("equals"),
+    'lte': gettext("is less than or equal to"),
     'lt': gettext("is less than"),
     'gt': gettext("is greater than"),
-    'ge': gettext("is greater than or equal to"),
-    'b' : gettext("is between"),
-    'ne': gettext("does not equal"),
-    'v' : gettext("has some value"),
-    'nv': gettext("has no value"),
-    'c' : gettext("contains"),
-    'nc': gettext("doesn't contain"),
-    's' : gettext("starts with"),
-    'en': gettext("ends with")
+    'gte': gettext("is greater than or equal to"),
+    'between': gettext("is between"),
+    'neq': gettext("does not equal"),
+    'isnotnull': gettext("has some value"),
+    'isnull': gettext("has no value"),
+    'icontains': gettext("contains"),
+    'idoesnotcontain': gettext("doesn't contain"),
+    'istartswith': gettext("starts with"),
+    'iendswith': gettext("ends with")
 };
 
 diagram.lookupsBackendValues = {
@@ -54,52 +54,52 @@ diagram.lookupsBackendValues = {
 
 diagram.lookupsAllValues = [
     diagram.stringValues['em'],
-    diagram.stringValues['e'],
-    diagram.stringValues['le'],
+    diagram.stringValues['eq'],
+    diagram.stringValues['lte'],
     diagram.stringValues['lt'],
     diagram.stringValues['gt'],
-    diagram.stringValues['ge'],
-    diagram.stringValues['b'],
-    diagram.stringValues['ne'],
-    diagram.stringValues['v'],
-    diagram.stringValues['nv'],
-    diagram.stringValues['c'],
-    diagram.stringValues['nc'],
-    diagram.stringValues['s'],
-    diagram.stringValues['en']
+    diagram.stringValues['gte'],
+    diagram.stringValues['between'],
+    diagram.stringValues['neq'],
+    diagram.stringValues['isnotnull'],
+    diagram.stringValues['isnull'],
+    diagram.stringValues['icontains'],
+    diagram.stringValues['idoesnotcontain'],
+    diagram.stringValues['istartswith'],
+    diagram.stringValues['iendswith']
 ];
 
 diagram.lookupsSpecificValues = [
     diagram.stringValues['em'],
-    diagram.stringValues['e'],
-    diagram.stringValues['ne'],
-    diagram.stringValues['v'],
-    diagram.stringValues['nv']
+    diagram.stringValues['eq'],
+    diagram.stringValues['neq'],
+    diagram.stringValues['isnotnull'],
+    diagram.stringValues['isnull']
 ];
 
 diagram.lookupsNumberValues = [
     diagram.stringValues['em'],
-    diagram.stringValues['e'],
-    diagram.stringValues['le'],
+    diagram.stringValues['eq'],
+    diagram.stringValues['lte'],
     diagram.stringValues['lt'],
     diagram.stringValues['gt'],
-    diagram.stringValues['ge'],
-    diagram.stringValues['b'],
-    diagram.stringValues['ne'],
-    diagram.stringValues['v'],
-    diagram.stringValues['nv']
+    diagram.stringValues['gte'],
+    diagram.stringValues['between'],
+    diagram.stringValues['neq'],
+    diagram.stringValues['isnotnull'],
+    diagram.stringValues['isnull']
 ];
 
 diagram.lookupsTextValues = [
     diagram.stringValues['em'],
-    diagram.stringValues['e'],
-    diagram.stringValues['ne'],
-    diagram.stringValues['v'],
-    diagram.stringValues['nv'],
-    diagram.stringValues['c'],
-    diagram.stringValues['nc'],
-    diagram.stringValues['s'],
-    diagram.stringValues['en']
+    diagram.stringValues['eq'],
+    diagram.stringValues['neq'],
+    diagram.stringValues['isnotnull'],
+    diagram.stringValues['isnull'],
+    diagram.stringValues['icontains'],
+    diagram.stringValues['idoesnotcontain'],
+    diagram.stringValues['istartswith'],
+    diagram.stringValues['iendswith']
 ];
 
 diagram.lookupsValuesType = {
@@ -256,17 +256,17 @@ diagram.lookupsValuesType = {
 
             selectAllRel.append(optionRelWildcard);
 
-            // Link to add the relations
-            addRelation = $("<A>");
-            addRelation.addClass("add-relation");
-            // Add relation icon
-            addRelationIcon = $("<I>");
-            addRelationIcon.addClass("icon-plus-sign");
-            addRelationIcon.attr('id', 'add-relation-icon');
-            addRelation.append(addRelationIcon);
+            // First option to choose one
+            optionRelDefault = $("<OPTION>");
+            optionRelDefault.addClass('option-rel');
+            optionRelDefault.attr('value', '');
+            optionRelDefault.attr('disabled', 'disabled');
+            optionRelDefault.attr('selected', 'selected');
+            optionRelDefault.html(gettext("choose one"));
+
+            selectAllRel.prepend(optionRelDefault);
 
             boxAllRel.append(selectAllRel);
-            boxAllRel.append(addRelation);
 
             divAllowedRelationships = $("<DIV>");
             divAllowedRelationships.attr("id", idAllRels);
@@ -1611,7 +1611,7 @@ diagram.lookupsValuesType = {
     /**
      * Add a new relationship row for that box type
      */
-    $("#diagramContainer").on('click', '.add-relation', function() {
+    $("#diagramContainer").on('change', '.select-rel', function() {
         var $this = $(this);
         // We gonna select the select field
         var parent = $this.parent();
@@ -1706,6 +1706,11 @@ diagram.lookupsValuesType = {
         var choices = $('option:selected', this).data("choices");
         var arrayOptions = diagram.lookupOptions(datatype);
 
+        // We show the select lookup
+        $(selector).css({
+            "display": "inline"
+        });
+
         // If already we have lookups, we remove them to avoid overwritting
         if($(selector).children()) {
             $(selector).children().remove();
@@ -1742,9 +1747,9 @@ diagram.lookupsValuesType = {
             select.addClass("lookup-value");
             select.css({
                 "width": "60px",
-                "display": "inline",
                 "margin-left": "8px",
-                "padding": "0"
+                "padding": "0",
+                "display": "none"
             });
             select.append('<option class="lookup-value" value="true">True</option>');
             select.append('<option class="lookup-value" value="false">False</option>');
@@ -1763,9 +1768,9 @@ diagram.lookupsValuesType = {
             inputLookup.addClass("lookup-value");
             inputLookup.css({
                 "width": "60px",
-                "display": "inline",
                 "margin-left": "8px",
-                "padding": 0
+                "padding": 0,
+                "display": "none"
             });
             inputLookup.append('<option class="lookup-value" value=""></option>');
             for(var j = 3; j < choicesArray.length; j = j + 2) {
@@ -1789,7 +1794,7 @@ diagram.lookupsValuesType = {
                 "margin-left": "8px",
                 "padding": "2px 2px 1px 2px",
                 "margin-top": "-4px",
-                "display": "inline"
+                "display": "none"
             });
             inputLookup.timepicker({
                 timeOnly: true,
@@ -1813,7 +1818,7 @@ diagram.lookupsValuesType = {
                 "margin-left": "8px",
                 "padding": "2px 2px 1px 2px",
                 "margin-top": "-4px",
-                "display": "inline"
+                "display": "none"
             });
             inputLookup.timepicker({
                 timeOnly: true,
@@ -1837,7 +1842,7 @@ diagram.lookupsValuesType = {
                 "margin-left": "8px",
                 "padding": "2px 2px 1px 2px",
                 "margin-top": "-4px",
-                "display": "inline"
+                "display": "none"
             });
             var options = {
                 appendText: "(yyyy-mm-dd)",
@@ -1865,7 +1870,7 @@ diagram.lookupsValuesType = {
                 "margin-left": "8px",
                 "padding": "2px 2px 1px 2px",
                 "margin-top": "-4px",
-                "display": "inline"
+                "display": "none"
             });
             inputLookup.timepicker({
                 timeOnly: true,
@@ -1889,7 +1894,7 @@ diagram.lookupsValuesType = {
                 "margin-left": "8px",
                 "padding": "2px 2px 1px 2px",
                 "margin-top": "-4px",
-                "display": "inline"
+                "display": "none"
             });
             $(inputLookup).insertAfter($('#' + fieldId + ' .select-lookup'))
         } else {
@@ -1909,7 +1914,7 @@ diagram.lookupsValuesType = {
                 "margin-left": "8px",
                 "padding": "2px 2px 1px 2px",
                 "margin-top": "-4px",
-                "display": "inline"
+                "display": "none"
             });
             $(inputLookup).insertAfter($('#' + fieldId + ' .select-lookup'))
         }
@@ -1947,6 +1952,11 @@ diagram.lookupsValuesType = {
         // dates, etc.
         var tagName = $this.next().prop("tagName");
         var fieldId = $this.data("fieldid");
+
+        // We show the input for the lookup value
+        $('#' + fieldId + " .lookup-value").css({
+            "display": "inline"
+        });
 
         var datatype = $('#' + fieldId + ' .select-property option:selected').data("datatype");
         var condition = datatype != 'date'
