@@ -186,6 +186,10 @@
     display: none;
 }
 
+.show-as {
+    display: none;
+}
+
 /* Results table */
 
 #results {

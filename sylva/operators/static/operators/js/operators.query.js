@@ -399,21 +399,22 @@ diagram.lookupsValuesType = {
                 "width": "65px",
                 "float": "left",
                 "padding": "0",
-                "margin-left": "5%"
+                "margin-left": "5%",
+                "display": "none"
             });
             optionReltype = $("<OPTION>");
             optionReltype.addClass("option-reltype-" + label);
             optionReltype.attr('id', label + diagram.reltypesCounter[label]);
             optionReltype.attr('value', label + diagram.reltypesCounter[label]);
             optionReltype.attr('data-modelid', idRel);
-            optionReltype.html(label + diagram.reltypesCounter[label]);
+            optionReltype.html(label + " " + diagram.reltypesCounter[label]);
             // This for loop is to add the new option in the old boxes
             for(var i = 0; i < diagram.reltypesCounter[label]; i++) {
                 $($('.select-reltype-' + label)[i]).append(optionReltype.clone(true));
             }
             // This for loop is to include the old options in the new box
             for(var j = 0; j < diagram.reltypesCounter[label]; j++) {
-                var value = label + j;
+                var value = label + " " + j;
                 selectReltype.append("<option class='option-reltype-" + label + "' id='" + value + "' value='" + value +"' data-modelid='" + idRel + "' selected=''>" + value + "</option>");
             }
             selectReltype.append(optionReltype);
@@ -518,21 +519,22 @@ diagram.lookupsValuesType = {
                 "width": "46%",
                 "float": "left",
                 "padding": "0",
-                "margin-left": "10%"
+                "margin-left": "10%",
+                "display": "none"
             });
             optionNodetype = $("<OPTION>");
             optionNodetype.addClass("option-nodetype-" + typeName);
             optionNodetype.attr('id', model.name + diagram.nodetypesCounter[typeName]);
             optionNodetype.attr('data-modelid', model.id);
             optionNodetype.attr('value', model.name + diagram.nodetypesCounter[typeName]);
-            optionNodetype.html(model.name + diagram.nodetypesCounter[typeName]);
+            optionNodetype.html(model.name + " " + diagram.nodetypesCounter[typeName]);
             // This for loop is to add the new option in the old boxes
             for(var i = 0; i < diagram.nodetypesCounter[typeName]; i++) {
                 $($('.select-nodetype-' + typeName)[i]).append(optionNodetype.clone(true));
             }
             // This for loop is to include the old options in the new box
-            for(var j = 0; j < diagram.nodetypesCounter[typeName]; j++) {
-                var value = model.name + j;
+            for(var j = 1; j < diagram.nodetypesCounter[typeName]; j++) {
+                var value = model.name + " " + j;
                 selectNodetype.append("<option class='option-nodetype-" + typeName + "' id='" + value + "' data-modelid='" + model.id + "' value='" + value +"' selected=''>" + value + "</option>");
             }
             selectNodetype.append(optionNodetype);
@@ -623,7 +625,8 @@ diagram.lookupsValuesType = {
                 "width": "46%",
                 "float": "left",
                 "padding": "0",
-                "margin-left": "15%"
+                "margin-left": "15%",
+                "display": "none"
             });
             optionNodetype = $("<OPTION>");
             optionNodetype.addClass("option-nodetype-" + typeName);
@@ -724,9 +727,9 @@ diagram.lookupsValuesType = {
          * Set the name fo the model box getting shorter and adding ellipsis
          */
         diagram.setName = function (div, name) {
-            var html = "<span style='float: left; margin-left: 3%; margin-top: 1px;'>" + name + " " + gettext("as") + " </span>";
+            var html = "<span style='float: left; margin-left: 3%; margin-top: 1px;'>" + name + " <span class='show-as'>" + gettext("as") + "</span></span>";
             if (name.length > 10) {
-                html = "<span style='float: left; margin-left: 3%; margin-top: 1px;'>" + name.substr(0, 10) + "…" + " " + gettext("as") + " </span>";
+                html = "<span style='float: left; margin-left: 3%; margin-top: 1px;'>" + name.substr(0, 10) + "…" + " <span class='show-as'>" + gettext("as") + "</span></span>";
             }
             div.append(html);
             return div;
@@ -769,10 +772,10 @@ diagram.lookupsValuesType = {
                     for(modelName in models) {
                         if(modelName.localeCompare(typeName) == 0) {
                             // Node type counter for the node type select field
-                            if(diagram.nodetypesCounter[typeName] >= 0) {
+                            if(diagram.nodetypesCounter[typeName] >= 1) {
                                 diagram.nodetypesCounter[typeName]++;
                             } else {
-                                diagram.nodetypesCounter[typeName] = 0;
+                                diagram.nodetypesCounter[typeName] = 1;
                             }
 
                             diagram.addBox(graph, modelName, typeName);
@@ -781,10 +784,10 @@ diagram.lookupsValuesType = {
                     }
                     if(typeName == "wildcard") {
                         // Node type counter for the node type select field
-                        if(diagram.nodetypesCounter[typeName] >= 0) {
+                        if(diagram.nodetypesCounter[typeName] >= 1) {
                             diagram.nodetypesCounter[typeName]++;
                         } else {
-                            diagram.nodetypesCounter[typeName] = 0;
+                            diagram.nodetypesCounter[typeName] = 1;
                         }
 
                         diagram.addBox(graph, typeName, typeName);
@@ -1493,6 +1496,16 @@ diagram.lookupsValuesType = {
         var $this = $(this);
         var nodeType = $this.data("type");
         var modelName = diagram.loadBox(nodeType);
+
+        // If we have more than one box, we show the selects and the "as" text
+        if (diagram.nodetypesCounter[nodeType] > 1) {
+            $('.select-nodetype-' + nodeType).css({
+                "display": "inline"
+            });
+            $('.show-as').css({
+                "display": "inline"
+            })
+        }
 
         // The next lines is to select the new alias in the box
         var elem = $('.select-nodetype-' + nodeType + ' #' + modelName + (diagram.nodetypesCounter[nodeType] + 1 - 1)).length - 1;
