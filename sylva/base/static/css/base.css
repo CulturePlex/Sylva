@@ -1686,16 +1686,6 @@ table.content-table {
     margin-bottom: 10px;
 }
 
-.sigma-control a.sylva-icon-neighbors {
-    background-image: url(../img/connections_16.png);
-    background-position: center;
-    background-repeat: no-repeat;
-}
-
-.sigma-control a.filter {
-    padding: 8px;
-}
-
 #sigma-export-image {
     margin-left: -10px;
 }
@@ -1811,6 +1801,55 @@ div[id^='collorpicker_'] {
 .filters-wrapper {
     margin-left: -8px !important;
     display: inline-block;
+    margin-bottom: 8px;
+}
+
+.filter {
+    padding: 8px;
+}
+
+.filter:active,
+.filter.active {
+    padding: 8px;
+    background-color: #EEEEEE
+}
+
+.filter-left {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+    -moz-border-top-right-radius: 0;
+    -moz-border-bottom-right-radius: 0;
+    -webkit-border-top-right-radius: 0;
+    -webkit-border-bottom-right-radius: 0;
+}
+
+.filter-middle {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+    -moz-border-top-right-radius: 0;
+    -moz-border-bottom-right-radius: 0;
+    -webkit-border-top-right-radius: 0;
+    -webkit-border-bottom-right-radius: 0;
+
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    -moz-border-top-left-radius: 0;
+    -moz-border-bottom-left-radius: 0;
+    -webkit-border-top-left-radius: 0;
+    -webkit-border-bottom-left-radius: 0;
+
+    margin-left: -2px;
+}
+
+.filter-right {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    -moz-border-top-left-radius: 0;
+    -moz-border-bottom-left-radius: 0;
+    -webkit-border-top-left-radius: 0;
+    -webkit-border-bottom-left-radius: 0;
+
+    margin-left: -2px;
 }
 
 .filters h2 {

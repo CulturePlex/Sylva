@@ -100,23 +100,13 @@
   <div class="filters">
     <h2>{% trans "Filters" %}</h2>
     <div class="filters-wrapper">
-      <div class="sigma-control">
-        <a id="sigma-filter-rectangle" class="fa fa-pencil-square-o button filter" style="font-size: 100%;" title="{% trans "Rectangle" %}"></a>
-      </div>
-      <div class="sigma-control">
-        <a id="sigma-filter-freehand" class="fa fa-pencil button filter" style="font-size: 100%;" title="{% trans "Freehand" %}"></a>
-      </div>
-      <div class="sigma-control">
-        <a id="sigma-filter-neighbors" class="sylva-icon-neighbors button filter" style="font-size: 100%;" title="{% trans "Neighbor nodes" %}"></a>
-      </div>
-      <div class="sigma-control ">
-        <a id="sigma-filter-click" class="fa fa-circle button filter" style="font-size: 100%;" title="{% trans "Click in nodes" %}"></a>
-      </div>
-      <div class="sigma-control ">
-        <a id="sigma-move-selected" class="fa fa-arrows button filter" style="font-size: 100%;" title="{% trans "Move selected nodes" %}"></a>
-      </div>
+      <a id="sigma-filter-rectangle" class="fa fa-pencil-square-o fa-fw button filter filter-left" style="font-size: 100%;" title="{% trans "Rectangle" %}"></a>
+      <a id="sigma-filter-freehand" class="fa fa-pencil button fa-fw filter filter-middle" style="font-size: 100%;" title="{% trans "Freehand" %}"></a>
+      <a id="sigma-filter-neighbors" class="fa fa-sitemap button fa-fw filter filter-middle" style="font-size: 100%;" title="{% trans "Neighbor nodes" %}"></a>
+      <a id="sigma-filter-click" class="fa fa-circle button fa-fw filter filter-middle" style="font-size: 100%;" title="{% trans "Click in nodes" %}"></a>
+      <a id="sigma-move-selected" class="fa fa-arrows button fa-fw filter filter-right" style="font-size: 100%;" title="{% trans "Move selected nodes" %}"></a>
     </div>
-    <div class="sigma-control filters-wrapper">
+    <div class="sigma-control">
       <label id="last-queries-label" style="font-weight: normal;">{% trans "From queries:" %}</label>
       <select id="last-queries-select">
         <option disabled="disabled" selected="selected">{% trans "None" %}</option>
