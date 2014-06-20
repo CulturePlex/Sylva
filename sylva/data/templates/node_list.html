@@ -307,10 +307,10 @@
             var classId = "." + key;
             var imgId = "#show-hide-" + key;
             $(classId).toggle();
-            if ($(imgId).attr('class') == 'icon-eye-open'){
-              $(imgId).attr('class','icon-eye-close');
+            if ($(imgId).attr('class') == 'fa fa-eye'){
+              $(imgId).attr('class','fa fa-eye-slash');
             } else {
-              $(imgId).attr('class','icon-eye-open');
+              $(imgId).attr('class','fa fa-eye');
             }
           });
         });
@@ -335,7 +335,7 @@
         <a href="#">{% trans "Hide & show property" %}: </a>
         <ul class="dropdown">
           {% for prop in properties %}
-            <li><i class="icon-eye-open" id="show-hide-{{prop.slug}}"></i><a style="font-size:11px; margin-left: 5%;" href='javascript:void(0);' data-key="{{prop.slug}}" class="show-hide">{{prop.key}}</a></li>
+            <li><i class="fa fa-eye" id="show-hide-{{prop.slug}}"></i><a style="font-size:11px; margin-left: 5%;" href='javascript:void(0);' data-key="{{prop.slug}}" class="show-hide">{{prop.key}}</a></li>
           {% endfor %}
         </ul>
       </div>

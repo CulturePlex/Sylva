@@ -248,7 +248,7 @@ sigma:true, clearTimeout */
         that.enableDisableSelectingTool('rectangle');
       });
 
-      $('#sigma-filter-free-hand').on('click', function() {
+      $('#sigma-filter-freehand').on('click', function() {
         that.enableDisableSelectingTool('freeHand');
       });
 
@@ -296,8 +296,8 @@ sigma:true, clearTimeout */
         Sigma.init();
       }
       isDrawing = true;
-      $('#sigma-pause').removeClass('icon-play');
-      $('#sigma-pause').addClass('icon-pause');
+      $('#sigma-pause').removeClass('fa-play');
+      $('#sigma-pause').addClass('fa-pause');
     },
 
     // Stop layout algorithm.
@@ -307,8 +307,8 @@ sigma:true, clearTimeout */
       if (sigInst) {
         sigInst.stopForceAtlas2();
         isDrawing = false;
-        $('#sigma-pause').removeClass('icon-pause');
-        $('#sigma-pause').addClass('icon-play');
+        $('#sigma-pause').removeClass('fa-pause');
+        $('#sigma-pause').addClass('fa-play');
       }
     },
 
@@ -352,7 +352,7 @@ sigma:true, clearTimeout */
             paddingLeft: '3px'
           })
           .append($('<i>')
-            .addClass('icon-eye-open')
+            .addClass('fa fa-eye')
             .addClass('show-hide-' + kind + 's')
             .attr('data-action', 'hide')
             .attr('data-' + kind + 'type-id', typeId)
@@ -548,7 +548,7 @@ sigma:true, clearTimeout */
       if (sylva.size > 1) {
         // Checking if we need to move the only the selected nodes.
         var moveSelected = false;
-        if (sylva.selectedNodes.lenght < sylva.size &&
+        if (sylva.selectedNodes.length < sylva.size &&
             selectedSelectingTool == 'move') {
           var index = sylva.selectedNodes.indexOf(nodeOvered.id);
           if (index >= 0) {
@@ -1076,7 +1076,7 @@ sigma:true, clearTimeout */
         that.putBoxesInsideCanvas();
       }
 
-      // Setting Paper.js for use the selection tools.
+      // Setting Paper.js for use with the filters.
       paper.projects = [];
       paper.setup($('.sigma-mouse')[0]);
     },
@@ -1211,11 +1211,11 @@ sigma:true, clearTimeout */
         $(this).text(' ' + $(this).text());
         var parentId = $(this).parent().attr('id');
         var collapsed = sylva.positions[parentId].collapsed;
-        var icon = 'icon-caret-down';
+        var icon = 'fa-chevron-circle-down';
         if (collapsed) {
-          icon = 'icon-caret-right';
+          icon = 'fa-chevron-circle-right';
         }
-        $(this).prepend('<span class="' + icon + ' icon-fixed-width" style="display: inline;"></span>');
+        $(this).prepend('<span class="fa ' + icon + ' fa-fw" style="display: inline;"></span>');
       });
 
       $('#sigma-zoom-in').parent().css({
@@ -1402,18 +1402,12 @@ sigma:true, clearTimeout */
 
           // This lines control the arrow icon.
           var span = $(event.target).children().first().children().first();
-          if (span.hasClass('icon-caret-down')) {
-            span.removeClass('icon-caret-down');
-            span.addClass('icon-caret-right');
-            span.css({
-              marginRight: '5px'
-            });
+          if (span.hasClass('fa-chevron-circle-down')) {
+            span.removeClass('fa-chevron-circle-down');
+            span.addClass('fa-chevron-circle-right');
           } else {
-            span.removeClass('icon-caret-right');
-            span.addClass('icon-caret-down');
-            span.css({
-              marginRight: ''
-            });
+            span.removeClass('fa-chevron-circle-right');
+            span.addClass('fa-chevron-circle-down');
           }
 
           that.updateBoxPositions(event.target.id, ui);
@@ -1683,8 +1677,8 @@ sigma:true, clearTimeout */
 
       if (action == "hide") {
         $(this).attr('data-action', 'show');
-        $(this).removeClass('icon-eye-open');
-        $(this).addClass('icon-eye-close');
+        $(this).removeClass('fa-eye');
+        $(this).addClass('fa-eye-slash');
         hidden = true;
         for(var i = 0; i < nodesId.length; i++) {
           var index = visibleNodeIds.indexOf(nodesId[i]);
@@ -1692,8 +1686,8 @@ sigma:true, clearTimeout */
         }
       } else {
         $(this).attr('data-action', 'hide');
-        $(this).removeClass('icon-eye-close');
-        $(this).addClass('icon-eye-open');
+        $(this).removeClass('fa-eye-slash');
+        $(this).addClass('fa-eye');
         hidden = false;
         visibleNodeIds = visibleNodeIds.concat(nodesId);
       }
@@ -1722,8 +1716,8 @@ sigma:true, clearTimeout */
 
       if (action == "hide") {
         $(this).attr('data-action', 'show');
-        $(this).removeClass('icon-eye-open');
-        $(this).addClass('icon-eye-close');
+        $(this).removeClass('fa-eye');
+        $(this).addClass('fa-eye-slash');
         hidden = true;
         for(var i = 0; i < relsId.length; i++) {
           var index = visibleRelIds.indexOf(relsId[i]);
@@ -1731,8 +1725,8 @@ sigma:true, clearTimeout */
         }
       } else {
         $(this).attr('data-action', 'hide');
-        $(this).removeClass('icon-eye-close');
-        $(this).addClass('icon-eye-open');
+        $(this).removeClass('fa-eye-slash');
+        $(this).addClass('fa-eye');
         hidden = false;
         visibleRelIds = visibleRelIds.concat(relsId);
       }
@@ -1939,7 +1933,7 @@ sigma:true, clearTimeout */
           asString: true
         });
 
-        // Setting Paper.js for use the selection tools.
+        // Setting Paper.js for use with the filters.
         paper.projects = [];
         paper.setup($('.sigma-mouse')[0]);
         canvas = null;
@@ -2287,7 +2281,7 @@ sigma:true, clearTimeout */
 
       var selectingToolDict = {
         'rectangle': 'sigma-filter-rectangle',
-        'freeHand': 'sigma-filter-free-hand',
+        'freeHand': 'sigma-filter-freehand',
         'neighbors': 'sigma-filter-neighbors',
         'click': 'sigma-filter-click',
         'move': 'sigma-move-selected'
@@ -2408,19 +2402,20 @@ sigma:true, clearTimeout */
       });
     },
 
-    /* It is special selection tool: use the result of the regular search for
+    /* It is special a filter: use the result of the regular search for
      * select nodes.
      */
     search: function() {
       var searchBox = $('#searchBox');
-      var ipnuts = searchBox.find('input');
+      var inputs = searchBox.find('input');
+
       $('#id_q').css({
         backgroundImage: 'url(' + sylva.searchLoadingImage + ')'
       });
 
       var params = {};
-      for (var i = 0; i < ipnuts.length; i++) {
-        params[$(ipnuts[i]).attr('name')] = $(ipnuts[i]).attr('value');
+      for (var i = 0; i < inputs.length; i++) {
+        params[$(inputs[i]).attr('name')] = $(inputs[i]).attr('value');
       }
 
       var jqxhr = $.ajax({
