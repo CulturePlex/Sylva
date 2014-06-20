@@ -74,7 +74,7 @@ var analyticsAxis = {
 };
 
 // Variable to store the analytics that actually are executing
-var analyticsExecuting = {};
+var analyticsExecuting = new Array();
 
 var analyticsId = {};
 var taskTime = 0;
@@ -183,8 +183,6 @@ var taskTime = 0;
             $(progressBarId).attr('value', 0);
 
             if(analyticId != "") {
-              // We need to multiply 1000 times because JavaScript uses millseconds
-              analyticDate = new Date(analyticTaskStart * 1000);
               selectAnalyticsId = '#last-analytics-' + algorithm;
               $(selectAnalyticsId).prepend("<option value=" + analyticId + " selected>" + gettext(moment.duration(-1, "seconds").humanize(true)) + "</option>");
               $(selectAnalyticsId).css({
@@ -207,7 +205,25 @@ var taskTime = 0;
         url: "{% url 'analytics_status' graph.slug %}",
         data: {"analytics_request": analyticsRequest}
       }).done(function(analyticsResults){
-        if(!analyticsResults) {
+        // If we have finished analytics, we show them
+        for(key in analyticsResults) {
+          if(analyticsResults.hasOwnProperty(key)) {
+            resultsUrl = analyticsResults[key][0];
+            analyticId = analyticsResults[key][1];
+            analyticTaskStart = analyticsResults[key][2];
+            algorithm = analyticsResults[key][3];
+            getResults(resultsUrl, algorithm, analyticId, analyticTaskStart);
+            $(progressBarId).attr('value', 100);
+            // We remove the element of the list of analytics executing
+            var index = analyticsExecuting.indexOf(key);
+            if(index > -1)
+              analyticsExecuting.splice(index, 1);
+            // If we dont have more analytics executing, we reset the time for the progress bars
+            if(analyticsExecuting.length == 0)
+              taskTime = 0;
+          }
+        }
+        if(analyticsExecuting.length > 0) {
             // We ask for the analytics until all of them are finished
             window.setTimeout(function() {
               getTaskState(analyticsExecuting, progressBarId);
@@ -216,20 +232,6 @@ var taskTime = 0;
               taskTime = taskTime + 7;
               $(progressBarId).attr('value', taskTime);
             }
-        } else {
-          // Once we have all the analytics finished, we treat them
-          for(key in analyticsResults) {
-            if(analyticsResults.hasOwnProperty(key)) {
-              algorithm = key;
-              resultsUrl = analyticsResults[key][0];
-              analyticId = analyticsResults[key][1];
-              analyticTaskStart = analyticsResults[key][2];
-              getResults(resultsUrl, algorithm, analyticId, analyticTaskStart);
-              $(progressBarId).attr('value', 100);
-              taskTime = 0;
-              delete analyticsExecuting[algorithm]
-            }
-          }
         }
         // create the infinite loop of Ajax calls to check the state
         // of the current task
@@ -252,21 +254,21 @@ var taskTime = 0;
             data: {"algorithm": measure}
         }).done(function(data){
             var algorithm = data[0];
-            var eta_time = data[1];
-            if(eta_time < 10) {
+            var etaTime = data[1];
+            if(etaTime < 10) {
               $(progressBarId).attr('max', 100);
             } else {
               $(progressBarId).attr('max', 300);
             }
-            $('#' + etaId).html(gettext("Estimated time ") + eta_time.toFixed(2) + gettext(" seconds"));
+            $('#' + etaId).html(gettext("Estimated time ") + etaTime.toFixed(2) + gettext(" seconds"));
             jQuery.ajax({
             type: "POST",
             url: "{% url 'analytics_run' graph.slug %}",
             data: {"algorithm": measure}
             }).done(function(data){
-                var task_id = data[0];
+                var taskId = data[0];
                 var algorithm = data[1];
-                analyticsExecuting[algorithm] = task_id;
+                analyticsExecuting.push(taskId);
                 getTaskState(analyticsExecuting, progressBarId);
                 $(progressBarId).css({
                   'display': 'inline-block'

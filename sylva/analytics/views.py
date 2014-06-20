@@ -60,22 +60,15 @@ def analytics_status(request, graph_slug):
     analytics_request = request.GET.get('analytics_request')
     analytics_executing = json.loads(analytics_request)
     if request.is_ajax() and analytics_executing is not None:
-        for key, value in analytics_executing.iteritems():
-            algorithm = key
-            task_id = value
+        for task_id in analytics_executing:
             task = AsyncResult(task_id)
             if task.ready():
                 analytic = Analytic.objects.filter(
                     dump__graph__slug=graph_slug,
                     task_id=task_id).latest()
-                analytics_results[algorithm] = [analytic.results.url,
-                    analytic.id, analytic.task_start]
-        if analytics_executing.keys() == analytics_results.keys():
-            data = analytics_results
-        else:
-            data = False
-    else:
-        data = False
+                analytics_results[task_id] = [analytic.results.url,
+                    analytic.id, analytic.task_start, analytic.algorithm]
+    data = analytics_results
     json_data = json.dumps(data)
     return HttpResponse(json_data, mimetype='application/json')
 
