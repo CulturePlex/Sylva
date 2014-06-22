@@ -1,9 +1,8 @@
 // JSHint options
 
-/*global window:true, document:true, setTimeout:true, console:true, jQuery:true,
-sylva:true, prompt:true, alert:true, FileReader:true, Processing:true,
-sigma:true, clearTimeout */
-
+/* global window:true, document:true, setTimeout:true, console:true,
+ * jQuery:true, sylva:true, prompt:true, alert:true, sigma:true, clearTimeout
+ */
 
 /****************************************************************************
  * Sigma.js visualization
@@ -201,19 +200,21 @@ sigma:true, clearTimeout */
       $('#sigma-export-menu').dropit({
         beforeShow: function() {
           var button = $('#sigma-export-image');
+          var child = button.children();
           button.css({
             marginBottom: 0
           });
           button.addClass('active');
-          button.children().removeClass('fa-angle-down');
-          button.children().addClass('fa-angle-up');
+          child.removeClass('fa-angle-down');
+          child.addClass('fa-angle-up');
         },
         afterHide: function() {
           var button = $('#sigma-export-image');
+          var child = button.children();
           button.removeAttr('style');
           button.removeClass('active');
-          button.children().removeClass('fa-angle-up');
-          button.children().addClass('fa-angle-down');
+          child.removeClass('fa-angle-up');
+          child.addClass('fa-angle-down');
         }
       });
       $('#sigma-export-png').on('click', that.exportPNG);
@@ -1896,8 +1897,6 @@ sigma:true, clearTimeout */
     },
 
     exportPNG: function() {
-      that.exportStart();
-
       var canvas = $('<canvas id="sigma-export-png-canvas">');
       var width = $('#sigma-container').children().first().width();
       var height = $('#sigma-container').children().first().height();
@@ -1911,82 +1910,73 @@ sigma:true, clearTimeout */
       var imgData = canvasElem.toDataURL('image/png');
       $(this).attr('href', imgData.replace('image/png', 'image/octet-stream'));
       canvas.remove();
-
-      that.exportEnd();
     },
 
     exportSVG: function() {
-      that.exportStart();
+      // that.exportStart();
 
       // Saving the button for use it later.
       var button = $(this);
 
-      // Setting a wait modal, becuase the generation of the SVG is heavy.
-      that.customTextModal(gettext('Generating SVG, please wait a moment.'), true);
+      var canvas = $('<canvas id="sigma-export-svg-canvas">');
+      var width = $('#sigma-container').children().first().width();
+      var height = $('#sigma-container').children().first().height();
+      canvas.attr('width', width);
+      canvas.attr('height', height);
 
-      setTimeout(function() {
-        var canvas = $('<canvas id="sigma-export-svg-canvas">');
-        var width = $('#sigma-container').children().first().width();
-        var height = $('#sigma-container').children().first().height();
-        canvas.attr('width', width);
-        canvas.attr('height', height);
+      // Seting Paper.js for create the 'SVG-canvas'.
+      paper.projects = [];
+      paper.setup(canvas[0]);
 
-        // Seting Paper.js for create the 'SVG-canvas'.
-        paper.projects = [];
-        paper.setup(canvas[0]);
+      sigInst.graph.edges().forEach(function(e) {
+        var source = sigInst.graph.nodes(e.source);
+        var target = sigInst.graph.nodes(e.target);
+        if (!e.hidden && !source.hidden && !target.hidden) {
+          var x1 = source['renderer1:x'];
+          var y1 = source['renderer1:y'];
+          var x2 = target['renderer1:x'];
+          var y2 = target['renderer1:y'];
+          var color = e.color;
 
-        sigInst.graph.edges().forEach(function(e) {
-          var source = sigInst.graph.nodes(e.source);
-          var target = sigInst.graph.nodes(e.target);
-          if (!e.hidden && !source.hidden && !target.hidden) {
-            var x1 = source['renderer1:x'];
-            var y1 = source['renderer1:y'];
-            var x2 = target['renderer1:x'];
-            var y2 = target['renderer1:y'];
-            var color = e.color;
+          var rel = new paper.Path([
+            new paper.Point(x1, y1),
+            new paper.Point(x2, y2)
+          ]);
+          rel.strokeColor = color;;
+        }
+      });
 
-            var rel = new paper.Path([
-              new paper.Point(x1, y1),
-              new paper.Point(x2, y2)
-            ]);
-            rel.strokeColor = color;;
-          }
-        });
+      sigInst.graph.nodes().forEach(function(n) {
+        if (!n.hidden) {
+          var x = n['renderer1:x'];
+          var y = n['renderer1:y'];
+          var color = n.color;
+          var radius = n['renderer1:size'];
 
-        sigInst.graph.nodes().forEach(function(n) {
-          if (!n.hidden) {
-            var x = n['renderer1:x'];
-            var y = n['renderer1:y'];
-            var color = n.color;
-            var radius = n['renderer1:size'];
+          var circle = new paper.Path.Circle(new paper.Point(x, y), radius);
+          circle.fillColor = color;
+        }
+      });
 
-            var circle = new paper.Path.Circle(new paper.Point(x, y), radius);
-            circle.fillColor = color;
-          }
-        });
+      var svg = paper.project.exportSVG({
+        asString: true
+      });
 
-        var svg = paper.project.exportSVG({
-          asString: true
-        });
+      // Setting Paper.js for use with the filters.
+      paper.projects = [];
+      paper.setup($('.sigma-mouse')[0]);
+      canvas = null;
 
-        // Setting Paper.js for use with the filters.
-        paper.projects = [];
-        paper.setup($('.sigma-mouse')[0]);
-        canvas = null;
+      // Creating the link for download the SVG image.
+      var link = document.createElement('a');
+      link.href = 'data:image/svg+xml,' + svg;
+      link.download = button.attr('download');
+      $(document.body).append(link);
+      link.click();
+      link.remove(link);
+      link = null;
 
-        that.closeModalLib();
-        setTimeout(function() {
-          var link = document.createElement('a');
-          link.href = 'data:image/svg+xml,' + svg;
-          link.download = button.attr('download');
-          $(document.body).append(link);
-          link.click();
-          $(document.body).remove(link);
-          link = null;
-        }, fast * 2); // We need '* 2' because 'closeModalLib()' take 400 ms.
-      }, fast);
-
-      that.exportEnd();
+      // that.exportEnd();
     },
 
     // Changes the graph layout.
