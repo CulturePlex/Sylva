@@ -2755,3 +2755,38 @@ body :hover > a.headerlink {
     margin-bottom: 20px
 }
 /* END Queries */
+
+
+/* Dropit menu for "Save as image" */
+
+#sigma-export-menu ul {
+    display: none; /* Hide before plugin loads */
+}
+
+#sigma-export-menu ul.dropit-submenu {
+    background-color: #fff;
+    border: 1px solid #b2b2b2;
+    padding: 0 0;
+    margin: 5px 0 0 -10px;
+    -webkit-border-radius: 5px;
+       -moz-border-radius: 5px;
+            border-radius: 5px;
+    -webkit-box-shadow: 0px 1px 3px rgba(0,0,0,0.15);
+       -moz-box-shadow: 0px 1px 3px rgba(0,0,0,0.15);
+            box-shadow: 0px 1px 3px rgba(0,0,0,0.15);
+}
+
+#sigma-export-menu ul.dropit-submenu a {
+    display: block;
+    line-height: 25px;
+    font-weight: bold;
+    color: #262626;
+    padding: 0 22px;
+}
+
+#sigma-export-menu ul.dropit-submenu a:hover {
+    background: #D6E7DF;
+    text-decoration: none;
+}
+
+/* END Dropit menu */

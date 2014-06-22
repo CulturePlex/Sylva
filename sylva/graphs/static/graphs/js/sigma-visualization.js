@@ -185,10 +185,6 @@ sigma:true, clearTimeout */
 
       $('#sigma-pause').on('click', that.clickOnPause);
 
-      $('#sigma-export-image').on('mouseover', that.stop);
-
-      $('#sigma-export-svg').on('mouseover', that.stop);
-
       $('.show-hide-nodes').on('click', that.showHideNodes);
 
       $('.show-hide-rels').on('click', that.showHideRels);
@@ -197,8 +193,30 @@ sigma:true, clearTimeout */
 
       $('.change-rels-color').each(that.setRelsColorWidget);
 
+      $('#sigma-export-png').on('mouseover', that.stop);
+
+      $('#sigma-export-svg').on('mouseover', that.stop);
+
       // Save as a PNG image and as a SVG.
-      $('#sigma-export-image').on('click', that.exportPNG);
+      $('#sigma-export-menu').dropit({
+        beforeShow: function() {
+          var button = $('#sigma-export-image');
+          button.css({
+            marginBottom: 0
+          });
+          button.addClass('active');
+          button.children().removeClass('fa-angle-down');
+          button.children().addClass('fa-angle-up');
+        },
+        afterHide: function() {
+          var button = $('#sigma-export-image');
+          button.removeAttr('style');
+          button.removeClass('active');
+          button.children().removeClass('fa-angle-up');
+          button.children().addClass('fa-angle-down');
+        }
+      });
+      $('#sigma-export-png').on('click', that.exportPNG);
       $('#sigma-export-svg').on('click', that.exportSVG);
 
       // Show node info in 'Not analytics mode'.
@@ -243,7 +261,7 @@ sigma:true, clearTimeout */
         that.reCenter();
       });
 
-      // Selecting tool.
+      // Filtering tool.
       $('#sigma-filter-rectangle').on('click', function() {
         that.enableDisableSelectingTool('rectangle');
       });
@@ -1865,7 +1883,21 @@ sigma:true, clearTimeout */
       });
     },
 
+    exportStart: function() {
+      // Deactivate three events
+      // Button deactivate
+      // Start animation
+      // Event alert for exit
+    },
+
+    exportEnd: function() {
+      // Deactivate event alert
+      // Stop animation
+    },
+
     exportPNG: function() {
+      that.exportStart();
+
       var canvas = $('<canvas id="sigma-export-png-canvas">');
       var width = $('#sigma-container').children().first().width();
       var height = $('#sigma-container').children().first().height();
@@ -1879,9 +1911,13 @@ sigma:true, clearTimeout */
       var imgData = canvasElem.toDataURL('image/png');
       $(this).attr('href', imgData.replace('image/png', 'image/octet-stream'));
       canvas.remove();
+
+      that.exportEnd();
     },
 
     exportSVG: function() {
+      that.exportStart();
+
       // Saving the button for use it later.
       var button = $(this);
 
@@ -1949,6 +1985,8 @@ sigma:true, clearTimeout */
           link = null;
         }, fast * 2); // We need '* 2' because 'closeModalLib()' take 400 ms.
       }, fast);
+
+      that.exportEnd();
     },
 
     // Changes the graph layout.
