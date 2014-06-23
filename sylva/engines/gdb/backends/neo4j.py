@@ -448,12 +448,13 @@ class GraphDatabase(BlueprintsGraphDatabase):
                         alias=origin_dict["alias"],
                         graph_id=self.graph_id,
                     )
-                else:
-                    origin = u"""{alias}=rel:`{ridx}`('label:{type}')""".format(
-                        ridx=self.ridx.name,
-                        alias=origin_dict["alias"],
-                        type=relation_type,
-                    )
+                # TODO: Why with not rel indices in START the query is faster?
+                # else:
+                #     origin = u"""{alias}=rel:`{ridx}`('label:{type}')""".format(
+                #         ridx=self.ridx.name,
+                #         alias=origin_dict["alias"],
+                #         type=relation_type,
+                #     )
                 origins_list.append(origin)
         origins = u", ".join(origins_list)
         results_list = []
