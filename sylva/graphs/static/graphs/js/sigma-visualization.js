@@ -1901,66 +1901,176 @@
     },
 
     exportSVG: function() {
+      // Parameters for the SVG.
       var width = $('#sigma-container').children().first().width();
       var height = $('#sigma-container').children().first().height();
 
-      // Creating the SVG (XML)
+      // Creating the SVG HTML element.
       var svg = $('<svg>');
       svg.attr('width', width);
       svg.attr('height', height);
       svg.attr('xmlns', 'http://www.w3.org/2000/svg');
       svg.attr('xmlns:xlink', 'http://www.w3.org/1999/xlink');
 
-      // Iterating over the relationships.
-      sigInst.graph.edges().forEach(function(e) {
-        var source = sigInst.graph.nodes(e.source);
-        var target = sigInst.graph.nodes(e.target);
-        if (!e.hidden && !source.hidden && !target.hidden) {
-          var x1 = source['renderer1:x'];
-          var y1 = source['renderer1:y'];
-          var x2 = target['renderer1:x'];
-          var y2 = target['renderer1:y'];
-          var color = e.color;
+      // Setting variables for the "progress button".
+      var buttonText = $('#sigma-export-image');
+      var buttonOriginalText = buttonText.html();
+      var buttonOriginalWidth = buttonText.width();
+      var buttonNewText = gettext('Saving SVG');
+      var buttonDots = 1;
+      var maxButtonsDots = 3;
 
-          var line = $('<line>');
-          line.attr('x1', x1);
-          line.attr('y1', y1);
-          line.attr('x2', x2);
-          line.attr('y2', y2);
-          line.attr('stroke', color);
-          svg.append(line);
-        }
-      });
+      // An event for don't admit clicks in the "progress button".
+      var stopClickPropagation = function(event) {
+        event.stopImmediatePropagation();
+      }
+      buttonText.on('click', stopClickPropagation);
 
-      // Iterating over the nodes.
-      sigInst.graph.nodes().forEach(function(n) {
-        if (!n.hidden) {
-          var x = n['renderer1:x'];
-          var y = n['renderer1:y'];
-          var color = n.color;
-          var radius = n['renderer1:size'];
+      // And an event for don't exit the view.
+      window.onbeforeunload = function() {
+        return gettext('A SVG image are being generated.');
+      };
+
+      // And here it is the animation for the "progress button".
+      var progressButtonIntervalId = setInterval(function() {
+        /* If the next line is setted before, the 'hide event' of the 'dropit'
+         * library will remove the class 'active';
+         */
+        buttonText.addClass('active');
+
+        buttonDots = (buttonDots < maxButtonsDots) ? buttonDots + 1 : 1;
+        var text = buttonNewText + Array(buttonDots + 1).join(" .");
+        buttonText.html(text);
+        buttonText.width(buttonOriginalWidth);
+      }, 500);
+
+      /* The "done" callback/filter of the promise. Creates the string from the
+       * SVG and sends it to the user.
+       */
+      var doneFilter = function() {
+        // Obtaining the XML string in Base64.
+        svg = svg[0].outerHTML;
+        svg = btoa(svg);
+
+        // Stopping and clearing the "progress button" and the exit view event.
+        clearInterval(progressButtonIntervalId);
+        buttonText.html(buttonOriginalText);
+        buttonText.removeClass('active');
+        buttonText.off('click', stopClickPropagation);
+        window.onbeforeunload = null;
+
+        // Creating the link for "auto" click it.
+        var link = document.createElement('a');
+        link.href = 'data:image/svg+xml;base64,' + svg;
+        link.download = $('#sigma-export-svg').attr('download');
+        $(document.body).append(link);
+        link.click();
+        link.remove(link);
+      };
+
+      /* The "progress" callback/filter of the promise. Appends some SVG
+       * elements to the SVG HTML element.
+       */
+      var progressFilter = function(elements) {
+        svg.append(elements);
+      }
+
+      // Defining the promise.
+      var promiseSVG = function() {
+
+        // The main task of the promise.
+        var processQueues = function(edgesQueue, nodesQueue, deferred) {
+
+          // Making the promise asynchronous.
+          setTimeout(function() {
+
+            // The sub-task for the edges.
+            var processEdges = function(edges) {
+              var lines = [];
+
+              // Obtains attributes from a edge and creates a line.
+              edges.forEach(function(e) {
+                var source = sigInst.graph.nodes(e.source);
+                var target = sigInst.graph.nodes(e.target);
+                if (!e.hidden && !source.hidden && !target.hidden) {
+                  var x1 = source['renderer1:x'];
+                  var y1 = source['renderer1:y'];
+                  var x2 = target['renderer1:x'];
+                  var y2 = target['renderer1:y'];
+                  var color = e.color;
+
+                  var line = $('<line>');
+                  line.attr('x1', x1);
+                  line.attr('y1', y1);
+                  line.attr('x2', x2);
+                  line.attr('y2', y2);
+                  line.attr('stroke', color);
+
+                  lines.push(line);
+                }
+              });
+
+              deferred.notify(lines);
+              processQueues(edgesQueue, nodesQueue, deferred);
+            };
+
+            // The sub-task for the nodes.
+            var processNodes = function(nodes) {
+              var circles = [];
+
+              // Obtains attributes from a node and creates a circle.
+              nodes.forEach(function(n) {
+                if (!n.hidden) {
+                  var x = n['renderer1:x'];
+                  var y = n['renderer1:y'];
+                  var color = n.color;
+                  var radius = n['renderer1:size'];
 
 
-          var circle = $('<circle>');
-          circle.attr('cx', x);
-          circle.attr('cy', y);
-          circle.attr('r', radius);
-          circle.attr('fill', color);
-          svg.append(circle);
-        }
-      });
+                  var circle = $('<circle>');
+                  circle.attr('cx', x);
+                  circle.attr('cy', y);
+                  circle.attr('r', radius);
+                  circle.attr('fill', color);
 
-      // Converting the HTML element to a string (XML).
-      svg = svg[0].outerHTML;
+                  circles.push(circle);
+                }
+              });
 
-      // Creating the link for download the SVG image.
-      var link = document.createElement('a');
-      link.href = 'data:image/svg+xml,' + svg;
-      link.download = $(this).attr('download');
-      $(document.body).append(link);
-      link.click();
-      link.remove(link);
-      link = null;
+              deferred.notify(circles);
+              processQueues(edgesQueue, nodesQueue, deferred);
+            };
+
+            // The body of the main task.
+            var nElements = 100;
+
+            if (edgesQueue.length > 0) {
+              var edges = edgesQueue.splice(0, nElements);
+              processEdges(edges);
+
+            } else if (nodesQueue.length > 0) {
+              var nodes = nodesQueue.splice(0, nElements);
+              processNodes(nodes);
+
+            } else {
+              deferred.resolve();
+            }
+
+          }, 0);
+        };
+
+        // Here is where the main task really starts to run.
+        var edgesQueue = sigInst.graph.edges();
+        var nodesQueue = sigInst.graph.nodes();
+        var deferred = $.Deferred();
+
+        processQueues(edgesQueue, nodesQueue, deferred);
+
+        return deferred.promise();
+      };
+
+      // Runing the promise.
+      promiseSVG().then(doneFilter, null, progressFilter);
     },
 
     // Changes the graph layout.
