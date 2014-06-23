@@ -1884,18 +1884,6 @@
       });
     },
 
-    exportStart: function() {
-      // Deactivate three events
-      // Button deactivate
-      // Start animation
-      // Event alert for exit
-    },
-
-    exportEnd: function() {
-      // Deactivate event alert
-      // Stop animation
-    },
-
     exportPNG: function() {
       var canvas = $('<canvas id="sigma-export-png-canvas">');
       var width = $('#sigma-container').children().first().width();
@@ -1913,21 +1901,17 @@
     },
 
     exportSVG: function() {
-      // that.exportStart();
-
-      // Saving the button for use it later.
-      var button = $(this);
-
-      var canvas = $('<canvas id="sigma-export-svg-canvas">');
       var width = $('#sigma-container').children().first().width();
       var height = $('#sigma-container').children().first().height();
-      canvas.attr('width', width);
-      canvas.attr('height', height);
 
-      // Seting Paper.js for create the 'SVG-canvas'.
-      paper.projects = [];
-      paper.setup(canvas[0]);
+      // Creating the SVG (XML)
+      var svg = $('<svg>');
+      svg.attr('width', width);
+      svg.attr('height', height);
+      svg.attr('xmlns', 'http://www.w3.org/2000/svg');
+      svg.attr('xmlns:xlink', 'http://www.w3.org/1999/xlink');
 
+      // Iterating over the relationships.
       sigInst.graph.edges().forEach(function(e) {
         var source = sigInst.graph.nodes(e.source);
         var target = sigInst.graph.nodes(e.target);
@@ -1938,14 +1922,17 @@
           var y2 = target['renderer1:y'];
           var color = e.color;
 
-          var rel = new paper.Path([
-            new paper.Point(x1, y1),
-            new paper.Point(x2, y2)
-          ]);
-          rel.strokeColor = color;;
+          var line = $('<line>');
+          line.attr('x1', x1);
+          line.attr('y1', y1);
+          line.attr('x2', x2);
+          line.attr('y2', y2);
+          line.attr('stroke', color);
+          svg.append(line);
         }
       });
 
+      // Iterating over the nodes.
       sigInst.graph.nodes().forEach(function(n) {
         if (!n.hidden) {
           var x = n['renderer1:x'];
@@ -1953,30 +1940,27 @@
           var color = n.color;
           var radius = n['renderer1:size'];
 
-          var circle = new paper.Path.Circle(new paper.Point(x, y), radius);
-          circle.fillColor = color;
+
+          var circle = $('<circle>');
+          circle.attr('cx', x);
+          circle.attr('cy', y);
+          circle.attr('r', radius);
+          circle.attr('fill', color);
+          svg.append(circle);
         }
       });
 
-      var svg = paper.project.exportSVG({
-        asString: true
-      });
-
-      // Setting Paper.js for use with the filters.
-      paper.projects = [];
-      paper.setup($('.sigma-mouse')[0]);
-      canvas = null;
+      // Converting the HTML element to a string (XML).
+      svg = svg[0].outerHTML;
 
       // Creating the link for download the SVG image.
       var link = document.createElement('a');
       link.href = 'data:image/svg+xml,' + svg;
-      link.download = button.attr('download');
+      link.download = $(this).attr('download');
       $(document.body).append(link);
       link.click();
       link.remove(link);
       link = null;
-
-      // that.exportEnd();
     },
 
     // Changes the graph layout.
