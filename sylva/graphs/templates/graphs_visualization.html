@@ -15,15 +15,22 @@
   <div id="graph-controls-and-info">
     <div id="graph-controls">
       <div class="sigma-control right" style="display: none;">
-        <a id="sigma-zoom-in" class="button icon-plus control-button zoom-left" title="{% trans "Zoom in" %}"></a>
-        <a id="sigma-zoom-home" class="button icon-home control-button zoom-home" title="{% trans "Re-center graph" %}"></a>
-        <a id="sigma-zoom-out" class="button icon-minus control-button zoom-right" title="{% trans "Zoom out" %}"></a>
+        <a id="sigma-zoom-in" class="button fa fa-plus control-button zoom-left" title="{% trans "Zoom in" %}"></a>
+        <a id="sigma-zoom-home" class="button fa fa-home control-button zoom-home" title="{% trans "Re-center graph" %}"></a>
+        <a id="sigma-zoom-out" class="button fa fa-minus control-button zoom-right" title="{% trans "Zoom out" %}"></a>
       </div>
       <div class="sigma-control left analytics-mode" style="display: none;">
-        <a id="sigma-export-image" class="button" style="font-size: 100%;" title="{% trans "Save as a PNG image" %}" download="{{ graph.slug }}.png">{% trans "Save as image" %}</a>
-      </div>
-      <div class="sigma-control left analytics-mode" style="display: none;">
-        <a id="sigma-export-svg" class="button" style="font-size: 100%;" title="{% trans "Save as a SVG" %}" download="{{ graph.slug }}.svg">{% trans "Save as SVG" %}</a>
+        <ul id="sigma-export-menu">
+          <li>
+            <a id="sigma-export-image" href="#" class="button" title="{% trans "Save as image" %}" >
+              {% trans "Save as image" %} <i class="fa fa-angle-down"></i>
+            </a>
+            <ul>
+              <li><a id="sigma-export-png" style="font-size: 100%;" title="{% trans "Save as PNG" %}" download="{{ graph.slug }}.png">{% trans "Save as PNG" %}</a></li>
+              <li><a id="sigma-export-svg" style="font-size: 100%;" title="{% trans "Save as SVG" %}" download="{{ graph.slug }}.svg">{% trans "Save as SVG" %}</a></li>
+            </ul>
+          </li>
+        </ul>
       </div>
       {% if analytics %}
         <div class="sigma-control right" style="display: none;">
@@ -57,13 +64,6 @@
       </div>
       <div class="graph-layout-option" style="display: none;">
         <label class="label-node-order" style="font-weight: normal;">{% trans "Node order:" %}</label>
-        <select id="sigma-graph-layout-degree-order">
-          <option id="nt" disabled="disabled" selected="selected">{% trans "Node type" %}</option>
-          <option id="td">{% trans "Total degree" %}</option>
-          <option id="id">{% trans "In degree" %}</option>
-          <option id="od">{% trans "Out degree" %}</option>
-        </select>
-        <label class="label-node-degree-order" style="font-weight: normal;">{% trans "Node order:" %}</label>
         <select id="sigma-graph-layout-degree-order">
           <option id="nt" disabled="disabled" selected="selected">{% trans "Node type" %}</option>
           <option id="td">{% trans "Total degree" %}</option>
@@ -104,26 +104,16 @@
   </div>
 </div>
 <div id="full-window-column" class="analytics-mode" style="display: none;">
-  <div class="selection-tools">
-    <h2>{% trans "Selection tools" %}</h2>
-    <div class="selection-tools-wrapper">
-      <div class="sigma-control">
-        <a id="sigma-filter-rectangle" class="button" style="font-size: 100%;" title="{% trans "Rectangle" %}">{% trans "Rect" %}</a>
-      </div>
-      <div class="sigma-control">
-        <a id="sigma-filter-free-hand" class="button" style="font-size: 100%;" title="{% trans "Free hand" %}">{% trans "F. hand" %}</a>
-      </div>
-      <div class="sigma-control">
-        <a id="sigma-filter-neighbors" class="button" style="font-size: 100%;" title="{% trans "Neighbor nodes" %}">{% trans "Neighbors" %}</a>
-      </div>
-      <div class="sigma-control ">
-        <a id="sigma-filter-click" class="button" style="font-size: 100%;" title="{% trans "Clicked nodes" %}">{% trans "Click" %}</a>
-      </div>
-      <div class="sigma-control ">
-        <a id="sigma-move-selected" class="button" style="font-size: 100%;" title="{% trans "Move selected nodes" %}">{% trans "Move" %}</a>
-      </div>
+  <div class="filters">
+    <h2>{% trans "Filters" %}</h2>
+    <div class="filters-wrapper">
+      <a id="sigma-filter-rectangle" class="fa fa-pencil-square-o fa-fw button filter filter-left" style="font-size: 100%;" title="{% trans "Rectangle" %}"></a>
+      <a id="sigma-filter-freehand" class="fa fa-pencil button fa-fw filter filter-middle" style="font-size: 100%;" title="{% trans "Freehand" %}"></a>
+      <a id="sigma-filter-neighbors" class="fa fa-sitemap button fa-fw filter filter-middle" style="font-size: 100%;" title="{% trans "Neighbor nodes" %}"></a>
+      <a id="sigma-filter-click" class="fa fa-circle button fa-fw filter filter-middle" style="font-size: 100%;" title="{% trans "Click in nodes" %}"></a>
+      <a id="sigma-move-selected" class="fa fa-arrows button fa-fw filter filter-right" style="font-size: 100%;" title="{% trans "Move selected nodes" %}"></a>
     </div>
-    <div class="sigma-control selection-tools-wrapper">
+    <div class="sigma-control">
       <label id="last-queries-label" style="font-weight: normal;">{% trans "From queries:" %}</label>
       <select id="last-queries-select">
         <option disabled="disabled" selected="selected">{% trans "None" %}</option>
@@ -142,7 +132,7 @@
         <h2>{{ value }}</h2>
         <div id="analytics-menu">
           <div id="play-button">
-            <a id="play-algorithm" class="play-algorithm button icon-play" data-measure='{{ key }}' data-plot="{{ key }}-results" data-eta="{{ key }}-eta" title="Play algorithm"></a>
+            <a id="play-algorithm" class="play-algorithm button fa fa-play" data-measure='{{ key }}' data-plot="{{ key }}-results" data-eta="{{ key }}-eta" title="Play algorithm"></a>
             <h2 id="{{ key }}-eta"></h2>
             <!--<label class="label-analytics"><input type='checkbox' />{% trans "Feedback results back to the nodes" %}</label>-->
             <progress id="progress-bar-{{ key }}" class="progress-bar"></progress>

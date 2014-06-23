@@ -4,7 +4,6 @@
 {% block extra_links %}
   {% compress css %}
     <link rel="stylesheet" href="{{ STATIC_PREFIX }}bootstrap/css/bootstrap-custom.css">
-    <link rel="stylesheet" href="{{ STATIC_PREFIX }}css/font-awesome.css">
   {% endcompress %}
 {% endblock extra_links %}
 
@@ -25,8 +24,8 @@
             <ul class="nav nav-list">
               <li class="nav-header">
                 <a href="javascript:void(0)" data-toggle="collapse" data-target="#introduction-block">{% trans "Introduction" %}</a>
-                <i class="icon-chevron-down icon-large nav-arrow" style="display: none;"></i>
-                <i class="icon-chevron-up icon-large nav-arrow"></i>
+                <i class="fa fa-chevron-down fa-lg nav-arrow" style="display: none;"></i>
+                <i class="fa fa-chevron-up fa-lg nav-arrow"></i>
               </li>
               <ul id="introduction-block" class="collapse in">
                 <li><a href="#what-is-a-graph-database">{% trans "What is a graph database" %}</a></li>
@@ -34,16 +33,16 @@
               </ul>
               <li class="nav-header">
                 <a href="javascript:void(0)" data-toggle="collapse" data-target="#an-overview-block">{% trans "An overview" %}</a>
-                <i class="icon-chevron-down icon-large nav-arrow" style="display: none;"></i>
-                <i class="icon-chevron-up icon-large nav-arrow"></i>
+                <i class="fa fa-chevron-down fa-lg nav-arrow" style="display: none;"></i>
+                <i class="fa fa-chevron-up fa-lg nav-arrow"></i>
               </li>
               <ul id="an-overview-block" class="collapse in">
                 <li><a href="#the-dashboard">{% trans "The Dashboard" %}</a></li>
               </ul>
               <li class="nav-header">
                 <a href="javascript:void(0)" data-toggle="collapse" data-target="#designing-the-graph-block">{% trans "Designing the graph" %}</a>
-                <i class="icon-chevron-down icon-large nav-arrow" style="display: none;"></i>
-                <i class="icon-chevron-up icon-large nav-arrow"></i>
+                <i class="fa fa-chevron-down fa-lg nav-arrow" style="display: none;"></i>
+                <i class="fa fa-chevron-up fa-lg nav-arrow"></i>
               </li>
               <ul id="designing-the-graph-block" class="collapse in">
                 <li><a href="#creating-a-graph">{% trans "Creating a graph" %}</a></li>
@@ -51,8 +50,8 @@
               </ul>
               <li class="nav-header">
                 <a href="javascript:void(0)" data-toggle="collapse" data-target="#adding-data-block">{% trans "Adding data" %}</a>
-                <i class="icon-chevron-down icon-large nav-arrow" style="display: none;"></i>
-                <i class="icon-chevron-up icon-large nav-arrow"></i>
+                <i class="fa fa-chevron-down fa-lg nav-arrow" style="display: none;"></i>
+                <i class="fa fa-chevron-up fa-lg nav-arrow"></i>
               </li>
               <ul id="adding-data-block" class="collapse in">
                 <li><a href="#creating-nodes">{% trans "Creating nodes" %}</a></li>
@@ -61,16 +60,16 @@
               </ul>
               <li class="nav-header">
                 <a href="javascript:void(0)" data-toggle="collapse" data-target="#visualizing-the-graph-block">{% trans "Visualizing the graph" %}</a>
-                <i class="icon-chevron-down icon-large nav-arrow" style="display: none;"></i>
-                <i class="icon-chevron-up icon-large nav-arrow"></i>
+                <i class="fa fa-chevron-down fa-lg nav-arrow" style="display: none;"></i>
+                <i class="fa fa-chevron-up fa-lg nav-arrow"></i>
               </li>
               <ul id="visualizing-the-graph-block" class="collapse in">
                 <li><a href="#graph-visualization">{% trans "Graph visualization" %}</a></li>
               </ul>
               <li class="nav-header">
                 <a href="javascript:void(0)" data-toggle="collapse" data-target="#exporting-graphs-block">{% trans "Exporting graphs" %}</a>
-                <i class="icon-chevron-down icon-large nav-arrow" style="display: none;"></i>
-                <i class="icon-chevron-up icon-large nav-arrow"></i>
+                <i class="fa fa-chevron-down fa-lg nav-arrow" style="display: none;"></i>
+                <i class="fa fa-chevron-up fa-lg nav-arrow"></i>
               </li>
               <ul id="exporting-graphs-block" class="collapse in">
                 <li><a href="#exporting-schema">{% trans "Exporting the schema" %}</a></li>
@@ -79,8 +78,8 @@
               </ul>
               <li class="nav-header">
                 <a href="javascript:void(0)" data-toggle="collapse" data-target="#importing-graphs-block">{% trans "Importing graphs" %}</a>
-                <i class="icon-chevron-down icon-large nav-arrow" style="display: none;"></i>
-                <i class="icon-chevron-up icon-large nav-arrow"></i>
+                <i class="fa fa-chevron-down fa-lg nav-arrow" style="display: none;"></i>
+                <i class="fa fa-chevron-up fa-lg nav-arrow"></i>
               </li>
               <ul id="importing-graphs-block" class="collapse in">
                 <li><a href="#importing-schema">{% trans "Importing the schema" %}</a></li>
@@ -536,13 +535,13 @@
           $('.collapse').on({
             show: function() {
               var $prev = $(this).prev();
-              $prev.find('.icon-chevron-down').hide();
-              $prev.find('.icon-chevron-up').show();
+              $prev.find('.fa-chevron-down').hide();
+              $prev.find('.fa-chevron-up').show();
             },
             hide: function() {
               var $prev = $(this).prev();
-              $prev.find('.icon-chevron-down').show();
-              $prev.find('.icon-chevron-up').hide();
+              $prev.find('.fa-chevron-down').show();
+              $prev.find('.fa-chevron-up').hide();
             }
           });
         });

@@ -311,7 +311,7 @@ diagram.lookupsValuesType = {
             addField.attr("data-idallrels", idAllRels);
             // Icon
             addFieldIcon = $("<I>");
-            addFieldIcon.addClass("icon-plus-sign");
+            addFieldIcon.addClass("fa fa-plus-circle");
             addFieldIcon.attr('id', 'add-field-icon');
             addField.append(addFieldIcon);
             divAddBox = $("<DIV>");
@@ -477,7 +477,7 @@ diagram.lookupsValuesType = {
                     addField.attr('data-label', label);
                     // Icon
                     addFieldIcon = $("<I>");
-                    addFieldIcon.addClass("icon-plus-sign");
+                    addFieldIcon.addClass("fa fa-plus-circle");
                     addFieldIcon.attr('id', 'add-field-icon-prop')
                     addField.append(addFieldIcon);
                 }
@@ -550,19 +550,19 @@ diagram.lookupsValuesType = {
             anchorShowHide.attr("href", "javascript:void(0);");
             anchorShowHide.attr("id", "inlineShowHideLink_"+ modelName);
             iconToggle = $("<I>");
-            iconToggle.addClass("icon-minus-sign");
+            iconToggle.addClass("fa fa-minus-circle");
             iconToggle.attr('id', 'icon-toggle');
 
             anchorShowHide.append(iconToggle);
             anchorShowHide.click(function () {
                 $("#diagramModelAnchor_"+ graphName +"\\\."+ modelName).click();
                 $('#' + idTopBox).toggleClass("hidden");
-                if (iconToggle.attr('class') == 'icon-minus-sign') {
-                    iconToggle.removeClass('icon-minus-sign');
-                    iconToggle.addClass('icon-plus-sign');
+                if (iconToggle.attr('class') == 'fa fa-minus-circle') {
+                    iconToggle.removeClass('fa-minus-circle');
+                    iconToggle.addClass('fa-plus-circle');
                 } else {
-                    iconToggle.removeClass('icon-plus-sign');
-                    iconToggle.addClass('icon-minus-sign');
+                    iconToggle.removeClass('fa-plus-circle');
+                    iconToggle.addClass('fa-minus-circle');
                 }
                 // Recalculate anchor for source endpoints
                 diagram.recalculateAnchor(idBox, idAllRels);
@@ -574,7 +574,7 @@ diagram.lookupsValuesType = {
             anchorDelete.attr("href", "javascript:void(0);");
             anchorDelete.attr("id", "inlineDeleteLink_"+ modelName);
             iconDelete = $("<I>");
-            iconDelete.addClass("icon-remove-sign");
+            iconDelete.addClass("fa fa-times-circle");
             anchorDelete.append(iconDelete);
             anchorDelete.click(function () {
                 $("#diagramModelAnchor_"+ graphName +"\\\."+ modelName).click();
@@ -657,18 +657,18 @@ diagram.lookupsValuesType = {
             anchorShowHide.attr("href", "javascript:void(0);");
             anchorShowHide.attr("id", "inlineShowHideLink_"+ modelName);
             iconToggle = $("<I>");
-            iconToggle.addClass("icon-minus-sign");
+            iconToggle.addClass("fa fa-minus-circle");
             iconToggle.attr('id', 'icon-toggle');
             anchorShowHide.append(iconToggle);
             anchorShowHide.click(function () {
                 $("#diagramModelAnchor_"+ graphName +"\\\."+ modelName).click();
                 $('#' + idTopBox).toggleClass("hidden");
-                if (iconToggle.attr('class') == 'icon-minus-sign') {
-                    iconToggle.removeClass('icon-minus-sign');
-                    iconToggle.addClass('icon-plus-sign');
+                if (iconToggle.attr('class') == 'fa fa-minus-circle') {
+                    iconToggle.removeClass('fa-minus-circle');
+                    iconToggle.addClass('fa-plus-circle');
                 } else {
-                    iconToggle.removeClass('icon-plus-sign');
-                    iconToggle.addClass('icon-minus-sign');
+                    iconToggle.removeClass('fa-plus-circle');
+                    iconToggle.addClass('fa-minus-circle');
                 }
                 diagram.recalculateAnchor(idBox, idAllRels);
 
@@ -679,7 +679,7 @@ diagram.lookupsValuesType = {
             anchorDelete.attr("href", "javascript:void(0);");
             anchorDelete.attr("id", "inlineDeleteLink_"+ modelName);
             iconDelete = $("<I>");
-            iconDelete.addClass("icon-remove-sign");
+            iconDelete.addClass("fa fa-times-circle");
             anchorDelete.append(iconDelete);
             anchorDelete.click(function () {
                 $("#diagramModelAnchor_"+ graphName +"\\\."+ modelName).click();
@@ -905,7 +905,7 @@ diagram.lookupsValuesType = {
             removeField.attr('data-idallrels', idAllRels);
             // Icon
             removeFieldIcon = $("<I>");
-            removeFieldIcon.addClass("icon-minus-sign");
+            removeFieldIcon.addClass("fa fa-minus-circle");
             removeFieldIcon.attr('id', 'remove-field-icon');
             removeField.append(removeFieldIcon);
 
@@ -988,7 +988,7 @@ diagram.lookupsValuesType = {
                     removeField.attr('data-parentid', idFields);
                     // Icon
                     removeFieldIcon = $("<I>");
-                    removeFieldIcon.addClass("icon-minus-sign");
+                    removeFieldIcon.addClass("fa fa-minus-cricle");
                     removeFieldIcon.attr('id', 'remove-field-icon-prop');
 
                     removeField.append(removeFieldIcon);
@@ -1683,7 +1683,7 @@ diagram.lookupsValuesType = {
 
             // Remove relation icon
             removeRelationIcon = $("<I>");
-            removeRelationIcon.addClass("icon-minus-sign");
+            removeRelationIcon.addClass("fa fa-minus-circle");
             removeRelationIcon.attr('id', 'remove-relation-icon');
             removeRelation.append(removeRelationIcon);
 

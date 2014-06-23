@@ -1,9 +1,8 @@
 // JSHint options
 
-/*global window:true, document:true, setTimeout:true, console:true, jQuery:true,
-sylva:true, prompt:true, alert:true, FileReader:true, Processing:true,
-sigma:true, clearTimeout */
-
+/* global window:true, document:true, setTimeout:true, console:true,
+ * jQuery:true, sylva:true, prompt:true, alert:true, sigma:true, clearTimeout
+ */
 
 /****************************************************************************
  * Sigma.js visualization
@@ -185,10 +184,6 @@ sigma:true, clearTimeout */
 
       $('#sigma-pause').on('click', that.clickOnPause);
 
-      $('#sigma-export-image').on('mouseover', that.stop);
-
-      $('#sigma-export-svg').on('mouseover', that.stop);
-
       $('.show-hide-nodes').on('click', that.showHideNodes);
 
       $('.show-hide-rels').on('click', that.showHideRels);
@@ -197,8 +192,32 @@ sigma:true, clearTimeout */
 
       $('.change-rels-color').each(that.setRelsColorWidget);
 
+      $('#sigma-export-png').on('mouseover', that.stop);
+
+      $('#sigma-export-svg').on('mouseover', that.stop);
+
       // Save as a PNG image and as a SVG.
-      $('#sigma-export-image').on('click', that.exportPNG);
+      $('#sigma-export-menu').dropit({
+        beforeShow: function() {
+          var button = $('#sigma-export-image');
+          var child = button.children();
+          button.css({
+            marginBottom: 0
+          });
+          button.addClass('active');
+          child.removeClass('fa-angle-down');
+          child.addClass('fa-angle-up');
+        },
+        afterHide: function() {
+          var button = $('#sigma-export-image');
+          var child = button.children();
+          button.removeAttr('style');
+          button.removeClass('active');
+          child.removeClass('fa-angle-up');
+          child.addClass('fa-angle-down');
+        }
+      });
+      $('#sigma-export-png').on('click', that.exportPNG);
       $('#sigma-export-svg').on('click', that.exportSVG);
 
       // Show node info in 'Not analytics mode'.
@@ -243,12 +262,12 @@ sigma:true, clearTimeout */
         that.reCenter();
       });
 
-      // Selecting tool.
+      // Filtering tool.
       $('#sigma-filter-rectangle').on('click', function() {
         that.enableDisableSelectingTool('rectangle');
       });
 
-      $('#sigma-filter-free-hand').on('click', function() {
+      $('#sigma-filter-freehand').on('click', function() {
         that.enableDisableSelectingTool('freeHand');
       });
 
@@ -296,8 +315,8 @@ sigma:true, clearTimeout */
         Sigma.init();
       }
       isDrawing = true;
-      $('#sigma-pause').removeClass('icon-play');
-      $('#sigma-pause').addClass('icon-pause');
+      $('#sigma-pause').removeClass('fa-play');
+      $('#sigma-pause').addClass('fa-pause');
     },
 
     // Stop layout algorithm.
@@ -307,8 +326,8 @@ sigma:true, clearTimeout */
       if (sigInst) {
         sigInst.stopForceAtlas2();
         isDrawing = false;
-        $('#sigma-pause').removeClass('icon-pause');
-        $('#sigma-pause').addClass('icon-play');
+        $('#sigma-pause').removeClass('fa-pause');
+        $('#sigma-pause').addClass('fa-play');
       }
     },
 
@@ -352,7 +371,7 @@ sigma:true, clearTimeout */
             paddingLeft: '3px'
           })
           .append($('<i>')
-            .addClass('icon-eye-open')
+            .addClass('fa fa-eye')
             .addClass('show-hide-' + kind + 's')
             .attr('data-action', 'hide')
             .attr('data-' + kind + 'type-id', typeId)
@@ -548,7 +567,7 @@ sigma:true, clearTimeout */
       if (sylva.size > 1) {
         // Checking if we need to move the only the selected nodes.
         var moveSelected = false;
-        if (sylva.selectedNodes.lenght < sylva.size &&
+        if (sylva.selectedNodes.length < sylva.size &&
             selectedSelectingTool == 'move') {
           var index = sylva.selectedNodes.indexOf(nodeOvered.id);
           if (index >= 0) {
@@ -1076,7 +1095,7 @@ sigma:true, clearTimeout */
         that.putBoxesInsideCanvas();
       }
 
-      // Setting Paper.js for use the selection tools.
+      // Setting Paper.js for use with the filters.
       paper.projects = [];
       paper.setup($('.sigma-mouse')[0]);
     },
@@ -1211,11 +1230,11 @@ sigma:true, clearTimeout */
         $(this).text(' ' + $(this).text());
         var parentId = $(this).parent().attr('id');
         var collapsed = sylva.positions[parentId].collapsed;
-        var icon = 'icon-caret-down';
+        var icon = 'fa-chevron-circle-down';
         if (collapsed) {
-          icon = 'icon-caret-right';
+          icon = 'fa-chevron-circle-right';
         }
-        $(this).prepend('<span class="' + icon + ' icon-fixed-width" style="display: inline;"></span>');
+        $(this).prepend('<span class="fa ' + icon + ' fa-fw" style="display: inline;"></span>');
       });
 
       $('#sigma-zoom-in').parent().css({
@@ -1402,18 +1421,12 @@ sigma:true, clearTimeout */
 
           // This lines control the arrow icon.
           var span = $(event.target).children().first().children().first();
-          if (span.hasClass('icon-caret-down')) {
-            span.removeClass('icon-caret-down');
-            span.addClass('icon-caret-right');
-            span.css({
-              marginRight: '5px'
-            });
+          if (span.hasClass('fa-chevron-circle-down')) {
+            span.removeClass('fa-chevron-circle-down');
+            span.addClass('fa-chevron-circle-right');
           } else {
-            span.removeClass('icon-caret-right');
-            span.addClass('icon-caret-down');
-            span.css({
-              marginRight: ''
-            });
+            span.removeClass('fa-chevron-circle-right');
+            span.addClass('fa-chevron-circle-down');
           }
 
           that.updateBoxPositions(event.target.id, ui);
@@ -1683,8 +1696,8 @@ sigma:true, clearTimeout */
 
       if (action == "hide") {
         $(this).attr('data-action', 'show');
-        $(this).removeClass('icon-eye-open');
-        $(this).addClass('icon-eye-close');
+        $(this).removeClass('fa-eye');
+        $(this).addClass('fa-eye-slash');
         hidden = true;
         for(var i = 0; i < nodesId.length; i++) {
           var index = visibleNodeIds.indexOf(nodesId[i]);
@@ -1692,8 +1705,8 @@ sigma:true, clearTimeout */
         }
       } else {
         $(this).attr('data-action', 'hide');
-        $(this).removeClass('icon-eye-close');
-        $(this).addClass('icon-eye-open');
+        $(this).removeClass('fa-eye-slash');
+        $(this).addClass('fa-eye');
         hidden = false;
         visibleNodeIds = visibleNodeIds.concat(nodesId);
       }
@@ -1722,8 +1735,8 @@ sigma:true, clearTimeout */
 
       if (action == "hide") {
         $(this).attr('data-action', 'show');
-        $(this).removeClass('icon-eye-open');
-        $(this).addClass('icon-eye-close');
+        $(this).removeClass('fa-eye');
+        $(this).addClass('fa-eye-slash');
         hidden = true;
         for(var i = 0; i < relsId.length; i++) {
           var index = visibleRelIds.indexOf(relsId[i]);
@@ -1731,8 +1744,8 @@ sigma:true, clearTimeout */
         }
       } else {
         $(this).attr('data-action', 'hide');
-        $(this).removeClass('icon-eye-close');
-        $(this).addClass('icon-eye-open');
+        $(this).removeClass('fa-eye-slash');
+        $(this).addClass('fa-eye');
         hidden = false;
         visibleRelIds = visibleRelIds.concat(relsId);
       }
@@ -1871,6 +1884,18 @@ sigma:true, clearTimeout */
       });
     },
 
+    exportStart: function() {
+      // Deactivate three events
+      // Button deactivate
+      // Start animation
+      // Event alert for exit
+    },
+
+    exportEnd: function() {
+      // Deactivate event alert
+      // Stop animation
+    },
+
     exportPNG: function() {
       var canvas = $('<canvas id="sigma-export-png-canvas">');
       var width = $('#sigma-container').children().first().width();
@@ -1888,73 +1913,70 @@ sigma:true, clearTimeout */
     },
 
     exportSVG: function() {
+      // that.exportStart();
+
       // Saving the button for use it later.
       var button = $(this);
 
-      // Setting a wait modal, becuase the generation of the SVG is heavy.
-      that.customTextModal(gettext('Generating SVG, please wait a moment.'), true);
+      var canvas = $('<canvas id="sigma-export-svg-canvas">');
+      var width = $('#sigma-container').children().first().width();
+      var height = $('#sigma-container').children().first().height();
+      canvas.attr('width', width);
+      canvas.attr('height', height);
 
-      setTimeout(function() {
-        var canvas = $('<canvas id="sigma-export-svg-canvas">');
-        var width = $('#sigma-container').children().first().width();
-        var height = $('#sigma-container').children().first().height();
-        canvas.attr('width', width);
-        canvas.attr('height', height);
+      // Seting Paper.js for create the 'SVG-canvas'.
+      paper.projects = [];
+      paper.setup(canvas[0]);
 
-        // Seting Paper.js for create the 'SVG-canvas'.
-        paper.projects = [];
-        paper.setup(canvas[0]);
+      sigInst.graph.edges().forEach(function(e) {
+        var source = sigInst.graph.nodes(e.source);
+        var target = sigInst.graph.nodes(e.target);
+        if (!e.hidden && !source.hidden && !target.hidden) {
+          var x1 = source['renderer1:x'];
+          var y1 = source['renderer1:y'];
+          var x2 = target['renderer1:x'];
+          var y2 = target['renderer1:y'];
+          var color = e.color;
 
-        sigInst.graph.edges().forEach(function(e) {
-          var source = sigInst.graph.nodes(e.source);
-          var target = sigInst.graph.nodes(e.target);
-          if (!e.hidden && !source.hidden && !target.hidden) {
-            var x1 = source['renderer1:x'];
-            var y1 = source['renderer1:y'];
-            var x2 = target['renderer1:x'];
-            var y2 = target['renderer1:y'];
-            var color = e.color;
+          var rel = new paper.Path([
+            new paper.Point(x1, y1),
+            new paper.Point(x2, y2)
+          ]);
+          rel.strokeColor = color;;
+        }
+      });
 
-            var rel = new paper.Path([
-              new paper.Point(x1, y1),
-              new paper.Point(x2, y2)
-            ]);
-            rel.strokeColor = color;;
-          }
-        });
+      sigInst.graph.nodes().forEach(function(n) {
+        if (!n.hidden) {
+          var x = n['renderer1:x'];
+          var y = n['renderer1:y'];
+          var color = n.color;
+          var radius = n['renderer1:size'];
 
-        sigInst.graph.nodes().forEach(function(n) {
-          if (!n.hidden) {
-            var x = n['renderer1:x'];
-            var y = n['renderer1:y'];
-            var color = n.color;
-            var radius = n['renderer1:size'];
+          var circle = new paper.Path.Circle(new paper.Point(x, y), radius);
+          circle.fillColor = color;
+        }
+      });
 
-            var circle = new paper.Path.Circle(new paper.Point(x, y), radius);
-            circle.fillColor = color;
-          }
-        });
+      var svg = paper.project.exportSVG({
+        asString: true
+      });
 
-        var svg = paper.project.exportSVG({
-          asString: true
-        });
+      // Setting Paper.js for use with the filters.
+      paper.projects = [];
+      paper.setup($('.sigma-mouse')[0]);
+      canvas = null;
 
-        // Setting Paper.js for use the selection tools.
-        paper.projects = [];
-        paper.setup($('.sigma-mouse')[0]);
-        canvas = null;
+      // Creating the link for download the SVG image.
+      var link = document.createElement('a');
+      link.href = 'data:image/svg+xml,' + svg;
+      link.download = button.attr('download');
+      $(document.body).append(link);
+      link.click();
+      link.remove(link);
+      link = null;
 
-        that.closeModalLib();
-        setTimeout(function() {
-          var link = document.createElement('a');
-          link.href = 'data:image/svg+xml,' + svg;
-          link.download = button.attr('download');
-          $(document.body).append(link);
-          link.click();
-          $(document.body).remove(link);
-          link = null;
-        }, fast * 2); // We need '* 2' because 'closeModalLib()' take 400 ms.
-      }, fast);
+      // that.exportEnd();
     },
 
     // Changes the graph layout.
@@ -2287,7 +2309,7 @@ sigma:true, clearTimeout */
 
       var selectingToolDict = {
         'rectangle': 'sigma-filter-rectangle',
-        'freeHand': 'sigma-filter-free-hand',
+        'freeHand': 'sigma-filter-freehand',
         'neighbors': 'sigma-filter-neighbors',
         'click': 'sigma-filter-click',
         'move': 'sigma-move-selected'
@@ -2408,19 +2430,20 @@ sigma:true, clearTimeout */
       });
     },
 
-    /* It is special selection tool: use the result of the regular search for
+    /* It is special a filter: use the result of the regular search for
      * select nodes.
      */
     search: function() {
       var searchBox = $('#searchBox');
-      var ipnuts = searchBox.find('input');
+      var inputs = searchBox.find('input');
+
       $('#id_q').css({
         backgroundImage: 'url(' + sylva.searchLoadingImage + ')'
       });
 
       var params = {};
-      for (var i = 0; i < ipnuts.length; i++) {
-        params[$(ipnuts[i]).attr('name')] = $(ipnuts[i]).attr('value');
+      for (var i = 0; i < inputs.length; i++) {
+        params[$(inputs[i]).attr('name')] = $(inputs[i]).attr('value');
       }
 
       var jqxhr = $.ajax({
