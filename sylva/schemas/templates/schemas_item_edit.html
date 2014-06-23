@@ -199,54 +199,6 @@
 {% block extra_scripts %}
     {% compress js %}
         <script type="text/javascript" src="{{ STATIC_PREFIX }}js/jquery.formsets.1.2.min.js"></script>
-        <script type="text/javascript">
-            (function($) {
-
-                "use strict";
-
-                $(function() {
-
-                    $("#itemType table.itemtype-properties-table tbody.dynamic").append($("#advancedMode"));
-
-                    var showAdvancedMode = function($elements) {
-                        $elements.show();
-                        $(".itemtype-properties-table textarea").addClass("expand");
-                    };
-
-                    var hideAdvancedMode = function($elements) {
-                        $elements.hide();
-                        $(".itemtype-properties-table textarea").removeClass("expand");
-                    };
-
-                    var rowAdded = function(row) {
-                        var $hiddens = $(".formset .hidden");
-                        if ($hiddens.is(":visible")) {
-                            showAdvancedMode($hiddens);
-                        }
-                    };
-
-                    $("#itemType tbody tr.formset").formset({
-                        prefix: "properties",
-                        addCssClass: "addButton",
-                        addText: "{% trans "Add Property" %}",
-                        deleteText: "{% trans "Remove" %}",
-                        extraClasses: ["row1", "row2"],
-                        added: rowAdded
-                    });
-
-                    $("#advancedModeButton").click(function() {
-                        var $hiddens = $(".formset .hidden");
-
-                        if ($hiddens.is(":visible")) {
-                            hideAdvancedMode($hiddens);
-                            $(this).html("{% trans "Advanced Mode" %}");
-                        } else {
-                            showAdvancedMode($hiddens);
-                            $(this).html("{% trans "Regular Mode" %}");
-                        }
-                    });
-                });
-            })(jQuery);
-        </script>
+        <script type="text/javascript" src="{{ STATIC_PREFIX }}js/schemas.item_edit.js"></script>
     {% endcompress %}
 {% endblock %}
