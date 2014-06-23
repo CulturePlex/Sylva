@@ -37,7 +37,7 @@
 
 {% block content_title %}
   {% if pdf == False %}
-    <div>  
+    <div>
       <header class="reports-header">
         <!-- angular app here for breadcrumbs http://stackoverflow.com/questions/18571301/angularjs-multiple-ng-app-within-a-page -->
         <h2 >{{ graph }} &raquo; Reports</h2>
@@ -48,7 +48,7 @@
 
 {% block content %}
 
-  <div ng-app="reports"> 
+  <div ng-app="reports">
     <div ng-view></div>
   </div>
 
@@ -61,8 +61,8 @@
     <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.15/angular-cookies.js"></script>
     <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.15/angular-resource.js"></script>
     <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.15/angular-route.js"></script>
-    <script src= "//ajax.googleapis.com/ajax/libs/angularjs/1.2.15/angular-sanitize.js"></script>
-    <script src="http://code.highcharts.com/stock/highstock.src.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.15/angular-sanitize.js"></script>
+    <script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/highcharts/highcharts.js"></script>
     <script type="text/javascript" src="{{ STATIC_PREFIX }}app/js/app.js" ></script>
     <script type="text/javascript" src="{{ STATIC_PREFIX }}app/js/controllers.js" ></script>
     <script type="text/javascript" src="{{ STATIC_PREFIX }}app/js/services.js" ></script>
