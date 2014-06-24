@@ -1928,7 +1928,7 @@
 
       // And an event for don't exit the view.
       window.onbeforeunload = function() {
-        return gettext('A SVG image are being generated.');
+        return gettext('A SVG image is being generated.');
       };
 
       // And here it is the animation for the "progress button".
