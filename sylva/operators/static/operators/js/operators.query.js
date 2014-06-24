@@ -574,7 +574,7 @@ diagram.lookupsValuesType = {
             anchorDelete.attr("href", "javascript:void(0);");
             anchorDelete.attr("id", "inlineDeleteLink_"+ modelName);
             iconDelete = $("<I>");
-            iconDelete.addClass("fa fa-times-circle");
+            iconDelete.addClass("fa fa-times-circle remove-icon");
             anchorDelete.append(iconDelete);
             anchorDelete.click(function () {
                 $("#diagramModelAnchor_"+ graphName +"\\\."+ modelName).click();
@@ -679,7 +679,7 @@ diagram.lookupsValuesType = {
             anchorDelete.attr("href", "javascript:void(0);");
             anchorDelete.attr("id", "inlineDeleteLink_"+ modelName);
             iconDelete = $("<I>");
-            iconDelete.addClass("fa fa-times-circle");
+            iconDelete.addClass("fa fa-times-circle remove-icon");
             anchorDelete.append(iconDelete);
             anchorDelete.click(function () {
                 $("#diagramModelAnchor_"+ graphName +"\\\."+ modelName).click();
@@ -1497,8 +1497,21 @@ diagram.lookupsValuesType = {
         var nodeType = $this.data("type");
         var modelName = diagram.loadBox(nodeType);
 
+        var showSelect = 0;
+        var elems = $('#diagram').children();
+
+        // We check the number of boxes of that type that we already have
+        $.each(elems, function(index, elem) {
+            var elemId = $(elem).attr('id');
+            if(elemId != undefined) {
+                var filter = new RegExp(".-" + nodeType);
+                if(elemId.match(filter)) {
+                    showSelect++;
+                }
+            }
+        });
         // If we have more than one box, we show the selects and the "as" text
-        if (diagram.nodetypesCounter[nodeType] > 1) {
+        if (showSelect > 1) {
             $('.select-nodetype-' + nodeType).css({
                 "display": "inline"
             });
@@ -1506,7 +1519,6 @@ diagram.lookupsValuesType = {
                 "display": "inline"
             })
         }
-
         // The next lines is to select the new alias in the box
         var elem = $('.select-nodetype-' + nodeType + ' #' + modelName + (diagram.nodetypesCounter[nodeType] + 1 - 1)).length - 1;
         $($('.select-nodetype-' + nodeType + ' #' + modelName + (diagram.nodetypesCounter[nodeType] + 1 - 1))[elem]).attr('selected', 'selected');
