@@ -120,7 +120,7 @@
     margin-top: 1% !important;
 }
 
-.remove-icon {
+.icon-style {
     color: white;
     float: right;
     margin-right: 3%;
@@ -134,7 +134,7 @@
     margin-top: -4px;
 }
 
-.select-lookup {
+.select-lookup, .select-aggregate {
     width: 62px;
     padding: 0;
     display: none;

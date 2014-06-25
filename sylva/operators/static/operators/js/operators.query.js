@@ -20,7 +20,7 @@ diagram.fieldsForRels = {};
 diagram.relindex = {};
 
 diagram.stringValues = {
-    'em': gettext("match"),
+    'em': gettext("matches"),
     'eq': gettext("equals"),
     'lte': gettext("is less than or equal to"),
     'lt': gettext("is less than"),
@@ -574,7 +574,7 @@ diagram.lookupsValuesType = {
             anchorDelete.attr("href", "javascript:void(0);");
             anchorDelete.attr("id", "inlineDeleteLink_"+ modelName);
             iconDelete = $("<I>");
-            iconDelete.addClass("fa fa-times-circle remove-icon");
+            iconDelete.addClass("fa fa-times-circle icon-style");
             anchorDelete.append(iconDelete);
             anchorDelete.click(function () {
                 $("#diagramModelAnchor_"+ graphName +"\\\."+ modelName).click();
@@ -592,8 +592,24 @@ diagram.lookupsValuesType = {
 
                 $('#' + idBox).remove();
             });
+            advancedMode = $("<A>");
+            advancedMode.attr("href", "javascript:void(0);");
+            advancedMode.attr("id", "inlineAdvancedMode_"+ modelName);
+            iconAdvancedMode = $("<I>");
+            iconAdvancedMode.addClass("fa fa-gear icon-style");
+            advancedMode.append(iconAdvancedMode);
+            advancedMode.click(function () {
+                // We show the advanced options
+                $('#' + idBox).css({
+                    'width': '440px'
+                });
+                $('#' + idBox + " .select-aggregate").css({
+                    "display": "inline"
+                });
+            });
             divTitle.append(anchorDelete);
             divTitle.append(anchorShowHide);
+            divTitle.append(advancedMode);
 
             divTitle.attr("data-boxalias", model.name + diagram.nodetypesCounter[typeName]);
 
@@ -891,7 +907,7 @@ diagram.lookupsValuesType = {
             selectAndOr.attr('data-boxalias', boxalias);
             selectAndOr.attr('data-idbox', idBox);
             selectAndOr.attr('data-idallrels', idAllRels);
-            selectAndOr.append("<option class='option-and-or' value='not' selected='selected' disabled>" + gettext("Choose one") + "</option>");
+            selectAndOr.append("<option class='option-and-or' value='not' selected='selected' disabled>" + gettext("choose one") + "</option>");
             selectAndOr.append("<option class='option-and-or' value='and'>" + gettext("And") + "</option>");
             selectAndOr.append("<option class='option-and-or' value='or'>" + gettext("Or") + "</option>");
             divAndOr.append(selectAndOr);
@@ -909,8 +925,25 @@ diagram.lookupsValuesType = {
             removeFieldIcon.attr('id', 'remove-field-icon');
             removeField.append(removeFieldIcon);
 
+            // Select for the aggregates elements
+            selectAggregate = $("<SELECT>");
+            selectAggregate.addClass("select-aggregate");
+            selectAggregate.append("<option class='option-aggregate' value='count'>" + gettext("Count") + "</option>");
+            selectAggregate.append("<option class='option-aggregate' value='count-distinct'>" + gettext("Count distinct") + "</option>");
+            selectAggregate.append("<option class='option-aggregate' value='max'>" + gettext("Max") + "</option>");
+            selectAggregate.append("<option class='option-aggregate' value='max-distinct'>" + gettext("Max distinct") + "</option>");
+            selectAggregate.append("<option class='option-aggregate' value='min'>" + gettext("Min") + "</option>");
+            selectAggregate.append("<option class='option-aggregate' value='min-distinct'>" + gettext("Min distinct") + "</option>");
+            selectAggregate.append("<option class='option-aggregate' value='sum'>" + gettext("Sum") + "</option>");
+            selectAggregate.append("<option class='option-aggregate' value='sum-distinct'>" + gettext("Sum distinct") + "</option>");
+            selectAggregate.append("<option class='option-aggregate' value='average'>" + gettext("Average") + "</option>");
+            selectAggregate.append("<option class='option-aggregate' value='average-distinct'>" + gettext("Average distinct") + "</option>");
+            selectAggregate.append("<option class='option-aggregate' value='deviation'>" + gettext("Deviation") + "</option>");
+            selectAggregate.append("<option class='option-aggregate' value='deviation-distinct'>" + gettext("Deviation distinct") + "</option>");
+
             // We append the patterns
             divField.append(checkboxProperty);
+            divField.append(selectAggregate);
             divField.append(selectProperty);
             divField.append(selectLookup);
             divField.append(divAndOr);
@@ -1192,7 +1225,7 @@ diagram.lookupsValuesType = {
             // We store the checked properties
             if(!propertiesChecked[alias])
                 propertiesChecked[alias] = new Array();
-            if($(property).prev().attr('checked')) {
+            if($(property).prev().prev().attr('checked')) {
                 propertiesChecked[alias].push($(property).val());
             }
 
@@ -1612,7 +1645,7 @@ diagram.lookupsValuesType = {
         // We select the 'Choose one' value for the last field
         var newFieldId = $($('#' + parentId).children().last()).attr('id');
         $('#' + newFieldId + ' .option-and-or:disabled').attr('disabled', false);
-        $('#' + newFieldId + ' .select-and-or').val('Choose one');
+        $('#' + newFieldId + ' .select-and-or').val(gettext('choose one'));
         $('#' + newFieldId + ' .select-and-or').children().first().prop('disabled', 'disabled');
 
         jsPlumb.repaintEverything();

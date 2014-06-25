@@ -91,8 +91,9 @@ def analytics_analytic(request, graph_slug):
 @permission_required("data.view_data",
                      (Data, "graph__slug", "graph_slug"), return_403=True)
 def analytics_dump(request, graph_slug):
-    def stream_response_generator(data_file,
-            rels=False, duplicated=False, headers=False):
+
+    def stream_response_generator(data_file, rels=False, duplicated=False,
+                                  headers=False):
         stream_reader = csv.reader(data_file.file, delimiter=",")
         if rels == True:
             if headers == False:
@@ -100,8 +101,6 @@ def analytics_dump(request, graph_slug):
                 headers_element = stream_reader.next()
             for row in stream_reader:
                 yield json.dumps(row)
-                # Encourage browser to render incrementally
-                yield " " * 1024
         else:
             # We take the headers for eliminate them of the returned value
             headers = stream_reader.next()
@@ -110,8 +109,6 @@ def analytics_dump(request, graph_slug):
                     for col in row:
                         yield json.dumps(col)
                         yield "\n"
-                        # Encourage browser to render incrementally
-                        yield " " * 1024
             else:
                 nodes = set()
                 for row in stream_reader:
@@ -120,8 +117,6 @@ def analytics_dump(request, graph_slug):
                             yield json.dumps(col)
                             yield "\n"
                             nodes.update(col)
-                        # Encourage browser to render incrementally
-                        yield " " * 1024
 
     analytic_id = request.GET.get('id')
     rels = bool(request.GET.get('rels'))
