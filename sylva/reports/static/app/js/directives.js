@@ -376,8 +376,7 @@ directives.directive('sylvaEtCellRepeat', [function () {
                 numCols = tableArray.numCols;  
                 numScopes = childScopes.length;
                 len = scope.row.length;
-
-                console.log('numScopes', numScopes, childScopes)
+                
                 destroyRow();
                 
                 for (var i=0; i<len; i++) {

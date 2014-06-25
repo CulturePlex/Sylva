@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import
 import os
+from celery.schedules import crontab
 
 # from django.utils.translation import gettext_lazy as _
 
@@ -192,6 +194,7 @@ INSTALLED_APPS = (
     'reports',
     'analytics',
     'compressor',
+    'djcelery'
 )
 
 AUTHENTICATION_BACKENDS = (
@@ -256,7 +259,15 @@ DEFAULT_FROM_EMAIL = "\"SylvaDB\" <info@sylvadb.com>"
 # Celery
 BROKER_URL = 'amqp://guest@localhost//'
 CELERY_RESULT_BACKEND = "amqp"
-CELERY_IMPORTS = ("engines.gdb.analysis.neo4j", )
+CELERY_IMPORTS = ("engines.gdb.analysis.neo4j", "reports.generator")
+
+# Celery reports scheduler
+CELERYBEAT_SCHEDULE = {
+    'check-reports-every-fifteen-minutes': {
+        'task': 'reports.generate',
+        'schedule': crontab(minute='*/1')
+    }
+}
 
 # Profiling
 PROFILE_MIDDLEWARE_SORT = ["cumulative", "calls"]
