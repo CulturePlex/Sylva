@@ -364,12 +364,41 @@ class GraphDatabase(BlueprintsGraphDatabase):
                 break
 
     def _query_generator(self, query_dict):
+        conditions_dict = query_dict["conditions"]
+        conditions_result = self._query_generator_conditions(conditions_dict)
+        # _query_generator_conditions returns a tuple
+        # with conditions and query_params
+        conditions = conditions_result[0]
+        query_params = conditions_result[1]
+        origins_dict = query_dict["origins"]
+        origins = self._query_generator_origins(origins_dict)
+        results_dict = query_dict["results"]
+        results = self._query_generator_results(results_dict)
+        patterns_list = []
+        if "patterns" in query_dict:
+            patterns_dict = query_dict["patterns"]
+            patterns_list = self._query_generator_patterns(patterns_dict)
+        if patterns_list:
+            patterns = ", ".join(patterns_list)
+            match = u"MATCH {0} ".format(patterns)
+        else:
+            match = u""
+        if conditions:
+            where = u"WHERE {0} ".format(conditions)
+        else:
+            where = u""
+        q = u"START {0} {1}{2}RETURN DISTINCT {3}".format(origins, match,
+                                                          where, results)
+        print q
+        return q, query_params
+
+    def _query_generator_conditions(self, conditions_dict):
         query_params = dict()
         conditions_list = []
-        conditions_indexes = enumerate(query_dict["conditions"])
-        conditions_length = len(query_dict["conditions"]) - 1
+        conditions_indexes = enumerate(conditions_dict)
+        conditions_length = len(conditions_dict) - 1
         for lookup, property_tuple, match, connector, datatype \
-                in query_dict["conditions"]:
+                in conditions_dict:
             if lookup == "between":
                 gte = q_lookup_builder(property=property_tuple[2],
                                        lookup="gte",
@@ -426,16 +455,19 @@ class GraphDatabase(BlueprintsGraphDatabase):
                     connector = u' AND '
                     conditions_list.append(connector)
         conditions = u" ".join(conditions_list)
+        return (conditions, query_params)
+
+    def _query_generator_origins(self, origins_dict):
         origins_list = []
-        for origin_dict in query_dict["origins"]:
+        for origin_dict in origins_dict:
             if origin_dict["type"] == "node":
                 node_type = origin_dict["type_id"]
                 # wildcard type
                 if node_type == WILDCARD_TYPE:
                     node_type = '*'
-                origin = u"""{alias}=node:`{nidx}`('label:{type}')""".format(
-                    nidx=self.nidx.name,
-                    alias=origin_dict["alias"],
+                origin = u"""`{alias}`=node:`{nidx}`('label:{type}')""".format(
+                    nidx=unicode(self.nidx.name).replace(u"`", u"\\`"),
+                    alias=unicode(origin_dict["alias"]).replace(u"`", u"\\`"),
                     type=node_type,
                 )
                 origins_list.append(origin)
@@ -443,9 +475,10 @@ class GraphDatabase(BlueprintsGraphDatabase):
                 relation_type = origin_dict["type_id"]
                 # wildcard type
                 if relation_type == WILDCARD_TYPE:
-                    origin = u"""{alias}=rel:`{ridx}`('graph:{graph_id}')""".format(
-                        ridx=self.ridx.name,
-                        alias=origin_dict["alias"],
+                    origin = u"""`{alias}`=rel:`{ridx}`('graph:{graph_id}')""".format(
+                        ridx=unicode(self.ridx.name).replace(u"`", u"\\`"),
+                        alias=unicode(origin_dict["alias"]).replace(u"`",
+                                                                    u"\\`"),
                         graph_id=self.graph_id,
                     )
                 # TODO: Why with not rel indices in START the query is faster?
@@ -457,55 +490,50 @@ class GraphDatabase(BlueprintsGraphDatabase):
                 #     )
                 origins_list.append(origin)
         origins = u", ".join(origins_list)
+        return origins
+
+    def _query_generator_results(self, results_dict):
         results_list = []
-        for result_dict in query_dict["results"]:
+        for result_dict in results_dict:
             if result_dict["properties"] is None:
-                result = u"{0}".format(result_dict["alias"])
+                result = u"`{0}`".format(
+                    unicode(result_dict["alias"]).replace(u"`", u"\\`"))
                 results_list.append(result)
             else:
                 for property_name in result_dict["properties"]:
                     if property_name:
-                        result = u"{0}.`{1}`".format(
-                            result_dict["alias"],
-                            property_name
+                        result = u"`{0}`.`{1}`".format(
+                            unicode(result_dict["alias"]).replace(u"`",
+                                                                  u"\\`"),
+                            unicode(property_name).replace(u"`", u"\\`")
                         )
                     results_list.append(result)
         results = u", ".join(results_list)
+        return results
+
+    def _query_generator_patterns(self, patterns_dict):
         patterns_list = []
-        if "patterns" in query_dict:
-            for pattern_dict in query_dict["patterns"]:
+        for pattern_dict in patterns_dict:
                 source = pattern_dict["source"]["alias"]
                 target = pattern_dict["target"]["alias"]
                 relation = pattern_dict["relation"]["alias"]
                 relation_type = pattern_dict["relation"]["type_id"]
                 # wildcard type
                 if relation_type == -1:
-                    pattern = u"({source})-[{rel}]-({target})".format(
-                        source=source,
-                        rel=relation,
-                        target=target,
+                    pattern = u"(`{source}`)-[`{rel}`]-(`{target}`)".format(
+                        source=unicode(source).replace(u"`", u"\\`"),
+                        rel=unicode(relation).replace(u"`", u"\\`"),
+                        target=unicode(target).replace(u"`", u"\\`"),
                     )
                 else:
-                    pattern = u"({source})-[{rel}:`{rel_type}`]-({target})".format(
-                        source=source,
-                        rel=relation,
-                        rel_type=relation_type,
-                        target=target,
+                    pattern = u"(`{source}`)-[`{rel}`:`{rel_type}`]-(`{target}`)".format(
+                        source=unicode(source).replace(u"`", u"\\`"),
+                        rel=unicode(relation).replace(u"`", u"\\`"),
+                        rel_type=unicode(relation_type).replace(u"`", u"\\`"),
+                        target=unicode(target).replace(u"`", u"\\`"),
                     )
                 patterns_list.append(pattern)
-        if patterns_list:
-            patterns = ", ".join(patterns_list)
-            match = u"MATCH {0} ".format(patterns)
-        else:
-            match = u""
-        if conditions:
-            where = u"WHERE {0} ".format(conditions)
-        else:
-            where = u""
-        q = u"START {0} {1}{2}RETURN DISTINCT {3}".format(origins, match,
-                                                          where, results)
-        print q
-        return q, query_params
+        return patterns_list
 
     def destroy(self):
         """Delete nodes, relationships, and even indices"""

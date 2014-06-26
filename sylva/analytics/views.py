@@ -116,7 +116,7 @@ def analytics_dump(request, graph_slug):
                         if col not in nodes:
                             yield json.dumps(col)
                             yield "\n"
-                            nodes.update(col)
+                            nodes.add(col)
 
     analytic_id = request.GET.get('id')
     rels = bool(request.GET.get('rels'))
