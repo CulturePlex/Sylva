@@ -91,6 +91,7 @@ diagram.Models = {% autoescape off %}{{ graph.schema.get_schema_diagram }}{% end
 
 diagram.url_collaborators = "{% url "graph_query_collaborators" graph.slug %}";
 diagram.url_query = "{% url "operator_builder_results" graph.slug %}";
+diagram.relationshipImageSrc = "{% static "../../../static/img/rarr2.gif" %}";
 
 (function ($) {
 

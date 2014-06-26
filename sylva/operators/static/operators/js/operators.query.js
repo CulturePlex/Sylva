@@ -1113,7 +1113,7 @@ diagram.lookupsValuesType = {
 
             if(type == 'source') {
                 relationshipOptions = { endpoint: ["Image", {
-                    src: "../../../static/img/rarr2.gif",
+                    src: diagram.relationshipImageSrc,
                     cssClass:"endpoint-image"}],
                                 anchor: [1, anchor, 1, 0],
                                 isSource: true,
@@ -1270,7 +1270,7 @@ diagram.lookupsValuesType = {
             if($(element).attr("class").indexOf("nodetype") >= 0)
                 type = "node";
             // var alias = diagram.replaceChars($(element).val());
-            var alias = '`' + $(element).val() + '`';
+            var alias = $(element).val();
             var type_id = $(element).data('modelid');
             origin.alias = alias;
             origin.type = type;
@@ -1306,7 +1306,7 @@ diagram.lookupsValuesType = {
             var relationAlias = $('#' + relationId + ' .title select').val();
             var relationModelId = relationSelector.data('modelid');
             // relation.alias = diagram.replaceChars(relationAlias);
-            relation.alias = '`' + relationAlias + '`';
+            relation.alias = relationAlias;
             relation.type = 'relationship';
             relation.type_id = relationModelId;
 
@@ -1314,7 +1314,7 @@ diagram.lookupsValuesType = {
             var sourceAlias = $('#' + sourceId + ' .title select').val();
             var sourceModelId = sourceSelector.data('modelid');
             // source.alias = diagram.replaceChars(sourceAlias);
-            source.alias = '`' + sourceAlias + '`';
+            source.alias = sourceAlias;
             source.type = 'node';
             source.type_id = sourceModelId;
 
@@ -1322,7 +1322,7 @@ diagram.lookupsValuesType = {
             var targetAlias = $('#' + targetId + ' .title select').val();
             var targetModelId = targetSelector.data('modelid');
             // target.alias = diagram.replaceChars(targetAlias);
-            target.alias = '`' + targetAlias + '`';
+            target.alias = targetAlias;
             target.type = 'node';
             target.type_id = targetModelId;
 
@@ -1340,7 +1340,7 @@ diagram.lookupsValuesType = {
         $.each(elements, function(index, element) {
             var result = {};
             // var alias = diagram.replaceChars($(element).val());
-            var alias = '`' + $(element).val() + '`';
+            var alias = $(element).val();
             var properties = propertiesChecked[diagram.replaceChars(element.value)];
 
             if(!properties)
@@ -1530,8 +1530,8 @@ diagram.lookupsValuesType = {
         var nodeType = $this.data("type");
         var modelName = diagram.loadBox(nodeType);
 
-        var showSelect = 0;
         var elems = $('#diagram').children();
+        var showSelects = 0;
 
         // We check the number of boxes of that type that we already have
         $.each(elems, function(index, elem) {
@@ -1539,19 +1539,27 @@ diagram.lookupsValuesType = {
             if(elemId != undefined) {
                 var filter = new RegExp(".-" + nodeType);
                 if(elemId.match(filter)) {
-                    showSelect++;
+                    showSelects++;
                 }
             }
         });
-        // If we have more than one box, we show the selects and the "as" text
-        if (showSelect > 1) {
-            $('.select-nodetype-' + nodeType).css({
-                "display": "inline"
+
+        // If we have more than one box of that nodetype at least, we show the selects and the "as" text
+        if(showSelects > 1) {
+            // We get the id of the nodetype boxes
+            var boxes = $('.select-nodetype-' + nodeType).parent().parent();
+            // And we show the selects and the "as" text of each
+            $.each(boxes, function(index, elem) {
+                idBox = $(elem).attr('id');
+                $('#' + idBox + ' .select-nodetype-' + nodeType).css({
+                    "display": "inline"
+                });
+                $('#' + idBox +  ' .show-as').css({
+                    "display": "inline"
+                })
             });
-            $('.show-as').css({
-                "display": "inline"
-            })
         }
+
         // The next lines is to select the new alias in the box
         var elem = $('.select-nodetype-' + nodeType + ' #' + modelName + (diagram.nodetypesCounter[nodeType] + 1 - 1)).length - 1;
         $($('.select-nodetype-' + nodeType + ' #' + modelName + (diagram.nodetypesCounter[nodeType] + 1 - 1))[elem]).attr('selected', 'selected');
