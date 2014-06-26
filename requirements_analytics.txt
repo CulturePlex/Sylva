@@ -1,5 +1,5 @@
 Django==1.6.2
-GraphLab-Create==0.2.0
+GraphLab-Create==0.3.0
 Parsley==1.1
 Pillow==2.4.0
 PyYAML==3.10
@@ -32,6 +32,7 @@ html2text==2014.4.5
 httplib2==0.7.7
 ipdb==0.7
 ipython==0.13.1
+jsonfield==0.9.20
 kombu==3.0.15
 librato-metrics==0.4.9
 lucene-querybuilder==0.2
