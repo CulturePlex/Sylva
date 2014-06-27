@@ -49,9 +49,11 @@
 
 {% if OPTIONS.ENABLE_ANALYTICS %}
 <!-- Begin code for the analytics side -->
+{% compress js %}
 <script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/highcharts/highcharts.js"></script>
 <script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/highcharts/exporting.js"></script>
 <script type="text/javascript" src="{{ STATIC_PREFIX }}js/moment.min.js"></script>
+{% endcompress %}
 <script type="text/javascript">
 
 // Variable to store the ids to plot the results of the analytics
@@ -73,6 +75,12 @@ var analyticsAxis = {
   "pagerank": gettext("Pagerank"),
   "kcore": gettext("Degeneracy (k-core)")
 };
+
+// Variable to store the text to plot in the pie charts
+var analyticsPieSubtitle = {
+  "connected_components": gettext("connected components"),
+  "graph_coloring": gettext("colors"),
+}
 
 // Variable to store the analytics that actually are executing
 var analyticsExecuting = new Array();
@@ -108,6 +116,101 @@ var taskTime = 0;
          }
     });
 
+    var getHighchartsOptions = function(option, algorithm, parentArray) {
+      var highchartsOptions = "";
+      if(option == "scatter") {
+        highchartsOptions = {
+            chart: {
+                renderTo: analyticsId[algorithm],
+                type: 'scatter'
+            },
+            title: {
+                text: analyticsName[algorithm]
+            },
+            xAxis: {
+                title: {
+                    text: analyticsAxis[algorithm]
+                }
+            },
+            yAxis: {
+                title: {
+                    text: 'Nodes'
+                }
+            },
+            plotOptions: {
+                scatter: {
+                    marker: {
+                        radius: 5,
+                        states: {
+                            hover: {
+                                enabled: true,
+                                lineColor: 'rgb(100,100,100)'
+                            }
+                        }
+                    },
+                    states: {
+                        hover: {
+                            marker: {
+                                enabled: false
+                            }
+                        }
+                    },
+                    tooltip: {
+                        headerFormat: '',
+                        pointFormat: '{point.y} with {point.x} ' + analyticsAxis[algorithm] + ''
+                    }
+                }
+            },
+            series: [{
+              showInLegend: false,
+              color: 'rgba(223, 83, 83, .5)',
+              data: parentArray
+            }]
+        };
+      } else if (option == "pie") {
+        highchartsOptions = {
+          chart: {
+            renderTo: analyticsId[algorithm],
+            plotBackgroundColor: null,
+            plotBorderWidth: 1,
+            plotShadow: false
+          },
+          title: {
+              text: analyticsName[algorithm]
+          },
+          subtitle: {
+            text: "Set of " + analyticsPieSubtitle[algorithm] + " of the graph"
+          },
+          tooltip: {
+              headerFormat: '',
+              showInLegend: false,
+              pointFormat: '{series.name}: <b>{point.y}</b>'
+          },
+          plotOptions: {
+              pie: {
+                  allowPointSelect: true,
+                  cursor: 'pointer',
+                  dataLabels: {
+                      enabled: true,
+                      format: '{point.percentage:.1f}% ' + gettext("of nodes"),
+                      style: {
+                          color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
+                      }
+                  }
+              }
+          },
+          series: [{
+              type: 'pie',
+              showInLegend: false,
+              name: 'Number of nodes',
+              data: parentArray
+          }]
+        };
+      }
+
+      return highchartsOptions;
+    };
+
     // get results of the analytic
     var getResults = function(results_url, algorithm, analyticId, analyticTaskStart) {
       $.ajax({
@@ -115,64 +218,31 @@ var taskTime = 0;
           dataType: 'json',
           url: results_url,
           success: function (data) {
+            var chartType = "";
             var parentArray = new Array();
-            for(var i in data) {
-              var childArray = new Array();
-              childArray.push(parseFloat(i));
-              childArray.push(data[i]);
-              parentArray.push(childArray);
+            var highchartPieOption = algorithm == "connected_components" ||
+                                     algorithm == "graph_coloring";
+            if(highchartPieOption) {
+              chartType = "pie";
+              for(var i in data) {
+                var childArray = new Array();
+                childArray.push(parseFloat(i));
+                childArray.push(data[i]);
+                parentArray.push(childArray);
+              }
+            } else {
+              chartType = "scatter";
+              for(var i in data) {
+                var childArray = new Array();
+                childArray.push(parseFloat(i));
+                childArray.push(data[i]);
+                parentArray.push(childArray);
+              }
             }
-            var options = {
-                chart: {
-                    renderTo: analyticsId[algorithm],
-                    type: 'scatter'
-                },
-                title: {
-                    text: analyticsName[algorithm]
-                },
-                xAxis: {
-                    title: {
-                        text: analyticsAxis[algorithm]
-                    }
-                },
-                yAxis: {
-                    title: {
-                        text: 'Nodes'
-                    }
-                },
-                plotOptions: {
-                    scatter: {
-                        marker: {
-                            radius: 5,
-                            states: {
-                                hover: {
-                                    enabled: true,
-                                    lineColor: 'rgb(100,100,100)'
-                                }
-                            }
-                        },
-                        states: {
-                            hover: {
-                                marker: {
-                                    enabled: false
-                                }
-                            }
-                        },
-                        tooltip: {
-                            headerFormat: '',
-                            pointFormat: '{point.y} with {point.x} ' + analyticsAxis[algorithm] + ''
-                        }
-                    }
-                },
-                series: [{
-                  showInLegend: false,
-                  color: 'rgba(223, 83, 83, .5)',
-                  data: parentArray
-                }]
-            };
 
             // Create the chart
-            var chart = new Highcharts.Chart(options);
+            optionsScatter = getHighchartsOptions(chartType, algorithm, parentArray);
+            var chart = new Highcharts.Chart(optionsScatter);
 
             // We hide the estimated time and the progress bar
             etaId = '#' + algorithm +"-eta";
