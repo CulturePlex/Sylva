@@ -5,9 +5,6 @@ except ImportError:
     import json  # NOQA
 
 import csv
-from time import sleep
-
-
 from celery.result import AsyncResult
 
 from django.conf import settings
@@ -114,7 +111,6 @@ def analytics_dump(request, graph_slug):
                 for row in stream_reader:
                     for col in row:
                         if col not in nodes:
-                            sleep(0.001)
                             yield json.dumps(col)
                             yield "\n"
                             nodes.add(col)
