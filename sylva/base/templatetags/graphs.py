@@ -29,7 +29,8 @@ def toolbar(context, on):
             'graph': context["graph"],
             'node_type': context.get("node_type", None),
             'search_form': search_form,
-            'ENABLE_CLONING': settings.ENABLE_CLONING}
+            'ENABLE_CLONING': settings.ENABLE_CLONING,
+            'OPTIONS': context.get("OPTIONS", None)}
 
 
 @register.inclusion_tag('breadcrumb.html', takes_context=True)
