@@ -2769,11 +2769,11 @@ body :hover > a.headerlink {
 
 /* Dropit menu for "Save as image" */
 
-#sigma-export-menu ul {
+.dropit ul {
     display: none; /* Hide before plugin loads */
 }
 
-#sigma-export-menu ul.dropit-submenu {
+.dropit ul.dropit-submenu {
     background-color: #fff;
     border: 1px solid #b2b2b2;
     padding: 0 0;
@@ -2786,7 +2786,7 @@ body :hover > a.headerlink {
     box-shadow: 0px 1px 3px rgba(0,0,0,0.15);
 }
 
-#sigma-export-menu ul.dropit-submenu li a {
+.dropit ul.dropit-submenu li a {
     display: block;
     line-height: 25px;
     font-weight: bold;
@@ -2795,12 +2795,12 @@ body :hover > a.headerlink {
     text-align: center;
 }
 
-#sigma-export-menu ul.dropit-submenu li a:hover {
+.dropit ul.dropit-submenu li a:hover {
     background: #D6E7DF;
     text-decoration: none;
 }
 
-#sigma-export-menu ul.dropit-submenu li:first-child a:hover {
+.dropit ul.dropit-submenu li:first-child a:hover {
     -webkit-border-top-left-radius: 5px;
     -webkit-border-top-right-radius: 5px;
     -moz-border-top-left-radius: 5px;
@@ -2809,7 +2809,7 @@ body :hover > a.headerlink {
     border-top-rigth-radius: 5px;
 }
 
-#sigma-export-menu ul.dropit-submenu li:last-child a:hover {
+.dropit ul.dropit-submenu li:last-child a:hover {
     -webkit-border-bottom-left-radius: 5px;
     -webkit-border-bottom-right-radius: 5px;
     -moz-border-bottom-left-radius: 5px;

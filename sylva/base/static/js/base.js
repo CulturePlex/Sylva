@@ -47,26 +47,43 @@
 
   // Nav menu buttons.
   function navMenu($) {
+    // Var for control which menu is opened.
+    var menuOpened = null;
+
     $("#nodeTypeNavigation").change(function(e) {
       location.href = $(this).val();
       return false;
     });
 
-    $("#dataMenu").on("mouseenter", function(e) {
-      $("#dataBrowse").show();
+    // A function that checks if a menu is opened and closes it.
+    var closeMenu = function() {
+      if (menuOpened != null) {
+        menuOpened.hide();
+        menuOpened = null;
+      }
+    }
+
+    // This always close the menu if the user exit the navigation bar.
+    $("nav.menu").on("mouseleave", closeMenu);
+
+    // This always close the menu if the user enter another button.
+    $(".no-menu").on("mouseover", closeMenu);
+
+    $("#dataMenu").on("mouseover", function() {
+      closeMenu();
+      menuOpened = $("#dataBrowse");
+      menuOpened.show();
     });
 
-    $("#dataBrowse").on("mouseleave", function(e) {
-      $(this).hide();
+    $("#dataBrowse").on("mouseleave", closeMenu);
+
+    $("#toolsMenu").on("mouseenter", function() {
+      closeMenu();
+      menuOpened = $("#toolsBrowseId");
+      menuOpened.show();
     });
 
-    $("#toolsMenu").on("mouseenter", function(e) {
-      $("#toolsBrowseId").show();
-    });
-
-    $("#toolsBrowseId").on("mouseleave", function(e) {
-      $(this).hide();
-    });
+    $("#toolsBrowseId").on("mouseleave", closeMenu);
   }
 
 
