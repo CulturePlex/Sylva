@@ -104,7 +104,7 @@
   </div>
 </div>
 <div id="full-window-column" class="analytics-mode" style="display: none;">
-  <div class="filters">
+  <div class="filters" style="height: 38px;"> <!-- Temporal heigth while 'filter select' is hidden -->
     <h2>{% trans "Filters" %}</h2>
     <div class="filters-wrapper">
       <a id="sigma-filter-rectangle" class="fa fa-pencil-square-o fa-fw button filter filter-left" style="font-size: 100%;" title="{% trans "Rectangle" %}"></a>
@@ -113,10 +113,9 @@
       <a id="sigma-filter-click" class="fa fa-circle button fa-fw filter filter-middle" style="font-size: 100%;" title="{% trans "Click in nodes" %}"></a>
       <a id="sigma-move-selected" class="fa fa-arrows button fa-fw filter filter-right" style="font-size: 100%;" title="{% trans "Move selected nodes" %}"></a>
     </div>
-    <div class="sigma-control">
-      <label id="last-queries-label" style="font-weight: normal;">{% trans "From queries:" %}</label>
-      <select id="last-queries-select">
-        <option disabled="disabled" selected="selected">{% trans "None" %}</option>
+    <div>
+      <select style="display: none;" id="last-queries-select">
+        <option disabled="disabled" selected="selected">{% trans "From queries" %}</option>
         <option>{% trans "Option 1" %}</option>
         <option>{% trans "Option 2" %}</option>
         <option>{% trans "Option 3" %}</option>

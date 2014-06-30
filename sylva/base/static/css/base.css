@@ -1790,17 +1790,31 @@ div[id^='collorpicker_'] {
     overflow-y: auto;
 }
 
+.filters h2 {
+    display: inline;
+    float: left;
+}
+
 .filters {
     border-bottom: 1px solid #348E82;
     padding-right: 5px;
     padding-left: 5px;
     padding-bottom: 10px;
-    text-align: center;
+    padding-top: 8px;
 }
 
 .filters-wrapper {
-    margin-left: -8px !important;
     display: inline-block;
+    float: right;
+    margin-top: 4px;
+    margin-bottom: 8px;
+    margin-left: -8px !important;
+    margin-right: 4px;
+}
+
+.filters-wrapper-small {
+    display: inline-block;
+    margin-top: 4px;
     margin-bottom: 8px;
 }
 
@@ -1862,12 +1876,8 @@ div[id^='collorpicker_'] {
     margin-left: 8px;
 }
 
-#last-queries-label {
-    font-size: 115%
-}
-
 #last-queries-select {
-    width: auto;
+    width: 100%;
     display: inline-block;
 }
 

@@ -1062,6 +1062,11 @@
         analyticsSidebarWidth = width * 0.15;
       }
 
+      // This is for hide the text "Filters".
+      // The width of the text and the buttons it's 229px approximately.
+      var needToHideFilterText = analyticsSidebarWidth < 230;
+      that.hideFilterText(needToHideFilterText);
+
       $('#main').width(width);
 
       $('header').width(width);
@@ -3136,6 +3141,21 @@
       that.calculateNodesDegrees();
       sigInst.refresh();
       that.grayfyNonListedNodes(sylva.selectedNodes);
+    },
+
+    hideFilterText: function(needToHide) {
+      var visibility = $('.filters h2').is(":visible");
+      if (needToHide && visibility) {
+        $('.filters h2').hide();
+        $('.filters').css('textAlign', 'center');
+        $('.filters-wrapper').addClass('filters-wrapper-small');
+        $('.filters-wrapper').removeClass('filters-wrapper');
+      } else if (!needToHide && !visibility) {
+        $('.filters h2').show();
+        $('.filters').css('textAlign', '');
+        $('.filters-wrapper-small').addClass('filters-wrapper');
+        $('.filters-wrapper-small').removeClass('filters-wrapper-small');
+      }
     }
 
   };
