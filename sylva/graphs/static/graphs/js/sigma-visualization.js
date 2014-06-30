@@ -95,12 +95,15 @@
           sylva.reltypes[key].relationships);
       }
 
-      /* If there is no info about collapsible/draggable elements in server,
-       * the client will do it.
+      /* These are the boxes which are going to be collapsible and draggable
+       * in the full window mode.
        */
-      if (sylva.collapsibles.length == 0) {
-        that.createCollapsiblesStructures();
-      }
+      sylva.collapsibles = [
+        'graph-node-types',
+        'graph-rel-types',
+        'graph-layout',
+        'graph-labels'
+      ];
 
       sigInst = new sigma();
       sigInst.addRenderer({
@@ -1169,28 +1172,6 @@
         });
       });
 
-      $('#graph-rel-types').css({
-        position: 'absolute',
-        zIndex: '101',
-        border: 'none',
-        padding: '10px',
-        marginRight: 0,
-        height: 'auto',
-        width: 'auto',
-        marginTop: 0,
-        borderRadius: '10px',
-        backgroundColor: 'rgba(214, 231, 223, 0.5)'
-      });
-
-      $('#graph-rel-types ul').css({
-        maxHeight: '279px',
-        overflow: 'hidden'
-      });
-
-      $('#graph-rel-types ul li').css({
-        whiteSpace: 'nowrap'
-      });
-
       // Control the scrollbar of the rel legend.
       $('#graph-rel-types ul').hover(function() {
         $('#graph-rel-types ul').css({
@@ -1213,22 +1194,6 @@
       * here, and don't know why.
        */
       graphControlsAndInfoWidth = $('#graph-controls-and-info').width() - 12;
-
-      $('#graph-layout').css({
-        position: 'absolute',
-        zIndex: '102',
-        border: 'none',
-        overflow: 'auto',
-        padding: '10px',
-        marginRight: 0,
-        borderRadius: '10px',
-        backgroundColor: 'rgba(214, 231, 223, 0.5)'
-      });
-
-      $('.collapsible-header').css({
-        cursor: 'pointer',
-        display: 'inline-block'
-      });
 
       // Add the proper text to the collapsible boxes.
       $('.collapsible-header').each(function(i) {
@@ -1346,6 +1311,12 @@
 
       if ($('#sigma-node-info').is(':checked')) {
         sigma.canvas.hovers.def = sigma.canvas.hovers.defBackup;
+      }
+
+      // If there are new boxes here the will be created
+      if (Object.keys(sylva.positions).length <
+          $('.collapsible-header').length) {
+        that.createCollapsiblesStructures();
       }
 
       // Makes the analytics column resizable.
@@ -2315,27 +2286,38 @@
      * server.
      */
     createCollapsiblesStructures: function() {
-      sylva.collapsibles = [
-        'graph-node-types',
-        'graph-rel-types',
-        'graph-layout'
-      ];
+      var firstPositions = {
+        'graph-node-types': {
+          top :'15px',
+          left: '15px',
+          collapsed: false
+        },
+        'graph-rel-types': {
+          top :'15px',
+          left: '150px',
+          collapsed: true
+        },
+        'graph-layout': {
+          top :'15px',
+          left: '380px',
+          collapsed: false
+        },
+        'graph-labels': {
+          top :'200px',
+          left: '380px',
+          collapsed: true
+        },
+      };
 
-      sylva.positions['graph-node-types'] = {
-        top :'15px',
-        left: '15px',
-        collapsed: false
-      };
-      sylva.positions['graph-rel-types'] = {
-        top :'15px',
-        left: '150px',
-        collapsed: true
-      };
-      sylva.positions['graph-layout'] = {
-        top :'15px',
-        left: '380px',
-        collapsed: false
-      };
+      sylva.collapsibles.forEach(function(element) {
+        if (!(element in sylva.positions)) {
+          sylva.positions[element] = {
+            top: firstPositions[element].top,
+            left: firstPositions[element].left,
+            collapsed: firstPositions[element].collapsed
+          };
+        }
+      });
     },
 
     // It calculates the three degrees of each node: total, in and out.

@@ -1,6 +1,6 @@
 {% load converter_filters compress %}
 
-{% compress js %}
+{# compress js #}
 <script type="text/javascript">
   sylva.nodeViewURL = "{% url "nodes_view" graph.slug 0 %}";
   sylva.nodeEditURL = "{% url "nodes_edit" graph.slug 0 %}";
@@ -38,7 +38,7 @@
 
 <script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/visualizations.js"></script>
 <script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/sigma-visualization.js"></script>
-{% endcompress %}
+{# endcompress #}
 
 {% compress css %}
 <link type="text/css" rel="stylesheet" href="{{ STATIC_PREFIX }}css/jqueryui.1.8.18.css" />

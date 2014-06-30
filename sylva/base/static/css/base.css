@@ -1597,6 +1597,56 @@ table.content-table {
     width: 75px;
 }
 
+#graph-rel-types {
+    position: absolute;
+    z-index: 101;
+    border: none;
+    padding: 10px;
+    margin-right: 0;
+    height: auto;
+    width: auto;
+    margin-top: 0;
+    border-radius: 10px;
+    background-color: rgba(214, 231, 223, 0.5);
+}
+
+#graph-rel-types ul {
+    max-height: 279px;
+    overflow: hidden;
+}
+
+#graph-rel-types ul li {
+    white-space: 'nowrap'
+}
+
+#graph-labels {
+    position: absolute;
+    z-index: 102;
+    border: none;
+    overflow: auto;
+    padding: 10px;
+    margin-right: 0;
+    border-radius: 10px;
+    background-color: rgba(214, 231, 223, 0.5);
+}
+
+#graph-layout {
+    position: absolute;
+    z-index: 103;
+    border: none;
+    overflow: auto;
+    padding: 10px;
+    margin-right: 0;
+    border-radius: 10px;
+    background-color: rgba(214, 231, 223, 0.5);
+}
+
+.collapsible-header {
+    cursor: pointer;
+    display: inline-block;
+}
+
+
 .graph-layout-option {
     margin-top: 5px;
     margin-bottom: 10px;
@@ -1790,17 +1840,23 @@ div[id^='collorpicker_'] {
     overflow-y: auto;
 }
 
-.filters h2 {
-    display: inline;
-    float: left;
-}
-
 .filters {
     border-bottom: 1px solid #348E82;
     padding-right: 5px;
     padding-left: 5px;
     padding-bottom: 10px;
     padding-top: 8px;
+}
+
+
+.filters h2 {
+    float: left;
+    padding-left: 4px;
+    padding-top: 10px;
+}
+
+.filters .sigma-control {
+    margin-left: 8px;
 }
 
 .filters-wrapper {
@@ -1864,16 +1920,6 @@ div[id^='collorpicker_'] {
     -webkit-border-bottom-left-radius: 0;
 
     margin-left: -2px;
-}
-
-.filters h2 {
-    text-align: left;
-    padding-left: 10px;
-    padding-top: 10px;
-}
-
-.filters .sigma-control {
-    margin-left: 8px;
 }
 
 #last-queries-select {

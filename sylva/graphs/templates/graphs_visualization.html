@@ -6,43 +6,14 @@
   </div>
   <div id="graph-rel-types" class="analytics-mode" style="display: none;">
   </div>
-  <div id="graph-node-info">
-    <div class="sigma-control left" style="display: none;">
-      <input type="checkbox" id="sigma-node-info">
-      <label for="sigma-node-info" title="{% trans "Show node info" %}">{% trans "Node info" %}</label>
-    </div>
-  </div>
-  <div id="graph-controls-and-info">
-    <div id="graph-controls">
-      <div class="sigma-control right" style="display: none;">
-        <a id="sigma-zoom-in" class="button fa fa-plus control-button zoom-left" title="{% trans "Zoom in" %}"></a>
-        <a id="sigma-zoom-home" class="button fa fa-home control-button zoom-home" title="{% trans "Re-center graph" %}"></a>
-        <a id="sigma-zoom-out" class="button fa fa-minus control-button zoom-right" title="{% trans "Zoom out" %}"></a>
-      </div>
-      <div class="sigma-control left analytics-mode" style="display: none;">
-        <ul id="sigma-export-menu" class="dropit">
-          <li>
-            <a id="sigma-export-image" class="button" title="{% trans "Save as image" %}">
-              {% trans "Save as image" %} <i class="fa fa-angle-down"></i>
-            </a>
-            <ul>
-              <li><a id="sigma-export-png" style="font-size: 100%;" title="{% trans "Save as PNG" %}" download="{{ graph.slug }}.png">{% trans "Save as PNG" %}</a></li>
-              <li><a id="sigma-export-svg" style="font-size: 100%;" title="{% trans "Save as SVG" %}" download="{{ graph.slug }}.svg">{% trans "Save as SVG" %}</a></li>
-            </ul>
-          </li>
-        </ul>
-      </div>
-      {% if analytics %}
-        <div class="sigma-control right" style="display: none;">
-          {% if OPTIONS.ENABLE_ANALYTICS %}
-          <a id="sigma-go-analytics" class="button" style="font-size:100%;" title="{% trans "Analytics" %}">{% trans "Analytics" %}</a>
-          {% else %}
-          <a id="sigma-go-analytics" class="button" style="font-size:100%;" title="{% trans "Explore" %}">{% trans "Explore" %}</a>
-          {% endif %}
-        </div>
-      {% endif %}
-    </div>
-    <div id="node-info">
+  <div id="graph-labels" class="analytics-mode" style="display: none;">
+    <h2 class="collapsible-header">{% trans "Labels" %}</h2>
+    <div>
+      Show all labels
+      <br/>
+      Show a select with the different modes: proportional to node sizes, relevant to in/out/total degree, or custom. If custom selected, then show a slider
+      <br/>
+      Show a slider for the size
     </div>
   </div>
   <div id="graph-layout" class="analytics-mode" style="display: none;">
@@ -93,6 +64,45 @@
           <option id="curved-arrow">{% trans "Curved arrow" %}</option>
         </select>
       </div>
+    </div>
+  </div>
+  <div id="graph-node-info">
+    <div class="sigma-control left" style="display: none;">
+      <input type="checkbox" id="sigma-node-info">
+      <label for="sigma-node-info" title="{% trans "Show node info" %}">{% trans "Node info" %}</label>
+    </div>
+  </div>
+  <div id="graph-controls-and-info">
+    <div id="graph-controls">
+      <div class="sigma-control right" style="display: none;">
+        <a id="sigma-zoom-in" class="button fa fa-plus control-button zoom-left" title="{% trans "Zoom in" %}"></a>
+        <a id="sigma-zoom-home" class="button fa fa-home control-button zoom-home" title="{% trans "Re-center graph" %}"></a>
+        <a id="sigma-zoom-out" class="button fa fa-minus control-button zoom-right" title="{% trans "Zoom out" %}"></a>
+      </div>
+      <div class="sigma-control left analytics-mode" style="display: none;">
+        <ul id="sigma-export-menu" class="dropit">
+          <li>
+            <a id="sigma-export-image" class="button" title="{% trans "Save as image" %}">
+              {% trans "Save as image" %} <i class="fa fa-angle-down"></i>
+            </a>
+            <ul>
+              <li><a id="sigma-export-png" style="font-size: 100%;" title="{% trans "Save as PNG" %}" download="{{ graph.slug }}.png">{% trans "Save as PNG" %}</a></li>
+              <li><a id="sigma-export-svg" style="font-size: 100%;" title="{% trans "Save as SVG" %}" download="{{ graph.slug }}.svg">{% trans "Save as SVG" %}</a></li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+      {% if analytics %}
+        <div class="sigma-control right" style="display: none;">
+          {% if OPTIONS.ENABLE_ANALYTICS %}
+          <a id="sigma-go-analytics" class="button" style="font-size:100%;" title="{% trans "Analytics" %}">{% trans "Analytics" %}</a>
+          {% else %}
+          <a id="sigma-go-analytics" class="button" style="font-size:100%;" title="{% trans "Explore" %}">{% trans "Explore" %}</a>
+          {% endif %}
+        </div>
+      {% endif %}
+    </div>
+    <div id="node-info">
     </div>
   </div>
   <div id="sigma-wrapper">
