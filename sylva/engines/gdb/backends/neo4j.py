@@ -366,18 +366,21 @@ class GraphDatabase(BlueprintsGraphDatabase):
     def _query_generator(self, query_dict):
         conditions_dict = query_dict["conditions"]
         conditions_result = self._query_generator_conditions(conditions_dict)
-        # _query_generator_conditions returns a tuple
-        # with conditions and query_params
+        # _query_generator_conditions returns a list
+        # with conditions ,query_params and the list of conditions alias to
+        # check if a relationship has lookups or not for the index treatment
         conditions = conditions_result[0]
         query_params = conditions_result[1]
+        conditions_alias = conditions_result[2]
         origins_dict = query_dict["origins"]
-        origins = self._query_generator_origins(origins_dict)
+        origins = self._query_generator_origins(origins_dict, conditions_alias)
         results_dict = query_dict["results"]
         results = self._query_generator_results(results_dict)
         patterns_list = []
         if "patterns" in query_dict:
             patterns_dict = query_dict["patterns"]
-            patterns_list = self._query_generator_patterns(patterns_dict)
+            patterns_list = self._query_generator_patterns(patterns_dict,
+                                                           conditions_alias)
         if patterns_list:
             patterns = ", ".join(patterns_list)
             match = u"MATCH {0} ".format(patterns)
@@ -394,6 +397,9 @@ class GraphDatabase(BlueprintsGraphDatabase):
 
     def _query_generator_conditions(self, conditions_dict):
         query_params = dict()
+        # This list is used to control when use the index for the relationship,
+        # in the origins or in the patterns
+        conditions_alias = []
         conditions_list = []
         conditions_indexes = enumerate(conditions_dict)
         conditions_length = len(conditions_dict) - 1
@@ -420,6 +426,8 @@ class GraphDatabase(BlueprintsGraphDatabase):
                 query_params.update(gte_params)
                 conditions_list.append(unicode(lte_condition))
                 query_params.update(lte_params)
+                # We append the two property in the list
+                conditions_alias.append(property_tuple[1])
             elif lookup == 'idoesnotcontain':
                 q_element = ~q_lookup_builder(property=property_tuple[2],
                                               lookup="icontains",
@@ -432,6 +440,8 @@ class GraphDatabase(BlueprintsGraphDatabase):
                 params = query_objects[1]
                 conditions_list.append(unicode(condition))
                 query_params.update(params)
+                # We append the two property in the list
+                conditions_alias.append(property_tuple[1])
             else:
                 q_element = q_lookup_builder(property=property_tuple[2],
                                              lookup=lookup,
@@ -444,6 +454,8 @@ class GraphDatabase(BlueprintsGraphDatabase):
                 params = query_objects[1]
                 conditions_list.append(unicode(condition))
                 query_params.update(params)
+                # We append the two property in the list
+                conditions_alias.append(property_tuple[1])
             if connector != 'not':
                 # We have to get the next element to keep the concordance
                 elem = conditions_indexes.next()
@@ -455,9 +467,9 @@ class GraphDatabase(BlueprintsGraphDatabase):
                     connector = u' AND '
                     conditions_list.append(connector)
         conditions = u" ".join(conditions_list)
-        return (conditions, query_params)
+        return (conditions, query_params, conditions_alias)
 
-    def _query_generator_origins(self, origins_dict):
+    def _query_generator_origins(self, origins_dict, conditions_alias):
         origins_list = []
         for origin_dict in origins_dict:
             if origin_dict["type"] == "node":
@@ -482,13 +494,17 @@ class GraphDatabase(BlueprintsGraphDatabase):
                         graph_id=self.graph_id,
                     )
                 # TODO: Why with not rel indices in START the query is faster?
-                # else:
-                #     origin = u"""{alias}=rel:`{ridx}`('label:{type}')""".format(
-                #         ridx=self.ridx.name,
-                #         alias=origin_dict["alias"],
-                #         type=relation_type,
-                #     )
-                origins_list.append(origin)
+                else:
+                    alias = origin_dict["alias"]
+                    if alias in conditions_alias:
+                        origin = u"""{alias}=rel:`{ridx}`('label:{type}')""".format(
+                            ridx=unicode(self.ridx.name).replace(u"`",
+                                                                 u"\\`"),
+                            alias=unicode(origin_dict["alias"]).replace(u"`",
+                                                                        u"\\`"),
+                            type=relation_type,
+                        )
+                        origins_list.append(origin)
         origins = u", ".join(origins_list)
         return origins
 
@@ -511,7 +527,7 @@ class GraphDatabase(BlueprintsGraphDatabase):
         results = u", ".join(results_list)
         return results
 
-    def _query_generator_patterns(self, patterns_dict):
+    def _query_generator_patterns(self, patterns_dict, conditions_alias):
         patterns_list = []
         for pattern_dict in patterns_dict:
                 source = pattern_dict["source"]["alias"]
@@ -526,12 +542,22 @@ class GraphDatabase(BlueprintsGraphDatabase):
                         target=unicode(target).replace(u"`", u"\\`"),
                     )
                 else:
-                    pattern = u"(`{source}`)-[`{rel}`:`{rel_type}`]-(`{target}`)".format(
-                        source=unicode(source).replace(u"`", u"\\`"),
-                        rel=unicode(relation).replace(u"`", u"\\`"),
-                        rel_type=unicode(relation_type).replace(u"`", u"\\`"),
-                        target=unicode(target).replace(u"`", u"\\`"),
-                    )
+                    if relation in conditions_alias:
+                        pattern = u"(`{source}`)-[`{rel}`]-(`{target}`)".format(
+                            source=unicode(source).replace(u"`", u"\\`"),
+                            rel=unicode(relation).replace(u"`", u"\\`"),
+                            rel_type=unicode(relation_type).replace(u"`",
+                                                                    u"\\`"),
+                            target=unicode(target).replace(u"`", u"\\`"),
+                        )
+                    else:
+                        pattern = u"(`{source}`)-[`{rel}`:`{rel_type}`]-(`{target}`)".format(
+                            source=unicode(source).replace(u"`", u"\\`"),
+                            rel=unicode(relation).replace(u"`", u"\\`"),
+                            rel_type=unicode(relation_type).replace(u"`",
+                                                                    u"\\`"),
+                            target=unicode(target).replace(u"`", u"\\`"),
+                        )
                 patterns_list.append(pattern)
         return patterns_list
 
