@@ -3162,7 +3162,19 @@
       });
     },
 
-    createlabelSizeSlider: function() {
+    createLabelProportionSlider: function() {
+      $('#labels-proportion-slider').slider({
+        min: 0.5 * 10,
+        max: 3 * 10,
+        value: parseInt(sigInst.settings('labelSizeRatio')) * 10,
+        slide: function(event, ui) {
+          sigInst.settings('labelSizeRatio', (ui.value / 10).toString());
+          sigInst.refresh();
+        }
+      });
+    },
+
+    createLabelSizeSlider: function() {
       $('#labels-size-slider').slider({
         min: 5,
         max: 50,
@@ -3210,16 +3222,20 @@
           case 'default':
             settings.labelSize = 'fixed';
             settings.defaultLabelSize = '14';
+            $('#labels-proportion-slider').hide();
             $('#labels-size-slider').hide();
             break;
           case 'proportional':
             settings.labelSize = 'proportional';
+            $('#labels-proportion-slider').show();
             $('#labels-size-slider').hide();
+            that.createLabelProportionSlider();
             break;
           case 'custom':
             settings.labelSize = 'fixed';
+            $('#labels-proportion-slider').hide();
             $('#labels-size-slider').show();
-            that.createlabelSizeSlider();
+            that.createLabelSizeSlider();
             break;
           default:
             break;

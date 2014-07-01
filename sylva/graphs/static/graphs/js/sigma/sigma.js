@@ -7671,9 +7671,8 @@ if (typeof exports !== 'undefined') {
         prefix = settings('prefix') || '',
         size = node[prefix + 'size'],
         fontSize = (settings('labelSize') === 'fixed') ?
-          settings('defaultLabelSize') :
-          settings('labelSizeRatio') * size;
-    fontSize = parseInt(fontSize);
+          parseInt(settings('defaultLabelSize')) :
+          parseInt(settings('labelSizeRatio')) * size;
 
     // Label background:
     context.font = (fontStyle ? fontStyle + ' ' : '') +
