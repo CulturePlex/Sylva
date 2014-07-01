@@ -250,6 +250,10 @@
 
       $('#sigma-graph-layout-order').change(that.controlGraphLayoutOrder);
 
+      $('#sigma-show-labels').change(that.controlShowLabels);
+
+      $('#sigma-labels-size').change(that.controlLabelsSize);
+
       $('#sigma-node-size').change(that.controlNodeSize);
 
       $('#sigma-edge-shape').change(that.controlEdgeShape);
@@ -2135,12 +2139,17 @@
         default:
           break;
       }
+
       sigInst.settings({
         minNodeSize: auxMinNodeSize,
         maxNodeSize: auxMaxNodeSize * sizeMultiplier
       });
+
       sigInst.refresh();
       sigma.plugins.animate(sigInst, {size: animationSize}, {duration: 500});
+
+      // This will update the 'min' and 'max' of the label threshold slider.
+      that.createLabelThresholdSlider();
     },
 
     // Changes the shape of the rels.
@@ -3139,6 +3148,85 @@
         $('.filters-wrapper-small').addClass('filters-wrapper');
         $('.filters-wrapper-small').removeClass('filters-wrapper-small');
       }
+    },
+
+    createLabelThresholdSlider: function() {
+      $('#labels-threshold-slider').slider({
+        min: sigInst.settings('minNodeSize'),
+        max: sigInst.settings('maxNodeSize'),
+        value: sigInst.settings('labelThreshold'),
+        slide: function(event, ui) {
+          sigInst.settings('labelThreshold', ui.value);
+          sigInst.refresh();
+        }
+      });
+    },
+
+    createlabelSizeSlider: function() {
+      $('#labels-size-slider').slider({
+        min: 5,
+        max: 50,
+        value: parseInt(sigInst.settings('defaultLabelSize')),
+        slide: function(event, ui) {
+          sigInst.settings('defaultLabelSize', ui.value.toString());
+          sigInst.refresh();
+        }
+      });
+    },
+
+    controlShowLabels: function(event) {
+      var option = $(this).find('option:selected');
+      var type = option.attr('id');
+
+      that.disableOptions(option, type);
+
+      var settings = {};
+      switch (type) {
+          case 'labels-no':
+            settings.drawLabels = false;
+            $('.graph-labels-option').hide();
+            break;
+          case 'labels-yes':
+            settings.drawLabels = true;
+            $('.graph-labels-option').show();
+            that.createLabelThresholdSlider();
+            break;
+          default:
+            break;
+      }
+
+      sigInst.settings(settings);
+      sigInst.refresh();
+    },
+
+    controlLabelsSize: function(event) {
+      var option = $(this).find('option:selected');
+      var type = option.attr('id');
+
+      that.disableOptions(option, type);
+
+      var settings = {};
+      switch (type) {
+          case 'default':
+            settings.labelSize = 'fixed';
+            settings.defaultlabelSize = 14;
+            $('#labels-size-slider').hide();
+            break;
+          case 'proportional':
+            settings.labelSize = 'proportional';
+            $('#labels-size-slider').hide();
+            break;
+          case 'custom':
+            settings.labelSize = 'fixed';
+            $('#labels-size-slider').show();
+            that.createlabelSizeSlider();
+            break;
+          default:
+            break;
+      }
+
+      sigInst.settings(settings);
+      sigInst.refresh();
     }
 
   };

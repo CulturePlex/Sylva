@@ -9,11 +9,30 @@
   <div id="graph-labels" class="analytics-mode" style="display: none;">
     <h2 class="collapsible-header">{% trans "Labels" %}</h2>
     <div>
-      Show all labels
-      <br/>
-      Show a select with the different modes: proportional to node sizes, relevant to in/out/total degree, or custom. If custom selected, then show a slider
-      <br/>
-      Show a slider for the size
+
+      <div>
+        <label>{% trans "Show labels:" %}</label>
+        <select id="sigma-show-labels">
+          <option id="labels-no" disabled="disabled" selected="selected">{% trans "No" %}</option>
+          <option id="labels-yes">{% trans "Yes" %}</option>
+        </select>
+      </div>
+
+      <div class="graph-labels-option" style="display: none;">
+        <label class="graph-labels-option-label" style="font-weight: normal;">{% trans "Label size:" %}</label>
+        <select id="sigma-labels-size">
+          <option id="default" disabled="disabled" selected="selected">{% trans "Default" %}</option>
+          <option id="proportional">{% trans "Node size proportional" %}</option>
+          <option id="custom">{% trans "Custom" %}</option>
+        </select>
+        <div id="labels-size-slider" class="slider" style="display: none;"></div>
+      </div>
+
+      <div class="graph-labels-option" style="display: none;">
+        <label style="font-weight: normal;">{% trans "Node size threshold:" %}</label>
+        <div id="labels-threshold-slider" class="slider"></div>
+      </div>
+
     </div>
   </div>
   <div id="graph-layout" class="analytics-mode" style="display: none;">

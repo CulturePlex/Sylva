@@ -1597,6 +1597,31 @@ table.content-table {
     width: 75px;
 }
 
+#sigma-show-labels {
+    width: auto;
+}
+
+#sigma-labels-size {
+    width: auto;
+}
+
+.graph-labels-option-label {
+    margin-right: 13px;
+}
+
+.slider {
+    margin: 5px 0;
+}
+
+#sigma-labels-size {
+    margin-top: 5px !important;
+    margin-bottom: 5px;
+}
+
+#graph-labels label {
+    font-weight: normal;
+}
+
 #graph-rel-types {
     position: absolute;
     z-index: 101;
@@ -1683,7 +1708,8 @@ table.content-table {
     float: left;
 }
 
-#graph-layout select {
+#graph-layout select,
+#graph-labels select {
     height: 34px;
     margin-top: -2px;
     border: 3px solid #D8E8DE;
