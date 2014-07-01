@@ -7673,6 +7673,7 @@ if (typeof exports !== 'undefined') {
         fontSize = (settings('labelSize') === 'fixed') ?
           settings('defaultLabelSize') :
           settings('labelSizeRatio') * size;
+    fontSize = parseInt(fontSize);
 
     // Label background:
     context.font = (fontStyle ? fontStyle + ' ' : '') +

@@ -3209,7 +3209,7 @@
       switch (type) {
           case 'default':
             settings.labelSize = 'fixed';
-            settings.defaultlabelSize = 14;
+            settings.defaultLabelSize = '14';
             $('#labels-size-slider').hide();
             break;
           case 'proportional':
