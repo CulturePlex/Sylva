@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% load i18n graphs static %}
+{% get_static_prefix as STATIC_PREFIX %}
+
+{% block navigation_buttons %}
+{{ block.super }}
+{% endblock %}
+
+{% block title %}
+{{ graph.name }}
+{% endblock %}
+
+{% block menu_buttons %}
+{% toolbar on="operator" %}
+{% endblock %}
+
+{% block content_title %}
+{% trans "Queries" as label %}
+{% breadcrumb graph label %}
+{% endblock %}
+
+{% block content %}
+{% if queries %}
+<div id="query-list" style="margin-top: 20px;">
+    <table class="content-table">
+        <th>{% trans "Name" %}</th>
+        <th>{% trans "Description" %}</th>
+        <th>{% trans "Results count" %}</th>
+        <th>{% trans "Last run" %}</th>
+    {% for query in queries %}
+        <tr>
+            <td id="query-name">{{ query.name }}</td>
+            <td id="query-description">{{ query.description }}</td>
+            <td id="query-results-count">{{ query.results_count }}</td>
+            <td id="query-last-run">{{ query.last_run }}</td>
+            <td id="button-edit"><a class="button button-edit-query" href="{% url "operator_query_edit" graph.slug query.id %}">{% trans "Edit Query" %}</a></td>
+            <!--<td id="button-run"><a class="button">{% trans "Run" %}</a></td>-->
+        </tr>
+    {% endfor %}
+    </table>
+</div>
+{% endif %}
+<div id="query-builder" style="margin-top: 20px;">
+    <a class="button" id="create-query" href="{% url "operator_builder" graph.slug %}">{% trans "New Query" %}</a>
+</div>
+{% endblock %}

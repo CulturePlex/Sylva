@@ -18,6 +18,7 @@ from base.decorators import is_enabled
 from graphs.models import Data, Graph
 from operators.grammar import QueryParser
 from schemas.models import NodeType, RelationshipType
+from operators.models import Query
 
 # from .parser import parse_query
 
@@ -119,3 +120,39 @@ def operator_builder_results(request, graph_slug):
     return HttpResponse(json.dumps(None),
                         status=400,  # Bad request
                         mimetype='application/json')
+
+
+@is_enabled(settings.ENABLE_QUERIES)
+@login_required
+@permission_required("data.view_data", (Data, "graph__slug", "graph_slug"),
+                     return_403=True)
+def operator_queries(request, graph_slug):
+    graph = get_object_or_404(Graph, slug=graph_slug)
+    queries = graph.queries.all()
+    return render_to_response('operators/operator_queries.html',
+                              {"graph": graph,
+                               "queries": queries},
+                              context_instance=RequestContext(request))
+
+
+@is_enabled(settings.ENABLE_QUERIES)
+@login_required
+@permission_required("data.view_data", (Data, "graph__slug", "graph_slug"),
+                     return_403=True)
+def operator_query_edit(request, graph_slug, query_id):
+    graph = get_object_or_404(Graph, slug=graph_slug)
+    nodetypes = NodeType.objects.filter(schema__graph__slug=graph_slug)
+    reltypes = RelationshipType.objects.filter(
+        schema__graph__slug=graph_slug)
+    query = graph.queries.get(pk=query_id)
+    query_dict = json.dumps(query.query_dict)
+    query_aliases = json.dumps(query.query_aliases)
+    query_fields = json.dumps(query.query_fields)
+    return render_to_response('operators/operator_builder.html',
+                              {"graph": graph,
+                               "node_types": nodetypes,
+                               "relationship_types": reltypes,
+                               "query_dict": query_dict,
+                               "query_aliases": query_aliases,
+                               "query_fields": query_fields},
+                              context_instance=RequestContext(request))

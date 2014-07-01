@@ -47,7 +47,7 @@
     </a></li>
 {% endif %}
 {% if OPTIONS.ENABLE_QUERIES %}
-    <li><a href="{% url "operator_builder" graph.slug %}" class="{% if on == "operators" %}text{% else %}link{% endif %}">
+    <li><a href="{% url "operator_queries" graph.slug %}" class="{% if on == "operators" %}text{% else %}link{% endif %}">
         <span>{% trans "Operators" %}</span>
     </a></li>
 {% endif %}
