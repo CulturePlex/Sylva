@@ -8,7 +8,7 @@
 <!--    href="{% url "nodes_list" graph.slug %}"-->
 <!--    <a id="dataMenu" href="{% url "nodes_list" graph.slug %}" class="inline {% if on == "nodes" %}text{% else %}link{% endif %}">-->
     <a id="dataMenu" href="javascript:void(0);" class="inline link" title="{% trans "List of all types of user data" %}">
-        <span>{% trans "Data" %}</span>
+        <span>{% trans "Data" %} <i class="fa fa-angle-down"></i></span>
     </a>
     <div id="dataBrowse">
     {% with graph.schema.nodetype_set.all as nodetypes %}
@@ -66,7 +66,7 @@
 </li>
 <li>
     <a id="toolsMenu" href="javascript:void(0);" class="link" title="{% trans "Tools for import and export data" %}">
-        <span>{% trans "Tools" %}</span>
+        <span>{% trans "Tools" %} <i class="fa fa-angle-down"></i></span>
     </a>
     <table id="toolsBrowseId" class="toolsBrowse">
         {% if graph.schema.is_empty %}

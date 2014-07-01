@@ -55,9 +55,25 @@
       return false;
     });
 
+    // A function that opens a menu depending of the selector of the button.
+    var openMenu = function(selector) {
+      closeMenu();
+      menuOpened = $(selector);
+
+      var angle = menuOpened.siblings().children().children();
+      angle.removeClass('fa-angle-down');
+      angle.addClass('fa-angle-up');
+
+      menuOpened.show();
+    };
+
     // A function that checks if a menu is opened and closes it.
     var closeMenu = function() {
       if (menuOpened != null) {
+        var angle = menuOpened.siblings().children().children();
+        angle.removeClass('fa-angle-up');
+        angle.addClass('fa-angle-down');
+
         menuOpened.hide();
         menuOpened = null;
       }
@@ -70,17 +86,13 @@
     $(".no-menu").on("mouseover", closeMenu);
 
     $("#dataMenu").on("mouseover", function() {
-      closeMenu();
-      menuOpened = $("#dataBrowse");
-      menuOpened.show();
+      openMenu("#dataBrowse");
     });
 
     $("#dataBrowse").on("mouseleave", closeMenu);
 
     $("#toolsMenu").on("mouseenter", function() {
-      closeMenu();
-      menuOpened = $("#toolsBrowseId");
-      menuOpened.show();
+      openMenu("#toolsBrowseId");
     });
 
     $("#toolsBrowseId").on("mouseleave", closeMenu);

@@ -201,6 +201,7 @@
 
       // Save as a PNG image and as a SVG.
       $('#sigma-export-menu').dropit({
+        action: 'mouseenter',
         beforeShow: function() {
           var button = $('#sigma-export-image');
           var child = button.children();
