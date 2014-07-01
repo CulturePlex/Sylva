@@ -91,7 +91,7 @@ diagram.Models = {% autoescape off %}{{ graph.schema.get_schema_diagram }}{% end
 
 diagram.url_collaborators = "{% url "graph_query_collaborators" graph.slug %}";
 diagram.url_query = "{% url "operator_builder_results" graph.slug %}";
-diagram.relationshipImageSrc = "{% static "../../../static/img/rarr2.gif" %}";
+diagram.relationshipImageSrc = "{{ STATIC_PREFIX }}img/rarr2.gif";
 
 (function ($) {
 
@@ -131,4 +131,40 @@ diagram.relationshipImageSrc = "{% static "../../../static/img/rarr2.gif" %}";
 })(jQuery);
 
 </script>
+{% if query_dict %}
+<script type="text/javascript">
+var query = {};
+var query_dict = '{{ query_dict|safe }}';
+query_dict = JSON.parse(query_dict);
+query["query"] = query_dict["query"];
+</script>
+{% endif %}
+
+{% if query_aliases %}
+<script type="text/javascript">
+var query_aliases = '{{ query_aliases|safe }}';
+query_aliases = JSON.parse(query_aliases);
+query["aliases"] = query_aliases;
+</script>
+{% endif %}
+
+{% if query_fields %}
+<script type="text/javascript">
+var query_fields = '{{ query_fields|safe }}';
+query_fields = JSON.parse(query_fields);
+query["fields"] = query_fields["fields"];
+query["fieldRelsCounter"] = query_fields["fieldRelsCounter"];
+query["checkboxes"] = query_fields["checkboxes"];
+query["fieldsConditions"] = query_fields["fieldsConditions"];
+
+(function($) {
+
+$(document).on('ready', function() {
+    diagram.loadQuery(JSON.stringify(query));
+});
+
+})(jQuery);
+
+</script>
+{% endif %}
 {% endblock %}
