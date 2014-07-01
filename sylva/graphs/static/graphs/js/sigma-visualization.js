@@ -3166,7 +3166,7 @@
       $('#labels-proportion-slider').slider({
         min: 0.5 * 10,
         max: 3 * 10,
-        value: parseInt(sigInst.settings('labelSizeRatio')) * 10,
+        value: parseFloat(sigInst.settings('labelSizeRatio')) * 10,
         slide: function(event, ui) {
           sigInst.settings('labelSizeRatio', (ui.value / 10).toString());
           sigInst.refresh();
