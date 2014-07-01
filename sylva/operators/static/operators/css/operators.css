@@ -113,6 +113,7 @@
 
 .title {
     padding-bottom: 3%;
+    height: 15px !important;
 }
 
 .checkbox-select-type {
@@ -120,10 +121,14 @@
     margin-top: 1% !important;
 }
 
+.corner-buttons {
+    margin-top: 4px;
+}
+
 .icon-style {
     color: white;
     float: right;
-    margin-right: 3%;
+    margin-right: 2%;
 }
 
 .select-property {
@@ -157,7 +162,7 @@
 .select-and-or {
     width: 50px;
     padding: 0;
-    display: inline;
+    display: none;
     margin-left: 8px;
     margin-top: -4px;
 }

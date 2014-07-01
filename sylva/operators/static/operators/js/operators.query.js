@@ -7,6 +7,8 @@ if (!diagram) {
     var diagram = {};
 }
 
+// Global variables for the query builder logic
+
 diagram.Container = "diagram";
 diagram.CurrentModels = [];
 diagram.Counter = 0;
@@ -18,6 +20,13 @@ diagram.reltypesCounter = [];
 diagram.fieldsForNodes = {};
 diagram.fieldsForRels = {};
 diagram.relindex = {};
+
+/*
+ * The next dictionaries are useful for the distinct options
+ * in the lookups
+ */
+
+// Relationship between the string name and the key used in the backend
 
 diagram.stringValues = {
     'em': gettext("matches"),
@@ -52,6 +61,8 @@ diagram.lookupsBackendValues = {
     'ends with': 'iendswith'
 }
 
+// All the options for the lookups
+
 diagram.lookupsAllValues = [
     diagram.stringValues['em'],
     diagram.stringValues['eq'],
@@ -69,6 +80,9 @@ diagram.lookupsAllValues = [
     diagram.stringValues['iendswith']
 ];
 
+// Set of specific values for the lookups for the types boolean,
+// choices, collaborator and auto_user
+
 diagram.lookupsSpecificValues = [
     diagram.stringValues['em'],
     diagram.stringValues['eq'],
@@ -76,6 +90,8 @@ diagram.lookupsSpecificValues = [
     diagram.stringValues['isnotnull'],
     diagram.stringValues['isnull']
 ];
+
+// Set of specific values for the lookups for the numeric types
 
 diagram.lookupsNumberValues = [
     diagram.stringValues['em'],
@@ -89,6 +105,8 @@ diagram.lookupsNumberValues = [
     diagram.stringValues['isnotnull'],
     diagram.stringValues['isnull']
 ];
+
+// Set of specific values for the lookups for the text and string types
 
 diagram.lookupsTextValues = [
     diagram.stringValues['em'],
@@ -329,8 +347,8 @@ diagram.lookupsValuesType = {
             divBox.append(divContainerBoxes);
             divBox.prepend(divTitle);
             root.append(divBox);
-            // We add the target relationship handler
 
+            // We add the target relationship handler
             var exampleDropOptions = {
                 tolerance:"touch",
                 hoverClass:"dropHover",
@@ -359,7 +377,6 @@ diagram.lookupsValuesType = {
                     if (position.top < 0) {
                         top = "0px";
                     }
-                    diagram.saveBoxPositions();
                 }
             });
         };
@@ -528,24 +545,19 @@ diagram.lookupsValuesType = {
             optionNodetype.attr('data-modelid', model.id);
             optionNodetype.attr('value', model.name + diagram.nodetypesCounter[typeName]);
             optionNodetype.html(model.name + " " + diagram.nodetypesCounter[typeName]);
-            // This for loop is to add the new option in the old boxes
+            // This 'for' loop is to add the new option in the old boxes
             for(var i = 0; i < diagram.nodetypesCounter[typeName]; i++) {
                 $($('.select-nodetype-' + typeName)[i]).append(optionNodetype.clone(true));
             }
-            // This for loop is to include the old options in the new box
+            // This 'for' loop is to include the old options in the new box
             for(var j = 1; j < diagram.nodetypesCounter[typeName]; j++) {
                 var value = model.name + " " + j;
                 selectNodetype.append("<option class='option-nodetype-" + typeName + "' id='" + value + "' data-modelid='" + model.id + "' value='" + value +"' selected=''>" + value + "</option>");
             }
             selectNodetype.append(optionNodetype);
-            // Checkbox for select type
-            // checkboxType = $("<INPUT>");
-            // checkboxType.addClass("checkbox-select-type");
-            // checkboxType.attr("id", "checkbox-" + idBox);
-            // checkboxType.attr("type", "checkbox");
-            // divTitle.append(checkboxType);
             diagram.setName(divTitle, model.name);
             divTitle.append(selectNodetype);
+            // Show/hide button in the corner of the box and its associated event
             anchorShowHide = $("<A>");
             anchorShowHide.attr("href", "javascript:void(0);");
             anchorShowHide.attr("id", "inlineShowHideLink_"+ modelName);
@@ -568,15 +580,15 @@ diagram.lookupsValuesType = {
                 diagram.recalculateAnchor(idBox, idAllRels);
 
                 jsPlumb.repaintEverything();
-                diagram.saveBoxPositions();
             });
-            anchorDelete = $("<A>");
-            anchorDelete.attr("href", "javascript:void(0);");
-            anchorDelete.attr("id", "inlineDeleteLink_"+ modelName);
-            iconDelete = $("<I>");
-            iconDelete.addClass("fa fa-times-circle icon-style");
-            anchorDelete.append(iconDelete);
-            anchorDelete.click(function () {
+            // Close button in the corner of the box and its associated event
+            anchorClose = $("<A>");
+            anchorClose.attr("href", "javascript:void(0);");
+            anchorClose.attr("id", "inlineDeleteLink_"+ modelName);
+            iconClose = $("<I>");
+            iconClose.addClass("fa fa-times-circle icon-style");
+            anchorClose.append(iconClose);
+            anchorClose.click(function () {
                 $("#diagramModelAnchor_"+ graphName +"\\\."+ modelName).click();
                 var connections = jsPlumb.getEndpoint(idBox + '-target').connections;
                 // We redraw the endpoint of the endpoints connected to this
@@ -592,25 +604,35 @@ diagram.lookupsValuesType = {
 
                 $('#' + idBox).remove();
             });
+            // We create the div for the corner buttons
+            divCornerButtons = $("<DIV>");
+            divCornerButtons.addClass("corner-buttons");
+            // Advanced mode button in the corner of the box and its associated event
             advancedMode = $("<A>");
             advancedMode.attr("href", "javascript:void(0);");
             advancedMode.attr("id", "inlineAdvancedMode_"+ modelName);
+            advancedMode.attr("title", gettext("Advanced options"))
             iconAdvancedMode = $("<I>");
             iconAdvancedMode.addClass("fa fa-gear icon-style");
             advancedMode.append(iconAdvancedMode);
             advancedMode.click(function () {
-                // We show the advanced options
+                // We change the width of the box div
                 $('#' + idBox).css({
                     'width': '440px'
                 });
+                // We show the advanced options
                 $('#' + idBox + " .select-aggregate").css({
                     "display": "inline"
                 });
+                // We change the margin left of the relationships remove icon
+                $('#' + idBox + " #remove-relation-icon").css({
+                    'margin-left': '307px'
+                });
             });
-            divTitle.append(anchorDelete);
-            divTitle.append(anchorShowHide);
-            divTitle.append(advancedMode);
+            divCornerButtons.append(anchorClose);
+            divCornerButtons.append(anchorShowHide);
 
+            divTitle.append(divCornerButtons);
             divTitle.attr("data-boxalias", model.name + diagram.nodetypesCounter[typeName]);
 
             return divTitle;
@@ -650,25 +672,23 @@ diagram.lookupsValuesType = {
             optionNodetype.attr('data-modelid', typeId);
             optionNodetype.attr('value', modelName + diagram.nodetypesCounter[typeName]);
             optionNodetype.html(modelName + diagram.nodetypesCounter[typeName]);
-            // This for loop is to add the new option in the old boxes
+            // This 'for' loop is to add the new option in the old boxes
             for(var i = 0; i < diagram.nodetypesCounter[typeName]; i++)
             {
                 $($('.select-nodetype-' + typeName)[i]).append(optionNodetype.clone(true));
             }
-            // This for loop is to include the old options in the new box
+            // This 'for' loop is to include the old options in the new box
             for(var j = 0; j < diagram.nodetypesCounter[typeName]; j++) {
                 var value = modelName + j;
                 selectNodetype.append("<option class='option-nodetype-" + typeName + "' id='" + value + "' data-modelid='" + typeId + "' value='" + value +"' selected=''>" + value + "</option>");
             }
             selectNodetype.append(optionNodetype);
-            // Checkbox for select type
-            // checkboxType = $("<INPUT>");
-            // checkboxType.addClass("checkbox-select-type");
-            // checkboxType.attr("id", "checkbox-" + idBox);
-            // checkboxType.attr("type", "checkbox");
-            // divTitle.append(checkboxType);
             diagram.setName(divTitle, modelName);
             divTitle.append(selectNodetype);
+            // We create the div for the corner buttons
+            divCornerButtons = $("<DIV>");
+            divCornerButtons.addClass("corner-buttons");
+            // Show/hide button in the corner of the box and its associated event
             anchorShowHide = $("<A>");
             anchorShowHide.attr("href", "javascript:void(0);");
             anchorShowHide.attr("id", "inlineShowHideLink_"+ modelName);
@@ -689,15 +709,15 @@ diagram.lookupsValuesType = {
                 diagram.recalculateAnchor(idBox, idAllRels);
 
                 jsPlumb.repaintEverything();
-                diagram.saveBoxPositions();
             });
-            anchorDelete = $("<A>");
-            anchorDelete.attr("href", "javascript:void(0);");
-            anchorDelete.attr("id", "inlineDeleteLink_"+ modelName);
-            iconDelete = $("<I>");
-            iconDelete.addClass("fa fa-times-circle remove-icon");
-            anchorDelete.append(iconDelete);
-            anchorDelete.click(function () {
+            // Close button in the corner of the box and its associated event
+            anchorClose = $("<A>");
+            anchorClose.attr("href", "javascript:void(0);");
+            anchorClose.attr("id", "inlineDeleteLink_"+ modelName);
+            iconClose = $("<I>");
+            iconClose.addClass("fa fa-times-circle remove-icon");
+            anchorClose.append(iconClose);
+            anchorClose.click(function () {
                 $("#diagramModelAnchor_"+ graphName +"\\\."+ modelName).click();
                 var connections = jsPlumb.getEndpoint(idBox + '-target').connections;
                 // We redraw the endpoint of the endpoints connected to this
@@ -717,8 +737,32 @@ diagram.lookupsValuesType = {
 
                 $('#' + idBox).remove();
             });
-            divTitle.append(anchorDelete);
-            divTitle.append(anchorShowHide);
+            // Advanced mode button in the corner of the box and its associated event
+            advancedMode = $("<A>");
+            advancedMode.attr("href", "javascript:void(0);");
+            advancedMode.attr("id", "inlineAdvancedMode_"+ modelName);
+            advancedMode.attr("title", gettext("Advanced options"))
+            iconAdvancedMode = $("<I>");
+            iconAdvancedMode.addClass("fa fa-gear icon-style");
+            advancedMode.append(iconAdvancedMode);
+            advancedMode.click(function () {
+                // We change the width of the box div
+                $('#' + idBox).css({
+                    'width': '440px'
+                });
+                // We show the advanced options
+                $('#' + idBox + " .select-aggregate").css({
+                    "display": "inline"
+                });
+                // We change the margin left of the relationships remove icon
+                $('#' + idBox + " #remove-relation-icon").css({
+                    'margin-left': '307px'
+                });
+            });
+            divCornerButtons.append(anchorClose);
+            divCornerButtons.append(anchorShowHide);
+
+            divTitle.append(divCornerButtons);
 
             divTitle.attr("data-boxalias", modelName + diagram.nodetypesCounter[typeName]);
 
@@ -751,36 +795,12 @@ diagram.lookupsValuesType = {
             return div;
         };
 
-       /**
-         * Save the positions of the all the boxes in a serialized way into a
-         * input type hidden
-         */
-        diagram.saveBoxPositions = function () {
-            var positions, positionsString, left, top, splits, appModel, modelName;
-            positions = [];
-            for(var i=0; i<diagram.CurrentModels.length; i++) {
-                appModel = diagram.CurrentModels[i];
-                splits = appModel.split(".");
-                modelName = splits[1];
-                left = $("#diagramBox-"+ modelName).css("left");
-                top = $("#diagramBox-"+ modelName).css("top");
-                status = $("#diagramBox-"+ modelName +" > div > a").hasClass("inline-deletelink");
-                positions.push({
-                    modelName: modelName,
-                    left: left,
-                    top: top,
-                    status: status
-                });
-            }
-            positionsString = JSON.stringify(positions);
-        };
-
         /**
          * Load the node type from the schema
          * - typeName
          */
         diagram.loadBox = function(typeName) {
-            var graph, models, modelName, position, positionºs, titleAnchor;
+            var graph, models, modelName;
             var modelNameValue = "";
             if (diagram.Models) {
                 for(graph in diagram.Models) {
@@ -1360,162 +1380,167 @@ diagram.lookupsValuesType = {
      * Load the query
      */
     diagram.loadQuery = function(jsonQuery) {
-        jsonDict = JSON.parse(jsonQuery);
-        types = jsonDict["aliases"];
-        nodetypes = {};
-        origins = jsonDict["query"]["origins"];
-        originsLength = origins.length;
-        conditions = jsonDict["query"]["conditions"];
-        conditionsLength = conditions.length;
-        conditionsDict = {};
-        patterns = jsonDict["query"]["patterns"];
-        patternsLength = patterns.length;
-        checkboxes = jsonDict["checkboxes"];
-        var fieldIndex = 0;
-        var conditionsIndex = 0;
+        try {
+            jsonDict = JSON.parse(jsonQuery);
+            types = jsonDict["aliases"];
+            nodetypes = {};
+            origins = jsonDict["query"]["origins"];
+            originsLength = origins.length;
+            conditions = jsonDict["query"]["conditions"];
+            conditionsLength = conditions.length;
+            conditionsDict = {};
+            patterns = jsonDict["query"]["patterns"];
+            patternsLength = patterns.length;
+            checkboxes = jsonDict["checkboxes"];
+            var fieldIndex = 0;
+            var conditionsIndex = 0;
 
-        // We save the node types to load the boxes
-        for(var i = 0; i < originsLength; i++) {
-            if(origins[i].type == "node") {
-                nodeAlias = origins[i].alias;
-                nodetypes[nodeAlias] = types[nodeAlias];
-            }
-        }
-        // We store the conditions in a dictionary
-        var conditionsAlias = [];
-        for(var i = 0; i < conditionsLength; i++) {
-            var conditionsArray = [];
-            // alias
-            alias = conditions[i][1][1];
-            // lookup
-            lookup = jsonDict["query"]["conditions"][i][0];
-            conditionsArray.push(lookup);
-            // property
-            property = jsonDict["query"]["conditions"][i][1][2];
-            conditionsArray.push(property);
-            // value
-            value = jsonDict["query"]["conditions"][i][2];
-            conditionsArray.push(value);
-            // We have to check the and-or value
-            andOr = jsonDict["query"]["conditions"][i][3];
-            conditionsArray.push(andOr);
-
-            //conditionsAlias.push(conditionsArray);
-            if(!conditionsDict[alias])
-                conditionsDict[alias] = [];
-            conditionsDict[alias].push(conditionsArray);
-        }
-
-        // Load the boxes for nodetypes
-        for(key in nodetypes) {
-            if(nodetypes.hasOwnProperty(key)) {
-                id = nodetypes[key].id;
-                // We change the counter to get the correct id of the box
-                counter = parseInt(id.split("-")[1]);
-                diagram.Counter = counter - 1;
-                typename = nodetypes[key].typename;
-                leftPos = nodetypes[key].left;
-                topPos = nodetypes[key].top;
-                // Load the box and set the positions
-                diagram.loadBox(typename);
-                $('#' + id).css({
-                    "left": leftPos,
-                    "top": topPos
-                });
-                fields = jsonDict["fields"][key];
-                // Load the conditions for the box
-                // This loop could be replace if we have a
-                // dict instead an array
-                // ---------------------------------------
-                // Every index in the loop is an index for a field
-                var boxFields = 0;
-                fieldIndex++;
-                for(var i = 0; i < fields.length; i++) {
-                    boxFields++;
-                    // If we have more than one field, we add
-                    // a new field
-                    if(boxFields > 1) {
-                        $('#' + id + ' .select-and-or').change();
-                        fieldIndex++;
-                    }
-                    // We check if we have conditions
-                    if(jsonDict["fieldsConditions"][fieldIndex - 1]) {
-                        conditions = conditionsDict[key][conditionsIndex];
-                        // lookup
-                        lookup = conditions[0];
-                        // property
-                        property = conditions[1];
-                        // value
-                        // we check if the lookup is 'is between'
-                        if(lookup == "between") {
-                            value1 = conditions[2][0];
-                            value2 = conditions[2][1];
-                        } else {
-                            value = conditions[2];
-                        }
-                        // We have to check the and-or value
-                        andOr = conditions[3];
-                        // We set the values in the correct position
-                        //$field = $('#' + id + " #field" + (i+1));
-                        $('#' + id + " #field" + fieldIndex + " .select-property").val(property);
-                        $('#' + id + " #field" + fieldIndex + " .select-property").change();
-                        $('#' + id + " #field" + fieldIndex + " .select-lookup").val(lookup);
-                        $('#' + id + " #field" + fieldIndex + " .select-lookup").change();
-                        // If the lookup is "is between", we have two inputs
-                        if(lookup == "between") {
-                            $($('#' + id + " #field" + fieldIndex + " .lookup-value")[0]).val(value);
-                            $($('#' + id + " #field" + fieldIndex + " .lookup-value")[1]).val(value);
-                        } else {
-                            $('#' + id + " #field" + fieldIndex + " .lookup-value").val(value);
-                        }
-                        if(andOr != "not") {
-                            $('#' + id + " #field" + fieldIndex + " .select-and-or").val(andOr);
-                        }
-                        conditionsIndex++;
-                    }
+            // We save the node types to load the boxes
+            for(var i = 0; i < originsLength; i++) {
+                if(origins[i].type == "node") {
+                    nodeAlias = origins[i].alias;
+                    nodetypes[nodeAlias] = types[nodeAlias];
                 }
-                conditionsIndex = 0;
-                // We select the correct value for the alias
-                $('#' + id + ' .title select').val(key);
             }
-        }
-        // We check the checkboxes to return
-        for(key in checkboxes) {
-            if(checkboxes.hasOwnProperty(key)) {
-                var property = checkboxes[key];
-                var fieldIndex = parseInt(key) + 1;
-                $("#field" + fieldIndex + " .select-property").val(property);
-                $("#field" + fieldIndex + ' .checkbox-property').click();
+            // We store the conditions in a dictionary
+            var conditionsAlias = [];
+            for(var i = 0; i < conditionsLength; i++) {
+                var conditionsArray = [];
+                // alias
+                alias = conditions[i][1][1];
+                // lookup
+                lookup = jsonDict["query"]["conditions"][i][0];
+                conditionsArray.push(lookup);
+                // property
+                property = jsonDict["query"]["conditions"][i][1][2];
+                conditionsArray.push(property);
+                // value
+                value = jsonDict["query"]["conditions"][i][2];
+                conditionsArray.push(value);
+                // We have to check the and-or value
+                andOr = jsonDict["query"]["conditions"][i][3];
+                conditionsArray.push(andOr);
+
+                //conditionsAlias.push(conditionsArray);
+                if(!conditionsDict[alias])
+                    conditionsDict[alias] = [];
+                conditionsDict[alias].push(conditionsArray);
             }
+
+            // Load the boxes for nodetypes
+            for(key in nodetypes) {
+                if(nodetypes.hasOwnProperty(key)) {
+                    id = nodetypes[key].id;
+                    // We change the counter to get the correct id of the box
+                    counter = parseInt(id.split("-")[1]);
+                    diagram.Counter = counter - 1;
+                    typename = nodetypes[key].typename;
+                    leftPos = nodetypes[key].left;
+                    topPos = nodetypes[key].top;
+                    // Load the box and set the positions
+                    diagram.loadBox(typename);
+                    $('#' + id).css({
+                        "left": leftPos,
+                        "top": topPos
+                    });
+                    fields = jsonDict["fields"][key];
+                    // Load the conditions for the box
+                    // This loop could be replace if we have a
+                    // dict instead an array
+                    // ---------------------------------------
+                    // Every index in the loop is an index for a field
+                    var boxFields = 0;
+                    fieldIndex++;
+                    for(var i = 0; i < fields.length; i++) {
+                        boxFields++;
+                        // If we have more than one field, we add
+                        // a new field
+                        if(boxFields > 1) {
+                            $('#' + id + ' .select-and-or').change();
+                            fieldIndex++;
+                        }
+                        // We check if we have conditions
+                        if(jsonDict["fieldsConditions"][fieldIndex - 1]) {
+                            conditions = conditionsDict[key][conditionsIndex];
+                            // lookup
+                            lookup = conditions[0];
+                            // property
+                            property = conditions[1];
+                            // value
+                            // we check if the lookup is 'is between'
+                            if(lookup == "between") {
+                                value1 = conditions[2][0];
+                                value2 = conditions[2][1];
+                            } else {
+                                value = conditions[2];
+                            }
+                            // We have to check the and-or value
+                            andOr = conditions[3];
+                            // We set the values in the correct position
+                            //$field = $('#' + id + " #field" + (i+1));
+                            $('#' + id + " #field" + fieldIndex + " .select-property").val(property);
+                            $('#' + id + " #field" + fieldIndex + " .select-property").change();
+                            $('#' + id + " #field" + fieldIndex + " .select-lookup").val(lookup);
+                            $('#' + id + " #field" + fieldIndex + " .select-lookup").change();
+                            // If the lookup is "is between", we have two inputs
+                            if(lookup == "between") {
+                                $($('#' + id + " #field" + fieldIndex + " .lookup-value")[0]).val(value);
+                                $($('#' + id + " #field" + fieldIndex + " .lookup-value")[1]).val(value);
+                            } else {
+                                $('#' + id + " #field" + fieldIndex + " .lookup-value").val(value);
+                            }
+                            if(andOr != "not") {
+                                $('#' + id + " #field" + fieldIndex + " .select-and-or").val(andOr);
+                            }
+                            conditionsIndex++;
+                        }
+                    }
+                    conditionsIndex = 0;
+                    // We select the correct value for the alias
+                    $('#' + id + ' .title select').val(key);
+                }
+            }
+            // We check the checkboxes to return
+            for(key in checkboxes) {
+                if(checkboxes.hasOwnProperty(key)) {
+                    var property = checkboxes[key];
+                    var fieldIndex = parseInt(key) + 1;
+                    $("#field" + fieldIndex + " .select-property").val(property);
+                    $("#field" + fieldIndex + ' .checkbox-property').click();
+                }
+            }
+            // Load the relationships between the boxes
+            for(var i = 0; i < patternsLength; i++) {
+                var source = jsonDict["query"]["patterns"][i].source.alias;
+                var sourceId = types[source].id;
+
+                var target = jsonDict["query"]["patterns"][i].target.alias;
+                var targetId = types[target].id;
+
+                var relation = jsonDict["query"]["patterns"][i].relation.alias;
+                var relationValue = types[relation].typename;
+                var relationName = relationValue;
+
+                // We check if the relationship is of type wildcard
+                if(relationValue == "WildcardRel")
+                   relationName = "wildcard";
+
+                var uuidSource = sourceId + '-' + relationName + '-source';
+                console.log(uuidSource);
+                var uuidTarget = targetId + '-target';
+                console.log(uuidTarget);
+
+                $('#' + sourceId + ' .select-rel').val(relationValue);
+                $('#' + sourceId + ' .select-rel').change();
+                $('#' + sourceId + ' .select-rel').change();
+
+                jsPlumb.connect({uuids: [uuidSource, uuidTarget] })
+            }
+
+            jsPlumb.repaintEverything();
+        } catch(error) {
+            alert(error);
         }
-        // Load the relationships between the boxes
-        for(var i = 0; i < patternsLength; i++) {
-            var source = jsonDict["query"]["patterns"][i].source.alias;
-            var sourceId = types[source].id;
-
-            var target = jsonDict["query"]["patterns"][i].target.alias;
-            var targetId = types[target].id;
-
-            var relation = jsonDict["query"]["patterns"][i].relation.alias;
-            var relationValue = types[relation].typename;
-            var relationName = relationValue;
-
-            // We check if the relationship is of type wildcard
-            if(relationValue == "WildcardRel")
-               relationName = "wildcard";
-
-            var uuidSource = sourceId + '-' + relationName + '-source';
-            console.log(uuidSource);
-            var uuidTarget = targetId + '-target';
-            console.log(uuidTarget);
-
-            $('#' + sourceId + ' .select-rel').val(relationValue);
-            $('#' + sourceId + ' .add-relation').click();
-
-            jsPlumb.connect({uuids: [uuidSource, uuidTarget] })
-        }
-
-        jsPlumb.repaintEverything();
     }
 
     /**
@@ -1774,6 +1799,11 @@ diagram.lookupsValuesType = {
 
         // We show the select lookup
         $(selector).css({
+            "display": "inline"
+        });
+
+        // We show the and-or select
+        $('#' + fieldId + ' .select-and-or').css({
             "display": "inline"
         });
 
