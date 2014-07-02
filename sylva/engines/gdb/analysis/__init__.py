@@ -3,6 +3,8 @@ import datetime
 
 from sylva.celery import app
 
+from analytics.models import Analytic
+
 PROC_INIT = 0
 LOAD_FILE = 1
 RUN_ALGOS = 2
@@ -20,7 +22,7 @@ class BaseAnalysis(object):
         """
         raise NotImplementedError("Method has to be implemented")
 
-    def get_dump(graph):
+    def get_dump(graph_id):
         """
         Dump the content of the graph into an edgelist file
         """
@@ -39,8 +41,9 @@ class BaseAnalysis(object):
     #     raise NotImplementedError("Method has to be implemented")
 
     @app.task(bind=True, name="analytics.run_algorithm")
-    def run(self, analytic, analysis):
+    def run(self, analytic_id, analysis):
         try:
+            analytic = Analytic.objects.get(id=analytic_id)
             algorithm = analytic.algorithm
             analytic.task_id = self.request.id
             analytic.task_start = datetime.datetime.now()

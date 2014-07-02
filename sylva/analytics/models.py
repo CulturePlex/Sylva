@@ -1,8 +1,4 @@
 # -*- coding: utf-8 -*-
-import tempfile
-
-import requests
-
 from django.db import models
 from django.utils.translation import gettext as _
 
@@ -83,11 +79,11 @@ class AnalysisManager(models.Manager):
         self._analysis = self._graph.gdb.analysis()
 
     def run(self, algorithm, **kwargs):
-        dump = self._analysis.get_dump(self._graph)
+        dump = self._analysis.get_dump(self._graph.id)
         analytic = Analytic.objects.create(dump=dump,
                                            algorithm=algorithm)
         task = self._analysis.run.apply_async(
-            kwargs={'analytic': analytic,
+            kwargs={'analytic_id': analytic.id,
                     'analysis': self._analysis})
         analytic.task_id = task.id
         analytic.save()

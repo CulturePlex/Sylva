@@ -14,10 +14,11 @@ from django.conf import settings
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.utils.translation import gettext as _
 
+from analytics.models import Dump
 from engines.gdb.analysis import (
     BaseAnalysis, LOAD_FILE, RUN_ALGOS, PROC_FINA
 )
-from analytics.models import Dump
+from graphs.models import Graph
 
 INST_TIME = 1e-04
 
@@ -41,10 +42,11 @@ class Analysis(BaseAnalysis):
                 'triangle_counting': _("Triangle counting"),
                 'betweenness_centrality': _("Betweenness centrality")}
 
-    def get_dump(self, graph):
+    def get_dump(self, graph_id):
         """
         Dump the content of the graph into an edgelist file
         """
+        graph = Graph.objects.get(id=graph_id)
         lines = "src,dest\n"
         last_modified_relationships = graph.data.last_modified_relationships
         if last_modified_relationships is None:
@@ -300,4 +302,3 @@ class Analysis(BaseAnalysis):
         if temp_file_name != temp_file.name:
             os.unlink(temp_file_name)
         os.unlink(temp_file.name)
-
