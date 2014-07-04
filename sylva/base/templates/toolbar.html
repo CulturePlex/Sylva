@@ -45,14 +45,14 @@
         <span>{% trans "Schema" %}</span>
     </a>
 </li>
-{% if options.ENABLE_REPORTS %}
+{% if OPTIONS.ENABLE_REPORTS %}
     <li>
         <a href="{% url "reports" graph.slug %}" class="no-menu {% if on == "reports" %}text{% else %}link{% endif %}">
             <span>{% trans "Reports" %}</span>
         </a>
     </li>
 {% endif %}
-{% if options.ENABLE_QUERIES %}
+{% if OPTIONS.ENABLE_QUERIES %}
     <li>
         <a href="{% url "operator_queries" graph.slug %}" class="no-menu {% if on == "operators" %}text{% else %}link{% endif %}">
             <span>{% trans "Operators" %}</span>
