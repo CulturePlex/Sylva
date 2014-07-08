@@ -19,7 +19,7 @@ class Dump(models.Model):
     creation_date = models.DateTimeField(_("creation date"), null=True,
                                          blank=True)
     data_file = models.FileField(_("data file"), upload_to=get_upload_to_dump,
-                                 null=True, blank=True)
+                                 null=True, blank=True, max_length=255)
     data_hash = models.CharField(_("data hash"), max_length=255)
 
     class Meta:
@@ -42,9 +42,10 @@ class Analytic(models.Model):
                              related_name='analytics')
     algorithm = models.CharField(_("Algorithm"), max_length=255)
     raw = models.FileField(_("Raw file"), upload_to=get_upload_to_analytics,
-                           null=True, blank=True)
-    results = models.FileField(_("Results file"), upload_to=
-                               get_upload_to_analytics, null=True, blank=True)
+                           null=True, blank=True, max_length=255)
+    results = models.FileField(_("Results file"), null=True, blank=True,
+                               upload_to=get_upload_to_analytics,
+                               max_length=255)
     # tasks attributes
     task_id = models.CharField(_("task_id"), max_length=255, null=True,
                                blank=True)
