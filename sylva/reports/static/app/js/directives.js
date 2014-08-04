@@ -85,7 +85,6 @@ directives.directive('sylvaPvRowRepeat', ['tableArray', function (tableArray) {
                 ,   len = scope.tableArray.table.length;
 
                 for (var i=0; i<len; i++) {
-
                     childScope = scope.$new();
                     childScope.$index = i;
                     if (i === 0) {
@@ -136,9 +135,6 @@ directives.directive('sylvaPvCellRepeat', ['$compile', function ($compile) {
             }
 
             for (var i=0; i<len; i++) {
-
-                
-
                 var cell = scope.row[i]
                 ,   query = cell.displayQuery
                 ,   colspan = parseInt(cell.colspan)

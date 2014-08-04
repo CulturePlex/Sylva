@@ -12,7 +12,6 @@ controllers.controller('ReportListCtrl', [
     function ($scope, $location, api, parser, DjangoConst) {
         $scope.graph = parser.parse();
         $scope.reports = api.reports.query({graphSlug: $scope.graph});
-    
 }]);
 
 
@@ -31,14 +30,6 @@ controllers.controller('BaseReportFormCtrl', [
 
 
         $scope.report.slug = $routeParams.reportSlug;
-
-            api.reports.query({
-                graphSlug: $scope.graph,
-                slug: $scope.report.slug  
-            }, function (data) {
-                $scope.report = data[0];
-                $scope.resp = {table: $scope.report.table, queries: $scope.report.queries}
-            });
 
         $scope.designReport = function () {
             $scope.editable = true;
@@ -91,47 +82,6 @@ controllers.controller('NewReportCtrl', [
             // move this to directive
             nameHtml: '<h2>New Report</h2>',
         };
-
-        api.queries.query({
-            graphSlug: $scope.graph,
-            slug: $scope.report.slug
-        }, function (data) {
-            var queries = data.map(function (el) {
-                return {name: el.name, series: el.series} 
-            });
-            queries.unshift('markdown')
-            $scope.queries = queries
-        });
-
-        $scope.tableArray = tableArray([[{
-            col: 0,
-            colspan: '1',
-            id: 'cell1',
-            row: 0,
-            rowspan: '1',
-            displayQuery: ''
-        }, {
-            col: 1,
-            colspan: '1',
-            id: 'cell2',
-            row: 0,
-            rowspan: '1',
-            displayQuery: ''
-        }],[{
-            col: 0,
-            colspan: '1',
-            id: 'cell3',
-            row: 1,
-            rowspan: '1',
-            displayQuery: ''
-        }, {
-            col: 1,
-            colspan: '1',
-            id: 'cell4',
-            row: 1,
-            rowspan: '1',
-            displayQuery: ''
-        }]]);
 }]);
 
 
@@ -145,11 +95,13 @@ controllers.controller('EditReportCtrl', [
         $controller('BaseReportFormCtrl', {$scope: $scope});
         $scope.report.slug = $routeParams.reportSlug;
         $scope.tableArray = [];
-        $scope.tableLength = $scope.tableArray.length;
-        $scope.$watch('tableArray', function () {
-            console.log('changedArray', $scope.tableArray)
-        })
-
+        api.reports.query({
+            graphSlug: $scope.graph,
+            slug: $scope.report.slug  
+        }, function (data) {
+            $scope.report = data[0];
+            $scope.resp = {table: $scope.report.table, queries: $scope.report.queries}
+        });
 }]);
 
 
@@ -193,7 +145,6 @@ controllers.controller('ReportPreviewCtrl', [
         $scope.report = {};
         $scope.graph = parser.parse();
         $scope.pdf = parser.pdf();
-        console.log('pdf', $scope.pdf)
         $scope.report.slug = $routeParams.reportSlug;
         console.log('params', $scope.report.slug)
             api.reports.query({
