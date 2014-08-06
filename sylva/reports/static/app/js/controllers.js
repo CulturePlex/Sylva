@@ -27,8 +27,6 @@ controllers.controller('BaseReportFormCtrl', [
         $scope.graph = parser.parse();
         $scope.report = {};
         $scope.queries = [];
-
-
         $scope.report.slug = $routeParams.reportSlug;
 
         $scope.designReport = function () {

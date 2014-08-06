@@ -458,20 +458,30 @@ directives.directive('sylvaEtCell', function () {
 });
 
 
-directives.directive('sylvaBreadcrumbs', ['$location', function ($location) {
+directives.directive('sylvaBreadcrumbs', ['$location', 'parser', 'GRAPH', function ($location, parser, GRAPH) {
     return {
-        template: '<h2>&raquo; Reports &raquo; Breadcrumbs</h2>',
+        templateUrl: '/static/app/partials/directives/breadcrumbs.html',
         controller: function ($scope) {
 
+            $scope.graph = GRAPH;
+            $scope.graphSlug = parser.parse();
+
             $scope.getLocation = function () {
-                return $location.absUrl()
+                return $location.path()
             }
         },
         link: function (scope, elem, attrs) {
-            console.log('directive')
-            scope.$watch(scope.getLocation, function () {
-                console.log('location', scope.getLocation())
-            })
+            
+            scope.$watch(scope.getLocation, function (newVal, oldVal) {
+                var location = scope.getLocation();
+                if (location !== '/' ) {
+                    scope.crumbs = location.split('/')
+                    scope.crumbs.splice(0, 1)
+                    scope.crumbs[0] = scope.crumbs[0].charAt(0).toUpperCase() + scope.crumbs[0].slice(1);
+                } else {
+                    scope.crumbs = [];
+                } 
+            });
         }
     };
 }]);

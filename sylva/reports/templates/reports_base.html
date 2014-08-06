@@ -95,6 +95,7 @@
             <script type="text/javascript" src="{{ STATIC_PREFIX }}app/js/third_party/highcharts-ng.js" ></script>
             <script type="text/javascript">
               angular.module('reports').constant("STATIC_PREFIX", "{{ STATIC_PREFIX }}");
+              angular.module('reports').constant("GRAPH", "{{ graph.name }}");
             </script>
           {% endblock %}
 
