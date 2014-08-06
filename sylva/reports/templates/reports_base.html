@@ -2,13 +2,6 @@
 {% load i18n graphs static %}
 {# get_static_prefix as STATIC_PREFIX #}
 
-
-{% block navigation_buttons %}
-  {% if pdf == False %}
-    {{ block.super }}
-  {% endif %}
-{% endblock %}
-
 {% block title %}
   {{ graph_slug }}
 {% endblock %}
@@ -18,74 +11,114 @@
   <link rel="stylesheet" type="text/css" href="{{ STATIC_PREFIX }}app/css/reports.css" />
 {% endblock %}
 
+{% block body %}
+  <div id="main" ng-app="reports">
 
-{% block main_navigation %}
-    {% if pdf == True %}
-      <a href="{% url "dashboard" %}" id="link-logo" title="{% trans "Go to the Dashboard" %}">dashboard</a>
-    {% else %}
-      {{ block.super }}
-    {% endif %}
-{% endblock %}
+    <header class="global">
 
+      {% block menu_navigation %}
+        <nav class="menu">
+          <ul>
+            <!--<li><a href="{% url "userena.views.profile_detail" request.user %}" class="text">{{ request.user }}</a></li>-->
+            {% block menu_buttons %}
+              <!--<li><a href="{% url "dashboard" %}" class="link"><span>{% trans "Dashboard" %}</span></a></li>-->
+              {% if pdf == False %}
+                {% toolbar on="reports" %}
+              {% endif %}
+            {% endblock %}
+            <!--<li><a href="{{ LOGOUT_URL }}" class="link"><span>{% trans "Sign out" %}</span></a></li>-->
+          </ul>
+        </nav>
+      {% endblock %}
 
-{% block menu_buttons %}
-  {% if pdf == False %}
-    {% toolbar on="reports" %}
-  {% endif %}
-{% endblock %}
+      <!-- user messages -->
+      {% if messages %}
+        <ul class="messages">
+          {% for message in messages %}
+              <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+      <!-- end user messages -->
 
+      {% block content_title %}
+        {% if pdf == False %}
+          <div>
+            <header class="reports-header">
+              <div id="App1">
+                <h2 sylva-breadcrumbs></h2>
+              </div>
+            </header>
+          </div>
+        {% endif %}
+      {% endblock %}
 
-{% block content_title %}
-  {% if pdf == False %}
-    <div>
-      <header class="reports-header">
-        <!-- angular app here for breadcrumbs http://stackoverflow.com/questions/18571301/angularjs-multiple-ng-app-within-a-page -->
-        <h2 >{{ graph }} &raquo; Reports</h2>
-      </header>
+      <div class="nav-wrapper">
+        <div class="inside clearfix">
+          {% block contact_navigation %}{% endblock %}
+          {% block main_navigation %}
+            {% if pdf == True %}
+              <a href="{% url "dashboard" %}" id="link-logo" title="{% trans "Go to the Dashboard" %}">dashboard</a>
+            {% else %}
+              {{ block.super }}
+            {% endif %}
+          {% endblock %}
+        </div><!-- end .inside -->
+      </div><!-- end .nav-wrapper -->
+
+    </header>
+
+    <div id="body">
+      <div class="body-inside">
+
+        {% block content %}
+          <div id="App2">
+            <div ng-view></div>
+          </div>
+
+          {% block scripts %}
+            <script src="{{ STATIC_PREFIX }}js/jquery.1.8.3.js"></script>
+          {% endblock %}
+          
+          {% block extra_scripts %}
+            <script type="text/javascript" src="{{ STATIC_PREFIX }}js/jquery-ui-1.9.1.js"></script>
+            <script src="{{ STATIC_PREFIX }}app/js/third_party/angular.min.js"></script>
+            <script src="{{ STATIC_PREFIX }}app/js/third_party/angular-cookies.min.js"></script>
+            <script src="{{ STATIC_PREFIX }}app/js/third_party/angular-resource.min.js"></script>
+            <script src="{{ STATIC_PREFIX }}app/js/third_party/angular-route.min.js"></script>
+            <script src="{{ STATIC_PREFIX }}app/js/third_party/angular-sanitize.min.js"></script>
+            <script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/highcharts/highcharts.js"></script>
+            <script type="text/javascript" src="{{ STATIC_PREFIX }}app/js/app.js" ></script>
+            <script type="text/javascript" src="{{ STATIC_PREFIX }}app/js/controllers.js" ></script>
+            <script type="text/javascript" src="{{ STATIC_PREFIX }}app/js/services.js" ></script>
+            <script type="text/javascript" src="{{ STATIC_PREFIX }}app/js/directives.js" ></script>
+            <script type="text/javascript" src="{{ STATIC_PREFIX }}app/js/third_party/highcharts-ng.js" ></script>
+            <script type="text/javascript">
+              angular.module('reports').constant("STATIC_PREFIX", "{{ STATIC_PREFIX }}");
+            </script>
+          {% endblock %}
+
+        {% endblock %}
+
+      </div><!-- end .body-inside -->
+    </div><!-- end #body -->
+
+    <div id="footer" class="global">
+      <div class="inside">
+        <div class="copyright">
+          {% block footer %}
+            {% if pdf == True %}
+              <p>&copy; {{ CURRENT_DATE|date:"Y" }} <a href="{{ site.domain }}">{{ PROJECT_NAME }}</a>. {% trans "All rights reserved" %}.</p>
+            {% else %}
+              {{ block.super }}
+            {% endif %}
+          {% endblock %}
+        </div><!-- end .copyright -->
+        <div class="top">
+          <a href="">Top ↑</a><!--this is broken-->
+        </div><!-- end .top -->
+      </div><!-- end .inside -->
     </div>
-  {% endif %}
+
+  </div><!-- end #main -->
 {% endblock %}
-
-{% block content %}
-
-  <div ng-app="reports">
-    <div ng-view></div>
-  </div>
-
-  {% block scripts %}
-    <script src="{{ STATIC_PREFIX }}js/jquery.1.8.3.js"></script>
-  {% endblock %}
-  
-  {% block extra_scripts %}
-    <script type="text/javascript" src="{{ STATIC_PREFIX }}js/jquery-ui-1.9.1.js"></script>
-    <script src="{{ STATIC_PREFIX }}app/js/third_party/angular.min.js"></script>
-    <script src="{{ STATIC_PREFIX }}app/js/third_party/angular-cookies.min.js"></script>
-    <script src="{{ STATIC_PREFIX }}app/js/third_party/angular-resource.min.js"></script>
-    <script src="{{ STATIC_PREFIX }}app/js/third_party/angular-route.min.js"></script>
-    <script src="{{ STATIC_PREFIX }}app/js/third_party/angular-sanitize.min.js"></script>
-    <script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/highcharts/highcharts.js"></script>
-    <script type="text/javascript" src="{{ STATIC_PREFIX }}app/js/app.js" ></script>
-    <script type="text/javascript" src="{{ STATIC_PREFIX }}app/js/controllers.js" ></script>
-    <script type="text/javascript" src="{{ STATIC_PREFIX }}app/js/services.js" ></script>
-    <script type="text/javascript" src="{{ STATIC_PREFIX }}app/js/directives.js" ></script>
-    <script type="text/javascript" src="{{ STATIC_PREFIX }}app/js/third_party/highcharts-ng.js" ></script>
-    <script type="text/javascript">
-      angular.module('reports').constant("STATIC_PREFIX", "{{ STATIC_PREFIX }}");
-    </script>
-
-  {% endblock %}
-{% endblock %}
-
-
-
-{% block footer %}
-  {% if pdf == True %}
-    <p>&copy; {{ CURRENT_DATE|date:"Y" }} <a href="{{ site.domain }}">{{ PROJECT_NAME }}</a>. {% trans "All rights reserved" %}.</p>
-  {% else %}
-    {{ block.super }}
-  {% endif %}
-{% endblock %}
-
-
-
-

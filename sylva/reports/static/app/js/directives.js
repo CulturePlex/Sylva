@@ -456,3 +456,22 @@ directives.directive('sylvaEtCell', function () {
         }
     };
 });
+
+
+directives.directive('sylvaBreadcrumbs', ['$location', function ($location) {
+    return {
+        template: '<h2>&raquo; Reports &raquo; Breadcrumbs</h2>',
+        controller: function ($scope) {
+
+            $scope.getLocation = function () {
+                return $location.absUrl()
+            }
+        },
+        link: function (scope, elem, attrs) {
+            console.log('directive')
+            scope.$watch(scope.getLocation, function () {
+                console.log('location', scope.getLocation())
+            })
+        }
+    };
+}]);
