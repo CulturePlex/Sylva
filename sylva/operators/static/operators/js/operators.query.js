@@ -629,6 +629,7 @@ diagram.lookupsValuesType = {
                     'margin-left': '307px'
                 });
             });
+            divCornerButtons.append(advancedMode);
             divCornerButtons.append(anchorClose);
             divCornerButtons.append(anchorShowHide);
 
@@ -948,18 +949,19 @@ diagram.lookupsValuesType = {
             // Select for the aggregates elements
             selectAggregate = $("<SELECT>");
             selectAggregate.addClass("select-aggregate");
-            selectAggregate.append("<option class='option-aggregate' value='count'>" + gettext("Count") + "</option>");
-            selectAggregate.append("<option class='option-aggregate' value='count-distinct'>" + gettext("Count distinct") + "</option>");
-            selectAggregate.append("<option class='option-aggregate' value='max'>" + gettext("Max") + "</option>");
-            selectAggregate.append("<option class='option-aggregate' value='max-distinct'>" + gettext("Max distinct") + "</option>");
-            selectAggregate.append("<option class='option-aggregate' value='min'>" + gettext("Min") + "</option>");
-            selectAggregate.append("<option class='option-aggregate' value='min-distinct'>" + gettext("Min distinct") + "</option>");
-            selectAggregate.append("<option class='option-aggregate' value='sum'>" + gettext("Sum") + "</option>");
-            selectAggregate.append("<option class='option-aggregate' value='sum-distinct'>" + gettext("Sum distinct") + "</option>");
-            selectAggregate.append("<option class='option-aggregate' value='average'>" + gettext("Average") + "</option>");
-            selectAggregate.append("<option class='option-aggregate' value='average-distinct'>" + gettext("Average distinct") + "</option>");
-            selectAggregate.append("<option class='option-aggregate' value='deviation'>" + gettext("Deviation") + "</option>");
-            selectAggregate.append("<option class='option-aggregate' value='deviation-distinct'>" + gettext("Deviation distinct") + "</option>");
+            selectAggregate.append("<option class='option-aggregate' value='' selected='selected' disabled>" + gettext("choose one") + "</option>");
+            selectAggregate.append("<option class='option-aggregate' value='count' data-distinct='false'>" + gettext("Count") + "</option>");
+            selectAggregate.append("<option class='option-aggregate' value='count' data-distinct='true'>" + gettext("Count distinct") + "</option>");
+            selectAggregate.append("<option class='option-aggregate' value='max' data-distinct='false'>" + gettext("Max") + "</option>");
+            selectAggregate.append("<option class='option-aggregate' value='max' data-distinct='true'>" + gettext("Max distinct") + "</option>");
+            selectAggregate.append("<option class='option-aggregate' value='min' data-distinct='false'>" + gettext("Min") + "</option>");
+            selectAggregate.append("<option class='option-aggregate' value='min' data-distinct='true'>" + gettext("Min distinct") + "</option>");
+            selectAggregate.append("<option class='option-aggregate' value='sum' data-distinct='false'>" + gettext("Sum") + "</option>");
+            selectAggregate.append("<option class='option-aggregate' value='sum' data-distinct='true'>" + gettext("Sum distinct") + "</option>");
+            selectAggregate.append("<option class='option-aggregate' value='average' data-distinct='false'>" + gettext("Average") + "</option>");
+            selectAggregate.append("<option class='option-aggregate' value='average' data-distinct='true'>" + gettext("Average distinct") + "</option>");
+            selectAggregate.append("<option class='option-aggregate' value='deviation' data-distinct='false'>" + gettext("Deviation") + "</option>");
+            selectAggregate.append("<option class='option-aggregate' value='deviation' data-distinct='true'>" + gettext("Deviation distinct") + "</option>");
 
             // We append the patterns
             divField.append(checkboxProperty);
@@ -1242,11 +1244,24 @@ diagram.lookupsValuesType = {
             var fieldId = $(property).parent().attr('id');
             var datatype = $('#' + fieldId + ' .select-property option:selected').data('datatype');
 
+            // If exists, we store the aggregate and the value for distinct
+            var aggregate = $(property).prev().find(":selected");
+            var aggregateValue = $(aggregate).val();
+            var aggregateDistinct = '';
+            // We check if the aggregate value is not the "choose one" option
+            if(aggregateValue != '') {
+                aggregateDistinct = $(aggregate).data("distinct");
+            }
+
             // We store the checked properties
             if(!propertiesChecked[alias])
                 propertiesChecked[alias] = new Array();
             if($(property).prev().prev().attr('checked')) {
-                propertiesChecked[alias].push($(property).val());
+                var propertiesDict = {};
+                propertiesDict["property"] = $(property).val();
+                propertiesDict["aggregate"] = aggregateValue;
+                propertiesDict["distinct"] = aggregateDistinct;
+                propertiesChecked[alias].push(propertiesDict);
             }
 
             // We check if we have and/or option

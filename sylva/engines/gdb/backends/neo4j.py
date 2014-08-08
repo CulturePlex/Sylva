@@ -500,7 +500,7 @@ class GraphDatabase(BlueprintsGraphDatabase):
                         origin = u"""{alias}=rel:`{ridx}`('label:{type}')""".format(
                             ridx=unicode(self.ridx.name).replace(u"`",
                                                                  u"\\`"),
-                            alias=unicode(origin_dict["alias"]).replace(u"`",
+                            alias=unicode(alias).replace(u"`",
                                                                         u"\\`"),
                             type=relation_type,
                         )
@@ -511,19 +511,31 @@ class GraphDatabase(BlueprintsGraphDatabase):
     def _query_generator_results(self, results_dict):
         results_list = []
         for result_dict in results_dict:
+            alias = result_dict["alias"]
             if result_dict["properties"] is None:
                 result = u"`{0}`".format(
-                    unicode(result_dict["alias"]).replace(u"`", u"\\`"))
+                    unicode(alias).replace(u"`", u"\\`"))
                 results_list.append(result)
             else:
-                for property_name in result_dict["properties"]:
-                    if property_name:
+                for prop in result_dict["properties"]:
+                    property_value = prop["property"]
+                    property_aggregate = prop["aggregate"]
+                    property_distinct = prop["distinct"]
+                    if property_value and property_aggregate == "":
                         result = u"`{0}`.`{1}`".format(
-                            unicode(result_dict["alias"]).replace(u"`",
+                            unicode(alias).replace(u"`",
                                                                   u"\\`"),
-                            unicode(property_name).replace(u"`", u"\\`")
+                            unicode(property_value).replace(u"`", u"\\`")
                         )
-                    results_list.append(result)
+                        results_list.append(result)
+                    elif property_value and property_aggregate != "":
+                        result = u"{0}(`{1}`.`{2}`)".format(
+                            unicode(property_aggregate),
+                            unicode(alias).replace(u"`",
+                                                                  u"\\`"),
+                            unicode(property_value).replace(u"`", u"\\`")
+                        )
+                        results_list.append(result)
         results = u", ".join(results_list)
         return results
 
