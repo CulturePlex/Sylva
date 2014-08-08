@@ -127,7 +127,9 @@ directives.directive('sylvaPvCellRepeat', ['$compile', function ($compile) {
             ,   numCols = tableArray.numCols;
 
             if (childScopes.length > 0) {
+
                 for (var i=0; i<len; i++) {
+
                     childScopes[i].element.remove();
                     childScopes[i].scope.$destroy();
                 }
@@ -197,8 +199,8 @@ directives.directive('syEditableTable', ['$compile', 'tableArray', function ($co
         link: function(scope, elem, attrs) {
 
             var ang = angular.element
-            ,   rows = ang(elem.children()[0])
-            ,   rowWidth = parseInt(rows.css('width'))
+            //,   rows = ang(elem.children()[0])
+            //,   rowWidth = parseInt(rows.css('width'))
             ,   buttons = ang(elem.children()[1])
             ,   addRow = ang(buttons.children()[0])
             ,   addCol = ang(buttons.children()[1])
@@ -248,7 +250,7 @@ directives.directive('syEtRowRepeat', [function () {
         transclude: 'element',
         require: '^syEditableTable',
         scope: {
-            queries: '='
+            //queries: '='
         },
         link: function(scope, elem, attrs, ctrl, transclude) {
 
@@ -263,12 +265,35 @@ directives.directive('syEtRowRepeat', [function () {
             scope.$watchCollection(ctrl.getTableArray, function (newVal, oldVal) {
 
                 if (newVal == oldVal) return;
-                if (!previous) return;
-               
+
                 tableArray = ctrl.getTableArray();
                 numScopes = childScopes.length;
-                
-                if (newVal.numRows > oldVal.numRows) {
+
+                if (!previous) {   
+                    previous = elem
+                    len = tableArray.table.length;
+
+                    for (var i=0; i<len; i++) {
+                        var rowId = 'row' + i;
+                        childScope = scope.$new();
+                        childScope.$index = i;
+                        childScope.row = tableArray.table[i];
+
+                        transclude(childScope, function (clone) {
+
+                            if (i === len - 1) clone.addClass('bottom')
+                            
+                            clone.attr('id', rowId);
+                            clone.addClass('trow');
+                            previous.after(clone);
+                            block = {}
+                            block.element = clone
+                            block.scope = childScope
+                            childScopes.push(block)
+                            previous = clone
+                        });
+                    }
+                } else if (newVal.numRows > oldVal.numRows) {
                     childScope = scope.$new();
                     childScope.$index = numScopes;
                     childScope.row = tableArray.table[numScopes];
@@ -294,36 +319,6 @@ directives.directive('syEtRowRepeat', [function () {
                     childScopes[numScopes - 2].element.addClass('bottom');
                     previous = childScopes[numScopes - 2].element
                 }         
-            });
-
-            scope.$watch(ctrl.getTableArray, function (newVal, oldVal) {
-                if (newVal === oldVal) return;
-                previous = elem
-                tableArray = ctrl.getTableArray();
-                numScopes = childScopes.length;
-                len = tableArray.table.length;
-
-                for (var i=0; i<len; i++) {
-                    var rowId = 'row' + i;
-                
-                    childScope = scope.$new();
-                    childScope.$index = i;
-                    childScope.row = tableArray.table[i];
-
-                    transclude(childScope, function (clone) {
-
-                        if (i === len - 1) clone.addClass('bottom')
-                        
-                        clone.attr('id', rowId);
-                        clone.addClass('trow');
-                        previous.after(clone);
-                        block = {}
-                        block.element = clone
-                        block.scope = childScope
-                        childScopes.push(block)
-                        previous = clone
-                    });
-                }
             });
         }
     };
