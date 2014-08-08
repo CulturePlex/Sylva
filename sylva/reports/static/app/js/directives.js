@@ -143,7 +143,8 @@ directives.directive('sylvaPvCellRepeat', ['$compile', function ($compile) {
                 ,   cellWidth = (tableWidth / numCols - ((numCols + 1) * 2 / numCols)) * colspan + (2 * (colspan - 1)) + 'px'
                 ,   block;
 
-                if (query) {
+                console.log('querygroup', query)
+                if (query !== 'markdown') {
                     var series = ctrl.getQueries().filter(function (el) {
                         return el.name === query;
                     })[0].series;
@@ -210,9 +211,15 @@ directives.directive('syEditableTable', ['$compile', 'tableArray', function ($co
             scope.$watch('resp', function (newVal, oldVal) {  
 
                 if (newVal === oldVal) return;
-                scope.queries = scope.resp.queries;
                 scope.tableArray = tableArray(scope.resp.table);
                 scope.tableWidth = parseInt(angular.element(elem.children()[0]).css('width'));
+
+                scope.queries = [{name: 'markdown', group: 'text'}];
+
+                angular.forEach(scope.resp.queries, function (query) {
+                    query['group'] = 'queries';
+                    scope.queries.push(query);
+                });
             });
 
             addRow.bind('click', function () {
@@ -222,13 +229,16 @@ directives.directive('syEditableTable', ['$compile', 'tableArray', function ($co
             });
 
             addCol.bind('click', function () {
-                scope.$apply(function () {
-                    scope.tableArray.addCol();
-                });
+                console.log('numCols', scope.tableArray.numCols)
+                if (scope.tableArray.numCols < 4) {
+                    scope.$apply(function () {
+                        scope.tableArray.addCol();
+                    });
+                }
             });
 
             delRow.bind('click', function () {
-                if (scope.tableArray.numRows - 1 > 0)  {
+                if (scope.tableArray.numRows > 1)  {
                     scope.$apply(function () {
                         scope.tableArray.delRow();
                     });
@@ -236,9 +246,11 @@ directives.directive('syEditableTable', ['$compile', 'tableArray', function ($co
             });
 
             delCol.bind('click', function () {
-                scope.$apply(function () {
-                    scope.tableArray.delCol();
-                });
+                if (scope.tableArray.numCols > 1)  {
+                    scope.$apply(function () {
+                        scope.tableArray.delCol();
+                    });
+                }
             });
         }
     };
@@ -388,10 +400,11 @@ directives.directive('sylvaEtCellRepeat', [function () {
                         activeQuery: activeQuery,
                         chartTypes: ['column', 'scatter', 'pie', 'line'],
                         chartType: cell.chartType,
-                    }
+                    };
+                    childScope.cellStyle = {width: cellWidth};
 
-                    childScope.cellStyle = {width: cellWidth},
                     transclude(childScope, function (clone) {
+
                         if (i === len - 1) clone.addClass('final')
                             clone.attr('id', cell.id)
                             previous.after(clone);
@@ -429,19 +442,25 @@ directives.directive('sylvaEtCell', function () {
 
 
             scope.$watch('activeQuery', function (newVal, oldVal) {
+                console.log('newVal', newVal)
+                // fix this nonsense
                 if (newVal == oldVal) return;
+
                 var name;
+
                 if (newVal != null) {
                     name = newVal.name || '';
                 } else {
                     name = '';
                 }
-                scope.tableArray.addQuery([scope.row, scope.col], name)
-                if (newVal === 'markdown') {
+
+                if (name === 'markdown') {
                     scope.markdown = true;
                 } else {
                     scope.markdown = false;
                 }
+
+                scope.tableArray.addQuery([scope.row, scope.col], name)
             }); 
 
             scope.$watch('chartType', function (newVal, oldVal) {
