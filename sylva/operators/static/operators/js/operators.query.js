@@ -1251,6 +1251,8 @@ diagram.lookupsValuesType = {
             // We check if the aggregate value is not the "choose one" option
             if(aggregateValue != '') {
                 aggregateDistinct = $(aggregate).data("distinct");
+            } else {
+                aggregateValue = false;
             }
 
             // We store the checked properties

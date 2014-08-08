@@ -14,7 +14,7 @@ except ImportError:
 
 
 WILDCARD_TYPE = -1
-
+AGGREGATES = ["count", "max", "min", "sum", "average", "deviation"]
 
 class GraphDatabase(BlueprintsGraphDatabase):
 
@@ -521,21 +521,23 @@ class GraphDatabase(BlueprintsGraphDatabase):
                     property_value = prop["property"]
                     property_aggregate = prop["aggregate"]
                     property_distinct = prop["distinct"]
-                    if property_value and property_aggregate == "":
-                        result = u"`{0}`.`{1}`".format(
-                            unicode(alias).replace(u"`",
-                                                                  u"\\`"),
-                            unicode(property_value).replace(u"`", u"\\`")
-                        )
-                        results_list.append(result)
-                    elif property_value and property_aggregate != "":
-                        result = u"{0}(`{1}`.`{2}`)".format(
-                            unicode(property_aggregate),
-                            unicode(alias).replace(u"`",
-                                                                  u"\\`"),
-                            unicode(property_value).replace(u"`", u"\\`")
-                        )
-                        results_list.append(result)
+                    if property_value:
+                        if not property_aggregate:
+                            result = u"`{0}`.`{1}`".format(
+                                unicode(alias).replace(u"`",
+                                                                      u"\\`"),
+                                unicode(property_value).replace(u"`", u"\\`")
+                            )
+                            results_list.append(result)
+                        else:
+                            if property_aggregate in AGGREGATES:
+                                result = u"{0}(`{1}`.`{2}`)".format(
+                                    unicode(property_aggregate),
+                                    unicode(alias).replace(u"`",u"\\`"),
+                                    unicode(property_value).replace(u"`",
+                                                                    u"\\`")
+                                )
+                                results_list.append(result)
         results = u", ".join(results_list)
         return results
 
