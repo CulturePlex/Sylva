@@ -20,7 +20,7 @@ from django.contrib.auth.decorators import login_required
 from guardian.decorators import permission_required
 
 from sylva.settings import STATIC_URL, STATIC_ROOT
-from base.decorators import is_enabled
+from sylva.decorators import is_enabled
 from graphs.models import Graph, Schema
 
 settings.ENABLE_REPORTS = True
@@ -60,7 +60,7 @@ def preview_report_pdf(request, graph_slug):
     parsed_url = urlparse.urlparse(
         request.build_absolute_uri()
     )
-    
+
     raster_path = finders.find('phantomjs/rasterize.js')
     temp_path = os.path.join(tempfile.gettempdir(), str(int(time() * 1000)))
     filename = '{0}.pdf'.format(temp_path)
@@ -77,8 +77,8 @@ def preview_report_pdf(request, graph_slug):
         reverse(reports_index_view, kwargs={'graph_slug': graph_slug}),
         '?pdf=true',
         report_slug
-        
-        
+
+
     )
     domain = parsed_url.hostname
     csrftoken = request.COOKIES.get('csrftoken', 'nocsrftoken')

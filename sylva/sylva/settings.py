@@ -134,14 +134,14 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     "django.core.context_processors.media",
     "django.core.context_processors.request",
     "django.core.context_processors.csrf",
-    "base.context_processors.project_name",
-    "base.context_processors.current_date",
-    "base.context_processors.google_api_key",
-    "base.context_processors.google_analytics_code",
-    "base.context_processors.debug",
-    "base.context_processors.logout",
-    "base.context_processors.options",
-    "base.context_processors.site",
+    "sylva.context_processors.project_name",
+    "sylva.context_processors.current_date",
+    "sylva.context_processors.google_api_key",
+    "sylva.context_processors.google_analytics_code",
+    "sylva.context_processors.debug",
+    "sylva.context_processors.logout",
+    "sylva.context_processors.options",
+    "sylva.context_processors.site",
 )
 
 MIDDLEWARE_CLASSES = (
@@ -152,7 +152,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'maintenancemode.middleware.MaintenanceModeMiddleware',
-    'base.middleware.ProfileMiddleware',
+    'sylva.middleware.ProfileMiddleware',
 )
 
 ROOT_URLCONF = 'sylva.urls'
@@ -161,7 +161,7 @@ WSGI_APPLICATION = 'sylva.wsgi.application'
 
 TEMPLATE_DIRS = (
     # Override brand
-    os.path.join(PROJECT_ROOT, 'base', 'templates'),
+    os.path.join(PROJECT_ROOT, 'sylva', 'templates'),
 )
 
 INSTALLED_APPS = (
@@ -180,7 +180,7 @@ INSTALLED_APPS = (
     'guardian',
     'easy_thumbnails',
     'tinymce',
-    'base',
+    'sylva',
     'data',
     'graphs',
     'schemas',

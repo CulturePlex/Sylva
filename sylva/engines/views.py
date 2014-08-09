@@ -5,7 +5,7 @@ from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render_to_response
 from django.template import RequestContext
 
-from base.decorators import is_enabled
+from sylva.decorators import is_enabled
 from engines.models import Instance
 
 

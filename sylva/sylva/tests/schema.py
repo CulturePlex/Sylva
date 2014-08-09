@@ -38,7 +38,7 @@ class SchemaTestCase(LiveServerTestCase):
             result.headers['content-type'], 'application/json'))
         spin_assert(lambda: self.assertEqual(
             self.browser.status_code.is_success(), True))
-        f = open('sylva/base/tests/files/bobs-graph_schema.json')
+        f = open('sylva/sylva/tests/files/bobs-graph_schema.json')
         spin_assert(lambda: self.assertEqual(
             f.read().split("\n")[0], result.content))
 

@@ -21,7 +21,7 @@ from django.templatetags.static import static
 from guardian import shortcuts as guardian
 from guardian.decorators import permission_required
 
-from base.decorators import is_enabled
+from sylva.decorators import is_enabled
 from data.models import Data
 from graphs.forms import (GraphForm, GraphDeleteConfirmForm, GraphCloneForm,
                           AddCollaboratorForm)

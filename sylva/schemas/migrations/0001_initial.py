@@ -19,7 +19,7 @@ class Migration(SchemaMigration):
         db.create_table('schemas_nodetype', (
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('name', self.gf('django.db.models.fields.CharField')(max_length=150)),
-            ('slug', self.gf('base.fields.AutoSlugField')(db_index=False, unique=True, max_length=200, populate_from=['name'], blank=True)),
+            ('slug', self.gf('sylva.fields.AutoSlugField')(db_index=False, unique=True, max_length=200, populate_from=['name'], blank=True)),
             ('plural_name', self.gf('django.db.models.fields.CharField')(max_length=175, null=True, blank=True)),
             ('description', self.gf('django.db.models.fields.TextField')(null=True, blank=True)),
             ('schema', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['schemas.Schema'])),
@@ -34,7 +34,7 @@ class Migration(SchemaMigration):
         db.create_table('schemas_relationshiptype', (
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('name', self.gf('django.db.models.fields.CharField')(max_length=150)),
-            ('slug', self.gf('base.fields.AutoSlugField')(db_index=False, unique=True, max_length=200, populate_from=['name'], blank=True)),
+            ('slug', self.gf('sylva.fields.AutoSlugField')(db_index=False, unique=True, max_length=200, populate_from=['name'], blank=True)),
             ('plural_name', self.gf('django.db.models.fields.CharField')(max_length=175, null=True, blank=True)),
             ('description', self.gf('django.db.models.fields.TextField')(null=True, blank=True)),
             ('schema', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['schemas.Schema'])),
@@ -55,7 +55,7 @@ class Migration(SchemaMigration):
         db.create_table('schemas_nodeproperty', (
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('key', self.gf('django.db.models.fields.CharField')(max_length=50)),
-            ('slug', self.gf('base.fields.AutoSlugField')(db_index=False, unique=True, max_length=750, populate_from=['key'], blank=True)),
+            ('slug', self.gf('sylva.fields.AutoSlugField')(db_index=False, unique=True, max_length=750, populate_from=['key'], blank=True)),
             ('default', self.gf('django.db.models.fields.CharField')(max_length=255, null=True, blank=True)),
             ('value', self.gf('django.db.models.fields.CharField')(max_length=255, blank=True)),
             ('datatype', self.gf('django.db.models.fields.CharField')(default=u'u', max_length=1)),
@@ -72,7 +72,7 @@ class Migration(SchemaMigration):
         db.create_table('schemas_relationshipproperty', (
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('key', self.gf('django.db.models.fields.CharField')(max_length=50)),
-            ('slug', self.gf('base.fields.AutoSlugField')(db_index=False, unique=True, max_length=750, populate_from=['key'], blank=True)),
+            ('slug', self.gf('sylva.fields.AutoSlugField')(db_index=False, unique=True, max_length=750, populate_from=['key'], blank=True)),
             ('default', self.gf('django.db.models.fields.CharField')(max_length=255, null=True, blank=True)),
             ('value', self.gf('django.db.models.fields.CharField')(max_length=255, blank=True)),
             ('datatype', self.gf('django.db.models.fields.CharField')(default=u'u', max_length=1)),
@@ -115,7 +115,7 @@ class Migration(SchemaMigration):
             'node': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'properties'", 'to': "orm['schemas.NodeType']"}),
             'order': ('django.db.models.fields.IntegerField', [], {'null': 'True', 'blank': 'True'}),
             'required': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'slug': ('base.fields.AutoSlugField', [], {'db_index': 'False', 'unique': 'True', 'max_length': '750', 'populate_from': "['key']", 'blank': 'True'}),
+            'slug': ('sylva.fields.AutoSlugField', [], {'db_index': 'False', 'unique': 'True', 'max_length': '750', 'populate_from': "['key']", 'blank': 'True'}),
             'validation': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
             'value': ('django.db.models.fields.CharField', [], {'max_length': '255', 'blank': 'True'})
         },
@@ -128,7 +128,7 @@ class Migration(SchemaMigration):
             'order': ('django.db.models.fields.IntegerField', [], {'null': 'True', 'blank': 'True'}),
             'plural_name': ('django.db.models.fields.CharField', [], {'max_length': '175', 'null': 'True', 'blank': 'True'}),
             'schema': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['schemas.Schema']"}),
-            'slug': ('base.fields.AutoSlugField', [], {'db_index': 'False', 'unique': 'True', 'max_length': '200', 'populate_from': "['name']", 'blank': 'True'}),
+            'slug': ('sylva.fields.AutoSlugField', [], {'db_index': 'False', 'unique': 'True', 'max_length': '200', 'populate_from': "['name']", 'blank': 'True'}),
             'total': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
             'validation': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'})
         },
@@ -143,7 +143,7 @@ class Migration(SchemaMigration):
             'order': ('django.db.models.fields.IntegerField', [], {'null': 'True', 'blank': 'True'}),
             'relationship': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'properties'", 'to': "orm['schemas.RelationshipType']"}),
             'required': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'slug': ('base.fields.AutoSlugField', [], {'db_index': 'False', 'unique': 'True', 'max_length': '750', 'populate_from': "['key']", 'blank': 'True'}),
+            'slug': ('sylva.fields.AutoSlugField', [], {'db_index': 'False', 'unique': 'True', 'max_length': '750', 'populate_from': "['key']", 'blank': 'True'}),
             'validation': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
             'value': ('django.db.models.fields.CharField', [], {'max_length': '255', 'blank': 'True'})
         },
@@ -160,7 +160,7 @@ class Migration(SchemaMigration):
             'plural_inverse': ('django.db.models.fields.CharField', [], {'max_length': '175', 'null': 'True', 'blank': 'True'}),
             'plural_name': ('django.db.models.fields.CharField', [], {'max_length': '175', 'null': 'True', 'blank': 'True'}),
             'schema': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['schemas.Schema']"}),
-            'slug': ('base.fields.AutoSlugField', [], {'db_index': 'False', 'unique': 'True', 'max_length': '200', 'populate_from': "['name']", 'blank': 'True'}),
+            'slug': ('sylva.fields.AutoSlugField', [], {'db_index': 'False', 'unique': 'True', 'max_length': '200', 'populate_from': "['name']", 'blank': 'True'}),
             'source': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'outgoing_relationships'", 'null': 'True', 'to': "orm['schemas.NodeType']"}),
             'target': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'incoming_relationships'", 'null': 'True', 'to': "orm['schemas.NodeType']"}),
             'total': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
