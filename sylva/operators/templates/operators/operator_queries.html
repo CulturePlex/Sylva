@@ -33,7 +33,7 @@
             <td id="query-description">{{ query.description }}</td>
             <td id="query-results-count">{{ query.results_count }}</td>
             <td id="query-last-run">{{ query.last_run }}</td>
-            <td id="button-edit"><a class="button button-edit-query" href="{% url "operator_query_edit" graph.slug query.id %}">{% trans "Edit Query" %}</a></td>
+            <td id="button-edit"><a class="button button-edit-query" href="{% url "operator_query_edit" graph.slug query.id %}" style="margin-left: 20px;">{% trans "Edit Query" %}</a></td>
             <!--<td id="button-run"><a class="button">{% trans "Run" %}</a></td>-->
         </tr>
     {% endfor %}
