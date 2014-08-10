@@ -399,8 +399,8 @@ class GraphDatabase(BlueprintsGraphDatabase):
         query_params = dict()
         # This list is used to control when use the index for the relationship,
         # in the origins or in the patterns
-        conditions_alias = []
-        conditions_list = []
+        conditions_alias = set()
+        conditions_set = set()
         conditions_indexes = enumerate(conditions_dict)
         conditions_length = len(conditions_dict) - 1
         for lookup, property_tuple, match, connector, datatype \
@@ -422,12 +422,12 @@ class GraphDatabase(BlueprintsGraphDatabase):
                 gte_params = gte_query_objects[1]
                 lte_condition = lte_query_objects[0]
                 lte_params = lte_query_objects[1]
-                conditions_list.append(unicode(gte_condition))
+                conditions_set.add(unicode(gte_condition))
                 query_params.update(gte_params)
-                conditions_list.append(unicode(lte_condition))
+                conditions_set.add(unicode(lte_condition))
                 query_params.update(lte_params)
                 # We append the two property in the list
-                conditions_alias.append(property_tuple[1])
+                conditions_alias.add(property_tuple[1])
             elif lookup == 'idoesnotcontain':
                 q_element = ~q_lookup_builder(property=property_tuple[2],
                                               lookup="icontains",
@@ -438,10 +438,10 @@ class GraphDatabase(BlueprintsGraphDatabase):
                     params=query_params)
                 condition = query_objects[0]
                 params = query_objects[1]
-                conditions_list.append(unicode(condition))
+                conditions_set.add(unicode(condition))
                 query_params.update(params)
                 # We append the two property in the list
-                conditions_alias.append(property_tuple[1])
+                conditions_alias.add(property_tuple[1])
             else:
                 q_element = q_lookup_builder(property=property_tuple[2],
                                              lookup=lookup,
@@ -452,25 +452,25 @@ class GraphDatabase(BlueprintsGraphDatabase):
                     params=query_params)
                 condition = query_objects[0]
                 params = query_objects[1]
-                conditions_list.append(unicode(condition))
+                conditions_set.add(unicode(condition))
                 query_params.update(params)
                 # We append the two property in the list
-                conditions_alias.append(property_tuple[1])
+                conditions_alias.add(property_tuple[1])
             if connector != 'not':
                 # We have to get the next element to keep the concordance
                 elem = conditions_indexes.next()
                 connector = u' {} '.format(connector.upper())
-                conditions_list.append(connector)
+                conditions_set.add(connector)
             elif connector == 'not':
                 elem = conditions_indexes.next()
                 if elem[0] < conditions_length:
                     connector = u' AND '
-                    conditions_list.append(connector)
-        conditions = u" ".join(conditions_list)
+                    conditions_set.add(connector)
+        conditions = u" ".join(conditions_set)
         return (conditions, query_params, conditions_alias)
 
     def _query_generator_origins(self, origins_dict, conditions_alias):
-        origins_list = []
+        origins_set = set()
         for origin_dict in origins_dict:
             if origin_dict["type"] == "node":
                 node_type = origin_dict["type_id"]
@@ -482,7 +482,7 @@ class GraphDatabase(BlueprintsGraphDatabase):
                     alias=unicode(origin_dict["alias"]).replace(u"`", u"\\`"),
                     type=node_type,
                 )
-                origins_list.append(origin)
+                origins_set.add(origin)
             else:
                 relation_type = origin_dict["type_id"]
                 # wildcard type
@@ -504,18 +504,18 @@ class GraphDatabase(BlueprintsGraphDatabase):
                                                                         u"\\`"),
                             type=relation_type,
                         )
-                        origins_list.append(origin)
-        origins = u", ".join(origins_list)
+                        origins_set.add(origin)
+        origins = u", ".join(origins_set)
         return origins
 
     def _query_generator_results(self, results_dict):
-        results_list = []
+        results_set = set()
         for result_dict in results_dict:
             alias = result_dict["alias"]
             if result_dict["properties"] is None:
                 result = u"`{0}`".format(
                     unicode(alias).replace(u"`", u"\\`"))
-                results_list.append(result)
+                results_set.add(result)
             else:
                 for prop in result_dict["properties"]:
                     property_value = prop["property"]
@@ -528,7 +528,7 @@ class GraphDatabase(BlueprintsGraphDatabase):
                                                                       u"\\`"),
                                 unicode(property_value).replace(u"`", u"\\`")
                             )
-                            results_list.append(result)
+                            results_set.add(result)
                         else:
                             if property_aggregate in AGGREGATES:
                                 result = u"{0}(`{1}`.`{2}`)".format(
@@ -537,12 +537,12 @@ class GraphDatabase(BlueprintsGraphDatabase):
                                     unicode(property_value).replace(u"`",
                                                                     u"\\`")
                                 )
-                                results_list.append(result)
-        results = u", ".join(results_list)
+                                results_set.add(result)
+        results = u", ".join(results_set)
         return results
 
     def _query_generator_patterns(self, patterns_dict, conditions_alias):
-        patterns_list = []
+        patterns_set = set()
         for pattern_dict in patterns_dict:
                 source = pattern_dict["source"]["alias"]
                 target = pattern_dict["target"]["alias"]
@@ -572,8 +572,8 @@ class GraphDatabase(BlueprintsGraphDatabase):
                                                                     u"\\`"),
                             target=unicode(target).replace(u"`", u"\\`"),
                         )
-                patterns_list.append(pattern)
-        return patterns_list
+                patterns_set.add(pattern)
+        return patterns_set
 
     def destroy(self):
         """Delete nodes, relationships, and even indices"""
