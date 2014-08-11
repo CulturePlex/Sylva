@@ -14,7 +14,7 @@ from django.http import StreamingHttpResponse
 from guardian.decorators import permission_required
 
 from analytics.models import Analytic
-from base.decorators import is_enabled
+from sylva.decorators import is_enabled
 from graphs.models import Graph, Data
 
 

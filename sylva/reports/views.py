@@ -20,7 +20,7 @@ from django.contrib.auth.decorators import login_required
 from guardian.decorators import permission_required
 
 from sylva.settings import STATIC_URL, STATIC_ROOT
-from base.decorators import is_enabled
+from sylva.decorators import is_enabled
 from graphs.models import Graph, Schema
 
 settings.ENABLE_REPORTS = True
@@ -38,7 +38,6 @@ def reports_index_view(request, graph_slug):
         pdf = False
     print 'pdf', pdf
     c = {}
-    # Maybe an alternate method for this.
     c.update(csrf(request))
     report_name = _("New Report")
     placeholder_name = _("Report Name")
@@ -61,7 +60,7 @@ def preview_report_pdf(request, graph_slug):
     parsed_url = urlparse.urlparse(
         request.build_absolute_uri()
     )
-    
+
     raster_path = finders.find('phantomjs/rasterize.js')
     temp_path = os.path.join(tempfile.gettempdir(), str(int(time() * 1000)))
     filename = '{0}.pdf'.format(temp_path)
@@ -78,6 +77,8 @@ def preview_report_pdf(request, graph_slug):
         reverse(reports_index_view, kwargs={'graph_slug': graph_slug}),
         '?pdf=true',
         report_slug
+
+
     )
     domain = parsed_url.hostname
     csrftoken = request.COOKIES.get('csrftoken', 'nocsrftoken')
@@ -95,7 +96,7 @@ def preview_report_pdf(request, graph_slug):
         with open(filename) as pdf:
             response = HttpResponse(pdf.read(), mimetype='application/pdf')
             response['Content-Disposition'] = 'inline;filename={0}'.format(download_name)
-            #pdf.close()
+            pdf.close()
     except IOError, e:
         response = HttpResponse('Sorry there has been a IOError:' + e.strerror)
     os.unlink(filename)

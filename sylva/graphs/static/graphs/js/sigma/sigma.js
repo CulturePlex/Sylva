@@ -8015,6 +8015,7 @@ function (a) {
         h,
         e,
         fontStyle = settings('hoverFontStyle') || settings('fontStyle'),
+        auxFontStyle = '',
         prefix = settings('prefix') || '',
         size = node[prefix + 'size'],
         fontSize = (settings('labelSize') === 'fixed') ?
@@ -8040,7 +8041,11 @@ function (a) {
     }
 
     // Getting the width & height of the label:
+    auxFontStyle = context.font;
+    context.font = 'bold ' + fontSize + 'px ' + settings('font');
     maxW = context.measureText(node.label).width;
+    context.font = auxFontStyle;
+
     var i = 0,
       text = '',
       currentW = 0;
@@ -8099,7 +8104,7 @@ function (a) {
     var nodeRenderer = sigma.canvas.nodes[node.type] || sigma.canvas.nodes.def;
     nodeRenderer(node, context, settings);
 
-    // Display the label:
+    // Display the label and the properties:
     if (typeof node.label === 'string') {
       context.fillStyle = (settings('labelHoverColor') === 'node') ?
         (node.color || settings('defaultNodeColor')) :

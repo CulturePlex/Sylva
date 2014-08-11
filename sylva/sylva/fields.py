@@ -3,7 +3,7 @@ from django.db.models import fields
 from django.template.defaultfilters import slugify
 
 from south.modelsinspector import add_introspection_rules
-# add_introspection_rules([], ["^base\.fields\.AutoSlugField"])
+# add_introspection_rules([], ["^sylva\.fields\.AutoSlugField"])
 
 
 def _unique_slugify(instance, value, slug_field_name='slug', queryset=None,
@@ -122,4 +122,4 @@ add_introspection_rules([
             "populate_separator": ["populate_separator", {"default": u"-"}],
         },
     ),
-], ["^base\.fields\.AutoSlugField"])
+], ["^sylva\.fields\.AutoSlugField"])

@@ -12,7 +12,7 @@ class Migration(SchemaMigration):
         db.create_table('graphs_graph', (
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('name', self.gf('django.db.models.fields.CharField')(max_length=120)),
-            ('slug', self.gf('base.fields.AutoSlugField')(db_index=False, unique=True, max_length=200, blank=True)),
+            ('slug', self.gf('sylva.fields.AutoSlugField')(db_index=False, unique=True, max_length=200, blank=True)),
             ('description', self.gf('django.db.models.fields.TextField')(null=True, blank=True)),
             ('public', self.gf('django.db.models.fields.BooleanField')(default=True)),
             ('order', self.gf('django.db.models.fields.IntegerField')(null=True, blank=True)),
@@ -114,7 +114,7 @@ class Migration(SchemaMigration):
             'public': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
             'relaxed': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'schema': ('django.db.models.fields.related.OneToOneField', [], {'to': "orm['schemas.Schema']", 'unique': 'True', 'null': 'True', 'blank': 'True'}),
-            'slug': ('base.fields.AutoSlugField', [], {'db_index': 'False', 'unique': 'True', 'max_length': '200', 'blank': 'True'})
+            'slug': ('sylva.fields.AutoSlugField', [], {'db_index': 'False', 'unique': 'True', 'max_length': '200', 'blank': 'True'})
         },
         'schemas.schema': {
             'Meta': {'object_name': 'Schema'},

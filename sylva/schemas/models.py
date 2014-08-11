@@ -13,7 +13,7 @@ from django.template.defaultfilters import slugify
 from django.db.models.signals import pre_save
 from django.dispatch import receiver
 
-from base.fields import AutoSlugField
+from sylva.fields import AutoSlugField
 from schemas.mixins import SchemaMixin
 
 

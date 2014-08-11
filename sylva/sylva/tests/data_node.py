@@ -278,10 +278,10 @@ class DataNodeTestCase(LiveServerTestCase):
             result.headers['content-type'], 'application/xml'))
         spin_assert(lambda: self.assertEqual(
             self.browser.status_code.is_success(), True))
-        fw = open('sylva/base/tests/files/bobs-graph.gexf', 'w')
+        fw = open('sylva/sylva/tests/files/bobs-graph.gexf', 'w')
         fw.write(result.content)
         fw.close()
-        f = open('sylva/base/tests/files/bobs-graph.gexf')
+        f = open('sylva/sylva/tests/files/bobs-graph.gexf')
         xmlFile = ""
         for line in f:
             xmlFile += line
@@ -304,11 +304,11 @@ class DataNodeTestCase(LiveServerTestCase):
         test_file = StringIO(result.content)
         csv_zip = ZipFile(test_file)
         for name in csv_zip.namelist():
-            fw = open('sylva/base/tests/files/' + name, 'w')
+            fw = open('sylva/sylva/tests/files/' + name, 'w')
             fw.write(csv_zip.read(name))
             fw.close()
         for name in csv_zip.namelist():
-            f = open('sylva/base/tests/files/' + name)
+            f = open('sylva/sylva/tests/files/' + name)
             csvFile = ""
             for line in f:
                 csvFile += line

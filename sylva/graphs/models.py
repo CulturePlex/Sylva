@@ -13,7 +13,7 @@ from django.dispatch import receiver
 
 from guardian.shortcuts import assign_perm, get_users_with_perms, remove_perm
 
-from base.fields import AutoSlugField
+from sylva.fields import AutoSlugField
 from schemas.models import (Schema, NodeType, NodeProperty, RelationshipType,
                             RelationshipProperty)
 from data.models import Data, MediaNode, MediaLink

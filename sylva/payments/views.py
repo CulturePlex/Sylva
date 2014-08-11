@@ -7,7 +7,7 @@ from django.template import RequestContext
 from django.shortcuts import redirect
 from django.utils.translation import ugettext_lazy as _
 
-from base.decorators import is_enabled, is_subscribed
+from sylva.decorators import is_enabled, is_subscribed
 from engines.gdb.utils import deploy
 from payments.forms import SubscriptionForm, UnsubscriptionForm
 from payments.models import StripeSubscriptionException

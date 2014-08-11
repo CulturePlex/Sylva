@@ -54,10 +54,6 @@
   var defaultMultiplier = 1;
   var degreeMultiplier = 2;
   var sizeMultiplier = defaultMultiplier;
-  // For some animations we need the same time that the 'fast' jQuery, 200ms.
-  var fast = 200;
-  // The loading string for the modals, a very used resource.
-  var loadingText = gettext('Loading...');
   /* It saves the change of the 'graph controls and info' box, because there
    * are some problems in the browsers for mantatin the same after the
    * 'window.resize' event.
@@ -457,7 +453,7 @@
         '</a>'
       );
 
-      $('#edit-node-modal-link').on('click', that.prepareEditNodeModal);
+      $('#edit-node-modal-link').on('click', sylva.modals.prepareEditNodeModal);
 
       // It's the moment for update the width of the parent box.
       graphControlsAndInfoWidth = $('#graph-controls-and-info').width();
@@ -466,7 +462,7 @@
     // Clean node legend frame.
     cleanNodeInfo: function(selector) {
       nodeInfoShowed = false;
-      $('#edit-node-modal-link').off('click', that.prepareEditNodeModal);
+      $('#edit-node-modal-link').off('click', sylva.modals.prepareEditNodeModal);
       $(selector).html('');
     },
 
@@ -2569,572 +2565,7 @@
       sigInst.refresh();
     },
 
-    // It creates the black-alpha layer behind the modals.
-    createOverlay: function() {
-      var overlay = $('<div id="overlay" class="modal-overlay">');
-      $('body').append(overlay);
-    },
-
-    // It destroys the black-alpha layer behind the modals.
-    destroyOverlay: function() {
-      $('#overlay').remove();
-    },
-
-    // The common behaviour for opening the modals.
-    openModal: function(dialog) {
-      dialog.container.fadeIn('fast');
-      dialog.data.fadeIn('fast');
-    },
-
-    // The common behaviour for closing the modals.
-    closeModal: function(dialog) {
-      dialog.container.fadeOut('fast');
-      dialog.data.fadeOut('fast');
-
-      /* The next lines will destroy the modal instance completely and the
-       * orginal data that SimpeModal saved.
-       */
-      setTimeout(function() {
-        $.modal.close();
-        $('#current-modal').remove();
-      }, fast);
-    },
-
-    // It closes the modal and destroys the overlay layer.
-    closeModalLib: function() {
-      $.modal.close();
-      setTimeout(function() {
-        that.destroyOverlay();
-      }, fast);
-    },
-
-    /* It creates a mini-modal with for display it while we are getting the
-     * data for the form modals.
-     */
-    customTextModal: function(message, crateOverlay) {
-      // Creating the HTML to show.
-      var textModal = $('<div id="current-modal" style="display:none">');
-      $('body').append(textModal);
-      textModal.text(message);
-
-      var modalPadding = 10;
-
-      // The creation of the loading modal.
-      if (crateOverlay) {
-        that.createOverlay();
-      }
-      $('#' + textModal.attr('id')).modal({
-        // Options.
-        modal: true,
-        escClose: false,
-
-        // Styles.
-        containerCss: {
-          backgroundColor: '#FFFFFF',
-          borderRadius: modalPadding,
-          padding: modalPadding,
-          display: 'inline-block'
-        },
-
-        // Events.
-        onOpen: function(dialog) {
-          that.openModal(dialog);
-        },
-        onClose: function(dialog) {
-          that.closeModal(dialog);
-        },
-      });
-    },
-
-    /* It will handle the event when the users'll click in the 'edit node'
-     * link. It will get HTML to show, but won't show it.
-     */
-    prepareEditNodeModal: function(event) {
-      that.customTextModal(loadingText, true);
-
-      var url = $(event.target).attr('data-url');
-      var params = {
-        'asModal': true
-      };
-
-      // Performing the request with the created variables.
-      var jqxhr = $.ajax({
-        url: url,
-        type: 'GET',
-        data: params,
-        dataType: 'json'
-      });
-      jqxhr.success(function(data) {
-        $.modal.close(); // Closing the loading modal.
-        setTimeout(function() {
-          that.showEditNodeModal(data.html);
-        }, fast);
-      });
-      jqxhr.error(function() {
-        alert(gettext("Oops! Something went wrong with the server."));
-        that.closeModalLib();
-      });
-    },
-
-    /* It displays the 'edit node' form in a modal and prepares it for use it
-     * as a modal.
-     */
-    showEditNodeModal: function(data) {
-      // Setting the form into the HTML.
-      var modalForm = $('<div id="current-modal" style="display: none;">');
-      $('body').append(modalForm); // This line need to be executed here, so the internal JS will be executed.
-      modalForm.append(data);
-
-      // Getting the URL for delete the node.
-      var deleteUrl = $('#delete-url').attr('data-url');
-
-      // Hidding "Add node" links.
-      $('.add-node').hide();
-
-      // Binding the 'events' for the four actions.
-      $('#submit-save').attr('onclick',
-        'return sylva.Sigma.saveEditNodeModal(this)');
-      $('#submit-save-as-new').attr('onclick',
-        'return sylva.Sigma.saveEditNodeModal(this)');
-      $('#submit-delete').on('click', function() {
-        $.modal.close();
-        setTimeout(function() {
-          that.prepareDeleteNodeModal(deleteUrl);
-        }, fast);
-      });
-      $('#submit-cancel').on('click', function() {
-        // The next is the way to completely close the modal.
-        that.closeModalLib();
-      });
-
-      // Getting HTML elemetns as variables.
-      var scrollWrapper = $('#modal-content-scrollable-wrapper');
-      var scrollContent = $('#modal-content-scrollable');
-      var contentControls = $('#modal-content-controls');
-      scrollWrapper.addClass('modal-content-scrollable-wrapper');
-      contentControls.addClass('modal-content-controls');
-
-
-      // Size variables for the modal library.
-      var windowHeight = Math.max(document.documentElement.clientHeight,
-          window.innerHeight || 0);
-      var windowWidth = Math.max(document.documentElement.clientWidth,
-          window.innerWidth || 0);
-      var modalPadding = 10;
-
-      // Calculating the width of the form.
-      var widths = scrollContent.children().map(function(){
-        return $(this).outerWidth(true);
-      });
-      var formWidth = 0;
-      $.each(widths, function() {
-        formWidth += this;
-      });
-
-      // Creating the modal.
-      $('#' + modalForm.attr('id')).modal({
-        // Options.
-        modal: true,
-        escClose: false,
-        focus: false,
-
-        // Styles.
-        maxHeight: windowHeight - (modalPadding * 2),
-        maxWidth: windowWidth - (modalPadding * 2),
-        containerCss: {
-          backgroundColor: '#FFFFFF',
-          borderRadius: modalPadding,
-          padding: modalPadding,
-          display: 'inline-block'
-        },
-
-        // Events.
-        onOpen: function(dialog) {
-          that.openModal(dialog);
-        },
-        onClose: function(dialog) {
-          that.closeModal(dialog);
-        },
-        onShow: function(dialog) {
-          // It's the content who controls the scrollbars.
-          dialog.wrap.css({
-            overflow: 'hidden'
-          });
-
-          /* Calculatin the height of the wrapper of the form for made it
-           * scrollable.
-           */
-          var scrollHeigth = dialog.wrap.height() - contentControls.height();
-          scrollWrapper.css({
-            height: scrollHeigth
-          });
-
-          scrollContent.css({
-            width: formWidth
-          });
-
-          // Attaching the events for make scrollbars appear and disappear.
-          scrollWrapper.on('mouseover', function() {
-            scrollWrapper.css({
-              overflow: 'auto'
-            });
-            /* The next lines are for show de horizontal scrollbar only when
-             * it's needed.
-             */
-            if (windowWidth >= (formWidth + modalPadding)) {
-              scrollWrapper.css({
-                overflowX: 'hidden'
-              });
-            }
-          });
-
-          scrollWrapper.on('mouseout', function() {
-            scrollWrapper.css({
-              overflow: 'hidden'
-            });
-          });
-        }
-      });
-    },
-
-    /* This function handles the 'Save' and 'Save as new' options from the
-     * 'edit node modal'.
-     */
-    saveEditNodeModal: function(button) {
-      // Closing the 'edit node' modal and showing the loading one.
-      $.modal.close();
-      setTimeout(function() {
-        that.customTextModal(loadingText);
-      }, fast);
-
-      // Obtaining the parameters.
-      var url = $('#save-url').attr('data-url');
-      var serializedForm = $('#edit-node-form').serialize() + '&asModal=true';
-
-      if (button.id == 'submit-save-as-new') {
-        serializedForm += '&as-new=true';
-      }
-
-      // Performing the request with the created variables.
-      var jqxhr = $.ajax({
-        url: url,
-        type: 'POST',
-        data: serializedForm,
-        dataType: 'json'
-      });
-      jqxhr.success(function(data) {
-        /* Here we need a double 'setTimeout()' because the previous one, also
-         * inside this function maybe isn't finished when the AJAX request
-         * starts.
-         */
-        setTimeout(function() {
-          $.modal.close(); // Closing the loading modal.
-          setTimeout(function() {
-            that.performModalServerResponse(data);
-          }, fast);
-        }, fast);
-      });
-      jqxhr.error(function() {
-        alert(gettext("Oops! Something went wrong with the server."));
-        that.closeModalLib();
-      });
-
-      // False is needed, that way the form isn't sended.
-      return false;
-    },
-
-    /* It will handle the event when the users'll click in the 'Remove'
-     * button. It will get HTML to show, but won't show it.
-     */
-    prepareDeleteNodeModal: function(url) {
-      that.customTextModal(loadingText, false);
-
-      var params = 'asModal=true';
-
-      // Performing the request with the created variables.
-      var jqxhr = $.ajax({
-        url: url,
-        type: 'GET',
-        data: params,
-        dataType: 'json'
-      });
-      jqxhr.success(function(data) {
-        $.modal.close(); // Closing the loading modal.
-        setTimeout(function() {
-          that.showDeleteNodeModal(data.html);
-        }, fast);
-      });
-      jqxhr.error(function() {
-        alert(gettext("Oops! Something went wrong with the server."));
-        that.closeModalLib();
-      });
-    },
-
-    /* It displays the 'remove node' form in a modal and prepares it for use it
-     * as a modal.
-     */
-    showDeleteNodeModal: function(data) {
-      // Setting the form into the HTML.
-      var modalForm = $('<div id="current-modal" style="display: none;">');
-      $('body').append(modalForm);
-      modalForm.append(data);
-
-      // Removing style.
-      $('#content2').css({
-        minHeight: '100px',
-        overflow: 'hidden'
-      });
-      // Binding the 'events' for the two actions.
-      $('#submit-delete').attr('onclick',
-        'return sylva.Sigma.continueDeleteNodeModal()');
-      $('#submit-cancel').removeAttr('href');
-      $('#submit-cancel').on('click', function() {
-        that.closeModalLib();
-      });
-
-      // Size variables for the modal library.
-      var windowHeight = Math.max(document.documentElement.clientHeight,
-          window.innerHeight || 0);
-      var windowWidth = Math.max(document.documentElement.clientWidth,
-          window.innerWidth || 0);
-      var modalPadding = 10;
-
-      // Creating the modal.
-      $('#' + modalForm.attr('id')).modal({
-        // Options.
-        modal: true,
-        escClose: false,
-        focus: false,
-
-        // Styles.
-        maxHeight: windowHeight - (modalPadding * 2),
-        maxWidth: windowWidth - (modalPadding * 2),
-        containerCss: {
-          backgroundColor: '#FFFFFF',
-          borderRadius: modalPadding,
-          padding: modalPadding,
-          display: 'inline-block'
-        },
-
-        // Events.
-        onOpen: function(dialog) {
-          that.openModal(dialog);
-        },
-        onClose: function(dialog) {
-          that.closeModal(dialog);
-        }
-      });
-    },
-
-    /* This function handles the 'Continue' options from the
-     * 'delete node modal'.
-     */
-    continueDeleteNodeModal: function() {
-     // Closing the 'delete node' modal and showing the loading one.
-      $.modal.close();
-      setTimeout(function() {
-        that.customTextModal(loadingText);
-      }, fast);
-
-      // Obtaining the parameters.
-      var url = $('#delete-url').attr('data-url');
-      var serializedForm = $('#delete-node-form').serialize() + '&asModal=true';
-
-      // Performing the request with the created variables.
-      var jqxhr = $.ajax({
-        url: url,
-        type: 'POST',
-        data: serializedForm,
-        dataType: 'json'
-      });
-      jqxhr.success(function(data) {
-        /* Here we need a double 'setTimeout()' because the previous one, also
-         * inside this function maybe isn't finished when the AJAX request
-         * starts.
-         */
-        setTimeout(function() {
-          $.modal.close(); // Closing the loading modal.
-          setTimeout(function() {
-            that.performModalServerResponse(data);
-          }, fast);
-        }, fast);
-      });
-      jqxhr.error(function() {
-        alert(gettext("Oops! Something went wrong with the server."));
-        that.closeModalLib();
-      });
-
-      // False is needed for the form is not sending.
-      return false;
-    },
-
-    // It acts depending of what the server returns from the modal forms.
-    performModalServerResponse: function(response) {
-      if (response.type == 'html') {
-        // If it's 'html' it's a form with errors.
-
-        if(response.action == 'edit') {
-          that.showEditNodeModal(response.html);
-        } else {
-          that.showDeleteNodeModal(response.html);
-        }
-      } else {
-        // If it is not, is a final reponse.
-
-        that.destroyOverlay(); // Exiting, so destroying the overlay layer.
-
-        switch (response.action) {
-          case 'edit':
-            that.deleteNodeFromModal(response);
-            that.addNodeFromModal(response);
-            break;
-          case 'new':
-            that.addNodeFromModal(response);
-            break;
-          case 'delete':
-            that.deleteNodeFromModal(response);
-            break;
-          case 'nothing':
-          default:
-            break;
-        }
-
-        // Redraw the Sigma's layout because of the changes.
-        if (response.action != 'nothing') {
-          var type = $('#sigma-graph-layout').find('option:selected').attr('id');
-          var degreeOrder = $('#sigma-graph-layout-degree-order').find('option:selected').attr('id');
-          var order = $('#sigma-graph-layout-order').find('option:selected').attr('id');
-          var drawHidden = $('#sigma-hidden-layout').prop('checked');
-          that.redrawLayout(type, degreeOrder, order, drawHidden);
-        }
-      }
-    },
-
-    deleteNodeFromModal: function(response) {
-      // Obtaining the node.
-      var node = null;
-      if (response.action == 'edit') {
-        // Saving the coordinates.
-        var oldNode = sigInst.graph.nodes(response.nodeId);
-        response.node.x = oldNode.x;
-        response.node.y = oldNode.y;
-
-        node = response.node;
-      } else {
-        node = sigInst.graph.nodes(response.nodeId);
-      }
-
-      /* Deleting the node from the 'selectedNodes' array. It will be added in
-       * 'addNodeFromModal'
-       */
-      var index = sylva.selectedNodes.indexOf(response.nodeId);
-      if (index >= 0) {
-        wasDeletedNodeSelected = true;
-        sylva.selectedNodes.splice(index, 1);
-      } else {
-        wasDeletedNodeSelected = false;
-      }
-
-      /* Deleting the node from the nodes array of the nodetype. It will be
-       * added in 'addNodeFromModal'.
-       */
-      var nodetypeArray = sylva.nodetypes[node.nodetypeId].nodes;
-      var index = nodetypeArray.indexOf(response.nodeId);
-      nodetypeArray.splice(index, 1);
-      sylva.nodetypes[node.nodetypeId].nodes = nodetypeArray;
-
-      /* Deleting the node from the array of visible nodes. It will be added in
-       * 'addNodeFromModal'.
-       */
-      index = visibleNodeIds.indexOf(response.nodeId);
-      if (index >= 0) {
-        visibleNodeIds.splice(index, 1);
-      }
-
-      /* Deleting the relationships from the relationships arrays of the
-       * reltypes, because they will be added in 'addNodeFromModal'. Also we
-       * are deleting them from the array of visible relationships.
-       */
-      for (var i = 0; i < response.oldRelationshipIds.length; i++) {
-        var rel = sigInst.graph.edges(response.oldRelationshipIds[i]);
-        var reltypeArray = sylva.reltypes[rel.reltypeId].relationships;
-        var index = reltypeArray.indexOf(response.oldRelationshipIds[i]);
-        reltypeArray.splice(index, 1);
-        sylva.reltypes[rel.reltypeId].relationships = reltypeArray;
-
-        index = visibleRelIds.indexOf(response.oldRelationshipIds[i]);
-        if (index >= 0) {
-          visibleRelIds.splice(index, 1);
-        }
-      }
-
-      // Cleaning the info box.
-      that.cleanNodeInfo('#node-info');
-
-      /* Deleting the node from the graph, because it will be added in
-       * 'addNodeFromModal'. Also this delete the envolved relationships.
-       */
-      sigInst.graph.dropNode(response.nodeId);
-
-      // Finishing touches.
-      sylva.size -= 1;
-      if (response.action == 'delete') {
-        that.calculateNodesDegrees();
-        sigInst.refresh();
-      }
-    },
-
-    addNodeFromModal: function(response) {
-      // Adding the node to the 'selectedNodes' array.
-      var selectedAsEdit = response.action == 'edit' && wasDeletedNodeSelected;
-      var selectedAsNew = response.action == 'new' &&
-        sylva.size == sylva.selectedNodes.length;
-      if (selectedAsEdit || selectedAsNew) {
-        sylva.selectedNodes.push(response.nodeId);
-      }
-
-      // Adding the node to the nodes array of the nodetype.
-      sylva.nodetypes[response.node.nodetypeId].nodes.push(response.nodeId);
-
-      // Setting the visibility of the node (hidden or not).
-      var visibilityButton = $('.show-hide-nodes[data-nodetype-id="' + response.node.nodetypeId + '"]');
-      if (visibilityButton.attr('data-action') == 'hide') {
-        response.node.hidden = false;
-        visibleNodeIds.push(response.nodeId);
-      } else {
-        response.node.hidden = true;
-      }
-
-      // Adding the node to the graph.
-      sigInst.graph.addNode(response.node);
-
-      /* Adding the relationships to the graph. Also here we are setting the
-       * visibility of the relationships (hidden or not). Finally, we are
-       * adding the relationships to the relationships arrays of the reltypes.
-       */
-      for (var i = 0; i < response.relationships.length; i++) {
-        var rel = response.relationships[i];
-        var visibilityButton = $('.show-hide-rels[data-reltype-id="' + rel.reltypeId + '"]');
-        if (visibilityButton.attr('data-action') == 'hide') {
-          rel.hidden = false;
-          visibleRelIds.push(rel.id);
-        } else {
-          rel.hidden = true;
-        }
-        sylva.reltypes[rel.reltypeId].relationships.push(rel);
-        sigInst.graph.addEdge(rel);
-      }
-
-      // Updating the info box.
-      that.updateNodeInfo(response.node, '#node-info');
-
-      // Finishing touches.
-      sylva.size += 1;
-      that.calculateNodesDegrees();
-      sigInst.refresh();
-      that.grayfyNonListedNodes(sylva.selectedNodes);
-    },
-
+    // Hide the 'Filter' words
     hideFilterText: function(needToHide) {
       var visibility = $('.filters h2').is(":visible");
       if (needToHide && visibility) {
@@ -3149,6 +2580,10 @@
         $('.filters-wrapper-small').removeClass('filters-wrapper-small');
       }
     },
+
+    /* *****
+     * Functions for control the labels box.
+     ***** */
 
     createLabelThresholdSlider: function() {
       $('#labels-threshold-slider').slider({
@@ -3243,6 +2678,136 @@
 
       sigInst.settings(settings);
       sigInst.refresh();
+    },
+
+    /* This is from use it in the response of a modal. See modal.js for a
+     * better understnding.
+     */
+    deleteNodeFromRequest: function(action, nodeId, node, oldRelationshipIds) {
+
+      // 'Obtaining' the node.
+      if (action == 'edit') {
+        // Saving the coordinates.
+        var oldNode = sigInst.graph.nodes(nodeId);
+        node.x = oldNode.x;
+        node.y = oldNode.y;
+
+      } else {
+        node = sigInst.graph.nodes(nodeId);
+      }
+
+      /* Deleting the node from the 'selectedNodes' array. It will be added in
+       * 'addNodeFromModal'
+       */
+      var index = sylva.selectedNodes.indexOf(nodeId);
+      if (index >= 0) {
+        wasDeletedNodeSelected = true;
+        sylva.selectedNodes.splice(index, 1);
+      } else {
+        wasDeletedNodeSelected = false;
+      }
+
+      /* Deleting the node from the nodes array of the nodetype. It will be
+       * added in 'addNodeFromModal'.
+       */
+      var nodetypeArray = sylva.nodetypes[node.nodetypeId].nodes;
+      var index = nodetypeArray.indexOf(nodeId);
+      nodetypeArray.splice(index, 1);
+      sylva.nodetypes[node.nodetypeId].nodes = nodetypeArray;
+
+      /* Deleting the node from the array of visible nodes. It will be added in
+       * 'addNodeFromModal'.
+       */
+      index = visibleNodeIds.indexOf(nodeId);
+      if (index >= 0) {
+        visibleNodeIds.splice(index, 1);
+      }
+
+      /* Deleting the relationships from the relationships arrays of the
+       * reltypes, because they will be added in 'addNodeFromModal'. Also we
+       * are deleting them from the array of visible relationships.
+       */
+      for (var i = 0; i < oldRelationshipIds.length; i++) {
+        var rel = sigInst.graph.edges(oldRelationshipIds[i]);
+        var reltypeArray = sylva.reltypes[rel.reltypeId].relationships;
+        var index = reltypeArray.indexOf(oldRelationshipIds[i]);
+        reltypeArray.splice(index, 1);
+        sylva.reltypes[rel.reltypeId].relationships = reltypeArray;
+
+        index = visibleRelIds.indexOf(oldRelationshipIds[i]);
+        if (index >= 0) {
+          visibleRelIds.splice(index, 1);
+        }
+      }
+
+      // Cleaning the info box.
+      that.cleanNodeInfo('#node-info');
+
+      /* Deleting the node from the graph, because it will be added in
+       * 'addNodeFromModal'. Also this delete the envolved relationships.
+       */
+      sigInst.graph.dropNode(nodeId);
+
+      // Finishing touches.
+      sylva.size -= 1;
+      if (action == 'delete') {
+        that.calculateNodesDegrees();
+        sigInst.refresh();
+      }
+    },
+
+    /* This is from use it in the response of a modal. See modal.js for a
+     * better understnding.
+     */
+    addNodeFromRequest: function(action, nodeId, node, relationships) {
+      // Adding the node to the 'selectedNodes' array.
+      var selectedAsEdit = action == 'edit' && wasDeletedNodeSelected;
+      var selectedAsNew = action == 'new' &&
+        sylva.size == sylva.selectedNodes.length;
+      if (selectedAsEdit || selectedAsNew) {
+        sylva.selectedNodes.push(nodeId);
+      }
+
+      // Adding the node to the nodes array of the nodetype.
+      sylva.nodetypes[node.nodetypeId].nodes.push(nodeId);
+
+      // Setting the visibility of the node (hidden or not).
+      var visibilityButton = $('.show-hide-nodes[data-nodetype-id="' + node.nodetypeId + '"]');
+      if (visibilityButton.attr('data-action') == 'hide') {
+        node.hidden = false;
+        visibleNodeIds.push(nodeId);
+      } else {
+        node.hidden = true;
+      }
+
+      // Adding the node to the grfaph.
+      sigInst.graph.addNode(node);
+
+      /* Adding the relationships to the graph. Also here we are setting the
+       * visibility of the relationships (hidden or not). Finally, we are
+       * adding the relationships to the relationships arrays of the reltypes.
+       */
+      for (var i = 0; i < relationships.length; i++) {
+        var rel = relationships[i];
+        var visibilityButton = $('.show-hide-rels[data-reltype-id="' + rel.reltypeId + '"]');
+        if (visibilityButton.attr('data-action') == 'hide') {
+          rel.hidden = false;
+          visibleRelIds.push(rel.id);
+        } else {
+          rel.hidden = true;
+        }
+        sylva.reltypes[rel.reltypeId].relationships.push(rel);
+        sigInst.graph.addEdge(rel);
+      }
+
+      // Updating the info box.
+      that.updateNodeInfo(node, '#node-info');
+
+      // Finishing touches.
+      sylva.size += 1;
+      that.calculateNodesDegrees();
+      sigInst.refresh();
+      that.grayfyNonListedNodes(sylva.selectedNodes);
     }
 
   };

@@ -616,18 +616,36 @@ diagram.lookupsValuesType = {
             iconAdvancedMode.addClass("fa fa-gear icon-style");
             advancedMode.append(iconAdvancedMode);
             advancedMode.click(function () {
-                // We change the width of the box div
-                $('#' + idBox).css({
-                    'width': '440px'
-                });
-                // We show the advanced options
-                $('#' + idBox + " .select-aggregate").css({
-                    "display": "inline"
-                });
-                // We change the margin left of the relationships remove icon
-                $('#' + idBox + " #remove-relation-icon").css({
-                    'margin-left': '307px'
-                });
+                var display = $('#' + idBox + " .select-aggregate").css('display');
+                if(display == "none") {
+                    // We change the width of the box div
+                    $('#' + idBox).css({
+                        'width': '440px'
+                    });
+                    // We show the advanced options
+                    $('#' + idBox + " .select-aggregate").css({
+                        "display": "inline"
+                    });
+                    // We change the margin left of the relationships remove icon
+                    $('#' + idBox + " #remove-relation-icon").css({
+                        'margin-left': '307px'
+                    });
+                } else {
+                    // We change the width of the box div
+                    $('#' + idBox).css({
+                        'width': '360px'
+                    });
+                    // We show the advanced options
+                    $('#' + idBox + " .select-aggregate").css({
+                        "display": "none"
+                    });
+                    // We change the margin left of the relationships remove icon
+                    $('#' + idBox + " #remove-relation-icon").css({
+                        'margin-left': '234px'
+                    });
+                }
+
+                jsPlumb.repaintEverything();
             });
             divCornerButtons.append(advancedMode);
             divCornerButtons.append(anchorClose);
@@ -1416,7 +1434,7 @@ diagram.lookupsValuesType = {
             for(var i = 0; i < originsLength; i++) {
                 if(origins[i].type == "node") {
                     nodeAlias = origins[i].alias;
-                    nodetypes[nodeAlias] = types[nodeAlias];
+                    nodetypes[nodeAlias] = types.aliases[nodeAlias];
                 }
             }
             // We store the conditions in a dictionary
@@ -1529,13 +1547,13 @@ diagram.lookupsValuesType = {
             // Load the relationships between the boxes
             for(var i = 0; i < patternsLength; i++) {
                 var source = jsonDict["query"]["patterns"][i].source.alias;
-                var sourceId = types[source].id;
+                var sourceId = types.aliases[source].id;
 
                 var target = jsonDict["query"]["patterns"][i].target.alias;
-                var targetId = types[target].id;
+                var targetId = types.aliases[target].id;
 
                 var relation = jsonDict["query"]["patterns"][i].relation.alias;
-                var relationValue = types[relation].typename;
+                var relationValue = types.aliases[relation].typename;
                 var relationName = relationValue;
 
                 // We check if the relationship is of type wildcard
@@ -2382,13 +2400,13 @@ diagram.lookupsValuesType = {
         // We get the checkboxes checked and the property to return
         $.each(checkboxes, function(index, checkbox) {
             if($(checkbox).prop('checked')) {
-                checkboxesDict[index] = $(checkbox).next().val();
+                checkboxesDict[index] = $(checkbox).next().next().val();
             }
         });
         // We get the fields that are conditions to construct the box properly
         $.each(checkboxes, function(index, checkbox) {
-            var lookup = $(checkbox).next().next().val();
-            var inputLookup = $(checkbox).next().next().next().val();
+            var lookup = $(checkbox).next().next().next().val();
+            var inputLookup = $(checkbox).next().next().next().next().val();
             if(lookup && inputLookup) {
                 fieldsConditionsDict[index] = true;
             } else {

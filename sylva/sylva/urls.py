@@ -2,6 +2,7 @@
 from django.conf import settings
 from django.conf.urls import patterns, include, url
 from django.contrib import admin
+from django.views.generic import TemplateView
 
 from accounts.forms import UserProfileEditForm
 
@@ -9,15 +10,25 @@ from accounts.forms import UserProfileEditForm
 # from admin import admin_site
 admin.autodiscover()
 
-urlpatterns = patterns('',
-    # base
-    url(r'^', include('base.urls')),
+urlpatterns = patterns('sylva.views',
+    # index
+    url(r'^$', 'index', name="index"),
+    # dashboard
+    url(r'^dashboard/$', 'dashboard', name="dashboard"),
+    # introductory guide
+    url(r'^get-started/$', TemplateView.as_view(template_name="get_started.html"),
+        name="get_started"),
+    # user guide
+    url(r'^guide/$', TemplateView.as_view(template_name="user_guide.html"),
+        name="user_guide"),
+)
 
+urlpatterns += patterns('',
     # accounts
     url(r'^accounts/(?P<username>[\w-]+)/edit/', "userena.views.profile_edit",
         {'edit_profile_form': UserProfileEditForm}),
-    url(r'^accounts/signin/', "base.views.signin_redirect", name="signin"),
-    url(r'^accounts/signup/', "base.views.signup_redirect", name="signup"),
+    url(r'^accounts/signin/', "sylva.views.signin_redirect", name="signin"),
+    url(r'^accounts/signup/', "sylva.views.signup_redirect", name="signup"),
     url(r'^accounts/', include('userena.urls')),
 
     # python i18n

@@ -5,7 +5,7 @@ from django.test import LiveServerTestCase
 
 from splinter import Browser
 
-from base.tests.user import signup, signin, logout
+from sylva.tests.user import signup, signin, logout
 from graphs.models import Graph
 
 from utils import spin_assert
@@ -125,10 +125,10 @@ def export_advanced_schema(test, name):
         result.headers['content-type'], 'application/json'))
     spin_assert(lambda: test.assertEqual(
         test.browser.status_code.is_success(), True))
-    fw = open('sylva/base/tests/files/gexf/' + name + '_schema.json', 'w')
+    fw = open('sylva/sylva/tests/files/gexf/' + name + '_schema.json', 'w')
     fw.write(result.content)
     fw.close()
-    f = open('sylva/base/tests/files/gexf/' + name + '_schema.json')
+    f = open('sylva/sylva/tests/files/gexf/' + name + '_schema.json')
     spin_assert(lambda: test.assertEqual(
         f.read().split("\n")[0], result.content))
 
@@ -196,10 +196,10 @@ def data_export_gexf(test):
         result.headers['content-type'], 'application/xml'))
     spin_assert(lambda: test.assertEqual(
         test.browser.status_code.is_success(), True))
-    fw = open('sylva/base/tests/files/gexf/bobs-graph.gexf', 'w')
+    fw = open('sylva/sylva/tests/files/gexf/bobs-graph.gexf', 'w')
     fw.write(result.content)
     fw.close()
-    f = open('sylva/base/tests/files/gexf/bobs-graph.gexf')
+    f = open('sylva/sylva/tests/files/gexf/bobs-graph.gexf')
     xmlFile = ""
     for line in f:
         xmlFile += line

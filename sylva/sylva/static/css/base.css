@@ -730,6 +730,7 @@ ul#box-nav li {
     padding-top: 0px;
     padding-bottom: 5px;
     overflow: hidden;
+    margin-top: 10px;
 }
 
 #content3 p {
@@ -2846,10 +2847,10 @@ body :hover > a.headerlink {
 }
 
 .dropit ul.dropit-submenu {
+    position: fixed;
     background-color: #fff;
     border: 1px solid #b2b2b2;
-    padding: 0 0;
-    margin: 5px 0 0 -10px;
+    margin-left: -9px;
     -webkit-border-radius: 5px;
     -moz-border-radius: 5px;
     border-radius: 5px;

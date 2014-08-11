@@ -14,7 +14,7 @@ from django.shortcuts import (get_object_or_404, render_to_response,
 
 from guardian.decorators import permission_required
 
-from base.decorators import is_enabled
+from sylva.decorators import is_enabled
 from graphs.models import Data, Graph
 from operators.grammar import QueryParser
 from schemas.models import NodeType, RelationshipType
