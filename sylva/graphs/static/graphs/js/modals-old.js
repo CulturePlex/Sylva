@@ -17,11 +17,6 @@
 
   var modals = {
 
-
-    /* ****
-     * Function of the 'mini-framework'.
-     ***** */
-
     // It creates the black-alpha layer behind the modals.
     createOverlay: function() {
       var overlay = $('<div id="overlay" class="modal-overlay">');
@@ -186,42 +181,23 @@
     /* This function handles the 'Save' and 'Save as new' options from the
      * 'edit node modal'.
      */
-    saveModalResult: function(requestParams) {
-      // Closing the 'edit node' modal and showing the loading one.
-      $.modal.close();
-      setTimeout(function() {
-        that.customTextModal(loadingText);
-      }, fast);
+    saveEditNodeModal: function(button) {
+      // Obtaining the parameters.
+      var url = $('#save-url').attr('data-url');
+      var serializedForm = $('#edit-node-form').serialize() + '&asModal=true';
 
-      var serializedForm = $(requestParams.formSelector).serialize();
-      serializedForm += requestParams.extraParams;
+      if (button.id == 'submit-save-as-new') {
+        serializedForm += '&as-new=true';
+      }
+    },
 
-      // Performing the request with the created variables.
-      var jqxhr = $.ajax({
-        url: requestParams.url,
-        type: 'POST',
-        data: serializedForm,
-        dataType: 'json'
-      });
-      jqxhr.success(function(data) {
-        /* Here we need a double 'setTimeout()' because the previous one, also
-         * inside this function maybe isn't finished when the AJAX request
-         * starts.
-         */
-        setTimeout(function() {
-          $.modal.close(); // Closing the loading modal.
-          setTimeout(function() {
-            that.performModalServerResponse(data);
-          }, fast);
-        }, fast);
-      });
-      jqxhr.error(function() {
-        alert(gettext("Oops! Something went wrong with the server."));
-        that.closeModalLib();
-      });
-
-      // False is needed, that way the form isn't sended.
-      return false;
+    /* This function handles the 'Continue' button action from the
+     * 'delete node modal'.
+     */
+    saveDeleteNodeModal: function() {
+      // Obtaining the parameters.
+      var url = $('#delete-url').attr('data-url');
+      var serializedForm = $('#delete-node-form').serialize() + '&asModal=true';
     },
 
     // It acts depending of what the server returns from the modal forms.
@@ -272,140 +248,117 @@
       }
     },
 
-    /* ****
-     * Upper level functions that use the 'mini-framework'.
-     ***** */
-
     editNode: function(url) {
-      options = {
-        preProcessHTMLDelete: that.preProcessHTMLDelete,
-      };
 
-      that.prepareModal(url, true, that.preProcessHTMLEdit, options,
-        that.onShowEdit);
-    },
-
-    var preProcessHTMLEdit = function(options) {
-      // Getting the URL for delete the node.
-      var deleteFormUrl = $('#delete-url').attr('data-url');
-
-      // Hidding "Add node" links.
-      $('.add-node').hide();
-
-      // Variables for save the node by saving the form.
-      var saveUrl = $('#save-url').attr('data-url');
-      var formSelector = '#edit-node-form';
-      var extraParamsEdit = '&asModal=true';
-      var extraParamsAsNew = extraParamsEdit + '&as-new=true';
-
-      // Binding the 'events' for the four actions.
-      $('#submit-save').attr('onclick',
-        "return sylva.modals.saveModalResult({url: '" + saveUrl + "'" +
-          ", formSelector: '" + formSelector + "'" +
-          ", extraParams: '" + extraParamsEdit + "'" +
-          "})");
-      $('#submit-save-as-new').attr('onclick',
-        "return sylva.modals.saveModalResult({url: '" + saveUrl + "'" +
-          ", formSelector: '" + formSelector + "'" +
-          ", extraParams: '" + extraParamsAsNew + "'" +
-          "})");
-      $('#submit-delete').on('click', function() {
-        $.modal.close();
-        setTimeout(function() {
-          that.prepareModal(deleteFormUrl, false, options.preProcessHTMLDelete, {}, function() {});
-        }, fast);
-      });
-      $('#submit-cancel').on('click', function() {
-        // The next is the way to completely close the modal.
-        that.closeModalLib();
-      });
-
-      // Getting HTML elemetns as variables.
-      var scrollWrapper = $('#modal-content-scrollable-wrapper');
-      var scrollContent = $('#modal-content-scrollable');
-      var contentControls = $('#modal-content-controls');
-      scrollWrapper.addClass('modal-content-scrollable-wrapper');
-      contentControls.addClass('modal-content-controls');
-      // Calculating the width of the form.
-      var widths = scrollContent.children().map(function(){
-        return $(this).outerWidth(true);
-      });
-      var formWidth = 0;
-      $.each(widths, function() {
-        formWidth += this;
-      });
-
-      return {
-        contentControls: contentControls,
-        scrollWrapper: scrollWrapper,
-        scrollContent: scrollContent,
-        formWidth: formWidth
-      };
-    },
-
-    var onShowEdit = function(dialog, opitons, optionsAux) {
-      // It's the content who controls the scrollbars.
-      dialog.wrap.css({
-        overflow: 'hidden'
-      });
-
-      /* Calculatin the height of the wrapper of the form for made it
-       * scrollable.
-       */
-      var scrollHeigth = dialog.wrap.height() - optionsAux.contentControls.height();
-      optionsAux.scrollWrapper.css({
-        height: scrollHeigth
-      });
-
-      optionsAux.scrollContent.css({
-        width: optionsAux.formWidth
-      });
-
-      // Attaching the events for make scrollbars appear and disappear.
-      optionsAux.scrollWrapper.on('mouseover', function() {
-        optionsAux.scrollWrapper.css({
-          overflow: 'auto'
-        });
-        /* The next lines are for show de horizontal scrollbar only when
-         * it's needed.
-         */
-        if (options.windowWidth >= (optionsAux.formWidth + options.modalPadding)) {
-          optionsAux.scrollWrapper.css({
-            overflowX: 'hidden'
-          });
-        }
-      });
-
-      optionsAux.scrollWrapper.on('mouseout', function() {
-        optionsAux.scrollWrapper.css({
+      var preProcessHTMLDelete = function(options) {
+        // Removing style.
+        $('#content2').css({
+          minHeight: '100px',
           overflow: 'hidden'
         });
-      });
-    },
+        // Binding the 'events' for the two actions.
+        $('#submit-delete').attr('onclick',
+          'return sylva.modals.saveDeleteNodeModal()');
+        $('#submit-cancel').removeAttr('href');
+        $('#submit-cancel').on('click', function() {
+          that.closeModalLib();
+        });
+      };
 
-    // Delete node
-    var preProcessHTMLDelete = function(options) {
-      // Removing style.
-      $('#content2').css({
-        minHeight: '100px',
-        overflow: 'hidden'
-      });
+      var onShowDelete = function() {};
 
-      // Variables for save the node by saving the form.
-      var deleteUrl = $('#delete-url').attr('data-url');
-      var formSelector = '#delete-node-form';
-      var extraParams = '&asModal=true';
+      options = {
+        preProcessHTMLDelete: preProcessHTMLDelete,
+        onShowDelete: onShowDelete
+      };
 
-      // Binding the 'events' for the four actions.
-      $('#submit-delete').attr('onclick',
-        "return sylva.modals.saveModalResult({url: '" + deleteUrl + "'" +
-          ", formSelector: '" + formSelector + "'" +
-          ", extraParams: '" + extraParams + "'" +
-          "})");
-      $('#submit-cancel').removeAttr('href');
-      $('#submit-cancel').on('click', function() {
-        that.closeModalLib();
-      });
+      var preProcessHTMLEdit = function(options) {
+        // Getting the URL for delete the node.
+        var deleteUrl = $('#delete-url').attr('data-url');
+
+        // Hidding "Add node" links.
+        $('.add-node').hide();
+
+        // Binding the 'events' for the four actions.
+        $('#submit-save').attr('onclick',
+          'return sylva.modals.saveEditNodeModal(this)');
+        $('#submit-save-as-new').attr('onclick',
+          'return sylva.modals.saveEditNodeModal(this)');
+        $('#submit-delete').on('click', function() {
+          $.modal.close();
+          setTimeout(function() {
+            that.prepareModal(deleteUrl, false, options.preProcessHTMLDelete, {}, options.onShowDelete);
+          }, fast);
+        });
+        $('#submit-cancel').on('click', function() {
+          // The next is the way to completely close the modal.
+          that.closeModalLib();
+        });
+
+        // Getting HTML elemetns as variables.
+        var scrollWrapper = $('#modal-content-scrollable-wrapper');
+        var scrollContent = $('#modal-content-scrollable');
+        var contentControls = $('#modal-content-controls');
+        scrollWrapper.addClass('modal-content-scrollable-wrapper');
+        contentControls.addClass('modal-content-controls');
+        // Calculating the width of the form.
+        var widths = scrollContent.children().map(function(){
+          return $(this).outerWidth(true);
+        });
+        var formWidth = 0;
+        $.each(widths, function() {
+          formWidth += this;
+        });
+
+        return {
+          contentControls: contentControls,
+          scrollWrapper: scrollWrapper,
+          scrollContent: scrollContent,
+          formWidth: formWidth
+        };
+      };
+
+      var onShowEdit = function(dialog, opitons, optionsAux) {
+        // It's the content who controls the scrollbars.
+        dialog.wrap.css({
+          overflow: 'hidden'
+        });
+
+        /* Calculatin the height of the wrapper of the form for made it
+         * scrollable.
+         */
+        var scrollHeigth = dialog.wrap.height() - optionsAux.contentControls.height();
+        optionsAux.scrollWrapper.css({
+          height: scrollHeigth
+        });
+
+        optionsAux.scrollContent.css({
+          width: optionsAux.formWidth
+        });
+
+        // Attaching the events for make scrollbars appear and disappear.
+        optionsAux.scrollWrapper.on('mouseover', function() {
+          optionsAux.scrollWrapper.css({
+            overflow: 'auto'
+          });
+          /* The next lines are for show de horizontal scrollbar only when
+           * it's needed.
+           */
+          if (options.windowWidth >= (optionsAux.formWidth + options.modalPadding)) {
+            optionsAux.scrollWrapper.css({
+              overflowX: 'hidden'
+            });
+          }
+        });
+
+        optionsAux.scrollWrapper.on('mouseout', function() {
+          optionsAux.scrollWrapper.css({
+            overflow: 'hidden'
+          });
+        });
+      };
+
+      that.prepareModal(url, true, preProcessHTMLEdit, options, onShowEdit);
     }
 
   };

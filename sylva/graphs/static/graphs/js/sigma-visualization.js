@@ -453,7 +453,7 @@
         '</a>'
       );
 
-      $('#edit-node-modal-link').on('click', sylva.modals.prepareEditNodeModal);
+      $('#edit-node-modal-link').on('click', that.callEditNodeModal);
 
       // It's the moment for update the width of the parent box.
       graphControlsAndInfoWidth = $('#graph-controls-and-info').width();
@@ -462,8 +462,13 @@
     // Clean node legend frame.
     cleanNodeInfo: function(selector) {
       nodeInfoShowed = false;
-      $('#edit-node-modal-link').off('click', sylva.modals.prepareEditNodeModal);
+      $('#edit-node-modal-link').off('click', that.callEditNodeModal);
       $(selector).html('');
+    },
+
+    callEditNodeModal: function(event) {
+      var url = $(event.target).attr('data-url');
+      sylva.modals.editNode(url);
     },
 
 
