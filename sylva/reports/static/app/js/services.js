@@ -164,6 +164,10 @@ services.factory('tableArray', function () {
         this.table[coords[0]][coords[1]].displayQuery = query;
     }
 
+    TableArray.prototype.addMarkdown = function(coords, markdown) {
+        this.table[coords[0]][coords[1]].displayMarkdown = markdown;
+    }
+
     TableArray.prototype.addChart = function(coords, chart) {
         this.table[coords[0]][coords[1]].chartType = chart;
     }

@@ -82,17 +82,19 @@
           
           {% block extra_scripts %}
             <script type="text/javascript" src="{{ STATIC_PREFIX }}js/jquery-ui-1.9.1.js"></script>
-            <script src="{{ STATIC_PREFIX }}app/js/third_party/angular.min.js"></script>
-            <script src="{{ STATIC_PREFIX }}app/js/third_party/angular-cookies.min.js"></script>
-            <script src="{{ STATIC_PREFIX }}app/js/third_party/angular-resource.min.js"></script>
-            <script src="{{ STATIC_PREFIX }}app/js/third_party/angular-route.min.js"></script>
-            <script src="{{ STATIC_PREFIX }}app/js/third_party/angular-sanitize.min.js"></script>
+            <script src="{{ STATIC_PREFIX }}app/js/third_party/angular/angular.min.js"></script>
+            <script src="{{ STATIC_PREFIX }}app/js/third_party/angular/angular-cookies.min.js"></script>
+            <script src="{{ STATIC_PREFIX }}app/js/third_party/angular/angular-resource.min.js"></script>
+            <script src="{{ STATIC_PREFIX }}app/js/third_party/angular/angular-route.min.js"></script>
+            <script src="{{ STATIC_PREFIX }}app/js/third_party/angular/angular-sanitize.min.js"></script>
             <script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/highcharts/highcharts.js"></script>
             <script type="text/javascript" src="{{ STATIC_PREFIX }}app/js/app.js" ></script>
             <script type="text/javascript" src="{{ STATIC_PREFIX }}app/js/controllers.js" ></script>
             <script type="text/javascript" src="{{ STATIC_PREFIX }}app/js/services.js" ></script>
             <script type="text/javascript" src="{{ STATIC_PREFIX }}app/js/directives.js" ></script>
             <script type="text/javascript" src="{{ STATIC_PREFIX }}app/js/third_party/highcharts-ng.js" ></script>
+            <script type="text/javascript" src="{{ STATIC_PREFIX }}app/js/third_party/showdown.min.js" ></script>
+            <script type="text/javascript" src="{{ STATIC_PREFIX }}app/js/third_party/markdown.js" ></script>
             <script type="text/javascript">
               angular.module('reports').constant("STATIC_PREFIX", "{{ STATIC_PREFIX }}");
               angular.module('reports').constant("GRAPH", "{{ graph.name }}");

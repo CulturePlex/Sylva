@@ -100,6 +100,11 @@ controllers.controller('EditReportCtrl', [
             $scope.report = data[0];
             $scope.resp = {table: $scope.report.table, queries: $scope.report.queries}
         });
+
+        $scope.md = '';
+        $scope.$watch('md', function () {
+            console.log('md', $scope.md)
+        })
 }]);
 
 

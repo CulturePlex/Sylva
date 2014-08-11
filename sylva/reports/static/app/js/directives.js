@@ -109,7 +109,7 @@ directives.directive('sylvaPvRowRepeat', ['tableArray', function (tableArray) {
 }]);
 
 
-directives.directive('sylvaPvCellRepeat', ['$compile', function ($compile) {
+directives.directive('sylvaPvCellRepeat', ['$sce', function ($sce) {
     return {
         transclude: 'element',
         require: '^sylvaPvRowRepeat',
@@ -124,7 +124,8 @@ directives.directive('sylvaPvCellRepeat', ['$compile', function ($compile) {
             ,   len = scope.row.length
             ,   tableWidth = ctrl.getTableWidth()
             ,   tableArray = ctrl.getTableArray()
-            ,   numCols = tableArray.numCols;
+            ,   numCols = tableArray.numCols
+            ,   ang = angular.element;
 
             if (childScopes.length > 0) {
 
@@ -142,30 +143,36 @@ directives.directive('sylvaPvCellRepeat', ['$compile', function ($compile) {
                 ,   colspan = parseInt(cell.colspan)
                 ,   cellWidth = (tableWidth / numCols - ((numCols + 1) * 2 / numCols)) * colspan + (2 * (colspan - 1)) + 'px'
                 ,   block;
-
-                console.log('querygroup', query)
-                if (query !== 'markdown') {
-                    var series = ctrl.getQueries().filter(function (el) {
-                        return el.name === query;
-                    })[0].series;
-                }
+////////////////////////////////////////////////////////////////////////////////////////////////////////////
+                // need to change preview data transclusion for markup
                     
                 childScope = scope.$new();
                 childScope.$index = i;
                 childScope.cellStyle = {width: cellWidth};
-                childScope.query = query;
-                childScope.chartConfig = {
-                    options: {chart: {type: cell.chartType}},
-                    xAxis: {catagories: []},
-                    series: [{data: series}],
-                    title: {text: query},     
-                    loading: false
-                };
+
+                if (query) {
+                    var series = ctrl.getQueries().filter(function (el) {
+                        return el.name === query;
+                    })[0].series;
+
+                    childScope.query = query;
+                    childScope.chartConfig = {
+                        options: {chart: {type: cell.chartType}},
+                        xAxis: {catagories: []},
+                        series: [{data: series}],
+                        title: {text: query},     
+                        loading: false
+                    };
+                } else if (cell.displayMarkdown) {
+                    childScope.markdown = cell.displayMarkdown;
+                    console.log('childScope.markdown', childScope.markdown)
+                }
+
 
                 transclude(childScope, function (clone) {
                     previous.after(clone);
                     block = {}
-                    block.element = previous
+                    block.element = clone
                     block.scope = childScope
                     childScopes.push(block)
                     previous = clone
@@ -229,7 +236,6 @@ directives.directive('syEditableTable', ['$compile', 'tableArray', function ($co
             });
 
             addCol.bind('click', function () {
-                console.log('numCols', scope.tableArray.numCols)
                 if (scope.tableArray.numCols < 4) {
                     scope.$apply(function () {
                         scope.tableArray.addCol();
@@ -421,7 +427,7 @@ directives.directive('sylvaEtCellRepeat', [function () {
 }]);
 
 
-directives.directive('sylvaEtCell', function () {
+directives.directive('sylvaEtCell', ['$sanitize', '$sce', function ($sanitize, $sce) {
     return {
         require: '^syEditableTable',
         scope: {
@@ -429,6 +435,9 @@ directives.directive('sylvaEtCell', function () {
         },
         templateUrl: '/static/app/partials/directives/edit_cell.html',
         link: function(scope, elem, attrs, ctrl) {
+            var ang = angular.element
+            ,   mdDiv = ang(elem.children()[1])
+            ,   md = ang(mdDiv.children()[1]);
 
             scope.$watch('config', function (newVal, oldVal) {
                 scope.row = scope.config.row;
@@ -439,11 +448,24 @@ directives.directive('sylvaEtCell', function () {
                 scope.chartType = scope.config.chartType;
                 scope.tableArray = ctrl.getTableArray();
             }, true);
-
+    
+            md.on('blur', function () {
+                console.log('html', md.html())
+                var showdown = new Showdown.converter({})
+                ,   html = showdown.makeHtml(md.text())
+                ,   markdown = $sanitize(html)
+                ,   trusted = $sce.trustAsHtml(markdown)
+                ,   clean = $sce.getTrustedHtml(trusted) 
+                console.log('trusted', trusted)
+         
+                scope.$apply(function () {
+                    scope.tableArray.addMarkdown([scope.row, scope.col], clean);
+                    console.log(scope.tableArray)
+                    md.html(clean)
+                });
+            });
 
             scope.$watch('activeQuery', function (newVal, oldVal) {
-                console.log('newVal', newVal)
-                // fix this nonsense
                 if (newVal == oldVal) return;
 
                 var name;
@@ -455,21 +477,23 @@ directives.directive('sylvaEtCell', function () {
                 }
 
                 if (name === 'markdown') {
-                    scope.markdown = true;
+                    scope.md = true;
+                    name = '';
                 } else {
-                    scope.markdown = false;
+                    scope.md = false;
                 }
-
+                console.log('md', scope.md)
                 scope.tableArray.addQuery([scope.row, scope.col], name)
             }); 
 
             scope.$watch('chartType', function (newVal, oldVal) {
                 if (newVal == oldVal) return;
                 scope.tableArray.addChart([scope.row, scope.col], newVal)
+
             });
         }
     };
-});
+}]);
 
 
 directives.directive('sylvaBreadcrumbs', ['$location', 'parser', 'GRAPH', function ($location, parser, GRAPH) {

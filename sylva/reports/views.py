@@ -38,6 +38,7 @@ def reports_index_view(request, graph_slug):
         pdf = False
     print 'pdf', pdf
     c = {}
+    # Maybe an alternate method for this.
     c.update(csrf(request))
     report_name = _("New Report")
     placeholder_name = _("Report Name")
@@ -77,8 +78,6 @@ def preview_report_pdf(request, graph_slug):
         reverse(reports_index_view, kwargs={'graph_slug': graph_slug}),
         '?pdf=true',
         report_slug
-        
-        
     )
     domain = parsed_url.hostname
     csrftoken = request.COOKIES.get('csrftoken', 'nocsrftoken')
@@ -96,7 +95,7 @@ def preview_report_pdf(request, graph_slug):
         with open(filename) as pdf:
             response = HttpResponse(pdf.read(), mimetype='application/pdf')
             response['Content-Disposition'] = 'inline;filename={0}'.format(download_name)
-            pdf.close()
+            #pdf.close()
     except IOError, e:
         response = HttpResponse('Sorry there has been a IOError:' + e.strerror)
     os.unlink(filename)
