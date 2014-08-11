@@ -25,9 +25,14 @@ def analytics_run(request, graph_slug):
     data = []
     graph = get_object_or_404(Graph, slug=graph_slug)
     algorithm = request.POST.get("algorithm")
+    subgraph = request.POST.get("subgraph");
+    if subgraph:
+        # We change the type from string to int
+        subgraph = json.loads(subgraph);
+        subgraph = [int(elem) for elem in subgraph]
     available_algorithms = graph.analysis.get_algorithms()
     if request.is_ajax() and algorithm in available_algorithms:
-        analytic = graph.analysis.run(algorithm)
+        analytic = graph.analysis.run(algorithm, subgraph)
         task = AsyncResult(analytic.task_id)
         data = [task.id, analytic.algorithm]
     json_data = json.dumps(data)

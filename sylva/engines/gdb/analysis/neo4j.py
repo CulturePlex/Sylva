@@ -42,7 +42,7 @@ class Analysis(BaseAnalysis):
                 'triangle_counting': _("Triangle counting"),
                 'betweenness_centrality': _("Betweenness centrality")}
 
-    def get_dump(self, graph_id):
+    def get_dump(self, graph_id, subgraph=None):
         """
         Dump the content of the graph into an edgelist file
         """
@@ -55,11 +55,24 @@ class Analysis(BaseAnalysis):
             dumps = graph.dumps.filter(
                 creation_date__gte=graph.data.last_modified_relationships
             )
-        if dumps.count() == 0:
-            # TODO: Write to a temp file instad of in memory
-            for relationship in graph.relationships.all():
+        # We get the lines, for the sha or for create the dump
+        relationships = graph.relationships.all()
+        if subgraph:
+            # We treat the subgraph here. Subgraph is a list of ids
+            for relationship in relationships:
+                source_id = relationship.source.id
+                target_id = relationship.target.id
+                if source_id in subgraph and target_id in subgraph:
+                    lines += "{0},{1}\n".format(source_id, target_id)
+        else:
+            for relationship in relationships:
                 lines += "{0},{1}\n".format(relationship.source.id,
                                             relationship.target.id)
+        # We get the latest dump or we create a new dump
+        lines_hash = sha1(lines).hexdigest()
+        existed_dumps = dumps.filter(data_hash=lines_hash)
+        if dumps.count() == 0 or existed_dumps.count() == 0:
+            # TODO: Write to a temp file instad of in memory
             timestamp = "{:.0f}".format(time.time() * 1000)
             dump_file_name = "{0}_dump_{1}.csv".format(graph.slug, timestamp)
             dump_file = SimpleUploadedFile(dump_file_name, lines,
@@ -71,7 +84,7 @@ class Analysis(BaseAnalysis):
                                        data_hash=data_hash)
             dump.save()
         else:
-            dump = dumps.latest()
+            dump = existed_dumps.latest()
         return dump
 
     def run_connected_components(self, analytic):
