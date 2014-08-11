@@ -109,7 +109,7 @@ directives.directive('sylvaPvRowRepeat', ['tableArray', function (tableArray) {
 }]);
 
 
-directives.directive('sylvaPvCellRepeat', ['$sce', function ($sce) {
+directives.directive('sylvaPvCellRepeat', [function () {
     return {
         transclude: 'element',
         require: '^sylvaPvRowRepeat',
@@ -143,8 +143,6 @@ directives.directive('sylvaPvCellRepeat', ['$sce', function ($sce) {
                 ,   colspan = parseInt(cell.colspan)
                 ,   cellWidth = (tableWidth / numCols - ((numCols + 1) * 2 / numCols)) * colspan + (2 * (colspan - 1)) + 'px'
                 ,   block;
-////////////////////////////////////////////////////////////////////////////////////////////////////////////
-                // need to change preview data transclusion for markup
                     
                 childScope = scope.$new();
                 childScope.$index = i;
@@ -165,7 +163,6 @@ directives.directive('sylvaPvCellRepeat', ['$sce', function ($sce) {
                     };
                 } else if (cell.displayMarkdown) {
                     childScope.markdown = cell.displayMarkdown;
-                    console.log('childScope.markdown', childScope.markdown)
                 }
 
 
@@ -427,7 +424,7 @@ directives.directive('sylvaEtCellRepeat', [function () {
 }]);
 
 
-directives.directive('sylvaEtCell', ['$sanitize', '$sce', function ($sanitize, $sce) {
+directives.directive('sylvaEtCell', ['$sanitize', function ($sanitize) {
     return {
         require: '^syEditableTable',
         scope: {
@@ -453,15 +450,12 @@ directives.directive('sylvaEtCell', ['$sanitize', '$sce', function ($sanitize, $
                 console.log('html', md.html())
                 var showdown = new Showdown.converter({})
                 ,   html = showdown.makeHtml(md.text())
-                ,   markdown = $sanitize(html)
-                ,   trusted = $sce.trustAsHtml(markdown)
-                ,   clean = $sce.getTrustedHtml(trusted) 
-                console.log('trusted', trusted)
+                ,   markdown = $sanitize(html);
          
                 scope.$apply(function () {
-                    scope.tableArray.addMarkdown([scope.row, scope.col], clean);
+                    scope.tableArray.addMarkdown([scope.row, scope.col], markdown);
                     console.log(scope.tableArray)
-                    md.html(clean)
+                    md.html(markdown)
                 });
             });
 
