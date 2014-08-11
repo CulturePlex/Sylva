@@ -79,8 +79,8 @@ class AnalysisManager(models.Manager):
         self._graph = graph
         self._analysis = self._graph.gdb.analysis()
 
-    def run(self, algorithm, **kwargs):
-        dump = self._analysis.get_dump(self._graph.id)
+    def run(self, algorithm, subgraph=None, **kwargs):
+        dump = self._analysis.get_dump(self._graph.id, subgraph)
         analytic = Analytic.objects.create(dump=dump,
                                            algorithm=algorithm)
         task = self._analysis.run.apply_async(
