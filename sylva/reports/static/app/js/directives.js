@@ -142,7 +142,7 @@ directives.directive('sylvaPvCellRepeat', [function () {
                 ,   query = cell.displayQuery
                 ,   colspan = parseInt(cell.colspan)
                 ,   cellWidth = (tableWidth / numCols - ((numCols + 1) * 2 / numCols)) * colspan + (2 * (colspan - 1)) + 'px'
-                ,   block;
+                ,   block;      
                     
                 childScope = scope.$new();
                 childScope.$index = i;
@@ -455,7 +455,6 @@ directives.directive('sylvaEtCell', ['$sanitize', function ($sanitize) {
                 scope.$apply(function () {
                     scope.tableArray.addMarkdown([scope.row, scope.col], markdown);
                     console.log(scope.tableArray)
-                    md.html(markdown)
                 });
             });
 
