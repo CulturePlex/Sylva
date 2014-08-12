@@ -80,6 +80,8 @@
     init: function() {
 
       that = this;
+      sylva.modals.init();
+
       sylva.selectedNodes = sylva.nodeIds;
 
       // Creating visible elements arrays.
@@ -468,7 +470,7 @@
 
     callEditNodeModal: function(event) {
       var url = $(event.target).attr('data-url');
-      sylva.modals.editNode(url);
+      sylva.modals.editNode.start(url, true);
     },
 
 
@@ -2685,26 +2687,24 @@
       sigInst.refresh();
     },
 
-    /* This is from use it in the response of a modal. See modal.js for a
-     * better understnding.
-     */
-    deleteNodeFromRequest: function(action, nodeId, node, oldRelationshipIds) {
-
+    // Function used by the modals.
+    deleteNode: function(deleteForEditing, node, relationshipIds) {
       // 'Obtaining' the node.
-      if (action == 'edit') {
-        // Saving the coordinates.
-        var oldNode = sigInst.graph.nodes(nodeId);
+      if (deleteForEditing) {
+        /* The cooridantes will be saved in the existing node object from
+         * this function is called.
+         */
+        var oldNode = sigInst.graph.nodes(node.id);
         node.x = oldNode.x;
         node.y = oldNode.y;
 
       } else {
-        node = sigInst.graph.nodes(nodeId);
+        // In this case the node variable is its id.
+        node = sigInst.graph.nodes(node);
       }
 
-      /* Deleting the node from the 'selectedNodes' array. It will be added in
-       * 'addNodeFromModal'
-       */
-      var index = sylva.selectedNodes.indexOf(nodeId);
+      // Deleting the node from the 'selectedNodes' array
+      var index = sylva.selectedNodes.indexOf(node.id);
       if (index >= 0) {
         wasDeletedNodeSelected = true;
         sylva.selectedNodes.splice(index, 1);
@@ -2712,18 +2712,14 @@
         wasDeletedNodeSelected = false;
       }
 
-      /* Deleting the node from the nodes array of the nodetype. It will be
-       * added in 'addNodeFromModal'.
-       */
+      // Deleting the node from the nodes array of the nodetype.
       var nodetypeArray = sylva.nodetypes[node.nodetypeId].nodes;
-      var index = nodetypeArray.indexOf(nodeId);
+      var index = nodetypeArray.indexOf(node.id);
       nodetypeArray.splice(index, 1);
       sylva.nodetypes[node.nodetypeId].nodes = nodetypeArray;
 
-      /* Deleting the node from the array of visible nodes. It will be added in
-       * 'addNodeFromModal'.
-       */
-      index = visibleNodeIds.indexOf(nodeId);
+      // Deleting the node from the array of visible nodes.
+      index = visibleNodeIds.indexOf(node.id);
       if (index >= 0) {
         visibleNodeIds.splice(index, 1);
       }
@@ -2732,14 +2728,14 @@
        * reltypes, because they will be added in 'addNodeFromModal'. Also we
        * are deleting them from the array of visible relationships.
        */
-      for (var i = 0; i < oldRelationshipIds.length; i++) {
-        var rel = sigInst.graph.edges(oldRelationshipIds[i]);
+      for (var i = 0; i < relationshipIds.length; i++) {
+        var rel = sigInst.graph.edges(relationshipIds[i]);
         var reltypeArray = sylva.reltypes[rel.reltypeId].relationships;
-        var index = reltypeArray.indexOf(oldRelationshipIds[i]);
+        var index = reltypeArray.indexOf(relationshipIds[i]);
         reltypeArray.splice(index, 1);
         sylva.reltypes[rel.reltypeId].relationships = reltypeArray;
 
-        index = visibleRelIds.indexOf(oldRelationshipIds[i]);
+        index = visibleRelIds.indexOf(relationshipIds[i]);
         if (index >= 0) {
           visibleRelIds.splice(index, 1);
         }
@@ -2748,39 +2744,36 @@
       // Cleaning the info box.
       that.cleanNodeInfo('#node-info');
 
-      /* Deleting the node from the graph, because it will be added in
-       * 'addNodeFromModal'. Also this delete the envolved relationships.
+      /* Deleting the node from the graph. Also this delete the envolved
+       * relationships.
        */
-      sigInst.graph.dropNode(nodeId);
+      sigInst.graph.dropNode(node.id);
 
       // Finishing touches.
       sylva.size -= 1;
-      if (action == 'delete') {
-        that.calculateNodesDegrees();
-        sigInst.refresh();
-      }
+      that.calculateNodesDegrees();
+      sigInst.refresh();
     },
 
-    /* This is from use it in the response of a modal. See modal.js for a
-     * better understnding.
-     */
-    addNodeFromRequest: function(action, nodeId, node, relationships) {
+    // Function used by the modals.
+    addNode: function(addFromEditing, node, relationships) {
       // Adding the node to the 'selectedNodes' array.
-      var selectedAsEdit = action == 'edit' && wasDeletedNodeSelected;
-      var selectedAsNew = action == 'new' &&
+      var selectedAsEdit = addFromEditing && wasDeletedNodeSelected;
+      var selectedAsNew = (!addFromEditing) &&
         sylva.size == sylva.selectedNodes.length;
       if (selectedAsEdit || selectedAsNew) {
-        sylva.selectedNodes.push(nodeId);
+        sylva.selectedNodes.push(node.id);
       }
+      wasDeletedNodeSelected = false,
 
       // Adding the node to the nodes array of the nodetype.
-      sylva.nodetypes[node.nodetypeId].nodes.push(nodeId);
+      sylva.nodetypes[node.nodetypeId].nodes.push(node.id);
 
       // Setting the visibility of the node (hidden or not).
       var visibilityButton = $('.show-hide-nodes[data-nodetype-id="' + node.nodetypeId + '"]');
       if (visibilityButton.attr('data-action') == 'hide') {
         node.hidden = false;
-        visibleNodeIds.push(nodeId);
+        visibleNodeIds.push(node.id);
       } else {
         node.hidden = true;
       }
