@@ -562,7 +562,7 @@ diagram.lookupsValuesType = {
             anchorShowHide.attr("href", "javascript:void(0);");
             anchorShowHide.attr("id", "inlineShowHideLink_"+ modelName);
             iconToggle = $("<I>");
-            iconToggle.addClass("fa fa-minus-circle");
+            iconToggle.addClass("fa fa-minus-circle icon-style");
             iconToggle.attr('id', 'icon-toggle');
 
             anchorShowHide.append(iconToggle);
@@ -603,6 +603,9 @@ diagram.lookupsValuesType = {
                 jsPlumb.deleteEndpoint(idBox + "-target");
 
                 $('#' + idBox).remove();
+
+                // We check if we have only one box to hide the selects for the alias
+                diagram.hideSelects(typeName);
             });
             // We create the div for the corner buttons
             divCornerButtons = $("<DIV>");
@@ -647,9 +650,9 @@ diagram.lookupsValuesType = {
 
                 jsPlumb.repaintEverything();
             });
-            divCornerButtons.append(advancedMode);
             divCornerButtons.append(anchorClose);
             divCornerButtons.append(anchorShowHide);
+            divCornerButtons.append(advancedMode);
 
             divTitle.append(divCornerButtons);
             divTitle.attr("data-boxalias", model.name + diagram.nodetypesCounter[typeName]);
@@ -755,6 +758,9 @@ diagram.lookupsValuesType = {
                 });
 
                 $('#' + idBox).remove();
+
+                // We check if we have only one box to hide the selects for the alias
+                diagram.hideSelects(typeName);
             });
             // Advanced mode button in the corner of the box and its associated event
             advancedMode = $("<A>");
@@ -780,6 +786,7 @@ diagram.lookupsValuesType = {
             });
             divCornerButtons.append(anchorClose);
             divCornerButtons.append(anchorShowHide);
+            divCornerButtons.append(advancedMode);
 
             divTitle.append(divCornerButtons);
 
@@ -1140,6 +1147,78 @@ diagram.lookupsValuesType = {
             return text;
          }
 
+         /**
+          * Function that checks the number of boxes of a type to
+          * show the selects for the alias. If we have more than 1 box,
+          * we show them.
+          */
+         diagram.showSelects = function(nodeType) {
+            var elems = $('#diagram').children();
+            var showSelects = 0;
+
+            // We check the number of boxes of that type that we already have
+            $.each(elems, function(index, elem) {
+                var elemId = $(elem).attr('id');
+                if(elemId != undefined) {
+                    var filter = new RegExp(".-" + nodeType);
+                    if(elemId.match(filter)) {
+                        showSelects++;
+                    }
+                }
+            });
+
+            // If we have more than one box of that nodetype at least, we show the selects and the "as" text
+            if(showSelects > 1) {
+                // We get the id of the nodetype boxes
+                var boxes = $('.select-nodetype-' + nodeType).parent().parent();
+                // And we show the selects and the "as" text of each
+                $.each(boxes, function(index, elem) {
+                    idBox = $(elem).attr('id');
+                    $('#' + idBox + ' .select-nodetype-' + nodeType).css({
+                        "display": "inline"
+                    });
+                    $('#' + idBox +  ' .show-as').css({
+                        "display": "inline"
+                    })
+                });
+            }
+         }
+
+         /**
+          * Function that checks the number of boxes of a type to
+          * hide the selects for the alias. If we have 1 box, then we hide
+          * them.
+          */
+         diagram.hideSelects = function(nodeType) {
+            var elems = $('#diagram').children();
+            var showSelects = 0;
+            // We check the number of boxes of that type that we already have
+            $.each(elems, function(index, elem) {
+                var elemId = $(elem).attr('id');
+                if(elemId != undefined) {
+                    var filter = new RegExp(".-" + nodeType);
+                    if(elemId.match(filter)) {
+                        showSelects++;
+                    }
+                }
+            });
+
+            // If we have one box of that nodetype at least, we hide the selects and the "as" text
+            if(showSelects == 1) {
+                // We get the id of the nodetype boxes
+                var boxes = $('.select-nodetype-' + nodeType).parent().parent();
+                // And we hide the selects and the "as" text of each
+                $.each(boxes, function(index, elem) {
+                    idBox = $(elem).attr('id');
+                    $('#' + idBox + ' .select-nodetype-' + nodeType).css({
+                        "display": "none"
+                    });
+                    $('#' + idBox +  ' .show-as').css({
+                        "display": "none"
+                    })
+                });
+            }
+         }
 
         /**
          * Returns the options of a relationship
@@ -1217,6 +1296,60 @@ diagram.lookupsValuesType = {
                               };
             }
             return relationshipOptions;
+         }
+
+         /**
+          * Function triggered when a new relationship is loaded and checks
+          * if we have loaded some box with the target equal to targetType.
+          * If not, we load a box with that target and create a relationship
+          * between the boxes.
+          */
+         diagram.checkTargetType = function(targetType, relation) {
+            var elems = $('#diagram').children();
+            var numberOfBoxes = 0;
+            var uuidSource = relation + "-source";
+            var uuidTarget = "";
+            // We check the number of boxes of that type that we already have
+            $.each(elems, function(index, elem) {
+                var elemId = $(elem).attr('id');
+                if(elemId != undefined) {
+                    var filter = new RegExp(".-" + targetType);
+                    if(elemId.match(filter)) {
+                        numberOfBoxes++;
+                    }
+                }
+            });
+
+            // If we have 1 at least, we do nothing. In another case we load a
+            // box of that type and create a relationship.
+            if(numberOfBoxes == 0) {
+                // We want the "a" elements
+                var typesLinks = $('#node-options').children().children();
+                $.each(typesLinks, function(index, link) {
+                    var dataType = $(link).data("type");
+                    if(dataType == targetType) {
+                        $(link).click();
+                    }
+                });
+
+                // We update the elems variable to include the new box added
+                elems = $('#diagram').children();
+                // We get the id of the new box and we create the connection
+                $.each(elems, function(index, elem) {
+                    var elemId = $(elem).attr('id');
+                    if(elemId != undefined) {
+                        var filter = new RegExp(".-" + targetType);
+                        if(elemId.match(filter)) {
+                            uuidTarget = elemId + "-target";
+                        }
+                    }
+                });
+
+                // We create the connection
+                jsPlumb.connect({uuids:[uuidSource, uuidTarget]});
+
+                jsPlumb.repaintEverything();
+            }
          }
     };
 
@@ -1590,35 +1723,8 @@ diagram.lookupsValuesType = {
         var nodeType = $this.data("type");
         var modelName = diagram.loadBox(nodeType);
 
-        var elems = $('#diagram').children();
-        var showSelects = 0;
-
-        // We check the number of boxes of that type that we already have
-        $.each(elems, function(index, elem) {
-            var elemId = $(elem).attr('id');
-            if(elemId != undefined) {
-                var filter = new RegExp(".-" + nodeType);
-                if(elemId.match(filter)) {
-                    showSelects++;
-                }
-            }
-        });
-
-        // If we have more than one box of that nodetype at least, we show the selects and the "as" text
-        if(showSelects > 1) {
-            // We get the id of the nodetype boxes
-            var boxes = $('.select-nodetype-' + nodeType).parent().parent();
-            // And we show the selects and the "as" text of each
-            $.each(boxes, function(index, elem) {
-                idBox = $(elem).attr('id');
-                $('#' + idBox + ' .select-nodetype-' + nodeType).css({
-                    "display": "inline"
-                });
-                $('#' + idBox +  ' .show-as').css({
-                    "display": "inline"
-                })
-            });
-        }
+        // We check if we have more than one box to show the selects for the alias
+        diagram.showSelects(nodeType);
 
         // The next lines is to select the new alias in the box
         var elem = $('.select-nodetype-' + nodeType + ' #' + modelName + (diagram.nodetypesCounter[nodeType] + 1 - 1)).length - 1;
@@ -1818,6 +1924,11 @@ diagram.lookupsValuesType = {
         $('.endpoint-image').attr("title", "drag me!")
 
         jsPlumb.repaintEverything();
+
+        // We check if the target type is already loaded
+        // If it doesn't, we load the type and create the connection
+        // between the two types
+        diagram.checkTargetType(scopeSource, relationId);
     });
 
     /**

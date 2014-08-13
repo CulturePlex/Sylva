@@ -16,6 +16,12 @@
     z-index:1;
 }
 
+#node-options {
+    width: 120px;
+    font-size: 11px;
+    display: block;
+}
+
 #run-button {
     margin-top: 40px;
     margin-left: 30px;
@@ -83,12 +89,6 @@
     margin-left: 234px;
 }
 
-#icon-toggle {
-    color: white;
-    float: right;
-    margin-right: 2%;
-}
-
 #remove-field-icon {
     margin-left: 8px;
     margin-right: 5px;
@@ -128,7 +128,7 @@
 .icon-style {
     color: white;
     float: right;
-    margin-right: 2%;
+    margin-right: 8px;
 }
 
 .select-property {
