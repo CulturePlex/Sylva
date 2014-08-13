@@ -30,8 +30,8 @@
     <div id="query-builder-query">
         <div class="content2-second diagram" style="margin-top: 15px;">
             <nav id="select-node">
-                <a href="#">{% trans "Type nodes" %}</a>
-                <ul id="node-options" class="dropdown" style="width: 120px; font-size: 11px;">
+                <a href="#">{% trans "Types" %}</a>
+                <ul id="node-options" class="dropdown">
                 {% for node_type in node_types %}
                     <li style="padding: 3px;">
                         <a class="add-box" data-type="{{node_type.slug}}" href="javascript:void(0);">{{ node_type.name|capfirst }}</a>
