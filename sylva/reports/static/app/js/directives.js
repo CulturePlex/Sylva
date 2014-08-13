@@ -506,9 +506,10 @@ directives.directive('sylvaBreadcrumbs', ['$location', 'parser', 'GRAPH', functi
             scope.$watch(scope.getLocation, function (newVal, oldVal) {
                 var location = scope.getLocation();
                 if (location !== '/' ) {
-                    scope.crumbs = location.split('/')
-                    scope.crumbs.splice(0, 1)
-                    scope.crumbs[0] = scope.crumbs[0].charAt(0).toUpperCase() + scope.crumbs[0].slice(1);
+                    var crumbs = location.split('/')
+                    crumbs.splice(0, 1)
+                    crumbs[0] = crumbs[0].charAt(0).toUpperCase() + crumbs[0].slice(1);
+                    scope.crumbs = crumbs.reverse();
                 } else {
                     scope.crumbs = [];
                 } 
