@@ -23,7 +23,7 @@
             {% block menu_buttons %}
               <!--<li><a href="{% url "dashboard" %}" class="link"><span>{% trans "Dashboard" %}</span></a></li>-->
               {% if pdf == False %}
-                {% toolbar on="reports" %}
+                {% toolbar on="schema" %}
               {% endif %}
             {% endblock %}
             <!--<li><a href="{{ LOGOUT_URL }}" class="link"><span>{% trans "Sign out" %}</span></a></li>-->
@@ -78,6 +78,7 @@
 
           {% block scripts %}
             <script src="{{ STATIC_PREFIX }}js/jquery.1.8.3.js"></script>
+            <script src="{{ STATIC_PREFIX }}js/base.js"></script>
           {% endblock %}
           
           {% block extra_scripts %}
