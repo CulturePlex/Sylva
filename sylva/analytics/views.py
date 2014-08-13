@@ -109,24 +109,23 @@ def analytics_dump(request, graph_slug):
             if duplicated:
                 for row in stream_reader:
                     for col in row:
-                        yield json.dumps(col)
-                        yield "\n"
+                        yield 'data: ' + json.dumps(col) + '\n\n'
             else:
                 nodes = set()
                 for row in stream_reader:
                     for col in row:
                         if col not in nodes:
-                            yield json.dumps(col)
-                            yield "\n"
+                            yield 'data: ' + json.dumps(col) + '\n\n'
                             nodes.add(col)
+        yield 'data: "close"\n\n'
 
     analytic_id = request.GET.get('id')
     rels = bool(request.GET.get('rels'))
-    if request.is_ajax() and analytic_id is not None:
+    if analytic_id is not None:
         analytic = Analytic.objects.get(pk=analytic_id)
         analytic_dump = analytic.dump
         data_file = analytic_dump.data_file
-        return StreamingHttpResponse(stream_response_generator(data_file, rels),
-            content_type='application/javascript')
+        return StreamingHttpResponse(stream_response_generator(
+            data_file, rels), content_type='text/event-stream')
     else:
-        return StreamingHttpResponse([], mimetype='text/html')
+        return StreamingHttpResponse([], content_type='text/event-stream')

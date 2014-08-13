@@ -390,68 +390,28 @@ var taskTime = 0;
 
         console.log(resultsUrl);
         console.log(algorithm);
-        getResults(resultsUrl, algorithm, "", "");
+        //getResults(resultsUrl, algorithm, "", "");
 
         /* A function for update the selected nodes in the graph using the
          * analytic implied nodes.
          */
-        var updateGraph = function(nodes) {
-          if(nodes != "") {
-            var arrayNodes = nodes.split("\n"); // Text as array of strings.
-            var newNodes = arrayNodes.slice(line + 1); // Only the 'new' nodes.
-
-            newNodes.forEach(function(nodeId) {
-              if (nodeId.length > 0) { // Removing enmpty lines.
-                sylva.selectedNodes.push(JSON.parse(nodeId));
-                line += 1;
-              }
-            });
-            sylva.Sigma.grayfyNonListedNodes(sylva.selectedNodes);
-          }
+        var updateGraph = function(data) {
+          sylva.selectedNodes.push(data);
+          sylva.Sigma.grayfyNonListedNodes(sylva.selectedNodes);
         };
 
         // Getting the implied nodes.
-        sylva.selectedNodes = []; // Cleaning the selection.
-        var line = -1; // The index for 'random access'.
-        jqxhr= $.ajax({
-          type: "GET",
-          url: "{% url 'analytics_dump' graph.slug %}",
-          data: {"id": analyticId},
-          xhr: function() {
-            /* A way for react to changes of the request.
-             *
-             * The main thing is the state of the 'xhr' object.
-             *    0: request not initialized
-             *    1: server connection established
-             *    2: request received
-             *    3: processing request
-             *    4: request finished and response is ready
-             *
-             * Using the method 'onprogress' (there are others, but this is
-             * which we need) we can check the state of the request when there
-             * are changes.
-             * So, we need to check the state '3' and '4' ('4' is like 'done'
-             * or 'success').
-             *
-             * So, while the original 'xhr' object is maintained, we are
-             * changing the 'onprogress' value, which previously was 'null'.
-             */
-            var xhr = $.ajaxSettings.xhr();
-            xhr.onprogress = function() {
-              console.log("onprogress");
-              console.log(xhr.status);
-              console.log(xhr.readyState);
-              console.log(xhr.response);
-              if (xhr.status == 200 && xhr.readyState > 2) {
-                updateGraph(xhr.response);
-              }
-            }
-            return xhr;
+        var source = new EventSource(
+          "{% url 'analytics_dump' graph.slug %}" + '?id=' + analyticId);
+
+        source.onmessage = function(e) {
+          var data = JSON.parse(e.data);
+          if (data != 'close') {
+            updateGraph(data);
+          } else {
+            source.close();
           }
-        })
-        .error(function(err) {
-          console.log("AJAX error in request: " + JSON.stringify(err, null, 2));
-        });
+        };
 
       });
     });
