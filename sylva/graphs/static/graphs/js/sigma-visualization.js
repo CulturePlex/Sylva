@@ -129,7 +129,7 @@
         'htmlFullName');
 
       /* The edges need to be colored if they colorMode attribute isn't custom
-       * and their color attribut isn't their real color.
+       * and their color attribute isn't their real color.
        */
       that.coloringEdges();
 
@@ -711,6 +711,7 @@
       sigInst.graph.nodes().forEach(function(n) {
         if (nodeList.indexOf(n.id) >= 0) {
           n.color = sylva.nodetypes[n.nodetypeId].color;
+          delete n['type']
         } else {
           n.color = gray;
           n.type = 'gray';
@@ -721,6 +722,7 @@
         sigInst.graph.edges().forEach(function(e) {
           if (relList.indexOf(e.id) >= 0) {
             e.color = sylva.reltypes[e.reltypeId].color;
+            delete e['type'];
           } else {
             e.color = gray;
             e.type = 'gray';
@@ -758,7 +760,7 @@
       sigInst.refresh();
     },
 
-    // Change the color of the nodes, the rels (it it's needed) and the legend.
+    // Change the color of the nodes, the rels (if it's needed) and the legend.
     changeNodesColor: function(nodetypeId, color, span) {
       var nodesId = sylva.nodetypes[nodetypeId].nodes;
       var currentColor = $(span).css('background-color');
@@ -828,12 +830,16 @@
           data: params,
           dataType: 'json'
         });
+        jqxhr.success(function() {
+          that.submitEveryCurrentRelColor();
+        });
         jqxhr.error(function() {
           that.changeNodesColor(nodetypeId, oldColor, span);
           $(span).attr('data-color', oldColor);
           sylva.nodetypes[nodetypeId].color = oldColor;
           alert(gettext("Oops! Something went wrong with the server."));
         });
+
       }
 
       colorWidgetOpened = false;
@@ -918,7 +924,7 @@
         var jqxhr = $.ajax({
           url: sylva.edit_reltype_color_ajax_url,
           type: 'POST',
-          data: params,
+          data: JSON.stringify(params),
           dataType: 'json'
         });
         jqxhr.error(function() {
@@ -932,6 +938,37 @@
       }
 
       colorWidgetOpened = false;
+    },
+
+    // A function for save the color of a relationship without conditions.
+    submitEveryCurrentRelColor: function(i, span) {
+
+      params = {
+        'everyRelationship': true,
+        'reltypes': {}
+      };
+
+      $('.change-rels-color').each(function(i, span) {
+        var reltypeId = $(span).attr('data-reltype-id');
+        var color = $(span).css('background-color');
+        color = new RGBColor(color).toHex().toUpperCase();
+        colorMode = $(span).attr('data-color-mode');
+
+        params.reltypes[reltypeId] = {
+          'color': color,
+          'colorMode': colorMode
+        };
+      });
+
+      var jqxhr = $.ajax({
+        url: sylva.edit_reltype_color_ajax_url,
+        type: 'POST',
+        data: JSON.stringify(params),
+        dataType: 'json'
+      });
+      jqxhr.error(function() {
+        alert(gettext("Oops! Something went wrong with the server."));
+      });
     },
 
     // Add the 'colorPicker' widget to the 'selectColor' widget of the rels.

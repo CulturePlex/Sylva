@@ -473,7 +473,7 @@ def schema_nodetype_edit_color(request, graph_slug):
             nodetype.set_color(color)
             nodetype.save()
         return HttpResponse(status=200, mimetype='application/json')
-    raise Http404(_("Error: Invalid request (expected an AJAX POST request)"))
+    raise Http404(_("Error: Invalid requestquest (expected an AJAX POST request)"))
 
 
 @permission_required("schemas.change_schema",
@@ -481,13 +481,25 @@ def schema_nodetype_edit_color(request, graph_slug):
 def schema_reltype_edit_color(request, graph_slug):
     if ((request.is_ajax() or settings.DEBUG) and request.POST):
         data = request.POST.copy()
-        reltype_id = data['reltypeId']
-        color = data['color']
-        color_mode = data['colorMode']
-        reltype = get_object_or_404(RelationshipType, id=reltype_id)
-        with transaction.atomic():
-            reltype.set_color(color)
-            reltype.set_color_mode(color_mode)
-            reltype.save()
+        data = json.loads(data.keys()[0])
+        if 'everyRelationship' in data:
+            data = data['reltypes']
+            with transaction.atomic():
+                for reltype_id in data:
+                    color = data[reltype_id]['color']
+                    color_mode = data[reltype_id]['colorMode']
+                    reltype = get_object_or_404(RelationshipType, id=reltype_id)
+                    reltype.set_color(color)
+                    reltype.set_color_mode(color_mode)
+                    reltype.save()
+        else:
+            reltype_id = data['reltypeId']
+            color = data['color']
+            color_mode = data['colorMode']
+            reltype = get_object_or_404(RelationshipType, id=reltype_id)
+            with transaction.atomic():
+                reltype.set_color(color)
+                reltype.set_color_mode(color_mode)
+                reltype.save()
         return HttpResponse(status=200, mimetype='application/json')
     raise Http404(_("Error: Invalid request (expected an AJAX POST request)"))
