@@ -390,15 +390,23 @@ var taskTime = 0;
 
         console.log(resultsUrl);
         console.log(algorithm);
-        //getResults(resultsUrl, algorithm, "", "");
+        getResults(resultsUrl, algorithm, "", "");
 
         /* A function for update the selected nodes in the graph using the
          * analytic implied nodes.
          */
         var updateGraph = function(data) {
-          sylva.selectedNodes.push(data);
+          if (data == null) {
+            sylva.selectedNodes = [];
+          } else {
+            sylva.selectedNodes.push.apply(sylva.selectedNodes, data);
+          }
           sylva.Sigma.grayfyNonListedNodes(sylva.selectedNodes);
+          // console.log('Added: ' + data);
         };
+
+        updateGraph(null);
+        var returnedNodes = [];
 
         // Getting the implied nodes.
         var source = new EventSource(
@@ -406,10 +414,30 @@ var taskTime = 0;
 
         source.onmessage = function(e) {
           var data = JSON.parse(e.data);
+          var drawNodes = false;
+
           if (data != 'close') {
-            updateGraph(data);
+            returnedNodes.push(data);
+            if (returnedNodes.length >= 10) {
+              drawNodes = true;
+            }
           } else {
             source.close();
+            if (returnedNodes.length > 0) {
+              drawNodes = true;
+            }
+            console.log('finished!');
+          }
+
+          if (drawNodes) {
+            nodesToDraw = $.extend(true, [], returnedNodes);
+            (function(returnedNodes) {
+              setTimeout(function () {
+                console.log(returnedNodes);
+                updateGraph(returnedNodes);
+              }, 0);
+            })(returnedNodes);
+            returnedNodes = [];
           }
         };
 
