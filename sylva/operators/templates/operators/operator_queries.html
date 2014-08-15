@@ -27,14 +27,16 @@
         <th>{% trans "Description" %}</th>
         <th>{% trans "Results count" %}</th>
         <th>{% trans "Last run" %}</th>
+        <th></th>
     {% for query in queries %}
         <tr>
             <td id="query-name">{{ query.name }}</td>
             <td id="query-description">{{ query.description }}</td>
             <td id="query-results-count">{{ query.results_count }}</td>
             <td id="query-last-run">{{ query.last_run }}</td>
-            <td id="button-edit"><a class="button button-edit-query" href="{% url "operator_query_edit" graph.slug query.id %}" style="margin-left: 20px;">{% trans "Edit Query" %}</a></td>
-            <!--<td id="button-run"><a class="button">{% trans "Run" %}</a></td>-->
+            <td id="button-edit" class="dataList">
+                <a class="edit" href="{% url "operator_query_edit" graph.slug query.id %}" alt='{% trans "Edit query" %}' title='{% trans "Edit query" %}'>&nbsp;</a>
+                <a href="#" alt='{% trans "Run query" %}' title='{% trans "Run query" %}'><i class="fa fa-play-circle"></i></a></td>
         </tr>
     {% endfor %}
     </table>

@@ -49,7 +49,7 @@
         </div>
         <a class="button" id="run-button" href="#">{% trans "Run" %}</a>
         <a class="button" id="clear-button" href="#">{% trans "Clear query" %}</a>
-        <form method="post" action="." id="querySave" name="query_save">
+        <form method="post" action="." id="formSaveQuery" name="form query save">
             {% csrf_token %}
             {% if form.errors %}
                 {% for field in form %}
@@ -65,9 +65,9 @@
                     </div>
                 {% endfor %}
             {% endif %}
-            <label for="name">Name: </label>
+            <label id="labelName" for="name">Name: </label>
             {{ form.name }}
-            <label for="description">Description: </label>
+            <label id="labelDescription" for="description">Description: </label>
             {{ form.description }}
             {{ form.results_count }}
             {{ form.last_run }}
@@ -147,42 +147,43 @@ diagram.relationshipImageSrc = "{{ STATIC_PREFIX }}img/rarr2.gif";
     });
 
 })(jQuery);
-
 </script>
+
+<!-- The next 'ifs' are for the case that we are going to edit a query.
+     In that case, we send from the backend the json files to build the
+     the query, and here we get them in JavaScript variables -->
+
 {% if query_dict %}
 <script type="text/javascript">
-var query = {};
-var query_dict = '{{ query_dict|safe }}';
-query_dict = JSON.parse(query_dict);
-query["query"] = query_dict;
+    var query = {};
+    var query_dict = '{{ query_dict|safe }}';
+    query_dict = JSON.parse(query_dict);
+    query["query"] = query_dict;
 </script>
 {% endif %}
 
 {% if query_aliases %}
 <script type="text/javascript">
-var query_aliases = '{{ query_aliases|safe }}';
-query_aliases = JSON.parse(query_aliases);
-query["aliases"] = query_aliases;
+    var query_aliases = '{{ query_aliases|safe }}';
+    query_aliases = JSON.parse(query_aliases);
+    query["aliases"] = query_aliases;
 </script>
 {% endif %}
 
 {% if query_fields %}
 <script type="text/javascript">
-var query_fields = '{{ query_fields|safe }}';
-query_fields = JSON.parse(query_fields);
-query["fields"] = query_fields["fields"];
-query["fieldRelsCounter"] = query_fields["fieldRelsCounter"];
-query["checkboxes"] = query_fields["checkboxes"];
-query["fieldsConditions"] = query_fields["fieldsConditions"];
+    var query_fields = '{{ query_fields|safe }}';
+    query_fields = JSON.parse(query_fields);
+    query["fields"] = query_fields["fields"];
+    query["fieldRelsCounter"] = query_fields["fieldRelsCounter"];
+    query["checkboxes"] = query_fields["checkboxes"];
+    query["fieldsConditions"] = query_fields["fieldsConditions"];
 
-(function($) {
-
-$(document).on('ready', function() {
-    diagram.loadQuery(JSON.stringify(query));
-});
-
-})(jQuery);
-
+    (function($) {
+        $(document).on('ready', function() {
+            diagram.loadQuery(JSON.stringify(query));
+        });
+    })(jQuery);
 </script>
 {% endif %}
 {% endblock %}

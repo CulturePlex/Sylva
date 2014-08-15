@@ -2478,7 +2478,7 @@ diagram.lookupsValuesType = {
     /**
      * Handler to get the information to save the query
      */
-    $(document).on('click', '#querySave', function(event) {
+    $(document).on('click', '#saveQuery', function(event) {
         var saveElements = {};
         var query = diagram.generateQuery();
         saveElements["query"] = query;

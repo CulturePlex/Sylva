@@ -205,6 +205,26 @@
     display: none;
 }
 
+/* Form styles */
+
+#formSaveQuery {
+    display: block;
+    margin-top: 20px;
+    margin-left: 30px;
+}
+
+#labelName {
+
+}
+
+#labelDescription {
+    margin-top: 15px;
+}
+
+#saveQuery {
+    margin-top: 15px;
+}
+
 /* Invisible option for draggable endpoints */
 .endpointInvisible {
     visibility: hidden !important;
