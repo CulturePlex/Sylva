@@ -1567,7 +1567,7 @@ diagram.lookupsValuesType = {
             for(var i = 0; i < originsLength; i++) {
                 if(origins[i].type == "node") {
                     nodeAlias = origins[i].alias;
-                    nodetypes[nodeAlias] = types.aliases[nodeAlias];
+                    nodetypes[nodeAlias] = types[nodeAlias];
                 }
             }
             // We store the conditions in a dictionary
@@ -1680,13 +1680,13 @@ diagram.lookupsValuesType = {
             // Load the relationships between the boxes
             for(var i = 0; i < patternsLength; i++) {
                 var source = jsonDict["query"]["patterns"][i].source.alias;
-                var sourceId = types.aliases[source].id;
+                var sourceId = types[source].id;
 
                 var target = jsonDict["query"]["patterns"][i].target.alias;
-                var targetId = types.aliases[target].id;
+                var targetId = types[target].id;
 
                 var relation = jsonDict["query"]["patterns"][i].relation.alias;
-                var relationValue = types.aliases[relation].typename;
+                var relationValue = types[relation].typename;
                 var relationName = relationValue;
 
                 // We check if the relationship is of type wildcard
@@ -2478,12 +2478,13 @@ diagram.lookupsValuesType = {
     /**
      * Handler to get the information to save the query
      */
-    $(document).on('click', '#save-button', function(event) {
+    $(document).on('click', '#querySave', function(event) {
         var saveElements = {};
         var query = diagram.generateQuery();
         saveElements["query"] = query;
         var elements = $('.title select');
         var checkboxes = $('.checkbox-property');
+        var fieldsDict = {};
         var aliasDict = {};
         var checkboxesDict = {};
         var fieldsConditionsDict = {};
@@ -2526,17 +2527,23 @@ diagram.lookupsValuesType = {
         });
         saveElements['aliases'] = aliasDict;
         // We store all the important values
-        saveElements['fields'] = diagram.fieldsForNodes;
-        saveElements['checkboxes'] = checkboxesDict;
-        saveElements['fieldsConditions'] = fieldsConditionsDict;
-        saveElements['fieldRelsCounter'] = diagram.fieldRelsCounter;
+        fieldsDict['fields'] = diagram.fieldsForNodes;
+        fieldsDict['checkboxes'] = checkboxesDict;
+        fieldsDict['fieldsConditions'] = fieldsConditionsDict;
+        fieldsDict['fieldRelsCounter'] = diagram.fieldRelsCounter;
+        saveElements['fields'] = fieldsDict;
         // What we do with nodetypesCounter and reltypesCounter?
         console.log(JSON.stringify(saveElements));
 
-        $('#query-information').css({
-            'display': 'block'
-        });
-        event.preventDefault();
+        // We are going to assign the values for the elements of the form
+        $('#id_last_run').val('1987-11-01');
+        $('#id_query_dict').val(JSON.stringify(saveElements['query']));
+        $('#id_query_aliases').val(JSON.stringify(saveElements['aliases']));
+        $('#id_query_fields').val(JSON.stringify(saveElements['fields']));
+
+        //event.preventDefault();
+
+        return true;
     });
 
     $(document).ready(init);

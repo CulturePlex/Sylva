@@ -4,6 +4,7 @@ try:
 except ImportError:
     import json  # NOQA
 
+from django.db import transaction
 from django.db.models import Q
 from django.contrib.auth.models import User
 from django.conf import settings
@@ -18,7 +19,7 @@ from sylva.decorators import is_enabled
 from graphs.models import Data, Graph
 from operators.grammar import QueryParser
 from schemas.models import NodeType, RelationshipType
-from operators.models import Query
+from operators.forms import SaveQueryForm
 
 # from .parser import parse_query
 
@@ -31,10 +32,26 @@ def operator_builder(request, graph_slug):
     graph = get_object_or_404(Graph, slug=graph_slug)
     nodetypes = NodeType.objects.filter(schema__graph__slug=graph_slug)
     reltypes = RelationshipType.objects.filter(schema__graph__slug=graph_slug)
+    form = SaveQueryForm()
+    if request.POST:
+        data = request.POST.copy()
+        form = SaveQueryForm(data=data)
+        if form.is_valid():
+            with transaction.atomic():
+                query = form.save(commit=False)
+                graph.queries.add(query)
+                query.save()
+                graph.save()
+                return render_to_response('operators/operator_queries.html',
+                                          {"graph": graph,
+                                           "queries": graph.queries.all()},
+                                          context_instance=RequestContext(
+                                              request))
     return render_to_response('operators/operator_builder.html',
                               {"graph": graph,
                                "node_types": nodetypes,
-                               "relationship_types": reltypes},
+                               "relationship_types": reltypes,
+                               "form": form},
                               context_instance=RequestContext(request))
 
 
@@ -144,6 +161,8 @@ def operator_query_edit(request, graph_slug, query_id):
     nodetypes = NodeType.objects.filter(schema__graph__slug=graph_slug)
     reltypes = RelationshipType.objects.filter(
         schema__graph__slug=graph_slug)
+    # We have to get the values of the query to introduce them into the form
+    form = SaveQueryForm()
     query = graph.queries.get(pk=query_id)
     query_dict = json.dumps(query.query_dict)
     query_aliases = json.dumps(query.query_aliases)
@@ -152,6 +171,7 @@ def operator_query_edit(request, graph_slug, query_id):
                               {"graph": graph,
                                "node_types": nodetypes,
                                "relationship_types": reltypes,
+                               "form": form,
                                "query_dict": query_dict,
                                "query_aliases": query_aliases,
                                "query_fields": query_fields},

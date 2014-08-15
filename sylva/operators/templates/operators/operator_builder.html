@@ -49,13 +49,33 @@
         </div>
         <a class="button" id="run-button" href="#">{% trans "Run" %}</a>
         <a class="button" id="clear-button" href="#">{% trans "Clear query" %}</a>
-        <a class="button" id="save-button" href="#">{% trans "Save query" %}</a>
-        <div id="query-information">
-            <label for="query-name">{% trans "Name" %}</label>
-            <input id="query-name" type="text" />
-            <label id="label-description" for="query-description">{% trans "Description" %}</label>
-            <textarea id="query-description" rows="4" cols="50" >{% trans "Write a description..." %}</textarea>
-        </div>
+        <form method="post" action="." id="querySave" name="query_save">
+            {% csrf_token %}
+            {% if form.errors %}
+                {% for field in form %}
+                    {% for error in field.errors %}
+                        <div class="alert alert-error">
+                            <strong>{{ error|escape }}</strong>
+                        </div>
+                    {% endfor %}
+                {% endfor %}
+                {% for error in form.non_field_errors %}
+                    <div class="alert alert-error">
+                        <strong>{{ error|escape }}</strong>
+                    </div>
+                {% endfor %}
+            {% endif %}
+            <label for="name">Name: </label>
+            {{ form.name }}
+            <label for="description">Description: </label>
+            {{ form.description }}
+            {{ form.results_count }}
+            {{ form.last_run }}
+            {{ form.query_dict }}
+            {{ form.query_aliases }}
+            {{ form.query_fields }}
+            <input type="submit" id="saveQuery" name="saveQuery" value="{% trans "Save query" %}" />
+        </form>
     </div>
     <div id="query-builder-results">
         <div id="results"></div>
@@ -72,8 +92,6 @@
 <link href="{{ STATIC_PREFIX }}css/jqueryui.1.8.18.css" type="text/css" rel="stylesheet" />
 {% endblock %}
 {% block extra_scripts %}
-<!--<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.13/jquery-ui.min.js"></script>-->
-<!--<script type="text/javascript" src="{{ STATIC_PREFIX }}js/jquery.jsplumb.1.3.9.min.js"></script>-->
 <script type="text/javascript" src="{{ STATIC_PREFIX }}js/jquery-ui-1.9.1.js"></script>
 <script type="text/javascript" src="{{ STATIC_PREFIX }}js/jquery.jsPlumb-1.5.5-min.js "></script>
 <script type="text/javascript" src="{{ STATIC_PREFIX }}js/jquery.scrollto.min.js"></script>
@@ -136,7 +154,7 @@ diagram.relationshipImageSrc = "{{ STATIC_PREFIX }}img/rarr2.gif";
 var query = {};
 var query_dict = '{{ query_dict|safe }}';
 query_dict = JSON.parse(query_dict);
-query["query"] = query_dict["query"];
+query["query"] = query_dict;
 </script>
 {% endif %}
 
