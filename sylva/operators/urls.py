@@ -25,7 +25,7 @@ urlpatterns = patterns(
         name="operator_builder_results"),
     url(r'^(?P<graph_slug>[\w-]+)/queries/$', 'operator_queries',
         name="operator_queries"),
-    url(r'^(?P<graph_slug>[\w-]+)/queries/(?P<query_id>\d+)/query_edit/$',
-        'operator_query_edit',
-        name="operator_query_edit"),
+    url(r'^(?P<graph_slug>[\w-]+)/queries/(?P<query_id>\d+)/query_editrun/$',
+        'operator_query_editrun',
+        name="operator_query_editrun"),
 )

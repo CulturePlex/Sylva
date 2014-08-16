@@ -156,12 +156,13 @@ def operator_queries(request, graph_slug):
 @login_required
 @permission_required("data.view_data", (Data, "graph__slug", "graph_slug"),
                      return_403=True)
-def operator_query_edit(request, graph_slug, query_id):
+def operator_query_editrun(request, graph_slug, query_id):
     graph = get_object_or_404(Graph, slug=graph_slug)
     nodetypes = NodeType.objects.filter(schema__graph__slug=graph_slug)
     reltypes = RelationshipType.objects.filter(
         schema__graph__slug=graph_slug)
     # We have to get the values of the query to introduce them into the form
+    run_query = request.GET.get('run')
     form = SaveQueryForm()
     query = graph.queries.get(pk=query_id)
     query_dict = json.dumps(query.query_dict)
@@ -174,5 +175,6 @@ def operator_query_edit(request, graph_slug, query_id):
                                "form": form,
                                "query_dict": query_dict,
                                "query_aliases": query_aliases,
-                               "query_fields": query_fields},
+                               "query_fields": query_fields,
+                               "run_query": run_query},
                               context_instance=RequestContext(request))

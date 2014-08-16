@@ -35,8 +35,8 @@
             <td id="query-results-count">{{ query.results_count }}</td>
             <td id="query-last-run">{{ query.last_run }}</td>
             <td id="button-edit" class="dataList">
-                <a class="edit" href="{% url "operator_query_edit" graph.slug query.id %}" alt='{% trans "Edit query" %}' title='{% trans "Edit query" %}'>&nbsp;</a>
-                <a href="#" alt='{% trans "Run query" %}' title='{% trans "Run query" %}'><i class="fa fa-play-circle"></i></a></td>
+                <a class="edit" href="{% url "operator_query_editrun" graph.slug query.id %}" alt='{% trans "Edit query" %}' title='{% trans "Edit query" %}'>&nbsp;</a>
+                <a href="{% url "operator_query_editrun" graph.slug query.id %}?run=true" alt='{% trans "Run query" %}' title='{% trans "Run query" %}'><i class="fa fa-play-circle"></i></a></td>
         </tr>
     {% endfor %}
     </table>

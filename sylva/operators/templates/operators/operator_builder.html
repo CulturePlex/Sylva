@@ -149,6 +149,13 @@ diagram.relationshipImageSrc = "{{ STATIC_PREFIX }}img/rarr2.gif";
 })(jQuery);
 </script>
 
+<!-- If we have the run variable, we execute the query -->
+{% if run_query %}
+<script type="text/javascript">
+    var run = true;
+</script>
+{% endif %}
+
 <!-- The next 'ifs' are for the case that we are going to edit a query.
      In that case, we send from the backend the json files to build the
      the query, and here we get them in JavaScript variables -->
@@ -182,6 +189,10 @@ diagram.relationshipImageSrc = "{{ STATIC_PREFIX }}img/rarr2.gif";
     (function($) {
         $(document).on('ready', function() {
             diagram.loadQuery(JSON.stringify(query));
+            if(run) {
+                //$('#builder-results').click();
+                $('#run-button').click();
+            }
         });
     })(jQuery);
 </script>
