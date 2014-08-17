@@ -161,10 +161,23 @@ def operator_query_editrun(request, graph_slug, query_id):
     nodetypes = NodeType.objects.filter(schema__graph__slug=graph_slug)
     reltypes = RelationshipType.objects.filter(
         schema__graph__slug=graph_slug)
-    # We have to get the values of the query to introduce them into the form
     run_query = request.GET.get('run')
-    form = SaveQueryForm()
     query = graph.queries.get(pk=query_id)
+    # We check if we are going to edit the query
+    if request.POST:
+        data = request.POST.copy()
+        form = SaveQueryForm(data=data, instance=query)
+        if form.is_valid():
+            with transaction.atomic():
+                query = form.save(commit=False)
+                query.save()
+                return render_to_response('operators/operator_queries.html',
+                                          {"graph": graph,
+                                           "queries": graph.queries.all()},
+                                          context_instance=RequestContext(
+                                              request))
+    # We have to get the values of the query to introduce them into the form
+    form = SaveQueryForm(instance=query)
     query_dict = json.dumps(query.query_dict)
     query_aliases = json.dumps(query.query_aliases)
     query_fields = json.dumps(query.query_fields)
