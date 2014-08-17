@@ -138,6 +138,15 @@ diagram.lookupsValuesType = {
     'auto_user': diagram.lookupsSpecificValues
 };
 
+diagram.aggregates = [
+    "Count",
+    "Max",
+    "Min",
+    "Sum",
+    "Average",
+    "Deviation"
+];
+
 (function($) {
     /**
       * AJAX Setup for CSRF Django token
@@ -975,19 +984,13 @@ diagram.lookupsValuesType = {
             selectAggregate = $("<SELECT>");
             selectAggregate.addClass("select-aggregate");
             selectAggregate.append("<option class='option-aggregate' value='' selected='selected' disabled>" + gettext("choose one") + "</option>");
-            selectAggregate.append("<option class='option-aggregate' value='count' data-distinct='false'>" + gettext("Count") + "</option>");
-            selectAggregate.append("<option class='option-aggregate' value='count' data-distinct='true'>" + gettext("Count distinct") + "</option>");
-            selectAggregate.append("<option class='option-aggregate' value='max' data-distinct='false'>" + gettext("Max") + "</option>");
-            selectAggregate.append("<option class='option-aggregate' value='max' data-distinct='true'>" + gettext("Max distinct") + "</option>");
-            selectAggregate.append("<option class='option-aggregate' value='min' data-distinct='false'>" + gettext("Min") + "</option>");
-            selectAggregate.append("<option class='option-aggregate' value='min' data-distinct='true'>" + gettext("Min distinct") + "</option>");
-            selectAggregate.append("<option class='option-aggregate' value='sum' data-distinct='false'>" + gettext("Sum") + "</option>");
-            selectAggregate.append("<option class='option-aggregate' value='sum' data-distinct='true'>" + gettext("Sum distinct") + "</option>");
-            selectAggregate.append("<option class='option-aggregate' value='average' data-distinct='false'>" + gettext("Average") + "</option>");
-            selectAggregate.append("<option class='option-aggregate' value='average' data-distinct='true'>" + gettext("Average distinct") + "</option>");
-            selectAggregate.append("<option class='option-aggregate' value='deviation' data-distinct='false'>" + gettext("Deviation") + "</option>");
-            selectAggregate.append("<option class='option-aggregate' value='deviation' data-distinct='true'>" + gettext("Deviation distinct") + "</option>");
-
+            for(var i = 0; i < diagram.aggregates.length; i++) {
+                // We append the aggregate and the aggregate Distinct
+                var aggregate = diagram.aggregates[i];
+                var aggregateDistinct = aggregate + "distinct";
+                selectAggregate.append("<option class='option-aggregate' value='" + aggregate + "' data-distinct='false'>" + gettext(aggregate) + "</option>");
+                selectAggregate.append("<option class='option-aggregate' value='" + aggregate + "' data-distinct='true'>" + gettext(aggregateDistinct) + "</option>");
+            }
             // We append the patterns
             divField.append(checkboxProperty);
             divField.append(selectAggregate);

@@ -14,7 +14,8 @@ except ImportError:
 
 
 WILDCARD_TYPE = -1
-AGGREGATES = ["count", "max", "min", "sum", "average", "deviation"]
+AGGREGATES = ["Count", "Max", "Min", "Sum", "Average", "Deviation"]
+
 
 class GraphDatabase(BlueprintsGraphDatabase):
 
