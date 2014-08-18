@@ -85,11 +85,13 @@
 {% endblock %}
 
 {% block extra_links %}
-<link rel="stylesheet" type="text/css" href="{{ STATIC_PREFIX }}css/schemas.diagram.css" />
-<link rel="stylesheet" type="text/css" href="{{STATIC_PREFIX}}operators/css/operators.css" />
-<link rel="stylesheet" type="text/css" href="{{ STATIC_PREFIX }}css/chosen.css" />
-<link href="{{ STATIC_PREFIX }}css/token.input.css" type="text/css" rel="stylesheet" />
-<link href="{{ STATIC_PREFIX }}css/jqueryui.1.8.18.css" type="text/css" rel="stylesheet" />
+    {% compress css %}
+        <link rel="stylesheet" type="text/css" href="{{ STATIC_PREFIX }}css/schemas.diagram.css" />
+        <link rel="stylesheet" type="text/css" href="{{STATIC_PREFIX}}operators/css/operators.css" />
+        <link rel="stylesheet" type="text/css" href="{{ STATIC_PREFIX }}css/chosen.css" />
+        <link href="{{ STATIC_PREFIX }}css/token.input.css" type="text/css" rel="stylesheet" />
+        <link href="{{ STATIC_PREFIX }}css/jqueryui.1.8.18.css" type="text/css" rel="stylesheet" />
+    {% endcompress %}
 {% endblock %}
 {% block extra_scripts %}
 <script type="text/javascript">
