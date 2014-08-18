@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load i18n graphs static %}
+{% load i18n graphs static compress %}
 {% get_static_prefix as STATIC_PREFIX %}
 
 {% block navigation_buttons %}
@@ -92,62 +92,32 @@
 <link href="{{ STATIC_PREFIX }}css/jqueryui.1.8.18.css" type="text/css" rel="stylesheet" />
 {% endblock %}
 {% block extra_scripts %}
-<script type="text/javascript" src="{{ STATIC_PREFIX }}js/jquery-ui-1.9.1.js"></script>
-<script type="text/javascript" src="{{ STATIC_PREFIX }}js/jquery.jsPlumb-1.5.5-min.js "></script>
-<script type="text/javascript" src="{{ STATIC_PREFIX }}js/jquery.scrollto.min.js"></script>
-<script type="text/javascript" src="{{ STATIC_PREFIX }}js/chosen.jquery.min.js"></script>
-<script type="text/javascript" src="{{ STATIC_PREFIX }}js/chosen.ajax.js"></script>
-<script type="text/javascript" src="{{ STATIC_PREFIX }}js/jqueryui.timepicker.js"></script>
-<script type="text/javascript" src="{{ STATIC_PREFIX }}js/jquery.blockUI.js"></script>
-<script type="text/javascript" src="{{ STATIC_PREFIX }}operators/js/operators.query.js"></script>
 <script type="text/javascript">
-if (!diagram) {
-    var diagram = {};
-}
+    if (!diagram) {
+        var diagram = {};
+    }
 
-diagram.Models = {% autoescape off %}{{ graph.schema.get_schema_diagram }}{% endautoescape %};
+    diagram.Models = {% autoescape off %}{{ graph.schema.get_schema_diagram }}{% endautoescape %};
 
-diagram.url_collaborators = "{% url "graph_query_collaborators" graph.slug %}";
-diagram.url_query = "{% url "operator_builder_results" graph.slug %}";
-diagram.relationshipImageSrc = "{{ STATIC_PREFIX }}img/rarr2.gif";
-
-(function ($) {
-
-    $('.body-inside').css({
-        "width": "570px"
-    });
-
-    $('#builder-query').on('click', function() {
-        $('#query-builder-results').hide();
-        $('#query-builder-query').show();
-        $('#results').hide();
-    });
-
-    $('#builder-results').on('click', function() {
-        $('#query-builder-query').hide();
-        $('#query-builder-results').show();
-        $('#results').show();
-    });
-
-    $('#select-node').on('mouseover', function() {
-        $('#node-options').css({
-            "display": "block"
-        });
-    });
-
-    $('#select-node').on('mouseout', function() {
-        $('#node-options').css({
-            "display": "none"
-        });
-    });
-
-    $('#clear-button').on('click', function() {
-        jsPlumb.detachEveryConnection();
-        $('#diagram').empty();
-    });
-
-})(jQuery);
+    diagram.url_collaborators = "{% url "graph_query_collaborators" graph.slug %}";
+    diagram.url_query = "{% url "operator_builder_results" graph.slug %}";
+    diagram.relationshipImageSrc = "{{ STATIC_PREFIX }}img/rarr2.gif";
 </script>
+
+{% compress js %}
+    <script type="text/javascript" src="{{ STATIC_PREFIX }}js/jquery-ui-1.9.1.js"></script>
+    <script type="text/javascript" src="{{ STATIC_PREFIX }}js/jquery.jsPlumb-1.5.5-min.js"></script>
+    <script type="text/javascript" src="{{ STATIC_PREFIX }}js/jquery.scrollto.min.js"></script>
+    <script type="text/javascript" src="{{ STATIC_PREFIX }}js/chosen.jquery.min.js"></script>
+    <script type="text/javascript" src="{{ STATIC_PREFIX }}js/chosen.ajax.js"></script>
+    <script type="text/javascript" src="{{ STATIC_PREFIX }}js/jqueryui.timepicker.js"></script>
+    <script type="text/javascript" src="{{ STATIC_PREFIX }}js/jquery.blockUI.js"></script>
+    <script type="text/javascript" src="{{ STATIC_PREFIX }}operators/js/operators.query.js"></script>
+    <script type="text/javascript" src="{{ STATIC_PREFIX }}operators/js/operator_builder.js"></script>
+{% endcompress %}
+
+
+{# Not using compressor from here becuase it needs a huge refactoring: Django template's if statements are being used! #}
 
 <!-- If we have the run variable, we execute the query -->
 {% if run_query %}

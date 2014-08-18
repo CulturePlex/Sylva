@@ -212,11 +212,12 @@
     <script type="text/javascript" src="{{ STATIC_PREFIX }}js/jquery.jsplumb.1.3.16.min.js"></script>
     <script type="text/javascript" src="{{ STATIC_PREFIX }}js/jquery.scrollto.min.js"></script>
     <script type="text/javascript" src="{{ STATIC_PREFIX }}js/schemas.diagram.js"></script>
-    <script type="text/javascript">
-      if (!diagram) {
-        var diagram = {};
-      }
-      diagram.Models = {% autoescape off %}{{ graph.schema.get_schema_diagram }}{% endautoescape %};
-    </script>
   {% endcompress %}
+
+  <script type="text/javascript">
+    if (!diagram) {
+      var diagram = {};
+    }
+    diagram.Models = {% autoescape off %}{{ graph.schema.get_schema_diagram }}{% endautoescape %};
+  </script>
 {% endblock %}

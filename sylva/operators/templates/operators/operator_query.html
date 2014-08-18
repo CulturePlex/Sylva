@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load i18n graphs %}
+{% load i18n graphs compress %}
 
 {% block title %}
 {% trans "Query" %}
@@ -16,40 +16,14 @@
 
 {% block extra_scripts %}
 <script type="text/javascript">
-(function ($) {
-    var init = function () {
-        $("#id_query").keypress(function (e) {
-            var query = $(this).val();
-            if (e.which == 13) {
-                $("#results").html("<span class='help'>{% trans "Loading" %}...</span>");
-                console.log(query);
-                $.ajax({
-                    type: "POST",
-                    url: "{% url "operator_query_results" graph.slug %}",
-                    data: {"query": query},
-                    success: function (data) {
-                        $("#results").html("");
-                        for (var i = 0, j = data.length; i < j; i += 1) {
-                            var row = $("<div>");
-                            for (var k = 0, l = data[i].length; k < l; k += 1) {
-                                var cell = $("<span>");
-                                cell.text(data[i][k]);
-                                row.append(cell);
-                            }
-                            $("#results").append(row);
-                        }
-                    },
-                    error: function (e) {
-                        $("#results").html("{% trans "No results found" %}");
-                    },
-                    dataType: "json"
-                });
-            }
-        });
-    }
-    $(document).ready(init);
-})(jQuery);
+    sylva.urls = {
+        operatorQueryResults: "{% url "operator_query_results" graph.slug %}"
+    };
 </script>
+
+{% compress js %}
+    <script type="text/javascript" src="{{ STATIC_PREFIX }}operators/js/operator_query.js"></script>
+{% endcompress %}
 {% endblock %}
 
 {% block content %}

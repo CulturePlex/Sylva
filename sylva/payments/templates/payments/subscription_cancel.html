@@ -11,14 +11,6 @@
 
 {% block extra_scripts %}
   {% compress js %}
-    <script>
-      (function($) {
-        $(function() {
-          $('input[type=submit]').on('click', function(e) {
-            $(this).val('{% trans "Unsubscribing..." %}');
-          });
-        });
-      }(jQuery));
-    </script>
+    <script type="text/javascript" src="{{ STATIC_PREFIX }}payments/js/subcription_cancel.js"></script>
   {% endcompress %}
 {% endblock extra_scripts %}

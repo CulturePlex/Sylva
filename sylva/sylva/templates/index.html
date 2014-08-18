@@ -13,41 +13,43 @@
   {% compress js %}
     <script type="text/javascript" src="{{ STATIC_PREFIX }}js/jquery.slides.min.js"></script>
     <script type="text/javascript" src="{{ STATIC_PREFIX }}js/jquery.easing.min.js"></script>
-    <script>
-      (function($) {
-        var init = function() {
-          // Slideshow
-          $(function() {
-            $('#slides').slides({
-              /* preload: true, Doesn't work with jQuery 1.8.x */
-              preloadImage: '{{ STATIC_PREFIX }}img/loading.gif',
-              play: 5000,
-              pause: 2500,
-              hoverPause: true,
-            });
-          });
+    {% endcompress %}
 
-          {% if not user_is_signedin and not is_index %}
-            // Login modal window
-            $("#loginFormButton").click(function(e) {
-              $("#loginForm").modal({
-                overlayClose: true,
-                opacity: 60,
-                overlayCss: {backgroundColor: "#f2f2f2"},
-                modal: true,
-                onClose: function(e) {
-                  location.href = "{% url "index" %}";
-                }
-              });
-              return false;
+  {# Not using compressor from here becuase it needs a refactoring: Django template's if statements are being used! #}
+  <script>
+    (function($) {
+      var init = function() {
+        // Slideshow
+        $(function() {
+          $('#slides').slides({
+            /* preload: true, Doesn't work with jQuery 1.8.x */
+            preloadImage: '{{ STATIC_PREFIX }}img/loading.gif',
+            play: 5000,
+            pause: 2500,
+            hoverPause: true,
+          });
+        });
+
+        {% if not user_is_signedin and not is_index %}
+          // Login modal window
+          $("#loginFormButton").click(function(e) {
+            $("#loginForm").modal({
+              overlayClose: true,
+              opacity: 60,
+              overlayCss: {backgroundColor: "#f2f2f2"},
+              modal: true,
+              onClose: function(e) {
+                location.href = "{% url "index" %}";
+              }
             });
-            $("#loginFormButton").click();
-          {% endif %}
-        };
-        $(document).ready(init);
-      })(jQuery);
-    </script>
-  {% endcompress %}
+            return false;
+          });
+          $("#loginFormButton").click();
+        {% endif %}
+      };
+      $(document).ready(init);
+    })(jQuery);
+  </script>
 {% endblock %}
 
 {% block menu_navigation %}

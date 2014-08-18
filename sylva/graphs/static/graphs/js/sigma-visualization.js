@@ -423,8 +423,8 @@
       var titleMax = 33;
       var propertyMax = 43;
 
-      var nodeEditURL = sylva.nodeEditURL.replace(/nodes\/0\/edit/, 'nodes/' + node.id + '/edit');
-      var nodeViewURL = sylva.nodeViewURL.replace(/nodes\/0\/view/, 'nodes/' + node.id + '/view');
+      var nodeEditURL = sylva.urls.nodesEdit.replace(/nodes\/0\/edit/, 'nodes/' + node.id + '/edit');
+      var nodeViewURL = sylva.urls.nodesView.replace(/nodes\/0\/view/, 'nodes/' + node.id + '/view');
       var title = (node.label.length < titleMax) ? node.label : node.label.substring(0, titleMax - 3) + "...";
       var properties = '';
 
@@ -825,7 +825,7 @@
         };
 
         var jqxhr = $.ajax({
-          url: sylva.edit_nodetype_color_ajax_url,
+          url: sylva.urls.editNodetypeColorAjax,
           type: 'POST',
           data: params,
           dataType: 'json'
@@ -922,7 +922,7 @@
         };
 
         var jqxhr = $.ajax({
-          url: sylva.edit_reltype_color_ajax_url,
+          url: sylva.urls.editReltypeColorAjax,
           type: 'POST',
           data: JSON.stringify(params),
           dataType: 'json'
@@ -961,7 +961,7 @@
       });
 
       var jqxhr = $.ajax({
-        url: sylva.edit_reltype_color_ajax_url,
+        url: sylva.urls.editReltypeColorAjax,
         type: 'POST',
         data: JSON.stringify(params),
         dataType: 'json'
@@ -1317,7 +1317,7 @@
         };
 
         var jqxhr = $.ajax({
-          url: sylva.graph_analytics_boxes_edit_position,
+          url: sylva.urls.graphAnalyticsBoxesEditPosition,
           type: 'POST',
           data: JSON.stringify(params),
           dataType: 'json'

@@ -158,33 +158,7 @@
 {% endblock content %}
 {% block extra_scripts %}
     {% compress js %}
-        <script type="text/javascript">
-            (function($) {
-                $(function() {
-                    $('#h2-relationships').on('change', function() {
-                        var option = $(this).val();
-                        if (option === 'all') {
-                            $('.all').show();
-                        } else if (option === 'incoming') {
-                            $('.outgoing').hide();
-                            $('.incoming').show();
-                        } else if (option === 'outgoing') {
-                            $('.incoming').hide();
-                            $('.outgoing').show();
-                        } else {
-                            $('.all').hide();
-                            $('#' + option).show();
-                        }
-                    });
-
-                    $('.relationship').on('click', function() {
-                        if ($(this).find('dl').html().trim() !== '') {
-                            $(this).find('.rel-properties').toggle();
-                        }
-                    });
-                });
-            })(jQuery);
-        </script>
+        <script type="text/javascript" src="{{ STATIC_PREFIX }}data/js/nodes_view.js"></script>
     {% endcompress %}
     {% include "graphs_visualization_resources.html" with analytics=True %}
 {% endblock extra_scripts %}

@@ -29,10 +29,6 @@
   </span>
 </form>
 {% compress js %}
-  <script>
-    var el = document.getElementById('id_options_0');
-    el.disabled = true;
-    el.parentElement.style.color = 'grey';
-  </script>
+  <script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/graphs_clone.js"></script>
 {% endcompress %}
 {% endblock %}
