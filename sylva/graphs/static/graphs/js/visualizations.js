@@ -26,11 +26,11 @@ sylva:true, alert:true */
       'margin-top': '0px'
     });
     var msg = '';
-    if (sylva.is_schema_empty) {
+    if (sylva.jsValues.isSchemaEmpty) {
       msg += gettext("Your Schema is empty.");
       msg += '<br>';
       msg += gettext("You need to define a Schema before adding data to your graph.");
-    } else if (sylva.is_graph_empty) {
+    } else if (sylva.jsValues.isGraphEmpty) {
       msg += gettext("Your graph is empty.");
       msg += '<br>';
       msg += gettext("You haven't added any data to your graph yet.");
@@ -66,7 +66,7 @@ sylva:true, alert:true */
                                    '</div>');
 
       // Graph rendering
-      var jqxhr = $.getJSON(sylva.view_graph_ajax_url, function(data) {
+      var jqxhr = $.getJSON(sylva.urls.viewGraphAjax, function(data) {
         $('#graph-loading').remove();
         spinner.stop();
 

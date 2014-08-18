@@ -141,29 +141,31 @@
         <script src="{{ STATIC_PREFIX }}joyride/jquery.joyride-2.0.3.js"></script>
         <script type="text/javascript" src="{{ STATIC_PREFIX }}js/dropit.js"></script>
         <script src="{{ STATIC_PREFIX }}js/base.js"></script>
-        <script>
-          // Sylva global namespace.
-          var sylva = {};
-          sylva.MEDIA_URL = "{{ STATIC_PREFIX }}";
-        </script>
       {% endcompress %}
+
+      <script>
+        // Sylva global namespace.
+        var sylva = {};
+        sylva.urls = {};
+        sylva.jsValues = {};
+
+        sylva.MEDIA_URL = "{{ STATIC_PREFIX }}";
+      </script>
 
       {% block extra_scripts %}
       {% endblock %}
 
-      {% compress js %}
-        <script type="text/javascript">
-          var _gaq = _gaq || [];
-          _gaq.push(['_setAccount', '{{ GOOGLE_ANALYTICS_CODE }}']);
-          _gaq.push(['_setDomainName', 'sylvadb.com']);
-          _gaq.push(['_trackPageview']);
-          (function() {
-            var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-            var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-          })();
-        </script>
-      {% endcompress %}
+      <script type="text/javascript">
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', '{{ GOOGLE_ANALYTICS_CODE }}']);
+        _gaq.push(['_setDomainName', 'sylvadb.com']);
+        _gaq.push(['_trackPageview']);
+        (function() {
+          var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+          ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+          var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+        })();
+      </script>
     {% endblock scripts %}
   </body>
 </html>

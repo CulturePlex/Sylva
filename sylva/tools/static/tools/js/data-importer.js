@@ -11,7 +11,7 @@
   // Sylva global namespace.
   var sylva = window.sylva || {};
 
-  if (!sylva.sylvaSchema) {
+  if (!sylva.jsValues.sylvaSchema) {
     console.log("Error: graph schema not found.");
     return;
   }
@@ -23,10 +23,10 @@
   sylva.DataImporter = {};
 
   // Nodes schema.
-  sylva.DataImporter.schemaNodes = sylva.sylvaSchema.nodeTypes;
+  sylva.DataImporter.schemaNodes = sylva.jsValues.sylvaSchema.nodeTypes;
 
   // Relationships schema.
-  sylva.DataImporter.schemaEdges = sylva.sylvaSchema.allowedEdges;
+  sylva.DataImporter.schemaEdges = sylva.jsValues.sylvaSchema.allowedEdges;
 
   // Nodes to import.
   sylva.DataImporter.nodes = {};

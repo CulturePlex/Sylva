@@ -12,14 +12,7 @@
 {% block extra_scripts %}
   {{ block.super }}
   {% compress js %}
-    <script type="text/javascript">
-      var toggleColumn = function(selectId) {
-        var value = $('#' + selectId).val();
-        var columnClass = selectId.replace('toggle_', '') + '_' + value;
-        $('.' + columnClass).toggle();
-        $('#' + selectId).val(0);
-      };
-    </script>
+    <script type="text/javascript" src="{{ STATIC_PREFIX }}data/js/results_list.js"></script>
   {% endcompress %}
 {% endblock %}
 

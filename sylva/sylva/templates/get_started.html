@@ -529,23 +529,6 @@
 {% block extra_scripts %}
   {% compress js %}
     <script src="{{ STATIC_PREFIX }}bootstrap/js/bootstrap-custom.js"></script>
-    <script>
-      (function($) {
-        $(function() {
-          $('.collapse').on({
-            show: function() {
-              var $prev = $(this).prev();
-              $prev.find('.fa-chevron-down').hide();
-              $prev.find('.fa-chevron-up').show();
-            },
-            hide: function() {
-              var $prev = $(this).prev();
-              $prev.find('.fa-chevron-down').show();
-              $prev.find('.fa-chevron-up').hide();
-            }
-          });
-        });
-      }(jQuery));
-    </script>
+    <script src="{{ STATIC_PREFIX }}js/get_started.js"></script>
   {% endcompress %}
 {% endblock extra_scripts %}

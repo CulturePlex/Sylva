@@ -84,7 +84,7 @@ def graph_view(request, graph_slug, node_id=None):
         'schemas.views.schema_nodetype_edit_color', args=[graph.slug])
     edit_reltype_color_ajax_url = reverse(
         'schemas.views.schema_reltype_edit_color', args=[graph.slug])
-    graph_analytics_boxes_edit_position = reverse(
+    graph_analytics_boxes_edit_position_url = reverse(
         'graph_analytics_boxes_edit_position', args=[graph.slug])
     node = None
     if node_id:
@@ -105,8 +105,8 @@ def graph_view(request, graph_slug, node_id=None):
                                   edit_nodetype_color_ajax_url,
                                "edit_reltype_color_ajax_url":
                                   edit_reltype_color_ajax_url,
-                               "graph_analytics_boxes_edit_position":
-                                  graph_analytics_boxes_edit_position},
+                               "graph_analytics_boxes_edit_position_url":
+                                  graph_analytics_boxes_edit_position_url},
                               context_instance=RequestContext(request))
 
 

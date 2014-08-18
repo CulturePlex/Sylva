@@ -223,8 +223,8 @@
 
   // Send data to the server.
   var sendData = function() {
-    return DI.sendGraph(DI.nodes, DI.edges, sylva.nodesCreateURL,
-                        sylva.edgesCreateURL);
+    return DI.sendGraph(DI.nodes, DI.edges, sylva.urls.nodesCreate,
+                        sylva.urls.edgesCreate);
   };
 
 
