@@ -16,6 +16,7 @@ diagram.CounterRels = 0;
 diagram.fieldCounter = 0;
 diagram.fieldRelsCounter = 0;
 diagram.nodetypesCounter = [];
+diagram.nodetypesList = {};
 diagram.reltypesCounter = [];
 diagram.fieldsForNodes = {};
 diagram.fieldsForRels = {};
@@ -549,20 +550,26 @@ diagram.aggregates = [
                 "display": "none"
             });
             optionNodetype = $("<OPTION>");
+            var idAndValue = model.name + diagram.nodetypesCounter[typeName];
+            var boxAlias = model.name + " " + diagram.nodetypesCounter[typeName];
             optionNodetype.addClass("option-nodetype-" + typeName);
-            optionNodetype.attr('id', model.name + diagram.nodetypesCounter[typeName]);
+            optionNodetype.attr('id', idAndValue);
             optionNodetype.attr('data-modelid', model.id);
-            optionNodetype.attr('value', model.name + diagram.nodetypesCounter[typeName]);
-            optionNodetype.html(model.name + " " + diagram.nodetypesCounter[typeName]);
+            optionNodetype.attr('value', idAndValue);
+            optionNodetype.html(boxAlias);
             // This 'for' loop is to add the new option in the old boxes
             for(var i = 0; i < diagram.nodetypesCounter[typeName]; i++) {
                 $($('.select-nodetype-' + typeName)[i]).append(optionNodetype.clone(true));
             }
             // This 'for' loop is to include the old options in the new box
-            for(var j = 1; j < diagram.nodetypesCounter[typeName]; j++) {
-                var value = model.name + " " + j;
-                selectNodetype.append("<option class='option-nodetype-" + typeName + "' id='" + value + "' data-modelid='" + model.id + "' value='" + value +"' selected=''>" + value + "</option>");
+            var typeBoxesLength = diagram.nodetypesList[typeName].length;
+            for(var i = 0; i < typeBoxesLength; i++) {
+                var alias = diagram.nodetypesList[typeName][i];
+                var value = alias.replace(/\s/g, '');;
+                selectNodetype.append("<option class='option-nodetype-" + typeName + "' id='" + value + "' data-modelid='" + model.id + "' value='" + value +"' selected=''>" + alias + "</option>");
             }
+            // We add the new alias to the list of the nodetype
+            diagram.nodetypesList[typeName].push(boxAlias);
             selectNodetype.append(optionNodetype);
             diagram.setName(divTitle, model.name);
             divTitle.append(selectNodetype);
@@ -611,7 +618,17 @@ diagram.aggregates = [
                     jsPlumb.deleteEndpoint(relationsIds[i] + "-source");
                 jsPlumb.deleteEndpoint(idBox + "-target");
 
+                // We get the alias of the box to remove it in the selects
+                var boxAlias = $('#' + idBox + ' .select-nodetype-' + typeName).val();
+
                 $('#' + idBox).remove();
+
+                // We remove the boxAlias in the other selects
+                diagram.removeAlias(typeName, boxAlias);
+
+                // We remove the boxAlias of the list
+                var aliasIndex = diagram.nodetypesList[typeName].indexOf(boxAlias);
+                diagram.nodetypesList[typeName].splice(aliasIndex, 1);
 
                 // We check if we have only one box to hide the selects for the alias
                 diagram.hideSelects(typeName);
@@ -766,7 +783,17 @@ diagram.aggregates = [
                     endpoint.removeClass("dragActive");
                 });
 
+                // We get the alias of the box to remove it in the selects
+                var boxAlias = $('#' + idBox + ' .select-nodetype-' + typeName).val();
+
                 $('#' + idBox).remove();
+
+                // We remove the boxAlias in the other selects
+                diagram.removeAlias(typeName, boxAlias);
+
+                // We remove the boxAlias of the list
+                var aliasIndex = diagram.nodetypesList[typeName].indexOf(boxAlias);
+                diagram.nodetypesList[typeName].splice(aliasIndex, 1);
 
                 // We check if we have only one box to hide the selects for the alias
                 diagram.hideSelects(typeName);
@@ -822,9 +849,9 @@ diagram.aggregates = [
          * Set the name fo the model box getting shorter and adding ellipsis
          */
         diagram.setName = function (div, name) {
-            var html = "<span style='float: left; margin-left: 3%; margin-top: 1px;'>" + name + " <span class='show-as'>" + gettext("as") + "</span></span>";
+            var html = "<span style='float: left; margin-left: 3%; margin-top: 2px;'>" + name + " <span class='show-as'>" + gettext("as") + "</span></span>";
             if (name.length > 10) {
-                html = "<span style='float: left; margin-left: 3%; margin-top: 1px;'>" + name.substr(0, 10) + "…" + " <span class='show-as'>" + gettext("as") + "</span></span>";
+                html = "<span style='float: left; margin-left: 3%; margin-top: 2px;'>" + name.substr(0, 10) + "…" + " <span class='show-as'>" + gettext("as") + "</span></span>";
             }
             div.append(html);
             return div;
@@ -847,6 +874,7 @@ diagram.aggregates = [
                                 diagram.nodetypesCounter[typeName]++;
                             } else {
                                 diagram.nodetypesCounter[typeName] = 1;
+                                diagram.nodetypesList[typeName] = new Array();
                             }
 
                             diagram.addBox(graph, modelName, typeName);
@@ -1211,8 +1239,8 @@ diagram.aggregates = [
                 // We get the id of the nodetype boxes
                 var boxes = $('.select-nodetype-' + nodeType).parent().parent();
                 // And we hide the selects and the "as" text of each
-                $.each(boxes, function(index, elem) {
-                    idBox = $(elem).attr('id');
+                $.each(boxes, function(index, box) {
+                    idBox = $(box).attr('id');
                     $('#' + idBox + ' .select-nodetype-' + nodeType).css({
                         "display": "none"
                     });
@@ -1221,6 +1249,25 @@ diagram.aggregates = [
                     })
                 });
             }
+         }
+
+         /**
+          * Function that removes in the selects of the boxes, the alias
+          * of a deleted box
+          */
+         diagram.removeAlias = function(typeName, boxAlias) {
+            var boxes = $('.select-nodetype-' + typeName);
+
+            // We iterate over the boxes
+            $.each(boxes, function(index, box) {
+                // We iterate over the options of every box
+                $(box).children().each(function(index) {
+                    var $this = $(this);
+                    if($this.val() == boxAlias) {
+                        $this.remove();
+                    }
+                })
+            })
          }
 
         /**
