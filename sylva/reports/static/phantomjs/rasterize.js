@@ -10,7 +10,6 @@ domain = system.args[3]; //ask chavi about this
 csrfToken = system.args[4];
 sessionId = system.args[5];
 
-
 phantom.addCookie({'domain': domain, 'name':'csrftoken',
                    'value': csrfToken});
 phantom.addCookie({'domain': domain, 'name':'sessionid',
@@ -34,7 +33,7 @@ page.open(url, function (status) {
         // them on the page
         //page.evaluate(function(data) {
         //}, data);
-
+        console.log('opened page')
         // Now create the filname file and exit PhantomJS
         window.setTimeout(function () {
         	page.render(filname);

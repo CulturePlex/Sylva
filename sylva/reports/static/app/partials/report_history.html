@@ -1,16 +1,42 @@
-<div class="max600">
-  <div class="content2-first">
-    <h2>History: {{ report.name }}</h2>
+<div class="cont">
+
+  <!--Meta Form/Queries-->
+  <div class="content2-first" ng-hide="editable">
+    
     <div id="history">
       <ul>
-        <li ng-repeat="context in report.history | orderBy:'date':true">
-          <h2><a href="" ng-click="updateContext(context.id)">{{ context.date }}</h2>
+        <li ng-repeat="report in template.history">
+          <h2><a href="" ng-click="getReport(report.slug)">{{ report.date_run }}</h2>
         </li>
       </ul>
-    </div><!--history-->
+    </div><!--history-->  
   </div><!--content2-first-->
-  <div class="content-divider"></div>
-  <div class="content2-second">
-    <h2>{{ currentContext }}</h2>
-  </div><!--content2-second-->
-</div> <!-- max600 container-->
+
+  <!--Report Info/Designer-->
+  <div class="content-divider" ng-hide="editable"></div>
+
+  <div class="content2-cont" ng-hide="editable">
+
+    <div class="row">
+    <h2>{{ template.name }}</h2>
+    </div><!--row-->
+
+    <div class="row">
+      <div class="prev-cont">
+        <div sylva-pv-row-repeat class="row" resp="resp" width="600">
+          <div sylva-pv-cell-repeat class="col" row="row">
+            <div ng-hide="markdown">
+              <div ng-if="query != '' && query != 'undefined' && query != null" highchart config="chartConfig" ng-style="cellStyle" class="display-cell"></div>
+              <div ng-if="query == '' || query == 'undefined' || query == null" ng-style="cellStyle" class="display-cell"></div>
+            </div>
+            <div ng-show="markdown">
+              <div ng-style="cellStyle" class="display-cell" ng-bind-html="markdown"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div> <!--row--> 
+    
+
+  </div> <!--content2-->
+</div><!--content-->

@@ -5,19 +5,21 @@ var services = angular.module('reports.services', ['ngResource']);
 
 services.factory('api', ['$resource', function ($resource) {
 
-    var reports = $resource('/reports/:graphSlug/reports', {}, {
-        query: {method:'GET', isArray:true},
-        save: {method:'POST'}
+    var templates = $resource('/reports/:graphSlug/builder', {}, {
+        list: {method:'GET', isArray: true},
+        blank: {method:'GET', params: {queries: true}},
+        edit: {method:'GET', params: {queries: true}},
+        preview: {method:'GET'}
     });
 
-    var queries = $resource('/reports/:graphSlug/queries', {}, {
-        query: {method:'GET', isArray:true}
+    var history = $resource('/reports/:graphSlug/history', {}, {
+        history: {method: 'GET'},
+        report: {method: 'GET'}
     });
 
-    //var queryContext = queries.query()
     return {
-        reports: reports,
-        queries: queries
+        templates: templates,
+        history: history
     };
 }]);
 

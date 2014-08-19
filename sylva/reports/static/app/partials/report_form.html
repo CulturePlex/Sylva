@@ -12,34 +12,35 @@
           <div id="innerForm">
             <p>
               <label>Name:
-                <input sylva-update-text type="text" ng-model="report.name" placeholder="Report Name" ng-maxlength="25">
+                <input sylva-update-text type="text" ng-model="template.name" placeholder="Report Name" ng-maxlength="25">
               </label>
             </p>
 
             <p>
               <label> Start date:
-                <input type="text" sylva-datepicker ng-model="report.start_date" required="true" view="hours"> 
+                <input type="text" sylva-datepicker ng-model="template.start_date" required="true" view="hours"> 
               </label> 
             </p>
 
             <p>
               <label>Time:
-                <input type="text"  ng-model="report.start_time" placeholder="hh:mm">
+                <input type="text"  ng-model="template.start_time" placeholder="hh:mm">
               </label>
             </p>
 
             <p>
               <label>Frequency:
-                <select ng-model="report.periodicity">
-                  <option value="daily">Daily</option>
-                  <option value="weekly">Weekly</option>
-                  <option value="monthly">Monthly</option>
+                <select ng-model="template.frequency">
+                  <option value="h">Hourly</option>
+                  <option value="d">Daily</option>
+                  <option value="w">Weekly</option>
+                  <option value="m">Monthly</option>
                 </select>  
               </label>
             </p>
             <p>
               <label>Description
-                  <textarea form="reportForm" ng-model="report.description">
+                  <textarea form="reportForm" ng-model="template.description">
                   </textarea>
               </label>
             </p>
@@ -64,7 +65,7 @@
       </div>
 
       <div class="col">
-        <h2 ng-bind-html="report.name" sylva-update-text></h2>
+        <h2 ng-bind-html="template.name" sylva-update-text></h2>
       </div>
 
     </div><!--row-->
@@ -91,7 +92,7 @@
   <div class="table-edit" ng-show="editable">
     <div class="row">
       <div class="col">
-          <h2 ng-bind-html="report.name"></h2>
+          <h2 ng-bind-html="template.name"></h2>
       </div>
       <div class="col">
         <a class="button" href="" ng-click="editMeta()">Done</a>      

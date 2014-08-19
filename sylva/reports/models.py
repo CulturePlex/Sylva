@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
+import json
 from django.db import models
 from django.utils.translation import gettext as _
 from jsonfield import JSONField
 
-from sylva.fields import AutoSlugField
 from graphs.models import Graph
 from operators.models import Query
+from sylva.fields import AutoSlugField
 
 
 class ReportTemplate(models.Model):
@@ -20,7 +21,7 @@ class ReportTemplate(models.Model):
     FREQUENCY_CHOICES = (
         ((u'h'), _(u'Hourly')),
         ((u'd'), _(u'Daily')),
-        ((u'w'), _(u'Weekley')),
+        ((u'w'), _(u'Weekly')),
         ((u'm'), _(u'Monthly'))
     )
     frequency = models.CharField(
@@ -43,7 +44,24 @@ class ReportTemplate(models.Model):
         related_name='report_templates'
     )
 
-    # Various methods here
+    def historify(self):
+        report_dict = self.dictify()
+        reports = self.reports.order_by('-date_run')
+        report_dict['history'] = [{k: v for (k, v) in report.dictify().items()
+                                   if k != 'table'} for report in reports]
+        return report_dict
+
+    def dictify(self):
+        template =  {
+            'name': self.name, 
+            'slug': self.slug,
+            'start_date': json.dumps(self.start_date, default=_dthandler),
+            'frequency': self.frequency, 
+            'last_run': json.dumps(self.last_run, default=_dthandler), 
+            'layout': self.layout,
+            'description': self.description
+        }
+        return template
 
 
 class Report(models.Model):
@@ -61,4 +79,14 @@ class Report(models.Model):
         related_name='reports'
     )
 
-    # Various methods here
+    def dictify(self):
+        report = {
+            'slug': self.slug,
+            'table': self.table,
+            'date_run': json.dumps(self.date_run, default=_dthandler)
+        }
+        return report
+
+
+def _dthandler(obj):
+    return obj.isoformat()

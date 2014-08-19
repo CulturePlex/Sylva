@@ -10,26 +10,32 @@ controllers.controller('ReportListCtrl', [
     'api', 
     'parser',
     function ($scope, $location, api, parser, DjangoConst) {
+        // Done
         $scope.graph = parser.parse();
-        $scope.reports = api.reports.query({graphSlug: $scope.graph});
+        $scope.templates = api.templates.list({graphSlug: $scope.graph});
 }]);
 
 
-controllers.controller('BaseReportFormCtrl', [
+controllers.controller('BaseReportCtrl', [
     '$scope',
     '$location',
     '$routeParams', 
+    'GRAPH',
     'api',
-    'parser',
-    'tableArray',
-    function ($scope, $location, $routeParams, api, parser, tableArray) {
+    function ($scope, $location, $routeParams, GRAPH, api) {
 
-        $scope.graph = parser.parse();
-        $scope.report = {};
+        $scope.slugs = {
+            graph: GRAPH, 
+            template: $routeParams.reportSlug
+        };
+        // Thess variables may be necessary
+        $scope.template = {};
         $scope.queries = [];
-        $scope.report.slug = $routeParams.reportSlug;
+        $scope.tableArray = [];
+        //////////////////////////////////
 
         $scope.designReport = function () {
+            // Using is report form - edit and new ctrls
             $scope.editable = true;
 
         };
@@ -39,25 +45,24 @@ controllers.controller('BaseReportFormCtrl', [
         }
 
         $scope.getQuery = function(name) {
+            // Preview controller - check
             return $scope.queries.filter(function (el) {
                 return el['name'] === name
             });
         };
 
-        $scope.removeQuery = function (key) {
-            $scope.report.queries[key] = undefined;
-        };
-
         $scope.saveReport = function (report) {
-            var post = new api.reports();
-            post.report = $scope.report;
-            post.table = $scope.tableArray;
-
-            post.$save({graphSlug: $scope.graph}, function (data) {
-                console.log('data', data)
-                var redirect = '/';
-                $location.path(redirect);
-            });
+            // Used in report form - both edit and new ctrls
+            //var post = new api.templates();
+            //post.report = $scope.report;
+            //post.table = $scope.tableArray;
+            console.log('report', report)
+            console.log('tableArray', $scope.tableArray)
+            //post.$save({graphSlug: $scope.slugs.graph}, function (data) {
+            //    console.log('data', data)
+            //    var redirect = '/';
+            //    $location.path(redirect);
+            //});
         };
 }]);
 
@@ -66,102 +71,97 @@ controllers.controller('NewReportCtrl', [
     '$scope', 
     '$controller',
     'api',
-    'tableArray',
-    '$sce',
-    function ($scope, $controller, api, tableArray, $sce) {
-        $controller('BaseReportFormCtrl', {$scope: $scope});
-        $scope.report = {
+    function ($scope, $controller, api) {
+        // Done except post
+        $controller('BaseReportCtrl', {$scope: $scope});
+        $scope.template = {
             name: 'New Report',
-            slug: $scope.report.name,
             periodicity: 'weekly',
             start_time: '',
             start_date: '',
             description: '',
-            // move this to directive
             nameHtml: '<h2>New Report</h2>',
         };
+
+        var layout = [[{"col": 0, "colspan": "1", "id": "cell1", "row": 0, 
+                       "rowspan": "1", "displayQuery": "", "chartType": "",
+                       "series": ""}, 
+                      {"col": 1, "colspan": "1", "id": "cell2", "row": 0,
+                       "rowspan": "1", "displayQuery": "", "chartType": "",
+                       "series": ""}], 
+                    [{"col": 0, "colspan": "1", "id": "cell3", "row": 1,
+                      "rowspan": "1","displayQuery": "", "chartType": "",
+                       "series": ""}, 
+                     {"col": 1, "colspan": "1", "id": "cell4", "row": 1,
+                      "rowspan": "1", "displayQuery": "", "chartType": "",
+                       "series": ""}]]
+        api.templates.blank({
+            graphSlug: $scope.slugs.graph, 
+        }, function (data) {
+            $scope.template = data;
+            $scope.resp = {table: layout, queries: data.queries}
+        });
 }]);
 
 
 controllers.controller('EditReportCtrl', [
     '$scope', 
-    '$routeParams',
     '$controller',
     'api',
-    'tableArray',
-    function ($scope, $routeParams, $controller, api, tableArray) {
-        $controller('BaseReportFormCtrl', {$scope: $scope});
-        $scope.report.slug = $routeParams.reportSlug;
-        $scope.tableArray = [];
-        api.reports.query({
-            graphSlug: $scope.graph,
-            slug: $scope.report.slug  
+    function ($scope, $controller, api) {
+        // Done except post
+        $controller('BaseReportCtrl', {$scope: $scope});
+        api.templates.edit({
+            graphSlug: $scope.slugs.graph,
+            template: $scope.slugs.template
         }, function (data) {
-            $scope.report = data[0];
-            $scope.resp = {table: $scope.report.table, queries: $scope.report.queries}
+            $scope.template = data.template;
+            $scope.resp = {table: data.template.layout, queries: data.queries}
         });
+}]);
 
-        $scope.md = '';
-        $scope.$watch('md', function () {
-            console.log('md', $scope.md)
-        })
+
+controllers.controller('ReportPreviewCtrl', [
+    '$scope',
+    '$controller',
+    'api',
+    'parser',
+    function ($scope, $controller, api, parser) {
+        $controller('BaseReportCtrl', {$scope: $scope});
+        $scope.pdf = parser.pdf();
+        api.templates.preview({
+            graphSlug: $scope.slugs.graph,
+            template: $scope.slugs.template  
+        }, function (data) {
+            console.log('data', data)
+            $scope.template = data.template;
+            $scope.resp = {table: data.template.layout, queries: data.queries}
+        });
 }]);
 
 
 controllers.controller('ReportHistoryCtrl', [
     '$scope',
-    '$routeParams',
+    '$controller',
     'api',
-    'parser',
-    function ($scope, $routeParams, api, parser) {
-        $scope.report = {};
-        $scope.graph = parser.parse();
-        $scope.report.slug = $routeParams.reportSlug;
-        api.reports.query({
-            graphSlug: $scope.graph,
-            slug: $scope.report.slug  
+    function ($scope, $controller, api) {
+        $controller('BaseReportCtrl', {$scope: $scope});
+        api.history.history({
+            graphSlug: $scope.slugs.graph,
+            template: $scope.slugs.template 
         }, function (data) {
-            $scope.report = data[0];
-            if ($scope.report.history != undefined) {
-                $scope.currentContext = $scope.report.history.sort(function (a, b) {
-                    if (a.date < b.date) return 1;
-                    if (a.date > b.date) return -1;
-                    return 0;
-                })[0];
-            }
+            $scope.template = data;
+            $scope.getReport(data.history[0].slug)
         });
 
-        $scope.updateContext = function (contextID) {
-            $scope.currentContext = $scope.report.history.filter(function (element) {
-                return element.id === contextID;
-            })[0];
+        $scope.getReport = function (slug) {
+            api.history.report({
+                graphSlug: $scope.slugs.graph,
+                report: slug
+            }, function (data) {
+                console.log('report', data)
+                $scope.report = data;
+                $scope.resp = {table: data.table}
+            });
         }
 }]);
-
-controllers.controller('ReportPreviewCtrl', [
-    '$scope',
-    '$routeParams',
-    'api',
-    'parser',
-    'tableArray',
-    function ($scope, $routeParams, api, parser, tableArray) {
-        $scope.report = {};
-        $scope.graph = parser.parse();
-        $scope.pdf = parser.pdf();
-        $scope.report.slug = $routeParams.reportSlug;
-        console.log('params', $scope.report.slug)
-            api.reports.query({
-                graphSlug: $scope.graph,
-                slug: $scope.report.slug  
-            }, function (data) {
-                $scope.report = data[0];
-                $scope.resp = {table: $scope.report.table, queries: $scope.report.queries}
-            });
-
-        $scope.editable = true; // this for now to deal with table width
-        $scope.getQuery = function(name) {
-            return $scope.queries.filter(function (el) {
-                return el['name'] === name
-            });
-        };
-    }]);

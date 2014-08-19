@@ -91,8 +91,12 @@
 
 .prev-cont {
   padding-bottom: 10px;
-  min-height: 400px;
+  height: 400px;
   overflow: hidden;
+}
+
+.prev-cont:hover {
+  overflow-y: scroll;
 }
 
 
@@ -126,13 +130,14 @@
   left: 3%;
 }
 
-div.markdown {
+textarea.markdown {
   width: 100%;
   height: 145px;
   padding: 0px;
   margin: 0px;
   position: absolute;
   bottom:0;
+  text-align: left;
   outline: 0px solid transparent;
 }
 

@@ -7,8 +7,8 @@ var directives = angular.module('reports.directives', []);
 directives.directive('sylvaUpdateText', function () {
     return {
         link:function(scope) {
-            scope.$watch('report.name', function (newVal, oldVal) {
-                scope.report.name = newVal;
+            scope.$watch('template.name', function (newVal, oldVal) {
+                scope.template.name = newVal;
             });
         }
     };
@@ -68,7 +68,7 @@ directives.directive('sylvaPvRowRepeat', ['tableArray', function (tableArray) {
                 if (newVal == oldVal) return;
                 scope.queries = scope.resp.queries;
                 scope.tableArray = tableArray(scope.resp.table);
-
+                
                 var numScopes = childScopes.length;
                 if (numScopes > 0) {
                     for (var i=0; i<numScopes; i++) {
@@ -83,7 +83,6 @@ directives.directive('sylvaPvRowRepeat', ['tableArray', function (tableArray) {
                 ,   childScope
                 ,   block
                 ,   len = scope.tableArray.table.length;
-
                 for (var i=0; i<len; i++) {
                     childScope = scope.$new();
                     childScope.$index = i;
@@ -140,6 +139,7 @@ directives.directive('sylvaPvCellRepeat', [function () {
             for (var i=0; i<len; i++) {
                 var cell = scope.row[i]
                 ,   query = cell.displayQuery
+                ,   series = cell.series
                 ,   colspan = parseInt(cell.colspan)
                 ,   cellWidth = (tableWidth / numCols - ((numCols + 1) * 2 / numCols)) * colspan + (2 * (colspan - 1)) + 'px'
                 ,   block;      
@@ -149,9 +149,11 @@ directives.directive('sylvaPvCellRepeat', [function () {
                 childScope.cellStyle = {width: cellWidth};
 
                 if (query) {
-                    var series = ctrl.getQueries().filter(function (el) {
-                        return el.name === query;
-                    })[0].series;
+                    if (!series) {
+                        series = ctrl.getQueries().filter(function (el) {
+                            return el.name === query;
+                        })[0].series;
+                    }
 
                     childScope.query = query;
                     childScope.chartConfig = {
@@ -164,7 +166,6 @@ directives.directive('sylvaPvCellRepeat', [function () {
                 } else if (cell.displayMarkdown) {
                     childScope.markdown = cell.displayMarkdown;
                 }
-
 
                 transclude(childScope, function (clone) {
                     previous.after(clone);
@@ -213,7 +214,6 @@ directives.directive('syEditableTable', ['$compile', 'tableArray', function ($co
             ,   delCol = ang(buttons.children()[3]);
 
             scope.$watch('resp', function (newVal, oldVal) {  
-
                 if (newVal === oldVal) return;
                 scope.tableArray = tableArray(scope.resp.table);
                 scope.tableWidth = parseInt(angular.element(elem.children()[0]).css('width'));
@@ -280,7 +280,6 @@ directives.directive('syEtRowRepeat', [function () {
             scope.$watchCollection(ctrl.getTableArray, function (newVal, oldVal) {
 
                 if (newVal == oldVal) return;
-
                 tableArray = ctrl.getTableArray();
                 numScopes = childScopes.length;
 
@@ -295,7 +294,6 @@ directives.directive('syEtRowRepeat', [function () {
                         childScope.row = tableArray.table[i];
 
                         transclude(childScope, function (clone) {
-
                             if (i === len - 1) clone.addClass('bottom')
                             
                             clone.attr('id', rowId);
@@ -424,7 +422,7 @@ directives.directive('sylvaEtCellRepeat', [function () {
 }]);
 
 
-directives.directive('sylvaEtCell', ['$sanitize', function ($sanitize) {
+directives.directive('sylvaEtCell', ['$sanitize', '$sce', function ($sanitize, $sce) {
     return {
         require: '^syEditableTable',
         scope: {
@@ -436,6 +434,7 @@ directives.directive('sylvaEtCell', ['$sanitize', function ($sanitize) {
             ,   mdDiv = ang(elem.children()[1])
             ,   md = ang(mdDiv.children()[1]);
 
+
             scope.$watch('config', function (newVal, oldVal) {
                 scope.row = scope.config.row;
                 scope.col = scope.config.col;
@@ -446,17 +445,21 @@ directives.directive('sylvaEtCell', ['$sanitize', function ($sanitize) {
                 scope.tableArray = ctrl.getTableArray();
             }, true);
     
-            md.on('blur', function () {
-                console.log('html', md.html())
+            md.on('blur keyup change', function () {
+                
                 var showdown = new Showdown.converter({})
-                ,   html = showdown.makeHtml(md.text())
+                ,   html = showdown.makeHtml(scope.mdarea)
                 ,   markdown = $sanitize(html);
-         
                 scope.$apply(function () {
-                    scope.tableArray.addMarkdown([scope.row, scope.col], markdown);
-                    console.log(scope.tableArray)
+                    scope.tableArray.addMarkdown([scope.row, scope.col], markdown);    
                 });
             });
+
+            //// OK do somehting like this
+            // Then make the markdown rendering a function 
+            // Call when user calls markdown
+            scope.mdarea = 'This is a header\n' + '----------------';
+
 
             scope.$watch('activeQuery', function (newVal, oldVal) {
                 if (newVal == oldVal) return;
@@ -475,7 +478,6 @@ directives.directive('sylvaEtCell', ['$sanitize', function ($sanitize) {
                 } else {
                     scope.md = false;
                 }
-                console.log('md', scope.md)
                 scope.tableArray.addQuery([scope.row, scope.col], name)
             }); 
 
