@@ -18,13 +18,13 @@
 
             <p>
               <label> Start date:
-                <input type="text" sylva-datepicker ng-model="template.start_date" required="true" view="hours"> 
+                <input type="text" sylva-datepicker ng-model="template.date" required="true" view="hours"> 
               </label> 
             </p>
 
             <p>
               <label>Time:
-                <input type="text"  ng-model="template.start_time" placeholder="hh:mm">
+                <input type="text"  ng-model="template.time" placeholder="hh:mm">
               </label>
             </p>
 
@@ -46,7 +46,7 @@
             </p>
           </div> <!--innerForm-->
           <span class="buttonLinkOption buttonLinkLeft">
-            <input type="submit" value="Save Report" ng-click="saveReport(report)">
+            <input type="submit" value="Save Report" ng-click="saveReport(template)">
           </span>
         </form>
       </div><!--formContainer-->

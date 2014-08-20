@@ -5,7 +5,7 @@ var services = angular.module('reports.services', ['ngResource']);
 
 services.factory('api', ['$resource', function ($resource) {
 
-    var templates = $resource('/reports/:graphSlug/builder', {}, {
+    var templates = $resource('/reports/:graphSlug/templates', {}, {
         list: {method:'GET', isArray: true},
         blank: {method:'GET', params: {queries: true}},
         edit: {method:'GET', params: {queries: true}},
@@ -17,9 +17,12 @@ services.factory('api', ['$resource', function ($resource) {
         report: {method: 'GET'}
     });
 
+    var builder= $resource('/reports/:graphSlug/builder', {}, {});
+
     return {
         templates: templates,
-        history: history
+        history: history,
+        builder: builder
     };
 }]);
 

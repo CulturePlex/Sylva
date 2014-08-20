@@ -1,5 +1,5 @@
 <div class="cont">
-
+<div ng-if="template.history.length > 0">
   <!--Meta Form/Queries-->
   <div class="content2-first" ng-hide="editable">
     
@@ -39,4 +39,9 @@
     
 
   </div> <!--content2-->
+
+</div><!--if-->
+<div ng-if="template.history.length === 0">
+  <h2>This report hasn't been run.</h2>
+</div>
 </div><!--content-->

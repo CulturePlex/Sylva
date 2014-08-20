@@ -30,7 +30,7 @@ class ReportTemplate(models.Model):
         choices=FREQUENCY_CHOICES,
         default=u'w'
     ) 
-    last_run = models.DateTimeField(_('last run'))
+    last_run = models.DateTimeField(_('last run'), blank=True, null=True)
     layout = JSONField(_('layout'))
     description = models.TextField(_('description'), blank=True, null=True)
     graph = models.ForeignKey(
@@ -41,7 +41,9 @@ class ReportTemplate(models.Model):
     queries = models.ManyToManyField(
         Query,
         verbose_name=_('queries'),
-        related_name='report_templates'
+        related_name='report_templates',
+        blank='true',
+        null='true'
     )
 
     def historify(self):

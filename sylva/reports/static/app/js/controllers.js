@@ -12,7 +12,19 @@ controllers.controller('ReportListCtrl', [
     function ($scope, $location, api, parser, DjangoConst) {
         // Done
         $scope.graph = parser.parse();
-        $scope.templates = api.templates.list({graphSlug: $scope.graph});
+        api.templates.list({graphSlug: $scope.graph}, function (data) {
+            $scope.templates = data;
+            var len = data.length;
+            for (var i=0;i<len;i++) {
+                var date = JSON.parse(data[i].start_date)
+                ,   datetime = new Date(date)
+                ,   last_date = JSON.parse(data[i].last_run)
+                ,   last_datetime = new Date(last_date)
+                $scope.templates[i].start_date = datetime.toString();
+                $scope.templates[i].last_run = last_datetime.toString();
+            }
+
+        });
 }]);
 
 
@@ -30,39 +42,39 @@ controllers.controller('BaseReportCtrl', [
         };
         // Thess variables may be necessary
         $scope.template = {};
-        $scope.queries = [];
-        $scope.tableArray = [];
         //////////////////////////////////
 
         $scope.designReport = function () {
             // Using is report form - edit and new ctrls
             $scope.editable = true;
-
         };
 
         $scope.editMeta = function () {
             $scope.editable = false;
         }
 
-        $scope.getQuery = function(name) {
-            // Preview controller - check
-            return $scope.queries.filter(function (el) {
-                return el['name'] === name
-            });
-        };
-
-        $scope.saveReport = function (report) {
+        $scope.saveReport = function (template) {
             // Used in report form - both edit and new ctrls
-            //var post = new api.templates();
-            //post.report = $scope.report;
-            //post.table = $scope.tableArray;
-            console.log('report', report)
-            console.log('tableArray', $scope.tableArray)
-            //post.$save({graphSlug: $scope.slugs.graph}, function (data) {
-            //    console.log('data', data)
-            //    var redirect = '/';
-            //    $location.path(redirect);
-            //});
+            // Gonna have to validate here
+            var date = template.date.split('/')
+            ,   time = template.time.split(':')
+            ,   datetime = new Date(date[2], date[1] - 1, date[0], time[0], time[1])
+            ,   post = new api.builder();
+
+            template.start_date = datetime.toISOString()
+
+            post.template = template
+
+            console.log("template", template.layout)
+
+            post.$save({
+                graphSlug: $scope.slugs.graph,
+                report: template.slug
+            }, function (data) {
+                console.log('data', data)
+                var redirect = '/';
+                $location.path(redirect);
+            }); // What if post fails
         };
 }]);
 
@@ -98,8 +110,10 @@ controllers.controller('NewReportCtrl', [
         api.templates.blank({
             graphSlug: $scope.slugs.graph, 
         }, function (data) {
-            $scope.template = data;
+            data.layout = layout;
+            $scope.template.layout = layout;
             $scope.resp = {table: layout, queries: data.queries}
+            console.log('new table', $scope.template)
         });
 }]);
 
@@ -114,9 +128,27 @@ controllers.controller('EditReportCtrl', [
         api.templates.edit({
             graphSlug: $scope.slugs.graph,
             template: $scope.slugs.template
-        }, function (data) {
+        }, function (data) {   
+            var date = JSON.parse(data.template.start_date)
+            ,   datetime = new Date(date)
+            ,   m = datetime.getMonth() + 1
+            ,   month = m.toString()
+            ,   day = datetime.getDate().toString()
+            ,   year = datetime.getFullYear().toString()
+            ,   hour = datetime.getHours().toString()
+            ,   minute = datetime.getMinutes().toString();
+
+            if (month.length === 1) month = '0' + month;
+            if (day.length === 1) day = '0' + day;
+            if (hour.length === 1) hour = '0' + hour;
+            if (minute.length === 1) minute = '0' + minute;
+
+            data.template.time = hour + ':' + minute;
+            data.template.date = day + '/' + month + '/' + year;
+
             $scope.template = data.template;
             $scope.resp = {table: data.template.layout, queries: data.queries}
+            console.log('edit table', data.template.layout)
         });
 }]);
 
@@ -150,8 +182,9 @@ controllers.controller('ReportHistoryCtrl', [
             graphSlug: $scope.slugs.graph,
             template: $scope.slugs.template 
         }, function (data) {
+            console.log('data', data)
             $scope.template = data;
-            $scope.getReport(data.history[0].slug)
+            if (data.history.length > 0) $scope.getReport(data.history[0].slug)
         });
 
         $scope.getReport = function (slug) {

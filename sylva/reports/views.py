@@ -1,15 +1,17 @@
 # -*- coding: utf-8 -*-
 import json
+import itertools
 import os
 import tempfile
 import urlparse
 
+from dateutil import parser
 from subprocess import Popen, STDOUT, PIPE
 from time import time
 
 from django.conf import settings
 from django.shortcuts import (render_to_response, get_object_or_404,
-                              HttpResponse)
+                              HttpResponse, redirect)
 from django.template import RequestContext
 from django.core.context_processors import csrf
 from django.utils.translation import ugettext as _
@@ -21,6 +23,7 @@ from guardian.decorators import permission_required
 
 from models import ReportTemplate, Report
 from graphs.models import Graph, Schema
+from operators.models import Query
 
 from sylva.settings import STATIC_URL, STATIC_ROOT
 from sylva.decorators import is_enabled
@@ -34,7 +37,6 @@ settings.ENABLE_REPORTS = True
 @permission_required("schemas.view_schema",
                      (Schema, "graph__slug", "graph_slug"), return_403=True)
 def reports_index_view(request, graph_slug):
-    #import ipdb; ipdb.set_trace()
     pdf = request.GET.get('pdf', '')
     if pdf:
         pdf = True # hmmm gotta fix this
@@ -92,7 +94,7 @@ def preview_report_pdf(request, graph_slug):
     ], stdout=PIPE, stderr=STDOUT).wait()
     try:
         with open(filename) as pdf:
-            response = HttpResponse(pdf.read(), mimetype='application/pdf')
+            response = HttpResponse(pdf.read(), content_type='application/pdf')
             response['Content-Disposition'] = 'inline;filename={0}'.format(download_name)
             pdf.close()
     except IOError, e:
@@ -106,7 +108,7 @@ def preview_report_pdf(request, graph_slug):
 @is_enabled(settings.ENABLE_REPORTS)
 @permission_required("schemas.view_schema",
                      (Schema, "graph__slug", "graph_slug"), return_403=True)
-def builder_endpoint(request, graph_slug):
+def templates_endpoint(request, graph_slug):
     graph = get_object_or_404(Graph, slug=graph_slug)
     if request.GET: 
         response = {'template': None, 'queries': None}
@@ -127,6 +129,7 @@ def builder_endpoint(request, graph_slug):
     else: # Get a list of all the reports.
         templates = graph.report_templates.all()
         response = [template.dictify() for template in templates]
+    print response
     return HttpResponse(json.dumps(response), content_type='application/json')
 
 
@@ -146,3 +149,44 @@ def history_endpoint(request, graph_slug):
             response = report.dictify()
     return HttpResponse(json.dumps(response), content_type='application/json')
 
+
+@login_required
+@is_enabled(settings.ENABLE_REPORTS)
+@permission_required("schemas.view_schema",
+                     (Schema, "graph__slug", "graph_slug"), return_403=True)
+def builder_endpoint(request, graph_slug):
+    graph = get_object_or_404(Graph, slug=graph_slug)
+    if request.POST:
+        template = json.loads(request.body)['template']
+        start_date = parser.parse(template['start_date'],ignoretz=True)
+        if template.get('slug', ''):
+            new_template = get_object_or_404(
+                ReportTemplate, slug=template['slug']
+            )
+            new_template.name = template['name']
+            new_template.start_date = start_date
+            new_template.frequency = template['frequency']
+            new_template.layout = template['layout']
+            new_template.description = template['description']
+            new_template.save()
+        else:
+            new_template = ReportTemplate.objects.create(
+                name = template['name'],
+                start_date = start_date,
+                frequency = template['frequency'],
+                layout = template['layout'],
+                description = template['description'],
+                graph=graph
+            )
+        query_set = set()
+        for row in template['layout']:
+            query_set.update(set(cell['displayQuery'] for cell in row))
+        queries = set(query.name for query in new_template.queries.all())
+        for query in queries:
+            if query not in query_set:
+                new_template.queries.remove(name=query)
+        for disp_query in query_set:
+            if disp_query and disp_query not in queries:
+                query = get_object_or_404(Query, name=disp_query)
+                new_template.queries.add(query) 
+    return HttpResponse(json.dumps(template), content_type='application/json')
