@@ -595,13 +595,12 @@ def nodes_edit(request, graph_slug, node_id):
     # This is a way to get the media needed by the form without repeat files
     forms_media = {'js': set(),
                    'css': set()}
-    for form in [node_form] + outgoing_formsets.values() + \
-            incoming_formsets.values():
-        forms_media['js'].update(set(form.media.render_js()))
-        if not as_modal:
+    if not as_modal:
+        for form in [node_form] + outgoing_formsets.values() + \
+                incoming_formsets.values():
+            forms_media['js'].update(set(form.media.render_js()))
             forms_media['css'].update(
                 set([css for css in form.media.render_css()]))
-    forms_media['js'] = sorted(forms_media['js'], reverse=True)
     save_url = reverse("nodes_edit", args=[graph_slug, node_id])
     delete_url = reverse("nodes_delete", args=[graph_slug, node_id])
     broader_context = {"graph": graph,
