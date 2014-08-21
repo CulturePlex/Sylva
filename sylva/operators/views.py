@@ -4,6 +4,7 @@ try:
 except ImportError:
     import json  # NOQA
 
+from datetime import datetime
 from django.db import transaction
 from django.db.models import Q
 from django.contrib.auth.models import User
@@ -40,6 +41,13 @@ def operator_builder(request, graph_slug):
             with transaction.atomic():
                 query = form.save(commit=False)
                 graph.queries.add(query)
+                # We treat the results_count
+                form_results_count = form.data["results_count"]
+                if form_results_count is not "0":
+                    query.results_count = form_results_count
+                    query.last_run = datetime.now()
+                else:
+                    query.results_count = 0
                 query.save()
                 graph.save()
                 return render_to_response('operators/operator_queries.html',
@@ -170,6 +178,13 @@ def operator_query_editrun(request, graph_slug, query_id):
         if form.is_valid():
             with transaction.atomic():
                 query = form.save(commit=False)
+                # We treat the results_count
+                form_results_count = form.data["results_count"]
+                if form_results_count is not "0":
+                    query.results_count = form_results_count
+                    query.last_run = datetime.now()
+                else:
+                    query.results_count = 0
                 query.save()
                 return render_to_response('operators/operator_queries.html',
                                           {"graph": graph,

@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from datetime import datetime
 from django import forms
 from django.utils.translation import gettext as _
 from django.forms import ModelForm
@@ -21,7 +22,8 @@ class SaveQueryForm(ModelForm):
     results_count = forms.CharField(label=_("Number of results"),
                                     initial=0, widget=forms.HiddenInput(),)
     last_run = forms.DateTimeField(label=_("Last time run"),
-                                   initial=0, widget=forms.HiddenInput(),)
+                                   initial=datetime.now(),
+                                   widget=forms.HiddenInput(),)
 
     class Meta:
         model = Query

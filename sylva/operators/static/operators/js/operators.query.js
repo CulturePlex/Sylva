@@ -1633,7 +1633,7 @@ diagram.aggregates = [
     diagram.loadQuery = function(jsonQuery) {
         try {
             jsonDict = JSON.parse(jsonQuery);
-            types = jsonDict["aliases"];
+            types = jsonDict["aliases"]["types"];
             nodetypes = {};
             origins = jsonDict["query"]["origins"];
             originsLength = origins.length;
@@ -2572,6 +2572,7 @@ diagram.aggregates = [
         var checkboxes = $('.checkbox-property');
         var fieldsDict = {};
         var aliasDict = {};
+        var typesDict = {};
         var checkboxesDict = {};
         var fieldsConditionsDict = {};
         // We get the id, typename, left and top of the boxes
@@ -2593,8 +2594,9 @@ diagram.aggregates = [
             valuesDict['left'] = left;
             valuesDict['top'] = top;
 
-            aliasDict[alias] = valuesDict;
+            typesDict[alias] = valuesDict;
         });
+        aliasDict["types"] = typesDict;
         // We get the checkboxes checked and the property to return
         $.each(checkboxes, function(index, checkbox) {
             if($(checkbox).prop('checked')) {
@@ -2622,6 +2624,9 @@ diagram.aggregates = [
         console.log(JSON.stringify(saveElements));
 
         // We are going to assign the values for the elements of the form
+        //
+        var numberOfResults = $('.content-table td').length;
+        $('#id_results_count').val(numberOfResults);
         $('#id_last_run').val('1987-11-01');
         $('#id_query_dict').val(JSON.stringify(saveElements['query']));
         $('#id_query_aliases').val(JSON.stringify(saveElements['aliases']));
