@@ -305,6 +305,9 @@
 
       sigma.canvas.hovers.defBackup = sigma.canvas.hovers.def;
       sigInst.refresh();
+
+      // Registering events for sylva.
+      sylva.reactor.registerEvent('disableSelectingTool');
     },
 
 
@@ -2463,6 +2466,8 @@
         if (type != 'click' && type != 'neighbors' && type != 'move') {
           that.deactivateSelectingAreaTool(type);
         }
+
+        sylva.reactor.dispatchEvent('disableSelectingTool');
 
       } else {
         // Deactivate a tool and activate another.
