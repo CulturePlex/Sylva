@@ -711,10 +711,10 @@
       sigInst.graph.nodes().forEach(function(n) {
         if (nodeList.indexOf(n.id) >= 0) {
           n.color = sylva.nodetypes[n.nodetypeId].color;
-          delete n['type']
+          delete n['gray']
         } else {
           n.color = gray;
-          n.type = 'gray';
+          n.gray = true;
         }
       });
 
@@ -722,10 +722,10 @@
         sigInst.graph.edges().forEach(function(e) {
           if (relList.indexOf(e.id) >= 0) {
             e.color = sylva.reltypes[e.reltypeId].color;
-            delete e['type'];
+            delete e['gray'];
           } else {
             e.color = gray;
-            e.type = 'gray';
+            e.gray = true;
           }
         });
 
@@ -733,10 +733,10 @@
         sigInst.graph.edges().forEach(function(e) {
           if (nodeList.indexOf(e.source) >= 0 && nodeList.indexOf(e.target) >= 0) {
             e.color = sylva.reltypes[e.reltypeId].color;
-            delete e['type'];
+            delete e['gray'];
           } else {
             e.color = gray;
-            e.type = 'gray';
+            e.gray = true;
           }
         });
       }
@@ -748,12 +748,12 @@
     ungrayfyAllNodes: function() {
       sigInst.graph.nodes().forEach(function(n) {
         n.color = sylva.nodetypes[n.nodetypeId].color
-        delete n['type'];
+        delete n['gray'];
       });
 
       sigInst.graph.edges().forEach(function(e) {
         e.color = sylva.reltypes[e.reltypeId].color;
-        delete e['type'];
+        delete e['gray'];
       });
 
       // Re-draw graph.
@@ -767,7 +767,7 @@
       currentColor = new RGBColor(currentColor).toHex().toUpperCase();
       if (currentColor != color) {
         sigInst.graph.nodes(nodesId).forEach(function(n) {
-          if (n.type && n.type == 'gray') {
+          if (n.gray) {
             n.colorBackup = color;
           } else {
             n.color = color;
@@ -852,7 +852,7 @@
       currentColor = new RGBColor(currentColor).toHex().toUpperCase();
       if (currentColor != color) {
         sigInst.graph.edges(relsId).forEach(function(e) {
-          if (e.type && e.type == 'gray') {
+          if (e.gray) {
             e.colorBackup = color;
           } else {
             e.color = color;
@@ -1029,7 +1029,7 @@
           var source = sigInst.graph.nodes(e.source).color;
           relColor = $.xcolor.average(target, source).getHex();
         }
-        if (e.type && e.type == 'gray') {
+        if (e.gray) {
           e.colorBackup = relColor;
         } else {
           e.color = relColor;

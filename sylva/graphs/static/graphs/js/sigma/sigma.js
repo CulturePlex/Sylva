@@ -7734,7 +7734,9 @@ if (typeof exports !== 'undefined') {
     }
 
     // Node:
-    var nodeRenderer = sigma.canvas.nodes[node.type] || sigma.canvas.nodes.def;
+    //var nodeRenderer = sigma.canvas.nodes[node.type] || sigma.canvas.nodes.def;
+    // Using always the default node for show it with the info.
+    var nodeRenderer = sigma.canvas.nodes.def;
     nodeRenderer(node, context, settings);
 
     // Display the label:
@@ -7779,6 +7781,54 @@ if (typeof exports !== 'undefined') {
     );
 
     context.closePath();
+    context.fill();
+  };
+
+  /**
+   * A renderer for the nodes with a little aura.
+   *
+   * @param  {object}                   node     The node object.
+   * @param  {CanvasRenderingContext2D} context  The canvas context.
+   * @param  {configurable}             settings The settings function.
+   */
+  sigma.canvas.nodes.aura = function(node, context, settings) {
+    var prefix = settings('prefix') || '';
+
+    context.fillStyle = node.color || settings('defaultNodeColor');
+    context.beginPath();
+    context.arc(
+      node[prefix + 'x'],
+      node[prefix + 'y'],
+      node[prefix + 'size'],
+      0,
+      Math.PI * 2,
+      true
+    );
+
+    context.closePath();
+    context.fill();
+
+    // Creating the aura.
+    var gradient = context.createRadialGradient(
+      node[prefix + 'x'],
+      node[prefix + 'y'],
+      node[prefix + 'size'] * 1,
+      node[prefix + 'x'],
+      node[prefix + 'y'],
+      node[prefix + 'size'] * 5
+    );
+    gradient.addColorStop(0, 'white');
+    gradient.addColorStop(1, node.color);
+    context.fillStyle = gradient;
+
+    context.arc(
+      node[prefix + 'x'],
+      node[prefix + 'y'],
+      node[prefix + 'size'] * 2.5,
+      0,
+      Math.PI * 2,
+      false
+    );
     context.fill();
   };
 })();
@@ -8101,7 +8151,9 @@ function (a) {
     }
 
     // Node:
-    var nodeRenderer = sigma.canvas.nodes[node.type] || sigma.canvas.nodes.def;
+    //var nodeRenderer = sigma.canvas.nodes[node.type] || sigma.canvas.nodes.def;
+    // Using always the default node for show it with the info.
+    var nodeRenderer = sigma.canvas.nodes.def;
     nodeRenderer(node, context, settings);
 
     // Display the label and the properties:
