@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import json
 import graphlab
 import math
 import networkx as nx
@@ -261,6 +262,17 @@ class Analysis(BaseAnalysis):
             result += 1
         return result
 
+    def _get_values_dict(self, values):
+        values_dict = dict()
+        for key, val in values.iteritems():
+            if val in values_dict.keys():
+                if key not in values_dict[val]:
+                    values_dict[val].append(key)
+            else:
+                values_dict[val] = list()
+                values_dict[val].append(key)
+        return values_dict
+
     def save(self, results, analytic):
         result = ''
         algorithm = analytic.algorithm
@@ -287,6 +299,10 @@ class Analysis(BaseAnalysis):
             })
             results.save(temp_file.name, 'csv')
             freq_dist = results.to_dataframe()[algorithm].value_counts()
+            # We treat the series to form the dictionary with the value as key
+            # and the keys in a list of values
+            values = results.to_dataframe()[algorithm]
+            values_dict = self._get_values_dict(values)
             # SFrame saves the file and appends a .csv at the end :@
             temp_file_name = temp_file.name + '.csv'
         else:
@@ -294,9 +310,16 @@ class Analysis(BaseAnalysis):
                            index=False,
                            header=['node_id', algorithm])
             freq_dist = results[algorithm].value_counts()
+            # We treat the series to form the dictionary with the value as key
+            # and the keys in a list of values
+            values = results[algorithm]
+            values_dict = self._get_values_dict(values)
             temp_file_name = temp_file.name
         timestamp = "{:.0f}".format(time.time() * 1000)
         suf_name = "{0}_{1}_{2}".format(
+            analytic.dump.graph.slug, analytic.algorithm, timestamp
+        )
+        suf_values_name = "{0}_{1}_values_{2}".format(
             analytic.dump.graph.slug, analytic.algorithm, timestamp
         )
         suf_raw = SimpleUploadedFile(
@@ -310,6 +333,11 @@ class Analysis(BaseAnalysis):
             freq_dist.to_json(),
             "application/json")
         analytic.results = suf_results
+        suf_values = SimpleUploadedFile(
+            "{0}.json".format(suf_values_name),
+            json.dumps(values_dict),
+            "application/json")
+        analytic.values = suf_values
         analytic.save()
         # Remove the two temp files
         if temp_file_name != temp_file.name:

@@ -46,6 +46,9 @@ class Analytic(models.Model):
     results = models.FileField(_("Results file"), null=True, blank=True,
                                upload_to=get_upload_to_analytics,
                                max_length=255)
+    values = models.FileField(_("Values file"), null=True, blank=True,
+                              upload_to=get_upload_to_analytics,
+                              max_length=255)
     # tasks attributes
     task_id = models.CharField(_("task_id"), max_length=255, null=True,
                                blank=True)

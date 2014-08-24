@@ -25,10 +25,10 @@ def analytics_run(request, graph_slug):
     data = []
     graph = get_object_or_404(Graph, slug=graph_slug)
     algorithm = request.POST.get("algorithm")
-    subgraph = request.POST.get("subgraph");
+    subgraph = request.POST.get("subgraph")
     if subgraph:
         # We change the type from string to int
-        subgraph = json.loads(subgraph);
+        subgraph = json.loads(subgraph)
         subgraph = [int(elem) for elem in subgraph]
     available_algorithms = graph.analysis.get_algorithms()
     if request.is_ajax() and algorithm in available_algorithms:
@@ -69,7 +69,9 @@ def analytics_status(request, graph_slug):
                     dump__graph__slug=graph_slug,
                     task_id=task_id).latest()
                 analytics_results[task_id] = [analytic.results.url,
-                    analytic.id, analytic.task_start, analytic.algorithm]
+                                              analytic.id,
+                                              analytic.task_start,
+                                              analytic.algorithm]
     data = analytics_results
     json_data = json.dumps(data)
     return HttpResponse(json_data, mimetype='application/json')
@@ -97,8 +99,8 @@ def analytics_dump(request, graph_slug):
     def stream_response_generator(data_file, rels=False, duplicated=False,
                                   headers=False):
         stream_reader = csv.reader(data_file.file, delimiter=",")
-        if rels == True:
-            if headers == False:
+        if rels is True:
+            if headers is False:
                 # We take the headers for eliminate them of the returned value
                 headers_element = stream_reader.next()
             for row in stream_reader:

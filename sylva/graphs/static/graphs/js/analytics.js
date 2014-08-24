@@ -109,6 +109,13 @@ var taskTime = 0;
             tooltip: {
               headerFormat: '',
               pointFormat: '{point.y} with {point.x} ' + analyticsAxis[algorithm] + ''
+            },
+            point: {
+              events: {
+                mouseOver: function () {
+                    alert(this.x);
+                }
+              }
             }
           }
         },
@@ -147,8 +154,15 @@ var taskTime = 0;
                 style: {
                   color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
                 }
+            },
+            point: {
+              events: {
+                mouseOver: function () {
+                    alert(this.x);
+                }
               }
             }
+        }
         },
         series: [{
           type: 'pie',
@@ -212,8 +226,8 @@ var taskTime = 0;
           });
         }
       },
-      error: function () {
-          alert("Error");
+      error: function (e) {
+          alert("Error: " + e);
       }
     });
   };
