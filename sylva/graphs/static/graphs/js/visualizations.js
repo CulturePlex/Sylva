@@ -87,6 +87,8 @@ sylva:true, alert:true */
         $('#sigma-wrapper').removeAttr('style');
         visualizations.sigma();
 
+        initAnalytics(jQuery);
+
         $('.sigma-control').not('.analytics-mode').css('display', 'inline-block');
         $('#sigma-node-size').css('display', 'inline-block');
         $('#sigma-graph-layout').css('display', 'inline-block');

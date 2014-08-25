@@ -158,8 +158,10 @@
         <div id="analytics-menu">
           <div id="play-button">
             <a id="play-algorithm" class="play-algorithm button fa fa-play" data-measure='{{ key }}' data-plot="{{ key }}-results" data-eta="{{ key }}-eta" title="Play algorithm"></a>
+            <div class="div-selected-nodes" style="display:none;">
+              <input id="checkbox-selected-nodes" type='checkbox' checked='checked'/><label class="label-analytics">{% trans "On selected nodes" %}</label>
+            </div>
             <h2 id="{{ key }}-eta"></h2>
-            <!--<label class="label-analytics"><input type='checkbox' />{% trans "Feedback results back to the nodes" %}</label>-->
             <progress id="progress-bar-{{ key }}" class="progress-bar"></progress>
             {% if graph|list_analytics:key %}
             <!-- This select is for the regular behaviour when we have analytics stored -->

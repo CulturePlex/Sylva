@@ -1975,9 +1975,13 @@ div[id^='collorpicker_'] {
     height: 15px;
 }
 
+#checkbox-selected-nodes {
+    margin-left: 10px;
+}
+
 .label-analytics {
     font-size: 10px;
-    margin-left: 10px;
+    margin-left: 5px;
 }
 
 .last-analytics {

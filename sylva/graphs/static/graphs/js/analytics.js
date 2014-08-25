@@ -30,7 +30,7 @@ var analyticsExecuting = new Array();
 var analyticsId = {};
 var taskTime = 0;
 
-(function($) {
+var initAnalytics = function($) {
   /**
    * AJAX Setup for CSRF Django token
    */
@@ -280,7 +280,15 @@ var taskTime = 0;
     var plotId = $this.data('plot');
     var etaId = $this.data('eta');
     var progressBarId = "#progress-bar-" + measure;
-    var subgraph = JSON.stringify(sylva.selectedNodes);
+
+    // We check if we have to apply the algorithm over a subgraph
+    var inputSelected = $this.next().children()[0];
+    var checked = $(inputSelected).attr('checked');
+    var isVisible = $(inputSelected).is(':visible');
+
+    if((checked == 'checked') && isVisible) {
+      var subgraph = JSON.stringify(sylva.selectedNodes);
+    }
 
     analyticsId[measure] = plotId;
     $('#' + etaId).html(gettext("Estimating time"));
@@ -434,4 +442,10 @@ var taskTime = 0;
   });
 
   $('#analytics-algorithms').sortable();
-})(jQuery);
+
+  sylva.reactor.addEventListener('subgraphSelected', function() {
+    $('.div-selected-nodes').css(
+      {'display':'inline'}
+    );
+  });
+};
