@@ -6,7 +6,6 @@ function EventObject(name){
 }
 
 EventObject.prototype.registerCallback = function(callback){
-  debugger;
   this.callbacks.push(callback);
 };
 

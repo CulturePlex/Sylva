@@ -2852,6 +2852,26 @@
       that.calculateNodesDegrees();
       sigInst.refresh();
       that.grayfyNonListedNodes(sylva.selectedNodes);
+    },
+
+    changeSigmaTypes: function(type, nodeList) {
+      if (!nodeList) {
+        nodeList = [];
+      }
+
+      sigInst.graph.nodes(nodeList).forEach(function(n) {
+        n.type = type;
+      });
+
+      sigInst.refresh();
+    },
+
+    cleanSigmaTypes: function() {
+      sigInst.graph.nodes().forEach(function(n) {
+        delete n['type']
+      });
+
+      sigInst.refresh();
     }
 
   };
