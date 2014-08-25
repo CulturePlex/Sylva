@@ -71,7 +71,8 @@ def analytics_status(request, graph_slug):
                 analytics_results[task_id] = [analytic.results.url,
                                               analytic.id,
                                               analytic.task_start,
-                                              analytic.algorithm]
+                                              analytic.algorithm,
+                                              analytic.values.url]
     data = analytics_results
     json_data = json.dumps(data)
     return HttpResponse(json_data, mimetype='application/json')
@@ -85,7 +86,7 @@ def analytics_analytic(request, graph_slug):
     analytic_id = request.GET.get('id')
     if request.is_ajax() and analytic_id is not None:
         analytic = Analytic.objects.get(pk=analytic_id)
-        data = [analytic.results.url, analytic.algorithm]
+        data = [analytic.results.url, analytic.algorithm, analytic.values.url]
     json_data = json.dumps(data)
     return HttpResponse(json_data, mimetype='application/json')
 

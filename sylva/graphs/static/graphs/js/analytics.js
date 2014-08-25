@@ -113,7 +113,8 @@ var initAnalytics = function($) {
             point: {
               events: {
                 mouseOver: function () {
-                    alert(this.x);
+                  var elements = sylva.analyticAffectedNodes[this.x];
+                  alert(elements);
                 }
               }
             }
@@ -157,8 +158,13 @@ var initAnalytics = function($) {
             },
             point: {
               events: {
-                mouseOver: function () {
-                    alert(this.x);
+                mouseOver: function() {
+                  var id = this.x.toFixed(1);
+                  var sylvaList = sylva.analyticAffectedNodes[id].map(String)
+                  sylva.Sigma.changeSigmaTypes("aura", sylvaList)
+                },
+                mouseOut: function() {
+                  sylva.Sigma.cleanSigmaTypes();
                 }
               }
             }
@@ -177,11 +183,11 @@ var initAnalytics = function($) {
   };
 
   // get results of the analytic
-  var getResults = function(results_url, algorithm, analyticId, analyticTaskStart) {
+  var getResults = function(resultsUrl, algorithm, analyticId, analyticTaskStart, valuesUrl) {
     $.ajax({
       type: "GET",
       dataType: 'json',
-      url: results_url,
+      url: resultsUrl,
       success: function (data) {
         var chartType = "";
         var parentArray = new Array();
@@ -225,9 +231,22 @@ var initAnalytics = function($) {
             'display': 'inline-block'
           });
         }
+
+        // We get the values data
+        $.ajax({
+          type: "GET",
+          dataType: 'json',
+          url: valuesUrl,
+          success: function(data) {
+            sylva.analyticAffectedNodes = data;
+          },
+          error: function(e) {
+            alert("Error: " + e);
+          }
+        });
       },
       error: function (e) {
-          alert("Error: " + e);
+        alert("Error: " + e);
       }
     });
   };
@@ -248,7 +267,8 @@ var initAnalytics = function($) {
           analyticId = analyticsResults[key][1];
           analyticTaskStart = analyticsResults[key][2];
           algorithm = analyticsResults[key][3];
-          getResults(resultsUrl, algorithm, analyticId, analyticTaskStart);
+          valuesUrl = analyticsResults[key][4];
+          getResults(resultsUrl, algorithm, analyticId, analyticTaskStart, valuesUrl);
           $(progressBarId).attr('value', 100);
           // We remove the element of the list of analytics executing
           var index = analyticsExecuting.indexOf(key);
@@ -372,15 +392,14 @@ var initAnalytics = function($) {
     }).success(function(result){
       var resultsUrl = result[0];
       var algorithm = result[1];
+      var valuesUrl = result[2];
 
       // We check if we have defined the id for render highcharts
       if(!analyticsId[algorithm]) {
         analyticsId[algorithm] = algorithm + "-results";
       }
 
-      console.log(resultsUrl);
-      console.log(algorithm);
-      getResults(resultsUrl, algorithm, "", "");
+      getResults(resultsUrl, algorithm, "", "", valuesUrl);
 
       /* A function for update the selected nodes in the graph using the
        * analytic implied nodes.

@@ -301,7 +301,9 @@ class Analysis(BaseAnalysis):
             freq_dist = results.to_dataframe()[algorithm].value_counts()
             # We treat the series to form the dictionary with the value as key
             # and the keys in a list of values
-            values = results.to_dataframe()[algorithm]
+            values = results.to_dataframe()
+            values.set_index('node_id', inplace=True)
+            values = values[algorithm]
             values_dict = self._get_values_dict(values)
             # SFrame saves the file and appends a .csv at the end :@
             temp_file_name = temp_file.name + '.csv'
@@ -312,6 +314,7 @@ class Analysis(BaseAnalysis):
             freq_dist = results[algorithm].value_counts()
             # We treat the series to form the dictionary with the value as key
             # and the keys in a list of values
+            results.set_index('__id', inplace=True)
             values = results[algorithm]
             values_dict = self._get_values_dict(values)
             temp_file_name = temp_file.name
