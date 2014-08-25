@@ -307,7 +307,7 @@
       sigInst.refresh();
 
       // Registering events for sylva.
-      sylva.reactor.registerEvent('disableSelectingTool');
+      sylva.reactor.registerEvent('subgraphSelected');
     },
 
 
@@ -744,6 +744,10 @@
         });
       }
 
+      if(nodeList.length > 0) {
+        sylva.reactor.dispatchEvent('subgraphSelected');
+      }
+
       // Re-draw graph.
       sigInst.refresh();
     },
@@ -758,6 +762,8 @@
         e.color = sylva.reltypes[e.reltypeId].color;
         delete e['gray'];
       });
+
+      sylva.selectedNodes = sylva.nodeIds;
 
       // Re-draw graph.
       sigInst.refresh();
@@ -2466,8 +2472,6 @@
         if (type != 'click' && type != 'neighbors' && type != 'move') {
           that.deactivateSelectingAreaTool(type);
         }
-
-        sylva.reactor.dispatchEvent('disableSelectingTool');
 
       } else {
         // Deactivate a tool and activate another.
