@@ -308,6 +308,7 @@
 
       // Registering events for sylva.
       sylva.reactor.registerEvent('subgraphSelected');
+      sylva.reactor.registerEvent('entireGraphSelected');
     },
 
 
@@ -746,6 +747,8 @@
 
       if(nodeList.length > 0) {
         sylva.reactor.dispatchEvent('subgraphSelected');
+      } else if (sylva.selectedNodes.length == sylva.size) {
+        sylva.reactor.dispatchEvent('entireGraphSelected');
       }
 
       // Re-draw graph.
@@ -764,6 +767,7 @@
       });
 
       sylva.selectedNodes = sylva.nodeIds;
+      sylva.reactor.dispatchEvent('entireGraphSelected');
 
       // Re-draw graph.
       sigInst.refresh();
