@@ -6,8 +6,17 @@ function EventObject(name){
 }
 
 EventObject.prototype.registerCallback = function(callback){
+  debugger;
   this.callbacks.push(callback);
 };
+
+Event.prototype.removeCallback = function(callback){
+  var index = this.callbacks.indexOf(callback);
+  if (index > -1) {
+    this.callbacks.splice(index, 1);
+  }
+}
+
 
 function Reactor(){
   this.events = {};
@@ -27,3 +36,7 @@ Reactor.prototype.dispatchEvent = function(eventName, eventArgs){
 Reactor.prototype.addEventListener = function(eventName, callback){
   this.events[eventName].registerCallback(callback);
 };
+
+Reactor.prototype.removeEventListener = function(eventName, callback) {
+  this.events[eventName].removeCallback(callback);
+}
