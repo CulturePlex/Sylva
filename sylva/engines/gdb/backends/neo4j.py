@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from lucenequerybuilder import Q
+from neo4jrestclient.exceptions import NotFoundError
 from pyblueprints.neo4j import Neo4jIndexableGraph as Neo4jGraphDatabase
 from pyblueprints.neo4j import Neo4jDatabaseConnectionError
 
@@ -584,8 +585,16 @@ class GraphDatabase(BlueprintsGraphDatabase):
         all_nodes = self.get_all_nodes(include_properties=False)
         for node_id, props, label in all_nodes:
             self.delete_node(node_id)
-        self.nidx.delete()
-        self.ridx.delete()
+        try:
+            self.nidx.delete()
+        except NotFoundError:
+            pass  # If there is no nodes, there will be no index, so an error
+                  # will be raised
+        try:
+            self.ridx.delete()
+        except NotFoundError:
+            pass  # If there is no rels, there will be no index, so an error
+                  # will be raised
         self = None
 
     def analysis(self):
