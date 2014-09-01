@@ -745,10 +745,10 @@
         });
       }
 
-      if(nodeList.length > 0) {
-        sylva.reactor.dispatchEvent('subgraphSelected');
-      } else if (sylva.selectedNodes.length == sylva.size) {
+      if ((nodeList.length == 0) || (nodeList.length == sylva.size)) {
         sylva.reactor.dispatchEvent('entireGraphSelected');
+      } else {
+        sylva.reactor.dispatchEvent('subgraphSelected');
       }
 
       // Re-draw graph.

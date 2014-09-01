@@ -90,19 +90,17 @@ var initAnalytics = function($) {
         },
         plotOptions: {
           scatter: {
+            allowPointSelect: true,
             marker: {
               radius: 5,
               states: {
                 hover: {
                   enabled: true,
                   lineColor: 'rgb(100,100,100)'
-                }
-              }
-            },
-            states: {
-              hover: {
-                marker: {
-                  enabled: false
+                },
+                select: {
+                  fillColor: 'rgb(255,0,0)',
+                  lineWidth: 1
                 }
               }
             },
@@ -112,9 +110,8 @@ var initAnalytics = function($) {
             },
             point: {
               events: {
-                mouseOver: function () {
+                click: function () {
                   var elements = sylva.analyticAffectedNodes[this.x];
-                  alert(elements);
                 }
               }
             }
@@ -160,11 +157,32 @@ var initAnalytics = function($) {
               events: {
                 mouseOver: function() {
                   var id = this.x.toFixed(1);
-                  var sylvaList = sylva.analyticAffectedNodes[id].map(String)
-                  sylva.Sigma.changeSigmaTypes("aura", sylvaList)
+                  var sylvaList = sylva.analyticAffectedNodes[id].map(String);
+                  sylva.Sigma.changeSigmaTypes("aura", sylvaList);
                 },
                 mouseOut: function() {
-                  sylva.Sigma.cleanSigmaTypes();
+                  var point = this;
+                  if(!point.selected) {
+                    sylva.Sigma.cleanSigmaTypes();
+                    // If we had selected nodes, we keep the aura
+                    if(sylva.listClickNodes.length > 0) {
+                      sylva.Sigma.changeSigmaTypes("aura", sylva.listClickNodes);
+                    }
+                  }
+                },
+                click: function() {
+                  var point = this;
+                  if(!point.selected) {
+                    var id = this.x.toFixed(1);
+                    var sylvaList = sylva.analyticAffectedNodes[id].map(String);
+                    sylva.Sigma.changeSigmaTypes("aura", sylvaList);
+                    // We store the list of nodes
+                    sylva.listClickNodes = sylvaList;
+                  } else {
+                    sylva.Sigma.cleanSigmaTypes();
+                    // We reset the list of nodes
+                    sylva.listClickNodes = [];
+                  }
                 }
               }
             }
@@ -465,6 +483,12 @@ var initAnalytics = function($) {
   sylva.reactor.addEventListener('subgraphSelected', function() {
     $('.div-selected-nodes').css(
       {'display':'inline'}
+    );
+  });
+
+  sylva.reactor.addEventListener('entireGraphSelected', function() {
+    $('.div-selected-nodes').css(
+      {'display':'none'}
     );
   });
 };
