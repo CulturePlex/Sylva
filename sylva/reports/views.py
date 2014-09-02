@@ -4,8 +4,8 @@ import itertools
 import os
 import tempfile
 import urlparse
+from dateutil import parser, tz
 
-from dateutil import parser
 from subprocess import Popen, STDOUT, PIPE
 from time import time
 
@@ -114,8 +114,10 @@ def templates_endpoint(request, graph_slug):
         response = {'template': None, 'queries': None}
         if request.GET.get('queries', ''): # Get queries either for new template or for edit.
             queries = graph.queries.all()
-            response['queries'] = [{'series': query.query_dict['series'],
-                                     'name': query.name} for query in queries]
+            # Execute queries here maybe tell them in js
+            response['queries'] = [{'series': query.query_dict[:-2],
+                                    'name': query.name, 'id': query.id} 
+                                   for query in queries]
         if request.GET.get('template', ''): # Get template for edit or preview.
             template = get_object_or_404(
                 ReportTemplate, slug=request.GET['template']
@@ -123,13 +125,13 @@ def templates_endpoint(request, graph_slug):
             response['template'] = template.dictify()
             if not response['queries']: # Get template queries for preview.
                 queries = template.queries.all()
-                response['queries'] = [{'series': query.query_dict['series'], # WIll have to change with new query series json
-                                        'name': query.name} 
+                # Will have to execute queries here
+                response['queries'] = [{'series': query.query_dict[:-2], 
+                                        'name': query.name, 'id': query.id} 
                                        for query in queries]
     else: # Get a list of all the reports.
         templates = graph.report_templates.all()
         response = [template.dictify() for template in templates]
-    print response
     return HttpResponse(json.dumps(response), content_type='application/json')
 
 
@@ -145,7 +147,7 @@ def history_endpoint(request, graph_slug):
             )
             response = template.historify()
         if request.GET.get('report', ''):
-            report = get_object_or_404(Report, slug=request.GET['report'])
+            report = get_object_or_404(Report, id=request.GET['report'])
             response = report.dictify()
     return HttpResponse(json.dumps(response), content_type='application/json')
 
@@ -158,7 +160,7 @@ def builder_endpoint(request, graph_slug):
     graph = get_object_or_404(Graph, slug=graph_slug)
     if request.POST:
         template = json.loads(request.body)['template']
-        start_date = parser.parse(template['start_date'],ignoretz=True)
+        start_date = parser.parse(template['start_date'])
         if template.get('slug', ''):
             new_template = get_object_or_404(
                 ReportTemplate, slug=template['slug']
@@ -181,12 +183,13 @@ def builder_endpoint(request, graph_slug):
         query_set = set()
         for row in template['layout']:
             query_set.update(set(cell['displayQuery'] for cell in row))
-        queries = set(query.name for query in new_template.queries.all())
+        queries = set(query for query in new_template.queries.all())
+        query_ids = set(query.id for query in queries)
         for query in queries:
-            if query not in query_set:
-                new_template.queries.remove(name=query)
+            if query.id not in query_set:
+                new_template.queries.remove(query)
         for disp_query in query_set:
-            if disp_query and disp_query not in queries:
-                query = get_object_or_404(Query, name=disp_query)
+            if disp_query and disp_query not in query_ids:
+                query = get_object_or_404(Query, id=disp_query)
                 new_template.queries.add(query) 
     return HttpResponse(json.dumps(template), content_type='application/json')

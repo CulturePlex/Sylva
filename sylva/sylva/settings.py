@@ -55,6 +55,9 @@ GRAPHDATABASES = {
 # system time zone.
 TIME_ZONE = 'America/Toronto'
 
+# Uncomment this to use reports
+#USE_TZ = True
+
 # Language code for this installation. All choices can be found here:
 # http://www.i18nguy.com/unicode/language-identifiers.html
 LANGUAGE_CODE = 'en-ca'
@@ -265,9 +268,10 @@ CELERY_IMPORTS = ("engines.gdb.analysis.neo4j", "reports.generator")
 CELERYBEAT_SCHEDULE = {
     'check-reports-every-fifteen-minutes': {
         'task': 'reports.generate',
-        'schedule': crontab(minute='*/1')
+        'schedule': crontab(minute='*/15')
     }
 }
+CELERY_TIMEZONE = 'UTC'
 
 # Profiling
 PROFILE_MIDDLEWARE_SORT = ["cumulative", "calls"]

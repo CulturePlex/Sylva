@@ -2,7 +2,7 @@
   <label class="chart-select">
     Query:
   </label>
-  <select ng-model="activeQuery" ng-options="query.name group by query.group for query in queries">
+  <select ng-model="activeQuery" value="query.id" ng-options="query.name group by query.group for query in queries">
     <option value="">-- choose query --</option>   
   </select> 
 

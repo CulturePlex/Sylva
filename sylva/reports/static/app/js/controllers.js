@@ -18,12 +18,15 @@ controllers.controller('ReportListCtrl', [
             for (var i=0;i<len;i++) {
                 var date = JSON.parse(data[i].start_date)
                 ,   datetime = new Date(date)
-                ,   last_date = JSON.parse(data[i].last_run)
-                ,   last_datetime = new Date(last_date)
+                ,   last_run = JSON.parse(data[i].last_run);
                 $scope.templates[i].start_date = datetime.toString();
-                $scope.templates[i].last_run = last_datetime.toString();
-            }
 
+                if (last_run) {
+                    var last_datetime = new Date(last_date)
+                    ,   last_run = last_datetime.toString();
+                }
+                $scope.templates[i].last_run = last_run;
+            }
         });
 }]);
 
@@ -60,9 +63,12 @@ controllers.controller('BaseReportCtrl', [
             ,   time = template.time.split(':')
             ,   datetime = new Date(date[2], date[1] - 1, date[0], time[0], time[1])
             ,   post = new api.builder();
-
+            console.log('date', date)
+            console.log('time', time)
+            console.log('datetime', datetime)
+            console.log('datetimestring', datetime.toISOString())
             template.start_date = datetime.toISOString()
-
+            console.log('templateStart', template.start_date)
             post.template = template
 
             console.log("template", template.layout)
@@ -182,17 +188,22 @@ controllers.controller('ReportHistoryCtrl', [
             graphSlug: $scope.slugs.graph,
             template: $scope.slugs.template 
         }, function (data) {
-            console.log('data', data)
+            for (var i=0; i<data.history.length; i++) {
+                var report = data.history[i]
+                ,   date = JSON.parse(report.date_run)
+                ,   datetime = new Date(date)
+                report.date_run = datetime.toString()
+            }
             $scope.template = data;
-            if (data.history.length > 0) $scope.getReport(data.history[0].slug)
+            if (data.history.length > 0) $scope.getReport(data.history[0].id)
         });
 
-        $scope.getReport = function (slug) {
+        $scope.getReport = function (id) {
             api.history.report({
                 graphSlug: $scope.slugs.graph,
-                report: slug
+                report: id
             }, function (data) {
-                console.log('report', data)
+                console.log('start_date', data.date_run)
                 $scope.report = data;
                 $scope.resp = {table: data.table}
             });

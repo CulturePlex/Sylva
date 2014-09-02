@@ -140,6 +140,7 @@ directives.directive('sylvaPvCellRepeat', [function () {
                 var cell = scope.row[i]
                 ,   query = cell.displayQuery
                 ,   series = cell.series
+                ,   name = cell.name
                 ,   colspan = parseInt(cell.colspan)
                 ,   cellWidth = (tableWidth / numCols - ((numCols + 1) * 2 / numCols)) * colspan + (2 * (colspan - 1)) + 'px'
                 ,   block;      
@@ -148,11 +149,14 @@ directives.directive('sylvaPvCellRepeat', [function () {
                 childScope.$index = i;
                 childScope.cellStyle = {width: cellWidth};
 
+                console.log('check', query)
                 if (query) {
                     if (!series) {
-                        series = ctrl.getQueries().filter(function (el) {
-                            return el.name === query;
-                        })[0].series;
+                        query = ctrl.getQueries().filter(function (el) {
+                                return el.id === query;
+                            })[0];
+                        series = query.series;
+                        name = query.name;
                     }
 
                     childScope.query = query;
@@ -160,7 +164,7 @@ directives.directive('sylvaPvCellRepeat', [function () {
                         options: {chart: {type: cell.chartType}},
                         xAxis: {catagories: []},
                         series: [{data: series}],
-                        title: {text: query},     
+                        title: {text: name},     
                         loading: false
                     };
                 } else if (cell.displayMarkdown) {
@@ -389,7 +393,7 @@ directives.directive('sylvaEtCellRepeat', [function () {
                     ,   colspan = parseInt(cell.colspan)
                     ,   cellWidth = (tableWidth / numCols - ((numCols + 1) * 2 / numCols)) * colspan + (2 * (colspan - 1)) + 'px'
                     ,   activeQuery = ctrl.getQueries().filter(function (el) {
-                        return el.name === query;
+                        return el.id === query;
                     })[0];
 
                     childScope = scope.$new();
@@ -467,7 +471,8 @@ directives.directive('sylvaEtCell', ['$sanitize', '$sce', function ($sanitize, $
                 var name;
 
                 if (newVal != null) {
-                    name = newVal.name || '';
+                    console.log('newVal', newVal)
+                    name = newVal.id || '';
                 } else {
                     name = '';
                 }
