@@ -499,11 +499,10 @@ class GraphDatabase(BlueprintsGraphDatabase):
                 else:
                     alias = origin_dict["alias"]
                     if alias in conditions_alias:
-                        origin = u"""{alias}=rel:`{ridx}`('label:{type}')""".format(
+                        origin = u"""`{alias}`=rel:`{ridx}`('label:{type}')""".format(
                             ridx=unicode(self.ridx.name).replace(u"`",
                                                                  u"\\`"),
-                            alias=unicode(alias).replace(u"`",
-                                                                        u"\\`"),
+                            alias=unicode(alias).replace(u"`", u"\\`"),
                             type=relation_type,
                         )
                         origins_set.add(origin)

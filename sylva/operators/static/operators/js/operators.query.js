@@ -153,27 +153,27 @@ diagram.aggregates = [
       * AJAX Setup for CSRF Django token
       */
     $.ajaxSetup({
-         beforeSend: function(xhr, settings) {
-             function getCookie(name) {
-                 var cookieValue = null;
-                 if (document.cookie && document.cookie != '') {
-                     var cookies = document.cookie.split(';');
-                     for (var i = 0; i < cookies.length; i++) {
-                         var cookie = jQuery.trim(cookies[i]);
-                         // Does this cookie string begin with the name we want?
-                     if (cookie.substring(0, name.length + 1) == (name + '=')) {
-                         cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                         break;
-                     }
-                 }
-             }
-             return cookieValue;
-             }
-             if (!(/^http:.*/.test(settings.url) || /^https:.*/.test(settings.url))) {
-                 // Only send the token to relative URLs i.e. locally.
-                 xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
-             }
-         }
+        beforeSend: function(xhr, settings) {
+            function getCookie(name) {
+                var cookieValue = null;
+                if (document.cookie && document.cookie != '') {
+                    var cookies = document.cookie.split(';');
+                    for (var i = 0; i < cookies.length; i++) {
+                        var cookie = jQuery.trim(cookies[i]);
+                        // Does this cookie string begin with the name we want?
+                        if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                            break;
+                        }
+                    }
+                }
+            return cookieValue;
+            }
+            if (!(/^http:.*/.test(settings.url) || /^https:.*/.test(settings.url))) {
+                // Only send the token to relative URLs i.e. locally.
+                xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
+            }
+        }
     });
 
     init = function() {
@@ -189,15 +189,15 @@ diagram.aggregates = [
          */
         diagram.addBox = function (graphName, modelName, typeName) {
             var model, root, idBox, divBox, divAddBox, divContainerBoxes, divField, divFields, divManies, divAllowedRelationships, divAllRel, fieldName, field, countFields, idFields, boxAllRel, listRelElement, idAllRels, addField, addFieldIcon, idContainerBoxes, removeRelation, idTopBox, handlerAnchor, idBoxAllRels, selectAllRel;
-            model = diagram.Models[graphName][modelName];
+            model = diagram.Models[graphName][typeName];
             root = $("#"+ diagram.Container);
             diagram.Counter++;
-            idBox = "diagramBox-" + diagram.Counter +"-"+ modelName;
-            idTopBox = "diagramTopBox-" + diagram.Counter + "-" + modelName;
-            idFields = "diagramFields-" + diagram.Counter + "-" + modelName;
-            idBoxAllRels = "diagramBoxAllRels-" + diagram.Counter + "-" + modelName;
-            idAllRels = "diagramAllRel-" + diagram.Counter + "-" + modelName;
-            idContainerBoxes = "diagramContainerBoxes-" + diagram.Counter + "-" + modelName;
+            idBox = "diagramBox-" + diagram.Counter +"-"+ typeName;
+            idTopBox = "diagramTopBox-" + diagram.Counter + "-" + typeName;
+            idFields = "diagramFields-" + diagram.Counter + "-" + typeName;
+            idBoxAllRels = "diagramBoxAllRels-" + diagram.Counter + "-" + typeName;
+            idAllRels = "diagramAllRel-" + diagram.Counter + "-" + typeName;
+            idContainerBoxes = "diagramContainerBoxes-" + diagram.Counter + "-" + typeName;
             divBox = $("<DIV>");
             divBox.attr("id", idBox);
             divBox.css({
@@ -222,7 +222,7 @@ diagram.aggregates = [
                     var relation = model.relations[i];
 
                     // We only add the relations when the field is the source
-                    if(modelName == relation.source) {
+                    if(typeName == relation.source) {
                         var label = relation.label;
                         var name = relation.name.replace(/-/g, "_");
                         var relationId = idBox + "-" + name;
@@ -308,16 +308,11 @@ diagram.aggregates = [
             });
             countFields = 0;
 
-            if(typeName != "wildcard") {
-                divTitle = diagram.addTitleDiv(graphName, model, typeName, modelName, idTopBox, idBox, idAllRels, relationsIds);
-            } else {
-                divTitle = diagram.addWildcardTitleDiv(graphName, model, typeName, typeName, idTopBox, idBox, idAllRels, relationsIds);
-            }
+            divTitle = diagram.addTitleDiv(graphName, model, typeName, modelName, idTopBox, idBox, idAllRels, relationsIds);
             // Create the select for the properties
             var boxalias = divTitle.data('boxalias');
-            alias = diagram.replaceChars(boxalias);
-            diagram.fieldsForNodes[alias] = [];
-            divField = diagram.addFieldRow(graphName, modelName, idFields, typeName, boxalias, idBox, idAllRels);
+            diagram.fieldsForNodes[boxalias] = [];
+            divField = diagram.addFieldRow(graphName, typeName, idFields, typeName, boxalias, idBox, idAllRels);
             divFields.append(divField);
             if (countFields < 5 && countFields > 0) {
                 divFields.addClass("noOverflow");
@@ -332,7 +327,7 @@ diagram.aggregates = [
             addField.addClass("add-field-row");
             addField.attr("data-parentid", idFields);
             addField.attr("data-graph", graphName);
-            addField.attr("data-model", modelName);
+            addField.attr("data-model", typeName);
             addField.attr("data-typename", typeName);
             addField.attr("data-boxalias", boxalias);
             addField.attr("data-idbox", idBox);
@@ -345,7 +340,7 @@ diagram.aggregates = [
             divAddBox = $("<DIV>");
             divAddBox.attr("id", idTopBox);
             divAddBox.append(divFields);
-            //divAddBox.append(addField);
+
             divAddBox.css({
                 "border-bottom": "2px dashed #348E82"
             });
@@ -373,7 +368,7 @@ diagram.aggregates = [
                 endpointTarget.addClass("endpoint-target");
                 endpointTarget.scopeTarget = typeName;
             }
-            jsPlumb.draggable("diagramBox-"+ diagram.Counter +"-"+ modelName, {
+            jsPlumb.draggable("diagramBox-"+ diagram.Counter +"-"+ typeName, {
                 handle: ".title",
                 grid: [10, 10],
                 stop: function (event, ui) {
@@ -402,8 +397,14 @@ diagram.aggregates = [
         diagram.addRelationBox = function(name, label, idRel) {
             var divTitle, selectReltype, optionReltype, checkboxType, anchorShowHide, iconToggle, anchorDelete, iconDelete;
 
-            var model, root, idBox, divBox, divAddBox, divContainerBoxes, divField, divFields, divManies, divAllowedRelationships, fieldName, field, countFields, idFields, boxAllRel, listRelElement, idAllRels, addField, addFieldIcon, idContainerBoxes, removeRelation, idTopBox, handlerAnchor;
+            var model, root, idBox, divBox, divAddBox, divContainerBoxes, divField, divFields, divAllowedRelationships, fieldName, field, countFields, idFields, boxAllRel, listRelElement, idAllRels, addField, addFieldIcon, idContainerBoxes, removeRelation, idTopBox, handlerAnchor;
 
+            root = $("#"+ diagram.Container);
+            idBox = "diagramBoxRel-" + diagram.CounterRels + "-" + name;
+            idTopBox = "diagramTopBoxRel-" + diagram.CounterRels + "-" + name;
+            idFields = "diagramFieldsRel-" + diagram.CounterRels + "-" + name;
+            idAllRels = "diagramAllRelRel-" + diagram.CounterRels + "-" + name;
+            idContainerBoxes = "diagramContainerBoxesRel-" + diagram.CounterRels + "-" + name;
             /*
              *  Title part
              */
@@ -430,12 +431,13 @@ diagram.aggregates = [
                 "margin-left": "5%",
                 "display": "none"
             });
+            relValue = label + " " + diagram.reltypesCounter[name];
             optionReltype = $("<OPTION>");
             optionReltype.addClass("option-reltype-" + name);
             optionReltype.attr('id', name + diagram.reltypesCounter[name]);
-            optionReltype.attr('value', name + diagram.reltypesCounter[name]);
+            optionReltype.attr('value', relValue);
             optionReltype.attr('data-modelid', idRel);
-            optionReltype.html(label + " " + diagram.reltypesCounter[name]);
+            optionReltype.html(relValue);
             // This for loop is to add the new option in the old boxes
             for(var i = 0; i < diagram.reltypesCounter[name]; i++) {
                 $($('.select-reltype-' + name)[i]).append(optionReltype.clone(true));
@@ -443,29 +445,45 @@ diagram.aggregates = [
             // This for loop is to include the old options in the new box
             for(var j = 0; j < diagram.reltypesCounter[name]; j++) {
                 var alias = name + " " + j;
-                var value = alias.replace(/\s/g, '');;
-                selectReltype.append("<option class='option-reltype-" + name + "' id='" + value + "' value='" + value +"' data-modelid='" + idRel + "' selected=''>" + alias + "</option>");
+                var id = alias.replace(/\s/g, '');;
+                selectReltype.append("<option class='option-reltype-" + name + "' id='" + id + "' value='" + alias +"' data-modelid='" + idRel + "' selected=''>" + alias + "</option>");
             }
             selectReltype.append(optionReltype);
-            // Checkbox for select type
-            // checkboxType = $("<INPUT>");
-            // checkboxType.addClass("checkbox-select-type");
-            // checkboxType.attr("id", "checkbox");
-            // checkboxType.attr("type", "checkbox");
-            // divTitle.append(checkboxType);
-            diagram.setName(divTitle, label, label);
-            divTitle.append(selectReltype);
+            diagram.setName(divTitle, label, label, "relation");
+
+            // Show/hide button in the corner of the box and its associated event
+            anchorShowHide = $("<A>");
+            anchorShowHide.attr("href", "javascript:void(0);");
+            anchorShowHide.attr("id", "inlineShowHideLink_"+ name);
+            iconToggle = $("<I>");
+            iconToggle.addClass("fa fa-plus-circle icon-style");
+            iconToggle.attr('id', 'icon-toggle');
+
+            anchorShowHide.append(iconToggle);
+            anchorShowHide.click(function () {
+                $('#' + idFields).toggleClass("hidden");
+                if (iconToggle.attr('class') == 'fa fa-plus-circle icon-style') {
+                    iconToggle.removeClass('fa fa-plus-circle icon-style');
+                    iconToggle.addClass('fa fa-minus-circle icon-style');
+                    $('#' + idBox).css({
+                        'width': '360px'
+                    });
+                } else {
+                    iconToggle.removeClass('fa fa-minus-circle icon-style');
+                    iconToggle.addClass('fa fa-plus-circle icon-style');
+                    $('#' + idBox).css({
+                        'width': '180px'
+                    });
+                }
+            });
+            // We create the div for the corner buttons
+            divCornerButtons = $("<DIV>");
+            divCornerButtons.addClass("corner-buttons");
 
             /*
              *  Box part
              */
 
-            root = $("#"+ diagram.Container);
-            idBox = "diagramBoxRel-" + diagram.CounterRels + "-" + name;
-            idTopBox = "diagramTopBoxRel-" + diagram.CounterRels + "-" + name;
-            idFields = "diagramFieldsRel-" + diagram.CounterRels + "-" + name;
-            idAllRels = "diagramAllRelRel-" + diagram.CounterRels + "-" + name;
-            idContainerBoxes = "diagramContainerBoxesRel-" + diagram.CounterRels + "-" + name;
             divBox = $("<DIV>");
             divBox.attr("id", idBox);
             divBox.css({
@@ -474,7 +492,6 @@ diagram.aggregates = [
                 "width": "180px",
                 "background-color": "white",
                 "border": "2px solid #AEAA78"
-                //"width": "33%"
             });
             divBox.addClass("body");
             // Allowed relationships
@@ -483,9 +500,13 @@ diagram.aggregates = [
             boxAllRel.addClass("box-all-rel");
             // We append the divs
             divFields = $("<DIV>");
+            divFields.addClass("hidden");
             divFields.attr("id", idFields);
             countFields = 0;
             if(diagram.fieldsForRels[name].length > 0) {
+                // If we have properties, we add the button to
+                // minimize/maximize the box
+                divCornerButtons.append(anchorShowHide);
                 // Create the select for the properties
                 divField = diagram.addFieldRelRow(name, idFields);
                 divFields.append(divField);
@@ -493,9 +514,6 @@ diagram.aggregates = [
                     divFields.addClass("noOverflow");
                 } else if (countFields > 0) {
                     divFields.addClass("fieldsContainer");
-                }
-                if (divManies) {
-                    divBox.append(divManies);
                 }
                 // We check if there are fields for add more
                 if(divFields.children() > 0) {
@@ -519,14 +537,14 @@ diagram.aggregates = [
             divContainerBoxes.append(divAddBox);
             divContainerBoxes.append(divAllowedRelationships);
 
+            divTitle.append(selectReltype);
+            divTitle.append(divCornerButtons);
+
             divBox.append(divContainerBoxes);
             divBox.prepend(divTitle);
 
-            // We check if we have more than one box to show the selects for the alias
-            diagram.showSelects(name, "relationship");
-
             return divBox;
-        }
+        };
 
         /**
          * Set all the neccesary to create the title div
@@ -541,9 +559,15 @@ diagram.aggregates = [
          */
         diagram.addTitleDiv = function(graphName, model, typeName, modelName, idTopBox, idBox, idAllRels, relationsIds) {
             var divTitle, selectNodetype, optionNodetype, checkboxType, anchorShowHide, iconToggle, anchorDelete, iconDelete;
+
+            // We check if the typeName is not "wildcard" to change the modelid
+            var typeId = -1;
+            if(typeName != "wildcard") {
+                typeId = model.id;
+            }
             divTitle = $("<DIV>");
             divTitle.addClass("title");
-            divTitle.attr('data-modelid', model.id);
+            divTitle.attr('data-modelid', typeId);
             // Select for the type
             selectNodetype = $("<SELECT>");
             selectNodetype.addClass("select-nodetype-" + typeName);
@@ -555,12 +579,12 @@ diagram.aggregates = [
                 "display": "none"
             });
             optionNodetype = $("<OPTION>");
-            var idAndValue = model.name + diagram.nodetypesCounter[typeName];
-            var boxAlias = model.name + " " + diagram.nodetypesCounter[typeName];
+            var idAndValue = modelName + diagram.nodetypesCounter[typeName];
+            var boxAlias = modelName + " " + diagram.nodetypesCounter[typeName];
             optionNodetype.addClass("option-nodetype-" + typeName);
             optionNodetype.attr('id', idAndValue);
-            optionNodetype.attr('data-modelid', model.id);
-            optionNodetype.attr('value', idAndValue);
+            optionNodetype.attr('data-modelid', typeId);
+            optionNodetype.attr('value', boxAlias);
             optionNodetype.html(boxAlias);
             // This 'for' loop is to add the new option in the old boxes
             for(var i = 0; i < diagram.nodetypesCounter[typeName]; i++) {
@@ -570,32 +594,31 @@ diagram.aggregates = [
             var typeBoxesLength = diagram.nodetypesList[typeName].length;
             for(var i = 0; i < typeBoxesLength; i++) {
                 var alias = diagram.nodetypesList[typeName][i];
-                var value = alias.replace(/\s/g, '');;
-                selectNodetype.append("<option class='option-nodetype-" + typeName + "' id='" + value + "' data-modelid='" + model.id + "' value='" + value +"' selected=''>" + alias + "</option>");
+                var id = alias.replace(/\s/g, '');;
+                selectNodetype.append("<option class='option-nodetype-" + typeName + "' id='" + id + "' data-modelid='" + typeId + "' value='" + alias +"' selected=''>" + alias + "</option>");
             }
             // We add the new alias to the list of the nodetype
             diagram.nodetypesList[typeName].push(boxAlias);
             selectNodetype.append(optionNodetype);
-            diagram.setName(divTitle, model.name, typeName);
+            diagram.setName(divTitle, modelName, typeName, "node");
             divTitle.append(selectNodetype);
             // Show/hide button in the corner of the box and its associated event
             anchorShowHide = $("<A>");
             anchorShowHide.attr("href", "javascript:void(0);");
-            anchorShowHide.attr("id", "inlineShowHideLink_"+ modelName);
+            anchorShowHide.attr("id", "inlineShowHideLink_"+ typeName);
             iconToggle = $("<I>");
             iconToggle.addClass("fa fa-minus-circle icon-style");
             iconToggle.attr('id', 'icon-toggle');
 
             anchorShowHide.append(iconToggle);
             anchorShowHide.click(function () {
-                $("#diagramModelAnchor_"+ graphName +"\\\."+ modelName).click();
                 $('#' + idTopBox).toggleClass("hidden");
-                if (iconToggle.attr('class') == 'fa fa-minus-circle') {
-                    iconToggle.removeClass('fa-minus-circle');
-                    iconToggle.addClass('fa-plus-circle');
+                if (iconToggle.attr('class') == 'fa fa-minus-circle icon-style') {
+                    iconToggle.removeClass('fa fa-minus-circle icon-style');
+                    iconToggle.addClass('fa fa-plus-circle icon-style');
                 } else {
-                    iconToggle.removeClass('fa-plus-circle');
-                    iconToggle.addClass('fa-minus-circle');
+                    iconToggle.removeClass('fa fa-plus-circle icon-style');
+                    iconToggle.addClass('fa fa-minus-circle icon-style');
                 }
                 // Recalculate anchor for source endpoints
                 diagram.recalculateAnchor(idBox, idAllRels);
@@ -605,12 +628,11 @@ diagram.aggregates = [
             // Close button in the corner of the box and its associated event
             anchorClose = $("<A>");
             anchorClose.attr("href", "javascript:void(0);");
-            anchorClose.attr("id", "inlineDeleteLink_"+ modelName);
+            anchorClose.attr("id", "inlineDeleteLink_"+ typeName);
             iconClose = $("<I>");
             iconClose.addClass("fa fa-times-circle icon-style");
             anchorClose.append(iconClose);
             anchorClose.click(function () {
-                $("#diagramModelAnchor_"+ graphName +"\\\."+ modelName).click();
                 var connections = jsPlumb.getEndpoint(idBox + '-target').connections;
                 // We redraw the endpoint of the endpoints connected to this
                 // target
@@ -644,7 +666,7 @@ diagram.aggregates = [
             // Advanced mode button in the corner of the box and its associated event
             advancedMode = $("<A>");
             advancedMode.attr("href", "javascript:void(0);");
-            advancedMode.attr("id", "inlineAdvancedMode_"+ modelName);
+            advancedMode.attr("id", "inlineAdvancedMode_"+ typeName);
             advancedMode.attr("title", gettext("Advanced options"))
             iconAdvancedMode = $("<I>");
             iconAdvancedMode.addClass("fa fa-gear icon-style");
@@ -686,155 +708,10 @@ diagram.aggregates = [
             divCornerButtons.append(advancedMode);
 
             divTitle.append(divCornerButtons);
-            divTitle.attr("data-boxalias", model.name + diagram.nodetypesCounter[typeName]);
+            divTitle.attr("data-boxalias", typeName + diagram.nodetypesCounter[typeName]);
 
             return divTitle;
-        }
-
-        /**
-         * Set all the neccesary to create the title div for the wildcard
-         * type
-         * - graphName
-         * - model
-         * - typeName
-         * - modelName
-         * - idTopBox
-         * - idBox
-         * - idAllRels
-         * - relationsIds
-         */
-        diagram.addWildcardTitleDiv = function(graphName, model, typeName, modelName, idTopBox, idBox, idAllRels, relationsIds) {
-            var divTitle, selectNodetype, optionNodetype, checkboxType, anchorShowHide, iconToggle, anchorDelete, iconDelete, typeId;
-            typeId = -1;
-            divTitle = $("<DIV>");
-            divTitle.addClass("title");
-            divTitle.attr('data-modelid', typeId);
-            // Select for the type
-            selectNodetype = $("<SELECT>");
-            selectNodetype.addClass("select-nodetype-" + typeName);
-            selectNodetype.css({
-                "width": "46%",
-                "float": "left",
-                "padding": "0",
-                "margin-left": "15%",
-                "display": "none"
-            });
-            optionNodetype = $("<OPTION>");
-            optionNodetype.addClass("option-nodetype-" + typeName);
-            optionNodetype.attr('id', modelName + diagram.nodetypesCounter[typeName]);
-            optionNodetype.attr('data-modelid', typeId);
-            optionNodetype.attr('value', modelName + diagram.nodetypesCounter[typeName]);
-            optionNodetype.html(modelName + diagram.nodetypesCounter[typeName]);
-            // This 'for' loop is to add the new option in the old boxes
-            for(var i = 0; i < diagram.nodetypesCounter[typeName]; i++)
-            {
-                $($('.select-nodetype-' + typeName)[i]).append(optionNodetype.clone(true));
-            }
-            // This 'for' loop is to include the old options in the new box
-            for(var j = 0; j < diagram.nodetypesCounter[typeName]; j++) {
-                var value = modelName + j;
-                selectNodetype.append("<option class='option-nodetype-" + typeName + "' id='" + value + "' data-modelid='" + typeId + "' value='" + value +"' selected=''>" + value + "</option>");
-            }
-            selectNodetype.append(optionNodetype);
-            diagram.setName(divTitle, modelName, typeName);
-            divTitle.append(selectNodetype);
-            // We create the div for the corner buttons
-            divCornerButtons = $("<DIV>");
-            divCornerButtons.addClass("corner-buttons");
-            // Show/hide button in the corner of the box and its associated event
-            anchorShowHide = $("<A>");
-            anchorShowHide.attr("href", "javascript:void(0);");
-            anchorShowHide.attr("id", "inlineShowHideLink_"+ modelName);
-            iconToggle = $("<I>");
-            iconToggle.addClass("fa fa-minus-circle");
-            iconToggle.attr('id', 'icon-toggle');
-            anchorShowHide.append(iconToggle);
-            anchorShowHide.click(function () {
-                $("#diagramModelAnchor_"+ graphName +"\\\."+ modelName).click();
-                $('#' + idTopBox).toggleClass("hidden");
-                if (iconToggle.attr('class') == 'fa fa-minus-circle') {
-                    iconToggle.removeClass('fa-minus-circle');
-                    iconToggle.addClass('fa-plus-circle');
-                } else {
-                    iconToggle.removeClass('fa-plus-circle');
-                    iconToggle.addClass('fa-minus-circle');
-                }
-                diagram.recalculateAnchor(idBox, idAllRels);
-
-                jsPlumb.repaintEverything();
-            });
-            // Close button in the corner of the box and its associated event
-            anchorClose = $("<A>");
-            anchorClose.attr("href", "javascript:void(0);");
-            anchorClose.attr("id", "inlineDeleteLink_"+ modelName);
-            iconClose = $("<I>");
-            iconClose.addClass("fa fa-times-circle remove-icon");
-            anchorClose.append(iconClose);
-            anchorClose.click(function () {
-                $("#diagramModelAnchor_"+ graphName +"\\\."+ modelName).click();
-                var connections = jsPlumb.getEndpoint(idBox + '-target').connections;
-                // We redraw the endpoint of the endpoints connected to this
-                // target
-                for(var i = 0; i < connections.length; i++) {
-                    connections[i].endpoints[0].removeClass('endpointInvisible');
-                }
-
-                jsPlumb.detachAllConnections(idBox);
-                for(var i = 0; i < relationsIds.length; i++)
-                    jsPlumb.deleteEndpoint(relationsIds[i] + "-source");
-                jsPlumb.deleteEndpoint(idBox + "-target");
-
-                jsPlumb.selectEndpoints().each(function(endpoint) {
-                    endpoint.removeClass("dragActive");
-                });
-
-                // We get the alias of the box to remove it in the selects
-                var boxAlias = $('#' + idBox + ' .select-nodetype-' + typeName).val();
-
-                $('#' + idBox).remove();
-
-                // We remove the boxAlias in the other selects
-                diagram.removeAlias(typeName, boxAlias);
-
-                // We remove the boxAlias of the list
-                var aliasIndex = diagram.nodetypesList[typeName].indexOf(boxAlias);
-                diagram.nodetypesList[typeName].splice(aliasIndex, 1);
-
-                // We check if we have only one box to hide the selects for the alias
-                diagram.hideSelects(typeName, "node");
-            });
-            // Advanced mode button in the corner of the box and its associated event
-            advancedMode = $("<A>");
-            advancedMode.attr("href", "javascript:void(0);");
-            advancedMode.attr("id", "inlineAdvancedMode_"+ modelName);
-            advancedMode.attr("title", gettext("Advanced options"))
-            iconAdvancedMode = $("<I>");
-            iconAdvancedMode.addClass("fa fa-gear icon-style");
-            advancedMode.append(iconAdvancedMode);
-            advancedMode.click(function () {
-                // We change the width of the box div
-                $('#' + idBox).css({
-                    'width': '440px'
-                });
-                // We show the advanced options
-                $('#' + idBox + " .select-aggregate").css({
-                    "display": "inline"
-                });
-                // We change the margin left of the relationships remove icon
-                $('#' + idBox + " #remove-relation-icon").css({
-                    'margin-left': '307px'
-                });
-            });
-            divCornerButtons.append(anchorClose);
-            divCornerButtons.append(anchorShowHide);
-            divCornerButtons.append(advancedMode);
-
-            divTitle.append(divCornerButtons);
-
-            divTitle.attr("data-boxalias", modelName + diagram.nodetypesCounter[typeName]);
-
-            return divTitle;
-        }
+        };
 
         /**
          * Set the label fo the fields getting shorter and adding ellipsis
@@ -853,10 +730,10 @@ diagram.aggregates = [
         /**
          * Set the name fo the model box getting shorter and adding ellipsis
          */
-        diagram.setName = function (div, name, typeName) {
+        diagram.setName = function (div, name, typeName, type) {
             // We check if we show the select to allow more space for the name
             var numOfBoxes = $('.select-nodetype-' + typeName).length;
-            if(name == typeName) {
+            if(type == "relation") {
                 // If the name is equals to the typeName, is a relationship
                 numOfBoxes =  $('.select-reltype-' + typeName).length;
             }
@@ -895,8 +772,8 @@ diagram.aggregates = [
                                 diagram.nodetypesList[typeName] = new Array();
                             }
 
-                            diagram.addBox(graph, modelName, typeName);
                             modelNameValue = models[modelName].name;
+                            diagram.addBox(graph, modelNameValue, typeName);
                         }
                     }
                     if(typeName == "wildcard") {
@@ -905,10 +782,11 @@ diagram.aggregates = [
                             diagram.nodetypesCounter[typeName]++;
                         } else {
                             diagram.nodetypesCounter[typeName] = 1;
+                            diagram.nodetypesList[typeName] = new Array();
                         }
 
-                        diagram.addBox(graph, typeName, typeName);
-                        modelNameValue = "wildcard";
+                        modelNameValue = "Wildcard";
+                        diagram.addBox(graph, modelNameValue, typeName);
                     }
                 }
             }
@@ -928,11 +806,10 @@ diagram.aggregates = [
          */
         diagram.addFieldRow = function(graphName, modelName, parentId, typeName, boxalias, idBox, idAllRels) {
             var model, lengthFields, fieldId, selectProperty, selectLookup, field, datatype, optionProperty, inputLookup, divField, divAndOr, selectAndOr, removeField, removeFieldIcon, checkboxProperty;
-            model = diagram.Models[graphName][modelName];
+            model = diagram.Models[graphName][typeName];
             diagram.fieldCounter++;
             fieldId = "field" + diagram.fieldCounter;
-            alias = diagram.replaceChars(boxalias);
-            diagram.fieldsForNodes[alias].push(fieldId);
+            diagram.fieldsForNodes[boxalias].push(fieldId);
             if(typeName != "wildcard") {
                 lengthFields = model.fields.length;
                 // Select property
@@ -946,7 +823,7 @@ diagram.aggregates = [
                 // First option to choose one
                 optionProperty = $("<OPTION>");
                 optionProperty.addClass('option-property');
-                optionProperty.attr('value', '');
+                optionProperty.attr('value', 'undefined');
                 optionProperty.attr('disabled', 'disabled');
                 optionProperty.attr('selected', 'selected');
                 optionProperty.html(gettext("choose one"));
@@ -1097,38 +974,39 @@ diagram.aggregates = [
                 checkboxProperty = $("<INPUT>");
                 checkboxProperty.addClass("checkbox-property");
                 checkboxProperty.attr("type", "checkbox");
-                // If we have more than 1 field row, add and-or div
-                if ($('#' + idFields).children().length > 0) {
-                    divAndOr = $("<DIV>");
-                    divAndOr.addClass("and-or-option");
-                    divAndOr.css({
-                        "margin-bottom": "5%"
-                    });
-                    selectAndOr = $("<SELECT>");
-                    selectAndOr.addClass("select-and-or");
-                    selectAndOr.append("<option class='option-and-or' value='and'>" + gettext("And") + "</option>");
-                    selectAndOr.append("<option class='option-and-or' value='or'>" + gettext("Or") + "</option>");
-                    divAndOr.append(selectAndOr);
-                    divField.append(divAndOr);
-                    // Link to remove the lookup
-                    removeField = $("<A>");
-                    removeField.addClass("remove-field-row-rel");
-                    removeField.attr('data-fieldid', fieldId);
-                    removeField.attr('data-parentid', idFields);
-                    // Icon
-                    removeFieldIcon = $("<I>");
-                    removeFieldIcon.addClass("fa fa-minus-cricle");
-                    removeFieldIcon.attr('id', 'remove-field-icon-prop');
+                // Add and-or div
+                divAndOr = $("<DIV>");
+                divAndOr.addClass("and-or-option");
+                divAndOr.css({
+                    'display': 'inline'
+                });
+                selectAndOr = $("<SELECT>");
+                selectAndOr.addClass("select-and-or-rel");
+                selectAndOr.attr('data-label', label);
+                selectAndOr.attr('data-parentid', idFields);
+                selectAndOr.append("<option class='option-and-or' value='not' selected='selected' disabled>" + gettext("choose one") + "</option>");
+                selectAndOr.append("<option class='option-and-or' value='and'>" + gettext("And") + "</option>");
+                selectAndOr.append("<option class='option-and-or' value='or'>" + gettext("Or") + "</option>");
+                divAndOr.append(selectAndOr);
 
-                    removeField.append(removeFieldIcon);
-                    divField.append(removeField);
-                }
+                // Link to remove the lookup
+                removeField = $("<A>");
+                removeField.addClass("remove-field-row-rel");
+                removeField.attr('data-fieldid', fieldId);
+                removeField.attr('data-parentid', idFields);
+                // Icon
+                removeFieldIcon = $("<I>");
+                removeFieldIcon.addClass("fa fa-minus-circle");
+                removeFieldIcon.attr('id', 'remove-field-icon-rel');
+                removeField.append(removeFieldIcon);
+            }
 
                 // We append the patterns
                 divField.append(checkboxProperty);
                 divField.append(selectProperty);
                 divField.append(selectLookup);
-            }
+                divField.append(divAndOr);
+                divField.append(removeField);
 
             return divField;
         };
@@ -1144,12 +1022,13 @@ diagram.aggregates = [
         /**
          * Calculate the anchor for an endpoint pattern.
          * The height used for the relations divs are
-         * 24 px each
+         * 24 px each. The accuracy of the calculations
+         * have been obtained by testing the results.
          * - parentId
          * - relsId
          * - relNumber
          */
-         diagram.calculateAnchor = function(parentId, relsId, relIndex) {
+        diagram.calculateAnchor = function(parentId, relsId, relIndex) {
             var selectRelHeight = 17;
             var proportion = (($('#' + parentId).height() + selectRelHeight) - $('#' + relsId).height()) / $('#' + parentId).height();
             // We add 17 because the select rel height
@@ -1161,14 +1040,14 @@ diagram.aggregates = [
             var result = (offset/$('#' + parentId).height()) + proportion;
 
             return result;
-         };
+        };
 
         /**
          * Recalculate the anchor for sources endpoints
          * - idBox
          * - idAllRels
          */
-         diagram.recalculateAnchor = function(idBox, idAllRels) {
+        diagram.recalculateAnchor = function(idBox, idAllRels) {
             if(jsPlumb.getEndpoints(idBox).length > 1) {
                 for(var i = 1; i < jsPlumb.getEndpoints(idBox).length; i++) {
                     var endpoint = jsPlumb.getEndpoints(idBox)[i];
@@ -1176,34 +1055,16 @@ diagram.aggregates = [
                     endpoint.anchor.y = anchor;
                 }
             }
-         }
+        };
 
-         /**
-          * Function to change the special characters (i.e tildes) for
-          * regular characters
-          * - text
-          */
-         diagram.replaceChars = function (text) {
-            var specials = "ÃÀÁÄÂÈÉËÊÌÍÏÎÒÓÖÔÙÚÜÛãàáäâèéëêìíïîòóöôùúüûÑñÇç ";
-            var originals = "AAAAAEEEEIIIIOOOOUUUUaaaaaeeeeiiiioooouuuunncc_";
-
-            if(text != null) {
-                for (var i=0; i<specials.length; i++) {
-                    text = text.replace(specials.charAt(i), originals.charAt(i));
-                }
-            }
-
-            return text;
-         }
-
-         /**
-          * Function that checks the number of boxes of a type to
-          * show the selects for the alias. If we have more than 1 box,
-          * we show them.
-          * - typeName
-          * - elemType
-          */
-         diagram.showSelects = function(typeName, elemType) {
+        /**
+         * Function that checks the number of boxes of a type to
+         * show the selects for the alias. If we have more than 1 box,
+         * we show them.
+         * - typeName
+         * - elemType
+         */
+        diagram.showSelects = function(typeName, elemType) {
             var elems = $('#diagram').children();
             var numberOfBoxes = 0;
 
@@ -1238,16 +1099,16 @@ diagram.aggregates = [
                     })
                 });
             }
-         }
+        };
 
-         /**
-          * Function that checks the number of boxes of a type to
-          * hide the selects for the alias. If we have 1 box, then we hide
-          * them.
-          * - typeName
-          * - elemType
-          */
-         diagram.hideSelects = function(typeName, elemType) {
+        /**
+         * Function that checks the number of boxes of a type to
+         * hide the selects for the alias. If we have 1 box, then we hide
+         * them.
+         * - typeName
+         * - elemType
+         */
+        diagram.hideSelects = function(typeName, elemType) {
             var elems = $('#diagram').children();
             var numberOfBoxes = 0;
 
@@ -1281,14 +1142,17 @@ diagram.aggregates = [
                         "display": "none"
                     })
                 });
+            } else if(numberOfBoxes == 0) {
+                // We reset the nodetype counter
+                diagram.nodetypesCounter[typeName] = 0;
             }
-         }
+        };
 
-         /**
-          * Function that removes in the selects of the boxes, the alias
-          * of a deleted box
-          */
-         diagram.removeAlias = function(typeName, boxAlias) {
+        /**
+         * Function that removes in the selects of the boxes, the alias
+         * of a deleted box
+         */
+        diagram.removeAlias = function(typeName, boxAlias) {
             var boxes = $('.select-nodetype-' + typeName);
 
             // We iterate over the boxes
@@ -1301,7 +1165,43 @@ diagram.aggregates = [
                     }
                 })
             })
-         }
+        };
+
+        /**
+         * Function to create the logic when a field row is deleted
+         * - parentId
+         * - fieldId
+         * - selectAndOr
+         */
+        diagram.removeFields = function(parentId, fieldId, selectorAndOr) {
+            // We check that the field box need to have one
+            // field row at least
+            if($('#' + parentId).children().length > 1) {
+                $("#" + fieldId).remove();
+            } else {
+                // We restore the default display for a field
+                var fieldSelector = "#" + fieldId;
+                $(fieldSelector + ' .select-property option[value="undefined"]').attr('selected', 'selected');
+                $(fieldSelector + ' .select-lookup option[value="undefined"]').attr('selected', 'selected');
+                $(fieldSelector + ' .select-lookup').css({
+                    'display': 'none'
+                });
+                $(fieldSelector + ' .lookup-value').val('');
+                $(fieldSelector + ' .lookup-value').css({
+                    'display': 'none'
+                });
+                $(fieldSelector + ' ' + selectorAndOr + ' option[value="not"]').attr('selected', 'selected');
+                $(fieldSelector + ' ' + selectorAndOr).css({
+                    'display': 'none'
+                });
+            }
+
+            // We select the 'Choose one' value for the last field
+            var newFieldId = $($('#' + parentId).children().last()).attr('id');
+            $('#' + newFieldId + ' .option-and-or:disabled').attr('disabled', false);
+            $('#' + newFieldId + ' ' + selectorAndOr).val(gettext('choose one'));
+            $('#' + newFieldId + ' ' + + selectorAndOr).children().first().prop('disabled', 'disabled');
+        };
 
         /**
          * Returns the options of a relationship
@@ -1310,7 +1210,7 @@ diagram.aggregates = [
          * - idRel
          * - anchor
          */
-         diagram.getRelationshipOptions = function(type, name, label, idRel, anchor) {
+        diagram.getRelationshipOptions = function(type, name, label, idRel, anchor) {
             var relationshipOptions = null;
 
             if(type == 'source') {
@@ -1331,7 +1231,7 @@ diagram.aggregates = [
                                         location:1,
                                         id:"arrow"}],
                                     [ "Label", {
-                                        label:label,
+                                        label:name,
                                         id:"label"}],
                                     ["Custom", {
                                         create:function(component) {
@@ -1379,15 +1279,15 @@ diagram.aggregates = [
                               };
             }
             return relationshipOptions;
-         }
+        };
 
-         /**
-          * Function triggered when a new relationship is loaded and checks
-          * if we have loaded some box with the target equal to targetType.
-          * If not, we load a box with that target and create a relationship
-          * between the boxes.
-          */
-         diagram.checkTargetType = function(targetType, relation) {
+        /**
+         * Function triggered when a new relationship is loaded and checks
+         * if we have loaded some box with the target equal to targetType.
+         * If not, we load a box with that target and create a relationship
+         * between the boxes.
+         */
+        diagram.checkTargetType = function(targetType, relation) {
             var elems = $('#diagram').children();
             var numberOfBoxes = 0;
             var uuidSource = relation + "-source";
@@ -1433,7 +1333,7 @@ diagram.aggregates = [
 
                 jsPlumb.repaintEverything();
             }
-         }
+        };
     };
 
     /**
@@ -1450,12 +1350,10 @@ diagram.aggregates = [
             var conditionArray = new Array();
             var lookup = $(property).next().val();
             var propertyTag = "property";
-            //var alias = $(property).data('boxalias');
-            // We really should think about another solution
+            // We really should think about another solution to get the parent element
             var parent = $(property).parent().parent().parent().parent().parent();
             var parentId = $(parent).attr('id');
-            var alias = diagram.replaceChars($('#' + parentId + ' .title select').val());
-            // var alias = '`' + $('#' + parentId + ' .title select').val() + '`';
+            var alias = $('#' + parentId + ' .title select').val();
             var propertyName = $(property).val();
             var propertyValue = $(property).next().next().val();
 
@@ -1529,6 +1427,7 @@ diagram.aggregates = [
                 conditionsArray.push(conditionArray);
             }
         });
+
         query["conditions"] = conditionsArray;
 
         // Origin
@@ -1540,7 +1439,6 @@ diagram.aggregates = [
             // We check the type of the origin
             if($(element).attr("class").indexOf("nodetype") >= 0)
                 type = "node";
-            // var alias = diagram.replaceChars($(element).val());
             var alias = $(element).val();
             var type_id = $(element).data('modelid');
             origin.alias = alias;
@@ -1548,6 +1446,7 @@ diagram.aggregates = [
             origin.type_id = type_id;
             originsArray.push(origin);
         });
+
         query["origins"] = originsArray;
 
         // Patterns
@@ -1576,7 +1475,6 @@ diagram.aggregates = [
             }
             var relationAlias = $('#' + relationId + ' .title select').val();
             var relationModelId = relationSelector.data('modelid');
-            // relation.alias = diagram.replaceChars(relationAlias);
             relation.alias = relationAlias;
             relation.type = 'relationship';
             relation.type_id = relationModelId;
@@ -1584,7 +1482,6 @@ diagram.aggregates = [
             var sourceSelector = $('#' + sourceId + ' .title');
             var sourceAlias = $('#' + sourceId + ' .title select').val();
             var sourceModelId = sourceSelector.data('modelid');
-            // source.alias = diagram.replaceChars(sourceAlias);
             source.alias = sourceAlias;
             source.type = 'node';
             source.type_id = sourceModelId;
@@ -1592,7 +1489,6 @@ diagram.aggregates = [
             var targetSelector = $('#' + targetId + ' .title');
             var targetAlias = $('#' + targetId + ' .title select').val();
             var targetModelId = targetSelector.data('modelid');
-            // target.alias = diagram.replaceChars(targetAlias);
             target.alias = targetAlias;
             target.type = 'node';
             target.type_id = targetModelId;
@@ -1603,6 +1499,7 @@ diagram.aggregates = [
 
             patternsArray.push(pattern);
         });
+
         query["patterns"] = patternsArray;
 
         // Result
@@ -1610,9 +1507,8 @@ diagram.aggregates = [
         var elements = $('option').filter(function(){ return $(this).attr("class") && $(this).attr("class").match(/(option-reltype|option-nodetype)./) && $(this).attr("selected");});
         $.each(elements, function(index, element) {
             var result = {};
-            // var alias = diagram.replaceChars($(element).val());
             var alias = $(element).val();
-            var properties = propertiesChecked[diagram.replaceChars(element.value)];
+            var properties = propertiesChecked[element.value];
 
             if(!properties)
                 properties = new Array();
@@ -1622,6 +1518,7 @@ diagram.aggregates = [
 
             resultsArray.push(result);
         });
+
         query["results"] = resultsArray;
 
         return query;
@@ -1792,7 +1689,7 @@ diagram.aggregates = [
         } catch(error) {
             alert(error);
         }
-    }
+    };
 
     /**
      * Interactions functions
@@ -1810,8 +1707,8 @@ diagram.aggregates = [
         diagram.showSelects(nodeType, "node");
 
         // The next lines is to select the new alias in the box
-        var elem = $('.select-nodetype-' + nodeType + ' #' + modelName + (diagram.nodetypesCounter[nodeType] + 1 - 1)).length - 1;
-        $($('.select-nodetype-' + nodeType + ' #' + modelName + (diagram.nodetypesCounter[nodeType] + 1 - 1))[elem]).attr('selected', 'selected');
+        var elem = $('.select-nodetype-' + nodeType + ' #' + modelName + (diagram.nodetypesCounter[nodeType])).length - 1;
+        $($('.select-nodetype-' + nodeType + ' #' + modelName + (diagram.nodetypesCounter[nodeType]))[elem]).attr('selected', 'selected');
     });
 
     /**
@@ -1868,15 +1765,19 @@ diagram.aggregates = [
     /**
      * Add field row inside a rel type
      */
-    $("#diagramContainer").on('click', '.add-field-row-rel', function() {
+    $("#diagramContainer").on('change', '.select-and-or-rel', function() {
         var $this = $(this);
         var label = $this.data("label");
         var parentId = $this.data("parentid");
 
-        divField = diagram.addFieldRelRow(label, parentId);
+        // We check if the field is the last to field to allow the addition
+        // of a new field
+        var field = $this.parent().parent();
+        if($(field).next().length == 0) {
+            divField = diagram.addFieldRelRow(label, parentId);
 
-        $("#" + parentId).append(divField);
-
+            $("#" + parentId).append(divField);
+        }
     });
 
     /**
@@ -1889,21 +1790,13 @@ diagram.aggregates = [
         var idBox = $this.data("idbox");
         var idAllRels = $this.data("idallrels");
 
-        // We check that the field box need to have one
-        // field row at least
-        if($('#' + parentId).children().length > 1) {
-            $("#" + fieldId).remove();
-        } else {
-            alert("You need a field at least");
-        }
+        // We store the selector for the and/or select for nodes
+        var selectorAndOr = '.select-and-or';
+        // We call to the function to remove the field
+        diagram.removeFields(parentId, fieldId, selectAndOr);
+
         // Recalculate anchor for source endpoints
         diagram.recalculateAnchor(idBox, idAllRels);
-
-        // We select the 'Choose one' value for the last field
-        var newFieldId = $($('#' + parentId).children().last()).attr('id');
-        $('#' + newFieldId + ' .option-and-or:disabled').attr('disabled', false);
-        $('#' + newFieldId + ' .select-and-or').val(gettext('choose one'));
-        $('#' + newFieldId + ' .select-and-or').children().first().prop('disabled', 'disabled');
 
         jsPlumb.repaintEverything();
     });
@@ -1916,11 +1809,10 @@ diagram.aggregates = [
         var fieldId = $this.data("fieldid");
         var parentId = $this.data("parentid");
 
-        // We check that the field box need to have one
-        // field row at least
-        if($('#' + parentId).children().length > 1) {
-            $("#" + fieldId).remove();
-        }
+        // We store the selector for the and/or select for rels
+        var selectorAndOr = '.select-and-or-rel';
+        // We call to the function to remove the field
+        diagram.removeFields(parentId, fieldId, selectorAndOr);
     });
 
     /**
@@ -2031,8 +1923,13 @@ diagram.aggregates = [
             "display": "inline"
         });
 
-        // We show the and-or select
+        // We show the and-or select for nodes
         $('#' + fieldId + ' .select-and-or').css({
+            "display": "inline"
+        });
+
+        // We show the and-or select for relationships
+        $('#' + fieldId + ' .select-and-or-rel').css({
             "display": "inline"
         });
 
@@ -2068,16 +1965,17 @@ diagram.aggregates = [
                     $this.next().next().remove();
                 }
             }
-            var select = $("<SELECT>");
-            select.addClass("lookup-value");
-            select.css({
+            var inputLookup = $("<SELECT>");
+            inputLookup.addClass("lookup-value");
+            inputLookup.css({
                 "width": "60px",
                 "margin-left": "8px",
+                "margin-top": "-4px",
                 "padding": "0",
                 "display": "none"
             });
-            select.append('<option class="lookup-value" value="true">True</option>');
-            select.append('<option class="lookup-value" value="false">False</option>');
+            inputLookup.append('<option class="lookup-value" value="true">True</option>');
+            inputLookup.append('<option class="lookup-value" value="false">False</option>');
             $(inputLookup).insertAfter($('#' + fieldId + ' .select-lookup'))
         } else if(datatype == 'choices') {
             // Choices select
@@ -2094,7 +1992,8 @@ diagram.aggregates = [
             inputLookup.css({
                 "width": "60px",
                 "margin-left": "8px",
-                "padding": 0,
+                "margin-top": "-4px",
+                "padding": "0",
                 "display": "none"
             });
             inputLookup.append('<option class="lookup-value" value=""></option>');
@@ -2343,7 +2242,7 @@ diagram.aggregates = [
     /**
      * Add the handler to remove the wire
      */
-     $("#diagramContainer").on('click', '.remove-relation', function() {
+    $("#diagramContainer").on('click', '.remove-relation', function() {
         var $this = $(this);
         var patternId = $this.data("parentid");
         var idBox = $this.data("idbox");
@@ -2384,13 +2283,13 @@ diagram.aggregates = [
         diagram.hideSelects(name, "relationship");
 
         jsPlumb.repaintEverything();
-     });
+    });
 
     /**
      * Bind methods for control jsPlumb events
      */
 
-     jsPlumb.bind("connection", function(info) {
+    jsPlumb.bind("connection", function(info) {
         var scopeSource = info.sourceEndpoint.scopeSource;
         var scopeTarget = info.targetEndpoint.scopeTarget;
 
@@ -2403,11 +2302,13 @@ diagram.aggregates = [
             var targetIdValue = info.targetId;
 
             var idBoxRel = info.connection.getOverlays()[2].id;
-            var labelRel = info.connection.getOverlays()[1].label;
+            // We store the name in the label variable
+            var nameRel = info.connection.getOverlays()[1].label;
             info.connection.idrel = idBoxRel;
 
-            var elem = $('.select-reltype-' + labelRel + ' #' + labelRel + (diagram.reltypesCounter[labelRel] + 1 - 1)).length - 1;
-            $($('.select-reltype-' + labelRel + ' #' + labelRel + (diagram.reltypesCounter[labelRel] + 1 - 1))[elem]).attr('selected', 'selected');
+            // We select the index of the element for select it for the alias
+            var elem = $('.select-reltype-' + nameRel + ' #' + nameRel + (diagram.reltypesCounter[nameRel])).length - 1;
+            $($('.select-reltype-' + nameRel + ' #' + nameRel + (diagram.reltypesCounter[nameRel]))[elem]).attr('selected', 'selected');
 
             diagram.CounterRels++;
 
@@ -2415,6 +2316,9 @@ diagram.aggregates = [
             info.sourceEndpoint.addClass("endpointInvisible");
             info.targetEndpoint.removeClass("dragActive");
             info.targetEndpoint.removeClass("dropHover");
+
+            // We check if we have more than one box to show the selects for the alias
+            diagram.showSelects(nameRel, "relationship");
         } else {
             jsPlumb.detach(info.connection);
         }
@@ -2425,7 +2329,7 @@ diagram.aggregates = [
                 "box-shadow": ""
             });
         });
-     });
+    });
 
     jsPlumb.bind("connectionDrag", function(connection) {
         // We make the endpoint invisible
@@ -2580,7 +2484,7 @@ diagram.aggregates = [
             var valuesDict = {};
             var parent = $(element).parent().parent();
 
-            var alias = diagram.replaceChars($(element).val());
+            var alias = $(element).val();
             var id = $(parent).attr('id');
             var typename = $(element).attr('class').substring(15);
             // This is for check if we have a relationship or a node
@@ -2624,8 +2528,7 @@ diagram.aggregates = [
         console.log(JSON.stringify(saveElements));
 
         // We are going to assign the values for the elements of the form
-        //
-        var numberOfResults = $('.content-table td').length;
+        var numberOfResults = $('.content-table tr').length;
         $('#id_results_count').val(numberOfResults);
         $('#id_last_run').val('1987-11-01');
         $('#id_query_dict').val(JSON.stringify(saveElements['query']));
@@ -2638,4 +2541,5 @@ diagram.aggregates = [
     });
 
     $(document).ready(init);
+
 })(jQuery);

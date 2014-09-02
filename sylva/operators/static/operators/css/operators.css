@@ -94,6 +94,12 @@
     margin-right: 5px;
 }
 
+#remove-field-icon-rel {
+    margin-left: 8px;
+    margin-right: 5px;
+    color: #AEAA78;
+}
+
 #add-wildcardInput-icon {
     margin-left: 336px;
 }
@@ -152,13 +158,14 @@
     height: 40px;
     margin-top: 4%;
     margin-bottom: 4%;
+    overflow: visible !important;
 }
 
 .checkbox-property {
     margin-left: 2%;
 }
 
-.select-and-or {
+.select-and-or, .select-and-or-rel {
     width: 50px;
     padding: 0;
     display: none;

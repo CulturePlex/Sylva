@@ -155,7 +155,7 @@ class Q(BaseQ):
                 nullable = u""
             params[key] = match
             try:
-                query_format = u"{0}.`{1}`{2} {3} {{{4}}}"
+                query_format = u"`{0}`.`{1}`{2} {3} {{{4}}}"
                 query = query_format.format(self.var, property, nullable,
                                             lookup, key)
             except AttributeError:
