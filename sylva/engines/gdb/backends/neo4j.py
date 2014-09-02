@@ -392,7 +392,7 @@ class GraphDatabase(BlueprintsGraphDatabase):
             where = u"WHERE {0} ".format(conditions)
         else:
             where = u""
-        q = u"START {0} {1}{2}RETURN DISTINCT {3}".format(origins, match,
+        q = u"START {0} {1}{2}RETURN {3}".format(origins, match,
                                                           where, results)
         print q
         return q, query_params
@@ -511,6 +511,7 @@ class GraphDatabase(BlueprintsGraphDatabase):
 
     def _query_generator_results(self, results_dict):
         results_set = set()
+        distinct_clause = ""
         for result_dict in results_dict:
             alias = result_dict["alias"]
             if result_dict["properties"] is None:
@@ -539,7 +540,10 @@ class GraphDatabase(BlueprintsGraphDatabase):
                                                                     u"\\`")
                                 )
                                 results_set.add(result)
-        results = u", ".join(results_set)
+                        if property_distinct:
+                            distinct_clause = u"DISTINCT"
+        properties_results = u", ".join(results_set)
+        results = u"{0} {1}".format(distinct_clause, properties_results)
         return results
 
     def _query_generator_patterns(self, patterns_dict, conditions_alias):

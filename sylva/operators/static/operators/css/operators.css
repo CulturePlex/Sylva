@@ -118,7 +118,7 @@
 }
 
 .title {
-    padding-bottom: 2%;
+    /*padding-bottom: 2%;*/
 }
 
 .checkbox-select-type {
@@ -126,8 +126,14 @@
     margin-top: 1% !important;
 }
 
+.box-name {
+    float: left;
+    margin-left: 3%;
+    margin-top: -1px;
+}
+
 .corner-buttons {
-    margin-top: 5px;
+    margin-top: 2px;
 }
 
 .icon-style {
@@ -153,10 +159,7 @@
 }
 
 .field {
-    /*display: inline-table;
-    display: inline;*/
     height: 40px;
-    margin-top: 4%;
     margin-bottom: 4%;
     overflow: visible !important;
 }
@@ -190,7 +193,7 @@
 }
 
 .query-box-endpoint-target {
-    margin-top: 17px;
+    margin-top: 12px;
 }
 
 #query-information {

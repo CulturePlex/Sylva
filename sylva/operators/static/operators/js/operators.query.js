@@ -576,6 +576,7 @@ diagram.aggregates = [
                 "float": "left",
                 "padding": "0",
                 "margin-left": "10%",
+                "margin-top": "-1px",
                 "display": "none"
             });
             optionNodetype = $("<OPTION>");
@@ -737,15 +738,15 @@ diagram.aggregates = [
                 // If the name is equals to the typeName, is a relationship
                 numOfBoxes =  $('.select-reltype-' + typeName).length;
             }
-            var html = "<span style='float: left; margin-left: 3%; margin-top: 2px;'>" + name + " <span class='show-as'>" + gettext("as") + "</span></span>";
+            var html = "<span class='box-name'>" + name + " <span class='show-as'>" + gettext("as") + "</span></span>";
             if(numOfBoxes > 1) {
                 if(name.length > 10) {
-                    html = "<span style='float: left; margin-left: 3%; margin-top: 2px;'>" + name.substr(0, 10) + "…" + " <span class='show-as'>" + gettext("as") + "</span></span>";
+                    html = "<span class='box-name'>" + name.substr(0, 10) + "…" + " <span class='show-as'>" + gettext("as") + "</span></span>";
                 }
             } else {
                 // We allow more space
                 if(name.length > 25) {
-                    html = "<span style='float: left; margin-left: 3%; margin-top: 2px;'>" + name.substr(0, 25) + "…" + " <span class='show-as'>" + gettext("as") + "</span></span>";
+                    html = "<span class='box-name'>" + name.substr(0, 25) + "…" + " <span class='show-as'>" + gettext("as") + "</span></span>";
                 }
             }
             div.append(html);
@@ -1252,7 +1253,7 @@ diagram.aggregates = [
             } else if(type == 'target') {
                 relationshipOptions = { endpoint: ["Rectangle",
                 {width: 360,
-                 height: 30,
+                 height: 23,
                  cssClass: 'query-box-endpoint-target'}],
                                 //anchor: [1, anchor, -1, 0],
                                 anchor: "TopCenter",
