@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import datetime
 import json
-from dateutil import tz, relativedelta
+from dateutil import tz
 from django.db import models
 from django.utils.translation import gettext as _
 from jsonfield import JSONField
@@ -31,13 +31,13 @@ class ReportTemplate(models.Model):
         max_length=1,
         choices=FREQUENCY_CHOICES,
         default=u'w'
-    ) 
+    )
     last_run = models.DateTimeField(_('last run'), blank=True, null=True)
     layout = JSONField(_('layout'))
     description = models.TextField(_('description'), blank=True, null=True)
     graph = models.ForeignKey(
         Graph,
-        verbose_name= _('graph'), 
+        verbose_name=_('graph'),
         related_name='report_templates'
     )
     queries = models.ManyToManyField(
@@ -54,7 +54,7 @@ class ReportTemplate(models.Model):
     def execute(self):
         queries = self.queries.all()
         # EXECUTE QUERIES HERE
-        query_dicts = {query.id: (query.query_dict[:-2], query.name) 
+        query_dicts = {query.id: (query.query_dict[:-2], query.name)
                        for query in queries}
         table = []
         for row in self.layout:
@@ -76,32 +76,6 @@ class ReportTemplate(models.Model):
         report.save()
         # Here I need to update the last_run attr
 
-    def ready_to_execute(self):
-        now = datetime.datetime.now(tz.tzutc()) + datetime.timedelta(minutes=14)
-        if not self.last_run:
-            last = self.start_date
-        else:
-            last = self.last_run
-        rdelta = relativedelta.relativedelta(now, last) 
-        if self.frequency == u'm' and rdelta.months ==  1 \
-                and not rdelta.days  and 0 < rdelta.minutes < 15 \
-                or not rdelta.minutes:
-            ready = True
-        elif self.frequency == u'w' and rdelta.days == 7 \
-                and not rdelta.hours and 0 < rdelta.minutes < 15 \
-                or not rdelta.minutes:
-            ready = True
-        elif self.frequency == u'd' and rdelta.days == 1 \
-                and not rdelta.hours and 0 < rdelta.minutes < 15 \
-                or not rdelta.minutes:
-            ready = True
-        elif self.frequency == u'h' and rdelta.hours == 1 \
-                and 0 < rdelta.minutes < 15 or not rdelta.minutes:
-            ready = True
-        else:
-            ready = False
-        return ready
-
     def historify(self):
         report_dict = self.dictify()
         reports = self.reports.order_by('-date_run')
@@ -110,12 +84,12 @@ class ReportTemplate(models.Model):
         return report_dict
 
     def dictify(self):
-        template =  {
-            'name': self.name, 
+        template = {
+            'name': self.name,
             'slug': self.slug,
             'start_date': json.dumps(self.start_date, default=_dthandler),
-            'frequency': self.frequency, 
-            'last_run': json.dumps(self.last_run, default=_dthandler), 
+            'frequency': self.frequency,
+            'last_run': json.dumps(self.last_run, default=_dthandler),
             'layout': self.layout,
             'description': self.description
         }
@@ -129,11 +103,11 @@ class Report(models.Model):
         max_length=250,
         editable=False,
         unique=True
-    ) 
+    )
     table = JSONField(_('table'))
     template = models.ForeignKey(
         ReportTemplate,
-        verbose_name= _('template'),
+        verbose_name=_('template'),
         related_name='reports'
     )
 
