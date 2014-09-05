@@ -485,6 +485,13 @@
       return false;
     },
 
+    callCreateNodeModal: function(event) {
+      var url = $(event.target).attr('href');
+      sylva.modals.createNode.start(url, true);
+
+      return false;
+    },
+
     /* *****
      * Functions for interact with the graph representation.
      ***** */
@@ -1499,6 +1506,7 @@
       that.reCenter();
 
       // Defining default modals.
+      $('.dataOption.new').on('click', that.callCreateNodeModal);
       $('#collaborators-button').on('click', that.callCollaboratorsModal);
     },
 
@@ -1553,6 +1561,7 @@
       that.reCenter();
 
       // Removing default modals.
+      $('.dataOption.new').off('click', that.callCreateNodeModal);
       $('#collaborators-button').off('click', that.callCollaboratorsModal);
     },
 
