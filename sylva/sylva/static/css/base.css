@@ -1002,6 +1002,15 @@ div.initial p:nth-child(3) {
     width: 98.2%;
 }
 
+.to-right{
+    margin-left: 10px !important;
+}
+
+.content2-bottom {
+    position: absolute;
+    bottom: 12px;
+    width: 347px;
+}
 
 /* Formsets relationships *****************************************************/
 

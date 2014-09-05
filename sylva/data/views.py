@@ -182,12 +182,14 @@ def nodes_create(request, graph_slug, node_type_id):
         raise Http404(_("Mismatch in requested graph and node type's graph."))
     if request.POST:
         data = request.POST.copy()
+        as_modal = bool(data.get("asModal", False))
         mediafile_formset = MediaFileFormSet(data=data, files=request.FILES,
                                              prefix="__files")
         medialink_formset = MediaLinkFormSet(data=data, files=request.FILES,
                                              prefix="__links")
     else:
         data = None
+        as_modal = bool(request.GET.copy().get("asModal", False))
         mediafile_formset = MediaFileFormSet(prefix="__files")
         medialink_formset = MediaLinkFormSet(prefix="__links")
     node_form = NodeForm(graph=graph, itemtype=nodetype, data=data,
@@ -269,29 +271,81 @@ def nodes_create(request, graph_slug, node_type_id):
                 for medialink in medialinks:
                     medialink.media_node = media_node
                     medialink.save()
-        redirect_url = reverse("nodes_list_full",
-                               args=[graph.slug, node_type_id])
-        return redirect(redirect_url)
+
+        # If we are here it means that the form was valid and we don't need
+        # to return a form again.
+        if as_modal:
+            relationships = []
+            for rel in node.relationships.all():
+                reltype = rel.get_type()
+                source_id = rel.source.id
+                target_id = rel.target.id
+                if (source_id == node.id or target_id == node.id):
+                    rel_json = {
+                        'id': str(rel.id),
+                        'source': str(source_id),
+                        'target': str(target_id),
+                        'reltypeId': reltype.id,
+                        'reltype': rel.label_display,
+                        'fullReltype': reltype.__unicode__(),
+                        'color': reltype.get_color(),
+                        'properties': rel.properties
+                    }
+                    relationships.append(rel_json)
+
+            response = {'type': 'data',
+                        'action': 'create',
+                        'nodeId': str(node.id),
+                        'node': node.to_json(),
+                        'relationships': relationships}
+            return HttpResponse(json.dumps(response), status=200,
+                                mimetype='application/json')
+        else:
+            redirect_url = reverse("nodes_list_full",
+                                   args=[graph.slug, node_type_id])
+            return redirect(redirect_url)
+    # If we are here, we need to return the HTML form, empty or with errors.
+    if as_modal:
+        base_template = 'empty.html'
+        render = render_to_string
+    else:
+        base_template = 'base.html'
+        render = render_to_response
     # This is a way to get the media needed by the form without repeat files
     forms_media = {'js': set(),
                    'css': set()}
-    for form in [node_form] + outgoing_formsets.values() + \
-            incoming_formsets.values():
-        forms_media['js'] |= set(form.media.render_js())
-        forms_media['css'] |= set([css for css in form.media.render_css()])
-    return render_to_response('nodes_editcreate.html',
-                              {"graph": graph,
-                               "nodetype": nodetype,
-                               "node_form": node_form,
-                               "prefixes": prefixes,
-                               "outgoing_formsets": outgoing_formsets,
-                               "incoming_formsets": incoming_formsets,
-                               "mediafile_formset": mediafile_formset,
-                               "medialink_formset": medialink_formset,
-                               "forms_media": forms_media,
-                               "action": u"%s %s" % (_("New"), nodetype.name),
-                               "base_template": 'base.html'},
-                              context_instance=RequestContext(request))
+    if not as_modal:
+        for form in [node_form] + outgoing_formsets.values() + \
+                incoming_formsets.values():
+            forms_media['js'].update(set(form.media.render_js()))
+            forms_media['css'].update(
+                set([css for css in form.media.render_css()]))
+    save_url = reverse("nodes_create", args=[graph_slug, nodetype.id])
+    delete_url = ''
+    broader_context = {"graph": graph,
+                       "nodetype": nodetype,
+                       "node_form": node_form,
+                       "prefixes": prefixes,
+                       "outgoing_formsets": outgoing_formsets,
+                       "incoming_formsets": incoming_formsets,
+                       "mediafile_formset": mediafile_formset,
+                       "medialink_formset": medialink_formset,
+                       "forms_media": forms_media,
+                       "action": u"%s %s" % (_("New"), nodetype.name),
+                       "base_template": base_template,
+                       "as_modal": as_modal,
+                       "save_url": save_url,
+                       "delete_url": delete_url}
+    response = render('nodes_editcreate.html', broader_context,
+                      context_instance=RequestContext(request))
+    if as_modal:
+        response = {'type': 'html',
+                    'action': 'create',
+                    'html': response}
+        return HttpResponse(json.dumps(response), status=200,
+                            mimetype='application/json')
+    else:
+        return response
 
 
 @permission_required("data.view_data", (Data, "graph__slug", "graph_slug"),

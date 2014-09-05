@@ -472,11 +472,25 @@
       $(selector).html('');
     },
 
+    // Functions for calling the modal windows.
     callEditNodeModal: function(event) {
       var url = $(event.target).attr('data-url');
       sylva.modals.editNode.start(url, true);
     },
 
+    callCollaboratorsModal: function(event) {
+      var link = $('#collaborators-button');
+      sylva.modals.collaborators.start(link.attr('href'), true);
+
+      return false;
+    },
+
+    callCreateNodeModal: function(event) {
+      var url = $(event.target).attr('href');
+      sylva.modals.createNode.start(url, true);
+
+      return false;
+    },
 
     /* *****
      * Functions for interact with the graph representation.
@@ -1490,6 +1504,10 @@
       $(window).on('resize', that.updateSizes);
 
       that.reCenter();
+
+      // Defining default modals.
+      $('.dataOption.new').on('click', that.callCreateNodeModal);
+      $('#collaborators-button').on('click', that.callCollaboratorsModal);
     },
 
     /* Perform the cancelation of the analytics mode. Also perform the
@@ -1541,6 +1559,10 @@
 
       that.restoreSizesAndStyles();
       that.reCenter();
+
+      // Removing default modals.
+      $('.dataOption.new').off('click', that.callCreateNodeModal);
+      $('#collaborators-button').off('click', that.callCollaboratorsModal);
     },
 
 

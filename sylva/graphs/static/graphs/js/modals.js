@@ -175,7 +175,8 @@
           that.showModal(data.html, modalActions);
         }, fast);
       });
-      jqxhr.error(function() {
+      jqxhr.error(function(e) {
+        alert(e);
         alert(gettext("Oops! Something went wrong with the server."));
         that.closeModalLib();
       });
@@ -290,8 +291,12 @@
         var modalAction = null
         if(response.action == 'edit') {
           modalAction = that.editNode;
-        } else {
+        } else if(response.action == 'delete') {
           modalAction = that.deleteNode;
+        } else if (response.action == 'create') {
+           modalAction = that.createNode;
+        } else if(response.action == 'collaborators') {
+          modalAction = that.collaborators;
         }
         that.showModal(response.html, modalAction);
 
@@ -307,6 +312,7 @@
             break;
 
           case 'new':
+          case 'create':
             sylva.Sigma.addNode(false, response.node, response.relationships);
             break;
 
@@ -345,105 +351,9 @@
         that.prepareModal(url, showOverlay, this);
       },
 
-      preProcessHTML: function() {
-        var deleteNodeActions = that.deleteNode;
+      preProcessHTML: editAndCreateNodePreProcessHTML,
 
-        // Getting the URL for delete the node.
-        var deleteFormURL = $('#delete-url').attr('data-url');
-
-        // Hidding "Add node" links.
-        $('.add-node').hide();
-
-        // Variables for save the node by saving the form.
-        var saveURL = $('#save-url').attr('data-url');
-        var formSelector = '#edit-node-form';
-        var extraParamsEdit = '&asModal=true';
-        var extraParamsAsNew = extraParamsEdit + '&as-new=true';
-
-        // Binding the 'events' for the four actions.
-        $('#submit-save').attr('onclick',
-          "return sylva.modals.saveModalForm({url: '" + saveURL + "'" +
-            ", formSelector: '" + formSelector + "'" +
-            ", extraParams: '" + extraParamsEdit + "'" +
-            "})");
-        $('#submit-save-as-new').attr('onclick',
-          "return sylva.modals.saveModalForm({url: '" + saveURL + "'" +
-            ", formSelector: '" + formSelector + "'" +
-            ", extraParams: '" + extraParamsAsNew + "'" +
-            "})");
-        $('#submit-delete').on('click', function() {
-          $.modal.close();
-          setTimeout(function() {
-            that.deleteNode.start(deleteFormURL, false);
-          }, fast);
-        });
-        $('#submit-cancel').on('click', function() {
-          // The next is the way to completely close the modal.
-          that.closeModalLib();
-        });
-
-        // Getting HTML elemetns as variables.
-        var scrollWrapper = $('#modal-content-scrollable-wrapper');
-        var scrollContent = $('#modal-content-scrollable');
-        var contentControls = $('#modal-content-controls');
-        scrollWrapper.addClass('modal-content-scrollable-wrapper');
-        contentControls.addClass('modal-content-controls');
-        // Calculating the width of the form.
-        var widths = scrollContent.children().map(function(){
-          return $(this).outerWidth(true);
-        });
-        var formWidth = 0;
-        $.each(widths, function() {
-          formWidth += this;
-        });
-
-        return {
-          contentControls: contentControls,
-          scrollWrapper: scrollWrapper,
-          scrollContent: scrollContent,
-          formWidth: formWidth
-        };
-      },
-
-      onShow: function(dialog, options) {
-        // It's the content who controls the scrollbars.
-        dialog.wrap.css({
-          overflow: 'hidden'
-        });
-
-        /* Calculatin the height of the wrapper of the form for made it
-         * scrollable.
-         */
-        var scrollHeigth = dialog.wrap.height() - options.contentControls.height();
-        options.scrollWrapper.css({
-          height: scrollHeigth
-        });
-
-        options.scrollContent.css({
-          width: options.formWidth
-        });
-
-        // Attaching the events for make scrollbars appear and disappear.
-        options.scrollWrapper.on('mouseover', function() {
-          options.scrollWrapper.css({
-            overflow: 'auto'
-          });
-          /* The next lines are for show de horizontal scrollbar only when
-           * it's needed.
-           */
-          if (options.windowWidth >= (options.formWidth + options.modalPadding)) {
-            options.scrollWrapper.css({
-              overflowX: 'hidden'
-            });
-          }
-        });
-
-        options.scrollWrapper.on('mouseout', function() {
-          options.scrollWrapper.css({
-            overflow: 'hidden'
-          });
-        });
-      }
+      onShow: editAndCreateNodeOnShow
 
     },
 
@@ -478,11 +388,163 @@
       },
 
       onShow: function() {}
+    },
+
+    createNode: {
+
+      start: function(url, showOverlay) {
+        that.prepareModal(url, showOverlay, this);
+      },
+
+      preProcessHTML: editAndCreateNodePreProcessHTML,
+
+      onShow: editAndCreateNodeOnShow
+    },
+
+    collaborators: {
+
+      start: function(url, showOverlay) {
+        that.prepareModal(url, showOverlay, this);
+      },
+
+      preProcessHTML: function() {
+        $('#content2').css({
+          minHeight: 120
+        });
+
+        // Variables for save the collaborator by saving the form.
+        var addURL = $('#add-url').attr('data-url');
+        var formSelector = '#add-collaborator-form';
+        var extraParams = '&asModal=true';
+
+        // Binding the 'events' for the two actions.
+        $('#submit-add').attr('onclick',
+          "return sylva.modals.saveModalForm({url: '" + addURL + "'" +
+            ", formSelector: '" + formSelector + "'" +
+            ", extraParams: '" + extraParams + "'" +
+            "})");
+
+        $('#submit-cancel').on('click', function() {
+          that.closeModalLib();
+          return false;
+        });
+      },
+
+      onShow: function() {
+        $('#id_new_collaborator_chzn').css({
+          position: 'absolute',
+          top: 63,
+          left: 10
+        });
+      }
     }
 
   };
 
   // Reveal module.
   window.sylva.modals = modals;
+
+  // Two functions for not repeating them twice in edit and create node modals.
+  function editAndCreateNodePreProcessHTML() {
+    // Hidding "Add node" links.
+    $('.add-node').hide();
+
+    // Variables for save the node by saving the form.
+    var saveURL = $('#save-url').attr('data-url');
+    var formSelector = '#edit-node-form';
+    var extraParams = '&asModal=true';
+
+    // Binding the 'events' for the four actions.
+    $('#submit-save').attr('onclick',
+      "return sylva.modals.saveModalForm({url: '" + saveURL + "'" +
+        ", formSelector: '" + formSelector + "'" +
+        ", extraParams: '" + extraParams + "'" +
+        "})");
+
+    if ($('#submit-save-as-new').length) {
+      var extraParamsAsNew = extraParams + '&as-new=true';
+      var deleteFormURL = $('#delete-url').attr('data-url');
+
+      $('#submit-save-as-new').attr('onclick',
+        "return sylva.modals.saveModalForm({url: '" + saveURL + "'" +
+          ", formSelector: '" + formSelector + "'" +
+          ", extraParams: '" + extraParamsAsNew + "'" +
+          "})");
+
+      $('#submit-delete').on('click', function() {
+        $.modal.close();
+        setTimeout(function() {
+          that.deleteNode.start(deleteFormURL, false);
+        }, fast);
+      });
+    }
+
+    $('#submit-cancel').on('click', function() {
+      // The next is the way to completely close the modal.
+      that.closeModalLib();
+    });
+
+    // Getting HTML elemetns as variables.
+    var scrollWrapper = $('#modal-content-scrollable-wrapper');
+    var scrollContent = $('#modal-content-scrollable');
+    var contentControls = $('#modal-content-controls');
+    scrollWrapper.addClass('modal-content-scrollable-wrapper');
+    contentControls.addClass('modal-content-controls');
+    // Calculating the width of the form.
+    var widths = scrollContent.children().map(function(){
+      return $(this).outerWidth(true);
+    });
+    var formWidth = 0;
+    $.each(widths, function() {
+      formWidth += this;
+    });
+
+    return {
+      contentControls: contentControls,
+      scrollWrapper: scrollWrapper,
+      scrollContent: scrollContent,
+      formWidth: formWidth
+    };
+  }
+
+  function editAndCreateNodeOnShow(dialog, options) {
+    // It's the content who controls the scrollbars.
+    dialog.wrap.css({
+      overflow: 'hidden'
+    });
+
+    /* Calculatin the height of the wrapper of the form for made it
+     * scrollable.
+     */
+    var scrollHeigth = dialog.wrap.height() - options.contentControls.height();
+    options.scrollWrapper.css({
+      height: scrollHeigth
+    });
+
+    options.scrollContent.css({
+      width: options.formWidth
+    });
+
+    // Attaching the events for make scrollbars appear and disappear.
+    options.scrollWrapper.on('mouseover', function() {
+      options.scrollWrapper.css({
+        overflow: 'auto'
+      });
+      /* The next lines are for show de horizontal scrollbar only when
+       * it's needed.
+       */
+      if (options.windowWidth >= (options.formWidth + options.modalPadding)) {
+        options.scrollWrapper.css({
+          overflowX: 'hidden'
+        });
+      }
+    });
+
+    options.scrollWrapper.on('mouseout', function() {
+      options.scrollWrapper.css({
+        overflow: 'hidden'
+      });
+    });
+  }
 
 })(sylva, sigma, jQuery, window, document);
