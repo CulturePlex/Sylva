@@ -1,5 +1,6 @@
-import requests
 import os
+import socket
+import requests
 
 from django.test import LiveServerTestCase
 
@@ -11,6 +12,8 @@ from graphs.models import Graph
 
 from utils import spin_assert
 
+browser = None
+
 
 class SchemaTestCase(LiveServerTestCase):
     """
@@ -19,13 +22,21 @@ class SchemaTestCase(LiveServerTestCase):
     """
 
     def setUp(self):
-        self.browser = Browser()
+        global browser
+        if not browser:
+            browser = Browser()
+        socket.setdefaulttimeout(30)
+        self.browser = browser
         signup(self, 'bob', 'bob@cultureplex.ca', 'bob_secret')
         signin(self, 'bob', 'bob_secret')
 
     def tearDown(self):
         logout(self)
-        self.browser.quit()
+
+    @classmethod
+    def tearDownClass(cls):
+        if browser:
+            browser.quit()
 
     def test_export_schema(self):
         create_graph(self)
@@ -170,65 +181,65 @@ class SchemaTestCase(LiveServerTestCase):
             'diagramBoxField_bobs-graph.bobs-type.undefined').first.value
         spin_assert(lambda: self.assertEqual(text, "Number name"))
 
-    def test_new_advanced_type_number_float(self):
-        create_graph(self)
-        create_schema(self)
-        self.browser.find_link_by_href(
-            '/schemas/bobs-graph/types/create/').first.click()
-        text = self.browser.find_by_xpath(
-            "//div[@class='content2-first']/h2").first.value
-        spin_assert(lambda: self.assertEqual(text, 'Type'))
-        self.browser.find_by_name('name').first.fill("Bob's type")
-        self.browser.find_by_id('advancedModeButton').first.click()
-        self.browser.find_by_name('properties-0-key').first.fill('Number name')
-        self.browser.find_by_name('properties-0-display').first.check()
-        self.browser.find_by_name('properties-0-required').first.check()
-        self.browser.find_by_xpath("//select[@id='id_properties-0-datatype']/optgroup[@label='Basic']/option[@value='n']").first.click()
-        self.browser.find_by_name('properties-0-order').first.fill('1')
-        self.browser.find_by_name('properties-0-description').first.fill(
-            "The name of this Bob's node")
-        self.browser.find_by_value('Save Type').first.click()
-        text = self.browser.find_by_id(
-            'diagramBoxField_bobs-graph.bobs-type.undefined').first.value
-        spin_assert(lambda: self.assertEqual(text, "Number name"))
-        # Testing data
-        self.browser.find_by_id('dataMenu').first.click()
-        self.browser.find_by_xpath("//td[@class='dataActions']/a[@class='dataOption new']").first.click()
-        self.browser.find_by_name('Number name').first.fill('1.5')
-        self.browser.find_by_value("Save Bob's type").first.click()
-        text = self.browser.find_by_xpath("//ul[@class='errorlist']/li").first.text
-        spin_assert(lambda: self.assertEqual(text, 'Enter a whole number.'))
-        Graph.objects.get(name="Bob's graph").destroy()
+    # def test_new_advanced_type_number_float(self):
+    #     create_graph(self)
+    #     create_schema(self)
+    #     self.browser.find_link_by_href(
+    #         '/schemas/bobs-graph/types/create/').first.click()
+    #     text = self.browser.find_by_xpath(
+    #         "//div[@class='content2-first']/h2").first.value
+    #     spin_assert(lambda: self.assertEqual(text, 'Type'))
+    #     self.browser.find_by_name('name').first.fill("Bob's type")
+    #     self.browser.find_by_id('advancedModeButton').first.click()
+    #     self.browser.find_by_name('properties-0-key').first.fill('Number name')
+    #     self.browser.find_by_name('properties-0-display').first.check()
+    #     self.browser.find_by_name('properties-0-required').first.check()
+    #     self.browser.find_by_xpath("//select[@id='id_properties-0-datatype']/optgroup[@label='Basic']/option[@value='n']").first.click()
+    #     self.browser.find_by_name('properties-0-order').first.fill('1')
+    #     self.browser.find_by_name('properties-0-description').first.fill(
+    #         "The name of this Bob's node")
+    #     self.browser.find_by_value('Save Type').first.click()
+    #     text = self.browser.find_by_id(
+    #         'diagramBoxField_bobs-graph.bobs-type.undefined').first.value
+    #     spin_assert(lambda: self.assertEqual(text, "Number name"))
+    #     # Testing data
+    #     self.browser.find_by_id('dataMenu').first.click()
+    #     self.browser.find_by_xpath("//td[@class='dataActions']/a[@class='dataOption new']").first.click()
+    #     self.browser.find_by_name('Number name').first.fill('1.5')
+    #     self.browser.find_by_value("Save Bob's type").first.click()
+    #     text = self.browser.find_by_xpath("//ul[@class='errorlist']/li").first.text
+    #     spin_assert(lambda: self.assertEqual(text, 'Enter a whole number.'))
+    #     Graph.objects.get(name="Bob's graph").destroy()
 
-    def test_new_advanced_type_number_string(self):
-        create_graph(self)
-        create_schema(self)
-        self.browser.find_link_by_href(
-            '/schemas/bobs-graph/types/create/').first.click()
-        text = self.browser.find_by_xpath(
-            "//div[@class='content2-first']/h2").first.value
-        spin_assert(lambda: self.assertEqual(text, 'Type'))
-        self.browser.find_by_name('name').first.fill("Bob's type")
-        self.browser.find_by_id('advancedModeButton').first.click()
-        self.browser.find_by_name('properties-0-key').first.fill('Number name')
-        self.browser.find_by_name('properties-0-display').first.check()
-        self.browser.find_by_name('properties-0-required').first.check()
-        self.browser.find_by_xpath("//select[@id='id_properties-0-datatype']/optgroup[@label='Basic']/option[@value='n']").first.click()
-        self.browser.find_by_name('properties-0-order').first.fill('1')
-        self.browser.find_by_name('properties-0-description').first.fill(
-            "The name of this Bob's node")
-        self.browser.find_by_value('Save Type').first.click()
-        text = self.browser.find_by_id(
-            'diagramBoxField_bobs-graph.bobs-type.undefined').first.value
-        spin_assert(lambda: self.assertEqual(text, "Number name"))
-        # Testing data
-        self.browser.find_by_id('dataMenu').first.click()
-        self.browser.find_by_xpath("//td[@class='dataActions']/a[@class='dataOption new']").first.click()
-        self.browser.find_by_name('Number name').first.fill('number')
-        self.browser.find_by_value("Save Bob's type").first.click()
-        text = self.browser.find_by_xpath("//ul[@class='errorlist']/li").first.text
-        spin_assert(lambda: self.assertEqual(text, 'Enter a whole number.'))
-        Graph.objects.get(name="Bob's graph").destroy()
+    # def test_new_advanced_type_number_string(self):
+    #     create_graph(self)
+    #     create_schema(self)
+    #     self.browser.find_link_by_href(
+    #         '/schemas/bobs-graph/types/create/').first.click()
+    #     text = self.browser.find_by_xpath(
+    #         "//div[@class='content2-first']/h2").first.value
+    #     spin_assert(lambda: self.assertEqual(text, 'Type'))
+    #     self.browser.find_by_name('name').first.fill("Bob's type")
+    #     self.browser.find_by_id('advancedModeButton').first.click()
+    #     self.browser.find_by_name('properties-0-key').first.fill('Number name')
+    #     self.browser.find_by_name('properties-0-display').first.check()
+    #     self.browser.find_by_name('properties-0-required').first.check()
+    #     self.browser.find_by_xpath("//select[@id='id_properties-0-datatype']/optgroup[@label='Basic']/option[@value='n']").first.click()
+    #     self.browser.find_by_name('properties-0-order').first.fill('1')
+    #     self.browser.find_by_name('properties-0-description').first.fill(
+    #         "The name of this Bob's node")
+    #     self.browser.find_by_value('Save Type').first.click()
+    #     text = self.browser.find_by_id(
+    #         'diagramBoxField_bobs-graph.bobs-type.undefined').first.value
+    #     spin_assert(lambda: self.assertEqual(text, "Number name"))
+    #     # Testing data
+    #     self.browser.find_by_id('dataMenu').first.click()
+    #     self.browser.find_by_xpath("//td[@class='dataActions']/a[@class='dataOption new']").first.click()
+    #     self.browser.find_by_name('Number name').first.fill('number')
+    #     self.browser.find_by_value("Save Bob's type").first.click()
+    #     text = self.browser.find_by_xpath("//ul[@class='errorlist']/li").first.text
+    #     spin_assert(lambda: self.assertEqual(text, 'Enter a whole number.'))
+    #     Graph.objects.get(name="Bob's graph").destroy()
 
     def test_new_advanced_type_text(self):
         create_graph(self)

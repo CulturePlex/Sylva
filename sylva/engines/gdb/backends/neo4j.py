@@ -106,6 +106,8 @@ class GraphDatabase(BlueprintsGraphDatabase):
         """
         if isinstance(label, (list, tuple)) and not label:
             return 0
+        if self.nidx not in self.gdb.neograph.nodes.indexes.values():
+            return 0
         script = self._prepare_script(for_node=True, label=label)
         script = """%s return count(n)""" % script
         count = self.cypher(query=script)
@@ -118,6 +120,8 @@ class GraphDatabase(BlueprintsGraphDatabase):
         the label of the element.
         """
         if isinstance(label, (list, tuple)) and not label:
+            return 0
+        if self.ridx not in self.gdb.neograph.relationships.indexes.values():
             return 0
         script = self._prepare_script(for_node=False, label=label)
         script = """%s return count(r)""" % script
@@ -588,16 +592,10 @@ class GraphDatabase(BlueprintsGraphDatabase):
         all_nodes = self.get_all_nodes(include_properties=False)
         for node_id, props, label in all_nodes:
             self.delete_node(node_id)
-        try:
+        if self.nidx in self.gdb.neograph.nodes.indexes.values():
             self.nidx.delete()
-        except NotFoundError:
-            pass  # If there is no nodes, there will be no index, so an error
-                  # will be raised
-        try:
+        if self.ridx in self.gdb.neograph.relationships.indexes.values():
             self.ridx.delete()
-        except NotFoundError:
-            pass  # If there is no rels, there will be no index, so an error
-                  # will be raised
         self = None
 
     def analysis(self):
