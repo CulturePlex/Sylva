@@ -191,7 +191,7 @@ directives.directive('syEditableTable', ['$compile', 'tableArray', function ($co
         scope: {
             resp: '='
         },
-        templateUrl: '/static/app/partials/directives/editable_table.html',
+        templateUrl: '/static/app/directives/editable_table.html',
         controller: function($scope) {
 
             this.getTableArray = function() {
@@ -432,7 +432,7 @@ directives.directive('sylvaEtCell', ['$sanitize', '$sce', function ($sanitize, $
         scope: {
             config: '='
         },
-        templateUrl: '/static/app/partials/directives/edit_cell.html',
+        templateUrl: '/static/app/directives/edit_cell.html',
         link: function(scope, elem, attrs, ctrl) {
             var ang = angular.element
             ,   mdDiv = ang(elem.children()[1])
@@ -498,7 +498,7 @@ directives.directive('sylvaEtCell', ['$sanitize', '$sce', function ($sanitize, $
 
 directives.directive('sylvaBreadcrumbs', ['$location', 'parser', 'GRAPH', function ($location, parser, GRAPH) {
     return {
-        templateUrl: '/static/app/partials/directives/breadcrumbs.html',
+        templateUrl: '/static/app/directives/breadcrumbs.html',
         controller: function ($scope) {
 
             $scope.graph = GRAPH;

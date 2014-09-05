@@ -1,17 +1,16 @@
 # -*- coding: utf-8 -*-
 import json
-import itertools
 import os
 import tempfile
 import urlparse
-from dateutil import parser, tz
+from dateutil import parser
 
 from subprocess import Popen, STDOUT, PIPE
 from time import time
 
 from django.conf import settings
 from django.shortcuts import (render_to_response, get_object_or_404,
-                              HttpResponse, redirect)
+                              HttpResponse)
 from django.template import RequestContext
 from django.core.context_processors import csrf
 from django.utils.translation import ugettext as _
@@ -25,7 +24,6 @@ from models import ReportTemplate, Report
 from graphs.models import Graph, Schema
 from operators.models import Query
 
-from sylva.settings import STATIC_URL, STATIC_ROOT
 from sylva.decorators import is_enabled
 
 
@@ -39,12 +37,12 @@ settings.ENABLE_REPORTS = True
 def reports_index_view(request, graph_slug):
     pdf = request.GET.get('pdf', '')
     if pdf:
-        pdf = True # hmmm gotta fix this
+        pdf = True  # hmmm gotta fix this
     else:
         pdf = False
     print 'pdf', pdf
     c = {}
-    c.update(csrf(request)) # Maybe pass this as constant?
+    c.update(csrf(request))  # Maybe pass this as constant?
     report_name = _("New Report")
     placeholder_name = _("Report Name")
     graph = get_object_or_404(Graph, slug=graph_slug)
@@ -55,6 +53,16 @@ def reports_index_view(request, graph_slug):
         'report_name': report_name,
         'placeholder_name': placeholder_name,
     }))
+
+
+@login_required
+@is_enabled(settings.ENABLE_REPORTS)
+@permission_required("schemas.view_schema",
+                     (Schema, "graph__slug", "graph_slug"), return_403=True)
+def partial_view(request, graph_slug, name):
+    #import ipdb; ipdb.set_trace()
+    pattern = 'partials/{0}.html'.format(name)
+    return render_to_response(pattern, RequestContext(request, {}))
 
 
 @login_required
@@ -110,26 +118,26 @@ def preview_report_pdf(request, graph_slug):
                      (Schema, "graph__slug", "graph_slug"), return_403=True)
 def templates_endpoint(request, graph_slug):
     graph = get_object_or_404(Graph, slug=graph_slug)
-    if request.GET: 
+    if request.GET:
         response = {'template': None, 'queries': None}
-        if request.GET.get('queries', ''): # Get queries either for new template or for edit.
+        if request.GET.get('queries', ''):  # Get queries either for new template or for edit.
             queries = graph.queries.all()
             # Execute queries here maybe tell them in js
             response['queries'] = [{'series': query.query_dict[:-2],
-                                    'name': query.name, 'id': query.id} 
+                                    'name': query.name, 'id': query.id}
                                    for query in queries]
-        if request.GET.get('template', ''): # Get template for edit or preview.
+        if request.GET.get('template', ''):  # Get template for edit or preview.
             template = get_object_or_404(
                 ReportTemplate, slug=request.GET['template']
             )
             response['template'] = template.dictify()
-            if not response['queries']: # Get template queries for preview.
+            if not response['queries']:  # Get template queries for preview.
                 queries = template.queries.all()
                 # Will have to execute queries here
-                response['queries'] = [{'series': query.query_dict[:-2], 
-                                        'name': query.name, 'id': query.id} 
+                response['queries'] = [{'series': query.query_dict[:-2],
+                                        'name': query.name, 'id': query.id}
                                        for query in queries]
-    else: # Get a list of all the reports.
+    else:  # Get a list of all the reports.
         templates = graph.report_templates.all()
         response = [template.dictify() for template in templates]
     return HttpResponse(json.dumps(response), content_type='application/json')
@@ -173,11 +181,11 @@ def builder_endpoint(request, graph_slug):
             new_template.save()
         else:
             new_template = ReportTemplate.objects.create(
-                name = template['name'],
-                start_date = start_date,
-                frequency = template['frequency'],
-                layout = template['layout'],
-                description = template['description'],
+                name=template['name'],
+                start_date=start_date,
+                frequency=template['frequency'],
+                layout=template['layout'],
+                description=template['description'],
                 graph=graph
             )
         query_set = set()
@@ -191,5 +199,5 @@ def builder_endpoint(request, graph_slug):
         for disp_query in query_set:
             if disp_query and disp_query not in query_ids:
                 query = get_object_or_404(Query, id=disp_query)
-                new_template.queries.add(query) 
+                new_template.queries.add(query)
     return HttpResponse(json.dumps(template), content_type='application/json')
