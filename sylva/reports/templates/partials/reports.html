@@ -1,0 +1,31 @@
+<!--All fixed text can come translated from endpoint -->
+
+{% verbatim %}
+<div class="max600">
+  <table ng-if="templates.length > 0" id="content_table" class="content-table text-left" style="margin-bottom:10px">
+    <thead>
+      <th>#</th>
+      <th>Name</th>
+      <th>Start Date</th>
+      <th>Last Run</th>
+      <th>Periodicity</th>
+      <th>Description</th>
+    </thead>
+    <tbody>
+      <tr ng-repeat="template in templates" ng-class-odd="'row-odd'" ng-class-even="'row-even'">
+        <td class="dataList">
+          <a href="#/history/{{ template.slug }}" class="rels" title="Report History">&nbsp;</a>
+          <a href="#/edit/{{ template.slug }}" class="edit" title="Edit Report"><!-- 1182 -->&nbsp;</a>
+          <a href="#/preview/{{ template.slug }}" class="edit" title="View Report"><!-- 1182 -->&nbsp;</a>
+        </td>
+        <td>{{ template.name }}</td>
+        <td>{{ template.start_date }}</td>
+        <td>{{ template.last_run }}</td>
+        <td>{{ template.frequency }}</td>
+        <td>{{ template.description }}</td>
+      </tr>
+    </tbody>
+  </table>
+  <a class="button table-button" href="#/new">New Report</a>
+</div>
+{% endverbatim %}
