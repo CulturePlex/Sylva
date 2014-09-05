@@ -197,7 +197,7 @@ class SchemaTestCase(LiveServerTestCase):
         self.browser.find_by_name('Number name').first.fill('1.5')
         self.browser.find_by_value("Save Bob's type").first.click()
         text = self.browser.find_by_xpath("//ul[@class='errorlist']/li").first.text
-        spin_assert(lambda: self.assertEqual(text, 'Enter a whole number.'))
+        spin_assert(lambda: self.assertEqual(text, 'This field is required.'))
         Graph.objects.get(name="Bob's graph").destroy()
 
     def test_new_advanced_type_number_string(self):
@@ -227,7 +227,7 @@ class SchemaTestCase(LiveServerTestCase):
         self.browser.find_by_name('Number name').first.fill('number')
         self.browser.find_by_value("Save Bob's type").first.click()
         text = self.browser.find_by_xpath("//ul[@class='errorlist']/li").first.text
-        spin_assert(lambda: self.assertEqual(text, 'Enter a whole number.'))
+        spin_assert(lambda: self.assertEqual(text, 'This field is required.'))
         Graph.objects.get(name="Bob's graph").destroy()
 
     def test_new_advanced_type_text(self):
