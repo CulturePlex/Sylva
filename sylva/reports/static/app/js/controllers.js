@@ -11,14 +11,17 @@ controllers.controller('ReportListCtrl', [
     'parser',
     function ($scope, $location, api, parser, DjangoConst) {
         // Done
+        console.log('reports')
         $scope.graph = parser.parse();
         api.templates.list({graphSlug: $scope.graph}, function (data) {
+            console.log('data', data)
             $scope.templates = data;
             var len = data.length;
             for (var i=0;i<len;i++) {
                 var date = JSON.parse(data[i].start_date)
                 ,   datetime = new Date(date)
                 ,   last_run = JSON.parse(data[i].last_run);
+                console.log('date',date)
                 $scope.templates[i].start_date = datetime.toString();
 
                 if (last_run) {

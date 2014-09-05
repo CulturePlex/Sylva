@@ -31,21 +31,23 @@ reports.config([
         console.log('DC', STATIC_PREFIX)
         $routeProvider.
             when('/', {
-                templateUrl: STATIC_PREFIX + 'app/partials/reports.html',
+                templateUrl: 'partials/reports',
                 controller: 'ReportListCtrl'
             }).
             when('/new', {
-                templateUrl: STATIC_PREFIX + 'app/partials/report_form.html',
+                templateUrl: 'partials/report_form',
                 controller: 'NewReportCtrl'
             }).
             when('/edit/:reportSlug', {
-                templateUrl: STATIC_PREFIX + 'app/partials/report_form.html',
+                templateUrl: 'partials/report_form',
                 controller: 'EditReportCtrl'
-            }).when('/history/:reportSlug', {
-                templateUrl: STATIC_PREFIX + 'app/partials/report_history.html',
+            }).
+            when('/history/:reportSlug', {
+                templateUrl: 'partials/report_history',
                 controller: 'ReportHistoryCtrl'
-            }).when('/preview/:reportSlug', {
-                templateUrl: STATIC_PREFIX + 'app/partials/report_preview.html',
+            }).
+            when('/preview/:reportSlug', {
+                templateUrl: 'partials/report_preview',
                 controller: 'ReportPreviewCtrl'
             }).
             otherwise({

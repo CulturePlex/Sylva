@@ -1,3 +1,4 @@
+{% verbatim %}
 <div class="prev-cont">
   <a ng-if="pdf == false" class="button" ng-href="/reports/{{slugs.graph}}/pdf/preview?template={{template.slug}}">Preview PDF</a>
   <h2 ng-if="pdf == true">{{ graph }}: {{ template.slug }} -  {{ template.date }}</h2>
@@ -9,3 +10,4 @@
     </div>
   </div>
 </div>
+{% endverbatim %}

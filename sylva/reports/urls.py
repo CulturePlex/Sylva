@@ -8,4 +8,6 @@ urlpatterns = patterns('reports.views',
     url(r'^(?P<graph_slug>[\w-]+)/history$', 'history_endpoint'),
     url(r'^(?P<graph_slug>[\w-]+)/builder$', 'builder_endpoint'),
     url(r'^(?P<graph_slug>[\w-]+)/pdf/preview$', 'preview_report_pdf'),
+    url(r'^(?P<graph_slug>[\w-]+)/partials/form$', 'partial_view'),
+    url(r'^(?P<graph_slug>[\w-]+)/partials/(?P<name>[\w-]+)$', 'partial_view'),
 )
