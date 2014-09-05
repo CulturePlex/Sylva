@@ -16,6 +16,7 @@ from django.shortcuts import (get_object_or_404, render_to_response, redirect,
 from django.http import Http404
 from django.utils.translation import gettext as _
 from django.template import RequestContext
+from django.template.loader import render_to_string
 from django.templatetags.static import static
 
 from guardian import shortcuts as guardian
@@ -249,8 +250,10 @@ def graph_collaborators(request, graph_slug):
             new_collaborator = form.cleaned_data["new_collaborator"]
             guardian.assign_perm('view_graph', new_collaborator, graph)
             collaborators.append(new_collaborator)
+        as_modal = bool(data.get("asModal", False))
     else:
         form = AddCollaboratorForm(graph=graph)
+        as_modal = bool(request.GET.copy().get("asModal", False))
     # graph_permissions = guardian.get_perms_for_model(graph)
     permissions_list = []
     permissions_table = []
@@ -272,12 +275,34 @@ def graph_collaborators(request, graph_slug):
                     permission_row['perms'].append((item_str, p, False))
         permissions_table.append(permission_row)
     #users = [u for u in users if u != graph.owner and u not in collaborators]
-    return render_to_response('graphs_collaborators.html',
-                              {"graph": graph,
-                               "permissions": permissions_list,
-                               "permissions_table": permissions_table,
-                               "form": form},
-                              context_instance=RequestContext(request))
+    '''
+    For the modal mini-framework, this view always returns an HTML, because
+    after click in 'Add collaborator' it goes again the same page.
+    '''
+    if as_modal:
+        base_template = 'empty.html'
+        render = render_to_string
+    else:
+        base_template = 'base.html'
+        render = render_to_response
+    add_url = reverse("graph_collaborators", args=[graph_slug])
+    broader_context = {"graph": graph,
+                       "permissions": permissions_list,
+                       "permissions_table": permissions_table,
+                       "form": form,
+                       "base_template": base_template,
+                       "as_modal": as_modal,
+                       "add_url": add_url}
+    response = render('graphs_collaborators.html', broader_context,
+                      context_instance=RequestContext(request))
+    if as_modal:
+        response = {'type': 'html',
+                    'action': 'collaborators',
+                    'html': response}
+        return HttpResponse(json.dumps(response), status=200,
+                            mimetype='application/json')
+    else:
+        return response
 
 
 @permission_required("graphs.change_collaborators",

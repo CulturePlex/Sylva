@@ -288,9 +288,11 @@
          * something new is added.
          */
         var modalAction = null
-        if(response.action == 'edit') {
+        if(response.action == 'collaborators') {
+          modalAction = that.collaborators;
+        } else if(response.action == 'edit') {
           modalAction = that.editNode;
-        } else {
+        } else if(response.action == 'delete') {
           modalAction = that.deleteNode;
         }
         that.showModal(response.html, modalAction);
@@ -478,6 +480,44 @@
       },
 
       onShow: function() {}
+    },
+
+    collaborators: {
+
+      start: function(url, showOverlay) {
+        that.prepareModal(url, showOverlay, this);
+      },
+
+      preProcessHTML: function() {
+        $('#content2').css({
+          minHeight: 120
+        });
+
+        // Variables for save the collaborator by saving the form.
+        var addURL = $('#add-url').attr('data-url');
+        var formSelector = '#add-collaborator-form';
+        var extraParams = '&asModal=true';
+
+        // Binding the 'events' for the two actions.
+        $('#submit-add').attr('onclick',
+          "return sylva.modals.saveModalForm({url: '" + addURL + "'" +
+            ", formSelector: '" + formSelector + "'" +
+            ", extraParams: '" + extraParams + "'" +
+            "})");
+
+        $('#submit-cancel').on('click', function() {
+          that.closeModalLib();
+          return false;
+        });
+      },
+
+      onShow: function() {
+        $('#id_new_collaborator_chzn').css({
+          position: 'absolute',
+          top: 63,
+          left: 10
+        });
+      }
     }
 
   };

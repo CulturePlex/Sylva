@@ -60,7 +60,7 @@
     </li>
 {% endif %}
 <li>
-    <a href="{% url "graph_collaborators" graph.slug %}" class="no-menu {% if on == "collaborators" %}text{% else %}link{% endif %}" title="{% trans "List of collaborators or add a new collaborator" %}">
+    <a id="collaborators-button" href="{% url "graph_collaborators" graph.slug %}" class="no-menu {% if on == "collaborators" %}text{% else %}link{% endif %}" title="{% trans "List of collaborators or add a new collaborator" %}">
         <span>{% trans "Collaborators" %}</span>
     </a>
 </li>

@@ -1,13 +1,15 @@
-{% extends "base.html" %}
+{% extends base_template %}
 {% load i18n graphs compress %}
 
-{% block navigation_buttons %}
-{{ block.super }}
-{% endblock %}
+{% if not as_modal %}
+    {% block navigation_buttons %}
+    {{ block.super }}
+    {% endblock %}
 
-{% block title %}
-{{ graph.name }}
-{% endblock %}
+    {% block title %}
+    {{ graph.name }}
+    {% endblock %}
+{% endif %}
 
 {% block extra_scripts %}
     <script type="text/javascript">
@@ -42,16 +44,33 @@
 
 {% block content %}
 <div id="content2">
+    {% if as_modal %}
+      <div id="add-url" data-url="{{ add_url }}" style="display: none;"></div>
+    {% endif %}
     <div class="content2-first">
         <h2>{% trans "Owner" %}: <a href="#">{{ graph.owner }}</a></h2>
-        <form action="." method="POST">
+        <form id="add-collaborator-form" action="." method="POST">
             {% csrf_token %}
+            {% if as_modal %}
+                <div class="chosen-wrapper">
+            {% endif %}
             {{ form.as_p }}
-            <input type="submit" value="{% trans "Add collaborator" %}">
+            {% if not as_modal %}
+                <input id="submit-add" type="submit" value="{% trans "Add collaborator" %}">
+            {% else %}
+                    <div class="content2-bottom">
+                        <hr/>
+                        <input id="submit-add" type="submit" value="{% trans "Add collaborator" %}">
+                        <input id="submit-cancel" class="to-right" type="submit" value="{% trans "Cancel" %}">
+                    </div>
+                </div>
+            {% endif %}
         </form>
     </div>
     {% if permissions_table %}
-    <div class="content-divider"></div>
+    {% if not as_modal %}
+        <div class="content-divider"></div>
+    {% endif %}
     <div class="content2-second">
            <div id="permissions">
 <!--               <p>{% trans "Permissions" %}</p>-->
@@ -87,16 +106,18 @@
     {% endif %}
 </div>
 
-<!-- Features Tour -->
-<ol id="tour" class="hidden" data-tour-id="graphs-collaborators">
-  <li data-id="id_new_collaborator_chzn" data-button="{% trans "Next" %}">
-    <h2>{% trans "Collaborators" %}</h2>
-    <p>{% trans "Adding collaborators is easy. Just click on the box and start typing the name, username or email. Then, click 'Add collaborator'." %}</p>
-  </li>
-  <li data-id="permissions" data-button="{% trans "Next" %}">
-    <h2>{% trans "Choose permissions" %}</h2>
-    <p>{% trans "Finally, select the right permissions for your collaborators." %}</p>
-  </li>
-</ol>
+{% if not as_modal %}
+  <!-- Features Tour -->
+  <ol id="tour" class="hidden" data-tour-id="graphs-collaborators">
+    <li data-id="id_new_collaborator_chzn" data-button="{% trans "Next" %}">
+      <h2>{% trans "Collaborators" %}</h2>
+      <p>{% trans "Adding collaborators is easy. Just click on the box and start typing the name, username or email. Then, click 'Add collaborator'." %}</p>
+    </li>
+    <li data-id="permissions" data-button="{% trans "Next" %}">
+      <h2>{% trans "Choose permissions" %}</h2>
+      <p>{% trans "Finally, select the right permissions for your collaborators." %}</p>
+    </li>
+  </ol>
+{% endif %}
 
 {% endblock content %}
