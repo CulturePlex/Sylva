@@ -103,8 +103,15 @@
             {% endcompress %}
 
             <script type="text/javascript">
-              angular.module('reports').constant("STATIC_PREFIX", "{{ STATIC_PREFIX }}");
+              var djangoUrls = {
+                templates: "{% url 'templates' graph_slug=graph.slug %}",
+                history: "{% url 'history' graph_slug=graph.slug %}",
+                builder: "{% url 'builder' graph_slug=graph.slug %}",
+                preview: "{% url 'preview' graph_slug=graph.slug %}",
+                partials: "{% url 'partials' graph_slug=graph.slug %}"
+              }
               angular.module('reports').constant("GRAPH", "{{ graph.slug }}");
+              angular.module('reports').constant("DJANGO_URLS", djangoUrls);
             </script>
           {% endblock %}
 

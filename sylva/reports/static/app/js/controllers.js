@@ -9,11 +9,13 @@ controllers.controller('ReportListCtrl', [
     '$location',
     'api', 
     'parser',
-    function ($scope, $location, api, parser, DjangoConst) {
+    'DJANGO_URLS',
+    function ($scope, $location, api, parser, DJANGO_URLS) {
         // Done
-        console.log('reports')
+
+        console.log('django', DJANGO_URLS.templates)
         $scope.graph = parser.parse();
-        api.templates.list({graphSlug: $scope.graph}, function (data) {
+        api.templates.list(function (data) {
             console.log('data', data)
             $scope.templates = data;
             var len = data.length;

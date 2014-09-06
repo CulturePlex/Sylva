@@ -3,21 +3,21 @@
 
 var services = angular.module('reports.services', ['ngResource']);
 
-services.factory('api', ['$resource', function ($resource) {
+services.factory('api', ['$resource',  'DJANGO_URLS', function ($resource, DJANGO_URLS) {
 
-    var templates = $resource('/reports/:graphSlug/templates', {}, {
+    var templates = $resource(DJANGO_URLS.templates, {}, {
         list: {method:'GET', isArray: true},
         blank: {method:'GET', params: {queries: true}},
         edit: {method:'GET', params: {queries: true}},
         preview: {method:'GET'}
     });
 
-    var history = $resource('/reports/:graphSlug/history', {}, {
+    var history = $resource(DJANGO_URLS.history, {}, {
         history: {method: 'GET'},
         report: {method: 'GET'}
     });
 
-    var builder= $resource('/reports/:graphSlug/builder', {}, {});
+    var builder= $resource(DJANGO_URLS.builder, {}, {});
 
     return {
         templates: templates,

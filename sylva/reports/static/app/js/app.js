@@ -26,28 +26,28 @@ reports.config([
 // Routing.
 reports.config([ 
     '$routeProvider',
-    'STATIC_PREFIX',
-    function($routeProvider, STATIC_PREFIX) {
-        console.log('DC', STATIC_PREFIX)
+    'DJANGO_URLS',
+    function($routeProvider, DJANGO_URLS) {
+        console.log('DC', DJANGO_URLS)
         $routeProvider.
             when('/', {
-                templateUrl: 'partials/reports',
+                templateUrl: DJANGO_URLS.partials + '?name=reports',
                 controller: 'ReportListCtrl'
             }).
             when('/new', {
-                templateUrl: 'partials/report_form',
+                templateUrl: DJANGO_URLS.partials + '?name=report_form',
                 controller: 'NewReportCtrl'
             }).
             when('/edit/:reportSlug', {
-                templateUrl: 'partials/report_form',
+                templateUrl: DJANGO_URLS.partials + '?name=report_form', 
                 controller: 'EditReportCtrl'
             }).
             when('/history/:reportSlug', {
-                templateUrl: 'partials/report_history',
+                templateUrl: DJANGO_URLS.partials + '?name=report_history',
                 controller: 'ReportHistoryCtrl'
             }).
             when('/preview/:reportSlug', {
-                templateUrl: 'partials/report_preview',
+                templateUrl: DJANGO_URLS.partials + '?name=report_preview',
                 controller: 'ReportPreviewCtrl'
             }).
             otherwise({

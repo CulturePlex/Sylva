@@ -51,7 +51,7 @@ def reports_index_view(request, graph_slug):
         'graph': graph,
         'c': c,
         'report_name': report_name,
-        'placeholder_name': placeholder_name,
+        'placeholder_name': placeholder_name
     }))
 
 
@@ -59,8 +59,8 @@ def reports_index_view(request, graph_slug):
 @is_enabled(settings.ENABLE_REPORTS)
 @permission_required("schemas.view_schema",
                      (Schema, "graph__slug", "graph_slug"), return_403=True)
-def partial_view(request, graph_slug, name):
-    #import ipdb; ipdb.set_trace()
+def partial_view(request, graph_slug):
+    name = request.GET.get('name', '')
     pattern = 'partials/{0}.html'.format(name)
     return render_to_response(pattern, RequestContext(request, {}))
 
