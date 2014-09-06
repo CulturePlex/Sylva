@@ -191,7 +191,20 @@ directives.directive('syEditableTable',['tableArray', 'DJANGO_URLS', function (t
         scope: {
             resp: '='
         },
-        templateUrl: DJANGO_URLS.partials + '?name=directives/editable_table',
+        template: '<div class="edit-rows">' + 
+                      '<div sy-et-row-repeat  queries="queries">' + 
+                        '<div sylva-et-cell-repeat class="tcell" row="row">' + 
+                          '<div sylva-et-cell config="config" class="query" ng-style="cellStyle">' + 
+                          '</div>' + 
+                        '</div>' + 
+                      '</div>' + 
+                    '</div>' + 
+                    '<div>' + 
+                      '<a class="button table-button" href="">add row</a>' + 
+                      '<a class="button table-button" href="">add column</a>' + 
+                      '<a class="button table-button" href="">delete row</a>' + 
+                      '<a class="button table-button" href="">delete column</a>' + 
+                    '</div>',
         controller: function($scope) {
 
             this.getTableArray = function() {
@@ -432,7 +445,27 @@ directives.directive('sylvaEtCell', ['$sanitize', 'DJANGO_URLS', function ($sani
         scope: {
             config: '='
         },
-        templateUrl: DJANGO_URLS.partials + '?name=directives/edit_cell',
+        template: '<div ng-hide="md">' + 
+                      '<label class="chart-select">' + 
+                        'Query:' + 
+                      '</label>' + 
+                      '<select ng-model="activeQuery" value="query.id" ng-options="query.name group by query.group for query in queries">' + 
+                        '<option value="">-- choose query --</option>' + 
+                      '</select> ' + 
+                      '<label class="chart-select">' + 
+                        'Chart Type:' + 
+                      '</label>' + 
+                      '<select ng-model="chartType" ng-options="chartType for chartType in chartTypes">' + 
+                        '<option value="">-- choose chart type --</option>' + 
+                      '</select>' + 
+                    '</div>' + 
+                    '<div ng-show="md">' + 
+                      '<span class="close"></span>' + 
+                      '<textarea ng-model="mdarea" class="markdown">' + 
+                        'This is a heading!' + 
+                      '</textarea>' + 
+                      '</div>' + 
+                    '</div>',
         link: function(scope, elem, attrs, ctrl) {
             var ang = angular.element
             ,   mdDiv = ang(elem.children()[1])
