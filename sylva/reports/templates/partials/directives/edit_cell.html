@@ -1,0 +1,22 @@
+<div ng-hide="md">
+  <label class="chart-select">
+    Query:
+  </label>
+  <select ng-model="activeQuery" value="query.id" ng-options="query.name group by query.group for query in queries">
+    <option value="">-- choose query --</option>   
+  </select> 
+
+  <label class="chart-select">
+    Chart Type:
+  </label>
+  <select ng-model="chartType" ng-options="chartType for chartType in chartTypes">
+    <option value="">-- choose chart type --</option>
+  </select> 
+</div>
+<div ng-show="md">
+  <span class="close"></span>
+  <textarea ng-model="mdarea" class="markdown">
+    This is a heading!
+  </textarea>
+  </div>
+</div>

@@ -185,13 +185,13 @@ directives.directive('sylvaPvCellRepeat', [function () {
 }]);
 
 
-directives.directive('syEditableTable', ['$compile', 'tableArray', function ($compile, tableArray) {
+directives.directive('syEditableTable',['tableArray', 'DJANGO_URLS', function (tableArray, DJANGO_URLS) {
     return {
         transclude: true,
         scope: {
             resp: '='
         },
-        templateUrl: '/static/app/directives/editable_table.html',
+        templateUrl: DJANGO_URLS.partials + '?name=directives/editable_table',
         controller: function($scope) {
 
             this.getTableArray = function() {
@@ -426,13 +426,13 @@ directives.directive('sylvaEtCellRepeat', [function () {
 }]);
 
 
-directives.directive('sylvaEtCell', ['$sanitize', '$sce', function ($sanitize, $sce) {
+directives.directive('sylvaEtCell', ['$sanitize', 'DJANGO_URLS', function ($sanitize, DJANGO_URLS) {
     return {
         require: '^syEditableTable',
         scope: {
             config: '='
         },
-        templateUrl: '/static/app/directives/edit_cell.html',
+        templateUrl: DJANGO_URLS.partials + '?name=directives/edit_cell',
         link: function(scope, elem, attrs, ctrl) {
             var ang = angular.element
             ,   mdDiv = ang(elem.children()[1])
@@ -496,9 +496,18 @@ directives.directive('sylvaEtCell', ['$sanitize', '$sce', function ($sanitize, $
 }]);
 
 
-directives.directive('sylvaBreadcrumbs', ['$location', 'parser', 'GRAPH', function ($location, parser, GRAPH) {
+directives.directive('sylvaBreadcrumbs', [
+    '$location',
+    'parser',
+    'GRAPH',
+    'DJANGO_URLS',
+    function ($location, parser, GRAPH, DJANGO_URLS) {
     return {
-        templateUrl: '/static/app/directives/breadcrumbs.html',
+        template: '<h2>' +
+                    '<a href="/graphs/{{ graphSlug }}/">{{graph}}</a> &raquo; ' + 
+                    '<a href="#/">Reports </a>' +
+                    '<span ng-repeat="crumb in crumbs">&raquo; {{crumb}} </span>' +
+                  '</h2>',
         controller: function ($scope) {
 
             $scope.graph = GRAPH;
@@ -517,9 +526,11 @@ directives.directive('sylvaBreadcrumbs', ['$location', 'parser', 'GRAPH', functi
                     crumbs.splice(0, 1)
                     crumbs[0] = crumbs[0].charAt(0).toUpperCase() + crumbs[0].slice(1);
                     scope.crumbs = crumbs.reverse();
+                    console.log('location', crumbs)
                 } else {
                     scope.crumbs = [];
                 } 
+
             });
         }
     };
