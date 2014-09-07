@@ -155,12 +155,16 @@
     },
 
     // It handles the obtainig of the HTML that the modal will show.
-    prepareModal: function(url, showOverlay, modalActions) {
+    prepareModal: function(url, showOverlay, modalActions, extraParams) {
       that.customTextModal(loadingTextFunction, showOverlay);
 
       var params = {
         'asModal': true
       };
+
+      if (extraParams !== undefined) {
+        $.extend(params, extraParams);
+      }
 
       // Performing the request with the created variables.
       var jqxhr = $.ajax({
@@ -399,6 +403,78 @@
       preProcessHTML: editAndCreateNodePreProcessHTML,
 
       onShow: editAndCreateNodeOnShow
+    },
+
+    listNodes: {
+
+      start: function(url, showOverlay, params) {
+        that.prepareModal(url, showOverlay, this, params);
+      },
+
+      preProcessHTML: function() {
+        var existList = true;
+        if ($('.visual-search').length == 0) {
+          existList = false;
+        }
+
+        if (existList) {
+          var viewNodeLinks = $("a[title='View node']");
+          viewNodeLinks.css({
+            cursor: 'default'
+          });
+          viewNodeLinks.on('click', function() {
+            return false;
+          });
+
+          $('span.step-links > a').on('click', function(event) {
+            var listURL = $('#list-url').attr('data-url');
+            var page = $(event.target).parent().attr('href');
+
+            var params = {
+              page: page.substr(6)
+            };
+
+            $.modal.close();
+            setTimeout(function() {
+              that.listNodes.start(listURL, false, params);
+            }, fast);
+
+            return false;
+          });
+
+          $('a[class="edit"][alt="Edit node"]').on('click', function(event) {
+            var editNodeURL = $(event.target).attr('href');
+
+            $.modal.close();
+            setTimeout(function() {
+              that.editNode.start(editNodeURL, false);
+            }, fast);
+
+            return false;
+          });
+
+        } else {
+          $('#submit-create').on('click', function() {
+            var createNodeURL = $(event.target).attr('href');
+
+            $.modal.close();
+            setTimeout(function() {
+              that.createNode.start(createNodeURL, false);
+            }, fast);
+
+            return false;
+          });
+
+          $('#submit-cancel').parent().width('93%');
+        }
+
+        $('#submit-cancel').on('click', function() {
+          that.closeModalLib();
+          return false;
+        });
+      },
+
+      onShow: function() {}
     },
 
     collaborators: {

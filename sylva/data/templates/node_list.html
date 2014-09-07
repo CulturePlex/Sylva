@@ -1,13 +1,15 @@
-{% extends "base.html" %}
+{% extends base_template %}
 {% load i18n graphs graph_filters data_filters compress %}
 
-{% block navigation_buttons %}
-  {{ block.super }}
-{% endblock %}
+{% if not as_modal %}
+  {% block navigation_buttons %}
+    {{ block.super }}
+  {% endblock %}
 
-{% block title %}
-  {{ graph.name }}
-{% endblock %}
+  {% block title %}
+    {{ graph.name }}
+  {% endblock %}
+{% endif %}
 
 {% block extra_links %}
   {% compress css %}
@@ -41,16 +43,21 @@
   {% endcompress %}
 {% endblock %}
 
-{% block menu_buttons %}
-  {% toolbar on="nodes" %}
-{% endblock %}
+{% if not as_modal %}
+  {% block menu_buttons %}
+    {% toolbar on="nodes" %}
+  {% endblock %}
 
-{% block content_title %}
-  {% breadcrumb graph graph.data node_type %}
-{% endblock %}
+  {% block content_title %}
+    {% breadcrumb graph graph.data node_type %}
+  {% endblock %}
+{% endif %}
 
 {% block content %}
   <div id="content2">
+    {% if as_modal %}
+      <div id="list-url" data-url="{{ list_url }}" style="display: none;"></div>
+    {% endif %}
     {% if nodes %}
       <div id="search-query" class="visual-search"></div>
       <div class="show-hide-button" style="float: right;">
@@ -103,7 +110,7 @@
       </table>
     {% else %}
         <p>{% trans "There are no data added to this type yet." %}</p>
-        <a class="button" href="{% url "nodes_create" graph.slug node_type.id %}">{% trans "Add data" %}</a>
+        <a id="submit-create" class="button" href="{% url "nodes_create" graph.slug node_type.id %}">{% trans "Add data" %}</a>
     {% endif %}
     {% if graph.data.total_nodes == 0 and graph.data.total_relationships == 0 and graph.relaxed %}
       <a class="button" href="{% url "tool_import" graph.slug %}">{% trans "Import" %}</a>
@@ -143,4 +150,10 @@
       </div>
     {% endif %}
   </div>
+  {% if as_modal %}
+    <div class="content2-full-bottom">
+      <hr/>
+      <input id="submit-cancel" class="to-right" type="submit" value="{% trans "Cancel" %}">
+    </div>
+  {% endif %}
 {% endblock %}

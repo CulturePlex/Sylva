@@ -1012,6 +1012,12 @@ div.initial p:nth-child(3) {
     width: 347px;
 }
 
+.content2-full-bottom {
+    position: absolute;
+    bottom: 12px;
+    width: 97%;
+}
+
 /* Formsets relationships *****************************************************/
 
 .relationships div.initial p {

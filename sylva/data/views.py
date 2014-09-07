@@ -130,6 +130,7 @@ def nodes_list_full(request, graph_slug, node_type_id):
             order_dir = 'asc'
         elif order_dir == 'asc':
             order_dir = 'desc'
+    as_modal = bool(request.GET.get("asModal", False))
     page = request.GET.get('page')
     page_size = request.GET.get('size', settings.DATA_PAGE_SIZE)
     paginator = Paginator(nodes, page_size)
@@ -159,18 +160,36 @@ def nodes_list_full(request, graph_slug, node_type_id):
                 property_values[prop_key].add(prop_value)
     for key in property_values:
         property_values[key] = list(property_values[key])
-    return render_to_response('node_list.html',
-                              {"graph": graph,
-                               "dir": order_dir,
-                               "order_by": order_by,
-                               "nodes": paginated_nodes,
-                               "node_type": node_type,
-                               "none_label": none_label,
-                               "properties": properties,
-                               "properties_count": properties_count,
-                               "property_keys": json.dumps(property_keys),
-                               "property_values": json.dumps(property_values)
-                               }, context_instance=RequestContext(request))
+    if as_modal:
+        base_template = 'empty.html'
+        render = render_to_string
+    else:
+        base_template = 'base.html'
+        render = render_to_response
+    list_url = reverse("nodes_list_full", args=[graph_slug, node_type_id])
+    broader_context = {"graph": graph,
+                       "dir": order_dir,
+                       "order_by": order_by,
+                       "nodes": paginated_nodes,
+                       "node_type": node_type,
+                       "none_label": none_label,
+                       "properties": properties,
+                       "properties_count": properties_count,
+                       "property_keys": json.dumps(property_keys),
+                       "property_values": json.dumps(property_values),
+                       "base_template": base_template,
+                       "as_modal": as_modal,
+                       "list_url": list_url}
+    response = render('node_list.html', broader_context,
+                      context_instance=RequestContext(request))
+    if as_modal:
+        response = {'type': 'html',
+                    'action': 'nodes_list',
+                    'html': response}
+        return HttpResponse(json.dumps(response), status=200,
+                            mimetype='application/json')
+    else:
+        return response
 
 
 @permission_required("data.add_data", (Data, "graph__slug", "graph_slug"),

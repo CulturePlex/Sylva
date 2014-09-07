@@ -483,16 +483,23 @@
       sylva.modals.editNode.start(url, true);
     },
 
-    callCollaboratorsModal: function(event) {
-      var link = $('#collaborators-button');
-      sylva.modals.collaborators.start(link.attr('href'), true);
+    callCreateNodeModal: function(event) {
+      var url = $(event.target).attr('href');
+      sylva.modals.createNode.start(url, true);
 
       return false;
     },
 
-    callCreateNodeModal: function(event) {
+    callListNodesModal: function(event) {
       var url = $(event.target).attr('href');
-      sylva.modals.createNode.start(url, true);
+      sylva.modals.listNodes.start(url, true);
+
+      return false;
+    },
+
+    callCollaboratorsModal: function(event) {
+      var link = $('#collaborators-button');
+      sylva.modals.collaborators.start(link.attr('href'), true);
 
       return false;
     },
@@ -1512,6 +1519,7 @@
 
       // Defining default modals.
       $('.dataOption.new').on('click', that.callCreateNodeModal);
+      $('.dataOption.list').on('click', that.callListNodesModal);
       $('#collaborators-button').on('click', that.callCollaboratorsModal);
     },
 
@@ -1567,6 +1575,7 @@
 
       // Removing default modals.
       $('.dataOption.new').off('click', that.callCreateNodeModal);
+      $('.dataOption.list').off('click', that.callListNodesModal);
       $('#collaborators-button').off('click', that.callCollaboratorsModal);
     },
 
