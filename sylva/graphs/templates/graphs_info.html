@@ -14,11 +14,11 @@
                     {% trans "By"%} <a title="{{ graph.owner }}" href="{% url "userena.views.profile_detail" graph.owner %}">{{ graph.owner }}</a>
                 </span>
                 <span class="graph-nodes">
-                    {{ graph.data.total_nodes }} <a title="{% trans "Nodes" %}" href="{% url "nodes_list" graph.slug %}">{% trans "nodes" %}</a>
+                    <span id="graph-nodes-count">{{ graph.data.total_nodes }}</span> <a title="{% trans "Nodes" %}" href="{% url "nodes_list" graph.slug %}">{% trans "nodes" %}</a>
                 </span>
                 <span class="graph-relationships">
                     {# {{ graph.data.total_relationships }} <a title="{% trans "Relationships" %}" href="{% url "relationships_list" graph.slug %}">{% trans "relationships" %}</a> #}
-                    {{ graph.data.total_relationships }} {% trans "relationships" %}
+                    <span id="graph-rels-count">{{ graph.data.total_relationships }}</span> {% trans "relationships" %}
                 </span>
                 <span class="graph-schema">
                     {% if graph.relaxed %}

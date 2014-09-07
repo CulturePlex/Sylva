@@ -554,7 +554,7 @@ def nodes_edit(request, graph_slug, node_id):
                 for rel in node.relationships.all():
                     source_id = rel.source.id
                     target_id = rel.target.id
-                    if (source_id is node.id or target_id is node.id):
+                    if (source_id == node.id or target_id == node.id):
                         old_relationship_ids.append(str(rel.id))
 
             node = node_form.save(as_new=as_new)
@@ -743,7 +743,7 @@ def nodes_delete(request, graph_slug, node_id):
                     for rel in node.relationships.all():
                         source_id = rel.source.id
                         target_id = rel.target.id
-                        if (source_id is node.id or target_id is node.id):
+                        if (source_id == node.id or target_id == node.id):
                             old_relationship_ids.append(str(rel.id))
 
                 for relationship in node.relationships.all():

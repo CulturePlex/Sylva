@@ -30,45 +30,46 @@ from graphs.models import Graph, PERMISSIONS
 from schemas.models import Schema
 
 
-def _jsonify_graph(nodes_list, relations_list):
+def _jsonify_graph(graph, nodes_list, relations_list):
     """
-    Returns a tuple with the elements of a graph jsonified.
+    Returns a tuple with the elements of a graph jsonified. The 'graph'
+    parameter is used for obtain all the types.
     """
     nodes = []
     rels = []
     nodetypes = {}
     reltypes = {}
     node_ids = []
+    for nodetype in graph.schema.nodetype_set.all():
+        nodetypes[nodetype.id] = {
+            'id': nodetype.id,
+            'name': nodetype.name,
+            'color': nodetype.get_color(),
+            'nodes': []
+        }
+    for reltype in graph.schema.relationshiptype_set.all():
+        reltypes[reltype.id] = {
+            'id': reltype.id,
+            'name': reltype.name,
+            'fullName': reltype.__unicode__(),
+            'sourceName': reltype.source.name,
+            'targetName': reltype.target.name,
+            'color': reltype.get_color(),
+            'colorMode': reltype.get_color_mode(),
+            'relationships': []
+        }
     for node in nodes_list:
-        nodetype = node.get_type()
-        if nodetype.id not in nodetypes:
-            nodetypes[nodetype.id] = {
-                'id': nodetype.id,
-                'name': nodetype.name,
-                'color': nodetype.get_color(),
-                'nodes': []
-            }
         nodes.append(node.to_json())
-        nodetypes[nodetype.id]['nodes'].append(str(node.id))
         node_ids.append(str(node.id))
+        nodetype = node.get_type()
+        nodetypes[nodetype.id]['nodes'].append(str(node.id))
     for rel in relations_list:
         source_id = rel.source.id
         target_id = rel.target.id
         if (str(source_id) in node_ids and str(target_id) in node_ids):
-            reltype = rel.get_type()
-            if reltype.id not in reltypes:
-                reltypes[reltype.id] = {
-                    'id': reltype.id,
-                    'name': reltype.name,
-                    'fullName': reltype.__unicode__(),
-                    'sourceName': reltype.source.name,
-                    'targetName': reltype.target.name,
-                    'color': reltype.get_color(),
-                    'colorMode': reltype.get_color_mode(),
-                    'relationships': []
-                }
             rel_json = rel.to_json()
             rels.append(rel_json)
+            reltype = rel.get_type()
             reltypes[reltype.id]['relationships'].append(rel_json['id'])
     graph = {'nodes': nodes, 'edges': rels}
     return (graph, nodetypes, reltypes, node_ids)
@@ -395,7 +396,7 @@ def graph_data(request, graph_slug, node_id=None):
             nodes_list = graph.nodes.all()
             relations_list = graph.relationships.all()
         graph_json, nodetypes, reltypes, node_ids = _jsonify_graph(
-            nodes_list, relations_list)
+            graph, nodes_list, relations_list)
         size = len(nodes_list)
 
         collapsibles = []

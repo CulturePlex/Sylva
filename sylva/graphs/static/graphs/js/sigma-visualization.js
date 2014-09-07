@@ -124,8 +124,8 @@
 
       sigInst.graph.read(sylva.graph);
 
-      that.createLegend('node', sylva.nodetypes, 'Types', 'name');
-      that.createLegend('rel', sylva.reltypes, 'Allowed relationships',
+      that.createLegend('node', sylva.nodetypes, 'nodes', 'Types', 'name');
+      that.createLegend('rel', sylva.reltypes, 'relationships', 'Allowed relationships',
         'htmlFullName');
 
       /* The edges need to be colored if they colorMode attribute isn't custom
@@ -359,7 +359,7 @@
      ***** */
 
     // Create the legend for nodes and relationships.
-    createLegend: function(kind, types, header, label) {
+    createLegend: function(kind, types, elements, header, label) {
       $('#graph-' + kind + '-types').append('<h2 class="collapsible-header">'
         + gettext(header) + '</h2>');
       $('#graph-' + kind + '-types').append($('<ul>'));
@@ -375,7 +375,7 @@
                     type.name + '</span> ' + type.targetName
         }
 
-        list.append($('<li>')
+        var listElement = $('<li>')
           .css({
             minHeight: '20px',
             paddingLeft: '3px'
@@ -412,8 +412,13 @@
               verticalAlign: 'middle'
             })
             .html(type[label])
-          )
-        );
+          );
+
+        if (type[elements].length == 0) {
+          listElement.hide();
+        }
+
+        list.append(listElement);
       });
     },
 
@@ -2790,6 +2795,11 @@
       nodetypeArray.splice(index, 1);
       sylva.nodetypes[node.nodetypeId].nodes = nodetypeArray;
 
+      // Changing the visibility of the node legend element if it's empty.
+      if (sylva.nodetypes[node.nodetypeId].nodes.length == 0) {
+        $("span[data-nodetype-id='" + node.nodetypeId + "']").parent().hide();
+      }
+
       // Deleting the node from the array of visible nodes.
       index = visibleNodeIds.indexOf(node.id);
       if (index >= 0) {
@@ -2806,6 +2816,11 @@
         var index = reltypeArray.indexOf(relationshipIds[i]);
         reltypeArray.splice(index, 1);
         sylva.reltypes[rel.reltypeId].relationships = reltypeArray;
+
+        // Changing the visibility of the rel. legend element if it's empty.
+        if (sylva.reltypes[rel.reltypeId].relationships.length == 0) {
+          $("span[data-reltype-id='" + rel.reltypeId + "']").parent().hide();
+        }
 
         index = visibleRelIds.indexOf(relationshipIds[i]);
         if (index >= 0) {
@@ -2825,6 +2840,19 @@
       sylva.size -= 1;
       that.calculateNodesDegrees();
       sigInst.refresh();
+
+      // Updating the counters: 'Data' dropdown menu & graph info.
+      var counter = $("span[data-counter-nodetype-id='" + node.nodetypeId + "']");
+      var count = counter.text();
+      counter.text(parseInt(count, 10) - 1);
+
+      $('#graph-nodes-count').text(sylva.size);
+
+      counter = 0;
+      for(var i in sylva.reltypes) {
+        counter += sylva.reltypes[i].relationships.length;
+      }
+      $('#graph-rels-count').text(counter);
     },
 
     // Function used by the modals.
@@ -2840,6 +2868,9 @@
 
       // Adding the node to the nodes array of the nodetype.
       sylva.nodetypes[node.nodetypeId].nodes.push(node.id);
+
+      // Changing the visibility of the node legend element if it was hidden.
+      $("span[data-nodetype-id='" + node.nodetypeId + "']").parent().show();
 
       // Setting the visibility of the node (hidden or not).
       var visibilityButton = $('.show-hide-nodes[data-nodetype-id="' + node.nodetypeId + '"]');
@@ -2868,6 +2899,9 @@
         }
         sylva.reltypes[rel.reltypeId].relationships.push(rel);
         sigInst.graph.addEdge(rel);
+
+        // Changing the visibility of the rel. legend element if it was hidden.
+        $("span[data-reltype-id='" + rel.reltypeId + "']").parent().show();
       }
 
       // Updating the info box.
@@ -2878,6 +2912,19 @@
       that.calculateNodesDegrees();
       sigInst.refresh();
       that.grayfyNonListedNodes(sylva.selectedNodes);
+
+      // Updating the counters: 'Data' dropdown menu & graph info.
+      var counter = $("span[data-counter-nodetype-id='" + node.nodetypeId + "']");
+      var count = counter.text();
+      counter.text(parseInt(count, 10) + 1);
+
+      $('#graph-nodes-count').text(sylva.size);
+
+      counter = 0;
+      for(var i in sylva.reltypes) {
+        counter += sylva.reltypes[i].relationships.length;
+      }
+      $('#graph-rels-count').text(counter);
     },
 
     changeSigmaTypes: function(type, nodeList) {
