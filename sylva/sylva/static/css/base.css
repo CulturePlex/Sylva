@@ -1013,6 +1013,7 @@ div.initial p:nth-child(3) {
 }
 
 .content2-full-bottom {
+    background-color: white;
     position: absolute;
     bottom: 12px;
     width: 97%;

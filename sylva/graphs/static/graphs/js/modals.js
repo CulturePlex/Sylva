@@ -453,8 +453,21 @@
             return false;
           });
 
+          $('#content2').css({
+            minHeight: 215
+          });
+
         } else {
-          $('#submit-create').on('click', function() {
+          $('#submit-cancel').parent().width('92%');
+
+          $('#content2').width(235);
+
+          $('#content2').css({
+            minHeight: 55
+          });
+        }
+
+        $('#submit-create').on('click', function() {
             var createNodeURL = $(event.target).attr('href');
 
             $.modal.close();
@@ -465,16 +478,66 @@
             return false;
           });
 
-          $('#submit-cancel').parent().width('93%');
-        }
-
         $('#submit-cancel').on('click', function() {
           that.closeModalLib();
           return false;
         });
+
+        // Getting HTML elemetns as variables.
+        var scrollWrapper = $('#modal-content-scrollable-wrapper');
+        var scrollContent = $('#modal-content-scrollable');
+        var contentControls = $('.content2-full-bottom');
+        scrollWrapper.addClass('modal-content-scrollable-wrapper');
+        // Calculating the width of the table.
+        var contentTable = $('#content_table');
+
+        return {
+          contentControls: contentControls,
+          scrollWrapper: scrollWrapper,
+          scrollContent: scrollContent,
+          contentTable: contentTable
+        };
       },
 
-      onShow: function() {}
+      onShow: function(dialog, options) {
+        // It's the content who controls the scrollbars.
+        dialog.wrap.css({
+          overflow: 'hidden'
+        });
+
+        /* Calculatin the height of the wrapper of the form for made it
+         * scrollable.
+         */
+        var scrollHeigth = dialog.wrap.height() - options.contentControls.height();
+        options.scrollWrapper.css({
+          height: scrollHeigth
+        });
+
+        options.scrollContent.css({
+          width: options.contentTable.width()
+        });
+
+        // Attaching the events for make scrollbars appear and disappear.
+        options.scrollWrapper.on('mouseover', function() {
+          options.scrollWrapper.css({
+            overflow: 'auto'
+          });
+          /* The next lines are for show de horizontal scrollbar only when
+           * it's needed.
+           */
+          if (options.windowWidth >= (options.contentTable.width() + options.modalPadding)) {
+            options.scrollWrapper.css({
+              overflowX: 'hidden'
+            });
+          }
+        });
+
+        options.scrollWrapper.on('mouseout', function() {
+          options.scrollWrapper.css({
+            overflow: 'hidden'
+          });
+        });
+      }
     },
 
     collaborators: {

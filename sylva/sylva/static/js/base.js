@@ -96,6 +96,10 @@
     });
 
     $("#toolsBrowseId").on("mouseleave", closeMenu);
+
+    $(".dataOption.list").on("click", closeMenu);
+
+    $(".dataOption.new").on("click", closeMenu);
   }
 
 

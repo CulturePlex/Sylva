@@ -13,10 +13,8 @@
 
 {% block extra_scripts %}
     <script type="text/javascript">
-        sylva.urls = {
-            changePermission: "{% url "change_permission" graph.slug %}",
-            graphAjaxCollaborators:'{% url "graph_ajax_collaborators" graph.slug %}'
-        };
+        sylva.urls['changePermission'] = "{% url "change_permission" graph.slug %}";
+        sylva.urls['graphAjaxCollaborators'] = "{% url "graph_ajax_collaborators" graph.slug %}";
     </script>
 
     {% compress js %}

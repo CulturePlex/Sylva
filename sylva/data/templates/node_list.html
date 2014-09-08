@@ -21,17 +21,14 @@
 {% block extra_scripts %}
   {{ block.super }}
   <script type="text/javascript">
-    sylva.urls = {
-      nodesLookupFull: "{% url "nodes_lookup_full" graph.slug %}",
-      nodesEdit: '{% url "nodes_edit" graph.slug 0 %}',
-      nodesView: '{% url "nodes_view" graph.slug 0 %}',
-      nodeRelationships: '{% url "node_relationships" graph.slug 0 %}'
-    };
-    sylva.jsValues = {
-      facets: JSON.parse('{{ property_keys|escapejs }}'),
-      facetValues: JSON.parse('{{ property_values|escapejs }}'),
-      nodetypeId: {{ node_type.id }}
-    };
+    sylva.urls['nodesLookupFull'] = "{% url "nodes_lookup_full" graph.slug %}";
+    sylva.urls['nodesEdit'] = '{% url "nodes_edit" graph.slug 0 %}';
+    sylva.urls['nodesView'] = '{% url "nodes_view" graph.slug 0 %}';
+    sylva.urls['nodeRelationships'] = '{% url "node_relationships" graph.slug 0 %}';
+
+    sylva.jsValues['facets'] = JSON.parse('{{ property_keys|escapejs }}');
+    sylva.jsValues['facetValues'] = JSON.parse('{{ property_values|escapejs }}');
+    sylva.jsValues['nodetypeId'] = {{ node_type.id }};
   </script>
 
   {% compress js %}
@@ -54,105 +51,112 @@
 {% endif %}
 
 {% block content %}
-  <div id="content2">
-    {% if as_modal %}
-      <div id="list-url" data-url="{{ list_url }}" style="display: none;"></div>
-    {% endif %}
-    {% if nodes %}
-      <div id="search-query" class="visual-search"></div>
-      <div class="show-hide-button" style="float: right;">
-        <a href="#">{% trans "Hide & show property" %}: </a>
-        <ul class="dropdown">
-          {% for prop in properties %}
-            <li><i class="fa fa-eye" id="show-hide-{{prop.slug}}"></i><a style="font-size:11px; margin-left: 5%;" href='javascript:void(0);' data-key="{{prop.slug}}" class="show-hide">{{prop.key}}</a></li>
-          {% endfor %}
-        </ul>
-      </div>
-      <table id="content_table" class="content-table text-left">
-        <thead>
-          <tr>
-            <th>{% trans "#" %}</th>
-            {% for prop in properties %}
-                <th class="{{ prop.slug }}"><a href="?order_by={{ prop.key }}&dir={{ dir }}" id="{{prop.slug}}"><p class="shorten-text">{{ prop.key }} <a class='remove-sorting' href="?order_by=default" title="{% trans "Remove from sorting" %}" /></a>
-                  {% if dir == 'desc' %}
-                    <a class='sorting-asc' href="?order_by={{ prop.key }}&dir={{ dir }}" title="{% trans "Sorting ascending by" %} {{ order_by }}" />
-                  {% else %}
-                    <a class='sorting-desc' href="?order_by={{ prop.key }}&dir={{ dir }}" title="{% trans "Sorting descending by " %} {{ order_by }}" />
-                  {% endif %}
-                </p></a></th>
-            {% endfor %}
-          </tr>
-        </thead>
-        <tbody>
-          {% for node in nodes %}
-            <tr class="{% cycle 'row-even' 'row-odd' %}">
-              <td class="dataList">
-                <a href="javascript:void(0)" data-node="{{ node.id }}" class="rels" alt="{% trans "Toggle relationships" %}" title="{% trans "Toggle relationships" %}">&nbsp;</a>
-                <a href="{% url "nodes_edit" graph.slug node.id %}" class="edit" alt="{% trans "Edit node" %}" title="{% trans "Edit node" %}"><!-- {{ node.id }}  -->&nbsp;</a>
-              </td>
+  <div id="modal-content-scrollable-wrapper">
+    <div id="modal-content-scrollable">
+      <div id="content2">
+        {% if as_modal %}
+          <div id="list-url" data-url="{{ list_url }}" style="display: none;"></div>
+        {% endif %}
+        {% if nodes %}
+          <div id="search-query" class="visual-search"></div>
+          <div class="show-hide-button" style="float: right;">
+            <a href="#">{% trans "Hide & show property" %}: </a>
+            <ul class="dropdown">
               {% for prop in properties %}
-                {% if node|get:prop.key == 'True' %}
-                  <td class="{{ prop.slug }} shorten-text"><a class="type-list-true" href="{% url "nodes_view" graph.slug node.id %}" title="{% trans "View node" %}">{{ node|get:prop.key|default:none_label }}</a></td>
-                {% elif node|get:prop.key == 'False' %}
-                  <td class="{{ prop.slug }} shorten-text"><a class="type-list-false" href="{% url "nodes_view" graph.slug node.id %}" title="{% trans "View node" %}">{{ node|get:prop.key|default:none_label }}</a></td>
-                {% else %}
-                  <td class="{{ prop.slug }}"><p class="shorten-text"><a href="{% url "nodes_view" graph.slug node.id %}" title="{% trans "View node" %}">{{ node|get:prop.key|default:none_label }}</a></p></td>
-                {% endif %}
+                <li><i class="fa fa-eye" id="show-hide-{{prop.slug}}"></i><a style="font-size:11px; margin-left: 5%;" href='javascript:void(0);' data-key="{{prop.slug}}" class="show-hide">{{prop.key}}</a></li>
               {% endfor %}
-            </tr>
-            <tr class="{% cycle 'row-even' 'row-odd' %}">
-              <td colspan="{{ properties_count }}" id="td{{ node.id }}" class="hidden retrieve-relationships" data-node="{{ node.id }}" data-display="{{ node.display }}" data-node-rels="{% url "node_relationships" graph.slug node.id %}">
-                <span class="helptext">{% trans "Loading" %}...</span>
-              </td>
-            </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    {% else %}
-        <p>{% trans "There are no data added to this type yet." %}</p>
-        <a id="submit-create" class="button" href="{% url "nodes_create" graph.slug node_type.id %}">{% trans "Add data" %}</a>
-    {% endif %}
-    {% if graph.data.total_nodes == 0 and graph.data.total_relationships == 0 and graph.relaxed %}
-      <a class="button" href="{% url "tool_import" graph.slug %}">{% trans "Import" %}</a>
-      <span class="buttonLinkOption">
-        {% trans "Import a graph in GEXF format, or nodes and relationships in CSV format." %}
-      </span>
-    {% else %}
-      <div class="pagination">
-        {% if nodes.paginator.per_page < nodes.paginator.count %}
-          <span class='pagination-info'>
-            {% blocktrans with per_page=nodes.paginator.per_page count=nodes.paginator.count name=node_type.name %}
-              Showing {{ per_page }} of {{ count }} {{ name }}.
-            {% endblocktrans %}
+            </ul>
+          </div>
+          <table id="content_table" class="content-table text-left">
+            <thead>
+              <tr>
+                <th>{% trans "#" %}</th>
+                {% for prop in properties %}
+                    <th class="{{ prop.slug }}"><a href="?order_by={{ prop.key }}&dir={{ dir }}" id="{{prop.slug}}"><p class="shorten-text">{{ prop.key }} <a class='remove-sorting' href="?order_by=default" title="{% trans "Remove from sorting" %}" /></a>
+                      {% if dir == 'desc' %}
+                        <a class='sorting-asc' href="?order_by={{ prop.key }}&dir={{ dir }}" title="{% trans "Sorting ascending by" %} {{ order_by }}" />
+                      {% else %}
+                        <a class='sorting-desc' href="?order_by={{ prop.key }}&dir={{ dir }}" title="{% trans "Sorting descending by " %} {{ order_by }}" />
+                      {% endif %}
+                    </p></a></th>
+                {% endfor %}
+              </tr>
+            </thead>
+            <tbody>
+              {% for node in nodes %}
+                <tr class="{% cycle 'row-even' 'row-odd' %}">
+                  <td class="dataList">
+                    <a href="javascript:void(0)" data-node="{{ node.id }}" class="rels" alt="{% trans "Toggle relationships" %}" title="{% trans "Toggle relationships" %}">&nbsp;</a>
+                    <a href="{% url "nodes_edit" graph.slug node.id %}" class="edit" alt="{% trans "Edit node" %}" title="{% trans "Edit node" %}"><!-- {{ node.id }}  -->&nbsp;</a>
+                  </td>
+                  {% for prop in properties %}
+                    {% if node|get:prop.key == 'True' %}
+                      <td class="{{ prop.slug }} shorten-text"><a class="type-list-true" href="{% url "nodes_view" graph.slug node.id %}" title="{% trans "View node" %}">{{ node|get:prop.key|default:none_label }}</a></td>
+                    {% elif node|get:prop.key == 'False' %}
+                      <td class="{{ prop.slug }} shorten-text"><a class="type-list-false" href="{% url "nodes_view" graph.slug node.id %}" title="{% trans "View node" %}">{{ node|get:prop.key|default:none_label }}</a></td>
+                    {% else %}
+                      <td class="{{ prop.slug }}"><p class="shorten-text"><a href="{% url "nodes_view" graph.slug node.id %}" title="{% trans "View node" %}">{{ node|get:prop.key|default:none_label }}</a></p></td>
+                    {% endif %}
+                  {% endfor %}
+                </tr>
+                <tr class="{% cycle 'row-even' 'row-odd' %}">
+                  <td colspan="{{ properties_count }}" id="td{{ node.id }}" class="hidden retrieve-relationships" data-node="{{ node.id }}" data-display="{{ node.display }}" data-node-rels="{% url "node_relationships" graph.slug node.id %}">
+                    <span class="helptext">{% trans "Loading" %}...</span>
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        {% else %}
+          <p>{% trans "There are no data added to this type yet." %}</p>
+          {% if not as_modal %}
+            <a id="submit-create" class="button" href="{% url "nodes_create" graph.slug node_type.id %}">{% trans "Add data" %}</a>
+          {% endif %}
+        {% endif %}
+        {% if graph.data.total_nodes == 0 and graph.data.total_relationships == 0 and graph.relaxed %}
+          <a class="button" href="{% url "tool_import" graph.slug %}">{% trans "Import" %}</a>
+          <span class="buttonLinkOption">
+            {% trans "Import a graph in GEXF format, or nodes and relationships in CSV format." %}
           </span>
-          <span class="step-links">
-            {% if nodes.has_previous %}
-              <a href="?page={{ nodes.previous_page_number }}"><span class="symbol-medium">←</span></a>
-            {% endif %}
+        {% else %}
+          <div class="pagination">
+            {% if nodes.paginator.per_page < nodes.paginator.count %}
+              <span class='pagination-info'>
+                {% blocktrans with per_page=nodes.paginator.per_page count=nodes.paginator.count name=node_type.name %}
+                  Showing {{ per_page }} of {{ count }} {{ name }}.
+                {% endblocktrans %}
+              </span>
+              <span class="step-links">
+                {% if nodes.has_previous %}
+                  <a href="?page={{ nodes.previous_page_number }}"><span class="symbol-medium">←</span></a>
+                {% endif %}
 
-            <span class="current">
-              {% blocktrans with number=nodes.number num_pages=nodes.paginator.num_pages %}
-                Page {{ number }} of {{ num_pages }}.
-              {% endblocktrans %}
-            </span>
+                <span class="current">
+                  {% blocktrans with number=nodes.number num_pages=nodes.paginator.num_pages %}
+                    Page {{ number }} of {{ num_pages }}.
+                  {% endblocktrans %}
+                </span>
 
-            {% if nodes.has_next %}
-              <a href="?page={{ nodes.next_page_number }}"><span class="symbol-medium">→</span></a>
+                {% if nodes.has_next %}
+                  <a href="?page={{ nodes.next_page_number }}"><span class="symbol-medium">→</span></a>
+                {% endif %}
+              </span>
+            {% elif nodes %}
+              <span class="pagination-info">
+                {% blocktrans with count=nodes.paginator.count name=node_type.name %}
+                  Showing {{ count }} elements {{ name }}.
+                {% endblocktrans %}
+              </span>
             {% endif %}
-          </span>
-        {% elif nodes %}
-          <span class="pagination-info">
-            {% blocktrans with count=nodes.paginator.count name=node_type.name %}
-              Showing {{ count }} elements {{ name }}.
-            {% endblocktrans %}
-          </span>
+          </div>
         {% endif %}
       </div>
-    {% endif %}
+    </div>
   </div>
   {% if as_modal %}
     <div class="content2-full-bottom">
       <hr/>
+      <a id="submit-create" class="button" href="{% url "nodes_create" graph.slug node_type.id %}">{% trans "Add node" %}</a>
       <input id="submit-cancel" class="to-right" type="submit" value="{% trans "Cancel" %}">
     </div>
   {% endif %}
