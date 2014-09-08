@@ -55,12 +55,28 @@ def operator_builder(request, graph_slug):
                                            "queries": graph.queries.all()},
                                           context_instance=RequestContext(
                                               request))
-    return render_to_response('operators/operator_builder.html',
-                              {"graph": graph,
-                               "node_types": nodetypes,
-                               "relationship_types": reltypes,
-                               "form": form},
-                              context_instance=RequestContext(request))
+        else:
+            # We get the values for the query to maintain it in the view
+            query_dict = form.data["query_dict"]
+            query_aliases = form.data["query_aliases"]
+            query_fields = form.data["query_fields"]
+            return render_to_response('operators/operator_builder.html',
+                                      {"graph": graph,
+                                       "node_types": nodetypes,
+                                       "relationship_types": reltypes,
+                                       "form": form,
+                                       "query_dict": query_dict,
+                                       "query_aliases": query_aliases,
+                                       "query_fields": query_fields},
+                                      context_instance=RequestContext(
+                                          request))
+    else:
+        return render_to_response('operators/operator_builder.html',
+                                  {"graph": graph,
+                                   "node_types": nodetypes,
+                                   "relationship_types": reltypes,
+                                   "form": form},
+                                  context_instance=RequestContext(request))
 
 
 @is_enabled(settings.ENABLE_QUERIES)
