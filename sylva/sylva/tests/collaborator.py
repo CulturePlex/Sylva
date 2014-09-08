@@ -1,3 +1,5 @@
+import socket
+
 from django.test import LiveServerTestCase
 
 from splinter import Browser
@@ -7,7 +9,6 @@ from dashboard import create_graph, create_schema, create_type, create_data
 from graphs.models import Graph
 
 from utils import spin_assert
-
 
 GRAPH_VIEW = 'chk_graph_view_graph'
 GRAPH_CHANGE = 'chk_graph_change_graph'
@@ -56,12 +57,23 @@ class CollaboratorTestCase(LiveServerTestCase):
     perrmission: 'chk_graph_view_graph'.
     The name of the tests self-explain the behaviour of them.
     """
+
+    @classmethod
+    def setUpClass(cls):
+        cls.browser = Browser()
+        socket.setdefaulttimeout(30)
+        super(CollaboratorTestCase, cls).setUpClass()
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.browser.quit()
+        super(CollaboratorTestCase, cls).tearDownClass()
+
     def setUp(self):
-        self.browser = Browser()
+        pass
 
     def tearDown(self):
         logout(self)
-        self.browser.quit()
 
     def test_graph_view_without_permissions(self):
         signup(self, 'alice', 'alice@cultureplex.ca', 'alice_secret')

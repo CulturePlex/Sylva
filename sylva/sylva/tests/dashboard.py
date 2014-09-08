@@ -1,3 +1,5 @@
+import socket
+
 from django.test import LiveServerTestCase
 
 from splinter import Browser
@@ -83,13 +85,22 @@ class DashboardTestCase(LiveServerTestCase):
     These tests check basic functions of Sylva's dashboard.
     """
 
+    @classmethod
+    def setUpClass(cls):
+        cls.browser = Browser()
+        socket.setdefaulttimeout(30)
+        super(DashboardTestCase, cls).setUpClass()
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.browser.quit()
+        super(DashboardTestCase, cls).tearDownClass()
+
     def setUp(self):
-        self.browser = Browser()
         signup(self, 'bob', 'bob@cultureplex.ca', 'bob_secret')
 
     def tearDown(self):
         logout(self)
-        self.browser.quit()
 
     def test_dashboard(self):
         signin(self, 'bob', 'bob_secret')

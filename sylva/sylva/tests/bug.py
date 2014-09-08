@@ -1,3 +1,5 @@
+import socket
+
 from django.test import LiveServerTestCase
 
 from splinter import Browser
@@ -14,14 +16,23 @@ class BugTestCase(LiveServerTestCase):
     A set of tests to check the existence of bugs.
     """
 
+    @classmethod
+    def setUpClass(cls):
+        cls.browser = Browser()
+        socket.setdefaulttimeout(30)
+        super(BugTestCase, cls).setUpClass()
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.browser.quit()
+        super(BugTestCase, cls).tearDownClass()
+
     def setUp(self):
-        self.browser = Browser()
         signup(self, 'bob', 'bob@cultureplex.ca', 'bob_secret')
         signin(self, 'bob', 'bob_secret')
 
     def tearDown(self):
         logout(self)
-        self.browser.quit()
         Graph.objects.get(name="Bob's graph").destroy()
 
     def test_node_rel_count_one(self):

@@ -1,6 +1,6 @@
 import os
-import socket
 import requests
+import socket
 
 from django.test import LiveServerTestCase
 
@@ -12,8 +12,6 @@ from graphs.models import Graph
 
 from utils import spin_assert
 
-browser = None
-
 
 class SchemaTestCase(LiveServerTestCase):
     """
@@ -21,22 +19,23 @@ class SchemaTestCase(LiveServerTestCase):
     related to advanced types (patterns, options, etc.).
     """
 
-    def setUp(self):
-        global browser
-        if not browser:
-            browser = Browser()
+    @classmethod
+    def setUpClass(cls):
+        cls.browser = Browser()
         socket.setdefaulttimeout(30)
-        self.browser = browser
+        super(SchemaTestCase, cls).setUpClass()
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.browser.quit()
+        super(SchemaTestCase, cls).tearDownClass()
+
+    def setUp(self):
         signup(self, 'bob', 'bob@cultureplex.ca', 'bob_secret')
         signin(self, 'bob', 'bob_secret')
 
     def tearDown(self):
         logout(self)
-
-    @classmethod
-    def tearDownClass(cls):
-        if browser:
-            browser.quit()
 
     def test_export_schema(self):
         create_graph(self)

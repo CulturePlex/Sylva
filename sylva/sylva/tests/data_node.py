@@ -1,4 +1,5 @@
 import requests
+import socket
 
 from zipfile import ZipFile
 from StringIO import StringIO
@@ -37,14 +38,23 @@ class DataNodeTestCase(LiveServerTestCase):
     formats: gexf and csv.
     """
 
+    @classmethod
+    def setUpClass(cls):
+        cls.browser = Browser()
+        socket.setdefaulttimeout(30)
+        super(DataNodeTestCase, cls).setUpClass()
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.browser.quit()
+        super(DataNodeTestCase, cls).tearDownClass()
+
     def setUp(self):
-        self.browser = Browser()
         signup(self, 'bob', 'bob@cultureplex.ca', 'bob_secret')
         signin(self, 'bob', 'bob_secret')
 
     def tearDown(self):
         logout(self)
-        self.browser.quit()
 
     def test_data_node_addition(self):
         create_graph(self)

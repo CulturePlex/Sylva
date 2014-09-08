@@ -1,3 +1,5 @@
+import socket
+
 from django.test import LiveServerTestCase
 
 from splinter import Browser
@@ -33,11 +35,22 @@ class UserTestCase(LiveServerTestCase):
     user details, the change password view and the change email view.
     """
 
+    @classmethod
+    def setUpClass(cls):
+        cls.browser = Browser()
+        socket.setdefaulttimeout(30)
+        super(UserTestCase, cls).setUpClass()
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.browser.quit()
+        super(UserTestCase, cls).tearDownClass()
+
     def setUp(self):
-        self.browser = Browser()
+        pass
 
     def tearDown(self):
-        self.browser.quit()
+        pass
 
     def test_user_signup(self):
         signup(self, 'bob', 'bob@cultureplex.ca', 'bob_secret')

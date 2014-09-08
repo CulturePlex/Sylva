@@ -11,7 +11,7 @@ class MediaFileTest(TestCase):
         # We modify the default storage path to store
         # the media file in our test directory
         self._old_default_storage_location = default_storage.location
-        default_storage.location = 'data/fixtures/'
+        default_storage.location = 'sylva/data/fixtures/'
         self.media_label = "test"
         self.media_file = "lorem.json"
         self.data = Data.objects.create()
