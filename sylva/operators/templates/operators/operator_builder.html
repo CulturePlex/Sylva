@@ -21,6 +21,39 @@
 {% endblock %}
 
 {% block content %}
+
+<!-- Features Tour -->
+<ol id="tour" class="hidden" data-tour-id="">
+  <li data-class="nav-links" data-button="{% trans "Next" %}">
+    <h2>{% trans "Query results" %}</h2>
+    <p>{% trans "These two buttons are for navigate between the query builder and the results views." %}</p>
+  </li>
+  <li data-id="select-node" data-button="{% trans "Next" %}" class="">
+    <h2>{% trans "Types" %}</h2>
+    <p>{% trans "The node types that we can select to build a query." %}</p>
+  </li>
+  <li data-id="run-button" data-button="{% trans "Next" %}" class="">
+    <h2>{% trans "Run" %}</h2>
+    <p>{% trans "Click this button to run the built query." %}</p>
+  </li>
+  <li data-id="clear-button" data-button="{% trans "Next" %}" class="">
+    <h2>{% trans "Clear query" %}</h2>
+    <p>{% trans "Click this button to remove the entire built query." %}</p>
+  </li>
+  <li data-id="id_name" data-button="{% trans "Next" %}">
+    <h2>{% trans "Name" %}</h2>
+    <p>{% trans "Name for the query. It is required by default." %}</p>
+  </li>
+  <li data-id="id_description" data-button="{% trans "Next" %}">
+    <h2>{% trans "Description" %}</h2>
+    <p>{% trans "Description for the query. It is required by default." %}</p>
+  </li>
+  <li data-id="save-query" data-button="{% trans "Finish" %}">
+    <h2>{% trans "Save query" %}</h2>
+    <p>{% trans "Click this button to save the query. To save the number of results and the last run date, you have to run the query before." %}</p>
+  </li>
+</ol>
+
 {% if node_types %}
 <div style="width: 570px;">
     <div class="nav-links">
@@ -50,7 +83,7 @@
         </div>
         <a class="button" id="run-button" href="#">{% trans "Run" %}</a>
         <a class="button" id="clear-button" href="#">{% trans "Clear query" %}</a>
-        <form method="post" action="." id="formSaveQuery" name="form query save">
+        <form method="post" action="." id="form-save-query" name="form query save">
             {% csrf_token %}
             {% for field in form %}
                 {% if field.is_hidden %}
@@ -65,7 +98,7 @@
                 {% endfor %}
                 </div>
             {% endfor %}
-            <input type="submit" id="saveQuery" name="saveQuery" value="{% trans "Save query" %}" />
+            <input type="submit" id="save-query" name="saveQuery" value="{% trans "Save query" %}" />
         </form>
     </div>
     <div id="query-builder-results">

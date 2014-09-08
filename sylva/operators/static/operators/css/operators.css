@@ -216,7 +216,7 @@
 
 /* Form styles */
 
-#formSaveQuery {
+#form-save-query {
     display: block;
     margin-top: 20px;
     margin-left: 30px;
@@ -230,7 +230,7 @@
     margin-top: 15px;
 }
 
-#saveQuery {
+#save-query {
     margin-top: 15px;
 }
 

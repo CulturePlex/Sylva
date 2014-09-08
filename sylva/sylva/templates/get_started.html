@@ -67,6 +67,15 @@
                 <li><a href="#graph-visualization">{% trans "Graph visualization" %}</a></li>
               </ul>
               <li class="nav-header">
+                <a href="javascript:void(0)" data-toggle="collapse" data-target="#interacting-with-graphs-block">{% trans "Interacting with the graph" %}</a>
+                <i class="fa fa-chevron-down fa-lg nav-arrow" style="display: none;"></i>
+                <i class="fa fa-chevron-up fa-lg nav-arrow"></i>
+              </li>
+              <ul id="interacting-with-graphs-block" class="collapse in">
+                <li><a href="#analytics">{% trans "Analytics" %}</a></li>
+                <li><a href="#query-builder">{% trans "Query builder" %}</a></li>
+              </ul>
+              <li class="nav-header">
                 <a href="javascript:void(0)" data-toggle="collapse" data-target="#exporting-graphs-block">{% trans "Exporting graphs" %}</a>
                 <i class="fa fa-chevron-down fa-lg nav-arrow" style="display: none;"></i>
                 <i class="fa fa-chevron-up fa-lg nav-arrow"></i>
@@ -378,10 +387,72 @@
 
           <div class="section">
             <h2>
+              {% trans "Interacting with graphs" %}
+              <a class="headerlink" id="interacting-graphs" href="#interacting-with-graphs" title="{% trans "Permalink to this headline" %}">¶</a>
+            </h2>
+
+            <p>{% blocktrans %}Like we have seen, with SylvaDB we have a powerful tool for representing data in graphs. But, the real power comes from the <strong>interaction</strong> with that <strong>data</strong>. The SylvaDB user has many tools for that purpose, and two of those are the <em>analytics</em> and the <em>query builder</em>.{% endblocktrans %}</p>
+
+            <div class="inner-section">
+              <h3>
+                {% trans "Analytics" %}
+                <a class="headerlink" id="analytics" href="#analytics" title="{% trans "Permalink to this headline" %}">¶</a>
+              </h3>
+
+              <p>{% blocktrans %}The analytics provide to the SylvaDB users the ability to get information or patterns that are not clear in a simple way. Using the <a href="http://graphlab.com/products/create/overview.html"><abbr>graphlab</abbr></a> algorithms, we can obtain very useful results for every type of user and projects.{% endblocktrans %}</p>
+
+              <p>{% blocktrans %}Let's see how to use the analytics. When we are in the <strong>visualization</strong> graph view, we have the option for analyze our graph clicking on the <em>Analyze</em> button.{% endblocktrans %}</p>
+
+              <p>{% blocktrans %}Once clicked, we access to the <em>fullscreen</em> view. In this fullscreen view we have the tools to interact with the whole graph. In this section, we are going to focus in the <em>Analytics</em>.{% endblocktrans %}</p>
+
+              <p>{% blocktrans %} In the analytics section we have the differents algorithms that we can execute over our entire graph or a subgraph. The list of the available algorithms by now are <a href="http://en.wikipedia.org/wiki/Connected_component_(graph_theory)"><abbr title="Connected components">connected components</abbr></a>, <a href="#"><abbr title="Triangle counting">triangle counting</abbr></a>, <a href="http://en.wikipedia.org/wiki/Graph_coloring"><abbr title="Graph coloring">graph coloring</abbr></a>, <a href="http://en.wikipedia.org/wiki/Betweenness_centrality"><abbr title="Betweenness centrality">betweeness centrality</abbr></a>, <a href="http://es.wikipedia.org/wiki/PageRank"><abbr title="Pagerank">pagerank</abbr></a> and <a href="http://en.wikipedia.org/wiki/Degeneracy_(graph_theory)"><abbr title="Degeneracy (k-core)">Degeneracy (k-core).</abbr></a>{% endblocktrans %}</p>
+
+              <p>{% blocktrans %}When we make click in an algorithm, we have different options:
+                <ul>
+                  <li>A play button to run the algorithm over the graph selected.</li>
+                  <li>A checkbox, "On selected nodes", to run the algorithm over a subgraph from the entire whole graph.</li>
+                  <li>A select field, to select a past analytic to work with its results.</li>
+                </ul>
+              {% endblocktrans %}</p>
+
+              <p>{% blocktrans %}Once an analytic is executed, we obtain a chart representing the values of the analytic and the number of nodes of that value. We can interact with this chart to see in the graph the affected nodes of a specific value.{% endblocktrans %}</p>
+            </div>
+            <div class="inner-section">
+              <h3>
+                {% trans "Query builder" %}
+                <a class="headerlink" id="query-builder" href="#query-builder" title="{% trans "Permalink to this headline" %}">¶</a>
+              </h3>
+
+              <p>{% blocktrans %}The query builder is a feature to provide us an easy and intuitive way to create <em>queries</em>. Using the query builder, every SylvaDB user can extract information of their graph in a very simple way.{% endblocktrans %}</p>
+
+              <p>{% blocktrans %}To create a query, we are going to follow the next steps:
+              <ul>
+                <li>The first step is to select a node type, according to the list of available types obtained from the graph. Also, we are going to have a special type called <em>Wildcard</em>.</li>
+                <li>Once we click in a node type, we are going to have our type box on the grid. The node type box is the basic element of the query builder. It allows us to modify the fields of the type to create a desired query. We can divide the node type box in three parts:</li>
+                  <ul>
+                    <li>The first part is the <em>title</em> part. Here we see the name of the type and the buttons to close the box, minimize/maximize the box and show the advanced mode of the box. Also, if we had more than one box of the type, we could see a select field to choose the <em>alias</em> name for the box.</li>
+                    <li>The next part are the fields. The fields are the conditions that we have to take into account when we execute our query. So, it is in these fields when we select the properties, their lookups, their values, etc.</li>
+                    <li>The last part is the relationships availables for that type. We are going to see a select with those relationships, and when we click in one option we could see two differente behaviours:</li>
+                      <ul>
+                        <li>If we have the two node types boxes involved, we have to drag and drop the relationship from the source box to the target box. We can see the <em>hover</em> behaviour in the destiny zone to drop the relationship.</li>
+                        <li>If we dont have the target box in the grid, when we select the desired relationship the target box is loaded automatically.</li>
+                      </ul>
+                    In the relationships, we have the same behaviour that in the node types boxes for the fields and the selects for the alias.
+                  </ul>
+                  <li>The last step is to run the query. We can see the results table clicking in the results tab.</li>
+              </ul>
+              {% endblocktrans %}</p>
+
+            </div>
+          </div>
+
+          <div class="section">
+            <h2>
               {% trans "Exporting graphs" %}
               <a class="headerlink" id="exporting-graphs" href="#exporting-graphs" title="{% trans "Permalink to this headline" %}">¶</a>
             </h2>
 
+            <p>{% blocktrans %}You can back up your graphs using the <em>Export tools</em>. In order to export a graph, you need to save the <strong>graph schema</strong> and the <strong>graph data</strong> (nodes and relationships). You have two ways of saving your graph data: using <a href="http://gexf.net/format/"><abbr title="Graph Exchange XML Format">GEXF (Gephi)</abbr></a> or using <a href="http://en.wikipedia.org/wiki/Comma-separated_values"><abbr title="Comma-separated values">CSV</abbr></a> as file formats. Unfortunately, you can't save your attachments nor links at the moment.{% endblocktrans %}</p>
             <p>{% blocktrans %}You can back up your graphs using the <em>Export tools</em>. In order to export a graph, you need to save the <strong>graph schema</strong> and the <strong>graph data</strong> (nodes and relationships). You have two ways of saving your graph data: using <a href="http://gexf.net/format/"><abbr title="Graph Exchange XML Format">GEXF (Gephi)</abbr></a> or using <a href="http://en.wikipedia.org/wiki/Comma-separated_values"><abbr title="Comma-separated values">CSV</abbr></a> as file formats. Unfortunately, you can't save your attachments nor links at the moment.{% endblocktrans %}</p>
 
             <img class="border" src="{{ STATIC_PREFIX }}img/docs/get_started/export_tools.png" alt="{% trans "Export tools" %}">

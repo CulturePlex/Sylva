@@ -59,6 +59,40 @@
     <h2>{% trans "Pause" %}</h2>
     <p>{% trans "You can use this button to pause/run the rendering of the graph." %}</p>
   </li>
+  {% if OPTIONS.ENABLE_ANALYTICS %}
+  <!-- Features Tour -->
+  <li data-id="analytics-algorithm" data-button="{% trans "Next" %}">
+    <h2>{% trans "Analytics" %}</h2>
+    <p>{% trans "In this section we have the available analytics algorithms that we can execute over our graph. We can observe the next options in every algorithm:" %}
+      <dl>
+        <dt>{% trans "Play button" %}</dt>
+        <dd>{% trans "Useful to run the specified algorithm." %}</dd>
+        <dt>{% trans "Select nodes checkbox" %}</dt>
+        <dd>{% trans "Useful to take into account a subgraph." %}</dd>
+        <dt>{% trans "Select analytic" %}</dt>
+        <dd>{% trans "Useful to select saved analytics to work with older results." %}</dd>
+      </dl>
+    </p>
+  </li>
+  <li data-id="connected_components" data-button="{% trans "Next" %}">
+    <h2>{% trans "Connected components algorithm" %}</h2>
+  </li>
+  <li data-class="triangle_counting" data-button="{% trans "Next" %}">
+    <h2>{% trans "Triangle counting algorithm" %}</h2>
+  </li>
+  <li data-class="graph_coloring" data-button="{% trans "Next" %}">
+    <h2>{% trans "Graph coloring algorithm" %}</h2>
+  </li>
+  <li data-id="betweenness_centrality" data-button="{% trans "Next" %}">
+    <h2>{% trans "Betweenness centrality algorithm" %}</h2>
+  </li>
+  <li data-id="pagerank" data-button="{% trans "Finish" %}">
+    <h2>{% trans "Pagerank algorithm" %}</h2>
+  </li>
+  <li data-id="kcore" data-button="{% trans "Finish" %}">
+    <h2>{% trans "Degeneracy (k-core) algorithm" %}</h2>
+  </li>
+  {% endif %}
 </ol>
 
 {% endblock content %}

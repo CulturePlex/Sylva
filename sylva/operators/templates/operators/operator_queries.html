@@ -20,6 +20,26 @@
 {% endblock %}
 
 {% block content %}
+
+<!-- Features Tour -->
+<ol id="tour" class="hidden" data-tour-id="">
+  <li data-id="query-list" data-button="{% trans "Next" %}" class="">
+    <h2>{% trans "List of queries" %}</h2>
+    <p>{% trans "The list of queries that we have saved. We have two options with every saved query:" %}
+      <dl>
+        <dt>{% trans "Play button" %}</dt>
+        <dd>{% trans "Useful to run the saved query." %}</dd>
+        <dt>{% trans "Edit button" %}</dt>
+        <dd>{% trans "Useful to edit the saved query." %}</dd>
+      </dl>
+    </p>
+  </li>
+  <li data-id="create-query" data-button="{% trans "Next" %}" class="">
+    <h2>{% trans "New query" %}</h2>
+    <p>{% trans "This button allows us to navegate to the query builder view and create a new query." %}</p>
+  </li>
+</ol>
+
 {% if queries %}
 <div id="query-list" style="margin-top: 20px;">
     <table class="content-table">

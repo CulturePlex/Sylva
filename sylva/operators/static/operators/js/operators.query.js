@@ -2532,7 +2532,7 @@ diagram.aggregates = [
     /**
      * Handler to get the information to save the query
      */
-    $(document).on('click', '#saveQuery', function(event) {
+    $(document).on('click', '#save-query', function(event) {
         var saveElements = {};
         var query = diagram.generateQuery();
         saveElements["query"] = query;
