@@ -18,6 +18,7 @@ diagram.fieldRelsCounter = 0;
 diagram.nodetypesCounter = [];
 diagram.nodetypesList = {};
 diagram.reltypesCounter = [];
+diagram.reltypesList = {};
 diagram.fieldsForNodes = {};
 diagram.fieldsForRels = {};
 diagram.relindex = {};
@@ -188,7 +189,7 @@ diagram.aggregates = [
          * - typeName
          */
         diagram.addBox = function (graphName, modelName, typeName) {
-            var model, root, idBox, divBox, divAddBox, divContainerBoxes, divField, divFields, divManies, divAllowedRelationships, divAllRel, fieldName, field, countFields, idFields, boxAllRel, listRelElement, idAllRels, addField, addFieldIcon, idContainerBoxes, removeRelation, idTopBox, handlerAnchor, idBoxAllRels, selectAllRel;
+            var model, root, idBox, divBox, divAddBox, divContainerBoxes, divField, divFields, divManies, divAllowedRelationships, divAllRel, fieldName, field, countFields, idFields, boxAllRel, listRelElement, idAllRels, addField, addFieldIcon, idContainerBoxes, removeRelation, idTopBox, idBoxAllRels, selectAllRel;
             model = diagram.Models[graphName][typeName];
             root = $("#"+ diagram.Container);
             diagram.Counter++;
@@ -397,7 +398,7 @@ diagram.aggregates = [
         diagram.addRelationBox = function(name, label, idRel) {
             var divTitle, selectReltype, optionReltype, checkboxType, anchorShowHide, iconToggle, anchorDelete, iconDelete;
 
-            var model, root, idBox, divBox, divAddBox, divContainerBoxes, divField, divFields, divAllowedRelationships, fieldName, field, countFields, idFields, boxAllRel, listRelElement, idAllRels, addField, addFieldIcon, idContainerBoxes, removeRelation, idTopBox, handlerAnchor;
+            var model, root, idBox, divBox, divAddBox, divContainerBoxes, divField, divFields, divAllowedRelationships, fieldName, field, countFields, idFields, boxAllRel, listRelElement, idAllRels, addField, addFieldIcon, idContainerBoxes, removeRelation, idTopBox;
 
             root = $("#"+ diagram.Container);
             idBox = "diagramBoxRel-" + diagram.CounterRels + "-" + name;
@@ -429,6 +430,7 @@ diagram.aggregates = [
                 "float": "left",
                 "padding": "0",
                 "margin-left": "5%",
+                "margin-top": "-1px",
                 "display": "none"
             });
             relValue = label + " " + diagram.reltypesCounter[name];
@@ -443,11 +445,14 @@ diagram.aggregates = [
                 $($('.select-reltype-' + name)[i]).append(optionReltype.clone(true));
             }
             // This for loop is to include the old options in the new box
-            for(var j = 0; j < diagram.reltypesCounter[name]; j++) {
-                var alias = name + " " + j;
+            var typeBoxesLength = diagram.reltypesList[name].length;
+            for(var i = 0; i < typeBoxesLength; i++) {
+                var alias = diagram.reltypesList[name][i];
                 var id = alias.replace(/\s/g, '');;
                 selectReltype.append("<option class='option-reltype-" + name + "' id='" + id + "' value='" + alias +"' data-modelid='" + idRel + "' selected=''>" + alias + "</option>");
             }
+            // We add the new alias to the list of the reltype
+            diagram.reltypesList[name].push(relValue);
             selectReltype.append(optionReltype);
             diagram.setName(divTitle, label, label, "relation");
 
@@ -652,7 +657,7 @@ diagram.aggregates = [
                 $('#' + idBox).remove();
 
                 // We remove the boxAlias in the other selects
-                diagram.removeAlias(typeName, boxAlias);
+                diagram.removeAlias(typeName, boxAlias, "node");
 
                 // We remove the boxAlias of the list
                 var aliasIndex = diagram.nodetypesList[typeName].indexOf(boxAlias);
@@ -674,32 +679,37 @@ diagram.aggregates = [
             advancedMode.append(iconAdvancedMode);
             advancedMode.click(function () {
                 var display = $('#' + idBox + " .select-aggregate").css('display');
+                var selectorBox = '#' + idBox;
+                var selectorAggregate = '#' + idBox + " .select-aggregate";
+                var selectorRemoveRelation = '#' + idBox + " #remove-relation-icon";
                 if(display == "none") {
                     // We change the width of the box div
-                    $('#' + idBox).css({
+                    $(selectorBox).css({
                         'width': '440px'
                     });
                     // We show the advanced options
-                    $('#' + idBox + " .select-aggregate").css({
+                    $(selectorAggregate).css({
                         "display": "inline"
                     });
                     // We change the margin left of the relationships remove icon
-                    $('#' + idBox + " #remove-relation-icon").css({
+                    $(selectorRemoveRelation).css({
                         'margin-left': '307px'
                     });
                 } else {
                     // We change the width of the box div
-                    $('#' + idBox).css({
+                    $(selectorBox).css({
                         'width': '360px'
                     });
                     // We show the advanced options
-                    $('#' + idBox + " .select-aggregate").css({
+                    $(selectorAggregate).css({
                         "display": "none"
                     });
                     // We change the margin left of the relationships remove icon
-                    $('#' + idBox + " #remove-relation-icon").css({
+                    $(selectorRemoveRelation).css({
                         'margin-left': '234px'
                     });
+                    // We change the value of the aggregate
+                    $(selectorAggregate).val('');
                 }
 
                 jsPlumb.repaintEverything();
@@ -709,7 +719,7 @@ diagram.aggregates = [
             divCornerButtons.append(advancedMode);
 
             divTitle.append(divCornerButtons);
-            divTitle.attr("data-boxalias", typeName + diagram.nodetypesCounter[typeName]);
+            divTitle.attr("data-boxalias", boxAlias);
 
             return divTitle;
         };
@@ -911,7 +921,7 @@ diagram.aggregates = [
             for(var i = 0; i < diagram.aggregates.length; i++) {
                 // We append the aggregate and the aggregate Distinct
                 var aggregate = diagram.aggregates[i];
-                var aggregateDistinct = aggregate + "distinct";
+                var aggregateDistinct = aggregate + " distinct";
                 selectAggregate.append("<option class='option-aggregate' value='" + aggregate + "' data-distinct='false'>" + gettext(aggregate) + "</option>");
                 selectAggregate.append("<option class='option-aggregate' value='" + aggregate + "' data-distinct='true'>" + gettext(aggregateDistinct) + "</option>");
             }
@@ -939,6 +949,9 @@ diagram.aggregates = [
             fieldId = "field-" + diagram.fieldRelsCounter + "-" + label;
             divField = $("<DIV>");
             divField.addClass("field");
+            divField.css({
+                "margin-top": "14px"
+            });
             divField.attr('id', fieldId);
             // We check if there are fields
             if(lengthFields > 0) {
@@ -1144,17 +1157,28 @@ diagram.aggregates = [
                     })
                 });
             } else if(numberOfBoxes == 0) {
-                // We reset the nodetype counter
-                diagram.nodetypesCounter[typeName] = 0;
+                // We reset the counter
+                if(elemType == "node") {
+                    diagram.nodetypesCounter[typeName] = 0;
+                } else {
+                    diagram.reltypesCounter[typeName] = 0;
+                }
             }
         };
 
         /**
          * Function that removes in the selects of the boxes, the alias
          * of a deleted box
+         * - typeName
+         * - boxAlias
+         * - elemType
          */
-        diagram.removeAlias = function(typeName, boxAlias) {
+        diagram.removeAlias = function(typeName, boxAlias, elemType) {
             var boxes = $('.select-nodetype-' + typeName);
+
+            if(elemType == "relationship") {
+                boxes = $('.select-reltype-' + typeName);
+            }
 
             // We iterate over the boxes
             $.each(boxes, function(index, box) {
@@ -1251,33 +1275,43 @@ diagram.aggregates = [
                                 }
                               };
             } else if(type == 'target') {
-                relationshipOptions = { endpoint: ["Rectangle",
-                {width: 360,
-                 height: 23,
-                 cssClass: 'query-box-endpoint-target'}],
-                                //anchor: [1, anchor, -1, 0],
-                                anchor: "TopCenter",
-                                isTarget: true,
-                                maxConnections: 99,
-                                connectorStyle: {
-                                    strokeStyle: '#AEAA78',
-                                    lineWidth: 2},
-                                connectorOverlays:[
-                                    [ "PlainArrow", {
-                                        foldback: 0,
-                                        width:10,
-                                        length:10,
-                                        location:0,
-                                        id:"arrow"}]
-                                ],
-                                paintStyle: {
-                                    strokeStyle: '#348E82'
-                                },
-                                backgroundPaintStyle: {
-                                    strokeStyle: '#348E82',
-                                    lineWidth: 3
-                                }
-                              };
+                relationshipOptions = {
+                    endpoint: [
+                    "Rectangle",
+                        {
+                            width: 360,
+                            height: 23,
+                            cssClass: 'query-box-endpoint-target'
+                        }
+                    ],
+                    //anchors: [
+                    //    [0.5, 0, 0, 0],
+                    //    ["Continuous",
+                    //    {faces:[ "top", "left", "right" ]}]
+                    //],
+                    // anchor: [0.5, 0, 0, 0],
+                    anchor: "TopCenter",
+                    isTarget: true,
+                    maxConnections: 99,
+                    connectorStyle: {
+                        strokeStyle: '#AEAA78',
+                        lineWidth: 2},
+                    connectorOverlays:[
+                        [ "PlainArrow", {
+                            foldback: 0,
+                            width:10,
+                            length:10,
+                            location:0,
+                            id:"arrow"}]
+                    ],
+                    paintStyle: {
+                        strokeStyle: '#348E82'
+                    },
+                    backgroundPaintStyle: {
+                        strokeStyle: '#348E82',
+                        lineWidth: 3
+                    }
+                };
             }
             return relationshipOptions;
         };
@@ -1396,6 +1430,7 @@ diagram.aggregates = [
                 propertiesDict["property"] = $(property).val();
                 propertiesDict["aggregate"] = aggregateValue;
                 propertiesDict["distinct"] = aggregateDistinct;
+                propertiesDict["datatype"] = datatype;
                 propertiesChecked[alias].push(propertiesDict);
             }
 
@@ -1683,7 +1718,10 @@ diagram.aggregates = [
                 $('#' + sourceId + ' .select-rel').change();
                 $('#' + sourceId + ' .select-rel').change();
 
-                jsPlumb.connect({uuids: [uuidSource, uuidTarget] })
+                jsPlumb.connect({
+                    uuids: [uuidSource, uuidTarget],
+                    anchor: ["Perimeter", {shape: "Rectangle"}]
+                })
             }
 
             jsPlumb.repaintEverything();
@@ -1840,6 +1878,12 @@ diagram.aggregates = [
         // relationship
 
         if($('#div-' + relationId).length == 0) {
+
+            // We check if we have the type in the reltypesList. If not,
+            // we create it.
+            if(!diagram.reltypesList[name]) {
+                diagram.reltypesList[name] = new Array();
+            }
 
             divAllRel = $("<DIV>");
             divAllRel.addClass("div-list-rel");
@@ -2253,6 +2297,15 @@ diagram.aggregates = [
 
         diagram.relindex[idBox]--;
 
+        // We check if we have the connection to get the idrel value
+        var endpointSelector = patternId + '-source';
+        if(!jsPlumb.getEndpoint(endpointSelector)) {
+            // We get the id of the relationship box to remove it in the selects
+            var idrel = jsPlumb.getEndpoint(endpointSelector).connections[0].idrel;
+            // We get the alias of the box to remove it in the selects
+            var boxAlias = $('#' + idrel + ' .select-reltype-' + name).val();
+        }
+
         var oldEndpointRelIndex = jsPlumb.getEndpoint(patternId + '-source').relIndex;
         jsPlumb.deleteEndpoint(patternId + '-source');
         $('#' + divRelId).remove();
@@ -2278,6 +2331,16 @@ diagram.aggregates = [
                 }
                 endpoint.anchor.y = anchor;
             }
+        }
+
+        // We treat the alias if we have the boxAlias defined
+        if(boxAlias) {
+            // We remove the boxAlias in the other selects
+            diagram.removeAlias(name, boxAlias, "relationship");
+
+            // We remove the boxAlias of the list
+            var aliasIndex = diagram.reltypesList[name].indexOf(boxAlias);
+            diagram.reltypesList[name].splice(aliasIndex, 1);
         }
 
         // We check if we have only one box to hide the selects for the alias
