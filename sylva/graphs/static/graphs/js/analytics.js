@@ -487,6 +487,8 @@ var initAnalytics = function($) {
   });
 
   sylva.reactor.addEventListener('entireGraphSelected', function() {
+    // We restore the checkbox checked before hide it
+    $('.div-selected-nodes input').attr('checked', 'checked')
     $('.div-selected-nodes').css(
       {'display':'none'}
     );

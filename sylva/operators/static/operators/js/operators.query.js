@@ -473,12 +473,69 @@ diagram.aggregates = [
                     $('#' + idBox).css({
                         'width': '360px'
                     });
+                    // We show the advanced mode button
+                    $('#inlineAdvancedMode_' + name).css({
+                        'display': 'inline'
+                    });
                 } else {
                     iconToggle.removeClass('fa fa-minus-circle icon-style');
                     iconToggle.addClass('fa fa-plus-circle icon-style');
                     $('#' + idBox).css({
                         'width': '180px'
                     });
+                    // We hide the advanced mode button and the select
+                    $('#inlineAdvancedMode_' + name).css({
+                        'display': 'none'
+                    });
+                    $('#' + idBox + " .select-aggregate").css({
+                        'display': 'none'
+                    });
+                }
+            });
+            // Advanced mode button in the corner of the box and its associated event
+            anchorAdvancedMode = $("<A>");
+            anchorAdvancedMode.attr("href", "javascript:void(0);");
+            anchorAdvancedMode.attr("id", "inlineAdvancedMode_"+ name);
+            anchorAdvancedMode.attr("title", gettext("Advanced options"))
+            anchorAdvancedMode.css({
+                'display': 'none'
+            });
+            iconAdvancedMode = $("<I>");
+            iconAdvancedMode.addClass("fa fa-gear icon-style");
+            anchorAdvancedMode.append(iconAdvancedMode);
+            anchorAdvancedMode.click(function () {
+                var display = $('#' + idBox + " .select-aggregate").css('display');
+                var selectorBox = '#' + idBox;
+                var selectorAggregate = '#' + idBox + " .select-aggregate";
+                var selectorRemoveRelation = '#' + idBox + " #remove-relation-icon";
+                if(display == "none") {
+                    // We change the width of the box div
+                    $(selectorBox).css({
+                        'width': '440px'
+                    });
+                    // We show the advanced options
+                    $(selectorAggregate).css({
+                        "display": "inline"
+                    });
+                    // We change the margin left of the relationships remove icon
+                    $(selectorRemoveRelation).css({
+                        'margin-left': '307px'
+                    });
+                } else {
+                    // We change the width of the box div
+                    $(selectorBox).css({
+                        'width': '360px'
+                    });
+                    // We show the advanced options
+                    $(selectorAggregate).css({
+                        "display": "none"
+                    });
+                    // We change the margin left of the relationships remove icon
+                    $(selectorRemoveRelation).css({
+                        'margin-left': '234px'
+                    });
+                    // We change the value of the aggregate
+                    $(selectorAggregate).val('');
                 }
             });
             // We create the div for the corner buttons
@@ -512,6 +569,7 @@ diagram.aggregates = [
                 // If we have properties, we add the button to
                 // minimize/maximize the box
                 divCornerButtons.append(anchorShowHide);
+                divCornerButtons.append(anchorAdvancedMode);
                 // Create the select for the properties
                 divField = diagram.addFieldRelRow(name, idFields);
                 divFields.append(divField);
@@ -670,14 +728,14 @@ diagram.aggregates = [
             divCornerButtons = $("<DIV>");
             divCornerButtons.addClass("corner-buttons");
             // Advanced mode button in the corner of the box and its associated event
-            advancedMode = $("<A>");
-            advancedMode.attr("href", "javascript:void(0);");
-            advancedMode.attr("id", "inlineAdvancedMode_"+ typeName);
-            advancedMode.attr("title", gettext("Advanced options"))
+            anchorAdvancedMode = $("<A>");
+            anchorAdvancedMode.attr("href", "javascript:void(0);");
+            anchorAdvancedMode.attr("id", "inlineAdvancedMode_"+ typeName);
+            anchorAdvancedMode.attr("title", gettext("Advanced options"))
             iconAdvancedMode = $("<I>");
             iconAdvancedMode.addClass("fa fa-gear icon-style");
-            advancedMode.append(iconAdvancedMode);
-            advancedMode.click(function () {
+            anchorAdvancedMode.append(iconAdvancedMode);
+            anchorAdvancedMode.click(function () {
                 var display = $('#' + idBox + " .select-aggregate").css('display');
                 var selectorBox = '#' + idBox;
                 var selectorAggregate = '#' + idBox + " .select-aggregate";
@@ -716,7 +774,7 @@ diagram.aggregates = [
             });
             divCornerButtons.append(anchorClose);
             divCornerButtons.append(anchorShowHide);
-            divCornerButtons.append(advancedMode);
+            divCornerButtons.append(anchorAdvancedMode);
 
             divTitle.append(divCornerButtons);
             divTitle.attr("data-boxalias", boxAlias);
@@ -1013,10 +1071,23 @@ diagram.aggregates = [
                 removeFieldIcon.addClass("fa fa-minus-circle");
                 removeFieldIcon.attr('id', 'remove-field-icon-rel');
                 removeField.append(removeFieldIcon);
+
+                // Select for the aggregates elements
+                selectAggregate = $("<SELECT>");
+                selectAggregate.addClass("select-aggregate");
+                selectAggregate.append("<option class='option-aggregate' value='' selected='selected' disabled>" + gettext("choose one") + "</option>");
+                for(var i = 0; i < diagram.aggregates.length; i++) {
+                    // We append the aggregate and the aggregate Distinct
+                    var aggregate = diagram.aggregates[i];
+                    var aggregateDistinct = aggregate + " distinct";
+                    selectAggregate.append("<option class='option-aggregate' value='" + aggregate + "' data-distinct='false'>" + gettext(aggregate) + "</option>");
+                    selectAggregate.append("<option class='option-aggregate' value='" + aggregate + "' data-distinct='true'>" + gettext(aggregateDistinct) + "</option>");
+                }
             }
 
                 // We append the patterns
                 divField.append(checkboxProperty);
+                divField.append(selectAggregate);
                 divField.append(selectProperty);
                 divField.append(selectLookup);
                 divField.append(divAndOr);
