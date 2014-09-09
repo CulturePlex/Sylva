@@ -7,12 +7,14 @@ except ImportError:
 from datetime import datetime
 from django.db import transaction
 from django.db.models import Q
+from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
-from django.template import RequestContext
 from django.shortcuts import (get_object_or_404, render_to_response,
                               HttpResponse)
+from django.template import RequestContext
+from django.utils.translation import gettext as _
 
 from guardian.decorators import permission_required
 
@@ -33,6 +35,8 @@ def operator_builder(request, graph_slug):
     graph = get_object_or_404(Graph, slug=graph_slug)
     nodetypes = NodeType.objects.filter(schema__graph__slug=graph_slug)
     reltypes = RelationshipType.objects.filter(schema__graph__slug=graph_slug)
+    queries_link = (reverse("operator_queries", args=[graph.slug]),
+                    _("Queries"))
     form = SaveQueryForm()
     if request.POST:
         data = request.POST.copy()
@@ -52,6 +56,7 @@ def operator_builder(request, graph_slug):
                 graph.save()
                 return render_to_response('operators/operator_queries.html',
                                           {"graph": graph,
+                                           "queries_link": queries_link,
                                            "queries": graph.queries.all()},
                                           context_instance=RequestContext(
                                               request))
@@ -62,6 +67,7 @@ def operator_builder(request, graph_slug):
             query_fields = form.data["query_fields"]
             return render_to_response('operators/operator_builder.html',
                                       {"graph": graph,
+                                       "queries_link": queries_link,
                                        "node_types": nodetypes,
                                        "relationship_types": reltypes,
                                        "form": form,
@@ -73,6 +79,7 @@ def operator_builder(request, graph_slug):
     else:
         return render_to_response('operators/operator_builder.html',
                                   {"graph": graph,
+                                   "queries_link": queries_link,
                                    "node_types": nodetypes,
                                    "relationship_types": reltypes,
                                    "form": form},

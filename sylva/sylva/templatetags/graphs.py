@@ -6,6 +6,7 @@ from django.utils.translation import gettext as _
 from data.models import Data
 from search.forms import SearchForm
 from schemas.models import Schema
+from operators.models import Query
 
 
 register = Library()
@@ -41,13 +42,16 @@ def breadcrumb(context, *links):
             breads.append((link.get_absolute_url(), _("Data")))
         elif isinstance(link, Schema):
             breads.append((link.get_absolute_url(), _("Schema")))
+        elif isinstance(link, Query):
+            breads.append((link.get_absolute_url(), _("Queries")))
         elif hasattr(link, "get_absolute_url"):
             breads.append((link.get_absolute_url(), link))
+        elif isinstance(link, (tuple, list)):
+            breads.append((link[0], link[1]))
         else:
             breads.append(("", link))
     return {'links': breads,
-            'graph': context.
-            get("graph", None)}
+            'graph': context.get("graph", None)}
 
 
 @register.inclusion_tag('graphs_visualization.html', takes_context=True)
