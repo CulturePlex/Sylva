@@ -1,4 +1,5 @@
 import socket
+from time import sleep
 
 from django.test import LiveServerTestCase
 
@@ -35,28 +36,23 @@ class UserTestCase(LiveServerTestCase):
     user details, the change password view and the change email view.
     """
 
-    @classmethod
-    def setUpClass(cls):
-        cls.browser = Browser()
-        socket.setdefaulttimeout(30)
-        super(UserTestCase, cls).setUpClass()
-
-    @classmethod
-    def tearDownClass(cls):
-        cls.browser.quit()
-        super(UserTestCase, cls).tearDownClass()
-
     def setUp(self):
-        pass
+        self.browser = Browser()
+        socket.setdefaulttimeout(30)
 
     def tearDown(self):
-        pass
+        self.browser.quit()
 
     def test_user_signup(self):
         signup(self, 'bob', 'bob@cultureplex.ca', 'bob_secret')
         spin_assert(lambda: self.assertEqual(self.browser.find_by_css('.body-inside').first.value, 'Thank you for signing up with us!\nYou can now use the supplied credentials to signin.'))
         spin_assert(lambda: self.assertEqual(
             self.browser.title, 'SylvaDB - Signup almost done!'))
+
+    @classmethod
+    def tearDownClass(cls):
+        sleep(10)  # It needs some time for close the LiverServerTestCase
+        super(UserTestCase, cls).tearDownClass()
 
     def test_user_singup_empty_email(self):
         self.browser.visit(self.live_server_url + '/accounts/signup/')

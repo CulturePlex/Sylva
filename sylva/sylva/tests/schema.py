@@ -1,6 +1,7 @@
 import os
 import requests
 import socket
+from time import sleep
 
 from django.test import LiveServerTestCase
 
@@ -19,23 +20,20 @@ class SchemaTestCase(LiveServerTestCase):
     related to advanced types (patterns, options, etc.).
     """
 
-    @classmethod
-    def setUpClass(cls):
-        cls.browser = Browser()
-        socket.setdefaulttimeout(30)
-        super(SchemaTestCase, cls).setUpClass()
-
-    @classmethod
-    def tearDownClass(cls):
-        cls.browser.quit()
-        super(SchemaTestCase, cls).tearDownClass()
-
     def setUp(self):
+        self.browser = Browser()
+        socket.setdefaulttimeout(30)
         signup(self, 'bob', 'bob@cultureplex.ca', 'bob_secret')
         signin(self, 'bob', 'bob_secret')
 
     def tearDown(self):
         logout(self)
+        self.browser.quit()
+
+    @classmethod
+    def tearDownClass(cls):
+        sleep(10)  # It needs some time for close the LiverServerTestCase
+        super(SchemaTestCase, cls).tearDownClass()
 
     def test_export_schema(self):
         create_graph(self)
@@ -206,8 +204,8 @@ class SchemaTestCase(LiveServerTestCase):
         self.browser.find_by_xpath("//td[@class='dataActions']/a[@class='dataOption new']").first.click()
         self.browser.find_by_name('Number name').first.fill('1.5')
         self.browser.find_by_value("Save Bob's type").first.click()
-        text = self.browser.find_by_xpath("//ul[@class='errorlist']/li").first.text
-        spin_assert(lambda: self.assertEqual(text, 'This field is required.'))
+        text = self.browser.find_by_css('input:invalid').first.value
+        spin_assert(lambda: self.assertEqual(text, '1.5'))
         Graph.objects.get(name="Bob's graph").destroy()
 
     def test_new_advanced_type_number_string(self):
@@ -236,8 +234,10 @@ class SchemaTestCase(LiveServerTestCase):
         self.browser.find_by_xpath("//td[@class='dataActions']/a[@class='dataOption new']").first.click()
         self.browser.find_by_name('Number name').first.fill('number')
         self.browser.find_by_value("Save Bob's type").first.click()
-        text = self.browser.find_by_xpath("//ul[@class='errorlist']/li").first.text
-        spin_assert(lambda: self.assertEqual(text, 'This field is required.'))
+        text = self.browser.find_by_css('input:invalid').first.outer_html
+        spin_assert(lambda: self.assertEqual(
+            text,
+            '<input id="id_Number name" name="Number name" type="number">'))
         Graph.objects.get(name="Bob's graph").destroy()
 
     def test_new_advanced_type_text(self):

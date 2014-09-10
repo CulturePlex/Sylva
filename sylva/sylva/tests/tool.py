@@ -1,6 +1,7 @@
 import os
 import requests
 import socket
+from time import sleep
 
 from django.test import LiveServerTestCase
 
@@ -235,18 +236,9 @@ class ToolsTestCaseGexf(LiveServerTestCase):
     Actually only works with gephi format.
     """
 
-    @classmethod
-    def setUpClass(cls):
-        cls.browser = Browser()
-        socket.setdefaulttimeout(30)
-        super(ToolsTestCaseGexf, cls).setUpClass()
-
-    @classmethod
-    def tearDownClass(cls):
-        cls.browser.quit()
-        super(ToolsTestCaseGexf, cls).tearDownClass()
-
     def setUp(self):
+        self.browser = Browser()
+        socket.setdefaulttimeout(30)
         signup(self, 'bob', 'bob@cultureplex.ca', 'bob_secret')
         signin(self, 'bob', 'bob_secret')
         self.firstGraphName = "bobgraph"
@@ -254,6 +246,12 @@ class ToolsTestCaseGexf(LiveServerTestCase):
 
     def tearDown(self):
         logout(self)
+        self.browser.quit()
+
+    @classmethod
+    def tearDownClass(cls):
+        sleep(10)  # It needs some time for close the LiverServerTestCase
+        super(ToolsTestCaseGexf, cls).tearDownClass()
 
     def test_graph_export_gexf_autoincrement(self):
         # Create a graph with an auto_increment property
@@ -393,18 +391,9 @@ class ToolsTestCaseCsv(LiveServerTestCase):
     Actually only works with gephi format.
     """
 
-    @classmethod
-    def setUpClass(cls):
-        cls.browser = Browser()
-        socket.setdefaulttimeout(30)
-        super(ToolsTestCaseCsv, cls).setUpClass()
-
-    @classmethod
-    def tearDownClass(cls):
-        cls.browser.quit()
-        super(ToolsTestCaseCsv, cls).tearDownClass()
-
     def setUp(self):
+        self.browser = Browser()
+        socket.setdefaulttimeout(30)
         signup(self, 'bob', 'bob@cultureplex.ca', 'bob_secret')
         signin(self, 'bob', 'bob_secret')
         self.firstGraphName = "bobgraph"
@@ -412,6 +401,12 @@ class ToolsTestCaseCsv(LiveServerTestCase):
 
     def tearDown(self):
         logout(self)
+        self.browser.quit()
+
+    @classmethod
+    def tearDownClass(cls):
+        sleep(10)  # It needs some time for close the LiverServerTestCase
+        super(ToolsTestCaseCsv, cls).tearDownClass()
 
     def test_graph_export_csv(self):
         # Create a graph with a auto_user property

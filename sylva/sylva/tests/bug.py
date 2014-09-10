@@ -1,4 +1,5 @@
 import socket
+from time import sleep
 
 from django.test import LiveServerTestCase
 
@@ -16,24 +17,21 @@ class BugTestCase(LiveServerTestCase):
     A set of tests to check the existence of bugs.
     """
 
-    @classmethod
-    def setUpClass(cls):
-        cls.browser = Browser()
-        socket.setdefaulttimeout(30)
-        super(BugTestCase, cls).setUpClass()
-
-    @classmethod
-    def tearDownClass(cls):
-        cls.browser.quit()
-        super(BugTestCase, cls).tearDownClass()
-
     def setUp(self):
+        self.browser = Browser()
+        socket.setdefaulttimeout(30)
         signup(self, 'bob', 'bob@cultureplex.ca', 'bob_secret')
         signin(self, 'bob', 'bob_secret')
 
     def tearDown(self):
         logout(self)
+        self.browser.quit()
         Graph.objects.get(name="Bob's graph").destroy()
+
+    @classmethod
+    def tearDownClass(cls):
+        sleep(10)  # It needs some time for close the LiverServerTestCase
+        super(BugTestCase, cls).tearDownClass()
 
     def test_node_rel_count_one(self):
         '''

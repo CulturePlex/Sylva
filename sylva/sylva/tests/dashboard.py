@@ -1,4 +1,5 @@
 import socket
+from time import sleep
 
 from django.test import LiveServerTestCase
 
@@ -85,28 +86,24 @@ class DashboardTestCase(LiveServerTestCase):
     These tests check basic functions of Sylva's dashboard.
     """
 
-    @classmethod
-    def setUpClass(cls):
-        cls.browser = Browser()
-        socket.setdefaulttimeout(30)
-        super(DashboardTestCase, cls).setUpClass()
-
-    @classmethod
-    def tearDownClass(cls):
-        cls.browser.quit()
-        super(DashboardTestCase, cls).tearDownClass()
-
     def setUp(self):
+        self.browser = Browser()
+        socket.setdefaulttimeout(30)
         signup(self, 'bob', 'bob@cultureplex.ca', 'bob_secret')
 
     def tearDown(self):
         logout(self)
+        self.browser.quit()
+
+    @classmethod
+    def tearDownClass(cls):
+        sleep(10)  # It needs some time for close the LiverServerTestCase
+        super(DashboardTestCase, cls).tearDownClass()
 
     def test_dashboard(self):
         signin(self, 'bob', 'bob_secret')
         spin_assert(lambda: self.assertEquals(self.browser.title,
                                               'SylvaDB - Dashboard'))
-
         text = self.browser.find_by_xpath(
             "//header[@class='global']/h1").first.value
         spin_assert(lambda: self.assertEqual(text, 'Dashboard'))
