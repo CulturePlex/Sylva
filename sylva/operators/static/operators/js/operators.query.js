@@ -772,9 +772,40 @@ diagram.aggregates = [
 
                 jsPlumb.repaintEverything();
             });
+            anchorEditSelect = $("<A>");
+            anchorEditSelect.attr("href", "javascript:void(0);");
+            anchorEditSelect.attr("id", "inlineEditSelect_"+ typeName);
+            anchorEditSelect.attr("title", gettext("Edit alias name"));
+            anchorEditSelect.css({
+                'display': 'none'
+            });
+            iconEditSelect = $("<I>");
+            iconEditSelect.addClass("fa fa-pencil icon-style");
+            anchorEditSelect.append(iconEditSelect);
+            anchorEditSelect.click(function () {
+                var selectorAlias = '#' + idBox + " .select-nodetype-" + typeName;
+                // We get the select
+                var selectAlias = $(selectorAlias);
+                // We replace the selectAlias with the input for the user
+                var inputAlias = $("<INPUT>");
+                inputAlias.addClass("option-nodetype-" + typeName);
+                // This attr is for the logical to get the fields for the query
+                inputAlias.attr("selected", "selected");
+                inputAlias.attr("data-modelid", typeId);
+                inputAlias.css({
+                    "width": "36%",
+                    "float": "left",
+                    "padding": "0",
+                    "margin-left": "10%",
+                    "margin-top": "-1px"
+                });
+                $(selectorAlias).replaceWith(inputAlias);
+            });
+
             divCornerButtons.append(anchorClose);
             divCornerButtons.append(anchorShowHide);
             divCornerButtons.append(anchorAdvancedMode);
+            divCornerButtons.append(anchorEditSelect);
 
             divTitle.append(divCornerButtons);
             divTitle.attr("data-boxalias", boxAlias);
@@ -1181,7 +1212,10 @@ diagram.aggregates = [
                     });
                     $('#' + idBox +  ' .show-as').css({
                         "display": "inline"
-                    })
+                    });
+                    $('#' + idBox +  ' #inlineEditSelect_' + typeName).css({
+                        "display": "inline"
+                    });
                 });
             }
         };
@@ -1225,7 +1259,10 @@ diagram.aggregates = [
                     });
                     $('#' + idBox +  ' .show-as').css({
                         "display": "none"
-                    })
+                    });
+                    $('#' + idBox +  ' #inlineEditSelect_' + typeName).css({
+                        "display": "none"
+                    });
                 });
             } else if(numberOfBoxes == 0) {
                 // We reset the counter
@@ -1459,7 +1496,7 @@ diagram.aggregates = [
             // We really should think about another solution to get the parent element
             var parent = $(property).parent().parent().parent().parent().parent();
             var parentId = $(parent).attr('id');
-            var alias = $('#' + parentId + ' .title select').val();
+            var alias = $('#' + parentId + ' .title').children().filter('input, select').val();
             var propertyName = $(property).val();
             var propertyValue = $(property).next().next().val();
 
@@ -1539,7 +1576,7 @@ diagram.aggregates = [
 
         // Origin
         var originsArray = new Array();
-        var elements = $('option').filter(function(){ return $(this).attr("class") && $(this).attr("class").match(/(option-reltype|option-nodetype)./) && $(this).attr("selected");});
+        var elements = $('input, option').filter(function(){ return $(this).attr("class") && $(this).attr("class").match(/(option-reltype|option-nodetype)./) && $(this).attr("selected");});
         $.each(elements, function(index, element) {
             var origin = {};
             var type = "relationship";
@@ -1580,21 +1617,24 @@ diagram.aggregates = [
             if(relationSelector.length == 0) {
                 alert("There's been an error in the relationship " + sourceId + "-" + targetId + ". Please remove it and try again");
             }
-            var relationAlias = $('#' + relationId + ' .title select').val();
+            //var relationAlias = $('#' + relationId + ' .title select').val();
+            var relationAlias = $('#' + relationId + ' .title').children().filter('input, select').val();
             var relationModelId = relationSelector.data('modelid');
             relation.alias = relationAlias;
             relation.type = 'relationship';
             relation.type_id = relationModelId;
 
             var sourceSelector = $('#' + sourceId + ' .title');
-            var sourceAlias = $('#' + sourceId + ' .title select').val();
+            //var sourceAlias = $('#' + sourceId + ' .title select').val();
+            var sourceAlias = $('#' + sourceId + ' .title').children().filter('input, select').val();
             var sourceModelId = sourceSelector.data('modelid');
             source.alias = sourceAlias;
             source.type = 'node';
             source.type_id = sourceModelId;
 
             var targetSelector = $('#' + targetId + ' .title');
-            var targetAlias = $('#' + targetId + ' .title select').val();
+            //var targetAlias = $('#' + targetId + ' .title select').val();
+            var targetAlias = $('#' + targetId + ' .title').children().filter('input, select').val();
             var targetModelId = targetSelector.data('modelid');
             target.alias = targetAlias;
             target.type = 'node';
@@ -1611,7 +1651,7 @@ diagram.aggregates = [
 
         // Result
         var resultsArray = new Array();
-        var elements = $('option').filter(function(){ return $(this).attr("class") && $(this).attr("class").match(/(option-reltype|option-nodetype)./) && $(this).attr("selected");});
+        var elements = $('input, option').filter(function(){ return $(this).attr("class") && $(this).attr("class").match(/(option-reltype|option-nodetype)./) && $(this).attr("selected");});
         $.each(elements, function(index, element) {
             var result = {};
             var alias = $(element).val();
