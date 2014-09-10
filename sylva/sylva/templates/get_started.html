@@ -391,7 +391,7 @@
               <a class="headerlink" id="interacting-graphs" href="#interacting-with-graphs" title="{% trans "Permalink to this headline" %}">¶</a>
             </h2>
 
-            <p>{% blocktrans %}Like we have seen, with SylvaDB we have a powerful tool for representing data in graphs. But, the real power comes from the <strong>interaction</strong> with that <strong>data</strong>. The SylvaDB user has many tools for that purpose, and two of those are the <em>analytics</em> and the <em>query builder</em>.{% endblocktrans %}</p>
+            <p>{% blocktrans %}Like we have seen, with SylvaDB is a powerful tool for representing data in graphs. But the real power comes from the <strong>interaction</strong> with that <strong>data</strong>. The SylvaDB user has many tools for that purpose, including graph <em>analytics</em> and the <em>query builder</em>.{% endblocktrans %}</p>
 
             <div class="inner-section">
               <h3>
@@ -399,23 +399,23 @@
                 <a class="headerlink" id="analytics" href="#analytics" title="{% trans "Permalink to this headline" %}">¶</a>
               </h3>
 
-              <p>{% blocktrans %}The analytics provide to the SylvaDB users the ability to get information or patterns that are not clear in a simple way. Using the <a href="http://graphlab.com/products/create/overview.html"><abbr>graphlab</abbr></a> algorithms, we can obtain very useful results for every type of user and projects.{% endblocktrans %}</p>
+              <p>{% blocktrans %}SylvaDB's analytics give users the ability to get information or patterns that are not clear in a simple way. Using the <a href="http://graphlab.com/products/create/overview.html"><abbr>graphlab</abbr></a> algorithms, we can obtain very useful results for every type of user and project.{% endblocktrans %}</p>
 
-              <p>{% blocktrans %}Let's see how to use the analytics. When we are in the <strong>visualization</strong> graph view, we have the option for analyze our graph clicking on the <em>Analyze</em> button.{% endblocktrans %}</p>
+              <p>{% blocktrans %}Let's see how to use the analytics. When we are in the <strong>visualization</strong> graph view, we have the option to analyze our graph clicking on the <em>Analyze</em> button.{% endblocktrans %}</p>
 
-              <p>{% blocktrans %}Once clicked, we access to the <em>fullscreen</em> view. In this fullscreen view we have the tools to interact with the whole graph. In this section, we are going to focus in the <em>Analytics</em>.{% endblocktrans %}</p>
+              <p>{% blocktrans %}Once clicked, we access to the <em>fullscreen</em> view. In this view we have the tools to interact with the whole graph. In this section, we will to focus in the <em>Analytics</em>.{% endblocktrans %}</p>
 
-              <p>{% blocktrans %} In the analytics section we have the differents algorithms that we can execute over our entire graph or a subgraph. The list of the available algorithms by now are <a href="http://en.wikipedia.org/wiki/Connected_component_(graph_theory)"><abbr title="Connected components">connected components</abbr></a>, <a href="#"><abbr title="Triangle counting">triangle counting</abbr></a>, <a href="http://en.wikipedia.org/wiki/Graph_coloring"><abbr title="Graph coloring">graph coloring</abbr></a>, <a href="http://en.wikipedia.org/wiki/Betweenness_centrality"><abbr title="Betweenness centrality">betweeness centrality</abbr></a>, <a href="http://es.wikipedia.org/wiki/PageRank"><abbr title="Pagerank">pagerank</abbr></a> and <a href="http://en.wikipedia.org/wiki/Degeneracy_(graph_theory)"><abbr title="Degeneracy (k-core)">Degeneracy (k-core).</abbr></a>{% endblocktrans %}</p>
+              <p>{% blocktrans %} In the analytics section we have the differents algorithms that we can execute over our entire graph or a subgraph. The currently available algorithms are <a href="http://en.wikipedia.org/wiki/Connected_component_(graph_theory)"><abbr title="Connected components">connected components</abbr></a>, <a href="#"><abbr title="Triangle counting">triangle counting</abbr></a>, <a href="http://en.wikipedia.org/wiki/Graph_coloring"><abbr title="Graph coloring">graph coloring</abbr></a>, <a href="http://en.wikipedia.org/wiki/Betweenness_centrality"><abbr title="Betweenness centrality">betweeness centrality</abbr></a>, <a href="http://es.wikipedia.org/wiki/PageRank"><abbr title="Pagerank">pagerank</abbr></a> and <a href="http://en.wikipedia.org/wiki/Degeneracy_(graph_theory)"><abbr title="Degeneracy (k-core)">Degeneracy (k-core).</abbr></a>{% endblocktrans %}</p>
 
-              <p>{% blocktrans %}When we make click in an algorithm, we have different options:
+              <p>{% blocktrans %}When we click on an algorithm, we have different options:
                 <ul>
-                  <li>A play button to run the algorithm over the graph selected.</li>
+                  <li>A play button that runs the algorithm using the entire graph.</li>
                   <li>A checkbox, "On selected nodes", to run the algorithm over a subgraph from the entire whole graph.</li>
-                  <li>A select field, to select a past analytic to work with its results.</li>
+                  <li>A select field that allows you to access the result history of the specified algorithm.</li>
                 </ul>
               {% endblocktrans %}</p>
 
-              <p>{% blocktrans %}Once an analytic is executed, we obtain a chart representing the values of the analytic and the number of nodes of that value. We can interact with this chart to see in the graph the affected nodes of a specific value.{% endblocktrans %}</p>
+              <p>{% blocktrans %}Once an algorithm is executed, we obtain a chart representing the values it returns along with the number of nodes corresponding to that value. We can interact with this chart to find nodes with a specific value in the graph visualization.{% endblocktrans %}</p>
             </div>
             <div class="inner-section">
               <h3>
@@ -423,23 +423,23 @@
                 <a class="headerlink" id="query-builder" href="#query-builder" title="{% trans "Permalink to this headline" %}">¶</a>
               </h3>
 
-              <p>{% blocktrans %}The query builder is a feature to provide us an easy and intuitive way to create <em>queries</em>. Using the query builder, every SylvaDB user can extract information of their graph in a very simple way.{% endblocktrans %}</p>
+              <p>{% blocktrans %}The query builder is a feature that provide us with an easy and intuitive way to create <em>queries</em>. Using the query builder, every SylvaDB user can extract information from their graph in a very simple way.{% endblocktrans %}</p>
 
-              <p>{% blocktrans %}To create a query, we are going to follow the next steps:
+              <p>{% blocktrans %}To create a query, we will follow these steps:
               <ul>
-                <li>The first step is to select a node type, according to the list of available types obtained from the graph. Also, we are going to have a special type called <em>Wildcard</em>.</li>
-                <li>Once we click in a node type, we are going to have our type box on the grid. The node type box is the basic element of the query builder. It allows us to modify the fields of the type to create a desired query. We can divide the node type box in three parts:</li>
+                <li>The first step is to select a node type, according to the list of available types obtained from the graph. Also, there is a special type called <em>Wildcard</em>.</li>
+                <li>Once we click on a node type, we will see the type box on the grid. The node type box is the basic element of the query builder. It allows us to modify the fields of the type to create the desired query. We can divide the node type box in three parts:</li>
                   <ul>
-                    <li>The first part is the <em>title</em> part. Here we see the name of the type and the buttons to close the box, minimize/maximize the box and show the advanced mode of the box. Also, if we had more than one box of the type, we could see a select field to choose the <em>alias</em> name for the box.</li>
-                    <li>The next part are the fields. The fields are the conditions that we have to take into account when we execute our query. So, it is in these fields when we select the properties, their lookups, their values, etc.</li>
-                    <li>The last part is the relationships availables for that type. We are going to see a select with those relationships, and when we click in one option we could see two differente behaviours:</li>
+                    <li>The first part is the <em>title</em>. Here we see the name of the type and the buttons to close the box, minimize/maximize the box, and show the box's advanced mode. Also, if we had more than one box of the same type, we could see a select field to choose an <em>alias</em> for the box.</li>
+                    <li>The next part is the fields. The fields are the conditions that we have to take into account when we execute our query. So, it is in these fields that we select the properties, their lookups, their values, etc.</li>
+                    <li>The last part is the relationships available for that type. We will see a select with these relationships, and when we click on an option we will see one of two different behaviours:</li>
                       <ul>
                         <li>If we have the two node types boxes involved, we have to drag and drop the relationship from the source box to the target box. We can see the <em>hover</em> behaviour in the destiny zone to drop the relationship.</li>
                         <li>If we dont have the target box in the grid, when we select the desired relationship the target box is loaded automatically.</li>
                       </ul>
-                    In the relationships, we have the same behaviour that in the node types boxes for the fields and the selects for the alias.
+                    In the relationships, we have the same behaviour as the node types boxes for the fields and the selects for the alias.
                   </ul>
-                  <li>The last step is to run the query. We can see the results table clicking in the results tab.</li>
+                  <li>The last step is to run the query. We can see the results table by clicking in the results tab.</li>
               </ul>
               {% endblocktrans %}</p>
 
