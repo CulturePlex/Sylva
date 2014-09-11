@@ -462,6 +462,9 @@ diagram.aggregates = [
             anchorShowHide.attr("id", "inlineShowHideLink_"+ name);
             iconToggle = $("<I>");
             iconToggle.addClass("fa fa-plus-circle icon-style");
+            iconToggle.css({
+                'margin-right': '4px'
+            });
             iconToggle.attr('id', 'icon-toggle');
 
             anchorShowHide.append(iconToggle);
@@ -473,8 +476,12 @@ diagram.aggregates = [
                     $('#' + idBox).css({
                         'width': '360px'
                     });
+                    // We change the width of the select field
+                    $('#' + idBox + ' .select-reltype-' + name).css({
+                        'width': '46%'
+                    });
                     // We show the advanced mode button
-                    $('#inlineAdvancedMode_' + name).css({
+                    $('#' + idBox + ' #inlineAdvancedMode_' + name).css({
                         'display': 'inline'
                     });
                 } else {
@@ -483,11 +490,15 @@ diagram.aggregates = [
                     $('#' + idBox).css({
                         'width': '180px'
                     });
+                    // We change the width of the select field
+                    $('#' + idBox + ' .select-reltype-' + name).css({
+                        'width': '65px'
+                    });
                     // We hide the advanced mode button and the select
-                    $('#inlineAdvancedMode_' + name).css({
+                    $('#' + idBox + ' #inlineAdvancedMode_' + name).css({
                         'display': 'none'
                     });
-                    $('#' + idBox + " .select-aggregate").css({
+                    $('#' + idBox + ' .select-aggregate').css({
                         'display': 'none'
                     });
                 }
@@ -495,7 +506,7 @@ diagram.aggregates = [
             // Advanced mode button in the corner of the box and its associated event
             anchorAdvancedMode = $("<A>");
             anchorAdvancedMode.attr("href", "javascript:void(0);");
-            anchorAdvancedMode.attr("id", "inlineAdvancedMode_"+ name);
+            anchorAdvancedMode.attr("id", "inlineAdvancedMode_" + name);
             anchorAdvancedMode.attr("title", gettext("Advanced options"))
             anchorAdvancedMode.css({
                 'display': 'none'
@@ -538,6 +549,37 @@ diagram.aggregates = [
                     $(selectorAggregate).val('');
                 }
             });
+
+            anchorEditSelect = $("<A>");
+            anchorEditSelect.attr("href", "javascript:void(0);");
+            anchorEditSelect.attr("id", "inlineEditSelect_"+ name);
+            anchorEditSelect.attr("title", gettext("Edit alias name"));
+            anchorEditSelect.css({
+                'display': 'none',
+                'margin-right': '4px'
+            });
+            iconEditSelect = $("<I>");
+            iconEditSelect.addClass("fa fa-pencil icon-style");
+            anchorEditSelect.append(iconEditSelect);
+            anchorEditSelect.click(function () {
+                var selectorAlias = '#' + idBox + " .select-reltype-" + name;
+                // We get the select
+                var selectAlias = $(selectorAlias);
+                // We replace the selectAlias with the input for the user
+                var inputAlias = $("<INPUT>");
+                inputAlias.addClass("option-reltype-" + name);
+                // This attr is for the logical to get the fields for the query
+                inputAlias.attr("selected", "selected");
+                inputAlias.attr("data-modelid", idRel);
+                inputAlias.css({
+                    "width": "36%",
+                    "float": "left",
+                    "padding": "0",
+                    "margin-left": "10%",
+                    "margin-top": "-1px"
+                });
+                $(selectorAlias).replaceWith(inputAlias);
+            });
             // We create the div for the corner buttons
             divCornerButtons = $("<DIV>");
             divCornerButtons.addClass("corner-buttons");
@@ -570,6 +612,7 @@ diagram.aggregates = [
                 // minimize/maximize the box
                 divCornerButtons.append(anchorShowHide);
                 divCornerButtons.append(anchorAdvancedMode);
+                divCornerButtons.append(anchorEditSelect);
                 // Create the select for the properties
                 divField = diagram.addFieldRelRow(name, idFields);
                 divFields.append(divField);
@@ -1181,8 +1224,15 @@ diagram.aggregates = [
          * - elemType
          */
         diagram.showSelects = function(typeName, elemType) {
-            var elems = $('#diagram').children();
             var numberOfBoxes = 0;
+
+            // We check if the elemType is a node or a  relationship
+            var boxesSelector = '.select-nodetype-' + typeName;
+            var elems = $('#diagram').children();
+            if(elemType == "relationship") {
+                boxesSelector = '.select-reltype-' + typeName;
+                elems = $('#diagramContainer').children();
+            }
 
             // We check the number of boxes of that type that we already have
             $.each(elems, function(index, elem) {
@@ -1194,11 +1244,6 @@ diagram.aggregates = [
                     }
                 }
             });
-            // We check if the elemType is a node or a  relationship
-            var boxesSelector = '.select-nodetype-' + typeName;
-            if(elemType == "relationship") {
-                boxesSelector = '.select-reltype-' + typeName;
-            }
 
             // If we have more than one box of that type at least, we show the selects and the "as" text
             if(numberOfBoxes > 1) {
