@@ -454,7 +454,7 @@ diagram.aggregates = [
             // We add the new alias to the list of the reltype
             diagram.reltypesList[name].push(relValue);
             selectReltype.append(optionReltype);
-            diagram.setName(divTitle, label, label, "relation");
+            diagram.setName(divTitle, label, name, "relation");
 
             // Show/hide button in the corner of the box and its associated event
             anchorShowHide = $("<A>");
@@ -488,7 +488,7 @@ diagram.aggregates = [
                     iconToggle.removeClass('fa fa-minus-circle icon-style');
                     iconToggle.addClass('fa fa-plus-circle icon-style');
                     $('#' + idBox).css({
-                        'width': '180px'
+                        'width': '195px'
                     });
                     // We change the width of the select field
                     $('#' + idBox + ' .select-reltype-' + name).css({
@@ -572,10 +572,10 @@ diagram.aggregates = [
                 inputAlias.attr("selected", "selected");
                 inputAlias.attr("data-modelid", idRel);
                 inputAlias.css({
-                    "width": "36%",
+                    "width": "60px",
                     "float": "left",
                     "padding": "0",
-                    "margin-left": "10%",
+                    "margin-left": "5%",
                     "margin-top": "-1px"
                 });
                 $(selectorAlias).replaceWith(inputAlias);
@@ -593,7 +593,7 @@ diagram.aggregates = [
             divBox.css({
                 "left": (parseInt(Math.random() * 55 + 1) * 10) + "px",
                 "top": (parseInt(Math.random() * 25 + 1) * 10) + "px",
-                "width": "180px",
+                "width": "195px",
                 "background-color": "white",
                 "border": "2px solid #AEAA78"
             });
@@ -612,7 +612,6 @@ diagram.aggregates = [
                 // minimize/maximize the box
                 divCornerButtons.append(anchorShowHide);
                 divCornerButtons.append(anchorAdvancedMode);
-                divCornerButtons.append(anchorEditSelect);
                 // Create the select for the properties
                 divField = diagram.addFieldRelRow(name, idFields);
                 divFields.append(divField);
@@ -635,6 +634,7 @@ diagram.aggregates = [
                     addField.append(addFieldIcon);
                 }
             }
+            divCornerButtons.append(anchorEditSelect);
             divAddBox = $("<DIV>");
             divAddBox.append(divFields);
             divAddBox.append(addField);
@@ -747,10 +747,43 @@ diagram.aggregates = [
                     connections[i].endpoints[0].removeClass('endpointInvisible');
                 }
 
+                // We gonna check if we have to hide the alias select of the relationship boxes
+                var boxEndpoints = jsPlumb.getEndpoints('diagramBox-2-president');
+                // We gonna save the names of the relationships
+                var relNamesArray = new Array();
+                // We gonna save the ids of the relationship boxes
+                var relIdsArray = {};
+                $.each(boxEndpoints, function(id, endpoint) {
+                    if(endpoint.isSource) {
+                        // It is the name, dont confuse with the label
+                        var name = endpoint.connectorOverlays[1][1].label;
+                        var idRelBox = endpoint.connectorOverlays[2][1].id;
+                        relNamesArray.push(name);
+                        relIdsArray[name] = idRelBox;
+                    }
+                });
+
+                // We check if we have to remove some alias of the relationship selects
+                $.each(relIdsArray, function(name, idRel) {
+                    var boxAlias = $('#' + idRel + ' .select-reltype-' + name).val();
+                    // We remove the boxAlias in the other selects
+                    diagram.removeAlias(name, boxAlias, "relationship");
+
+                    // We remove the boxAlias of the list
+                    var aliasIndex = diagram.reltypesList[name].indexOf(boxAlias);
+                    diagram.reltypesList[name].splice(aliasIndex, 1);
+                });
+
+                // We detach all the connections
                 jsPlumb.detachAllConnections(idBox);
                 for(var i = 0; i < relationsIds.length; i++)
                     jsPlumb.deleteEndpoint(relationsIds[i] + "-source");
                 jsPlumb.deleteEndpoint(idBox + "-target");
+
+                // We check if we have to hide the selects of some relationships boxes
+                $.each(relNamesArray, function(id, name) {
+                    diagram.hideSelects(name, "relationship");
+                });
 
                 // We get the alias of the box to remove it in the selects
                 var boxAlias = $('#' + idBox + ' .select-nodetype-' + typeName).val();
@@ -876,14 +909,23 @@ diagram.aggregates = [
         diagram.setName = function (div, name, typeName, type) {
             // We check if we show the select to allow more space for the name
             var numOfBoxes = $('.select-nodetype-' + typeName).length;
+            var selectorForName = $('.select-nodetype-' + typeName);
             if(type == "relation") {
                 // If the name is equals to the typeName, is a relationship
                 numOfBoxes =  $('.select-reltype-' + typeName).length;
+                selectorForName = $('.select-reltype-' + typeName);
             }
             var html = "<span class='box-name'>" + name + " <span class='show-as'>" + gettext("as") + "</span></span>";
-            if(numOfBoxes > 1) {
-                if(name.length > 10) {
-                    html = "<span class='box-name'>" + name.substr(0, 10) + "…" + " <span class='show-as'>" + gettext("as") + "</span></span>";
+            if(numOfBoxes == 1) {
+                if(name.length > 5) {
+                    html = "<span class='box-name'>" + name.substr(0, 5) + "…" + " <span class='show-as'>" + gettext("as") + "</span></span>";
+                    // We change the name of the box number 0 too
+                    var firstBoxName = selectorForName.prev();
+                    firstBoxName.replaceWith(html);
+                }
+            } else if(numOfBoxes > 1) {
+                if(name.length > 5) {
+                    html = "<span class='box-name'>" + name.substr(0, 5) + "…" + " <span class='show-as'>" + gettext("as") + "</span></span>";
                 }
             } else {
                 // We allow more space
@@ -1273,8 +1315,15 @@ diagram.aggregates = [
          * - elemType
          */
         diagram.hideSelects = function(typeName, elemType) {
-            var elems = $('#diagram').children();
             var numberOfBoxes = 0;
+
+            // We check if the elemType is a node or a  relationship
+            var boxesSelector = '.select-nodetype-' + typeName;
+            var elems = $('#diagram').children();
+            if(elemType == "relationship") {
+                boxesSelector = '.select-reltype-' + typeName;
+                elems = $('#diagramContainer').children();
+            }
 
             // We check the number of boxes of that type that we already have
             $.each(elems, function(index, elem) {
@@ -1286,11 +1335,6 @@ diagram.aggregates = [
                     }
                 }
             });
-            // We check if the elemType is a node or a  relationship
-            var boxesSelector = '.select-nodetype-' + typeName;
-            if(elemType == "relationship") {
-                boxesSelector = '.select-reltype-' + typeName;
-            }
 
             // If we have one box of that nodetype at least, we hide the selects and the "as" text
             if(numberOfBoxes == 1) {
@@ -1308,6 +1352,9 @@ diagram.aggregates = [
                     $('#' + idBox +  ' #inlineEditSelect_' + typeName).css({
                         "display": "none"
                     });
+                    // We restore the name for the type
+                    var name = $(boxesSelector).val().split(' ')[0];
+                    $('#' + idBox + ' .box-name').html(name);
                 });
             } else if(numberOfBoxes == 0) {
                 // We reset the counter
@@ -2455,7 +2502,7 @@ diagram.aggregates = [
 
         // We check if we have the connection to get the idrel value
         var endpointSelector = patternId + '-source';
-        if(!jsPlumb.getEndpoint(endpointSelector)) {
+        if(jsPlumb.getEndpoint(endpointSelector)) {
             // We get the id of the relationship box to remove it in the selects
             var idrel = jsPlumb.getEndpoint(endpointSelector).connections[0].idrel;
             // We get the alias of the box to remove it in the selects
