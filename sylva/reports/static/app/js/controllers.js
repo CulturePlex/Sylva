@@ -11,28 +11,30 @@ controllers.controller('ReportListCtrl', [
     'parser',
     'DJANGO_URLS',
     function ($scope, $location, api, parser, DJANGO_URLS) {
-        // Done
-
-        console.log('django', DJANGO_URLS.templates)
         $scope.graph = parser.parse();
-        api.templates.list(function (data) {
-            console.log('data', data)
-            $scope.templates = data;
-            var len = data.length;
-            for (var i=0;i<len;i++) {
-                var date = JSON.parse(data[i].start_date)
-                ,   datetime = new Date(date)
-                ,   last_run = JSON.parse(data[i].last_run);
-                console.log('date',date)
-                $scope.templates[i].start_date = datetime.toString();
 
-                if (last_run) {
-                    var last_datetime = new Date(last_date)
-                    ,   last_run = last_datetime.toString();
+        
+
+        $scope.getPage = function (pageNum) {
+            api.templates.list({page: pageNum}, function (data) {
+                $scope.data = data;
+                console.log('data',data)
+                var len = data.templates.length;
+                for (var i=0;i<len;i++) {
+                    var date = JSON.parse(data.templates[i].start_date)
+                    ,   datetime = new Date(date)
+                    ,   last_run = JSON.parse(data.templates[i].last_run);
+                    data.templates[i].start_date = datetime.toString();
+                    if (last_run) {
+                        var last_datetime = new Date(last_date)
+                        ,   last_run = last_datetime.toString();
+                    }
+                    data.templates[i].last_run = last_run;
                 }
-                $scope.templates[i].last_run = last_run;
-            }
-        });
+            });
+        }
+
+        $scope.getPage(1)
 }]);
 
 
@@ -68,15 +70,8 @@ controllers.controller('BaseReportCtrl', [
             ,   time = template.time.split(':')
             ,   datetime = new Date(date[2], date[1] - 1, date[0], time[0], time[1])
             ,   post = new api.builder();
-            console.log('date', date)
-            console.log('time', time)
-            console.log('datetime', datetime)
-            console.log('datetimestring', datetime.toISOString())
             template.start_date = datetime.toISOString()
-            console.log('templateStart', template.start_date)
             post.template = template
-
-            console.log("template", template.layout)
 
             post.$save({
                 graphSlug: $scope.slugs.graph,
@@ -159,7 +154,6 @@ controllers.controller('EditReportCtrl', [
 
             $scope.template = data.template;
             $scope.resp = {table: data.template.layout, queries: data.queries}
-            console.log('edit table', data.template.layout)
         });
 }]);
 
@@ -174,7 +168,7 @@ controllers.controller('ReportPreviewCtrl', [
         $scope.pdf = parser.pdf();
         api.templates.preview({
             graphSlug: $scope.slugs.graph,
-            template: $scope.slugs.template  
+            template: $scope.slugs.template,  
         }, function (data) {
             console.log('data', data)
             $scope.template = data.template;

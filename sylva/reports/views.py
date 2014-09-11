@@ -14,6 +14,7 @@ from django.shortcuts import (render_to_response, get_object_or_404,
 from django.template import RequestContext
 from django.core.context_processors import csrf
 from django.utils.translation import ugettext as _
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.core.urlresolvers import reverse
 from django.contrib.staticfiles import finders
 from django.contrib.auth.decorators import login_required
@@ -103,7 +104,9 @@ def preview_report_pdf(request, graph_slug):
     try:
         with open(filename) as pdf:
             response = HttpResponse(pdf.read(), content_type='application/pdf')
-            response['Content-Disposition'] = 'inline;filename={0}'.format(download_name)
+            response['Content-Disposition'] = 'inline;filename={0}'.format(
+                download_name
+            )
             pdf.close()
     except IOError, e:
         response = HttpResponse('Sorry there has been a IOError:' + e.strerror)
@@ -118,9 +121,10 @@ def preview_report_pdf(request, graph_slug):
                      (Schema, "graph__slug", "graph_slug"), return_403=True)
 def templates_endpoint(request, graph_slug):
     graph = get_object_or_404(Graph, slug=graph_slug)
-    if request.GET:
+    if request.GET.get('queries', '') or request.GET.get('template', ''):
         response = {'template': None, 'queries': None}
-        if request.GET.get('queries', ''):  # Get queries either for new template or for edit.
+        if request.GET.get('queries', ''):  # Get queries either for
+                                            # new template or for edit.
             queries = graph.queries.all()
             # Execute queries here maybe tell them in js
             response['queries'] = [{'series': query.query_dict[:-2],
@@ -138,8 +142,42 @@ def templates_endpoint(request, graph_slug):
                                         'name': query.name, 'id': query.id}
                                        for query in queries]
     else:  # Get a list of all the reports.
-        templates = graph.report_templates.all()
-        response = [template.dictify() for template in templates]
+        templates = graph.report_templates.order_by(
+            '-last_run',
+            '-start_date'
+        )
+        paginator = Paginator(templates, 2)
+        page = request.GET.get('page')
+        try:
+            templates = paginator.page(page)
+        except PageNotAnInteger:
+            # If page is not an integer, deliver first page.
+            templates = paginator.page(1)
+        except EmptyPage:
+            # If page is out of range (e.g. 9999), deliver last page of results.
+            templates = paginator.page(paginator.num_pages)
+        template_list = [
+            template.dictify() for template in templates.object_list
+        ]
+        has_next = templates.has_next()
+        if has_next:
+            next_page_number = templates.next_page_number()
+        else:
+            next_page_number = None
+        has_previous = templates.has_previous()
+        if has_previous:
+            previous_page_number = templates.previous_page_number()
+        else:
+            previous_page_number = None
+        response = {
+            'templates': template_list,
+            'num_pages': paginator.num_pages,
+            'total_count': paginator.count,
+            'num_objects': len(template_list),
+            'next_page_number': next_page_number,
+            'page_number': templates.number,
+            'previous_page_number': previous_page_number
+        }
     return HttpResponse(json.dumps(response), content_type='application/json')
 
 

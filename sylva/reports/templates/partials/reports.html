@@ -2,7 +2,7 @@
 
 {% verbatim %}
 <div class="max600">
-  <table ng-if="templates.length > 0" id="content_table" class="content-table text-left" style="margin-bottom:10px">
+  <table ng-if="data.templates.length > 0" id="content_table" class="content-table text-left" style="margin-bottom:10px">
     <thead>
       <th>#</th>
       <th>Name</th>
@@ -12,7 +12,7 @@
       <th>Description</th>
     </thead>
     <tbody>
-      <tr ng-repeat="template in templates" ng-class-odd="'row-odd'" ng-class-even="'row-even'">
+      <tr ng-repeat="template in data.templates" ng-class-odd="'row-odd'" ng-class-even="'row-even'">
         <td class="dataList">
           <a href="#/history/{{ template.slug }}" class="rels" title="Report History">&nbsp;</a>
           <a href="#/edit/{{ template.slug }}" class="edit" title="Edit Report"><!-- 1182 -->&nbsp;</a>
@@ -27,5 +27,11 @@
     </tbody>
   </table>
   <a class="button table-button" href="#/new">New Report</a>
+  <span class='pagination-info'>
+      Showing {{ data.num_objects }} of {{ data.total_count }} Report Templates.
+      <span ng-if="data.previous_page_number"><a ng-click="getPage(data.previous_page_number)"><span class="symbol-medium">←</span></a></span>
+      <span>Page {{data.page_number}} of {{data.num_pages}}
+      <span ng-if="data.next_page_number"><a ng-click="getPage(data.next_page_number)"><span class="symbol-medium">→</span></a>
+  </span>
 </div>
 {% endverbatim %}

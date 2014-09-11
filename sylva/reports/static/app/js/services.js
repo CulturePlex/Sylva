@@ -6,7 +6,7 @@ var services = angular.module('reports.services', ['ngResource']);
 services.factory('api', ['$resource',  'DJANGO_URLS', function ($resource, DJANGO_URLS) {
 
     var templates = $resource(DJANGO_URLS.templates, {}, {
-        list: {method:'GET', isArray: true},
+        list: {method:'GET'},
         blank: {method:'GET', params: {queries: true}},
         edit: {method:'GET', params: {queries: true}},
         preview: {method:'GET'}
