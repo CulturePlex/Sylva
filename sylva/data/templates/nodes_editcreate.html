@@ -250,12 +250,10 @@
     {{ css }}
   {% endfor %}
 
-  {% compress js %}
-    <!-- We are adding here jQueryUI manually because maybe it is already in the template. -->
-    {% if not as_modal %}
-      <script src="{{ STATIC_PREFIX }}js/jquery-ui-1.10.4.js"></script>
-    {% endif %}
-  {% endcompress %}
+  <!-- We are adding here jQueryUI manually because maybe it is already in the template. -->
+  {% if not as_modal %}
+    <script src="{{ STATIC_PREFIX }}js/jquery-ui-1.10.4.js"></script>
+  {% endif %}
 
   {# Not using compressor here because it's a dinamic set of JS files #}
   {% for js in forms_media.js %}

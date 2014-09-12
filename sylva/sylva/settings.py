@@ -197,7 +197,7 @@ INSTALLED_APPS = (
     'reports',
     'analytics',
     'compressor',
-    'djcelery'
+    'djcelery',
 )
 
 AUTHENTICATION_BACKENDS = (
