@@ -1,3 +1,16 @@
+.icon {
+  color: #555;
+}
+
+th {
+  min-width: 56px
+}
+
+.background-text {
+  color: #99999D;
+  font-style: italic;
+}
+
 .cont {
     max-height: 600px;
     min-height: 450px

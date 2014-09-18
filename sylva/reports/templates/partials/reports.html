@@ -9,20 +9,19 @@
       <th>Start Date</th>
       <th>Last Run</th>
       <th>Periodicity</th>
-      <th>Description</th>
     </thead>
     <tbody>
-      <tr ng-repeat="template in data.templates" ng-class-odd="'row-odd'" ng-class-even="'row-even'">
+      <tr ng-repeat="template in data.templates" ng-class-odd="'row-even'" ng-class-even="'row-odd'">
         <td class="dataList">
-          <a href="#/history/{{ template.slug }}" class="rels" title="Report History">&nbsp;</a>
           <a href="#/edit/{{ template.slug }}" class="edit" title="Edit Report"><!-- 1182 -->&nbsp;</a>
-          <a href="#/preview/{{ template.slug }}" class="edit" title="View Report"><!-- 1182 -->&nbsp;</a>
+          <a href="#/history/{{ template.slug }}" class="icon" title="Report History"><i class="fa fa-history"></i></a>
+          <a href="#/preview/{{ template.slug }}" class="icon" title="View Report"><i class="fa fa-eye"></i></a>
         </td>
         <td>{{ template.name }}</td>
         <td>{{ template.start_date }}</td>
-        <td>{{ template.last_run }}</td>
+        <td ng-if="template.last_run">{{ template.last_run }}</td>
+        <td ng-if="template.last_run == null" class="background-text">(Not yet run)</td>
         <td>{{ template.frequency }}</td>
-        <td>{{ template.description }}</td>
       </tr>
     </tbody>
   </table>

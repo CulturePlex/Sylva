@@ -9,27 +9,26 @@ controllers.controller('ReportListCtrl', [
     '$location',
     'api', 
     'parser',
-    'DJANGO_URLS',
-    function ($scope, $location, api, parser, DJANGO_URLS) {
+    function ($scope, $location, api, parser) {
         $scope.graph = parser.parse();
-
-        
-
+        var periods = {h: 'Hourly', d: 'Daily', w: 'Weekly' , m: 'Monthly'}
         $scope.getPage = function (pageNum) {
             api.templates.list({page: pageNum}, function (data) {
                 $scope.data = data;
-                console.log('data',data)
                 var len = data.templates.length;
                 for (var i=0;i<len;i++) {
-                    var date = JSON.parse(data.templates[i].start_date)
+                    var template = data.templates[i]
+                    ,   date = JSON.parse(template.start_date)
                     ,   datetime = new Date(date)
-                    ,   last_run = JSON.parse(data.templates[i].last_run);
-                    data.templates[i].start_date = datetime.toString();
+                    ,   last_run = JSON.parse(template.last_run)
+                    ,   periodicity = template.frequency;
+                    template.start_date = datetime.toString();
+                    template.frequency = periods[periodicity];
                     if (last_run) {
                         var last_datetime = new Date(last_date)
                         ,   last_run = last_datetime.toString();
                     }
-                    data.templates[i].last_run = last_run;
+                    template.last_run = last_run;
                 }
             });
         }
@@ -72,12 +71,10 @@ controllers.controller('BaseReportCtrl', [
             ,   post = new api.builder();
             template.start_date = datetime.toISOString()
             post.template = template
-
             post.$save({
                 graphSlug: $scope.slugs.graph,
                 report: template.slug
             }, function (data) {
-                console.log('data', data)
                 var redirect = '/';
                 $location.path(redirect);
             }); // What if post fails
@@ -119,7 +116,6 @@ controllers.controller('NewReportCtrl', [
             data.layout = layout;
             $scope.template.layout = layout;
             $scope.resp = {table: layout, queries: data.queries}
-            console.log('new table', $scope.template)
         });
 }]);
 
@@ -170,7 +166,6 @@ controllers.controller('ReportPreviewCtrl', [
             graphSlug: $scope.slugs.graph,
             template: $scope.slugs.template,  
         }, function (data) {
-            console.log('data', data)
             $scope.template = data.template;
             $scope.resp = {table: data.template.layout, queries: data.queries}
         });
@@ -202,7 +197,6 @@ controllers.controller('ReportHistoryCtrl', [
                 graphSlug: $scope.slugs.graph,
                 report: id
             }, function (data) {
-                console.log('start_date', data.date_run)
                 $scope.report = data;
                 $scope.resp = {table: data.table}
             });
