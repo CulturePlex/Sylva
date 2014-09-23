@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% load i18n graphs static compress %}
+{% get_static_prefix as STATIC_PREFIX %}
+
+{% block navigation_buttons %}
+{{ block.super }}
+{% endblock %}
+
+{% block title %}
+{{ graph.name }}
+{% endblock %}
+
+{% block menu_buttons %}
+{% toolbar on="query_builder" %}
+{% endblock %}
+
+{% block content_title %}
+{% trans "Results" as label %}
+{% breadcrumb graph queries_link queries_new label %}
+{% endblock %}
+
+{% block content %}
+
+{% if results %}
+<div style="width: 570px;">
+    <div id="query-builder-results">
+        <div id="results">
+            <table class="content-table">
+                {% for pair in results %}
+                    {% if headers and forloop.first %}
+                        {% for result in pair%}
+                            <th class="header">{{ result }}</th>
+                        {% endfor %}
+                    {% else %}
+                        <tr class="row-even">
+                        {% if forloop.counter|divisibleby:2 %}
+                            <tr class="row-odd">
+                        {% endif %}
+                            {% for result in pair %}
+                                <td>{{ result }}</td>
+                            {% endfor %}
+                        </tr>
+                    {% endif %}
+                {% endfor %}
+            </table>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_links %}
+    {% compress css %}
+        <link rel="stylesheet" type="text/css" href="{{ STATIC_PREFIX }}css/schemas.diagram.css" />
+        <link rel="stylesheet" type="text/css" href="{{STATIC_PREFIX}}queries/css/queries.css" />
+        <link rel="stylesheet" type="text/css" href="{{ STATIC_PREFIX }}css/chosen.css" />
+        <link href="{{ STATIC_PREFIX }}css/token.input.css" type="text/css" rel="stylesheet" />
+        <link href="{{ STATIC_PREFIX }}css/jqueryui.1.8.18.css" type="text/css" rel="stylesheet" />
+    {% endcompress %}
+{% endblock %}
+{% block extra_scripts %}
+
+{% compress js %}
+    <script type="text/javascript" src="{{ STATIC_PREFIX }}js/jquery-ui-1.9.1.js"></script>
+    <script type="text/javascript" src="{{ STATIC_PREFIX }}js/jquery.jsPlumb-1.6.4-min.js"></script>
+    <script type="text/javascript" src="{{ STATIC_PREFIX }}js/jquery.scrollto.min.js"></script>
+    <script type="text/javascript" src="{{ STATIC_PREFIX }}js/chosen.jquery.min.js"></script>
+    <script type="text/javascript" src="{{ STATIC_PREFIX }}js/chosen.ajax.js"></script>
+    <script type="text/javascript" src="{{ STATIC_PREFIX }}js/jqueryui.timepicker.js"></script>
+    <script type="text/javascript" src="{{ STATIC_PREFIX }}js/jquery.blockUI.js"></script>
+    <script type="text/javascript" src="{{ STATIC_PREFIX }}queries/js/queries.query.js"></script>
+    <script type="text/javascript" src="{{ STATIC_PREFIX }}queries/js/queries_builder.js"></script>
+{% endcompress %}
+
+
+{# Not using compressor from here becuase it needs a huge refactoring: Django template's if statements are being used! #}
+
+{% endblock %}

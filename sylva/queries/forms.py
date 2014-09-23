@@ -3,7 +3,7 @@ from datetime import datetime
 from django import forms
 from django.utils.translation import gettext as _
 from django.forms import ModelForm
-from operators.models import Query
+from queries.models import Query
 
 
 class QueryForm(forms.Form):

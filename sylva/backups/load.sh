@@ -54,5 +54,5 @@ python manage.py loaddata $settings backups/schemas.json
 python manage.py loaddata $settings backups/graphs.json
 python manage.py loaddata $settings backups/tools.json
 python manage.py loaddata $settings backups/search.json
-python manage.py loaddata $settings backups/operators.json
+python manage.py loaddata $settings backups/queries.json
 

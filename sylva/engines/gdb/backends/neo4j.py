@@ -336,8 +336,9 @@ class GraphDatabase(BlueprintsGraphDatabase):
     def lookup_builder(self):
         return q_lookup_builder
 
-    def query(self, query_dict, limit=None, offset=None, order_by=None):
-        script, query_params = self._query_generator(query_dict)
+    def query(self, query_dict, limit=None, offset=None, order_by=None,
+              headers=None, only_id=None):
+        script, query_params = self._query_generator(query_dict, only_id)
         cypher = self.cypher
         page = 1000
         skip = offset or 0
@@ -347,15 +348,12 @@ class GraphDatabase(BlueprintsGraphDatabase):
             result = cypher(query=paged_script, params=query_params)
         except:
             result = None
+        if headers is True and result and "columns" in result:
+            yield result["columns"]
         while result and "data" in result and len(result["data"]) > 0:
             for element in result["data"]:
                 if "data" in element:
                     yield element["data"]
-                else:
-                    yield element
-            for element in result["columns"]:
-                if "columns" in element:
-                    yield element["columns"]
                 else:
                     yield element
             skip += page
@@ -369,7 +367,7 @@ class GraphDatabase(BlueprintsGraphDatabase):
             else:
                 break
 
-    def _query_generator(self, query_dict):
+    def _query_generator(self, query_dict, only_id):
         conditions_dict = query_dict["conditions"]
         conditions_result = self._query_generator_conditions(conditions_dict)
         # _query_generator_conditions returns a list
@@ -381,7 +379,7 @@ class GraphDatabase(BlueprintsGraphDatabase):
         origins_dict = query_dict["origins"]
         origins = self._query_generator_origins(origins_dict, conditions_alias)
         results_dict = query_dict["results"]
-        results = self._query_generator_results(results_dict)
+        results = self._query_generator_results(results_dict, only_id)
         patterns_list = []
         if "patterns" in query_dict:
             patterns_dict = query_dict["patterns"]
@@ -513,7 +511,7 @@ class GraphDatabase(BlueprintsGraphDatabase):
         origins = u", ".join(origins_set)
         return origins
 
-    def _query_generator_results(self, results_dict):
+    def _query_generator_results(self, results_dict, only_id):
         results_set = set()
         distinct_clause = ""
         for result_dict in results_dict:
@@ -528,14 +526,14 @@ class GraphDatabase(BlueprintsGraphDatabase):
                     property_aggregate = prop["aggregate"]
                     property_distinct = prop["distinct"]
                     if property_value:
-                        if not property_aggregate:
+                        if not property_aggregate and not only_id:
                             result = u"`{0}`.`{1}`".format(
                                 unicode(alias).replace(u"`",
                                                                       u"\\`"),
                                 unicode(property_value).replace(u"`", u"\\`")
                             )
                             results_set.add(result)
-                        else:
+                        elif property_aggregate and not only_id:
                             if property_aggregate in AGGREGATES:
                                 result = u"{0}(`{1}`.`{2}`)".format(
                                     unicode(property_aggregate),
@@ -544,6 +542,11 @@ class GraphDatabase(BlueprintsGraphDatabase):
                                                                     u"\\`")
                                 )
                                 results_set.add(result)
+                        else:
+                            result = u"ID(`{0}`)".format(
+                                unicode(alias).replace(u"`", u"\\`"),
+                            )
+                            results_set.add(result)
                         if property_distinct:
                             distinct_clause = u"DISTINCT"
         properties_results = u", ".join(results_set)

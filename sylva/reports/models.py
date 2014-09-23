@@ -7,7 +7,7 @@ from django.utils.translation import gettext as _
 from jsonfield import JSONField
 
 from graphs.models import Graph
-from operators.models import Query
+from queries.models import Query
 from sylva.fields import AutoSlugField
 
 

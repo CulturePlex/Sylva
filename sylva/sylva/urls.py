@@ -78,8 +78,8 @@ urlpatterns += patterns('django.contrib.flatpages.views',
 
 if settings.ENABLE_QUERIES:
     urlpatterns += patterns('',
-        # operators
-        url(r'^operators/', include('operators.urls')),
+        # queries
+        url(r'^queries/', include('queries.urls')),
     )
 
 if settings.ENABLE_REPORTS:

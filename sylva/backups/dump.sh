@@ -24,5 +24,5 @@ python ./manage.py dumpdata $settings --format=json --indent=4 engines > backups
 python ./manage.py dumpdata $settings --format=json --indent=4 accounts > backups/accounts.json
 python ./manage.py dumpdata $settings --format=json --indent=4 tools > backups/tools.json
 python ./manage.py dumpdata $settings --format=json --indent=4 search > backups/search.json
-python ./manage.py dumpdata $settings --format=json --indent=4 operators > backups/operators.json
+python ./manage.py dumpdata $settings --format=json --indent=4 queries > backups/queries.json
 python ./manage.py dumpdata $settings --format=json --indent=4 south > backups/south.json

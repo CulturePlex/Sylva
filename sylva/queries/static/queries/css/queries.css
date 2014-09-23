@@ -1,5 +1,4 @@
-
-/* ids and classes in the file operator_builder.html */
+/* ids and classes in the templates files */
 
 #query-information {
     padding: 1em;
@@ -22,7 +21,7 @@
     display: block;
 }
 
-#run-button {
+#run-query {
     margin-top: 40px;
     margin-left: 30px;
 }
@@ -38,10 +37,10 @@
 }
 
 #query-builder-results {
-    display: none;
+    display: inline;
 }
 
-/* ids and class in the file operators.query.js */
+/* ids and class in the js files */
 
 .div-list-rel {
     display: table-row;
@@ -211,7 +210,7 @@
     padding: 1em;
     margin-top: 50px;
     margin-left: 25px;
-    display: none;
+    display: inline;
 }
 
 /* Form styles */

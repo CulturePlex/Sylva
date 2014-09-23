@@ -748,7 +748,7 @@ diagram.aggregates = [
                 }
 
                 // We gonna check if we have to hide the alias select of the relationship boxes
-                var boxEndpoints = jsPlumb.getEndpoints('diagramBox-2-president');
+                var boxEndpoints = jsPlumb.getEndpoints(idBox);
                 // We gonna save the names of the relationships
                 var relNamesArray = new Array();
                 // We gonna save the ids of the relationship boxes
@@ -1934,6 +1934,69 @@ diagram.aggregates = [
     };
 
     /**
+     * Save the query
+     */
+    diagram.saveQuery = function() {
+        var saveElements = {};
+        var query = diagram.generateQuery();
+        saveElements["query"] = query;
+        var elements = $('.title select');
+        var checkboxes = $('.checkbox-property');
+        var fieldsDict = {};
+        var aliasDict = {};
+        var typesDict = {};
+        var checkboxesDict = {};
+        var fieldsConditionsDict = {};
+        // We get the id, typename, left and top of the boxes
+        $.each(elements, function(index, element) {
+            var valuesDict = {};
+            var parent = $(element).parent().parent();
+
+            var alias = $(element).val();
+            var id = $(parent).attr('id');
+            var typename = $(element).attr('class').substring(15);
+            // This is for check if we have a relationship or a node
+            if(typename.substring(0,1) == "-")
+                typename = typename.substring(1);
+            var left = $(parent).css('left');
+            var top = $(parent).css('top');
+
+            valuesDict['id'] = id;
+            valuesDict['typename'] = typename;
+            valuesDict['left'] = left;
+            valuesDict['top'] = top;
+
+            typesDict[alias] = valuesDict;
+        });
+        aliasDict["types"] = typesDict;
+        // We get the checkboxes checked and the property to return
+        $.each(checkboxes, function(index, checkbox) {
+            if($(checkbox).prop('checked')) {
+                checkboxesDict[index] = $(checkbox).next().next().val();
+            }
+        });
+        // We get the fields that are conditions to construct the box properly
+        $.each(checkboxes, function(index, checkbox) {
+            var lookup = $(checkbox).next().next().next().val();
+            var inputLookup = $(checkbox).next().next().next().next().val();
+            if(lookup && inputLookup) {
+                fieldsConditionsDict[index] = true;
+            } else {
+                fieldsConditionsDict[index] = false;
+            }
+        });
+        saveElements['aliases'] = aliasDict;
+        // We store all the important values
+        fieldsDict['fields'] = diagram.fieldsForNodes;
+        fieldsDict['checkboxes'] = checkboxesDict;
+        fieldsDict['fieldsConditions'] = fieldsConditionsDict;
+        fieldsDict['fieldRelsCounter'] = diagram.fieldRelsCounter;
+        saveElements['fields'] = fieldsDict;
+        // What we do with nodetypesCounter and reltypesCounter?
+        return saveElements;
+    };
+
+    /**
      * Interactions functions
      */
 
@@ -2502,9 +2565,11 @@ diagram.aggregates = [
 
         // We check if we have the connection to get the idrel value
         var endpointSelector = patternId + '-source';
-        if(jsPlumb.getEndpoint(endpointSelector)) {
+        var connections = jsPlumb.getEndpoint(endpointSelector).connections;
+        var connectionsLength = connections.length;
+        if(connectionsLength > 0) {
             // We get the id of the relationship box to remove it in the selects
-            var idrel = jsPlumb.getEndpoint(endpointSelector).connections[0].idrel;
+            var idrel = connections[0].idrel;
             // We get the alias of the box to remove it in the selects
             var boxAlias = $('#' + idrel + ' .select-reltype-' + name).val();
         }
@@ -2641,166 +2706,52 @@ diagram.aggregates = [
         });
     });
 
+    // /**
+    //  * Handler for create the JSON file
+    //  */
+    // $(document).on('click', '#run-button', function(event) {
+    //     var query = diagram.generateQuery();
+    //     console.log("query: ");
+    //     console.log(query);
+
+    //     var queryJson = JSON.stringify(query);
+
+    //     $.ajax({
+    //         type: "POST",
+    //         url: diagram.url_query,
+    //         data: {"query": queryJson},
+    //         success: function (data) {}
+    //     });
+    // });
+
     /**
      * Handler for create the JSON file
      */
-    $(document).on('click', '#run-button', function(event) {
-        var query = diagram.generateQuery();
+    $(document).on('click', '#form-run-query', function(event) {
+        var queryElements = diagram.saveQuery();
+        var query = queryElements['query'];
         console.log("query: ");
         console.log(query);
 
         var queryJson = JSON.stringify(query);
 
-        $.ajax({
-            type: "POST",
-            url: diagram.url_query,
-            data: {"query": queryJson},
-            success: function (data) {
-                var headers = $.grep(data, function(n, i) {
-                    return typeof(n) == "string";
-                });
-                if(data.length > 0) {
-                    $("#results").html("");
-                    var table = $("<TABLE>");
-                    table.addClass("content-table");
-                    for (var i = 0; i < headers.length; i++) {
-                        var header = $("<TH>");
-                        header.addClass("header");
-                        header.html(headers[i]);
-                        table.append(header);
-                    }
-                    for (var i = 0, j = data.length; i < j; i += 1) {
-                        if(typeof(data[i]) != "string") {
-                            var row = $("<TR>");
-                            row.addClass("row-even");
-                            if((i % 2) == 0)
-                                row.addClass("row-odd");
-                            for (var k = 0, l = data[i].length; k < l; k += 1) {
-                                var cell = $("<TD>");
-                                cell.text(data[i][k]);
-                                row.append(cell);
-                            }
+        $('input[id=query]').val(queryJson);
 
-                            table.append(row);
-                        }
-                    }
-                    $("#results").append(table);
-                    $('#query-builder-query').hide();
-                    $('#query-builder-results').show();
-                    $('#results').show();
-                } else {
-                    $("#results").html(gettext("No results found"));
-                    $('#query-builder-query').hide();
-                    $('#query-builder-results').show();
-                    $('#results').show();
-                }
-                $.unblockUI();
-            },
-            error: function (e) {
-                $("#results").html(gettext("Sorry, was an error in the server: Please, refresh the page and try again. If the error continues, maybe the database is not running."));
-                $('#query-builder-query').hide();
-                $('#query-builder-results').show();
-                $('#results').show();
-
-                $.unblockUI();
-            },
-            dataType: "json"
-        });
-        event.preventDefault();
-    });
-
-    /**
-     * Handler for run the query in the backend
-     */
-    $(document).on('click', '#run-button', function(event) {
-        $.blockUI({
-            message: '<span>' + gettext("Your query is executing. Please wait...") + '</span>',
-            css: {
-                border: 'none',
-                padding: '15px',
-                backgroundColor: '#000',
-                '-webkit-border-radius': '10px',
-                '-moz-border-radius': '10px',
-                opacity: .5,
-                color: '#fff'
-            },
-            overlayCSS: {
-                opacity: 0.0
-            },
-            onOverlayClick: $.unblockUI
-        });
-        event.preventDefault();
+        return true;
     });
 
     /**
      * Handler to get the information to save the query
      */
     $(document).on('click', '#save-query', function(event) {
-        var saveElements = {};
-        var query = diagram.generateQuery();
-        saveElements["query"] = query;
-        var elements = $('.title select');
-        var checkboxes = $('.checkbox-property');
-        var fieldsDict = {};
-        var aliasDict = {};
-        var typesDict = {};
-        var checkboxesDict = {};
-        var fieldsConditionsDict = {};
-        // We get the id, typename, left and top of the boxes
-        $.each(elements, function(index, element) {
-            var valuesDict = {};
-            var parent = $(element).parent().parent();
-
-            var alias = $(element).val();
-            var id = $(parent).attr('id');
-            var typename = $(element).attr('class').substring(15);
-            // This is for check if we have a relationship or a node
-            if(typename.substring(0,1) == "-")
-                typename = typename.substring(1);
-            var left = $(parent).css('left');
-            var top = $(parent).css('top');
-
-            valuesDict['id'] = id;
-            valuesDict['typename'] = typename;
-            valuesDict['left'] = left;
-            valuesDict['top'] = top;
-
-            typesDict[alias] = valuesDict;
-        });
-        aliasDict["types"] = typesDict;
-        // We get the checkboxes checked and the property to return
-        $.each(checkboxes, function(index, checkbox) {
-            if($(checkbox).prop('checked')) {
-                checkboxesDict[index] = $(checkbox).next().next().val();
-            }
-        });
-        // We get the fields that are conditions to construct the box properly
-        $.each(checkboxes, function(index, checkbox) {
-            var lookup = $(checkbox).next().next().next().val();
-            var inputLookup = $(checkbox).next().next().next().next().val();
-            if(lookup && inputLookup) {
-                fieldsConditionsDict[index] = true;
-            } else {
-                fieldsConditionsDict[index] = false;
-            }
-        });
-        saveElements['aliases'] = aliasDict;
-        // We store all the important values
-        fieldsDict['fields'] = diagram.fieldsForNodes;
-        fieldsDict['checkboxes'] = checkboxesDict;
-        fieldsDict['fieldsConditions'] = fieldsConditionsDict;
-        fieldsDict['fieldRelsCounter'] = diagram.fieldRelsCounter;
-        saveElements['fields'] = fieldsDict;
-        // What we do with nodetypesCounter and reltypesCounter?
-        console.log(JSON.stringify(saveElements));
-
+        var queryElements = diagram.saveQuery();
         // We are going to assign the values for the elements of the form
         var numberOfResults = $('.content-table tr').length;
         $('#id_results_count').val(numberOfResults);
         $('#id_last_run').val('1987-11-01');
-        $('#id_query_dict').val(JSON.stringify(saveElements['query']));
-        $('#id_query_aliases').val(JSON.stringify(saveElements['aliases']));
-        $('#id_query_fields').val(JSON.stringify(saveElements['fields']));
+        $('#id_query_dict').val(JSON.stringify(queryElements['query']));
+        $('#id_query_aliases').val(JSON.stringify(queryElements['aliases']));
+        $('#id_query_fields').val(JSON.stringify(queryElements['fields']));
 
         //event.preventDefault();
 

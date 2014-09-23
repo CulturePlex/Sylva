@@ -6,7 +6,7 @@
 {% endblock %}
 
 {% block menu_buttons %}
-{% toolbar on="query" %}
+{% toolbar on="queries_query" %}
 {% endblock %}
 
 {% block content_title %}
@@ -17,12 +17,12 @@
 {% block extra_scripts %}
 <script type="text/javascript">
     sylva.urls = {
-        operatorQueryResults: "{% url "operator_query_results" graph.slug %}"
+        queriesQueryResults: "{% url "queries_query_results" graph.slug %}"
     };
 </script>
 
 {% compress js %}
-    <script type="text/javascript" src="{{ STATIC_PREFIX }}operators/js/operator_query.js"></script>
+    <script type="text/javascript" src="{{ STATIC_PREFIX }}queries/js/queries_query.js"></script>
 {% endcompress %}
 {% endblock %}
 

@@ -9,23 +9,24 @@ class Migration(SchemaMigration):
 
     def forwards(self, orm):
         # Adding model 'Query'
-        db.create_table(u'operators_query', (
+        db.create_table(u'queries_query', (
             (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('graph', self.gf('django.db.models.fields.related.ForeignKey')(related_name='queries', to=orm['graphs.Graph'])),
             ('name', self.gf('django.db.models.fields.CharField')(max_length=255)),
-            ('description', self.gf('django.db.models.fields.CharField')(max_length=255)),
+            ('description', self.gf('django.db.models.fields.TextField')(null=True, blank=True)),
             ('results_count', self.gf('django.db.models.fields.IntegerField')(null=True, blank=True)),
             ('last_run', self.gf('django.db.models.fields.DateTimeField')(null=True, blank=True)),
+            ('has_numeric_results', self.gf('django.db.models.fields.NullBooleanField')(null=True, blank=True)),
             ('query_dict', self.gf('jsonfield.fields.JSONField')()),
             ('query_aliases', self.gf('jsonfield.fields.JSONField')()),
             ('query_fields', self.gf('jsonfield.fields.JSONField')()),
         ))
-        db.send_create_signal(u'operators', ['Query'])
+        db.send_create_signal(u'queries', ['Query'])
 
 
     def backwards(self, orm):
         # Deleting model 'Query'
-        db.delete_table(u'operators_query')
+        db.delete_table(u'queries_query')
 
 
     models = {
@@ -115,10 +116,11 @@ class Migration(SchemaMigration):
             'schema': ('django.db.models.fields.related.OneToOneField', [], {'to': u"orm['schemas.Schema']", 'unique': 'True', 'null': 'True', 'blank': 'True'}),
             'slug': ('sylva.fields.AutoSlugField', [], {'db_index': 'False', 'unique': 'True', 'max_length': '200', 'populate_from': "['name']", 'blank': 'True'})
         },
-        u'operators.query': {
+        u'queries.query': {
             'Meta': {'object_name': 'Query'},
-            'description': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
+            'description': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
             'graph': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'queries'", 'to': u"orm['graphs.Graph']"}),
+            'has_numeric_results': ('django.db.models.fields.NullBooleanField', [], {'null': 'True', 'blank': 'True'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'last_run': ('django.db.models.fields.DateTimeField', [], {'null': 'True', 'blank': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
@@ -134,4 +136,4 @@ class Migration(SchemaMigration):
         }
     }
 
-    complete_apps = ['operators']
+    complete_apps = ['queries']

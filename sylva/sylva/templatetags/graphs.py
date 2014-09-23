@@ -6,7 +6,7 @@ from django.utils.translation import gettext as _
 from data.models import Data
 from search.forms import SearchForm
 from schemas.models import Schema
-from operators.models import Query
+from queries.models import Query
 
 
 register = Library()

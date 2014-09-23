@@ -54,7 +54,7 @@
 {% endif %}
 {% if OPTIONS.ENABLE_QUERIES %}
     <li>
-        <a href="{% url "operator_queries" graph.slug %}" class="no-menu {% if on == "operators" %}text{% else %}link{% endif %}">
+        <a href="{% url "queries_list" graph.slug %}" class="no-menu {% if on == "queries" %}text{% else %}link{% endif %}">
             <span>{% trans "Queries" %}</span>
         </a>
     </li>

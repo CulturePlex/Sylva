@@ -23,7 +23,7 @@ from guardian.decorators import permission_required
 
 from models import ReportTemplate, Report
 from graphs.models import Graph, Schema
-from operators.models import Query
+from queries.models import Query
 
 from sylva.decorators import is_enabled
 

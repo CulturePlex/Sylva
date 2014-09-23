@@ -190,7 +190,7 @@ INSTALLED_APPS = (
     'engines',
     'tools',
     'search',
-    'operators',
+    'queries',
     'zebra',
     'payments',
     'south',

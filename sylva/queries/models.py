@@ -23,8 +23,8 @@ class Query(models.Model):
     graph = models.ForeignKey(Graph, verbose_name=_("graph"),
                               related_name='queries')
     name = models.CharField(_("Name"), max_length=255)
-    description = models.CharField(_("Description"),
-                                   max_length=255)
+    description = models.TextField(_("Description"),
+                                   null=True, blank=True)
     results_count = models.IntegerField(_("Number of results"),
                                         null=True, blank=True)
     last_run = models.DateTimeField(_("Last time run"),
@@ -56,3 +56,8 @@ class Query(models.Model):
                     self.has_numeric_results = True
                     break
         super(Query, self).save(*args, **kwargs)
+
+    def execute(self, limit=None, offset=None, order_by=None,
+                headers=None, only_id=None):
+        return self.graph.query(self.query_dict, limit, offset, order_by,
+                                headers, only_id)
