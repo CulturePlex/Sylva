@@ -74,6 +74,8 @@
         <form method="post" action="{% url "queries_builder_results" graph.slug %}" id="form-run-query">
             {% csrf_token %}
             <input type="hidden" id="query" name="query" />
+            <input type="hidden" id="query_aliases" name="query_aliases" />
+            <input type="hidden" id="query_fields" name="query_fields" />
             <input type="submit" id="run-query" name="run-query" value="{% trans "Run" %}" />
         </form>
         <a class="button" id="clear-button" href="#">{% trans "Clear query" %}</a>
@@ -166,6 +168,7 @@
     query["fields"] = query_fields["fields"];
     query["fieldRelsCounter"] = query_fields["fieldRelsCounter"];
     query["checkboxes"] = query_fields["checkboxes"];
+    query["aggregates"] = query_fields["aggregates"];
     query["fieldsConditions"] = query_fields["fieldsConditions"];
 
     (function($) {

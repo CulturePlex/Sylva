@@ -421,6 +421,7 @@ diagram.aggregates = [
             divTitle.css({
                 "background-color": "#AEAA78"
             });
+            divTitle.attr("id", idBox + "-title");
             divTitle.attr("data-modelid", idRel);
             // Select for the type
             selectReltype = $("<SELECT>");
@@ -673,6 +674,7 @@ diagram.aggregates = [
             }
             divTitle = $("<DIV>");
             divTitle.addClass("title");
+            divTitle.attr('id', idBox + "-title");
             divTitle.attr('data-modelid', typeId);
             // Select for the type
             selectNodetype = $("<SELECT>");
@@ -1091,6 +1093,11 @@ diagram.aggregates = [
             // Select for the aggregates elements
             selectAggregate = $("<SELECT>");
             selectAggregate.addClass("select-aggregate");
+            // We check if we have other aggregates visibles
+            displayAggregates = $("#" + idBox + " .select-aggregate").css('display');
+            selectAggregate.css({
+                'display': displayAggregates
+            })
             selectAggregate.append("<option class='option-aggregate' value='' selected='selected' disabled>" + gettext("choose one") + "</option>");
             for(var i = 0; i < diagram.aggregates.length; i++) {
                 // We append the aggregate and the aggregate Distinct
@@ -1484,13 +1491,15 @@ diagram.aggregates = [
                             cssClass: 'query-box-endpoint-target'
                         }
                     ],
-                    //anchors: [
-                    //    [0.5, 0, 0, 0],
-                    //    ["Continuous",
-                    //    {faces:[ "top", "left", "right" ]}]
-                    //],
-                    // anchor: [0.5, 0, 0, 0],
+                    // //anchors: [
+                    // //    [0.5, 0, 0, 0],
+                    // //    ["Continuous",
+                    // //    {faces:[ "top", "left", "right" ]}]
+                    // //],
+                    // // anchor: [0.5, 0, 0, 0],
                     anchor: "TopCenter",
+                    // endpoint: "Dot",
+                    // anchor: [ "Perimeter", {shape: "Square", anchorCount:150}],
                     isTarget: true,
                     maxConnections: 99,
                     connectorStyle: {
@@ -1779,6 +1788,7 @@ diagram.aggregates = [
             patterns = jsonDict["query"]["patterns"];
             patternsLength = patterns.length;
             checkboxes = jsonDict["checkboxes"];
+            aggregates = jsonDict["aggregates"];
             var fieldIndex = 0;
             var conditionsIndex = 0;
 
@@ -1880,12 +1890,17 @@ diagram.aggregates = [
                                 $('#' + id + " #field" + fieldIndex + " .select-and-or").val(andOr);
                             }
                             conditionsIndex++;
+                        } else {
+                            // If we dont have conditions, we let the user to change the lookups or the 'and-or' select
+                            $('#' + id + " #field" + fieldIndex + " .select-property").change();
                         }
                     }
                     conditionsIndex = 0;
                     // We select the correct value for the alias
                     $('#' + id + ' .title select').val(key);
                 }
+                // We check if we have to show the 'alias selects' for this type
+                diagram.showSelects(typename, "node");
             }
             // We check the checkboxes to return
             for(key in checkboxes) {
@@ -1894,6 +1909,19 @@ diagram.aggregates = [
                     var fieldIndex = parseInt(key) + 1;
                     $("#field" + fieldIndex + " .select-property").val(property);
                     $("#field" + fieldIndex + ' .checkbox-property').click();
+                }
+            }
+            // We check all the necessary logic for the aggregates
+            for(key in aggregates) {
+                if(aggregates.hasOwnProperty(key)) {
+                    // We get the neccesary info to activate the advanced mode of the box
+                    var selector = $("#field" + fieldIndex + " .select-aggregate");
+                    var idBox = selector.parent().parent().parent().parent().parent().attr('id')
+                    var typename = idBox.split('-')[2];
+                    $('#' + idBox + ' #inlineAdvancedMode_' + typename).click();
+                    // We set the aggregate value
+                    var aggregate = aggregates[key];
+                    selector.val(aggregate);
                 }
             }
             // Load the relationships between the boxes
@@ -1913,9 +1941,7 @@ diagram.aggregates = [
                    relationName = "wildcard";
 
                 var uuidSource = sourceId + '-' + relationName + '-source';
-                console.log(uuidSource);
                 var uuidTarget = targetId + '-target';
-                console.log(uuidTarget);
 
                 $('#' + sourceId + ' .select-rel').val(relationValue);
                 $('#' + sourceId + ' .select-rel').change();
@@ -1924,7 +1950,10 @@ diagram.aggregates = [
                 jsPlumb.connect({
                     uuids: [uuidSource, uuidTarget],
                     anchor: ["Perimeter", {shape: "Rectangle"}]
-                })
+                });
+
+                // We check if we need to show the 'alias selects' for the relationship boxes
+                diagram.showSelects(relationValue, "relationship");
             }
 
             jsPlumb.repaintEverything();
@@ -1942,10 +1971,12 @@ diagram.aggregates = [
         saveElements["query"] = query;
         var elements = $('.title select');
         var checkboxes = $('.checkbox-property');
+        var aggregates = $('.select-aggregate');
         var fieldsDict = {};
         var aliasDict = {};
         var typesDict = {};
         var checkboxesDict = {};
+        var aggregatesDict = {};
         var fieldsConditionsDict = {};
         // We get the id, typename, left and top of the boxes
         $.each(elements, function(index, element) {
@@ -1975,6 +2006,13 @@ diagram.aggregates = [
                 checkboxesDict[index] = $(checkbox).next().next().val();
             }
         });
+        // We get the aggregates if they exist
+        $.each(aggregates, function(index, aggregate) {
+            var aggregateValue = $(aggregate).val();
+            if(aggregateValue) {
+                aggregatesDict[index] = aggregateValue;
+            }
+        });
         // We get the fields that are conditions to construct the box properly
         $.each(checkboxes, function(index, checkbox) {
             var lookup = $(checkbox).next().next().next().val();
@@ -1989,6 +2027,7 @@ diagram.aggregates = [
         // We store all the important values
         fieldsDict['fields'] = diagram.fieldsForNodes;
         fieldsDict['checkboxes'] = checkboxesDict;
+        fieldsDict['aggregates'] = aggregatesDict;
         fieldsDict['fieldsConditions'] = fieldsConditionsDict;
         fieldsDict['fieldRelsCounter'] = diagram.fieldRelsCounter;
         saveElements['fields'] = fieldsDict;
@@ -2098,7 +2137,7 @@ diagram.aggregates = [
         // We store the selector for the and/or select for nodes
         var selectorAndOr = '.select-and-or';
         // We call to the function to remove the field
-        diagram.removeFields(parentId, fieldId, selectAndOr);
+        diagram.removeFields(parentId, fieldId, selectorAndOr);
 
         // Recalculate anchor for source endpoints
         diagram.recalculateAnchor(idBox, idAllRels);
@@ -2730,12 +2769,16 @@ diagram.aggregates = [
     $(document).on('click', '#form-run-query', function(event) {
         var queryElements = diagram.saveQuery();
         var query = queryElements['query'];
-        console.log("query: ");
-        console.log(query);
+        var query_aliases = queryElements['aliases'];
+        var query_fields = queryElements['fields'];
 
         var queryJson = JSON.stringify(query);
+        var queryAliases = JSON.stringify(query_aliases);
+        var queryFields = JSON.stringify(query_fields);
 
         $('input[id=query]').val(queryJson);
+        $('input[id=query_aliases]').val(queryAliases);
+        $('input[id=query_fields]').val(queryFields);
 
         return true;
     });

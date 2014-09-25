@@ -34,6 +34,11 @@ from queries.forms import SaveQueryForm
 def queries_list(request, graph_slug):
     graph = get_object_or_404(Graph, slug=graph_slug)
     queries = graph.queries.all()
+    # We create the variables in the session
+    request.session['query'] = None
+    request.session['query_aliases'] = None
+    request.session['query_fields'] = None
+    request.session['results_count'] = None
     return render_to_response('queries/queries_list.html',
                               {"graph": graph,
                                "queries": queries},
@@ -51,6 +56,10 @@ def queries_builder(request, graph_slug):
     queries_link = (reverse("queries_list", args=[graph.slug]),
                     _("Queries"))
     form = SaveQueryForm()
+    # We get the query_dicts of the session variable if they exist
+    query_dict = request.session['query']
+    query_aliases = request.session['query_aliases']
+    query_fields = request.session['query_fields']
     if request.POST:
         data = request.POST.copy()
         form = SaveQueryForm(data=data)
@@ -59,9 +68,9 @@ def queries_builder(request, graph_slug):
                 query = form.save(commit=False)
                 graph.queries.add(query)
                 # We treat the results_count
-                form_results_count = form.data["results_count"]
-                if form_results_count is not "0":
-                    query.results_count = form_results_count
+                results_count = request.session['results_count']
+                if results_count:
+                    query.results_count = results_count
                     query.last_run = datetime.now()
                 else:
                     query.results_count = 0
@@ -73,29 +82,16 @@ def queries_builder(request, graph_slug):
                                            "queries": graph.queries.all()},
                                           context_instance=RequestContext(
                                               request))
-        else:
-            # We get the values for the query to maintain it in the view
-            query_dict = form.data["query_dict"]
-            query_aliases = form.data["query_aliases"]
-            query_fields = form.data["query_fields"]
-            return render_to_response('queries/queries_builder.html',
-                                      {"graph": graph,
-                                       "queries_link": queries_link,
-                                       "node_types": nodetypes,
-                                       "relationship_types": reltypes,
-                                       "form": form,
-                                       "query_dict": query_dict,
-                                       "query_aliases": query_aliases,
-                                       "query_fields": query_fields},
-                                      context_instance=RequestContext(
-                                          request))
     else:
         return render_to_response('queries/queries_builder.html',
                                   {"graph": graph,
                                    "queries_link": queries_link,
                                    "node_types": nodetypes,
                                    "relationship_types": reltypes,
-                                   "form": form},
+                                   "form": form,
+                                   "query_dict": query_dict,
+                                   "query_aliases": query_aliases,
+                                   "query_fields": query_fields},
                                   context_instance=RequestContext(request))
 
 
@@ -104,7 +100,14 @@ def queries_builder(request, graph_slug):
 @permission_required("data.view_data", (Data, "graph__slug", "graph_slug"),
                      return_403=True)
 def queries_builder_results(request, graph_slug):
+    # We get the information to mantain the las query in the builder
     query = request.POST.get("query", "").strip()
+    query_aliases = request.POST.get("query_aliases", "").strip()
+    query_fields = request.POST.get("query_fields", "").strip()
+    request.session['query'] = query
+    request.session['query_aliases'] = query_aliases
+    request.session['query_fields'] = query_fields
+
     graph = get_object_or_404(Graph, slug=graph_slug)
     queries_link = (reverse("queries_list", args=[graph.slug]),
                     _("Queries"))
@@ -113,16 +116,19 @@ def queries_builder_results(request, graph_slug):
     # query = "notas of autor with notas that start with lista"
     # see https://gist.github.com/versae/9241069
     query_dict = json.loads(query)
-    results = graph.query(query_dict, headers=True)
+    query_results = graph.query(query_dict, headers=True)
     headers = True
-    json_results = [r for r in results]
+    results = [r for r in query_results]
+    # We store the results count in the session variable.
+    # The ' - 1' is because the headers
+    request.session['results_count'] = len(results) - 1
     # TODO: Try to make the response streamed
     return render_to_response('queries/queries_builder_results.html',
                               {"graph": graph,
                                "queries_link": queries_link,
                                "queries_new": queries_new,
                                "headers": headers,
-                               "results": json_results},
+                               "results": results},
                               context_instance=RequestContext(request))
 
 
@@ -146,9 +152,9 @@ def queries_query_edit(request, graph_slug, query_id):
             with transaction.atomic():
                 query = form.save(commit=False)
                 # We treat the results_count
-                form_results_count = form.data["results_count"]
-                if form_results_count is not "0":
-                    query.results_count = form_results_count
+                results_count = request.session["results_count"]
+                if results_count:
+                    query.results_count = results_count
                     query.last_run = datetime.now()
                 else:
                     query.results_count = 0
@@ -186,12 +192,14 @@ def queries_query_results(request, graph_slug, query_id):
     query = graph.queries.get(pk=query_id)
     # query = "notas of autor with notas that start with lista"
     # see https://gist.github.com/versae/9241069
-    results = graph.query(query.query_dict)
+    results = graph.query(query.query_dict, headers=True)
+    headers = True
     # json_results = json.dumps([r for r in results])
     # TODO: Try to make the response streamed
     return render_to_response('queries/queries_builder_results.html',
                               {"graph": graph,
                                "queries_link": queries_link,
+                               "headers": headers,
                                "results": results},
                               context_instance=RequestContext(request))
 
