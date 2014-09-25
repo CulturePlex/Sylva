@@ -37,6 +37,11 @@ sylva:true, alert:true */
     }
 
     if (msg !== '') {
+      // TODO: Remove the next lines, they don't belong here.
+      // sylva.modals.init();
+      // $('.import-schema').on('click', sylva.Sigma.callImportSchemaModal);
+      // $('.import-data').on('click', sylva.Sigma.callImportDataModal);
+
       $('#sigma-container').html('<div class="graph-empty-message">' + msg + '</div>');
     } else {
       var spinnerOpts = {

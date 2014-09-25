@@ -254,7 +254,7 @@ def graph_collaborators(request, graph_slug):
         as_modal = bool(data.get("asModal", False))
     else:
         form = AddCollaboratorForm(graph=graph)
-        as_modal = bool(request.GET.copy().get("asModal", False))
+        as_modal = bool(request.GET.get("asModal", False))
     # graph_permissions = guardian.get_perms_for_model(graph)
     permissions_list = []
     permissions_table = []

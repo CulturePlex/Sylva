@@ -576,7 +576,30 @@
           left: 10
         });
       }
-    }
+    },
+
+    importSchema: {
+
+      start: function(url, showOverlay) {
+        that.prepareModal(url, showOverlay, this);
+      },
+
+      preProcessHTML: function() {},
+
+      onShow: function() {}
+    },
+
+    importData: {
+
+      start: function(url, showOverlay) {
+        console.log(url)
+        // that.prepareModal(url, showOverlay, this);
+      },
+
+      preProcessHTML: function() {},
+
+      onShow: function() {}
+    },
 
   };
 

@@ -504,6 +504,20 @@
       return false;
     },
 
+    callImportSchemaModal: function(event) {
+      var target = $(event.target);
+      sylva.modals.importSchema.start(target.attr('href'), true);
+
+      return false
+    },
+
+    callImportDataModal: function(event) {
+      var target = $(event.target);
+      sylva.modals.importData.start(target.attr('href'), true);
+
+      return false;
+    },
+
     /* *****
      * Functions for interact with the graph representation.
      ***** */
@@ -1518,9 +1532,11 @@
       that.reCenter();
 
       // Defining default modals.
-      $('.dataOption.new').on('click', that.callCreateNodeModal);
-      $('.dataOption.list').on('click', that.callListNodesModal);
+      $('.create-node').on('click', that.callCreateNodeModal);
+      $('.list-nodes').on('click', that.callListNodesModal);
       $('#collaborators-button').on('click', that.callCollaboratorsModal);
+      $('.import-schema').on('click', that.callImportSchemaModal);
+      $('.import-data').on('click', that.callImportDataModal);
     },
 
     /* Perform the cancelation of the analytics mode. Also perform the
@@ -1574,9 +1590,11 @@
       that.reCenter();
 
       // Removing default modals.
-      $('.dataOption.new').off('click', that.callCreateNodeModal);
-      $('.dataOption.list').off('click', that.callListNodesModal);
+      $('.create-node').off('click', that.callCreateNodeModal);
+      $('.list-nodes').off('click', that.callListNodesModal);
       $('#collaborators-button').off('click', that.callCollaboratorsModal);
+      $('.import-schema').off('click', that.callImportSchemaModal);
+      $('.import-data').off('click', that.callImportDataModal);
     },
 
 
