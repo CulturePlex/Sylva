@@ -125,7 +125,7 @@ def templates_endpoint(request, graph_slug):
         response = {'template': None, 'queries': None}
         if request.GET.get('queries', ''):  # Get queries either for
                                             # new template or for edit.
-            queries = graph.queries.all()
+            queries = graph.queries.plottable()
             # Execute queries here maybe tell them in js
             response['queries'] = [{'series': query.query_dict['series'][:-2],
                                     'name': query.name, 'id': query.id}

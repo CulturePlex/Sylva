@@ -40,14 +40,11 @@
               </label>
             </p>
             <p>
-              <label>Description
-                  <textarea form="reportForm" ng-model="template.description">
-                  </textarea>
-              </label>
             </p>
           </div> <!--innerForm-->
           <span class="buttonLinkOption buttonLinkLeft">
             <input type="submit" value="Save Report" ng-click="saveReport(template)">
+            <a class="alink" href="">advanced</a>
           </span>
         </form>
       </div><!--formContainer-->
@@ -73,7 +70,7 @@
 
     <div class="row">
       <div class="prev-cont">
-        <div sylva-pv-row-repeat class="row" resp="resp" width="600">
+        <div sylva-pv-row-repeat class="row" resp="prev" width="600">
           <div sylva-pv-cell-repeat class="col" row="row">
             <div ng-hide="markdown">
               <div ng-if="query != '' && query != 'undefined' && query != null" highchart config="chartConfig" ng-style="cellStyle" class="display-cell"></div>
@@ -100,7 +97,7 @@
       </div>
     </div>
     <div class="row">
-      <div sy-editable-table resp="resp" class="editable-table">
+      <div sy-editable-table resp="resp" prev="prev" class="editable-table">
       </div>
     </div><!--row-->
   </div>  

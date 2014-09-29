@@ -62,6 +62,7 @@ controllers.controller('BaseReportCtrl', [
             $scope.editable = false;
         }
 
+
         $scope.saveReport = function (template) {
             // Used in report form - both edit and new ctrls
             // Gonna have to validate here
@@ -95,27 +96,70 @@ controllers.controller('NewReportCtrl', [
             start_time: '',
             start_date: '',
             description: '',
-            nameHtml: '<h2>New Report</h2>',
+            nameHtml: '<h2>New Report</h2>'
         };
 
+        var exampleTable = [[{"col": 0, "colspan": "1", "id": "cell1", "row": 0, 
+                             "rowspan": "1", "displayQuery": 1, "chartType": "pie",
+                             "series": [
+                                ['Keanu Reeves',36],
+                                ['Linus Torvalds',24],
+                                ['Tyrion Lannister',20],
+                                ['Morpheus',1],
+                                ['Félix Lope de Vega Carpio',156],
+                                ['Javier de la Rosa',24]
+                            ]}, 
+                            {"col": 1, "colspan": "1", "id": "cell2", "row": 0, 
+                             "rowspan": "1", "displayQuery": 1, "chartType": "pie",
+                             "series": [
+                                ['Keanu Reeves',36],
+                                ['Linus Torvalds',24],
+                                ['Tyrion Lannister',20],
+                                ['Morpheus',1],
+                                ['Félix Lope de Vega Carpio',156],
+                                ['Javier de la Rosa',24]
+                            ]}], 
+                            [{"col": 0, "colspan": "1", "id": "cell3", "row": 1,
+                             "rowspan": "1","displayQuery": 1, "chartType": "column",
+                             "series": [
+                                ['Keanu Reeves',36],
+                                ['Linus Torvalds',24],
+                                ['Tyrion Lannister',20],
+                                ['Morpheus',1],
+                                ['Félix Lope de Vega Carpio',156],
+                                ['Javier de la Rosa',24]
+                            ]}, 
+                            {"col": 1, "colspan": "1", "id": "cell4", "row": 1,
+                             "rowspan": "1","displayQuery": 1, "chartType": "column",
+                             "series": [
+                                ['Keanu Reeves',36],
+                                ['Linus Torvalds',24],
+                                ['Tyrion Lannister',20],
+                                ['Morpheus',1],
+                                ['Félix Lope de Vega Carpio',156],
+                                ['Javier de la Rosa',24]
+                            ]}]];
+
         var layout = [[{"col": 0, "colspan": "1", "id": "cell1", "row": 0, 
-                       "rowspan": "1", "displayQuery": "", "chartType": "",
-                       "series": ""}, 
-                      {"col": 1, "colspan": "1", "id": "cell2", "row": 0,
-                       "rowspan": "1", "displayQuery": "", "chartType": "",
-                       "series": ""}], 
-                    [{"col": 0, "colspan": "1", "id": "cell3", "row": 1,
-                      "rowspan": "1","displayQuery": "", "chartType": "",
-                       "series": ""}, 
-                     {"col": 1, "colspan": "1", "id": "cell4", "row": 1,
-                      "rowspan": "1", "displayQuery": "", "chartType": "",
-                       "series": ""}]]
+                        "rowspan": "1", "displayQuery": "", "chartType": "",
+                        "series": ''}, 
+                       {"col": 1, "colspan": "1", "id": "cell2", "row": 0,
+                        "rowspan": "1", "displayQuery": "", "chartType": "",
+                        "series": ""}], 
+                      [{"col": 0, "colspan": "1", "id": "cell3", "row": 1,
+                        "rowspan": "1","displayQuery": "", "chartType": "",
+                        "series": ""}, 
+                       {"col": 1, "colspan": "1", "id": "cell4", "row": 1,
+                        "rowspan": "1", "displayQuery": "", "chartType": "",
+                        "series": ""}]]
+
         api.templates.blank({
             graphSlug: $scope.slugs.graph, 
         }, function (data) {
             data.layout = layout;
             $scope.template.layout = layout;
             $scope.resp = {table: layout, queries: data.queries}
+            $scope.prev = {table: exampleTable, queries: data.queries}
         });
 }]);
 
@@ -149,7 +193,9 @@ controllers.controller('EditReportCtrl', [
             data.template.date = day + '/' + month + '/' + year;
 
             $scope.template = data.template;
-            $scope.resp = {table: data.template.layout, queries: data.queries}
+            $scope.resp = {table: data.template.layout, queries: data.queries};
+            $scope.prev = $scope.resp;
+            console.log(data.template.layout)
         });
 }]);
 

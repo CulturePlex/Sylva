@@ -158,7 +158,7 @@ directives.directive('sylvaPvCellRepeat', [function () {
                         series = query.series;
                         name = query.name;
                     }
-
+                    console.log('series', series)
                     childScope.query = query;
                     childScope.chartConfig = {
                         options: {chart: {type: cell.chartType}},
@@ -189,7 +189,8 @@ directives.directive('syEditableTable',['tableArray', 'DJANGO_URLS', function (t
     return {
         transclude: true,
         scope: {
-            resp: '='
+            resp: '=',
+            prev: '='
         },
         template: '<div class="edit-rows">' + 
                       '<div sy-et-row-repeat  queries="queries">' + 
@@ -217,6 +218,10 @@ directives.directive('syEditableTable',['tableArray', 'DJANGO_URLS', function (t
 
             this.getTableWidth = function() {
                 return $scope.tableWidth;
+            };
+
+            this.editing = function () {
+                $scope.prev = $scope.resp;
             };
         },
         link: function(scope, elem, attrs) {
@@ -500,7 +505,7 @@ directives.directive('sylvaEtCell', ['$sanitize', 'DJANGO_URLS', function ($sani
 
             scope.$watch('activeQuery', function (newVal, oldVal) {
                 if (newVal == oldVal) return;
-
+                ctrl.editing()
                 var name;
 
                 if (newVal != null) {
@@ -521,6 +526,7 @@ directives.directive('sylvaEtCell', ['$sanitize', 'DJANGO_URLS', function ($sani
 
             scope.$watch('chartType', function (newVal, oldVal) {
                 if (newVal == oldVal) return;
+                ctrl.editing()
                 scope.tableArray.addChart([scope.row, scope.col], newVal)
 
             });
