@@ -127,7 +127,7 @@ def templates_endpoint(request, graph_slug):
                                             # new template or for edit.
             queries = graph.queries.all()
             # Execute queries here maybe tell them in js
-            response['queries'] = [{'series': query.query_dict[:-2],
+            response['queries'] = [{'series': query.query_dict['series'][:-2],
                                     'name': query.name, 'id': query.id}
                                    for query in queries]
         if request.GET.get('template', ''):  # Get template for edit or preview.
@@ -138,7 +138,7 @@ def templates_endpoint(request, graph_slug):
             if not response['queries']:  # Get template queries for preview.
                 queries = template.queries.all()
                 # Will have to execute queries here
-                response['queries'] = [{'series': query.query_dict[:-2],
+                response['queries'] = [{'series': query.query_dict['series'][:-2],
                                         'name': query.name, 'id': query.id}
                                        for query in queries]
     else:  # Get a list of all the reports.
