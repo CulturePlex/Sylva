@@ -22,6 +22,7 @@ diagram.reltypesList = {};
 diagram.fieldsForNodes = {};
 diagram.fieldsForRels = {};
 diagram.relindex = {};
+diagram.boxesSelects = {};
 
 /*
  * The next dictionaries are useful for the distinct options
@@ -563,23 +564,41 @@ diagram.aggregates = [
             iconEditSelect.addClass("fa fa-pencil icon-style");
             anchorEditSelect.append(iconEditSelect);
             anchorEditSelect.click(function () {
-                var selectorAlias = '#' + idBox + " .select-reltype-" + name;
-                // We get the select
-                var selectAlias = $(selectorAlias);
-                // We replace the selectAlias with the input for the user
-                var inputAlias = $("<INPUT>");
-                inputAlias.addClass("option-reltype-" + name);
-                // This attr is for the logical to get the fields for the query
-                inputAlias.attr("selected", "selected");
-                inputAlias.attr("data-modelid", idRel);
-                inputAlias.css({
-                    "width": "60px",
-                    "float": "left",
-                    "padding": "0",
-                    "margin-left": "5%",
-                    "margin-top": "-1px"
-                });
-                $(selectorAlias).replaceWith(inputAlias);
+                if(iconEditSelect.attr('class') == 'fa fa-pencil icon-style') {
+                    iconEditSelect.removeClass('fa fa-pencil icon-style');
+                    iconEditSelect.addClass('fa fa-undo icon-style');
+                    var selectorAlias = '#' + idBox + " .select-reltype-" + name;
+                    // We store the select for the type
+                    selectorObject = $(selectorAlias)[0];
+                    diagram.boxesSelects[idBox] = selectorObject;
+                    // We get the select value
+                    var selectValue = $(selectorAlias).val();
+                    // We replace the selectAlias with the input for the user
+                    var inputAlias = $("<INPUT>");
+                    var classesInput = "option-nodetype-" + name + " edit-alias";
+                    inputAlias.addClass(classesInput);
+                    // This attr is for the logical to get the fields for the query
+                    inputAlias.attr("selected", "selected");
+                    inputAlias.attr("data-modelid", idRel);
+                    inputAlias.attr("data-oldvalue", selectValue);
+                    inputAlias.attr("data-typename", name);
+                    inputAlias.css({
+                        "width": "60px",
+                        "float": "left",
+                        "padding": "0",
+                        "margin-left": "5%",
+                        "margin-top": "-1px"
+                    });
+                    $(selectorAlias).replaceWith(inputAlias);
+                } else {
+                    iconEditSelect.removeClass('fa fa-undo icon-style');
+                    iconEditSelect.addClass('fa fa-pencil icon-style');
+                    // We get the select for the type and the input
+                    var inputSelector = '#' + idBox + " .edit-alias";
+                    var selectorAlias = diagram.boxesSelects[idBox];
+                    var inputAlias = $(inputSelector);
+                    $(inputAlias).replaceWith(selectorAlias);
+                }
             });
             // We create the div for the corner buttons
             divCornerButtons = $("<DIV>");
@@ -738,8 +757,10 @@ diagram.aggregates = [
             anchorClose = $("<A>");
             anchorClose.attr("href", "javascript:void(0);");
             anchorClose.attr("id", "inlineDeleteLink_"+ typeName);
+
             iconClose = $("<I>");
             iconClose.addClass("fa fa-times-circle icon-style");
+
             anchorClose.append(iconClose);
             anchorClose.click(function () {
                 var connections = jsPlumb.getEndpoint(idBox + '-target').connections;
@@ -809,9 +830,11 @@ diagram.aggregates = [
             anchorAdvancedMode = $("<A>");
             anchorAdvancedMode.attr("href", "javascript:void(0);");
             anchorAdvancedMode.attr("id", "inlineAdvancedMode_"+ typeName);
-            anchorAdvancedMode.attr("title", gettext("Advanced options"))
-            iconAdvancedMode = $("<I>");
+            anchorAdvancedMode.attr("title", gettext("Advanced options"));
+
+            var iconAdvancedMode = $("<I>");
             iconAdvancedMode.addClass("fa fa-gear icon-style");
+
             anchorAdvancedMode.append(iconAdvancedMode);
             anchorAdvancedMode.click(function () {
                 var display = $('#' + idBox + " .select-aggregate").css('display');
@@ -857,27 +880,47 @@ diagram.aggregates = [
             anchorEditSelect.css({
                 'display': 'none'
             });
-            iconEditSelect = $("<I>");
+
+            var iconEditSelect = $("<I>");
             iconEditSelect.addClass("fa fa-pencil icon-style");
+
             anchorEditSelect.append(iconEditSelect);
             anchorEditSelect.click(function () {
-                var selectorAlias = '#' + idBox + " .select-nodetype-" + typeName;
-                // We get the select
-                var selectAlias = $(selectorAlias);
-                // We replace the selectAlias with the input for the user
-                var inputAlias = $("<INPUT>");
-                inputAlias.addClass("option-nodetype-" + typeName);
-                // This attr is for the logical to get the fields for the query
-                inputAlias.attr("selected", "selected");
-                inputAlias.attr("data-modelid", typeId);
-                inputAlias.css({
-                    "width": "36%",
-                    "float": "left",
-                    "padding": "0",
-                    "margin-left": "10%",
-                    "margin-top": "-1px"
-                });
-                $(selectorAlias).replaceWith(inputAlias);
+                if(iconEditSelect.attr('class') == 'fa fa-pencil icon-style') {
+                    iconEditSelect.removeClass('fa fa-pencil icon-style');
+                    iconEditSelect.addClass('fa fa-undo icon-style');
+                    var selectorAlias = '#' + idBox + " .select-nodetype-" + typeName;
+                    // We store the select for the type
+                    selectorObject = $(selectorAlias)[0];
+                    diagram.boxesSelects[idBox] = selectorObject;
+                    // We get the select value for next comparisons
+                    var selectValue = $(selectorAlias).val();
+                    // We replace the selectAlias with the input for the user
+                    var inputAlias = $("<INPUT>");
+                    var classesInput = "option-nodetype-" + typeName + " edit-alias";
+                    inputAlias.addClass(classesInput);
+                    // This attr is for the logical to get the fields for the query
+                    inputAlias.attr("selected", "selected");
+                    inputAlias.attr("data-modelid", typeId);
+                    inputAlias.attr("data-oldvalue", selectValue);
+                    inputAlias.attr("data-typename", typeName);
+                    inputAlias.css({
+                        "width": "36%",
+                        "float": "left",
+                        "padding": "0",
+                        "margin-left": "10%",
+                        "margin-top": "-1px"
+                    });
+                    $(selectorAlias).replaceWith(inputAlias);
+                } else {
+                    iconEditSelect.removeClass('fa fa-undo icon-style');
+                    iconEditSelect.addClass('fa fa-pencil icon-style');
+                    // We get the select for the type and the input
+                    var inputSelector = '#' + idBox + " .edit-alias";
+                    var selectorAlias = diagram.boxesSelects[idBox];
+                    var inputAlias = $(inputSelector);
+                    $(inputAlias).replaceWith(selectorAlias);
+                }
             });
 
             divCornerButtons.append(anchorClose);
@@ -2654,6 +2697,30 @@ diagram.aggregates = [
         diagram.hideSelects(name, "relationship");
 
         jsPlumb.repaintEverything();
+    });
+
+    /**
+     * Add the handler to remove the wire
+     */
+    $("#diagramContainer").on('change', '.edit-alias', function() {
+        // We get all the alias for the type to change if the alias is in another box
+        var newAlias = $(this).val();
+        var modelId = $(this).data("modelid");
+        var oldAlias = $(this).data("oldvalue");
+        var typeName = $(this).data("typename");
+        var selectsAlias = $('.select-nodetype-' + typeName);
+        $.each(selectsAlias, function(index, select) {
+            if($(select, 'option:selected').val() == oldAlias) {
+                newOption = $("<OPTION>");
+                newOption.addClass("option-nodetype-" + typeName);
+                newOption.attr('id', typeName + diagram.nodetypesCounter[typeName]);
+                newOption.attr('value', newAlias);
+                newOption.attr('data-modelid', modelId);
+                newOption.attr('selected', 'selected');
+                newOption.html(newAlias);
+                $(select).append(newOption);
+            }
+        });
     });
 
     /**
