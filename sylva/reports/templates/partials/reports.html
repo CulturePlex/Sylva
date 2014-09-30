@@ -4,11 +4,11 @@
 <div class="max600">
   <table ng-if="data.templates.length > 0" id="content_table" class="content-table text-left" style="margin-bottom:10px">
     <thead>
-      <th>#</th>
-      <th>Name</th>
-      <th>Start Date</th>
-      <th>Last Run</th>
-      <th>Periodicity</th>
+      <th class="report">#</th>
+      <th class="report">Name</th>
+      <th class="report">Start Date</th>
+      <th class="report">Last Run</th>
+      <th class="report">Periodicity</th>
     </thead>
     <tbody>
       <tr ng-repeat="template in data.templates" ng-class-odd="'row-even'" ng-class-even="'row-odd'">

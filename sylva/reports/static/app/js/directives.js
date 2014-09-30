@@ -240,7 +240,7 @@ directives.directive('syEditableTable',['tableArray', 'DJANGO_URLS', function (t
                 scope.tableArray = tableArray(scope.resp.table);
                 scope.tableWidth = parseInt(angular.element(elem.children()[0]).css('width'));
 
-                scope.queries = [{name: 'markdown', group: 'text'}];
+                scope.queries = [{name: 'markdown', id: 'markdown', group: 'text'}];
 
                 angular.forEach(scope.resp.queries, function (query) {
                     query['group'] = 'queries';
@@ -463,6 +463,12 @@ directives.directive('sylvaEtCell', ['$sanitize', 'DJANGO_URLS', function ($sani
                       '<select ng-model="chartType" ng-options="chartType for chartType in chartTypes">' + 
                         '<option value="">-- choose chart type --</option>' + 
                       '</select>' + 
+                      '<select ng-model="activeX" ng-options="result.alias for result in xSeries">' + 
+                        '<option value="">-- choose x variable --</option>' + 
+                      '</select>' +    
+                      '<select ng-model="activeY" ng-options="result.alias for result in ySeries">' + 
+                        '<option value="">-- choose y variable --</option>' + 
+                      '</select>' +  
                     '</div>' + 
                     '<div ng-show="md">' + 
                       '<span class="close"></span>' + 
@@ -474,7 +480,8 @@ directives.directive('sylvaEtCell', ['$sanitize', 'DJANGO_URLS', function ($sani
         link: function(scope, elem, attrs, ctrl) {
             var ang = angular.element
             ,   mdDiv = ang(elem.children()[1])
-            ,   md = ang(mdDiv.children()[1]);
+            ,   md = ang(mdDiv.children()[1])
+            ,   results;
 
 
             scope.$watch('config', function (newVal, oldVal) {
@@ -485,8 +492,10 @@ directives.directive('sylvaEtCell', ['$sanitize', 'DJANGO_URLS', function ($sani
                 scope.chartTypes = scope.config.chartTypes;
                 scope.chartType = scope.config.chartType;
                 scope.tableArray = ctrl.getTableArray();
+                console.log('scopeQueries', scope.config.queries)
             }, true);
     
+
             md.on('blur keyup change', function () {
                 
                 var showdown = new Showdown.converter({})
@@ -507,22 +516,59 @@ directives.directive('sylvaEtCell', ['$sanitize', 'DJANGO_URLS', function ($sani
                 if (newVal == oldVal) return;
                 ctrl.editing()
                 var name;
-
+                console.log('newVal', newVal)
                 if (newVal != null) {
-                    console.log('newVal', newVal)
                     name = newVal.id || '';
+                    console.log('name', name)
+                    if (name === 'markdown') {
+                        scope.md = true;
+                        name = '';
+                    } else {
+                        scope.md = false;
+                        results = newVal.results.filter(function (el) {
+                            return el.properties.length > 0;
+                        });
+                        console.log('results', results)
+                        scope.xSeries = results
+                        scope.ySeries = results
+                    }
                 } else {
                     name = '';
                 }
 
-                if (name === 'markdown') {
-                    scope.md = true;
-                    name = '';
-                } else {
-                    scope.md = false;
-                }
                 scope.tableArray.addQuery([scope.row, scope.col], name)
             }); 
+
+            scope.$watch('activeX', function (newVal, oldVal) {
+                if (newVal === oldVal) return;
+                if (newVal) {
+                    var props = newVal.properties[0];
+                    if (props.datatype !== 'number' || 'float') {
+                        
+                        scope.ySeries = scope.ySeries.filter(function (el) {
+                            console.log('dt', el.properties[0].datatype)
+                            return el.properties[0].datatype === 'number' && 'float'; 
+                        })
+                    }
+                } else {
+                    scope.ySeries = results;
+                }
+            });
+
+            scope.$watch('activeY', function (newVal, oldVal) {
+                if (newVal === oldVal) return;
+                if (newVal) {
+                    var props = newVal.properties[0];
+                    console.log('dt', props.datatype)
+                    if (props.datatype !== 'number' || 'float') {
+                        scope.xSeries = scope.ySeries.filter(function (el) {
+                            return el.properties[0].datatype === 'number' && 'float';
+                        })
+                    }
+                } else {
+                    scope.xSeries = results;
+                }
+            });
 
             scope.$watch('chartType', function (newVal, oldVal) {
                 if (newVal == oldVal) return;
