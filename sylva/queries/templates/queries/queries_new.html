@@ -11,7 +11,7 @@
 {% endblock %}
 
 {% block menu_buttons %}
-{% toolbar on="query_builder" %}
+{% toolbar on="queries" %}
 {% endblock %}
 
 {% block content_title %}
@@ -52,22 +52,22 @@
 {% if node_types %}
 <div style="width: 570px;">
     <div id="query-builder-query">
-        <div class="content2-second diagram" style="margin-top: 15px;">
-            <nav id="select-node">
-                <a href="#">{% trans "Types" %}</a>
-                <ul id="node-options" class="dropdown">
-                {% for node_type in node_types %}
-                    <li style="padding: 3px;">
-                        <a class="add-box" data-type="{{node_type.slug}}" href="javascript:void(0);">{{ node_type.name|capfirst }}</a>
-                    </li>
-                {% endfor %}
-                <!-- Wildcard type - It needs to be improved -->
-                    <li style="padding: 3px;">
-                        <a class="add-box" data-type="wildcard" href="javascript:void(0);">{% trans "Wildcard Type" %}</a>
-                    </li>
-                </ul>
-            </nav>
-            <div id="diagramContainer" style="width: 1092px; margin-top: 20px;">
+        <div class="content2-second diagram" style="padding-left: 20px;">
+            <div id="diagramContainer" style="width: 1120px; margin-top: 20px;">
+                <nav id="select-node">
+                    <a href="#">{% trans "Types" %}</a>
+                    <ul id="node-options" class="dropdown">
+                    {% for node_type in node_types %}
+                        <li style="padding: 3px;">
+                            <a class="add-box" data-type="{{node_type.slug}}" href="javascript:void(0);">{{ node_type.name|capfirst }}</a>
+                        </li>
+                    {% endfor %}
+                    <!-- Wildcard type - It needs to be improved -->
+                        <li style="padding: 3px;">
+                            <a class="add-box" data-type="wildcard" href="javascript:void(0);">{% trans "Wildcard Type" %}</a>
+                        </li>
+                    </ul>
+                </nav>
                 <div id="diagram"></div>
             </div>
         </div>

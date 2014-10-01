@@ -58,6 +58,6 @@ class Query(models.Model):
         super(Query, self).save(*args, **kwargs)
 
     def execute(self, limit=None, offset=None, order_by=None,
-                headers=None, only_id=None):
+                headers=None, only_ids=None):
         return self.graph.query(self.query_dict, limit, offset, order_by,
-                                headers, only_id)
+                                headers, only_ids)
