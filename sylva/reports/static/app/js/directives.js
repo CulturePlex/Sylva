@@ -149,7 +149,6 @@ directives.directive('sylvaPvCellRepeat', [function () {
                 childScope.$index = i;
                 childScope.cellStyle = {width: cellWidth};
 
-                console.log('check', query)
                 if (query) {
                     if (!series) {
                         query = ctrl.getQueries().filter(function (el) {
@@ -158,7 +157,6 @@ directives.directive('sylvaPvCellRepeat', [function () {
                         series = query.series;
                         name = query.name;
                     }
-                    console.log('series', series)
                     childScope.query = query;
                     childScope.chartConfig = {
                         options: {chart: {type: cell.chartType}},
@@ -408,34 +406,48 @@ directives.directive('sylvaEtCellRepeat', [function () {
                 for (var i=0; i<len; i++) {
                     var cell = scope.row[i]
                     ,   query = cell.displayQuery
+                    ,   yAxis = cell.yAxis
+                    ,   xAxis = cell.xAxis
                     ,   colspan = parseInt(cell.colspan)
                     ,   cellWidth = (tableWidth / numCols - ((numCols + 1) * 2 / numCols)) * colspan + (2 * (colspan - 1)) + 'px'
                     ,   activeQuery = ctrl.getQueries().filter(function (el) {
                         return el.id === query;
                     })[0];
-
+                    if (activeQuery) {
+                        var activeX = activeQuery.results.filter(function (el) {
+                        console.log('properties', el.alias, xAxis)
+                            return el.alias === xAxis;
+                        })[0];
+                        var activeY = activeQuery.results.filter(function (el) {
+                        console.log('properties', el.alias, yAxis)
+                            return el.alias === yAxis;
+                        })[0];
+                    }
+                    
                     childScope = scope.$new();
                     childScope.$index = i;
                     childScope.config = {
                         row: cell.row,
                         col: cell.col,
+                        activeX: activeX,
+                        activeY: activeY,
                         queries: ctrl.getQueries(),
                         activeQuery: activeQuery,
                         chartTypes: ['column', 'scatter', 'pie', 'line'],
                         chartType: cell.chartType,
                     };
-                    childScope.cellStyle = {width: cellWidth};
 
+                    childScope.cellStyle = {width: cellWidth};
                     transclude(childScope, function (clone) {
 
                         if (i === len - 1) clone.addClass('final')
                             clone.attr('id', cell.id)
                             previous.after(clone);
-                            block = {}
-                            block.element = clone
-                            block.scope = childScope
-                            childScopes.push(block)
-                            previous = clone
+                            block = {};
+                            block.element = clone;
+                            block.scope = childScope;
+                            childScopes.push(block);
+                            previous = clone;
                     });
                 }
             });
@@ -443,7 +455,7 @@ directives.directive('sylvaEtCellRepeat', [function () {
     };
 }]);
 
-
+// THIS DIRECTIVE HAS SOME REPITITION AND WILL REQUIRE CLEANUP
 directives.directive('sylvaEtCell', ['$sanitize', 'DJANGO_URLS', function ($sanitize, DJANGO_URLS) {
     return {
         require: '^syEditableTable',
@@ -489,10 +501,19 @@ directives.directive('sylvaEtCell', ['$sanitize', 'DJANGO_URLS', function ($sani
                 scope.col = scope.config.col;
                 scope.queries = scope.config.queries;
                 scope.activeQuery = scope.config.activeQuery;
+                scope.activeX = scope.config.activeX;
+                scope.activeY = scope.config.activeY;
                 scope.chartTypes = scope.config.chartTypes;
                 scope.chartType = scope.config.chartType;
                 scope.tableArray = ctrl.getTableArray();
-                console.log('scopeQueries', scope.config.queries)
+                console.log('activeX', scope.config.activeX)
+                if (scope.activeQuery) {
+                    results = scope.activeQuery.results.filter(function (el) {
+                            return el.properties.length > 0;
+                        });
+                    scope.xSeries = results
+                    scope.ySeries = results
+                }
             }, true);
     
 
@@ -516,10 +537,8 @@ directives.directive('sylvaEtCell', ['$sanitize', 'DJANGO_URLS', function ($sani
                 if (newVal == oldVal) return;
                 ctrl.editing()
                 var name;
-                console.log('newVal', newVal)
                 if (newVal != null) {
                     name = newVal.id || '';
-                    console.log('name', name)
                     if (name === 'markdown') {
                         scope.md = true;
                         name = '';
@@ -528,7 +547,6 @@ directives.directive('sylvaEtCell', ['$sanitize', 'DJANGO_URLS', function ($sani
                         results = newVal.results.filter(function (el) {
                             return el.properties.length > 0;
                         });
-                        console.log('results', results)
                         scope.xSeries = results
                         scope.ySeries = results
                     }
@@ -546,20 +564,20 @@ directives.directive('sylvaEtCell', ['$sanitize', 'DJANGO_URLS', function ($sani
                     if (props.datatype !== 'number' || 'float') {
                         
                         scope.ySeries = scope.ySeries.filter(function (el) {
-                            console.log('dt', el.properties[0].datatype)
                             return el.properties[0].datatype === 'number' && 'float'; 
                         })
                     }
                 } else {
                     scope.ySeries = results;
+                    newVal = {alias: ''}
                 }
+                scope.tableArray.addAxis([scope.row, scope.col], 'x', newVal.alias)
             });
 
             scope.$watch('activeY', function (newVal, oldVal) {
                 if (newVal === oldVal) return;
                 if (newVal) {
                     var props = newVal.properties[0];
-                    console.log('dt', props.datatype)
                     if (props.datatype !== 'number' || 'float') {
                         scope.xSeries = scope.ySeries.filter(function (el) {
                             return el.properties[0].datatype === 'number' && 'float';
@@ -567,7 +585,9 @@ directives.directive('sylvaEtCell', ['$sanitize', 'DJANGO_URLS', function ($sani
                     }
                 } else {
                     scope.xSeries = results;
+                    newVal = {alias: ''};
                 }
+                scope.tableArray.addAxis([scope.row, scope.col], 'y', newVal.alias)
             });
 
             scope.$watch('chartType', function (newVal, oldVal) {
@@ -611,7 +631,6 @@ directives.directive('sylvaBreadcrumbs', [
                     crumbs.splice(0, 1)
                     crumbs[0] = crumbs[0].charAt(0).toUpperCase() + crumbs[0].slice(1);
                     scope.crumbs = crumbs.reverse();
-                    console.log('location', crumbs)
                 } else {
                     scope.crumbs = [];
                 } 

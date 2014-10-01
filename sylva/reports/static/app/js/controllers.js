@@ -142,16 +142,16 @@ controllers.controller('NewReportCtrl', [
 
         var layout = [[{"col": 0, "colspan": "1", "id": "cell1", "row": 0, 
                         "rowspan": "1", "displayQuery": "", "chartType": "",
-                        "series": ''}, 
+                        "series": '', "xAxis":"", "yAxis": ""}, 
                        {"col": 1, "colspan": "1", "id": "cell2", "row": 0,
                         "rowspan": "1", "displayQuery": "", "chartType": "",
-                        "series": ""}], 
+                        "series": "", "xAxis":"", "yAxis": ""}], 
                       [{"col": 0, "colspan": "1", "id": "cell3", "row": 1,
                         "rowspan": "1","displayQuery": "", "chartType": "",
-                        "series": ""}, 
+                        "series": "", "xAxis":"", "yAxis": ""}, 
                        {"col": 1, "colspan": "1", "id": "cell4", "row": 1,
                         "rowspan": "1", "displayQuery": "", "chartType": "",
-                        "series": ""}]]
+                        "series": "", "xAxis":"", "yAxis": ""}]]
 
         api.templates.blank({
             graphSlug: $scope.slugs.graph, 

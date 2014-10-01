@@ -169,6 +169,15 @@ services.factory('tableArray', function () {
         this.table[coords[0]][coords[1]].displayQuery = query;
     }
 
+    TableArray.prototype.addAxis = function(coords, axis, alias) {
+        if (axis === 'x') {
+            this.table[coords[0]][coords[1]].xAxis = alias;
+        } else {
+            this.table[coords[0]][coords[1]].yAxis = alias;
+
+        }
+    }
+
     TableArray.prototype.addMarkdown = function(coords, markdown) {
         this.table[coords[0]][coords[1]].displayMarkdown = markdown;
     }
