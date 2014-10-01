@@ -63,6 +63,6 @@
 </div>
 {% endif %}
 <div id="query-builder" style="margin-top: 20px;">
-    <a class="button" id="create-query" href="{% url "queries_builder" graph.slug %}">{% trans "New Query" %}</a>
+    <a class="button" id="create-query" href="{% url "queries_new" graph.slug %}">{% trans "New Query" %}</a>
 </div>
 {% endblock %}

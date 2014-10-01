@@ -32,10 +32,7 @@
                             <th class="header">{{ result }}</th>
                         {% endfor %}
                     {% else %}
-                        <tr class="row-even">
-                        {% if forloop.counter|divisibleby:2 %}
-                            <tr class="row-odd">
-                        {% endif %}
+                        <tr class="{% cycle 'row-even' 'row-odd' %}">
                             {% for result in pair %}
                                 <td>{{ result }}</td>
                             {% endfor %}

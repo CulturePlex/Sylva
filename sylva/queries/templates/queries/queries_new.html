@@ -71,7 +71,7 @@
                 <div id="diagram"></div>
             </div>
         </div>
-        <form method="post" action="{% url "queries_builder_results" graph.slug %}" id="form-run-query">
+        <form method="post" action="{% url "queries_new_results" graph.slug %}" id="form-run-query">
             {% csrf_token %}
             <input type="hidden" id="query" name="query" />
             <input type="hidden" id="query_aliases" name="query_aliases" />
@@ -121,7 +121,7 @@
     diagram.Models = {% autoescape off %}{{ graph.schema.get_schema_diagram }}{% endautoescape %};
 
     diagram.url_collaborators = "{% url "graph_query_collaborators" graph.slug %}";
-    diagram.url_query = "{% url "queries_builder_results" graph.slug %}";
+    diagram.url_query = "{% url "queries_new_results" graph.slug %}";
     diagram.relationshipImageSrc = "{{ STATIC_PREFIX }}img/rarr2.gif";
 </script>
 
