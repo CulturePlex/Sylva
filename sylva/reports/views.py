@@ -128,7 +128,11 @@ def templates_endpoint(request, graph_slug):
             queries = graph.queries.plottable()
             # dummy series data
             # This will all change soon
-            response['queries'] = [{'series': query.query_dict['series'][:-2],
+            dummy_series = [
+                [1, 6], [2, 6.5], [3, 7], [4, 7.5],
+                [5, 8], [6, 8.5], [7, 9], [8, 9]
+            ]
+            response['queries'] = [{'series': dummy_series,
                                     'name': query.name, 'id': query.id,
                                     'results': query.query_dict['results']}
                                    for query in queries]

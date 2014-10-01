@@ -171,13 +171,10 @@ textarea.markdown {
   height: 175px
 }
 
-
-
 .query select {
   left: 25%;
   position: relative;
   width: 50%;
-
 }
 
 .series-div  {

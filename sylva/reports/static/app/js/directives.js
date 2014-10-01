@@ -497,19 +497,19 @@ directives.directive('sylvaEtCell', ['$sanitize', 'DJANGO_URLS', function ($sani
                         'Query' + 
                       '</label>' + 
                       '<select ng-model="activeQuery" value="query.id" ng-options="query.name group by query.group for query in queries">' + 
-                        '<option value="">-- choose query --</option>' + 
+                        '<option value="">-----</option>' + 
                       '</select> ' + 
                       '<label class="chart-select">' + 
                         'Chart Type' + 
                       '</label>' + 
                       '<select ng-model="chartType" ng-options="chartType for chartType in chartTypes">' + 
-                        '<option value="">-- choose chart type --</option>' + 
+                        '<option value="">-----</option>' + 
                       '</select>' + 
                       '<select ng-model="activeX" ng-options="result.alias for result in xSeries">' + 
-                        '<option value="">-- choose x variable --</option>' + 
+                        '<option value="">-----</option>' + 
                       '</select>' +    
                       '<select ng-model="activeY" ng-options="result.alias for result in ySeries">' + 
-                        '<option value="">-- choose y variable --</option>' + 
+                        '<option value="">-----</option>' + 
                       '</select>' +  
                     '</div>' + 
                     '<div ng-show="md">' + 
@@ -592,7 +592,6 @@ directives.directive('sylvaEtCell', ['$sanitize', 'DJANGO_URLS', function ($sani
                 if (newVal) {
                     var props = newVal.properties[0];
                     if (props.datatype !== 'number' || 'float') {
-                        
                         scope.ySeries = scope.ySeries.filter(function (el) {
                             return el.properties[0].datatype === 'number' && 'float'; 
                         })
