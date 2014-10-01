@@ -61,7 +61,7 @@ controllers.controller('BaseReportCtrl', [
         $scope.editMeta = function () {
             $scope.editable = false;
         }
-
+        $scope.editable;
 
         $scope.saveReport = function (template) {
             // Used in report form - both edit and new ctrls

@@ -1,5 +1,5 @@
+
 .alink {
-margin: 10px;
 vertical-align: middle;
 }
 
@@ -171,9 +171,7 @@ textarea.markdown {
   height: 175px
 }
 
-.query label.chart-select {
-  width: 100%;
-}
+
 
 .query select {
   left: 25%;

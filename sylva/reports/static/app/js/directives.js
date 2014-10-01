@@ -35,6 +35,27 @@ directives.directive('sylvaDatepicker', function () {
 });
 
 
+directives.directive('sylvaTimepicker', function () {
+    return {
+        restrict: 'A',
+        require : 'ngModel',
+        link : function(scope, element, attrs, ngModelCtrl) {
+            $(function(){
+                element.timepicker({
+                    minutes: {
+                        interval: 15
+                    }, onSelect:function (time) {
+                        scope.$apply(function () {
+                            ngModelCtrl.$setViewValue(time);
+                        });
+                    }
+                });
+            });
+        }
+    };
+});
+
+
 directives.directive('sylvaPvRowRepeat', ['tableArray', function (tableArray) {
     return {
         transclude: 'element',
@@ -188,7 +209,8 @@ directives.directive('syEditableTable',['tableArray', 'DJANGO_URLS', function (t
         transclude: true,
         scope: {
             resp: '=',
-            prev: '='
+            prev: '=',
+            editable: '='
         },
         template: '<div class="edit-rows">' + 
                       '<div sy-et-row-repeat  queries="queries">' + 
@@ -199,6 +221,7 @@ directives.directive('syEditableTable',['tableArray', 'DJANGO_URLS', function (t
                       '</div>' + 
                     '</div>' + 
                     '<div>' + 
+                      '<a class="button" href="">Done</a> ' +  
                       '<a class="button table-button" href="">add row</a>' + 
                       '<a class="button table-button" href="">add column</a>' + 
                       '<a class="button table-button" href="">delete row</a>' + 
@@ -228,10 +251,11 @@ directives.directive('syEditableTable',['tableArray', 'DJANGO_URLS', function (t
             //,   rows = ang(elem.children()[0])
             //,   rowWidth = parseInt(rows.css('width'))
             ,   buttons = ang(elem.children()[1])
-            ,   addRow = ang(buttons.children()[0])
-            ,   addCol = ang(buttons.children()[1])
-            ,   delRow = ang(buttons.children()[2])
-            ,   delCol = ang(buttons.children()[3]);
+            ,   editMeta = ang(buttons.children()[0])
+            ,   addRow = ang(buttons.children()[1])
+            ,   addCol = ang(buttons.children()[2])
+            ,   delRow = ang(buttons.children()[3])
+            ,   delCol = ang(buttons.children()[4]);
 
             scope.$watch('resp', function (newVal, oldVal) {  
                 if (newVal === oldVal) return;
@@ -243,6 +267,12 @@ directives.directive('syEditableTable',['tableArray', 'DJANGO_URLS', function (t
                 angular.forEach(scope.resp.queries, function (query) {
                     query['group'] = 'queries';
                     scope.queries.push(query);
+                });
+            });
+
+            editMeta.bind('click', function () {
+                scope.$apply(function () {
+                    scope.editable = false;
                 });
             });
 
@@ -464,13 +494,13 @@ directives.directive('sylvaEtCell', ['$sanitize', 'DJANGO_URLS', function ($sani
         },
         template: '<div ng-hide="md">' + 
                       '<label class="chart-select">' + 
-                        'Query:' + 
+                        'Query' + 
                       '</label>' + 
                       '<select ng-model="activeQuery" value="query.id" ng-options="query.name group by query.group for query in queries">' + 
                         '<option value="">-- choose query --</option>' + 
                       '</select> ' + 
                       '<label class="chart-select">' + 
-                        'Chart Type:' + 
+                        'Chart Type' + 
                       '</label>' + 
                       '<select ng-model="chartType" ng-options="chartType for chartType in chartTypes">' + 
                         '<option value="">-- choose chart type --</option>' + 

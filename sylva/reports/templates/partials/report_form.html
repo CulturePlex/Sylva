@@ -12,26 +12,26 @@
         <form id="reportForm">
           <div id="innerForm">
             <p>
-              <label>Name:
+              <label>Name
                 <input sylva-update-text type="text" ng-model="template.name" placeholder="Report Name" ng-maxlength="25">
               </label>
             </p>
 
             <p>
-              <label> Start date:
+              <label> Start date
                 <input type="text" sylva-datepicker ng-model="template.date" required="true" view="hours"> 
               </label> 
             </p>
 
             <p>
-              <label>Time:
-                <input type="text"  ng-model="template.time" placeholder="hh:mm">
+              <label>Time
+                <input sylva-timepicker type="text"  ng-model="template.time" placeholder="hh:mm">
               </label>
             </p>
 
             <p>
-              <label>Frequency:
-                <select ng-model="template.frequency">
+              <label>Frequency
+                <select ng-init="template.frequency = 'w'" ng-model="template.frequency">
                   <option value="h">Hourly</option>
                   <option value="d">Daily</option>
                   <option value="w">Weekly</option>
@@ -44,7 +44,8 @@
           </div> <!--innerForm-->
           <span class="buttonLinkOption buttonLinkLeft">
             <input type="submit" value="Save Report" ng-click="saveReport(template)">
-            <a class="alink" href="">advanced</a>
+            <a class="button" href="" ng-click="designReport()">Design Report</a>
+            <a class="alink" href="">Advanced</a>
           </span>
         </form>
       </div><!--formContainer-->
@@ -55,18 +56,6 @@
   <div class="content-divider" ng-hide="editable"></div>
 
   <div class="content2-cont" ng-hide="editable">
-
-    <div class="row">
-
-      <div class="col">
-        <a class="button" href="" ng-click="designReport()">Design Report</a>
-      </div>
-
-      <div class="col">
-        <h2 ng-bind-html="template.name" sylva-update-text></h2>
-      </div>
-
-    </div><!--row-->
 
     <div class="row">
       <div class="prev-cont">
@@ -90,14 +79,11 @@
   <div class="table-edit" ng-show="editable">
     <div class="row">
       <div class="col">
-          <h2 ng-bind-html="template.name"></h2>
-      </div>
-      <div class="col">
         <a class="button" href="" ng-click="editMeta()">Done</a>      
       </div>
     </div>
     <div class="row">
-      <div sy-editable-table resp="resp" prev="prev" class="editable-table">
+      <div sy-editable-table resp="resp" prev="prev" editable="editable" class="editable-table">
       </div>
     </div><!--row-->
   </div>  

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import datetime
 import operator
 from dateutil import tz, relativedelta
