@@ -337,8 +337,8 @@ class GraphDatabase(BlueprintsGraphDatabase):
         return q_lookup_builder
 
     def query(self, query_dict, limit=None, offset=None, order_by=None,
-              headers=None, only_id=None):
-        script, query_params = self._query_generator(query_dict, only_id)
+              headers=None, only_ids=None):
+        script, query_params = self._query_generator(query_dict, only_ids)
         cypher = self.cypher
         page = 1000
         skip = offset or 0
@@ -367,7 +367,7 @@ class GraphDatabase(BlueprintsGraphDatabase):
             else:
                 break
 
-    def _query_generator(self, query_dict, only_id):
+    def _query_generator(self, query_dict, only_ids):
         conditions_dict = query_dict["conditions"]
         conditions_result = self._query_generator_conditions(conditions_dict)
         # _query_generator_conditions returns a list
@@ -379,7 +379,7 @@ class GraphDatabase(BlueprintsGraphDatabase):
         origins_dict = query_dict["origins"]
         origins = self._query_generator_origins(origins_dict, conditions_alias)
         results_dict = query_dict["results"]
-        results = self._query_generator_results(results_dict, only_id)
+        results = self._query_generator_results(results_dict, only_ids)
         patterns_list = []
         if "patterns" in query_dict:
             patterns_dict = query_dict["patterns"]
@@ -511,7 +511,7 @@ class GraphDatabase(BlueprintsGraphDatabase):
         origins = u", ".join(origins_set)
         return origins
 
-    def _query_generator_results(self, results_dict, only_id):
+    def _query_generator_results(self, results_dict, only_ids):
         results_set = set()
         distinct_clause = ""
         for result_dict in results_dict:
@@ -526,14 +526,14 @@ class GraphDatabase(BlueprintsGraphDatabase):
                     property_aggregate = prop["aggregate"]
                     property_distinct = prop["distinct"]
                     if property_value:
-                        if not property_aggregate and not only_id:
+                        if not property_aggregate and not only_ids:
                             result = u"`{0}`.`{1}`".format(
                                 unicode(alias).replace(u"`",
                                                                       u"\\`"),
                                 unicode(property_value).replace(u"`", u"\\`")
                             )
                             results_set.add(result)
-                        elif property_aggregate and not only_id:
+                        elif property_aggregate and not only_ids:
                             if property_aggregate in AGGREGATES:
                                 result = u"{0}(`{1}`.`{2}`)".format(
                                     unicode(property_aggregate),

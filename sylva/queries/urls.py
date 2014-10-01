@@ -15,10 +15,10 @@ urlpatterns = patterns(
         name="queries_list"),
 
     # current query builder
-    url(r'^(?P<graph_slug>[\w-]+)/new/$', 'queries_builder',
-        name="queries_builder"),
-    url(r'^(?P<graph_slug>[\w-]+)/new/results/$', 'queries_builder_results',
-        name="queries_builder_results"),
+    url(r'^(?P<graph_slug>[\w-]+)/new/$', 'queries_new',
+        name="queries_new"),
+    url(r'^(?P<graph_slug>[\w-]+)/new/results/$', 'queries_new_results',
+        name="queries_new_results"),
 
     # edit and run query
     url(r'^(?P<graph_slug>[\w-]+)/query/(?P<query_id>\d+)/edit/$',

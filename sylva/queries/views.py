@@ -49,7 +49,7 @@ def queries_list(request, graph_slug):
 @login_required
 @permission_required("data.view_data", (Data, "graph__slug", "graph_slug"),
                      return_403=True)
-def queries_builder(request, graph_slug):
+def queries_new(request, graph_slug):
     graph = get_object_or_404(Graph, slug=graph_slug)
     nodetypes = NodeType.objects.filter(schema__graph__slug=graph_slug)
     reltypes = RelationshipType.objects.filter(schema__graph__slug=graph_slug)
@@ -83,7 +83,7 @@ def queries_builder(request, graph_slug):
                                           context_instance=RequestContext(
                                               request))
     else:
-        return render_to_response('queries/queries_builder.html',
+        return render_to_response('queries/queries_new.html',
                                   {"graph": graph,
                                    "queries_link": queries_link,
                                    "node_types": nodetypes,
@@ -99,7 +99,7 @@ def queries_builder(request, graph_slug):
 @login_required
 @permission_required("data.view_data", (Data, "graph__slug", "graph_slug"),
                      return_403=True)
-def queries_builder_results(request, graph_slug):
+def queries_new_results(request, graph_slug):
     # We get the information to mantain the las query in the builder
     query = request.POST.get("query", "").strip()
     query_aliases = request.POST.get("query_aliases", "").strip()
@@ -111,8 +111,8 @@ def queries_builder_results(request, graph_slug):
     graph = get_object_or_404(Graph, slug=graph_slug)
     queries_link = (reverse("queries_list", args=[graph.slug]),
                     _("Queries"))
-    queries_new = (reverse("queries_builder", args=[graph.slug]),
-                   _("Builder"))
+    queries_new = (reverse("queries_new", args=[graph.slug]),
+                   _("New"))
     # query = "notas of autor with notas that start with lista"
     # see https://gist.github.com/versae/9241069
     query_dict = json.loads(query)
@@ -123,7 +123,7 @@ def queries_builder_results(request, graph_slug):
     # The ' - 1' is because the headers
     request.session['results_count'] = len(results) - 1
     # TODO: Try to make the response streamed
-    return render_to_response('queries/queries_builder_results.html',
+    return render_to_response('queries/queries_new_results.html',
                               {"graph": graph,
                                "queries_link": queries_link,
                                "queries_new": queries_new,
@@ -169,7 +169,7 @@ def queries_query_edit(request, graph_slug, query_id):
     query_dict = json.dumps(query.query_dict)
     query_aliases = json.dumps(query.query_aliases)
     query_fields = json.dumps(query.query_fields)
-    return render_to_response('queries/queries_builder.html',
+    return render_to_response('queries/queries_new.html',
                               {"graph": graph,
                                "node_types": nodetypes,
                                "relationship_types": reltypes,
@@ -196,7 +196,7 @@ def queries_query_results(request, graph_slug, query_id):
     headers = True
     # json_results = json.dumps([r for r in results])
     # TODO: Try to make the response streamed
-    return render_to_response('queries/queries_builder_results.html',
+    return render_to_response('queries/queries_new_results.html',
                               {"graph": graph,
                                "queries_link": queries_link,
                                "headers": headers,
@@ -230,7 +230,7 @@ def parse_query_results(request, graph_slug):
         results = graph.query(query_dict)
         # json_results = json.dumps([r for r in results])
         # TODO: Try to make the response streamed
-        # return render_to_response('queries/queries_builder_results.html',
+        # return render_to_response('queries/queries_new_results.html',
         #                           {"results": json_results},
         #                           context_instance=RequestContext(request))
         return HttpResponse(json.dumps([r for r in results]),
