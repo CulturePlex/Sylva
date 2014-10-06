@@ -71,31 +71,31 @@ class BugTestCase(LiveServerTestCase):
         self.browser.find_by_value('Save Type').first.click()
         # Creating a node of the "First" type
         self.browser.find_by_id('dataMenu').first.click()
-        self.browser.find_by_xpath("//a[@class='dataOption new']")[0].click()
+        self.browser.find_by_xpath("//a[@class='dataOption new create-node']")[0].click()
         self.browser.find_by_name('Name').first.fill("First1")
         self.browser.find_by_xpath("//span[@class='buttonLinkOption buttonLinkLeft']/input").first.click()
         real_nodes += 1
         # Creating another node of the "First" type
         self.browser.find_by_id('dataMenu').first.click()
-        self.browser.find_by_xpath("//a[@class='dataOption new']")[0].click()
+        self.browser.find_by_xpath("//a[@class='dataOption new create-node']")[0].click()
         self.browser.find_by_name('Name').first.fill("First2")
         self.browser.find_by_xpath("//span[@class='buttonLinkOption buttonLinkLeft']/input").first.click()
         real_nodes += 1
         # Creating a node of the "Second" type
         self.browser.find_by_id('dataMenu').first.click()
-        self.browser.find_by_xpath("//a[@class='dataOption new']")[1].click()
+        self.browser.find_by_xpath("//a[@class='dataOption new create-node']")[1].click()
         self.browser.find_by_name('Name').first.fill("Second1")
         self.browser.find_by_xpath("//span[@class='buttonLinkOption buttonLinkLeft']/input").first.click()
         real_nodes += 1
         # Creating another node of the "Second" type
         self.browser.find_by_id('dataMenu').first.click()
-        self.browser.find_by_xpath("//a[@class='dataOption new']")[1].click()
+        self.browser.find_by_xpath("//a[@class='dataOption new create-node']")[1].click()
         self.browser.find_by_name('Name').first.fill("Second2")
         self.browser.find_by_xpath("//span[@class='buttonLinkOption buttonLinkLeft']/input").first.click()
         real_nodes += 1
         # Creating another node of the "Second" type
         self.browser.find_by_id('dataMenu').first.click()
-        self.browser.find_by_xpath("//a[@class='dataOption new']")[1].click()
+        self.browser.find_by_xpath("//a[@class='dataOption new create-node']")[1].click()
         self.browser.find_by_name('Name').first.fill("Second3")
         self.browser.find_by_xpath("//span[@class='buttonLinkOption buttonLinkLeft']/input").first.click()
         real_nodes += 1
@@ -171,31 +171,31 @@ class BugTestCase(LiveServerTestCase):
         self.browser.find_by_value('Save Type').first.click()
         # Creating a node of the "First" type
         self.browser.find_by_id('dataMenu').first.click()
-        self.browser.find_by_xpath("//a[@class='dataOption new']")[0].click()
+        self.browser.find_by_xpath("//a[@class='dataOption new create-node']")[0].click()
         self.browser.find_by_name('Name').first.fill("First1")
         self.browser.find_by_xpath("//span[@class='buttonLinkOption buttonLinkLeft']/input").first.click()
         real_nodes += 1
         # Creating another node of the "First" type
         self.browser.find_by_id('dataMenu').first.click()
-        self.browser.find_by_xpath("//a[@class='dataOption new']")[0].click()
+        self.browser.find_by_xpath("//a[@class='dataOption new create-node']")[0].click()
         self.browser.find_by_name('Name').first.fill("First2")
         self.browser.find_by_xpath("//span[@class='buttonLinkOption buttonLinkLeft']/input").first.click()
         real_nodes += 1
         # Creating a node of the "Second" type
         self.browser.find_by_id('dataMenu').first.click()
-        self.browser.find_by_xpath("//a[@class='dataOption new']")[1].click()
+        self.browser.find_by_xpath("//a[@class='dataOption new create-node']")[1].click()
         self.browser.find_by_name('Name').first.fill("Second1")
         self.browser.find_by_xpath("//span[@class='buttonLinkOption buttonLinkLeft']/input").first.click()
         real_nodes += 1
         # Creating another node of the "Second" type
         self.browser.find_by_id('dataMenu').first.click()
-        self.browser.find_by_xpath("//a[@class='dataOption new']")[1].click()
+        self.browser.find_by_xpath("//a[@class='dataOption new create-node']")[1].click()
         self.browser.find_by_name('Name').first.fill("Second2")
         self.browser.find_by_xpath("//span[@class='buttonLinkOption buttonLinkLeft']/input").first.click()
         real_nodes += 1
         # Creating another node of the "Second" type
         self.browser.find_by_id('dataMenu').first.click()
-        self.browser.find_by_xpath("//a[@class='dataOption new']")[1].click()
+        self.browser.find_by_xpath("//a[@class='dataOption new create-node']")[1].click()
         self.browser.find_by_name('Name').first.fill("Second3")
         self.browser.find_by_xpath("//span[@class='buttonLinkOption buttonLinkLeft']/input").first.click()
         real_nodes += 1
@@ -227,7 +227,7 @@ class BugTestCase(LiveServerTestCase):
         self.browser.find_by_value('Save First').first.click()
         # Creating another node of the "First" type with relationships
         self.browser.find_by_id('dataMenu').first.click()
-        self.browser.find_by_xpath("//a[@class='dataOption new']")[0].click()
+        self.browser.find_by_xpath("//a[@class='dataOption new create-node']")[0].click()
         self.browser.find_by_name('Name').first.fill("First3")
         # Adding more "FirstToSecond" relationship forms
         self.browser.find_by_xpath("//a[@class='addButton inFormsets']")[1].click()
@@ -299,31 +299,31 @@ class BugTestCase(LiveServerTestCase):
         self.browser.find_by_value('Save Type').first.click()
         # Creating a node of the "First" type
         self.browser.find_by_id('dataMenu').first.click()
-        self.browser.find_by_xpath("//a[@class='dataOption new']")[0].click()
+        self.browser.find_by_xpath("//a[@class='dataOption new create-node']")[0].click()
         self.browser.find_by_name('Name').first.fill("First1")
         self.browser.find_by_xpath("//span[@class='buttonLinkOption buttonLinkLeft']/input").first.click()
         real_nodes += 1
         # Creating another node of the "First" type
         self.browser.find_by_id('dataMenu').first.click()
-        self.browser.find_by_xpath("//a[@class='dataOption new']")[0].click()
+        self.browser.find_by_xpath("//a[@class='dataOption new create-node']")[0].click()
         self.browser.find_by_name('Name').first.fill("First2")
         self.browser.find_by_xpath("//span[@class='buttonLinkOption buttonLinkLeft']/input").first.click()
         real_nodes += 1
         # Creating a node of the "Second" type
         self.browser.find_by_id('dataMenu').first.click()
-        self.browser.find_by_xpath("//a[@class='dataOption new']")[1].click()
+        self.browser.find_by_xpath("//a[@class='dataOption new create-node']")[1].click()
         self.browser.find_by_name('Name').first.fill("Second1")
         self.browser.find_by_xpath("//span[@class='buttonLinkOption buttonLinkLeft']/input").first.click()
         real_nodes += 1
         # Creating another node of the "Second" type
         self.browser.find_by_id('dataMenu').first.click()
-        self.browser.find_by_xpath("//a[@class='dataOption new']")[1].click()
+        self.browser.find_by_xpath("//a[@class='dataOption new create-node']")[1].click()
         self.browser.find_by_name('Name').first.fill("Second2")
         self.browser.find_by_xpath("//span[@class='buttonLinkOption buttonLinkLeft']/input").first.click()
         real_nodes += 1
         # Creating another node of the "Second" type
         self.browser.find_by_id('dataMenu').first.click()
-        self.browser.find_by_xpath("//a[@class='dataOption new']")[1].click()
+        self.browser.find_by_xpath("//a[@class='dataOption new create-node']")[1].click()
         self.browser.find_by_name('Name').first.fill("Second3")
         self.browser.find_by_xpath("//span[@class='buttonLinkOption buttonLinkLeft']/input").first.click()
         real_nodes += 1
@@ -355,7 +355,7 @@ class BugTestCase(LiveServerTestCase):
         self.browser.find_by_value('Save First').first.click()
         # Creating another node of the "First" type with relationships
         self.browser.find_by_id('dataMenu').first.click()
-        self.browser.find_by_xpath("//a[@class='dataOption new']")[0].click()
+        self.browser.find_by_xpath("//a[@class='dataOption new create-node']")[0].click()
         self.browser.find_by_name('Name').first.fill("First3")
         # Adding more "FirstToFirst" outgoing relationship forms
         self.browser.find_by_xpath("//a[@class='addButton inFormsets']")[0].click()
@@ -418,31 +418,31 @@ class BugTestCase(LiveServerTestCase):
         self.browser.find_by_value('Save Type').first.click()
         # Creating a node of the "First" type
         self.browser.find_by_id('dataMenu').first.click()
-        self.browser.find_by_xpath("//a[@class='dataOption new']")[0].click()
+        self.browser.find_by_xpath("//a[@class='dataOption new create-node']")[0].click()
         self.browser.find_by_name('Name').first.fill("First1")
         self.browser.find_by_xpath("//span[@class='buttonLinkOption buttonLinkLeft']/input").first.click()
         real_nodes += 1
         # Creating another node of the "First" type
         self.browser.find_by_id('dataMenu').first.click()
-        self.browser.find_by_xpath("//a[@class='dataOption new']")[0].click()
+        self.browser.find_by_xpath("//a[@class='dataOption new create-node']")[0].click()
         self.browser.find_by_name('Name').first.fill("First2")
         self.browser.find_by_xpath("//span[@class='buttonLinkOption buttonLinkLeft']/input").first.click()
         real_nodes += 1
         # Creating a node of the "Second" type
         self.browser.find_by_id('dataMenu').first.click()
-        self.browser.find_by_xpath("//a[@class='dataOption new']")[1].click()
+        self.browser.find_by_xpath("//a[@class='dataOption new create-node']")[1].click()
         self.browser.find_by_name('Name').first.fill("Second1")
         self.browser.find_by_xpath("//span[@class='buttonLinkOption buttonLinkLeft']/input").first.click()
         real_nodes += 1
         # Creating another node of the "Second" type
         self.browser.find_by_id('dataMenu').first.click()
-        self.browser.find_by_xpath("//a[@class='dataOption new']")[1].click()
+        self.browser.find_by_xpath("//a[@class='dataOption new create-node']")[1].click()
         self.browser.find_by_name('Name').first.fill("Second2")
         self.browser.find_by_xpath("//span[@class='buttonLinkOption buttonLinkLeft']/input").first.click()
         real_nodes += 1
         # Creating another node of the "Second" type
         self.browser.find_by_id('dataMenu').first.click()
-        self.browser.find_by_xpath("//a[@class='dataOption new']")[1].click()
+        self.browser.find_by_xpath("//a[@class='dataOption new create-node']")[1].click()
         self.browser.find_by_name('Name').first.fill("Second3")
         self.browser.find_by_xpath("//span[@class='buttonLinkOption buttonLinkLeft']/input").first.click()
         real_nodes += 1
@@ -474,7 +474,7 @@ class BugTestCase(LiveServerTestCase):
         self.browser.find_by_value('Save First').first.click()
         # Creating another node of the "First" type with relationships
         self.browser.find_by_id('dataMenu').first.click()
-        self.browser.find_by_xpath("//a[@class='dataOption new']")[0].click()
+        self.browser.find_by_xpath("//a[@class='dataOption new create-node']")[0].click()
         self.browser.find_by_name('Name').first.fill("First3")
         # Adding more "FirstToSecond" relationship forms
         self.browser.find_by_xpath("//a[@class='addButton inFormsets']")[1].click()
