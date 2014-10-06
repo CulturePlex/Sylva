@@ -11,6 +11,7 @@ from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
 from django.shortcuts import (get_object_or_404, render_to_response,
                               HttpResponse)
 from django.template import RequestContext
@@ -25,6 +26,8 @@ from schemas.models import NodeType, RelationshipType
 from queries.forms import SaveQueryForm
 
 # from .parser import parse_query
+ASC = "asc"
+DESC = "desc"
 
 
 @is_enabled(settings.ENABLE_QUERIES)
@@ -33,15 +36,35 @@ from queries.forms import SaveQueryForm
                      return_403=True)
 def queries_list(request, graph_slug):
     graph = get_object_or_404(Graph, slug=graph_slug)
-    queries = graph.queries.all()
     # We create the variables in the session
     request.session['query'] = None
     request.session['query_aliases'] = None
     request.session['query_fields'] = None
     request.session['results_count'] = None
+    # We add order for the list of queries
+    order_by = request.GET.get('order_by', 'default')
+    order_dir = request.GET.get('dir', 'desc')
+    if order_by == 'default':
+        queries = graph.queries.all()
+    else:
+        if order_dir == 'desc':
+            order_dir = 'asc'
+            reverse_order = True
+        elif order_dir == 'asc':
+            order_dir = 'desc'
+            reverse_order = False
+        queries = graph.queries.all().order_by(order_by)
+        queries = sorted(queries, reverse=reverse_order)
+        if not queries:
+            messages.error(request,
+                           _("Error: You are trying to sort a \
+                             column with some none values"))
+            queries = graph.queries.all()
     return render_to_response('queries/queries_list.html',
                               {"graph": graph,
-                               "queries": queries},
+                               "queries": queries,
+                               "dir": order_dir,
+                               "order_by": order_by},
                               context_instance=RequestContext(request))
 
 

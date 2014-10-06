@@ -43,10 +43,50 @@
 {% if queries %}
 <div id="query-list" style="margin-top: 20px;">
     <table class="content-table">
-        <th>{% trans "Name" %}</th>
-        <th>{% trans "Description" %}</th>
-        <th>{% trans "Results count" %}</th>
-        <th>{% trans "Last run" %}</th>
+        <th>
+            <a href="?order_by=name&dir={{ dir }}">
+                {% trans "Name" %}
+                <a class='remove-sorting' href="?order_by=default" title="{% trans "Remove from sorting" %}" />
+                {% if dir == 'desc' %}
+                    <a class='sorting-asc' href="?order_by=description&dir={{ dir }}" title="{% trans "Sorting ascending by description" %}" />
+                {% else %}
+                    <a class='sorting-desc' href="?order_by=description&dir={{ dir }}" title="{% trans "Sorting descending by description" %}" />
+                {% endif %}
+            </a>
+        </th>
+        <th>
+            <a href="?order_by=description&dir={{ dir }}">
+                {% trans "Description" %}
+                <a class='remove-sorting' href="?order_by=default" title="{% trans "Remove from sorting" %}" /></a>
+                {% if dir == 'desc' %}
+                    <a class='sorting-asc' href="?order_by=description&dir={{ dir }}" title="{% trans "Sorting ascending by description" %}" />
+                {% else %}
+                    <a class='sorting-desc' href="?order_by=description&dir={{ dir }}" title="{% trans "Sorting descending by description" %}" />
+                {% endif %}
+            </a>
+        </th>
+        <th>
+            <a href="?order_by=results_count&dir={{ dir }}">
+                {% trans "Results count" %}
+                <a class='remove-sorting' href="?order_by=default" title="{% trans "Remove from sorting" %}" /></a>
+                {% if dir == 'desc' %}
+                    <a class='sorting-asc' href="?order_by=results_count&dir={{ dir }}" title="{% trans "Sorting ascending by results count" %}" />
+                {% else %}
+                    <a class='sorting-desc' href="?order_by=results_count&dir={{ dir }}" title="{% trans "Sorting descending by results count" %}" />
+                {% endif %}
+            </a>
+        </th>
+        <th>
+            <a href="?order_by=last_run&dir={{ dir }}">
+                {% trans "Last run" %}
+                <a class='remove-sorting' href="?order_by=default" title="{% trans "Remove from sorting" %}" /></a>
+                {% if dir == 'desc' %}
+                    <a class='sorting-asc' href="?order_by=last_run&dir={{ dir }}" title="{% trans "Sorting ascending by last run" %}" />
+                {% else %}
+                    <a class='sorting-desc' href="?order_by=last_run&dir={{ dir }}" title="{% trans "Sorting descending by last run" %}" />
+                {% endif %}
+            </a>
+        </th>
         <th></th>
     {% for query in queries %}
         <tr>
