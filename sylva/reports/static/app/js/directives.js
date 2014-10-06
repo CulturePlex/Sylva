@@ -204,7 +204,9 @@ directives.directive('sylvaPvCellRepeat', [function () {
 }]);
 
 
-directives.directive('syEditableTable',['tableArray', 'DJANGO_URLS', function (tableArray, DJANGO_URLS) {
+directives.directive('syEditableTable',['tableArray', 'DJANGO_URLS', 
+                                        'breadService', 
+                                        function (tableArray, DJANGO_URLS, breadService) {
     return {
         transclude: true,
         scope: {
@@ -273,6 +275,8 @@ directives.directive('syEditableTable',['tableArray', 'DJANGO_URLS', function (t
             editMeta.bind('click', function () {
                 scope.$apply(function () {
                     scope.editable = false;
+                    breadService.meta();
+
                 });
             });
 
@@ -445,11 +449,9 @@ directives.directive('sylvaEtCellRepeat', [function () {
                     })[0];
                     if (activeQuery) {
                         var activeX = activeQuery.results.filter(function (el) {
-                        console.log('properties', el.alias, xAxis)
                             return el.alias === xAxis;
                         })[0];
                         var activeY = activeQuery.results.filter(function (el) {
-                        console.log('properties', el.alias, yAxis)
                             return el.alias === yAxis;
                         })[0];
                     }
@@ -664,6 +666,15 @@ directives.directive('sylvaBreadcrumbs', [
                     scope.crumbs = [];
                 } 
 
+            });
+
+            scope.$on('design', function () {
+                scope.crumbs.push('Design');
+            });
+
+            scope.$on('meta', function () {
+                console.log('meta')
+                scope.crumbs.pop()
             });
         }
     };

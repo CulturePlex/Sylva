@@ -43,7 +43,8 @@ controllers.controller('BaseReportCtrl', [
     '$routeParams', 
     'GRAPH',
     'api',
-    function ($scope, $location, $routeParams, GRAPH, api) {
+    'breadService',
+    function ($scope, $location, $routeParams, GRAPH, api, breadService) {
 
         $scope.slugs = {
             graph: GRAPH, 
@@ -56,11 +57,9 @@ controllers.controller('BaseReportCtrl', [
         $scope.designReport = function () {
             // Using is report form - edit and new ctrls
             $scope.editable = true;
+            breadService.design()
         };
 
-        $scope.editMeta = function () {
-            $scope.editable = false;
-        }
         $scope.editable;
 
         $scope.saveReport = function (template) {

@@ -225,12 +225,25 @@ services.factory('tableArray', function () {
         return id;
     };
 
-    TableArray.prototype.jsonify = function() {
-        console.log('jsonify')
-    };
+    //TableArray.prototype.jsonify = function() {
+    //    console.log('jsonify')
+    //};
 
     return function (table) {
         return new TableArray(table);
     }
 });
 
+
+services.factory('breadService', ['$rootScope', function ($rootScope) {
+    var breadcrumbs = {
+        design: function() {
+            $rootScope.$broadcast('design')
+        },
+        meta: function() {
+            console.log('mataSErvice')
+            $rootScope.$broadcast('meta')
+        }
+    }
+    return breadcrumbs
+}]);
