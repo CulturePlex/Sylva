@@ -1,22 +1,24 @@
-{% extends "schemas_edit.html" %}
+{% extends base_template %}
 {% load i18n graphs %}
 
-{% block navigation_buttons %}
-{{ block.super }}
-{% endblock %}
+{% if not as_modal %}
+    {% block navigation_buttons %}
+    {{ block.super }}
+    {% endblock %}
 
-{% block title %}
-{{ graph.name }}
-{% endblock %}
+    {% block title %}
+    {{ graph.name }}
+    {% endblock %}
 
-{% block menu_buttons %}
-{% toolbar on="schema" %}
-{% endblock %}
+    {% block menu_buttons %}
+    {% toolbar on="schema" %}
+    {% endblock %}
 
-{% block content_title %}
-{% trans "Import" as label %}
-{% breadcrumb graph graph.schema label %}
-{% endblock %}
+    {% block content_title %}
+    {% trans "Import" as label %}
+    {% breadcrumb graph graph.schema label %}
+    {% endblock %}
+{% endif %}
 
 {% block content %}
 <h2>{% trans "Import a Schema" %}</h2>

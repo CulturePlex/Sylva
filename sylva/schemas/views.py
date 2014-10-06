@@ -9,6 +9,7 @@ from django.contrib import messages
 from django.forms import ValidationError
 from django.http import HttpResponse
 from django.template import RequestContext
+from django.template.loader import render_to_string
 from django.shortcuts import get_object_or_404, render_to_response, redirect
 from django.http import Http404
 from django.utils.translation import gettext as _
@@ -344,6 +345,7 @@ def schema_import(request, graph_slug):
     form = SchemaImportForm()
     if request.POST and request.FILES:
         form = SchemaImportForm(request.POST, request.FILES)
+        as_modal = bool(request.POST.get("asModal", False))
         try:
             data = request.FILES['file'].read()
             schema_dict = json.loads(data)
@@ -352,10 +354,30 @@ def schema_import(request, graph_slug):
         except ValueError:
             messages.error(request, _("An error occurred when processing "
                                       "the exported schema"))
-    return render_to_response('schemas_import.html',
-                              {"graph": graph,
-                               "form": form},
-                              context_instance=RequestContext(request))
+    else:
+        as_modal = bool(request.GET.get("asModal", False))
+    if as_modal:
+        base_template = 'empty.html'
+        render = render_to_string
+    else:
+        base_template = 'base.html'
+        render = render_to_response
+    import_url = reverse("schema_import", args=[graph_slug])
+    broader_context = {"graph": graph,
+                       "form": form,
+                       "base_template": base_template,
+                       "as_modal": as_modal,
+                       "import_url": import_url}
+    response = render('schemas_import.html', broader_context,
+                      context_instance=RequestContext(request))
+    if as_modal:
+        response = {'type': 'html',
+                    'action': 'import_schema',
+                    'html': response}
+        return HttpResponse(json.dumps(response), status=200,
+                            mimetype='application/json')
+    else:
+        return response
 
 
 @permission_required("schemas.view_schema",
