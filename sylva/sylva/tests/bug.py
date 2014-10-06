@@ -101,7 +101,7 @@ class BugTestCase(LiveServerTestCase):
         real_nodes += 1
         # Editing the "First1" node
         self.browser.find_by_id('dataMenu').first.click()
-        self.browser.find_by_xpath("//a[@class='dataOption list']")[0].click()
+        self.browser.find_by_xpath("//a[@class='dataOption list list-nodes']")[0].click()
         self.browser.find_by_xpath("//td[@class='dataList']/a[@class='edit']").first.click()
         # Adding more "FirstToSecond" relationship forms
         self.browser.find_by_xpath("//a[@class='addButton inFormsets']")[1].click()
@@ -201,7 +201,7 @@ class BugTestCase(LiveServerTestCase):
         real_nodes += 1
         # Editing the "First1" node
         self.browser.find_by_id('dataMenu').first.click()
-        self.browser.find_by_xpath("//a[@class='dataOption list']")[0].click()
+        self.browser.find_by_xpath("//a[@class='dataOption list list-nodes']")[0].click()
         self.browser.find_by_xpath("//td[@class='dataList']/a[@class='edit']").first.click()
         # Adding more "FirstToSecond" relationship forms
         self.browser.find_by_xpath("//a[@class='addButton inFormsets']")[1].click()
@@ -329,7 +329,7 @@ class BugTestCase(LiveServerTestCase):
         real_nodes += 1
         # Editing the "First1" node
         self.browser.find_by_id('dataMenu').first.click()
-        self.browser.find_by_xpath("//a[@class='dataOption list']")[0].click()
+        self.browser.find_by_xpath("//a[@class='dataOption list list-nodes']")[0].click()
         self.browser.find_by_xpath("//td[@class='dataList']/a[@class='edit']").first.click()
         # Adding more "FirstToSecond" relationship forms
         self.browser.find_by_xpath("//a[@class='addButton inFormsets']")[1].click()
@@ -448,7 +448,7 @@ class BugTestCase(LiveServerTestCase):
         real_nodes += 1
         # Editing the "First1" node
         self.browser.find_by_id('dataMenu').first.click()
-        self.browser.find_by_xpath("//a[@class='dataOption list']")[0].click()
+        self.browser.find_by_xpath("//a[@class='dataOption list list-nodes']")[0].click()
         self.browser.find_by_xpath("//td[@class='dataList']/a[@class='edit']").first.click()
         # Adding more "FirstToSecond" relationship forms
         self.browser.find_by_xpath("//a[@class='addButton inFormsets']")[1].click()

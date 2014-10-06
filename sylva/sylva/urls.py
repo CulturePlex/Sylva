@@ -114,3 +114,14 @@ if settings.DEBUG:
         )
     except ImportError:
         pass
+
+if settings.TEST and not settings.DEBUG:
+    urlpatterns += patterns('',
+        # static server
+        url(r'^static/(?P<path>.*)$', 'django.views.static.serve',
+            {'document_root': settings.STATIC_ROOT, 'indexing': False}),
+
+        # static media server
+        url(r'^media/(?P<path>.*)$', 'django.views.static.serve',
+            {'document_root': settings.MEDIA_ROOT}),
+    )

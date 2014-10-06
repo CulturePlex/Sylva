@@ -105,7 +105,7 @@ def create_advanced_data(test):
     """
     test.browser.find_by_id('dataMenu').first.click()
     test.browser.find_by_xpath(
-        "//a[@class='dataOption new']").first.click()
+        "//a[@class='dataOption new create-node']").first.click()
     text = test.browser.find_by_id('propertiesTitle').first.value
     spin_assert(lambda: test.assertEqual(text, 'Properties'))
     test.browser.find_by_value("Save Bob's type").first.click()
@@ -281,7 +281,7 @@ class ToolsTestCaseGexf(LiveServerTestCase):
         # Add new nodes and relationships and check all is correct
         self.browser.find_by_id('dataMenu').first.click()
         self.browser.find_by_xpath(
-            "//a[@class='dataOption new']").first.click()
+            "//a[@class='dataOption new create-node']").first.click()
         text = self.browser.find_by_id('propertiesTitle').first.value
         spin_assert(lambda: self.assertEqual(text, 'Properties'))
         self.browser.find_by_value("Save Bob's type").first.click()
@@ -333,7 +333,7 @@ class ToolsTestCaseGexf(LiveServerTestCase):
         # Add new nodes and relationships and check all is correct
         self.browser.find_by_id('dataMenu').first.click()
         self.browser.find_by_xpath(
-            "//a[@class='dataOption new']").first.click()
+            "//a[@class='dataOption new create-node']").first.click()
         text = self.browser.find_by_id('propertiesTitle').first.value
         spin_assert(lambda: self.assertEqual(text, 'Properties'))
         self.browser.find_by_value("Save Bob's type").first.click()
@@ -371,7 +371,7 @@ class ToolsTestCaseGexf(LiveServerTestCase):
         # Add new nodes and relationships and check all is correct
         self.browser.find_by_id('dataMenu').first.click()
         self.browser.find_by_xpath(
-            "//a[@class='dataOption new']").first.click()
+            "//a[@class='dataOption new create-node']").first.click()
         text = self.browser.find_by_id('propertiesTitle').first.value
         spin_assert(lambda: self.assertEqual(text, 'Properties'))
         self.browser.find_by_value("Save Bob's type").first.click()
@@ -460,7 +460,7 @@ class ToolsTestCaseCsv(LiveServerTestCase):
         # Add new nodes and relationships and check all is correct
         self.browser.find_by_id('dataMenu').first.click()
         self.browser.find_by_xpath(
-            "//a[@class='dataOption new']").first.click()
+            "//a[@class='dataOption new create-node']").first.click()
         text = self.browser.find_by_id('propertiesTitle').first.value
         spin_assert(lambda: self.assertEqual(text, 'Properties'))
         self.browser.find_by_value("Save Bob's type").first.click()

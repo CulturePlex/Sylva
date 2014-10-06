@@ -339,7 +339,7 @@ class CollaboratorTestCase(LiveServerTestCase):
         signin(self, 'alice', 'alice_secret')
         self.browser.find_link_by_href('/graphs/bobs-graph/').first.click()
         self.browser.find_by_xpath("//a[@id='dataMenu']").first.click()
-        self.browser.find_by_xpath("//div[@id='dataBrowse']/table/tbody/tr/td/a[@class='dataOption new']").first.click()
+        self.browser.find_by_xpath("//div[@id='dataBrowse']/table/tbody/tr/td/a[@class='dataOption new create-node']").first.click()
         text = self.browser.find_by_xpath(
             "//div[@class='heading']/h1").first.value
         spin_assert(lambda: self.assertNotEqual(text.find("403"), -1))
@@ -361,7 +361,7 @@ class CollaboratorTestCase(LiveServerTestCase):
         signin(self, 'alice', 'alice_secret')
         self.browser.find_link_by_href('/graphs/bobs-graph/').first.click()
         self.browser.find_by_xpath("//a[@id='dataMenu']").first.click()
-        self.browser.find_by_xpath("//div[@id='dataBrowse']/table/tbody/tr/td/a[@class='dataOption new']").first.click()
+        self.browser.find_by_xpath("//div[@id='dataBrowse']/table/tbody/tr/td/a[@class='dataOption new create-node']").first.click()
         self.browser.find_by_xpath(
             "//input[@id='id_Name']").first.fill("Alice's node")
         self.browser.find_by_xpath("//input[@type='submit']").first.click()

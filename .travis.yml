@@ -9,14 +9,14 @@ install:
   - pip install -r requirements_test.txt
   - pip install --allow-all-external argparse==1.2.1
 before_script:
-  # - STATIC_SERVER_PID=$!
   - ./neo4j/bin/neo4j start
   - "export DISPLAY=:99.0"
   - "sh -e /etc/init.d/xvfb start"
 script:
+  - python sylva/manage.py collectstatic --noinput --settings=sylva.test_settings
+  - python sylva/manage.py compress --settings=sylva.test_settings
   - coverage run --source=sylva sylva/manage.py test accounts sylva.tests data engines graphs schemas --settings=sylva.test_settings
 after_success:
-  # - kill -9 $STATIC_SERVER_PID
   - coveralls
 after_script:
   - ./neo4j/bin/neo4j stop

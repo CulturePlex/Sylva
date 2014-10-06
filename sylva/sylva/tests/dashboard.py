@@ -71,7 +71,7 @@ def create_data(test):
     """
     test.browser.find_by_id('dataMenu').first.click()
     test.browser.find_by_xpath(
-        "//a[@class='dataOption new']").first.click()
+        "//a[@class='dataOption new create-node']").first.click()
     text = test.browser.find_by_id('propertiesTitle').first.value
     spin_assert(lambda: test.assertEqual(text, 'Properties'))
     test.browser.find_by_name('Name').first.fill("Bob's node")
