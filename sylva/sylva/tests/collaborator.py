@@ -39,8 +39,7 @@ def add_permission(test, username, permission):
     """
     Add the pemission to the referenced use in the graph that we are viewing.
     """
-    test.browser.find_by_xpath(
-        "//nav[@class='menu']/ul/li[4]/a").first.click()
+    test.browser.find_by_id('collaborators-button').first.click()
     if permission is CREATE_COLLAB:
         create_collaborator(test, username)
     else:
@@ -248,7 +247,7 @@ class CollaboratorTestCase(LiveServerTestCase):
         signin(self, 'alice', 'alice_secret')
         self.browser.find_link_by_href('/graphs/bobs-graph/').first.click()
         spin_click(self.browser.find_by_xpath("//a[@id='dataMenu']").first,
-                                              self.browser.find_by_xpath("//div[@id='dataBrowse']/table/tbody/tr/td/a[@class='dataOption list']").first)
+                                              self.browser.find_by_xpath("//div[@id='dataBrowse']/table/tbody/tr/td/a[@class='dataOption list list-nodes']").first)
         text = self.browser.find_by_xpath(
             "//div[@class='heading']/h1").first.value
         spin_assert(lambda: self.assertNotEqual(text.find("403"), -1))
@@ -270,7 +269,7 @@ class CollaboratorTestCase(LiveServerTestCase):
         signin(self, 'alice', 'alice_secret')
         self.browser.find_link_by_href('/graphs/bobs-graph/').first.click()
         spin_click(self.browser.find_by_xpath("//a[@id='dataMenu']").first,
-                                              self.browser.find_by_xpath("//div[@id='dataBrowse']/table/tbody/tr/td/a[@class='dataOption list']").first)
+                                              self.browser.find_by_xpath("//div[@id='dataBrowse']/table/tbody/tr/td/a[@class='dataOption list list-nodes']").first)
         text = self.browser.find_by_xpath("//table[@id='content_table']/tbody/tr/td")[1].value
         spin_assert(lambda: self.assertEqual(text, "Bob's node"))
         Graph.objects.get(name="Bob's graph").destroy()
@@ -291,7 +290,7 @@ class CollaboratorTestCase(LiveServerTestCase):
         signin(self, 'alice', 'alice_secret')
         self.browser.find_link_by_href('/graphs/bobs-graph/').first.click()
         spin_click(self.browser.find_by_xpath("//a[@id='dataMenu']").first,
-                                              self.browser.find_by_xpath("//div[@id='dataBrowse']/table/tbody/tr/td/a[@class='dataOption list']").first)
+                                              self.browser.find_by_xpath("//div[@id='dataBrowse']/table/tbody/tr/td/a[@class='dataOption list list-nodes']").first)
         self.browser.find_by_xpath("//td/a[@title='Edit node']").first.click()
         text = self.browser.find_by_xpath(
             "//div[@class='heading']/h1").first.value
@@ -315,7 +314,7 @@ class CollaboratorTestCase(LiveServerTestCase):
         signin(self, 'alice', 'alice_secret')
         self.browser.find_link_by_href('/graphs/bobs-graph/').first.click()
         spin_click(self.browser.find_by_xpath("//a[@id='dataMenu']").first,
-                                              self.browser.find_by_xpath("//div[@id='dataBrowse']/table/tbody/tr/td/a[@class='dataOption list']").first)
+                                              self.browser.find_by_xpath("//div[@id='dataBrowse']/table/tbody/tr/td/a[@class='dataOption list list-nodes']").first)
         self.browser.find_by_xpath("//td/a[@title='Edit node']").first.click()
         self.browser.find_by_xpath(
             "//input[@id='id_Name']").first.fill("Alice's node")
@@ -386,7 +385,7 @@ class CollaboratorTestCase(LiveServerTestCase):
         signin(self, 'alice', 'alice_secret')
         self.browser.find_link_by_href('/graphs/bobs-graph/').first.click()
         spin_click(self.browser.find_by_xpath("//a[@id='dataMenu']").first,
-                                              self.browser.find_by_xpath("//div[@id='dataBrowse']/table/tbody/tr/td/a[@class='dataOption list']").first)
+                                              self.browser.find_by_xpath("//div[@id='dataBrowse']/table/tbody/tr/td/a[@class='dataOption list list-nodes']").first)
         self.browser.find_by_xpath("//td/a[@title='Edit node']").first.click()
         self.browser.find_by_xpath("//span[@class='buttonLinkOption buttonLinkRight']/a[text()='Remove']").first.click()
         text = self.browser.find_by_xpath(
@@ -412,7 +411,7 @@ class CollaboratorTestCase(LiveServerTestCase):
         signin(self, 'alice', 'alice_secret')
         self.browser.find_link_by_href('/graphs/bobs-graph/').first.click()
         spin_click(self.browser.find_by_xpath("//a[@id='dataMenu']").first,
-                                              self.browser.find_by_xpath("//div[@id='dataBrowse']/table/tbody/tr/td/a[@class='dataOption list']").first)
+                                              self.browser.find_by_xpath("//div[@id='dataBrowse']/table/tbody/tr/td/a[@class='dataOption list list-nodes']").first)
         self.browser.find_by_xpath("//td/a[@title='Edit node']").first.click()
         self.browser.find_by_xpath("//span[@class='buttonLinkOption buttonLinkRight']/a[text()='Remove']").first.click()
         self.browser.choose('confirm', '1')

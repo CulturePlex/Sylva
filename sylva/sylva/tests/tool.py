@@ -227,7 +227,7 @@ def data_import_gexf(test):
     test.browser.is_text_present('Data uploaded.', wait_time=10)
     # Check that nodes and relationships are ok
     test.browser.find_by_id('dataMenu').first.click()
-    test.browser.find_by_xpath("//a[@class='dataOption list']").first.click()
+    test.browser.find_by_xpath("//a[@class='dataOption list list-nodes']").first.click()
 
 
 class ToolsTestCaseGexf(LiveServerTestCase):
@@ -451,7 +451,7 @@ class ToolsTestCaseCsv(LiveServerTestCase):
         self.browser.is_text_present('Data uploaded.', wait_time=10)
         # Check that nodes and relationships are ok
         self.browser.find_by_id('dataMenu').first.click()
-        self.browser.find_by_xpath("//a[@class='dataOption list']").first.click()
+        self.browser.find_by_xpath("//a[@class='dataOption list list-nodes']").first.click()
         alicegraph = Graph.objects.get(name=self.secondGraphName)
         alicegraphNodes = alicegraph.nodes.count()
         spin_assert(lambda: self.assertEqual(3, alicegraph.nodes.count()))

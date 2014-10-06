@@ -1319,6 +1319,7 @@ nav.menu {
     position: relative;
     float: right;
     padding: 3px 0 0 0;
+    height: 35px;
 }
 
 nav.menu ul {

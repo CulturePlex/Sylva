@@ -83,7 +83,12 @@
     $("nav.menu").on("mouseleave", closeMenu);
 
     // This always close the menu if the user enter another button.
-    $(".no-menu").on("mouseover", closeMenu);
+    $(".no-menu").on("mouseover", function() {
+      setTimeout(function() {
+        closeMenu();
+      }, 500);
+      setTimeout()
+    });
 
     $("#dataMenu").on("mouseover", function() {
       openMenu("#dataBrowse");
@@ -97,9 +102,9 @@
 
     $("#toolsBrowseId").on("mouseleave", closeMenu);
 
-    $(".dataOption.list").on("click", closeMenu);
+    $(".dataOption.list.list-nodes").on("click", closeMenu);
 
-    $(".dataOption.new").on("click", closeMenu);
+    $(".dataOption.new.create-node").on("click", closeMenu);
   }
 
 
