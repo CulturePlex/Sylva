@@ -154,7 +154,7 @@ def nodes_list_full(request, graph_slug, node_type_id):
             if prop_key in node_properties:
                 prop_value = node_properties[prop_key]
                 if prop_value == "":
-                    prop_value = "(Empty)"
+                    prop_value = label
                 if not isinstance(prop_value, unicode):
                     prop_value = prop_value.__str__()
                 property_values[prop_key].add(prop_value)

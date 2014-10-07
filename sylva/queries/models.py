@@ -57,7 +57,5 @@ class Query(models.Model):
                     break
         super(Query, self).save(*args, **kwargs)
 
-    def execute(self, limit=None, offset=None, order_by=None,
-                headers=None, only_ids=None):
-        return self.graph.query(self.query_dict, limit, offset, order_by,
-                                headers, only_ids)
+    def execute(self, order_by=None, headers=None, only_ids=None):
+        return self.graph.query(self.query_dict, order_by, headers, only_ids)

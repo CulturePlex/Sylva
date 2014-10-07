@@ -7,6 +7,7 @@ except ImportError:
 from datetime import datetime
 from django.db import transaction
 from django.db.models import Q
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 from django.conf import settings
@@ -42,29 +43,42 @@ def queries_list(request, graph_slug):
     request.session['query_fields'] = None
     request.session['results_count'] = None
     # We add order for the list of queries
-    order_by = request.GET.get('order_by', 'default')
-    order_dir = request.GET.get('dir', 'desc')
-    if order_by == 'default':
+    order_by_field = request.GET.get('order_by', 'id')
+    order_dir = request.GET.get('dir', '-')
+    # We need the order_dir for the icons in the frontend
+    # if order_dir not in ["", "-"]:
+    #     order_dir = ""
+    if order_by_field == 'id':
         queries = graph.queries.all()
     else:
-        if order_dir == 'desc':
-            order_dir = 'asc'
-            reverse_order = True
-        elif order_dir == 'asc':
-            order_dir = 'desc'
-            reverse_order = False
+        order_by = "{0}{1}".format(order_dir, order_by_field)
         queries = graph.queries.all().order_by(order_by)
-        queries = sorted(queries, reverse=reverse_order)
         if not queries:
             messages.error(request,
                            _("Error: You are trying to sort a \
-                             column with some none values"))
+                              column with some none values"))
             queries = graph.queries.all()
+        elif order_dir == u'':
+            order_dir = u'-'
+        elif order_dir == u'-':
+            order_dir = u''
+    # We add pagination for the list of queries
+    page = request.GET.get('page')
+    page_size = settings.DATA_PAGE_SIZE
+    paginator = Paginator(queries, page_size)
+    try:
+        paginated_queries = paginator.page(page)
+    except PageNotAnInteger:
+        # If page is not an integer, deliver first page.
+        paginated_queries = paginator.page(1)
+    except EmptyPage:
+        # If page is out of range (e.g. 9999), deliver last page of results.
+        paginated_queries = paginator.page(paginator.num_pages)
     return render_to_response('queries/queries_list.html',
                               {"graph": graph,
-                               "queries": queries,
-                               "dir": order_dir,
-                               "order_by": order_by},
+                               "queries": paginated_queries,
+                               "order_by": order_by_field,
+                               "dir": order_dir},
                               context_instance=RequestContext(request))
 
 
@@ -136,11 +150,33 @@ def queries_new_results(request, graph_slug):
                     _("Queries"))
     queries_new = (reverse("queries_new", args=[graph.slug]),
                    _("New"))
+    # We add order for the list of queries
+    order_by_field = request.GET.get('order_by', 'default')
+    order_dir = request.GET.get('dir', 'asc')
     # query = "notas of autor with notas that start with lista"
     # see https://gist.github.com/versae/9241069
     query_dict = json.loads(query)
-    query_results = graph.query(query_dict, headers=True)
     headers = True
+    if order_by_field == 'default':
+        query_results = graph.query(query_dict, headers=headers)
+    else:
+        # We split the header to get the alias and the property
+        order_by_values = order_by_field.split('.')
+        alias = order_by_values[0]
+        prop = order_by_values[1]
+        order_by = (alias, prop, order_dir)
+        query_results = graph.query(query_dict,
+                                    order_by=order_by, headers=headers)
+        if not query_results:
+            messages.error(request,
+                           _("Error: You are trying to sort a \
+                              column with some none values"))
+            query_results = graph.query(query_dict, headers=headers)
+        # We need the order_dir for the icons in the frontend
+        if order_dir == ASC:
+            order_dir = DESC
+        elif order_dir == DESC:
+            order_dir = ASC
     results = [r for r in query_results]
     # We store the results count in the session variable.
     # The ' - 1' is because the headers
@@ -151,7 +187,9 @@ def queries_new_results(request, graph_slug):
                                "queries_link": queries_link,
                                "queries_new": queries_new,
                                "headers": headers,
-                               "results": results},
+                               "results": results,
+                               "order_by": order_by_field,
+                               "dir": order_dir},
                               context_instance=RequestContext(request))
 
 
@@ -213,17 +251,39 @@ def queries_query_results(request, graph_slug, query_id):
     queries_link = (reverse("queries_list", args=[graph.slug]),
                     _("Queries"))
     query = graph.queries.get(pk=query_id)
+    # We add order for the list of queries
+    order_by_field = request.GET.get('order_by', 'default')
+    order_dir = request.GET.get('dir', 'asc')
     # query = "notas of autor with notas that start with lista"
     # see https://gist.github.com/versae/9241069
-    results = graph.query(query.query_dict, headers=True)
     headers = True
-    # json_results = json.dumps([r for r in results])
+    # We need the order_dir for the icons in the frontend
+    if order_by_field == 'default':
+        results = query.execute(headers=headers)
+    else:
+        # We split the header to get the alias and the property
+        order_by_values = order_by_field.split('.')
+        alias = order_by_values[0]
+        prop = order_by_values[1]
+        order_by = (alias, prop, order_dir)
+        results = query.execute(order_by=order_by, headers=headers)
+        if not results:
+            messages.error(request,
+                           _("Error: You are trying to sort a \
+                              column with some none values"))
+            results = query.execute(headers=headers)
+        if order_dir == ASC:
+            order_dir = DESC
+        elif order_dir == DESC:
+            order_dir = ASC
     # TODO: Try to make the response streamed
     return render_to_response('queries/queries_new_results.html',
                               {"graph": graph,
                                "queries_link": queries_link,
                                "headers": headers,
-                               "results": results},
+                               "results": results,
+                               "order_by": order_by_field,
+                               "dir": order_dir},
                               context_instance=RequestContext(request))
 
 

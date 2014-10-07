@@ -73,8 +73,9 @@ class GraphMixin(object):
         return self._q
     Q = property(_get_q)
 
-    def query(self, query_dict, headers=None, only_ids=None):
-        return self.gdb.query(query_dict, headers=headers, only_ids=only_ids)
+    def query(self, query_dict, order_by=None, headers=None, only_ids=None):
+        return self.gdb.query(query_dict, order_by=order_by,
+                              headers=headers, only_ids=only_ids)
 
     def destroy(self):
         """Delete nodes, relationships, internal indices, data, schema and

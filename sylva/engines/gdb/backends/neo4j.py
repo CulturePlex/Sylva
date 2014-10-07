@@ -343,6 +343,13 @@ class GraphDatabase(BlueprintsGraphDatabase):
         page = 1000
         skip = offset or 0
         limit = limit or page
+        if order_by is not None:
+            script = u"%s order by `%s`.`%s` %s " % (script,
+                                                     order_by[0].replace
+                                                     ('`', '\`'),
+                                                     order_by[1].replace
+                                                     ('`', '\`'),
+                                                     order_by[2])
         try:
             paged_script = "%s skip %s limit %s" % (script, skip, limit)
             result = cypher(query=paged_script, params=query_params)
