@@ -141,9 +141,6 @@ def queries_new_results(request, graph_slug):
     query = request.POST.get("query", "").strip()
     query_aliases = request.POST.get("query_aliases", "").strip()
     query_fields = request.POST.get("query_fields", "").strip()
-    request.session['query'] = query
-    request.session['query_aliases'] = query_aliases
-    request.session['query_fields'] = query_fields
 
     graph = get_object_or_404(Graph, slug=graph_slug)
     queries_link = (reverse("queries_list", args=[graph.slug]),
@@ -155,7 +152,13 @@ def queries_new_results(request, graph_slug):
     order_dir = request.GET.get('dir', 'asc')
     # query = "notas of autor with notas that start with lista"
     # see https://gist.github.com/versae/9241069
-    query_dict = json.loads(query)
+    if query is not '':
+        request.session['query'] = query
+        request.session['query_aliases'] = query_aliases
+        request.session['query_fields'] = query_fields
+        query_dict = json.loads(query)
+    else:
+        query_dict = json.loads(request.session['query'])
     headers = True
     if order_by_field == 'default':
         query_results = graph.query(query_dict, headers=headers)
