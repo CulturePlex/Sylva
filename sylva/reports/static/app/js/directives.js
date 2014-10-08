@@ -564,7 +564,8 @@ directives.directive('sylvaEtCell', ['$sanitize', 'DJANGO_URLS', function ($sani
             //// OK do somehting like this
             // Then make the markdown rendering a function 
             // Call when user calls markdown
-            scope.mdarea = 'This is a header\n' + '----------------';
+            scope.mdarea = '#Heading 1\n' + 'Heading 1\n========\n'+ '##Heading 2\n' + 'Heading 2\n--------------\n' + '###Heading 3\n' +
+                            '1. First item\n' + '2. Second item\n\n' + '+ Unordered items\n' + '- Unordered items\n' + '* Unordered items\n';
 
 
             scope.$watch('activeQuery', function (newVal, oldVal) {
