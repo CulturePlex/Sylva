@@ -197,6 +197,22 @@ textarea.markdown {
   height: 175px;
 }
 
+
+
+.display-cell h1              { margin: .67em 0; font: normal 22px Georgia;}
+.display-cell h2              { color: #555;  margin: .75em 0; font: normal 19px Georgia; }
+.display-cell h3              { margin: .83em 0; font: normal 16px Georgia; }
+.display-cell h4              { margin: 1.12em 0; font: normal 13px Georgia; }
+.display-cell h5              { margin: 1.5em 0; font: normal 10px Georgia; }
+.display-cell h6              { margin: 1.67em 0; font: normal 17px Georgia; }
+.display-cell strong          { font-weight: bolder }
+.display-cell em              { font-style: italic }
+.display-cell i               { font-style: italic }
+.display-cell blockquote      { margin-left: 40px; margin-right: 40px }
+.display-cell hr              { border: 1px inset }
+.display-cell ul              { margin-top: 0; margin-bottom: 0; margin-left: 40px; list-style-type: disc; }
+.display-cell ol              { margin-top: 0; margin-bottom: 0; margin-left: 40px; list-style-type: decimal }
+
 .preview-cell {
   height: 400px;
 }

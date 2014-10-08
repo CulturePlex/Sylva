@@ -552,8 +552,10 @@ directives.directive('sylvaEtCell', ['$sanitize', 'DJANGO_URLS', function ($sani
             md.on('blur keyup change', function () {
                 
                 var showdown = new Showdown.converter({})
-                ,   html = showdown.makeHtml(scope.mdarea)
-                ,   markdown = $sanitize(html);
+                ,   html = $sanitize(showdown.makeHtml(scope.mdarea))
+                ,   markdown = html;
+                console.log('html', html)
+                //,   markdown = html);
                 scope.$apply(function () {
                     scope.tableArray.addMarkdown([scope.row, scope.col], markdown);    
                 });
