@@ -26,10 +26,9 @@
     <div id="query-builder-results">
         <div id="results">
             <table class="content-table">
-                {% for pair in results %}
-                    {% if headers and forloop.first %}
-                        {% for result in pair%}
-                            <th class="header">
+                {% if headers %}
+                    {% for result in headers %}
+                        <th class="header">
                             <a href="?order_by={{ result }}&dir={{ dir }}">
                                 {{ result }}
                             <a class='remove-sorting' href="?order_by=default" title="{% trans "Remove from sorting" %}" />
@@ -39,17 +38,47 @@
                                 <a class='sorting-desc' href="?order_by={{ result }}&dir={{ dir }}" title="{% trans "Sorting descending by " %} {{ order_by }}" />
                             {% endif %}
                             </a>
-                            </th>
+                        </th>
+                    {% endfor %}
+                {% endif %}
+                {% for pair in results %}
+                    <tr class="{% cycle 'row-even' 'row-odd' %}">
+                        {% for result in pair %}
+                            <td>{{ result }}</td>
                         {% endfor %}
-                    {% else %}
-                        <tr class="{% cycle 'row-even' 'row-odd' %}">
-                            {% for result in pair %}
-                                <td>{{ result }}</td>
-                            {% endfor %}
-                        </tr>
-                    {% endif %}
+                    </tr>
                 {% endfor %}
             </table>
+            <div class="pagination">
+                {% if results.paginator.per_page < results.paginator.count %}
+                  <span class='pagination-info'>
+                    {% blocktrans with per_page=results.paginator.per_page count=results.paginator.count %}
+                      Showing {{ per_page }} of {{ count }} results.
+                    {% endblocktrans %}
+                  </span>
+                  <span class="step-links">
+                    {% if results.has_previous %}
+                      <a href="?page={{ results.previous_page_number }}"><span class="symbol-medium">←</span></a>
+                    {% endif %}
+
+                    <span class="current">
+                      {% blocktrans with number=results.number num_pages=results.paginator.num_pages %}
+                        Page {{ number }} of {{ num_pages }}.
+                      {% endblocktrans %}
+                    </span>
+
+                    {% if results.has_next %}
+                      <a href="?page={{ results.next_page_number }}"><span class="symbol-medium">→</span></a>
+                    {% endif %}
+                  </span>
+                {% elif results %}
+                  <span class="pagination-info">
+                    {% blocktrans with count=results.paginator.count %}
+                      Showing {{ count }} results.
+                    {% endblocktrans %}
+                  </span>
+                {% endif %}
+            </div>
         </div>
     </div>
 </div>

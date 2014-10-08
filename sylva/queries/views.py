@@ -180,17 +180,35 @@ def queries_new_results(request, graph_slug):
             order_dir = DESC
         elif order_dir == DESC:
             order_dir = ASC
-    results = [r for r in query_results]
     # We store the results count in the session variable.
-    # The ' - 1' is because the headers
-    request.session['results_count'] = len(results) - 1
+    request.session['results_count'] = len(query_results)
+    # We treat the headers
+    if headers:
+        # If the results have headers, we get the position 0
+        # and then the results.
+        # Also, we need to substract 1 to the results count
+        request.session['results_count'] = len(query_results) - 1
+        headers_results = query_results[0]
+        query_results = query_results[1:]
+     # We add pagination for the list of queries
+    page = request.GET.get('page')
+    page_size = settings.DATA_PAGE_SIZE
+    paginator = Paginator(query_results, page_size)
+    try:
+        paginated_results = paginator.page(page)
+    except PageNotAnInteger:
+        # If page is not an integer, deliver first page.
+        paginated_results = paginator.page(1)
+    except EmptyPage:
+        # If page is out of range (e.g. 9999), deliver last page of results.
+        paginated_results = paginator.page(paginator.num_pages)
     # TODO: Try to make the response streamed
     return render_to_response('queries/queries_new_results.html',
                               {"graph": graph,
                                "queries_link": queries_link,
                                "queries_new": queries_new,
-                               "headers": headers,
-                               "results": results,
+                               "headers": headers_results,
+                               "results": paginated_results,
                                "order_by": order_by_field,
                                "dir": order_dir},
                               context_instance=RequestContext(request))
@@ -262,29 +280,47 @@ def queries_query_results(request, graph_slug, query_id):
     headers = True
     # We need the order_dir for the icons in the frontend
     if order_by_field == 'default':
-        results = query.execute(headers=headers)
+        query_results = query.execute(headers=headers)
     else:
         # We split the header to get the alias and the property
         order_by_values = order_by_field.split('.')
         alias = order_by_values[0]
         prop = order_by_values[1]
         order_by = (alias, prop, order_dir)
-        results = query.execute(order_by=order_by, headers=headers)
-        if not results:
+        query_results = query.execute(order_by=order_by, headers=headers)
+        if not query_results:
             messages.error(request,
                            _("Error: You are trying to sort a \
                               column with some none values"))
-            results = query.execute(headers=headers)
+            query_results = query.execute(headers=headers)
         if order_dir == ASC:
             order_dir = DESC
         elif order_dir == DESC:
             order_dir = ASC
+    # We treat the headers
+    if headers:
+        # If the results have headers, we get the position 0
+        # and then the results.
+        headers_results = query_results[0]
+        query_results = query_results[1:]
+     # We add pagination for the list of queries
+    page = request.GET.get('page')
+    page_size = settings.DATA_PAGE_SIZE
+    paginator = Paginator(query_results, page_size)
+    try:
+        paginated_results = paginator.page(page)
+    except PageNotAnInteger:
+        # If page is not an integer, deliver first page.
+        paginated_results = paginator.page(1)
+    except EmptyPage:
+        # If page is out of range (e.g. 9999), deliver last page of results.
+        paginated_results = paginator.page(paginator.num_pages)
     # TODO: Try to make the response streamed
     return render_to_response('queries/queries_new_results.html',
                               {"graph": graph,
                                "queries_link": queries_link,
-                               "headers": headers,
-                               "results": results,
+                               "headers": headers_results,
+                               "results": paginated_results,
                                "order_by": order_by_field,
                                "dir": order_dir},
                               context_instance=RequestContext(request))

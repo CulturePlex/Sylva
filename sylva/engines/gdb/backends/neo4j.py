@@ -338,6 +338,7 @@ class GraphDatabase(BlueprintsGraphDatabase):
 
     def query(self, query_dict, limit=None, offset=None, order_by=None,
               headers=None, only_ids=None):
+        results_list = []
         script, query_params = self._query_generator(query_dict, only_ids)
         cypher = self.cypher
         page = 1000
@@ -356,13 +357,13 @@ class GraphDatabase(BlueprintsGraphDatabase):
         except:
             result = None
         if headers is True and result and "columns" in result:
-            yield result["columns"]
+                results_list.append(result["columns"])
         while result and "data" in result and len(result["data"]) > 0:
             for element in result["data"]:
                 if "data" in element:
-                    yield element["data"]
+                    results_list.append(element["data"])
                 else:
-                    yield element
+                    results_list.append(element)
             skip += page
             if len(result["data"]) == limit:
                 try:
@@ -373,6 +374,7 @@ class GraphDatabase(BlueprintsGraphDatabase):
                     result = None
             else:
                 break
+        return results_list
 
     def _query_generator(self, query_dict, only_ids):
         conditions_dict = query_dict["conditions"]
