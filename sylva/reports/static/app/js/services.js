@@ -143,6 +143,7 @@ services.factory('tableArray', function () {
             }     
         }
         this.numCols++;
+        console.log('add column table', this.table)
     };
 
     TableArray.prototype.delRow = function() {
@@ -191,15 +192,18 @@ services.factory('tableArray', function () {
     }
 
     TableArray.prototype.mergeCol = function(coords) {
+        console.log('merge coords', coords)
         var cds = coords[0]
         ,   mrgCds = coords[1]
         ,   mrgRow = this.table[cds[0]]
         ,   cell = this.table[cds[0]][cds[1]]
         ,   mrgCell = this.table[mrgCds[0]][mrgCds[1]];
+        console.log('cell mrgCell', cell, mrgCell)
         mrgRow.splice(mrgCds[1], 1);
         cell.colspan = parseInt(cell.colspan);
         cell.colspan += parseInt(mrgCell.colspan);
         this.table[cds[0]] = mrgRow;
+        console.log('after merge table', this.table)
     };
 
     // MABE JUST MERGE THIS WITH PREVIOUS METHOD

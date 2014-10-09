@@ -455,12 +455,12 @@ directives.directive('sylvaEtCellRepeat', [function () {
                             return el.alias === yAxis;
                         })[0];
                     }
-                    
+                    console.log('cell.col, i', cell.col, i)
                     childScope = scope.$new();
                     childScope.$index = i;
                     childScope.config = {
                         row: cell.row,
-                        col: cell.col,
+                        col: i,
                         activeX: activeX,
                         activeY: activeY,
                         queries: ctrl.getQueries(),
@@ -468,18 +468,18 @@ directives.directive('sylvaEtCellRepeat', [function () {
                         chartTypes: ['column', 'scatter', 'pie', 'line'],
                         chartType: cell.chartType,
                     };
-
+                    
                     childScope.cellStyle = {width: cellWidth};
                     transclude(childScope, function (clone) {
 
-                        if (i === len - 1) clone.addClass('final')
-                            clone.attr('id', cell.id)
-                            previous.after(clone);
-                            block = {};
-                            block.element = clone;
-                            block.scope = childScope;
-                            childScopes.push(block);
-                            previous = clone;
+                        if (i === len - 1) {clone.addClass('final')}
+                        clone.attr('id', cell.id)
+                        previous.after(clone);
+                        block = {};
+                        block.element = clone;
+                        block.scope = childScope;
+                        childScopes.push(block);
+                        previous = clone;
                     });
                 }
             });
@@ -488,7 +488,7 @@ directives.directive('sylvaEtCellRepeat', [function () {
 }]);
 
 // THIS DIRECTIVE HAS SOME REPITITION AND WILL REQUIRE CLEANUP
-directives.directive('sylvaEtCell', ['$sanitize', 'DJANGO_URLS', function ($sanitize, DJANGO_URLS) {
+directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', function ($sanitize, $compile, DJANGO_URLS) {
     return {
         require: '^syEditableTable',
         scope: {
@@ -525,12 +525,45 @@ directives.directive('sylvaEtCell', ['$sanitize', 'DJANGO_URLS', function ($sani
             var ang = angular.element
             ,   mdDiv = ang(elem.children()[1])
             ,   md = ang(mdDiv.children()[1])
-            ,   results;
+            ,   results
+            ,   coords
+            ,   arrows = false
+            ,   arrowHtml = {
+                    left: '<a class="arrow left" href="" ng-click="merge(0)">&#8592</a>', 
+                    up: '<a class="arrow up" href="" ng-click="merge(1)">&#8593</a>',
+                    right: '<a class="arrow right" href="" ng-click="merge(2)">&#8594</a>',
+                    down: '<a class="arrow down" href="" ng-click="merge(3)">&#8595</a>'
+            };
+
+            scope.merge = function(ndx) {
+                var merges = [[scope.row, scope.col - 1], [scope.row - 1, scope.col], [scope.row, scope.col + 1], [scope.row + 1, scope.col]];
+                scope.tableArray.mergeCol([coords, merges[ndx]]);
+            }
+
+            elem.bind("click", function (event) {
+                if (!arrows) {
+                    ang('.arrow').remove();
+                    var adjs = scope.tableArray.getAdjCells(scope.row, scope.col);
+                    angular.forEach(adjs, function (el) {
+                        var arrow = $compile(arrowHtml[el])(scope)
+                        elem.append(arrow);
+                    });
+                    arrows = true;
+                } else {
+                    ang('.arrow').remove();
+                    arrows = false;
+                }
+            });
+
+            elem.bind("mouseout", function (event) {
+                arrows = false
+            });
 
 
             scope.$watch('config', function (newVal, oldVal) {
                 scope.row = scope.config.row;
                 scope.col = scope.config.col;
+                coords = [scope.row, scope.col]
                 scope.queries = scope.config.queries;
                 scope.activeQuery = scope.config.activeQuery;
                 scope.activeX = scope.config.activeX;
@@ -538,7 +571,6 @@ directives.directive('sylvaEtCell', ['$sanitize', 'DJANGO_URLS', function ($sani
                 scope.chartTypes = scope.config.chartTypes;
                 scope.chartType = scope.config.chartType;
                 scope.tableArray = ctrl.getTableArray();
-                console.log('activeX', scope.config.activeX)
                 if (scope.activeQuery) {
                     results = scope.activeQuery.results.filter(function (el) {
                             return el.properties.length > 0;
@@ -554,7 +586,6 @@ directives.directive('sylvaEtCell', ['$sanitize', 'DJANGO_URLS', function ($sani
                 var showdown = new Showdown.converter({})
                 ,   html = $sanitize(showdown.makeHtml(scope.mdarea))
                 ,   markdown = html;
-                console.log('html', html)
                 //,   markdown = html);
                 scope.$apply(function () {
                     scope.tableArray.addMarkdown([scope.row, scope.col], markdown);    
@@ -676,7 +707,6 @@ directives.directive('sylvaBreadcrumbs', [
             });
 
             scope.$on('meta', function () {
-                console.log('meta')
                 scope.crumbs.pop()
             });
         }
