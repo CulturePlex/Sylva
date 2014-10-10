@@ -191,6 +191,28 @@ services.factory('tableArray', function () {
         this.table[coords[0]][coords[1]].query = '';
     }
 
+    TableArray.prototype.collapseCol = function (coords, dir) {
+        console.log('toCollapse', coords[0], coords[1])
+        console.log('ta', this.table[coords[0]][coords[1]])
+        var colspan = this.table[coords[0]][coords[1]].colspan
+        this.table[coords[0]][coords[1]].colspan = parseInt(colspan) - 1; 
+        var cell = {
+                colspan: '1',
+                id: '',
+                row: i,
+                rowspan: '1',
+                query: ''
+        };
+        if (dir === 1) {
+            cell.col = coords[1] + 1
+            this.table[coords[0]].splice(coords[1] + 1, 0, cell)
+        } else {
+            cell.col = coords[1]
+            this.table[coords[0]].splice(coords[1], 0, cell) 
+        }
+
+    }   
+
     TableArray.prototype.mergeCol = function(coords) {
         console.log('merge coords', coords)
         var cds = coords[0]
@@ -198,12 +220,10 @@ services.factory('tableArray', function () {
         ,   mrgRow = this.table[cds[0]]
         ,   cell = this.table[cds[0]][cds[1]]
         ,   mrgCell = this.table[mrgCds[0]][mrgCds[1]];
-        console.log('cell mrgCell', cell, mrgCell)
         mrgRow.splice(mrgCds[1], 1);
         cell.colspan = parseInt(cell.colspan);
         cell.colspan += parseInt(mrgCell.colspan);
         this.table[cds[0]] = mrgRow;
-        console.log('after merge table', this.table)
     };
 
     // MABE JUST MERGE THIS WITH PREVIOUS METHOD

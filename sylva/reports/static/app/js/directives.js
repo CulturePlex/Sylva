@@ -318,9 +318,7 @@ directives.directive('syEtRowRepeat', [function () {
     return {
         transclude: 'element',
         require: '^syEditableTable',
-        scope: {
-            //queries: '='
-        },
+        scope: {},
         link: function(scope, elem, attrs, ctrl, transclude) {
 
             var childScopes = []
@@ -455,12 +453,12 @@ directives.directive('sylvaEtCellRepeat', [function () {
                             return el.alias === yAxis;
                         })[0];
                     }
-                    console.log('cell.col, i', cell.col, i)
                     childScope = scope.$new();
                     childScope.$index = i;
                     childScope.config = {
                         row: cell.row,
                         col: i,
+                        colspan: cell.colspan,
                         activeX: activeX,
                         activeY: activeY,
                         queries: ctrl.getQueries(),
@@ -532,13 +530,20 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', fun
                     left: '<a class="arrow left" href="" ng-click="merge(0)">&#8592</a>', 
                     up: '<a class="arrow up" href="" ng-click="merge(1)">&#8593</a>',
                     right: '<a class="arrow right" href="" ng-click="merge(2)">&#8594</a>',
-                    down: '<a class="arrow down" href="" ng-click="merge(3)">&#8595</a>'
+                    down: '<a class="arrow down" href="" ng-click="merge(3)">&#8595</a>',
+                    rightIn: '<a class="arrow right-in" href="" ng-click="collapse(0)">&#8594</a>',
+                    leftIn: '<a class="arrow left-in" href="" ng-click="collapse(1)">&#8592</a>'
             };
 
             scope.merge = function(ndx) {
                 var merges = [[scope.row, scope.col - 1], [scope.row - 1, scope.col], [scope.row, scope.col + 1], [scope.row + 1, scope.col]];
                 scope.tableArray.mergeCol([coords, merges[ndx]]);
             }
+
+            scope.collapse = function (dir) {
+                scope.tableArray.collapseCol(coords, dir)
+            }
+
 
             elem.bind("click", function (event) {
                 if (!arrows) {
@@ -548,6 +553,15 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', fun
                         var arrow = $compile(arrowHtml[el])(scope)
                         elem.append(arrow);
                     });
+
+                    if (parseInt(scope.colspan) > 1) {
+                        
+                        var leftIn = $compile(arrowHtml['leftIn'])(scope)
+                        ,   rightIn = $compile(arrowHtml['rightIn'])(scope);
+                        elem.append(leftIn);
+                        elem.append(rightIn);
+                    } 
+
                     arrows = true;
                 } else {
                     ang('.arrow').remove();
@@ -563,6 +577,7 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', fun
             scope.$watch('config', function (newVal, oldVal) {
                 scope.row = scope.config.row;
                 scope.col = scope.config.col;
+                scope.colspan = scope.config.colspan;
                 coords = [scope.row, scope.col]
                 scope.queries = scope.config.queries;
                 scope.activeQuery = scope.config.activeQuery;
