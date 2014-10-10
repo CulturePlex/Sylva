@@ -210,7 +210,6 @@ services.factory('tableArray', function () {
             cell.col = coords[1]
             this.table[coords[0]].splice(coords[1], 0, cell) 
         }
-
     }   
 
     TableArray.prototype.mergeCol = function(coords) {

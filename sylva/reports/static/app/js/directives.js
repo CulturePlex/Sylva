@@ -639,35 +639,55 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', fun
             }); 
 
             scope.$watch('activeX', function (newVal, oldVal) {
-                if (newVal === oldVal) return;
-                if (newVal) {
-                    var props = newVal.properties[0];
-                    if (props.datatype !== 'number' || 'float') {
+                //if (newVal == oldVal) return;
+                console.log('newVal oldVal', newVal, oldVal)
+                if (newVal && newVal !== oldVal) {
+                    console.log('activeX')
+                    var props = newVal.properties[0]
+                    ,   init_dt = props.datatype;
+                    console.log('props', props)
+                    if (init_dt !== 'number' && init_dt !== 'float' && init_dt !== 'auto_increment' && init_dt !== 'auto_increment_update' && 
+                        props.aggregate === false) {
+                        console.log('IN', props.aggregate)
                         scope.ySeries = scope.ySeries.filter(function (el) {
-                            return el.properties[0].datatype === 'number' && 'float'; 
+                            var dt = el.properties[0].datatype
+                            return dt === 'number' || dt === 'float' || dt === 'auto_increment' || dt === 'auto_increment_update' ||
+                                el.properties[0].aggregate !== false ; 
                         })
+                        console.log('ySeries', scope.ySeries)
+                    } else {
+                        console.log('results', results)
+                        scope.ySeries = results;
+                        newVal = {alias: ''}
                     }
-                } else {
-                    scope.ySeries = results;
-                    newVal = {alias: ''}
+                    scope.tableArray.addAxis([scope.row, scope.col], 'x', newVal.alias)
                 }
-                scope.tableArray.addAxis([scope.row, scope.col], 'x', newVal.alias)
+                
             });
 
             scope.$watch('activeY', function (newVal, oldVal) {
-                if (newVal === oldVal) return;
-                if (newVal) {
-                    var props = newVal.properties[0];
-                    if (props.datatype !== 'number' || 'float') {
+                console.log('new old', newVal, oldVal)
+                //if (newVal == oldVal) return;
+                console.log('activeY')
+                if (newVal && newVal !== oldVal) {
+                    
+                    var props = newVal.properties[0]
+                    ,   init_dt = props.datatype;
+                    if (init_dt !== 'number' && init_dt !== 'float' && init_dt !== 'auto_increment' && init_dt !== 'auto_increment_update' && 
+                        props.aggregate === false) {
+                        
                         scope.xSeries = scope.ySeries.filter(function (el) {
-                            return el.properties[0].datatype === 'number' && 'float';
+                            var dt = el.properties[0].datatype
+                            return dt === 'number' || dt === 'float' || dt === 'auto_increment' || dt === 'auto_increment_update' ||
+                                el.properties[0].aggregate !== false ; 
                         })
+                    } else {
+                        console.log('else')
+                        scope.xSeries = results;
+                        newVal = {alias: ''};
                     }
-                } else {
-                    scope.xSeries = results;
-                    newVal = {alias: ''};
+                    scope.tableArray.addAxis([scope.row, scope.col], 'y', newVal.alias)
                 }
-                scope.tableArray.addAxis([scope.row, scope.col], 'y', newVal.alias)
             });
 
             scope.$watch('chartType', function (newVal, oldVal) {
