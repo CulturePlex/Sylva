@@ -7,6 +7,7 @@ from celery.schedules import crontab
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
+TEST = False
 ugettext = lambda s: s
 
 PROJECT_NAME = u"SylvaDB"

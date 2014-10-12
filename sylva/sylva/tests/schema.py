@@ -127,7 +127,7 @@ class SchemaTestCase(LiveServerTestCase):
         spin_assert(lambda: self.assertEqual(text, "String name"))
         # Testing data
         self.browser.find_by_id('dataMenu').first.click()
-        self.browser.find_by_xpath("//td[@class='dataActions']/a[@class='dataOption new create-node']").first.click()
+        self.browser.find_by_xpath("//td[@class='dataActions']/a[@class='dataOption new']").first.click()
         self.browser.find_by_name('String name').first.fill('')
         self.browser.find_by_value("Save Bob's type").first.click()
         text = self.browser.find_by_xpath("//ul[@class='errorlist']/li").first.text
@@ -201,7 +201,7 @@ class SchemaTestCase(LiveServerTestCase):
         spin_assert(lambda: self.assertEqual(text, "Number name"))
         # Testing data
         self.browser.find_by_id('dataMenu').first.click()
-        self.browser.find_by_xpath("//td[@class='dataActions']/a[@class='dataOption new create-node']").first.click()
+        self.browser.find_by_xpath("//td[@class='dataActions']/a[@class='dataOption new']").first.click()
         self.browser.find_by_name('Number name').first.fill('1.5')
         self.browser.find_by_value("Save Bob's type").first.click()
         text = self.browser.find_by_css('input:invalid').first.value
@@ -231,7 +231,7 @@ class SchemaTestCase(LiveServerTestCase):
         spin_assert(lambda: self.assertEqual(text, "Number name"))
         # Testing data
         self.browser.find_by_id('dataMenu').first.click()
-        self.browser.find_by_xpath("//td[@class='dataActions']/a[@class='dataOption new create-node']").first.click()
+        self.browser.find_by_xpath("//td[@class='dataActions']/a[@class='dataOption new']").first.click()
         self.browser.find_by_name('Number name').first.fill('number')
         self.browser.find_by_value("Save Bob's type").first.click()
         text = self.browser.find_by_css('input:invalid').first.outer_html
@@ -329,7 +329,7 @@ class SchemaTestCase(LiveServerTestCase):
         spin_assert(lambda: self.assertEqual(text, "Time name"))
         # Testing data
         self.browser.find_by_id('dataMenu').first.click()
-        self.browser.find_by_xpath("//td[@class='dataActions']/a[@class='dataOption new create-node']").first.click()
+        self.browser.find_by_xpath("//td[@class='dataActions']/a[@class='dataOption new']").first.click()
         self.browser.find_by_name('Time name').first.fill('0123456789')
         self.browser.find_by_xpath("//button[@class='ui-datepicker-close ui-state-default ui-priority-primary ui-corner-all']").first.click()
         self.browser.find_by_value("Save Bob's type").first.click()

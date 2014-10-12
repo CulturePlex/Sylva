@@ -50,6 +50,9 @@
     // Var for control which menu is opened.
     var menuOpened = null;
 
+    // Var for canceling de '(".no-menu").on("mouseover", ...' trigger.
+    var timeoutId = null;
+
     $("#nodeTypeNavigation").change(function(e) {
       location.href = $(this).val();
       return false;
@@ -83,15 +86,22 @@
     $("nav.menu").on("mouseleave", closeMenu);
 
     // This always close the menu if the user enter another button.
-    $(".no-menu").on("mouseover", function() {
-      setTimeout(function() {
+    $(".no-menu").on("mouseenter", function() {
+      timeoutId = setTimeout(function() {
         closeMenu();
       }, 500);
-      setTimeout()
     });
 
-    $("#dataMenu").on("mouseover", function() {
+    $("#dataMenu").on("mouseenter", function() {
       openMenu("#dataBrowse");
+    });
+
+    /* This is a little trick to not close the dropdown if has been closed with
+     * the '(".no-menu").on("mouseover", ...' trigger.
+     */
+    $("#dataBrowse").on("mouseenter", function() {
+      clearTimeout(timeoutId);
+      timeoutId = null;
     });
 
     $("#dataBrowse").on("mouseleave", closeMenu);
@@ -102,9 +112,9 @@
 
     $("#toolsBrowseId").on("mouseleave", closeMenu);
 
-    $(".dataOption.list.list-nodes").on("click", closeMenu);
+    $(".dataOption.list").on("click", closeMenu);
 
-    $(".dataOption.new.create-node").on("click", closeMenu);
+    $(".dataOption.new").on("click", closeMenu);
   }
 
 

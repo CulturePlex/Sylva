@@ -22,7 +22,7 @@ def create_node(test, name):
     """
     test.browser.find_by_id('dataMenu').first.click()
     test.browser.find_by_xpath(
-        "//a[@class='dataOption new create-node']").first.click()
+        "//a[@class='dataOption new']").first.click()
     text = test.browser.find_by_id('propertiesTitle').first.value
     spin_assert(lambda: test.assertEqual(text, 'Properties'))
     test.browser.find_by_name('Name').first.fill(name)
@@ -89,7 +89,7 @@ class DataNodeTestCase(LiveServerTestCase):
             self.browser.title, "SylvaDB - Bob's graph"))
         # We create the link between the nodes
         self.browser.find_by_id('dataMenu').first.click()
-        self.browser.find_by_xpath("//td[@class='dataActions']/a[@class='dataOption list list-nodes']").first.click()
+        self.browser.find_by_xpath("//td[@class='dataActions']/a[@class='dataOption list']").first.click()
         self.browser.find_by_xpath("//td[@class='dataList']/a[@class='edit']").first.click()
         self.browser.find_by_xpath("//li[@class='token-input-input-token']/input").first.fill('Alice')
         self.browser.is_element_present_by_id("id_user_wait", 5)
@@ -100,7 +100,7 @@ class DataNodeTestCase(LiveServerTestCase):
         spin_assert(lambda: self.assertEqual(text, "1 relationships"))
         # Delete the relationship
         self.browser.find_by_id('dataMenu').first.click()
-        self.browser.find_by_xpath("//td[@class='dataActions']/a[@class='dataOption list list-nodes']").first.click()
+        self.browser.find_by_xpath("//td[@class='dataActions']/a[@class='dataOption list']").first.click()
         self.browser.find_by_xpath("//td[@class='dataList']/a[@class='edit']").first.click()
         self.browser.find_by_xpath("//span[@class='all-relationships incoming-relationships i_bobs_rel1-relationships']//a[@class='delete-row initial-form floating']").first.click()
         self.browser.find_by_value("Save Bob's type").first.click()
@@ -129,7 +129,7 @@ class DataNodeTestCase(LiveServerTestCase):
         create_node(self, 'Alice')
         # Creating relationship between nodes
         self.browser.find_by_id('dataMenu').first.click()
-        self.browser.find_by_xpath("//td[@class='dataActions']/a[@class='dataOption list list-nodes']").first.click()
+        self.browser.find_by_xpath("//td[@class='dataActions']/a[@class='dataOption list']").first.click()
         self.browser.find_by_xpath("//td[@class='dataList']/a[@class='edit']").first.click()
         self.browser.find_by_xpath("//li[@class='token-input-input-token']/input").first.fill('Alice')
         self.browser.is_element_present_by_id("id_user_wait", wait_time=5)
@@ -186,7 +186,7 @@ class DataNodeTestCase(LiveServerTestCase):
         create_node(self, 'Alice')
         # Creating relationship between nodes
         self.browser.find_by_id('dataMenu').first.click()
-        self.browser.find_by_xpath("//td[@class='dataActions']/a[@class='dataOption list list-nodes']").first.click()
+        self.browser.find_by_xpath("//td[@class='dataActions']/a[@class='dataOption list']").first.click()
         self.browser.find_by_xpath("//td[@class='dataList']/a[@class='edit']").first.click()
         self.browser.find_by_xpath("//li[@class='token-input-input-token']/input").first.fill('Alice')
         self.browser.is_element_present_by_id("id_user_wait", wait_time=5)
@@ -256,7 +256,7 @@ class DataNodeTestCase(LiveServerTestCase):
         create_node(self, 'Alice')
         # Creating relationship between nodes
         self.browser.find_by_id('dataMenu').first.click()
-        self.browser.find_by_xpath("//td[@class='dataActions']/a[@class='dataOption list list-nodes']").first.click()
+        self.browser.find_by_xpath("//td[@class='dataActions']/a[@class='dataOption list']").first.click()
         self.browser.find_by_xpath("//td[@class='dataList']/a[@class='edit']").first.click()
         self.browser.find_by_xpath("//li[@class='token-input-input-token']/input").first.fill('Alice')
         self.browser.is_element_present_by_id("id_user_wait", wait_time=5)
