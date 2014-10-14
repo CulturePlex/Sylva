@@ -10,9 +10,14 @@
 }
 
 #select-node {
-    float: left;
-    position: absolute;
+    width: 111px;
+    float: right;
+    position: relative;
     z-index:1;
+}
+
+#select-node-type {
+    margin-left: 33px;
 }
 
 #node-options {
@@ -21,14 +26,9 @@
     display: block;
 }
 
-#run-query {
-    margin-top: 40px;
-    margin-left: 30px;
-}
-
-#clear-button {
-    margin-top: 40px;
-    margin-left: 20px;
+#run-query-div {
+    margin-top: 20px;
+    float: right;
 }
 
 #save-button {
@@ -218,7 +218,12 @@
 #form-save-query {
     display: block;
     margin-top: 20px;
-    margin-left: 30px;
+    padding-left: 2px;
+    /*margin-left: 30px;*/
+}
+
+.content-save-query {
+    min-width: 349px;
 }
 
 #labelName {

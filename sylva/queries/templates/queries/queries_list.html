@@ -89,7 +89,7 @@
         </th>
         <th></th>
     {% for query in queries %}
-        <tr>
+        <tr class="{% cycle 'row-even' 'row-odd' %}">
             <td id="query-name">{{ query.name }}</td>
             <td id="query-description">{{ query.description }}</td>
             <td id="query-results-count">{{ query.results_count }}</td>
