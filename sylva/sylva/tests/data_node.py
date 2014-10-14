@@ -95,12 +95,7 @@ class DataNodeTestCase(LiveServerTestCase):
         self.browser.is_element_present_by_id("id_user_wait", 5)
         self.browser.find_by_xpath("//div[@class='token-input-dropdown']//li[@class='token-input-dropdown-item2 token-input-selected-dropdown-item']/b").first.click()
         self.browser.find_by_value("Save Bob's type").first.click()
-        self.browser.find_link_by_href('/graphs/bobs-graph/').first.click()
-        text = self.browser.find_by_xpath("//div[@class='flags-block']/span[@class='graph-relationships']").first.value
-        spin_assert(lambda: self.assertEqual(text, "1 relationships"))
         # Delete the relationship
-        self.browser.find_by_id('dataMenu').first.click()
-        self.browser.find_by_xpath("//td[@class='dataActions']/a[@class='dataOption list']").first.click()
         self.browser.find_by_xpath("//td[@class='dataList']/a[@class='edit']").first.click()
         self.browser.find_by_xpath("//span[@class='all-relationships incoming-relationships i_bobs_rel1-relationships']//a[@class='delete-row initial-form floating']").first.click()
         self.browser.find_by_value("Save Bob's type").first.click()
