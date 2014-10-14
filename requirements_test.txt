@@ -44,7 +44,7 @@ python-dateutil==2.1
 python-rexster==0.1.1
 pytz==2014.2
 requests==2.0.1
-selenium==2.43.0
+selenium==2.42.1
 sh==1.09
 simplejson==2.6.2
 six==1.6.1

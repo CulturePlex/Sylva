@@ -18,7 +18,7 @@
             <attribute id="RelationshipTypeId" title="[Schema] Allowed Relationship Id" type="string"/>
         </attributes>
         <nodes>
-                <node id="45" label="Bob&#39;s node" type="Bob&#39;s type">
+                <node id="38" label="Bob&#39;s node" type="Bob&#39;s type">
                 <attvalues>
                     <attvalue for="NodeTypeId" value="1"/>
                     <attvalue for="NodeType" value="Bob&amp;#39;s type"/>

@@ -331,7 +331,9 @@ class SchemaTestCase(LiveServerTestCase):
         self.browser.find_by_id('dataMenu').first.click()
         self.browser.find_by_xpath("//td[@class='dataActions']/a[@class='dataOption new']").first.click()
         self.browser.find_by_name('Time name').first.fill('0123456789')
+        sleep(5)  # Wating to the datepicker to open
         self.browser.find_by_xpath("//button[@class='ui-datepicker-close ui-state-default ui-priority-primary ui-corner-all']").first.click()
+        sleep(5)  # Waiting to the datepicker to close
         self.browser.find_by_value("Save Bob's type").first.click()
         text = self.browser.find_by_xpath("//ul[@class='errorlist']/li").first.text
         spin_assert(lambda: self.assertEqual(text, 'Enter a valid time.'))
