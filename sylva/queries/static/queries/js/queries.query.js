@@ -561,7 +561,7 @@ diagram.aggregates = [
                 'display': 'none',
                 'margin-right': '4px'
             });
-            iconEditSelect = $("<I>");
+            var iconEditSelect = $("<I>");
             iconEditSelect.addClass("fa fa-pencil icon-style");
             anchorEditSelect.append(iconEditSelect);
             anchorEditSelect.click(function () {
@@ -576,7 +576,7 @@ diagram.aggregates = [
                     var selectValue = $(selectorAlias).val();
                     // We replace the selectAlias with the input for the user
                     var inputAlias = $("<INPUT>");
-                    var classesInput = "option-nodetype-" + name + " edit-alias";
+                    var classesInput = "option-reltype-" + name + " edit-alias";
                     inputAlias.addClass(classesInput);
                     // This attr is for the logical to get the fields for the query
                     inputAlias.attr("selected", "selected");
@@ -584,6 +584,7 @@ diagram.aggregates = [
                     inputAlias.attr("data-idbox", idBox);
                     inputAlias.attr("data-oldvalue", selectValue);
                     inputAlias.attr("data-typename", name);
+                    inputAlias.attr("data-datatype", 'rel');
                     inputAlias.css({
                         "width": "60px",
                         "float": "left",
@@ -608,9 +609,10 @@ diagram.aggregates = [
                         }
                     });
                     // We propagate the new value
-                    diagram.propagateValue(selectorSelectAlias, inputSelectAlias, name);
+                    diagram.propagateValue(selectorSelectAlias, inputSelectAlias, name, false);
                 }
             });
+
             // We create the div for the corner buttons
             divCornerButtons = $("<DIV>");
             divCornerButtons.addClass("corner-buttons");
@@ -917,6 +919,7 @@ diagram.aggregates = [
                     inputAlias.attr("data-oldvalue", selectValue);
                     //inputAlias.attr("data-firstvalue", selectValue);
                     inputAlias.attr("data-typename", typeName);
+                    inputAlias.attr("data-datatype", 'node')
                     inputAlias.css({
                         "width": "36%",
                         "float": "left",
@@ -941,7 +944,7 @@ diagram.aggregates = [
                         }
                     });
                     // We propagate the new value
-                    diagram.propagateValue(selectorSelectAlias, inputSelectAlias, typeName);
+                    diagram.propagateValue(selectorSelectAlias, inputSelectAlias, typeName, true);
                 }
             });
 
@@ -1469,37 +1472,99 @@ diagram.aggregates = [
          * - newAlias
          * - oldAlias
          * - typeName
+         * - isNodetype
          */
-        diagram.propagateValue = function(newAlias, oldAlias, typeName) {
-            // We need to change the old alias for the new
-            // We treat the nodetypesList
-            if (diagram.nodetypesList[typeName]) {
-                aliases = diagram.nodetypesList[typeName];
-                $.each(aliases, function(index, elem) {
-                    if(elem == oldAlias) {
-                        diagram.nodetypesList[typeName][index] = newAlias;
+        diagram.propagateValue = function(newAlias, oldAlias, typeName, isNodetype) {
+            // We check if we treat with nodes or relationships
+            if(isNodetype) {
+                // We need to change the old alias for the new
+                // We treat the nodetypesList
+                if (diagram.nodetypesList[typeName]) {
+                    aliases = diagram.nodetypesList[typeName];
+                    $.each(aliases, function(index, elem) {
+                        if(elem == oldAlias) {
+                            diagram.nodetypesList[typeName][index] = newAlias;
+                        }
+                    });
+                }
+                // We treat the fieldsForNodes
+                if (diagram.fieldsForNodes[oldAlias]) {
+                    Object.defineProperty(diagram.fieldsForNodes, newAlias,
+                        Object.getOwnPropertyDescriptor(diagram.fieldsForNodes, oldAlias));
+                    delete diagram.fieldsForNodes[oldAlias];
+                }
+                // We iterate over all the options of the selects and the inputs
+                var selectsAlias = $('.select-nodetype-' + typeName + ' option');
+                $.each(selectsAlias, function(index, select) {
+                    if($(select, 'option').val() == oldAlias) {
+                        $newOption = $(this);
+                        $newOption.attr('id', typeName + diagram.nodetypesCounter[typeName]);
+                        $newOption.attr('value', newAlias);
+                        $newOption.html(newAlias);
+                    }
+                });
+            } else {
+                // We need to change the old alias for the new
+                // We treat the nodetypesList
+                if (diagram.reltypesList[typeName]) {
+                    aliases = diagram.reltypesList[typeName];
+                    $.each(aliases, function(index, elem) {
+                        if(elem == oldAlias) {
+                            diagram.reltypesList[typeName][index] = newAlias;
+                        }
+                    });
+                }
+                // We treat the fieldsForNodes
+                if (diagram.fieldsForRels[oldAlias]) {
+                    Object.defineProperty(diagram.fieldsForRels, newAlias,
+                        Object.getOwnPropertyDescriptor(diagram.fieldsForRels, oldAlias));
+                    delete diagram.fieldsForRels[oldAlias];
+                }
+                // We iterate over all the options of the selects and the inputs
+                var selectsAlias = $('.select-reltype-' + typeName + ' option');
+                $.each(selectsAlias, function(index, select) {
+                    if($(select, 'option').val() == oldAlias) {
+                        $newOption = $(this);
+                        $newOption.attr('id', typeName + diagram.nodetypesCounter[typeName]);
+                        $newOption.attr('value', newAlias);
+                        $newOption.html(newAlias);
                     }
                 });
             }
-            // We treat the fieldsForNodes
-            if (diagram.fieldsForNodes[oldAlias]) {
-                Object.defineProperty(diagram.fieldsForNodes, newAlias,
-                    Object.getOwnPropertyDescriptor(diagram.fieldsForNodes, oldAlias));
-                delete diagram.fieldsForNodes[oldAlias];
-            }
-            //diagram.reltypesCounter = [];
-            //diagram.reltypesList = {};
-            //diagram.fieldsForRels = {};
-            // We iterate over all the options of the selects and the inputs
-            var selectsAlias = $('.select-nodetype-' + typeName + ' option');
-            $.each(selectsAlias, function(index, select) {
-                if($(select, 'option').val() == oldAlias) {
-                    $newOption = $(this);
-                    $newOption.attr('id', typeName + diagram.nodetypesCounter[typeName]);
-                    $newOption.attr('value', newAlias);
-                    $newOption.html(newAlias);
-                }
+        };
+
+        /**
+         * Function that encapsules all the necessary to load a query with
+         * an alias different to default
+         */
+        diagram.loadQueryWithAlias = function(idBox, newAlias, typeName, isNodetype) {
+            // We select the correct value for the alias
+            // We need to take into account the edit alias feature
+            // We get all the values in the select
+            var boxOptions = $('#' + idBox + ' .title select option');
+            var arrayValues = $.map(boxOptions, function(elem){
+                return $(elem).val();
             });
+            // The new alias is the latest of the list, so we need to
+            // change that element
+            var elementsLength = arrayValues.length - 1;
+            var latestElement = arrayValues[elementsLength];
+            if(latestElement != newAlias) {
+                // We check if we have to show the 'alias selects' for a correct behaviour
+                if(isNodetype) {
+                    diagram.showSelects(typeName, "node");
+                } else {
+                    diagram.showSelects(typeName, "relationship");
+                }
+                // We change the value and the html
+                var newElement = $($('#' + idBox + ' .title select option')[elementsLength]);
+                var oldAlias = newElement.val();
+                newElement.val(newAlias);
+                newElement.html(newAlias);
+                // We propagate the new alias of the relationship
+                diagram.propagateValue(newAlias, oldAlias, typeName, isNodetype);
+            }
+            $('#' + idBox + ' .title select').val(newAlias);
         };
 
         /**
@@ -2000,28 +2065,9 @@ diagram.aggregates = [
                         }
                     }
                     conditionsIndex = 0;
-                    // We select the correct value for the alias
-                    // We need to take into account the edit alias feature
-                    // We get all the values in the select
-                    var boxOptions = $('#' + id + ' .title select option');
-                    var arrayValues = $.map(boxOptions, function(elem){
-                        return $(elem).val();
-                    });
-                    // The new alias is the latest of the list, so we need to
-                    // change that element
-                    var elementsLength = arrayValues.length - 1;
-                    var latestElement = arrayValues[elementsLength];
-                    if(latestElement != key) {
-                        // We check if we have to show the 'alias selects' for a correct behaviour
-                        diagram.showSelects(typename, "node");
-                        // We change the value and the html
-                        var newElement = $($('#' + id + ' .title select option')[elementsLength]);
-                        var oldAlias = newElement.val();
-                        newElement.val(key);
-                        newElement.html(key);
-                        diagram.propagateValue(key, oldAlias, typename);
-                    }
-                    $('#' + id + ' .title select').val(key);
+                    // We check if we need to change the alias
+                    // (edit alias feature)
+                    diagram.loadQueryWithAlias(id, key, typename, true)
                 }
                 // We check if we have to show the 'alias selects' for this type
                 diagram.showSelects(typename, "node");
@@ -2076,8 +2122,15 @@ diagram.aggregates = [
                     anchor: ["Perimeter", {shape: "Rectangle"}]
                 });
 
+                /****************************************************
+                ****************************************************/
+
                 // We check if we need to show the 'alias selects' for the relationship boxes
                 diagram.showSelects(relationValue, "relationship");
+                idRelBox = types[relation].id
+                // We check if we need to change the alias
+                // (edit alias feature)
+                diagram.loadQueryWithAlias(idRelBox, relation, relationValue, false)
             }
 
             jsPlumb.repaintEverything();
@@ -2791,6 +2844,7 @@ diagram.aggregates = [
         var idBox = $(this).data("idbox");
         var oldAlias = $(this).data("oldvalue");
         var typeName = $(this).data("typename");
+        var dataType = $(this).data("datatype");
         //var selectsAlias = $('.select-nodetype-' + typeName);
         // We save the new entry in the dictionary
         // We are going to have the newAlias like key and the oldAlias like
@@ -2810,9 +2864,15 @@ diagram.aggregates = [
                 $newOption.html(newAlias);
             }
         });
-        // We select the new option in the select
-        $('#' + idBox + ' select').val(newAlias);
-        diagram.propagateValue(newAlias, oldAlias, typeName);
+        if(dataType == "node") {
+            // We select the new option in the select
+            $('#' + idBox + '.select-nodetype-' + typeName).val(newAlias);
+            diagram.propagateValue(newAlias, oldAlias, typeName, true);
+        } else {
+            // We select the new option in the select
+            $('#' + idBox + '.select-reltype-' + typeName).val(newAlias);
+            diagram.propagateValue(newAlias, oldAlias, typeName, false);
+        }
     });
 
     /**
