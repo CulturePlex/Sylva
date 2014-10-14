@@ -89,10 +89,6 @@ class DataNodeTestCase(LiveServerTestCase):
             self.browser.title, "SylvaDB - Bob's graph"))
         # We create the link between the nodes
         self.browser.find_by_id('dataMenu').first.click()
-
-        import ipdb
-        ipdb.set_trace()
-
         self.browser.find_by_xpath("//td[@class='dataActions']/a[@class='dataOption list']").first.click()
         self.browser.find_by_xpath("//td[@class='dataList']/a[@class='edit']").first.click()
         self.browser.find_by_xpath("//li[@class='token-input-input-token']/input").first.fill('Alice')
