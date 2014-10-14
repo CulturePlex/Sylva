@@ -377,3 +377,6 @@ STRIPE_PLANS = {
 
 # django-compressor
 COMPRESS_ENABLED = True  # By default it's the opposite to 'DEBUG'
+
+# A variable for configure some URLs for the Travis's tests
+TEST = False
