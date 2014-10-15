@@ -93,6 +93,15 @@ def queries_new(request, graph_slug):
     queries_link = (reverse("queries_list", args=[graph.slug]),
                     _("Queries"))
     form = SaveQueryForm()
+    # We check if we have the variables in the request.session
+    if 'query' not in request.session:
+        request.session['query'] = None
+    if 'query_aliases' not in request.session:
+        request.session['query_aliases'] = None
+    if 'query_fields' not in request.session:
+        request.session['query_fields'] = None
+    if 'results_count' not in request.session:
+        request.session['results_count'] = None
     # We get the query_dicts of the session variable if they exist
     query_dict = request.session['query']
     query_aliases = request.session['query_aliases']

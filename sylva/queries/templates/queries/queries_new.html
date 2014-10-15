@@ -51,8 +51,8 @@
 
 {% if node_types %}
 <div id="query-new-wrapper" style="display: inline-block;">
-    <div class="accordion-save-query" style="float: left;">
-        <a href="javascript:void(0);"><h2>{% trans "Save query" %}</h2></a>
+    <div id="div-save-query" style="float: left; display: none;">
+        <a href="javascript:void(0);"><h2>{% trans "Query" %}</h2></a>
         <div class="content-save-query">
             <form method="post" action="." id="form-save-query" name="form query save">
                 {% csrf_token %}
@@ -82,6 +82,7 @@
     </div>
     <div class="content-divider" style="display: none;"></div>
     <div class="content2-second diagram" style="padding-left: 0px; float: none; width: 1140px;">
+        <h2 id="diagramTitle">{% trans "Diagram" %}</h2>
         <div id="diagramContainer">
            <nav id="select-node" class="menu">
                 <ul id="node-options">
@@ -90,15 +91,15 @@
                             <span>{% trans "Types" %}</span>
                             <i class="fa fa-angle-down"></i>
                         </a>
-                        <div id="node-types" style="display: none;">
-                            <table>
+                        <div id="node-types" style="display: block;">
+                            <table class="toolsBrowse" style="display: table;">
                                 {% for node_type in node_types %}
                                     <tr>
-                                        <td><a class="add-box" data-type="{{node_type.slug}}" href="javascript:void(0);" style="width: 80px;">{{ node_type.name|capfirst }}</a></td>
+                                        <td class="dataActions"><a class="add-box dataOption list" data-type="{{node_type.slug}}" href="javascript:void(0);" style="width: 80px;">{{ node_type.name|capfirst }}</a></td>
                                     </tr>
                                 {% endfor %}
                                     <tr>
-                                        <td><a class="add-box" data-type="wildcard" href="javascript:void(0);" style="width: 80px;">{% trans "Wildcard Type" %}</a></td>
+                                        <td class="dataActions"><a class="add-box dataOption list" data-type="wildcard" href="javascript:void(0);" style="width: 80px;">{% trans "Wildcard Type" %}</a></td>
                                     </tr>
                             </table>
                         </div>
@@ -116,9 +117,12 @@
             <input type="hidden" id="query_fields" name="query_fields" />
             <span class="buttonLinkOption buttonLinkLeft">
                 <input type="submit" id="run-query" name="run-query" value="{% trans "Run" %}" />
+                 {% trans "or" %}
+                <input type="button" id="save-button" name="save-button" value="{% trans "Save" %}" />
+                <!--<a id="save-button" href="javascript:void(0)">{% trans "Save" %}</a>-->
             </span>
             <span class="buttonLinkOption buttonLinkRight">
-                {% trans "or" %} <a id="clear-button" href="javascript:void(0)">{% trans "Clear query" %}</a>
+                {% trans "or" %} <a id="clear-button" href="javascript:void(0)">{% trans "Clear" %}</a>
             </span>
         </form>
     </div>

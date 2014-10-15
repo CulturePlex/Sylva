@@ -31,10 +31,10 @@
     float: right;
 }
 
-#save-button {
+/* #save-button {
     margin-top: 40px;
     margin-left: 20px;
-}
+} */
 
 #query-builder-results {
     display: inline;
@@ -217,7 +217,7 @@
 
 #form-save-query {
     display: block;
-    margin-top: 20px;
+    /*margin-top: 20px;*/
     padding-left: 2px;
     /*margin-left: 30px;*/
 }
