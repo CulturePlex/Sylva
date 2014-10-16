@@ -2,33 +2,33 @@
 {% load i18n graphs %}
 
 {% if not as_modal %}
-    {% block navigation_buttons %}
-    {{ block.super }}
-    {% endblock %}
+  {% block navigation_buttons %}
+  {{ block.super }}
+  {% endblock %}
 
-    {% block title %}
-    {{ graph.name }}
-    {% endblock %}
+  {% block title %}
+  {{ graph.name }}
+  {% endblock %}
 
-    {% block menu_buttons %}
-    {% toolbar on="schema" %}
-    {% endblock %}
+  {% block menu_buttons %}
+  {% toolbar on="schema" %}
+  {% endblock %}
 
-    {% block content_title %}
-    {% trans "Import" as label %}
-    {% breadcrumb graph graph.schema label %}
-    {% endblock %}
+  {% block content_title %}
+  {% trans "Import" as label %}
+  {% breadcrumb graph graph.schema label %}
+  {% endblock %}
 {% endif %}
 
 {% block content %}
 <h2>{% trans "Import a Schema" %}</h2>
-<form method="POST" action="{% url "schema_import" graph.slug %}" enctype="multipart/form-data">{% csrf_token %}
+<form id="import-schema-form" method="POST" action="{% url "schema_import" graph.slug %}" enctype="multipart/form-data">{% csrf_token %}
   {{ form.as_p }}
   <span class="buttonLinkOption buttonLinkLeft">
-    <input type="submit" value="{% trans "Continue" %}">
+    <input id="submit-save" type="submit" value="{% trans "Continue" %}">
   </span>
   <span class="buttonLinkOption buttonLinkRight">
-    {% trans "or" %} <a href="{{ graph.schema.get_absolute_url }}">{% trans "Cancel" %}</a>.
+    {% trans "or" %} <a id="submit-cancel" href="{{ graph.schema.get_absolute_url }}">{% trans "Cancel" %}</a>.
   </span>
 </form>
 {% endblock %}
