@@ -140,6 +140,12 @@
       // done filter
       function() {
         setMessage('graph-uploaded');
+
+        if ($('#submit-cancel').length) {  // If enters, we are using a modal.
+          setTimeout(function() {
+            location.reload();
+          }, 1500);
+        }
       },
       // fail filter
       function() {

@@ -13,6 +13,7 @@ from django.shortcuts import (get_object_or_404, render_to_response,
 from django.http import Http404
 from django.utils.translation import gettext as _
 from django.template import RequestContext
+from django.template.loader import render_to_string
 
 from guardian.decorators import permission_required
 
@@ -25,6 +26,7 @@ from converters import GEXFConverter, CSVConverter
 @login_required()
 def graph_import_tool(request, graph_slug):
     graph = get_object_or_404(Graph, slug=graph_slug)
+    as_modal = bool(request.GET.get("asModal", False))
     if graph.schema.is_empty():
         messages.error(request, _("You are trying to import data into a "
                                   "graph with an empty schema"))
@@ -34,11 +36,27 @@ def graph_import_tool(request, graph_slug):
                                   "not empty graph"))
         return redirect(reverse('dashboard'))
     schema = graph.schema.export()  # Schema jsonification
-    return render_to_response('graph_import_tool.html',
-                              {"graph": graph,
-                               "sylva_schema": json.dumps(schema),
-                               "IMPORT_MAX_SIZE": settings.IMPORT_MAX_SIZE},
-                              context_instance=RequestContext(request))
+    if as_modal:
+        base_template = 'empty.html'
+        render = render_to_string
+    else:
+        base_template = 'base.html'
+        render = render_to_response
+    broader_context = {"graph": graph,
+                       "sylva_schema": json.dumps(schema),
+                       "IMPORT_MAX_SIZE": settings.IMPORT_MAX_SIZE,
+                       "base_template": base_template,
+                       "as_modal": as_modal}
+    response = render('graph_import_tool.html', broader_context,
+                      context_instance=RequestContext(request))
+    if as_modal:
+        response = {'type': 'html',
+                    'action': 'import_graph',
+                    'html': response}
+        return HttpResponse(json.dumps(response), status=200,
+                            mimetype='application/json')
+    else:
+        return response
 
 
 @permission_required("data.change_data", (Data, "graph__slug", "graph_slug"),

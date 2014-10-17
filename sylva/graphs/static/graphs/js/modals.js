@@ -331,6 +331,11 @@
              * data, the next line should be changed.
              */
             location.reload();
+          case 'import_graph':
+            /* TODO: When the full window mode could be activated withot schema
+             * data, the next line should be changed.
+             */
+            // location.reload(); But this is called in the tool.js file.
           case 'nothing':
           default:
             break;
@@ -596,7 +601,6 @@
         var saveURL = $(formSelector).attr('action');
         var extraParams = '&asModal=true';
 
-
         $('#id_file').on('change', function(event) {
           var reader = new FileReader();
 
@@ -639,11 +643,16 @@
     importData: {
 
       start: function(url, showOverlay) {
-        console.log('Functionality not implemented');
-        // that.prepareModal(url, showOverlay, this);
+        that.prepareModal(url, showOverlay, this);
       },
 
-      preProcessHTML: function() {},
+      preProcessHTML: function() {
+        // Binding cancel action.
+        $('#submit-cancel').on('click', function() {
+          that.closeModalLib();
+          return false;
+        });
+      },
 
       onShow: function() {}
     },
