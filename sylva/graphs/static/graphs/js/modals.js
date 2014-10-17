@@ -438,6 +438,7 @@
             return false;
           });
 
+          // This handles the pagination.
           $('span.step-links > a').on('click', function(event) {
             var listURL = $('#list-url').attr('data-url');
             var page = $(event.target).parent().attr('href');
@@ -445,6 +446,41 @@
             var params = {
               page: page.substr(6)
             };
+
+            $.modal.close();
+            setTimeout(function() {
+              that.listNodes.start(listURL, false, params);
+            }, fast);
+
+            return false;
+          });
+
+          // This handles the sorting.
+          $('a.remove-sorting').on('click', function(event) {
+            var listURL = $('#list-url').attr('data-url');
+            var orderBy = $(event.target).attr('href');
+
+            var params = {
+              order_by: orderBy.substr(10)
+            };
+
+            $.modal.close();
+            setTimeout(function() {
+              that.listNodes.start(listURL, false, params);
+            }, fast);
+
+            return false;
+          });
+
+          // This handles the sorting for two or more params.
+          $('a[data-modal="list-sort"]').on('click', function(event) {
+            var listURL = $('#list-url').attr('data-url');
+            var rawParams = $(event.target).attr('href');
+
+            var regex = /[?&]([^=#]+)=([^&#]*)/g;
+            while (match = regex.exec(rawParams)) {
+                params[match[1]] = match[2];
+            }
 
             $.modal.close();
             setTimeout(function() {
