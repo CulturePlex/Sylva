@@ -37,10 +37,10 @@ sylva:true, alert:true */
     }
 
     if (msg !== '') {
-      // TODO: Remove the next lines, they don't belong here.
+      // TODO: The next lines are for checking the import tools wihtout enter in the Analytics Mode.
       // sylva.modals.init();
-      // $('.import-schema').on('click', sylva.Sigma.callImportSchemaModal);
-      // $('.import-data').on('click', sylva.Sigma.callImportDataModal);
+      // $('a[data-modal="import-schema"]').on('click', sylva.Sigma.callImportSchemaModal);
+      // $('a[data-modal="import-data"]').on('click', sylva.Sigma.callImportDataModal);
 
       $('#sigma-container').html('<div class="graph-empty-message">' + msg + '</div>');
     } else {

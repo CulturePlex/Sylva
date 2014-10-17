@@ -1532,11 +1532,11 @@
       that.reCenter();
 
       // Defining default modals.
-      $('.create-node').on('click', that.callCreateNodeModal);
-      $('.list-nodes').on('click', that.callListNodesModal);
+      $('a[data-modal="list-nodes"]').on('click', that.callListNodesModal);
+      $('a[data-modal="create-node"]').on('click', that.callCreateNodeModal);
       $('#collaborators-button').on('click', that.callCollaboratorsModal);
-      $('.import-schema').on('click', that.callImportSchemaModal);
-      $('.import-data').on('click', that.callImportDataModal);
+      $('a[data-modal="import-schema"]').on('click', that.callImportSchemaModal);
+      $('a[data-modal="import-data"]').on('click', that.callImportDataModal);
     },
 
     /* Perform the cancelation of the analytics mode. Also perform the
@@ -1590,11 +1590,11 @@
       that.reCenter();
 
       // Removing default modals.
-      $('.create-node').off('click', that.callCreateNodeModal);
-      $('.list-nodes').off('click', that.callListNodesModal);
+      $('a[data-modal="list-nodes"]').off('click', that.callListNodesModal);
+      $('a[data-modal="create-node"]').off('click', that.callCreateNodeModal);
       $('#collaborators-button').off('click', that.callCollaboratorsModal);
-      $('.import-schema').off('click', that.callImportSchemaModal);
-      $('.import-data').off('click', that.callImportDataModal);
+      $('a[data-modal="import-schema"]').off('click', that.callImportSchemaModal);
+      $('a[data-modal="import-data"]').off('click', that.callImportDataModal);
     },
 
 

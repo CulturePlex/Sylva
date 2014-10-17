@@ -7,6 +7,7 @@ from celery.schedules import crontab
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
+TEST = False
 ugettext = lambda s: s
 
 PROJECT_NAME = u"SylvaDB"
@@ -376,3 +377,6 @@ STRIPE_PLANS = {
 
 # django-compressor
 COMPRESS_ENABLED = True  # By default it's the opposite to 'DEBUG'
+
+# A variable for configure some URLs for the Travis's tests
+TEST = False

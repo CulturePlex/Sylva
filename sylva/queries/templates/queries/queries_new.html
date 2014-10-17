@@ -22,7 +22,7 @@
 {% block content %}
 
 <!-- Features Tour -->
-<ol id="tour" class="hidden" data-tour-id="">
+<!--<ol id="tour" class="hidden" data-tour-id="">
   <li data-id="select-node" data-button="{% trans "Next" %}" class="">
     <h2>{% trans "Types" %}</h2>
     <p>{% trans "The node types that we can select to build a query." %}</p>
@@ -47,56 +47,83 @@
     <h2>{% trans "Save query" %}</h2>
     <p>{% trans "Click this button to save the query. To save the number of results and the last run date, you have to run the query before." %}</p>
   </li>
-</ol>
+</ol>-->
 
 {% if node_types %}
-<div style="width: 570px;">
-    <div id="query-builder-query">
-        <div class="content2-second diagram" style="padding-left: 20px;">
-            <div id="diagramContainer" style="width: 1120px; margin-top: 20px;">
-                <nav id="select-node">
-                    <a href="#">{% trans "Types" %}</a>
-                    <ul id="node-options" class="dropdown">
-                    {% for node_type in node_types %}
-                        <li style="padding: 3px;">
-                            <a class="add-box" data-type="{{node_type.slug}}" href="javascript:void(0);">{{ node_type.name|capfirst }}</a>
-                        </li>
-                    {% endfor %}
-                    <!-- Wildcard type - It needs to be improved -->
-                        <li style="padding: 3px;">
-                            <a class="add-box" data-type="wildcard" href="javascript:void(0);">{% trans "Wildcard Type" %}</a>
-                        </li>
-                    </ul>
-                </nav>
-                <div id="diagram"></div>
-            </div>
+<div id="query-new-wrapper" style="display: inline-block;">
+    <div id="div-save-query" style="float: left; display: none;">
+        <a href="javascript:void(0);"><h2>{% trans "Query" %}</h2></a>
+        <div class="content-save-query">
+            <form method="post" action="." id="form-save-query" name="form query save">
+                {% csrf_token %}
+                {% for field in form %}
+                    {% if field.is_hidden %}
+                        {{ field|escape }}
+                    {% else %}
+                        <p>
+                            <label>{{ field.label|escape}}:</label>
+                            {{ field|escape }}
+                        </p>
+                    {% endif %}
+                    {% if field.errors %}
+                        <div class="errorlist">
+                        {% for error in field.errors %}
+                            <li>{{ error|escape }}</li>
+                        {% endfor %}
+                        </div>
+                    {% endif %}
+                {% endfor %}
+                <input type="submit" id="save-query" name="saveQuery" value="{% trans "Save query" %}" />
+                <span class="buttonLinkOption buttonLinkRight" style="float: none; margin-top: 15px;">
+                    {% trans "or" %} <a id="cancel-button" href="{% url "queries_list" graph.slug %}">{% trans "Cancel" %}</a>
+                </span>
+            </form>
         </div>
+    </div>
+    <div class="content-divider" style="display: none;"></div>
+    <div class="content2-second diagram" style="padding-left: 0px; float: none; width: 1140px;">
+        <h2 id="diagramTitle">{% trans "Diagram" %}</h2>
+        <div id="diagramContainer">
+           <nav id="select-node" class="menu">
+                <ul id="node-options">
+                    <li>
+                        <a id="select-node-type" href="javascript:void(0)" class="inline link">
+                            <span>{% trans "Types" %}</span>
+                            <i class="fa fa-angle-down"></i>
+                        </a>
+                        <div id="node-types" style="display: block;">
+                            <table class="toolsBrowse" style="display: table;">
+                                {% for node_type in node_types %}
+                                    <tr>
+                                        <td class="dataActions"><a class="add-box dataOption list" data-type="{{node_type.slug}}" href="javascript:void(0);" style="width: 80px;">{{ node_type.name|capfirst }}</a></td>
+                                    </tr>
+                                {% endfor %}
+                                    <tr>
+                                        <td class="dataActions"><a class="add-box dataOption list" data-type="wildcard" href="javascript:void(0);" style="width: 80px;">{% trans "Wildcard Type" %}</a></td>
+                                    </tr>
+                            </table>
+                        </div>
+                    </li>
+                </ul>
+            </nav>
+             <div id="diagram"></div>
+        </div>
+    </div>
+    <div id="run-query-div">
         <form method="post" action="{% url "queries_new_results" graph.slug %}" id="form-run-query">
             {% csrf_token %}
             <input type="hidden" id="query" name="query" />
             <input type="hidden" id="query_aliases" name="query_aliases" />
             <input type="hidden" id="query_fields" name="query_fields" />
-            <input type="submit" id="run-query" name="run-query" value="{% trans "Run" %}" />
-        </form>
-        <a class="button" id="clear-button" href="#">{% trans "Clear query" %}</a>
-        <form method="post" action="." id="form-save-query" name="form query save">
-            {% csrf_token %}
-            {% for field in form %}
-                {% if field.is_hidden %}
-                    {{ field|escape }}
-                {% else %}
-                    <label>{{ field.label|escape}}:</label>
-                    {{ field|escape }}
-                {% endif %}
-                {% if field.errors %}
-                    <div class="errorlist">
-                    {% for error in field.errors %}
-                        <li>{{ error|escape }}</li>
-                    {% endfor %}
-                    </div>
-                {% endif %}
-            {% endfor %}
-            <input type="submit" id="save-query" name="saveQuery" value="{% trans "Save query" %}" />
+            <span class="buttonLinkOption buttonLinkLeft">
+                <input type="submit" id="run-query" name="run-query" value="{% trans "Run" %}" />
+                 {% trans "or" %}
+                <input type="button" id="save-button" name="save-button" value="{% trans "Save" %}" />
+                <!--<a id="save-button" href="javascript:void(0)">{% trans "Save" %}</a>-->
+            </span>
+            <span class="buttonLinkOption buttonLinkRight">
+                {% trans "or" %} <a id="clear-button" href="javascript:void(0)">{% trans "Clear" %}</a>
+            </span>
         </form>
     </div>
 </div>

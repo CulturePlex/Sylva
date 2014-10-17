@@ -41,6 +41,7 @@ python-rexster==0.1.1
 pytz==2014.3
 pyzmq==14.3.0
 requests==2.3.0
+selenium==2.42.1
 simplejson==2.6.2
 six==1.6.1
 splinter==0.6.0

@@ -105,7 +105,7 @@ def create_advanced_data(test):
     """
     test.browser.find_by_id('dataMenu').first.click()
     test.browser.find_by_xpath(
-        "//a[@class='dataOption new create-node']").first.click()
+        "//a[@class='dataOption new']").first.click()
     text = test.browser.find_by_id('propertiesTitle').first.value
     spin_assert(lambda: test.assertEqual(text, 'Properties'))
     test.browser.find_by_value("Save Bob's type").first.click()
@@ -227,7 +227,7 @@ def data_import_gexf(test):
     test.browser.is_text_present('Data uploaded.', wait_time=10)
     # Check that nodes and relationships are ok
     test.browser.find_by_id('dataMenu').first.click()
-    test.browser.find_by_xpath("//a[@class='dataOption list list-nodes']").first.click()
+    test.browser.find_by_xpath("//a[@class='dataOption list']").first.click()
 
 
 class ToolsTestCaseGexf(LiveServerTestCase):
@@ -281,7 +281,7 @@ class ToolsTestCaseGexf(LiveServerTestCase):
         # Add new nodes and relationships and check all is correct
         self.browser.find_by_id('dataMenu').first.click()
         self.browser.find_by_xpath(
-            "//a[@class='dataOption new create-node']").first.click()
+            "//a[@class='dataOption new']").first.click()
         text = self.browser.find_by_id('propertiesTitle').first.value
         spin_assert(lambda: self.assertEqual(text, 'Properties'))
         self.browser.find_by_value("Save Bob's type").first.click()
@@ -333,7 +333,7 @@ class ToolsTestCaseGexf(LiveServerTestCase):
         # Add new nodes and relationships and check all is correct
         self.browser.find_by_id('dataMenu').first.click()
         self.browser.find_by_xpath(
-            "//a[@class='dataOption new create-node']").first.click()
+            "//a[@class='dataOption new']").first.click()
         text = self.browser.find_by_id('propertiesTitle').first.value
         spin_assert(lambda: self.assertEqual(text, 'Properties'))
         self.browser.find_by_value("Save Bob's type").first.click()
@@ -371,7 +371,7 @@ class ToolsTestCaseGexf(LiveServerTestCase):
         # Add new nodes and relationships and check all is correct
         self.browser.find_by_id('dataMenu').first.click()
         self.browser.find_by_xpath(
-            "//a[@class='dataOption new create-node']").first.click()
+            "//a[@class='dataOption new']").first.click()
         text = self.browser.find_by_id('propertiesTitle').first.value
         spin_assert(lambda: self.assertEqual(text, 'Properties'))
         self.browser.find_by_value("Save Bob's type").first.click()
@@ -451,7 +451,7 @@ class ToolsTestCaseCsv(LiveServerTestCase):
         self.browser.is_text_present('Data uploaded.', wait_time=10)
         # Check that nodes and relationships are ok
         self.browser.find_by_id('dataMenu').first.click()
-        self.browser.find_by_xpath("//a[@class='dataOption list list-nodes']").first.click()
+        self.browser.find_by_xpath("//a[@class='dataOption list']").first.click()
         alicegraph = Graph.objects.get(name=self.secondGraphName)
         alicegraphNodes = alicegraph.nodes.count()
         spin_assert(lambda: self.assertEqual(3, alicegraph.nodes.count()))
@@ -460,7 +460,7 @@ class ToolsTestCaseCsv(LiveServerTestCase):
         # Add new nodes and relationships and check all is correct
         self.browser.find_by_id('dataMenu').first.click()
         self.browser.find_by_xpath(
-            "//a[@class='dataOption new create-node']").first.click()
+            "//a[@class='dataOption new']").first.click()
         text = self.browser.find_by_id('propertiesTitle').first.value
         spin_assert(lambda: self.assertEqual(text, 'Properties'))
         self.browser.find_by_value("Save Bob's type").first.click()

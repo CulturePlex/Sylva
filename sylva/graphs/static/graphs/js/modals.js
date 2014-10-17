@@ -295,12 +295,14 @@
         var modalAction = null
         if(response.action == 'edit') {
           modalAction = that.editNode;
-        } else if(response.action == 'delete') {
+        } else if (response.action == 'delete') {
           modalAction = that.deleteNode;
         } else if (response.action == 'create') {
            modalAction = that.createNode;
-        } else if(response.action == 'collaborators') {
+        } else if (response.action == 'collaborators') {
           modalAction = that.collaborators;
+        } else if (response.action == 'import_schema') {
+          modalAction = that.importSchema;
         }
         that.showModal(response.html, modalAction);
 
@@ -324,6 +326,11 @@
             sylva.Sigma.deleteNode(false, response.nodeId,
               response.oldRelationshipIds);
             break;
+          case 'import_schema':
+            /* TODO: When the full window mode could be activated withot schema
+             * data, the next line should be changed.
+             */
+            location.reload();
           case 'nothing':
           default:
             break;
@@ -505,7 +512,7 @@
           overflow: 'hidden'
         });
 
-        /* Calculatin the height of the wrapper of the form for made it
+        /* Calculating the height of the wrapper of the form for make it
          * scrollable.
          */
         var scrollHeigth = dialog.wrap.height() - options.contentControls.height();
@@ -584,15 +591,55 @@
         that.prepareModal(url, showOverlay, this);
       },
 
-      preProcessHTML: function() {},
+      preProcessHTML: function() {
+        var formSelector = '#import-schema-form';
+        var saveURL = $(formSelector).attr('action');
+        var extraParams = '&asModal=true';
 
-      onShow: function() {}
+
+        $('#id_file').on('change', function(event) {
+          var reader = new FileReader();
+
+          reader.onload = function(e) {
+            var contents = e.target.result;
+            var inputName = 'file-modal';
+
+            $('#' + inputName).remove();
+
+            $('<input>').attr({
+              type: 'hidden',
+              id: inputName,
+              name: inputName,
+              value: contents
+            }).appendTo(formSelector);
+          };
+
+          reader.readAsText(event.target.files[0]);
+        });
+
+        // Binding save/continue action.
+        $('#submit-save').attr('onclick',
+          "return sylva.modals.saveModalForm({url: '" + saveURL + "'" +
+            ", formSelector: '" + formSelector + "'" +
+            ", extraParams: '" + extraParams + "'" +
+            "})");
+
+        // Binding cancel action.
+        $('#submit-cancel').on('click', function() {
+          that.closeModalLib();
+          return false;
+        });
+      },
+
+      onShow: function() {
+        $('#id_file').width(240);
+      }
     },
 
     importData: {
 
       start: function(url, showOverlay) {
-        console.log(url)
+        console.log('Functionality not implemented');
         // that.prepareModal(url, showOverlay, this);
       },
 

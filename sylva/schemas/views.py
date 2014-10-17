@@ -343,22 +343,42 @@ def schema_import(request, graph_slug):
         messages.error(request, _("The schema already exists!"))
         return redirect(reverse('dashboard'))
     form = SchemaImportForm()
-    if request.POST and request.FILES:
+    error = ''
+    if request.POST:
         form = SchemaImportForm(request.POST, request.FILES)
         as_modal = bool(request.POST.get("asModal", False))
         try:
-            data = request.FILES['file'].read()
-            schema_dict = json.loads(data)
-            graph.schema._import(schema_dict)
-            return redirect(schema_edit, graph_slug)
+            if request.FILES:
+                data = request.FILES['file'].read()
+            elif as_modal and 'file-modal' in request.POST:
+                data = request.POST['file-modal']
+            else:
+                error = 'empty'
+            if not error:
+                schema_dict = json.loads(data)
+                graph.schema._import(schema_dict)
+                if as_modal:
+                    response = {'type': 'data',
+                                'action': 'import_schema'}
+                    return HttpResponse(json.dumps(response), status=200,
+                                        mimetype='application/json')
+                else:
+                    return redirect(schema_edit, graph_slug)
         except ValueError:
-            messages.error(request, _("An error occurred when processing "
-                                      "the exported schema"))
+            if as_modal:
+                error = 'error'
+            else:
+                messages.error(request, _("An error occurred when processing "
+                                          "the exported schema"))
     else:
         as_modal = bool(request.GET.get("asModal", False))
     if as_modal:
         base_template = 'empty.html'
         render = render_to_string
+        if error == 'empty':
+            form.errors['file'] = [_("A file is required.")]
+        elif error == 'error':
+            form.errors['file'] = [_("File not valid.")]
     else:
         base_template = 'base.html'
         render = render_to_response

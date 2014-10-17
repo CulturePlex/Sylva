@@ -21,10 +21,10 @@
                 </td><td>
                     <span alt="{% trans "Count" %}" title="{% trans "Count" %}" data-counter-nodetype-id="{{ type.id }}">{{ type.total }}</span>
                 </td><td class="dataActions">
-                    <a class="dataOption list list-nodes" href="{% url "nodes_list_full" graph.slug type.id %}" title="{% trans "List" %}" alt="{% trans "List" %}">
+                    <a data-modal="list-nodes" class="dataOption list" href="{% url "nodes_list_full" graph.slug type.id %}" title="{% trans "List" %}" alt="{% trans "List" %}">
                         &nbsp;
                     </a>
-                    <a class="dataOption new create-node" href="{% url "nodes_create" graph.slug type.id %}" title="{% trans "New" %}" alt="{% trans "New" %}">
+                    <a data-modal="create-node" class="dataOption new" href="{% url "nodes_create" graph.slug type.id %}" title="{% trans "New" %}" alt="{% trans "New" %}">
                         &nbsp;
                     </a>
                 </td>
@@ -72,7 +72,7 @@
         {% if graph.schema.is_empty %}
             <tr>
                 <td class="dataActions">
-                    <a class="dataOption list import-schema" href="{% url "schema_import" graph.slug %}" title="{% trans "Load graph schema from a JSON file" %}">
+                    <a data-modal="import-schema" class="dataOption list" href="{% url "schema_import" graph.slug %}" title="{% trans "Load graph schema from a JSON file" %}">
                         {% trans "Import schema" %}
                     </a>
                 </td>
@@ -97,7 +97,7 @@
             </tr>
             <tr>
                 <td class="dataActions">
-                    <a class="dataOption list import-data" href="{% url "tool_import" graph.slug %}" title="{% trans "Load graph data from different sources" %}">
+                    <a data-modal="import-data" class="dataOption list" href="{% url "tool_import" graph.slug %}" title="{% trans "Load graph data from different sources" %}">
                         {% trans "Import data" %}
                     </a>
                 </td>
