@@ -52,4 +52,44 @@ Play with the *as_param* variable for return a normal view or a *modal_view*.
 How to use the *mini-framework*
 -------------------------------
 
-Create a dictionary like the *editNode* or the *deleteNode* of the *modal.js* file. After that, call whenever you need the start function of that dictionary.
+Create a dictionary like the *editNode* or the *deleteNode* of the *modal.js* file. After that, call whenever you need the *start* function of that dictionary.
+
+Created modals
+--------------
+
+The next list is a list of the created modals, the dictionaries commented in the previous section.
+
+* editNode
+
+  * View: data/views.py:nodes_edit
+  * Template: data/templates/nodes_editcreate.html
+
+* deleteNode
+
+  * View: data/views.py:nodes_delete
+  * Template: data/templates/nodes_delete.html
+
+* createNode
+
+  * View: data/views.py:nodes_create
+  * Template: data/templates/nodes_editcreate.html
+
+* listNodes
+
+  * View: data/views.py:nodes_list_full
+  * Template: data/templates/node_list.html
+
+* collaborators
+
+  * View: graphs/views.py:graph_collaborators
+  * Template: graphs/templates/graph_collaborators.html
+
+* importSchema
+
+  * View: schema/views.py:schema_import
+  * Template: schema/templates/schema_import.html
+
+* importData
+
+  * View: tools/vies.py:graph_import_tool
+  * Template: tools/templates/graph_import_tool.html

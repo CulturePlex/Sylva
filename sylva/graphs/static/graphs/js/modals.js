@@ -383,48 +383,22 @@
             return false;
           });
 
-          // This handles the pagination.
-          $('span.step-links > a').on('click', function(event) {
+          // A function for handling the pagination and sorting events.
+          var handlePagination = function(event) {
             var listURL = $('#list-url').attr('data-url');
-            var page = $(event.target).parent().attr('href');
 
-            var params = {
-              page: page.substr(6)
-            };
-
-            $.modal.close();
-            setTimeout(function() {
-              that.listNodes.start(listURL, false, params);
-            }, fast);
-
-            return false;
-          });
-
-          // This handles the sorting.
-          $('a.remove-sorting').on('click', function(event) {
-            var listURL = $('#list-url').attr('data-url');
-            var orderBy = $(event.target).attr('href');
-
-            var params = {
-              order_by: orderBy.substr(10)
-            };
-
-            $.modal.close();
-            setTimeout(function() {
-              that.listNodes.start(listURL, false, params);
-            }, fast);
-
-            return false;
-          });
-
-          // This handles the sorting for two or more params.
-          $('a[data-modal="list-sort"]').on('click', function(event) {
-            var listURL = $('#list-url').attr('data-url');
-            var rawParams = $(event.target).attr('href');
+            if ($(event.target).attr('href') != undefined) {
+              var rawParams = $(event.target).attr('href');
+            } else {
+              var rawParams = $(event.target).parent().attr('href');
+            }
 
             var regex = /[?&]([^=#]+)=([^&#]*)/g;
+            var match = {};
+            var params = {};
+
             while (match = regex.exec(rawParams)) {
-                params[match[1]] = match[2];
+              params[match[1]] = match[2];
             }
 
             $.modal.close();
@@ -433,7 +407,12 @@
             }, fast);
 
             return false;
-          });
+          };
+
+          // The events for the previous function.
+          $('span.step-links > a').on('click', handlePagination);
+          $('a.remove-sorting').on('click', handlePagination);
+          $('a[data-modal="list-sort"]').on('click', handlePagination);
 
           $('a[class="edit"][alt="Edit node"]').on('click', function(event) {
             var editNodeURL = $(event.target).attr('href');
