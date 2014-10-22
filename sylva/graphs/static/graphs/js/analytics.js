@@ -42,6 +42,7 @@ var initAnalytics = function($) {
    */
   var nodeStreaming = null;
   var drawingTasks = [];
+  sylva.listClickNodes = [];
 
   $.ajaxSetup({
     beforeSend: function(xhr, settings) {
