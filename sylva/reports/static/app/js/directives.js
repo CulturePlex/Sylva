@@ -464,10 +464,10 @@ directives.directive('sylvaEtCellRepeat', [function () {
                     })[0];
                     if (activeQuery) {
                         var activeX = activeQuery.results.filter(function (el) {
-                            return el.property === xAxis;
+                            return el.alias === xAxis;
                         })[0];
                         var activeY = activeQuery.results.filter(function (el) {
-                            return el.property === yAxis;
+                            return el.alias === yAxis;
                         })[0];
                     }
                     childScope = scope.$new();
@@ -661,7 +661,7 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', fun
             }); 
 
             scope.$watch('activeX', function (newVal, oldVal) {
-                if (newVal && newVal !== oldVal) {
+                if (newVal) {
                     var props = newVal.properties[0]
                     ,   init_dt = props.datatype;
                     if (init_dt !== 'number' && init_dt !== 'float' && init_dt !== 'auto_increment' && init_dt !== 'auto_increment_update' && 
@@ -673,15 +673,14 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', fun
                         })
                     } else {
                         scope.ySeries = results;
-                        newVal = {alias: ''}
                     }
                     scope.tableArray.addAxis([scope.row, scope.col], 'x', newVal.alias)
                 }
             });
 
             scope.$watch('activeY', function (newVal, oldVal) {
-                if (newVal && newVal !== oldVal) {
-                    
+                if (newVal) {
+
                     var props = newVal.properties[0]
                     ,   init_dt = props.datatype;
                     if (init_dt !== 'number' && init_dt !== 'float' && init_dt !== 'auto_increment' && init_dt !== 'auto_increment_update' && 
@@ -694,7 +693,6 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', fun
                         })
                     } else {
                         scope.xSeries = results;
-                        newVal = {alias: ''};
                     }
                     scope.tableArray.addAxis([scope.row, scope.col], 'y', newVal.alias)
                 }
