@@ -1,3 +1,5 @@
+{% load i18n %}
+
 {% verbatim %}
 <div class="cont">
 <div ng-if="template.history.length > 0">
@@ -43,7 +45,8 @@
 
 </div><!--if-->
 <div ng-if="template.history.length === 0">
-  <h2>This report hasn't been run.</h2>
+{% endverbatim %}
+
+  <h2>{% trans "This report hasn't been run." %}</h2>
 </div>
 </div><!--content-->
-{% endverbatim %}

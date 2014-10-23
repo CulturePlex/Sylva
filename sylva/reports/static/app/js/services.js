@@ -175,7 +175,6 @@ services.factory('tableArray', function () {
             this.table[coords[0]][coords[1]].xAxis = alias;
         } else {
             this.table[coords[0]][coords[1]].yAxis = alias;
-
         }
     }
 

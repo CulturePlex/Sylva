@@ -1,16 +1,17 @@
 <!--All fixed text can come translated from endpoint -->
-
-{% verbatim %}
+{% load i18n %}
 <div class="max600">
   <table ng-if="data.templates.length > 0" id="content_table" class="content-table text-left" style="margin-bottom:10px">
     <thead>
       <th class="report">#</th>
-      <th class="report">Name</th>
-      <th class="report">Start Date</th>
-      <th class="report">Last Run</th>
-      <th class="report">Periodicity</th>
+      <th class="report">{% trans "Name" %}</th>
+      <th class="report">{% trans "Start Date" %}</th>
+      <th class="report">{% trans "Last Run" %}</th>
+      <th class="report">{% trans "Periodicity" %}</th>
     </thead>
+  
     <tbody>
+      {% verbatim %}
       <tr ng-repeat="template in data.templates" ng-class-odd="'row-even'" ng-class-even="'row-odd'">
         <td class="dataList">
           <a href="#/edit/{{ template.slug }}" class="edit" title="Edit Report"><!-- 1182 -->&nbsp;</a>
@@ -20,17 +21,31 @@
         <td>{{ template.name }}</td>
         <td>{{ template.start_date }}</td>
         <td ng-if="template.last_run">{{ template.last_run }}</td>
-        <td ng-if="template.last_run == null" class="background-text">(Not yet run)</td>
+      {% endverbatim %}
+        <td ng-if="template.last_run == null" class="background-text">{% trans "(Not yet run)" %}</td>
+        {% verbatim %}
         <td>{{ template.frequency }}</td>
+        {% endverbatim %}
       </tr>
     </tbody>
   </table>
   <a class="button table-button" href="#/new">New Report</a>
   <span class='pagination-info'>
-      Showing {{ data.num_objects }} of {{ data.total_count }} Report Templates.
+    
+      {% trans "Showing" %}
+      {% verbatim %} {{ data.num_objects }} {% endverbatim %} 
+      {% trans "of" %}
+      {% verbatim %} {{ data.total_count }} {% endverbatim %} 
+      {% trans "Report Templates." %}
+    
       <span ng-if="data.previous_page_number"><a ng-click="getPage(data.previous_page_number)"><span class="symbol-medium">←</span></a></span>
-      <span>Page {{data.page_number}} of {{data.num_pages}}
+      <span>
+      {% trans "Page" %} 
+      {% verbatim %} {{data.page_number}} {% endverbatim %}
+      {% trans "of" %}
+      {% verbatim %} {{data.num_pages}} {% endverbatim %}
       <span ng-if="data.next_page_number"><a ng-click="getPage(data.next_page_number)"><span class="symbol-medium">→</span></a>
   </span>
+
 </div>
-{% endverbatim %}
+

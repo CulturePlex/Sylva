@@ -4,6 +4,9 @@
 var directives = angular.module('reports.directives', []);
 
 
+var gettext = window.gettext || String;
+
+
 directives.directive('sylvaUpdateText', function () {
     return {
         link:function(scope) {
@@ -223,11 +226,11 @@ directives.directive('syEditableTable',['tableArray', 'DJANGO_URLS',
                       '</div>' + 
                     '</div>' + 
                     '<div>' + 
-                      '<a class="button" href="">Done</a> ' +  
-                      '<a class="button table-button" href="">add row</a>' + 
-                      '<a class="button table-button" href="">add column</a>' + 
-                      '<a class="button table-button" href="">delete row</a>' + 
-                      '<a class="button table-button" href="">delete column</a>' + 
+                      '<a class="button" href="">{{ buttonText.done }}</a> ' +  
+                      '<a class="table-button" href="">{{ buttonText.plusrow }}</a>' + 
+                      '<a class="table-button" href="">{{ buttonText.pluscol }}</a>' + 
+                      '<a class="table-button" href="">{{ buttonText.minusrow }}</a>' + 
+                      '<a class="table-button" href="">{{ buttonText.minuscol }}</a>' + 
                     '</div>',
         controller: function($scope) {
 
@@ -258,6 +261,19 @@ directives.directive('syEditableTable',['tableArray', 'DJANGO_URLS',
             ,   addCol = ang(buttons.children()[2])
             ,   delRow = ang(buttons.children()[3])
             ,   delCol = ang(buttons.children()[4]);
+
+            scope.buttonText = {
+                done: gettext('Done'),
+                plusrow: gettext('+ row'),
+                minusrow: gettext('- row'),
+                pluscol: gettext('+ col'),
+                minuscol: gettext('- col')
+            }
+
+            scope.done = gettext('Done');
+            scope.plusrow = gettext('+ row')
+            scope.plusrow = gettext('+ row')
+            scope.plusrow = gettext('+ row')
 
             scope.$watch('resp', function (newVal, oldVal) {  
                 if (newVal === oldVal) return;
@@ -447,10 +463,10 @@ directives.directive('sylvaEtCellRepeat', [function () {
                     })[0];
                     if (activeQuery) {
                         var activeX = activeQuery.results.filter(function (el) {
-                            return el.alias === xAxis;
+                            return el.property === xAxis;
                         })[0];
                         var activeY = activeQuery.results.filter(function (el) {
-                            return el.alias === yAxis;
+                            return el.property === yAxis;
                         })[0];
                     }
                     childScope = scope.$new();
@@ -494,13 +510,13 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', fun
         },
         template: '<div ng-hide="md">' + 
                       '<label class="chart-select">' + 
-                        'Query' + 
+                        '{{ selectText.query }}' + 
                       '</label>' + 
                       '<select ng-model="activeQuery" value="query.id" ng-options="query.name group by query.group for query in queries">' + 
                         '<option value="">-----</option>' + 
                       '</select> ' + 
                       '<label class="chart-select">' + 
-                        'Chart Type' + 
+                        '{{ selectText.chartType }}' + 
                       '</label>' + 
                       '<select ng-model="chartType" ng-options="chartType for chartType in chartTypes">' + 
                         '<option value="">-----</option>' + 
@@ -515,7 +531,6 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', fun
                     '<div ng-show="md">' + 
                       '<span class="close"></span>' + 
                       '<textarea ng-model="mdarea" class="markdown">' + 
-                        'This is a heading!' + 
                       '</textarea>' + 
                       '</div>' + 
                     '</div>',
@@ -534,6 +549,11 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', fun
                     rightIn: '<a class="arrow right-in" href="" ng-click="collapse(0)">&#8594</a>',
                     leftIn: '<a class="arrow left-in" href="" ng-click="collapse(1)">&#8592</a>'
             };
+
+            scope.selectText = {
+                query: gettext('Query'),
+                chartType: gettext('Chart Type')
+            }
 
             scope.merge = function(ndx) {
                 var merges = [[scope.row, scope.col - 1], [scope.row - 1, scope.col], [scope.row, scope.col + 1], [scope.row + 1, scope.col]];
@@ -613,6 +633,7 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', fun
             scope.mdarea = '#Heading 1\n' + 'Heading 1\n========\n'+ '##Heading 2\n' + 'Heading 2\n--------------\n' + '###Heading 3\n' +
                             '1. First item\n' + '2. Second item\n\n' + '+ Unordered items\n' + '- Unordered items\n' + '* Unordered items\n';
 
+            scope.mdarea = gettext(scope.mdarea);
 
             scope.$watch('activeQuery', function (newVal, oldVal) {
                 if (newVal == oldVal) return;
@@ -655,7 +676,6 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', fun
                     }
                     scope.tableArray.addAxis([scope.row, scope.col], 'x', newVal.alias)
                 }
-                
             });
 
             scope.$watch('activeY', function (newVal, oldVal) {
@@ -699,7 +719,7 @@ directives.directive('sylvaBreadcrumbs', [
     return {
         template: '<h2>' +
                     '<a href="/graphs/{{ graphSlug }}/">{{graph}}</a> &raquo; ' + 
-                    '<a href="#/">Reports </a>' +
+                    '<a href="#/">{{ breadText.reports }} </a>' +
                     '<span ng-repeat="crumb in crumbs">&raquo; {{crumb}} </span>' +
                   '</h2>',
         controller: function ($scope) {
@@ -713,6 +733,10 @@ directives.directive('sylvaBreadcrumbs', [
         },
         link: function (scope, elem, attrs) {
             
+            scope.breadText = {
+                reports: gettext('Reports')
+            };
+
             scope.$watch(scope.getLocation, function (newVal, oldVal) {
                 var location = scope.getLocation();
                 if (location !== '/' ) {

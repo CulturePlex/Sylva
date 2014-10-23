@@ -194,7 +194,6 @@ controllers.controller('EditReportCtrl', [
             $scope.template = data.template;
             $scope.resp = {table: data.template.layout, queries: data.queries};
             $scope.prev = $scope.resp;
-            console.log(data.template.layout)
         });
 }]);
 

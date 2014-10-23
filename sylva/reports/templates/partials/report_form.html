@@ -1,41 +1,46 @@
-{% verbatim %}
+{% load i18n %}
 <div class="cont">
 
   <!--Meta Form/Queries-->
   <div class="content2-first" ng-hide="editable">
     
     <div class="input-container">
-      <h2>Report</h2>
       <!--Design Report View-->
       <!--Metadata Form-->
       <div id="formContainer">
         <form id="reportForm">
           <div id="innerForm">
             <p>
-              <label>Name
+              <label>{% trans "Name" %}
                 <input sylva-update-text type="text" ng-model="template.name" placeholder="Report Name" ng-maxlength="25">
               </label>
             </p>
 
             <p>
-              <label> Start date
+              <label> {% trans "Start date" %}
+                
                 <input type="text" sylva-datepicker ng-model="template.date" required="true" view="hours"> 
+     
               </label> 
             </p>
 
             <p>
-              <label>Time
+              <label>{% trans "Time" %}
+                
                 <input sylva-timepicker type="text"  ng-model="template.time" placeholder="hh:mm">
+     
               </label>
             </p>
 
             <p>
-              <label>Frequency
+              <label>{% trans Frequency %}
+                
                 <select ng-init="template.frequency = 'w'" ng-model="template.frequency">
-                  <option value="h">Hourly</option>
-                  <option value="d">Daily</option>
-                  <option value="w">Weekly</option>
-                  <option value="m">Monthly</option>
+     
+                  <option value="h">{% trans "Hourly" %}</option>
+                  <option value="d">{% trans "Daily" %}</option>
+                  <option value="w">{% trans "Weekly" %}</option>
+                  <option value="m">{% trans "Monthly" %}</option>
                 </select>  
               </label>
             </p>
@@ -43,15 +48,19 @@
             </p>
           </div> <!--innerForm-->
           <span class="buttonLinkOption buttonLinkLeft">
+            
             <input type="submit" value="Save Report" ng-click="saveReport(template)">
-            <a class="button" href="" ng-click="designReport()">Design Report</a>
-            <a class="alink" href="">Advanced</a>
+            <a class="button" href="" ng-click="designReport()">
+ 
+              {% trans "Design Report" %}
+            </a>
+            <a class="alink" href="">{% trans "Advanced" %}</a>
           </span>
         </form>
       </div><!--formContainer-->
     </div> <!--input-container div -->
   </div><!--content2-first-->
-
+  
   <!--Report Info/Designer-->
   <div class="content-divider" ng-hide="editable"></div>
 
@@ -81,6 +90,4 @@
       <div sy-editable-table resp="resp" prev="prev" editable="editable" class="editable-table">
       </div>
     </div><!--row-->
-  </div>  
-</div>
-{% endverbatim %}
+  </div> 
