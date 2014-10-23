@@ -25,6 +25,7 @@ sylva:true, alert:true */
       'width': $('#body').width(),
       'margin-top': '0px'
     });
+
     var msg = '';
     if (sylva.jsValues.isSchemaEmpty) {
       msg += gettext("Your Schema is empty.");
@@ -37,7 +38,7 @@ sylva:true, alert:true */
     }
 
     if (msg !== '') {
-      // TODO: The next lines are for checking the import tools wihtout enter in the Analytics Mode.
+      // TODO: The next lines are for checking the import tools without enter in the Analytics Mode.
       // sylva.modals.init();
       // $('a[data-modal="import-schema"]').on('click', sylva.Sigma.callImportSchemaModal);
       // $('a[data-modal="import-data"]').on('click', sylva.Sigma.callImportDataModal);

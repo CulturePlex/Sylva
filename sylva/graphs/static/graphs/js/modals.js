@@ -18,61 +18,6 @@
 
   var modals = {
 
-    /* ****
-     * Functions of the 'mini-framework'.
-     *
-     * It has 4 main parts in 2 blocks, you need to use complete blocks and
-     * being the first one obligatory:
-     *
-     *  BLOCK I
-     *  =======
-     *
-     *  - preapreModal: Gets the HTML to show. Its parameters are:
-     *      - url: Where to get the HTML
-     *      - showOverlay: Does it must to darken the background?
-     *                     (Only for the first modal)
-     *      - modalActions: A dictionary with three functions, two of them for
-     *                      use them in the next step
-     *
-     *  - showModal: Changes what its necesary in the recevied HTML with the
-     *               the help of two of the three fucntions commented before.
-     *               Its parameter are:
-     *      - html: The HTML to show
-     *      - modalActions: A dictionary with three functions, here it only use
-     *                      two of them:
-     *          - preProcessHTML: Here you can change wathever you need from
-     *                            your HTML and return a dictionary with the
-     *                            objects you'll ned in the 'onShow' function
-     *                            need from your HTML
-     *          - onShow: Function for call it in the 'onShow' event of the
-     *                    dropit library. Here you can change again whatever
-     *                    you need. Also you receive a dictonary with the
-     *                    returned object in the 'preProcessHTML' function plus
-     *                    the next ones:
-     *              - html: The HTML inside the modal
-     *              - modalHTML: The parent HTML element that contains the
-     *                           modal
-     *              - windowHeight: The height of the browser window
-     *              - windowWidth: The width of the browser window
-     *              - modalPadding: The padding added to the modal HTML element
-     *
-     *  BLOCK II
-     *  ========
-     *
-     *  - saveModalForm: Send a form to the backend for save it. Its parameter
-     *                   is a dictonary called 'requestInfo' with these keys:
-     *      - url: The URL for perform the request
-     *      - formSelector: The selector of the form to serialize
-     *      - extraParams: A string to append at the end of the serialized form
-     *
-     *  - handleFormServerResponse: The only 'changing' function of the
-     *                              framework, because it needs to be changed
-     *                              with new behaviours. It handles the
-     *                              response of the previous function,
-     *                              'saveModalForm', by reloading a from with
-     *                              erros or whatever you need.
-     ***** */
-
     init: function() {
       that = this;
     },
@@ -331,6 +276,11 @@
              * data, the next line should be changed.
              */
             location.reload();
+          case 'import_graph':
+            /* TODO: When the full window mode could be activated withot schema
+             * data, the next line should be changed.
+             */
+            // location.reload(); But this is called in the tool.js file.
           case 'nothing':
           default:
             break;
@@ -433,13 +383,23 @@
             return false;
           });
 
-          $('span.step-links > a').on('click', function(event) {
+          // A function for handling the pagination and sorting events.
+          var handlePagination = function(event) {
             var listURL = $('#list-url').attr('data-url');
-            var page = $(event.target).parent().attr('href');
 
-            var params = {
-              page: page.substr(6)
-            };
+            if ($(event.target).attr('href') != undefined) {
+              var rawParams = $(event.target).attr('href');
+            } else {
+              var rawParams = $(event.target).parent().attr('href');
+            }
+
+            var regex = /[?&]([^=#]+)=([^&#]*)/g;
+            var match = {};
+            var params = {};
+
+            while (match = regex.exec(rawParams)) {
+              params[match[1]] = match[2];
+            }
 
             $.modal.close();
             setTimeout(function() {
@@ -447,7 +407,12 @@
             }, fast);
 
             return false;
-          });
+          };
+
+          // The events for the previous function.
+          $('span.step-links > a').on('click', handlePagination);
+          $('a.remove-sorting').on('click', handlePagination);
+          $('a[data-modal="list-sort"]').on('click', handlePagination);
 
           $('a[class="edit"][alt="Edit node"]').on('click', function(event) {
             var editNodeURL = $(event.target).attr('href');
@@ -596,7 +561,6 @@
         var saveURL = $(formSelector).attr('action');
         var extraParams = '&asModal=true';
 
-
         $('#id_file').on('change', function(event) {
           var reader = new FileReader();
 
@@ -639,11 +603,16 @@
     importData: {
 
       start: function(url, showOverlay) {
-        console.log('Functionality not implemented');
-        // that.prepareModal(url, showOverlay, this);
+        that.prepareModal(url, showOverlay, this);
       },
 
-      preProcessHTML: function() {},
+      preProcessHTML: function() {
+        // Binding cancel action.
+        $('#submit-cancel').on('click', function() {
+          that.closeModalLib();
+          return false;
+        });
+      },
 
       onShow: function() {}
     },

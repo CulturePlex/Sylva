@@ -1,9 +1,5 @@
-{% extends "base.html" %}
+{% extends base_template %}
 {% load i18n graphs compress %}
-
-{% block title %}
-  {{ graph.name }}
-{% endblock %}
 
 {% block extra_links %}
   {% compress css %}
@@ -11,14 +7,20 @@
   {% endcompress %}
 {% endblock %}
 
-{% block menu_buttons %}
-  {% toolbar on="graph" %}
-{% endblock %}
+{% if not as_modal %}
+  {% block title %}
+    {{ graph.name }}
+  {% endblock %}
 
-{% block content_title %}
-  {% trans "Import" as label %}
-  {% breadcrumb graph label %}
-{% endblock %}
+  {% block menu_buttons %}
+    {% toolbar on="graph" %}
+  {% endblock %}
+
+  {% block content_title %}
+    {% trans "Import" as label %}
+    {% breadcrumb graph label %}
+  {% endblock %}
+{% endif %}
 
 {% block content %}
   <div class="data-import">
@@ -59,6 +61,12 @@
       </div>
     </div>
   </div>
+  {% if as_modal %}
+    <div id="modal-content-controls">
+      <hr/>
+      <input id="submit-cancel" type="submit" value="{% trans "Cancel" %}"/>
+    </div>
+  {% endif %}
 {% endblock %}
 
 {% block extra_scripts %}
