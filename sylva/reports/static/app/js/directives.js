@@ -7,15 +7,16 @@ var directives = angular.module('reports.directives', []);
 var gettext = window.gettext || String;
 
 
-directives.directive('sylvaUpdateText', function () {
+directives.directive('sylvaUpdateText', ['breadService', function (breadService) {
     return {
         link:function(scope) {
             scope.$watch('template.name', function (newVal, oldVal) {
-                scope.template.name = newVal;
+                breadService.updateName(newVal);
+                scope.template.name = newVal
             });
         }
     };
-});
+}]);
 
 
 directives.directive('sylvaDatepicker', function () {
@@ -755,7 +756,12 @@ directives.directive('sylvaBreadcrumbs', [
             });
 
             scope.$on('meta', function () {
-                scope.crumbs.pop()
+                scope.crumbs.pop();
+            });
+
+            scope.$on('name', function (e, name) {
+                scope.crumbs[0] = name;
+                
             });
         }
     };

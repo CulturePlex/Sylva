@@ -143,7 +143,6 @@ services.factory('tableArray', function () {
             }     
         }
         this.numCols++;
-        console.log('add column table', this.table)
     };
 
     TableArray.prototype.delRow = function() {
@@ -191,8 +190,6 @@ services.factory('tableArray', function () {
     }
 
     TableArray.prototype.collapseCol = function (coords, dir) {
-        console.log('toCollapse', coords[0], coords[1])
-        console.log('ta', this.table[coords[0]][coords[1]])
         var colspan = this.table[coords[0]][coords[1]].colspan
         this.table[coords[0]][coords[1]].colspan = parseInt(colspan) - 1; 
         var cell = {
@@ -212,7 +209,6 @@ services.factory('tableArray', function () {
     }   
 
     TableArray.prototype.mergeCol = function(coords) {
-        console.log('merge coords', coords)
         var cds = coords[0]
         ,   mrgCds = coords[1]
         ,   mrgRow = this.table[cds[0]]
@@ -263,9 +259,12 @@ services.factory('breadService', ['$rootScope', function ($rootScope) {
             $rootScope.$broadcast('design')
         },
         meta: function() {
-            console.log('mataSErvice')
             $rootScope.$broadcast('meta')
+        },
+        updateName: function(newVal) {
+            $rootScope.$broadcast('name', newVal);
         }
+
     }
     return breadcrumbs
 }]);
