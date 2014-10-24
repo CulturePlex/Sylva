@@ -118,13 +118,16 @@ def nodes_list_full(request, graph_slug, node_type_id):
         raise Http404(_("Mismatch in requested graph and node type's graph."))
     order_by = request.GET.get('order_by', 'default')
     order_dir = request.GET.get('dir', 'desc')
+    page_dir = request.GET.get('page_dir', 'asc')
     if order_by == 'default':
         nodes = node_type.all()
     else:
+        page_dir = order_dir
         orders = order_by, order_dir
         nodes = node_type.all().order_by(orders)
         if not nodes:
-            messages.error(request, _("Error: You are trying to sort a column with some none values"))
+            messages.error(request, _("Error: You are trying to \
+                                       sort a column with some none values"))
             nodes = node_type.all()
         if order_dir == 'desc':
             order_dir = 'asc'
@@ -179,7 +182,8 @@ def nodes_list_full(request, graph_slug, node_type_id):
                        "property_values": json.dumps(property_values),
                        "base_template": base_template,
                        "as_modal": as_modal,
-                       "list_url": list_url}
+                       "list_url": list_url,
+                       "page_dir": page_dir}
     response = render('node_list.html', broader_context,
                       context_instance=RequestContext(request))
     if as_modal:
