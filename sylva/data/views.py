@@ -118,7 +118,7 @@ def nodes_list_full(request, graph_slug, node_type_id):
         raise Http404(_("Mismatch in requested graph and node type's graph."))
     order_by = request.GET.get('order_by', 'default')
     order_dir = request.GET.get('dir', 'desc')
-    page_dir = request.GET.get('page_dir', 'asc')
+    page_dir = request.GET.get('page_dir', 'desc')
     if order_by == 'default':
         nodes = node_type.all()
     else:

@@ -74,7 +74,6 @@
                 {% for prop in properties %}
                     <th class="{{ prop.slug }}">
                       <!-- We should maintain the actual page if we have previous pages -->
-                      {% if nodes.has_previous %}
                         <a data-modal="list-sort" href="?page={{ nodes.number }}&order_by={{ prop.key }}&dir={{ dir }}" id="{{prop.slug}}">
                           <p class="shorten-text">
                             {{ prop.key }}
@@ -86,19 +85,6 @@
                         {% endif %}
                           </p>
                         </a>
-                      {% else %}
-                        <a data-modal="list-sort" href="?order_by={{ prop.key }}&dir={{ dir }}" id="{{prop.slug}}">
-                          <p class="shorten-text">
-                            {{ prop.key }}
-                            <a class='remove-sorting' href="?order_by=default" title="{% trans "Remove from sorting" %}"></a>
-                        {% if dir == 'desc' %}
-                          <a data-modal="list-sort" class='sorting-asc' href="?order_by={{ prop.key }}&dir={{ dir }}" title="{% trans "Sorting ascending by" %} {{ order_by }}"></a>
-                        {% else %}
-                          <a data-modal="list-sort" class='sorting-desc' href="?order_by={{ prop.key }}&dir={{ dir }}" title="{% trans "Sorting descending by " %} {{ order_by }}"></a>
-                        {% endif %}
-                          </p>
-                        </a>
-                      {% endif %}
                     </th>
                 {% endfor %}
               </tr>
@@ -149,12 +135,8 @@
               </span>
               <span class="step-links">
                 {% if nodes.has_previous %}
-                  {% if order_by %}
                     <!-- We need to keep the order when we order pages -->
-                    <a href="?page={{ nodes.previous_page_number }}&order_by={{ order_by }}&page_dir={{ page_dir }}"><span class="symbol-medium">←</span></a>
-                  {% else %}
-                    <a href="?page={{ nodes.previous_page_number }}"><span class="symbol-medium">←</span></a>
-                  {% endif %}
+                    <a href="?page={{ nodes.previous_page_number }}&order_by={{ order_by }}&dir={{ page_dir }}&page_dir={{ page_dir }}"><span class="symbol-medium">←</span></a>
                 {% endif %}
 
                 <span class="current">
@@ -164,12 +146,8 @@
                 </span>
 
                 {% if nodes.has_next %}
-                  {% if order_by %}
                     <!-- We need to keep the order when we order pages -->
-                    <a href="?page={{ nodes.next_page_number }}&order_by={{ order_by }}&page_dir={{ page_dir }}"><span class="symbol-medium">→</span></a>
-                  {% else %}
-                    <a href="?page={{ nodes.next_page_number }}"><span class="symbol-medium">→</span></a>
-                  {% endif %}
+                    <a href="?page={{ nodes.next_page_number }}&order_by={{ order_by }}&dir={{ page_dir }}&page_dir={{ page_dir }}"><span class="symbol-medium">→</span></a>
                 {% endif %}
               </span>
             {% elif nodes %}

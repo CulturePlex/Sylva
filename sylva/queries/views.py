@@ -45,12 +45,14 @@ def queries_list(request, graph_slug):
     # We add order for the list of queries
     order_by_field = request.GET.get('order_by', 'id')
     order_dir = request.GET.get('dir', '-')
+    page_dir = request.GET.get('page_dir', '-')
     # We need the order_dir for the icons in the frontend
     # if order_dir not in ["", "-"]:
     #     order_dir = ""
     if order_by_field == 'id':
         queries = graph.queries.all()
     else:
+        page_dir = order_dir
         order_by = "{0}{1}".format(order_dir, order_by_field)
         queries = graph.queries.all().order_by(order_by)
         if not queries:
@@ -78,7 +80,8 @@ def queries_list(request, graph_slug):
                               {"graph": graph,
                                "queries": paginated_queries,
                                "order_by": order_by_field,
-                               "dir": order_dir},
+                               "dir": order_dir,
+                               "page_dir": page_dir},
                               context_instance=RequestContext(request))
 
 
@@ -158,7 +161,8 @@ def queries_new_results(request, graph_slug):
                    _("New"))
     # We add order for the list of queries
     order_by_field = request.GET.get('order_by', 'default')
-    order_dir = request.GET.get('dir', 'asc')
+    order_dir = request.GET.get('dir', 'desc')
+    page_dir = request.GET.get('page_dir', 'desc')
     # query = "notas of autor with notas that start with lista"
     # see https://gist.github.com/versae/9241069
     if query is not '':
@@ -172,6 +176,7 @@ def queries_new_results(request, graph_slug):
     if order_by_field == 'default':
         query_results = graph.query(query_dict, headers=headers)
     else:
+        page_dir = order_dir
         # We split the header to get the alias and the property
         order_by_values = order_by_field.split('.')
         alias = order_by_values[0]
@@ -219,7 +224,8 @@ def queries_new_results(request, graph_slug):
                                "headers": headers_results,
                                "results": paginated_results,
                                "order_by": order_by_field,
-                               "dir": order_dir},
+                               "dir": order_dir,
+                               "page_dir": page_dir},
                               context_instance=RequestContext(request))
 
 
@@ -283,7 +289,8 @@ def queries_query_results(request, graph_slug, query_id):
     query = graph.queries.get(pk=query_id)
     # We add order for the list of queries
     order_by_field = request.GET.get('order_by', 'default')
-    order_dir = request.GET.get('dir', 'asc')
+    order_dir = request.GET.get('dir', 'desc')
+    page_dir = request.GET.get('page_dir', 'desc')
     # query = "notas of autor with notas that start with lista"
     # see https://gist.github.com/versae/9241069
     headers = True
@@ -291,6 +298,7 @@ def queries_query_results(request, graph_slug, query_id):
     if order_by_field == 'default':
         query_results = query.execute(headers=headers)
     else:
+        page_dir = order_dir
         # We split the header to get the alias and the property
         order_by_values = order_by_field.split('.')
         alias = order_by_values[0]
@@ -331,7 +339,8 @@ def queries_query_results(request, graph_slug, query_id):
                                "headers": headers_results,
                                "results": paginated_results,
                                "order_by": order_by_field,
-                               "dir": order_dir},
+                               "dir": order_dir,
+                               "page_dir": page_dir},
                               context_instance=RequestContext(request))
 
 
