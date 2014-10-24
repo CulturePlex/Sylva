@@ -128,13 +128,13 @@ services.factory('tableArray', function () {
             var row = this.table[i]
             ,   rlen = row.length
             ,   cell = {
-                col: rlen,
-                colspan: '1',
-                id: '',
-                row: i,
-                rowspan: '1',
-                query: ''
-            };
+                    col: rlen,
+                    colspan: '1',
+                    id: '',
+                    row: i,
+                    rowspan: '1',
+                    query: ''
+                };
             row.push(cell);
             var newRlen = rlen + 1;
             for (var j=0; j<newRlen; j++) {
