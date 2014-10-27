@@ -144,7 +144,7 @@ def templates_endpoint(request, graph_slug):
             if not response['queries']:  # Get template queries for preview.
                 queries = template.queries.all()
                 # Will have to execute queries here
-                response['queries'] = [{'series': query.query_dict['series'][:-2],
+                response['queries'] = [{'series': query.execute(),
                                         'name': query.name, 'id': query.id,
                                         'results': query.query_dict['results']}
                                        for query in queries]

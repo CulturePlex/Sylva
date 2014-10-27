@@ -218,14 +218,16 @@ directives.directive('syEditableTable',['tableArray', 'DJANGO_URLS',
             prev: '=',
             editable: '='
         },
-        template: '<div class="edit-rows">' + 
-                      '<div sy-et-row-repeat  queries="queries">' + 
-                        '<div sylva-et-cell-repeat class="tcell" row="row" rownum="rownum">' + 
-                          '<div sylva-et-cell config="config" class="query" ng-style="cellStyle">' + 
+        template:   '<div class="editable-table">' +
+                        '<div class="edit-rows">' + 
+                          '<div sy-et-row-repeat  queries="queries">' + 
+                            '<div sylva-et-cell-repeat class="tcell" row="row" rownum="rownum">' + 
+                              '<div sylva-et-cell config="config" class="query" ng-style="cellStyle">' + 
+                              '</div>' + 
+                            '</div>' + 
                           '</div>' + 
                         '</div>' + 
-                      '</div>' + 
-                    '</div>' + 
+                    '</div>' +
                     '<div>' + 
                       '<a class="button" href="">{{ buttonText.done }}</a> ' +  
                       '<a class="table-button" href="">{{ buttonText.plusrow }}</a>' + 
@@ -256,6 +258,7 @@ directives.directive('syEditableTable',['tableArray', 'DJANGO_URLS',
             var ang = angular.element
             //,   rows = ang(elem.children()[0])
             //,   rowWidth = parseInt(rows.css('width'))
+            ,   rows = ang(ang(elem.children()[0]).children()[0])
             ,   buttons = ang(elem.children()[1])
             ,   editMeta = ang(buttons.children()[0])
             ,   addRow = ang(buttons.children()[1])
@@ -276,10 +279,11 @@ directives.directive('syEditableTable',['tableArray', 'DJANGO_URLS',
             scope.plusrow = gettext('+ row')
             scope.plusrow = gettext('+ row')
 
+            console.log('elemchild', ang(elem.children()[0]).children()[0])
             scope.$watch('resp', function (newVal, oldVal) {  
                 if (newVal === oldVal) return;
                 scope.tableArray = tableArray(scope.resp.table);
-                scope.tableWidth = parseInt(angular.element(elem.children()[0]).css('width'));
+                scope.tableWidth = parseInt(rows.css('width'));
 
                 scope.queries = [{name: 'markdown', id: 'markdown', group: 'text'}];
 
@@ -510,25 +514,37 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', fun
         scope: {
             config: '='
         },
-        template: '<div ng-hide="md">' + 
-                      '<label class="chart-select">' + 
-                        '{{ selectText.query }}' + 
-                      '</label>' + 
-                      '<select ng-model="activeQuery" value="query.id" ng-options="query.name group by query.group for query in queries">' + 
-                        '<option value="">-----</option>' + 
-                      '</select> ' + 
-                      '<label class="chart-select">' + 
-                        '{{ selectText.chartType }}' + 
-                      '</label>' + 
-                      '<select ng-model="chartType" ng-options="chartType for chartType in chartTypes">' + 
-                        '<option value="">-----</option>' + 
-                      '</select>' + 
-                      '<select ng-model="activeX" ng-options="result.trueAlias for result in xSeries">' + 
-                        '<option value="">-----</option>' + 
-                      '</select>' +    
-                      '<select ng-model="activeY" ng-options="result.trueAlias for result in ySeries">' + 
-                        '<option value="">-----</option>' + 
-                      '</select>' +  
+        template:   '<div ng-hide="md" class="edit-cell-inside">' + 
+                        '<div class="row">' +
+                          '<label class="chart-select">' + 
+                            '{{ selectText.content }}' + 
+                          '</label>' + 
+                          '<select ng-model="activeQuery" value="query.id" ng-options="query.name group by query.group for query in queries">' + 
+                            '<option value="">-----</option>' + 
+                          '</select> ' + 
+                        '</div>' + 
+                        '<hr>' +
+                        '<div class="row">' +
+                            '<div class="col chartcol">' +
+                                '<label>' + 
+                                    '{{ selectText.chartType }}' + 
+                                '</label>' + 
+                                '<div class="highchart-cont">' +
+                                    '<div ng-repeat="(chartType, options) in selectConfig">' + 
+                                        '<div highchart config=options></div>' +
+                                    '</div>' + 
+                                '</div>' +
+                            '</div>' +
+                            '<div class="col cellcol">' +
+                                '<label>{{ selectText.series }}</label>' +
+                                '<select ng-model="activeX" ng-options="result.trueAlias for result in xSeries">' + 
+                                    '<option value="">-----</option>' + 
+                                '</select>' +    
+                                '<select ng-model="activeY" ng-options="result.trueAlias for result in ySeries">' + 
+                                    '<option value="">-----</option>' + 
+                                '</select>' +  
+                            '</div>' +
+                        '</div>' +
                     '</div>' + 
                     '<div ng-show="md">' + 
                       '<span class="close"></span>' + 
@@ -550,9 +566,79 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', fun
                     leftIn: '<a class="arrow left-in" title="collapse left" ng-href="" ng-click="collapse(1)">&#8592</a>'
             };
 
+            console.log('elem', ang(ang(elem.parent()[0])[0]).width())
+
+            scope.selectConfig = {
+                bar: {
+                    options: {
+                        chart: {
+                            type: 'bar'
+                        } 
+                    },
+                    series: [{
+                        data: [[1, 6], [2, 6.5], [3, 7], [4, 7.5]],
+                    }],
+
+                    size: {
+                        width: 150,
+                        height: 150
+                    },
+                    title: {text: 'bar'}
+                },
+                scatter: {
+                    options: {
+                        chart: {
+                            type: 'scatter'
+                        } 
+                    },
+                    series: [{
+                        data: [[1, 6], [2, 6.5], [3, 7], [4, 7.5]],
+                    }],
+
+                    size: {
+                        width: 150,
+                        height: 150
+                    },
+                    title: {text: 'scatter'}
+                },
+                line: {
+                    options: {
+                        chart: {
+                            type: 'line'
+                        } 
+                    },
+                    series: [{
+                        data: [[1, 6], [2, 6.5], [3, 7], [4, 7.5]],
+                    }],
+
+                    size: {
+                        width: 150,
+                        height: 150
+                    },
+                    title: {text: 'line'}
+                },
+                pie: {
+                    options: {
+                        chart: {
+                            type: 'pie'
+                        } 
+                    },
+                    series: [{
+                        data: [[1, 6], [2, 6.5], [3, 7], [4, 7.5]],
+                    }],
+
+                    size: {
+                        width: 150,
+                        height: 150
+                    },
+                    title: {text: 'pie'}
+                }
+            }
+                
             scope.selectText = {
-                query: gettext('Query'),
-                chartType: gettext('Chart Type')
+                content: gettext('Content'),
+                chartType: gettext('Chart Type'),
+                series: gettext('Series')
             }
 
             scope.merge = function(ndx) {
@@ -615,6 +701,7 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', fun
                     trueAlias(results)
                     scope.xSeries = results
                     scope.ySeries = results
+                    
                 }
             }, true);
 
@@ -653,6 +740,8 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', fun
 
             scope.$watch('activeQuery', function (newVal, oldVal) {
                 if (newVal == oldVal) return;
+                scope.activeQuery = newVal
+                console.log('activeQuery')
                 ctrl.editing()
                 var name;
                 if (newVal != null) {
@@ -665,9 +754,12 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', fun
                         results = newVal.results.filter(function (el) {
                             return el.properties.length > 0;
                         });
-
+                        console.log('watched', results)
+                        trueAlias(results);
                         scope.xSeries = results
                         scope.ySeries = results
+                        console.log('results', scope.xSeries)
+
                     }
                 } else {
                     name = '';
