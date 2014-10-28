@@ -2935,6 +2935,16 @@ diagram.aggregates = [
         // We make the drag css style for nodes with the correct target
         var scopeSource = connection.endpoints[0].scopeSource;
 
+        // We check if the id for the relationship is correct
+        var idBoxRel = connection.getOverlays()[2].id;
+        // We get the number of idBoxRel
+        var idBoxRelParts = idBoxRel.split('-');
+        var idNumber = idBoxRelParts[1];
+        if(idNumber != diagram.CounterRels) {
+            idBoxRel = idBoxRelParts[0] + "-" + diagram.CounterRels + "-" + idBoxRelParts[2];
+            connection.getOverlays()[2].id = idBoxRel;
+        }
+
         jsPlumb.selectEndpoints().each(function(endpoint) {
             var scopeTarget = endpoint.scopeTarget;
                 if(scopeTarget) {
