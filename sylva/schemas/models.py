@@ -103,6 +103,7 @@ class Schema(models.Model, SchemaMixin):
                     "name": rel_type.slug,
                     "source": rel_type.source.slug,
                     "target": rel_type.target.slug,
+                    "target_name": rel_type.target.name,
                     "fields": rel_fields,
                     "id": rel_type.id
                 }
