@@ -11,6 +11,26 @@ th.report {
   min-width: 66px
 }
 
+.chart-select {
+    float: left;
+    width: 10em;
+    margin-right: 1em;
+    margin-top: 
+}
+
+.edit-cell-inside input[type=text] + label {
+    
+}
+
+.highchart-cont {
+  overflow: hidden;
+  height: 200px ;
+}
+
+.highchart-cont:hover {
+  overflow-y: scroll;
+}
+
 .background-text {
   color: #99999D;
   font-style: italic;
@@ -18,8 +38,7 @@ th.report {
 
 .cont {
     max-height: 600px;
-    min-height: 450px
-    
+    min-height: 450px   
 }
 
 .content2-first {
@@ -34,16 +53,23 @@ th.report {
     padding-left: 30px;    
 }
 
- .col {
+.col {
     float: left;
     width: auto;
     padding: 10px;
  }
 
+.cellcol {
+  width: 50%;
+ }
+
+ .chartcol {
+  width: 40%;
+ }
+
 .row {
   float: left;
   width: 100%;
-  width: 1025
 }
 
 .pdf-row {
@@ -61,6 +87,7 @@ th.report {
   width: 100%;
   height: 400px;
   overflow: hidden;
+  margin-bottom: 5px;
 }
 
 .editable-table:hover {
@@ -183,9 +210,12 @@ textarea.markdown {
 }
 
 .query select {
-  left: 25%;
-  position: relative;
+
   width: 50%;
+}
+
+.cellcol select {
+  width: 90%;
 }
 
 .series-div  {

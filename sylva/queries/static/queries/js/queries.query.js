@@ -242,7 +242,7 @@ diagram.aggregates = [
                         optionRel.attr('data-name', name);
                         optionRel.attr('data-idrel', relation.id);
                         optionRel.attr('data-scope', relation.target);
-                        optionRel.html(label + " (" + relation.target + ")");
+                        optionRel.html(label + " (" + relation.target_name + ")");
                         diagram.fieldsForRels[name] = relation.fields;
 
                         if(relation.source) {
@@ -385,6 +385,10 @@ diagram.aggregates = [
                     if (position.top < 0) {
                         top = "0px";
                     }
+                    $this.animate({left: left, top: top}, "fast", function() {
+                        jsPlumb.repaint(["diagramBox_"+ modelName]);
+                        jsPlumb.repaintEverything();
+                    });
                 }
             });
         };
@@ -1596,42 +1600,49 @@ diagram.aggregates = [
             var relationshipOptions = null;
 
             if(type == 'source') {
-                relationshipOptions = { endpoint: ["Image", {
-                    src: diagram.relationshipImageSrc,
-                    cssClass:"endpoint-image"}],
-                                anchor: [1, anchor, 1, 0],
-                                isSource: true,
-                                connectorStyle: {
-                                    strokeStyle: '#AEAA78',
-                                    lineWidth: 2
-                                },
-                                connectorOverlays:[
-                                    [ "PlainArrow", {
-                                        foldback: 0,
-                                        width:10,
-                                        length:10,
-                                        location:1,
-                                        id:"arrow"}],
-                                    [ "Label", {
-                                        label:name,
-                                        id:"label"}],
-                                    ["Custom", {
-                                        create:function(component) {
-                                                            return diagram.addRelationBox(name, label, idRel);
-                                                        },
-                                        location:0.5,
-                                        id:"diagramBoxRel-" + diagram.CounterRels + "-" + name
-                                    }]
-                                ],
-                                paintStyle: {
-                                    strokeStyle: '#AEAA78'
-                                },
-                                backgroundPaintStyle: {
-                                    strokeStyle: '#AEAA78',
-                                    lineWidth: 3
-                                }
-                              };
+                var sourceAnchors = [[0, anchor, 1, 0], [1, anchor, 1, 0]];
+                console.log(sourceAnchors);
+                relationshipOptions = {
+                    endpoint: [
+                        "Image",{
+                            src: diagram.relationshipImageSrc,
+                            cssClass:"endpoint-image"
+                        }],
+                    anchors: [1, anchor, 1, 0],
+                    isSource: true,
+                    connectorStyle: {
+                        strokeStyle: '#AEAA78',
+                        lineWidth: 2
+                    },
+                    connectorOverlays:[
+                        [ "PlainArrow", {
+                            foldback: 0,
+                            width:10,
+                            length:10,
+                            location:1,
+                            id:"arrow"}],
+                        [ "Label", {
+                            label:name,
+                            id:"label"}],
+                        ["Custom", {
+                            create:function(component) {
+                                var divBox = diagram.addRelationBox(name, label, idRel);
+                                return divBox;
+                            },
+                            location:0.5,
+                            id:"diagramBoxRel-" + diagram.CounterRels + "-" + name
+                        }]
+                    ],
+                    paintStyle: {
+                        strokeStyle: '#AEAA78'
+                    },
+                    backgroundPaintStyle: {
+                        strokeStyle: '#AEAA78',
+                        lineWidth: 3
+                    }
+                  };
             } else if(type == 'target') {
+                var dynamicAnchors = [ [0.5, 0, 0, 0], [ 0, 0.1, 0, 0 ], [ 1, 0.1, 0, 0 ] ];
                 relationshipOptions = {
                     endpoint: [
                     "Rectangle",
@@ -1641,12 +1652,14 @@ diagram.aggregates = [
                             cssClass: 'query-box-endpoint-target'
                         }
                     ],
-                    // //anchors: [
-                    // //    [0.5, 0, 0, 0],
-                    // //    ["Continuous",
-                    // //    {faces:[ "top", "left", "right" ]}]
-                    // //],
-                    // // anchor: [0.5, 0, 0, 0],
+                    // anchors: [
+                    //    [0.5, 0, 0, 0],
+                    //    ["Continuous",
+                    //    {faces:[ "top", "left", "right" ]}]
+                    // ],
+                    // anchors: [
+                    //     dynamicAnchors
+                    // ],
                     anchor: "TopCenter",
                     // endpoint: "Dot",
                     // anchor: [ "Perimeter", {shape: "Square", anchorCount:150}],
@@ -2886,6 +2899,8 @@ diagram.aggregates = [
             // We store the name in the label variable
             var nameRel = info.connection.getOverlays()[1].label;
             info.connection.idrel = idBoxRel;
+            // We hide the label overlay
+            //info.connection.getOverlays()[1].setVisible(false);
 
             // We select the index of the element for select it for the alias
             var elem = $('.select-reltype-' + nameRel + ' #' + nameRel + (diagram.reltypesCounter[nameRel])).length - 1;
@@ -2895,6 +2910,7 @@ diagram.aggregates = [
 
             $('.endpoint-image').css('visibility', 'visible');
             info.sourceEndpoint.addClass("endpointInvisible");
+            //info.targetEndpoint.addClass("endpointInvisible");
             info.targetEndpoint.removeClass("dragActive");
             info.targetEndpoint.removeClass("dropHover");
 
@@ -2918,6 +2934,16 @@ diagram.aggregates = [
 
         // We make the drag css style for nodes with the correct target
         var scopeSource = connection.endpoints[0].scopeSource;
+
+        // We check if the id for the relationship is correct
+        var idBoxRel = connection.getOverlays()[2].id;
+        // We get the number of idBoxRel
+        var idBoxRelParts = idBoxRel.split('-');
+        var idNumber = idBoxRelParts[1];
+        if(idNumber != diagram.CounterRels) {
+            idBoxRel = idBoxRelParts[0] + "-" + diagram.CounterRels + "-" + idBoxRelParts[2];
+            connection.getOverlays()[2].id = idBoxRel;
+        }
 
         jsPlumb.selectEndpoints().each(function(endpoint) {
             var scopeTarget = endpoint.scopeTarget;
