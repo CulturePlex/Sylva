@@ -330,7 +330,7 @@ DATA_PAGE_SIZE = 100  # Page size in nodes lists.
 PREVIEW_NODES = 200  # Size of the graph preview in the graph screen
 MAX_SIZE = 300  # If the number of nodes is above this value, Processing is
                 # disabled for graph visualization.
-IMPORT_MAX_SIZE = 10  # The maximum number of nodes/edges to send in every
+IMPORT_MAX_SIZE = 100  # The maximum number of nodes/edges to send in every
                       # AJAX request from the import tool.
 
 # OPTIONS is a dictionary made available in templates

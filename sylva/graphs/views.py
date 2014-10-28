@@ -15,6 +15,7 @@ from django.shortcuts import (get_object_or_404, render_to_response, redirect,
                               HttpResponse)
 from django.http import Http404
 from django.utils.translation import gettext as _
+from django.views.decorators.http import condition
 from django.template import RequestContext
 from django.template.loader import render_to_string
 from django.templatetags.static import static
@@ -22,12 +23,13 @@ from django.templatetags.static import static
 from guardian import shortcuts as guardian
 from guardian.decorators import permission_required
 
-from sylva.decorators import is_enabled
 from data.models import Data
 from graphs.forms import (GraphForm, GraphDeleteConfirmForm, GraphCloneForm,
                           AddCollaboratorForm)
 from graphs.models import Graph, PERMISSIONS
+from graphs.utils import graph_last_modified
 from schemas.models import Schema
+from sylva.decorators import is_enabled
 
 
 def _jsonify_graph(graph, nodes_list, relations_list):
@@ -301,7 +303,7 @@ def graph_collaborators(request, graph_slug):
                     'action': 'collaborators',
                     'html': response}
         return HttpResponse(json.dumps(response), status=200,
-                            mimetype='application/json')
+                            content_type='application/json')
     else:
         return response
 
@@ -375,6 +377,7 @@ def expand_node(request, graph_slug, node_id):
     return HttpResponse(json.dumps(node_neighbors))
 
 
+@condition(last_modified_func=graph_last_modified)
 @permission_required("graphs.view_graph", (Graph, "slug", "graph_slug"),
                      return_403=True)
 def graph_data(request, graph_slug, node_id=None):
@@ -418,7 +421,7 @@ def graph_data(request, graph_slug, node_id=None):
             'searchLoadingImage': search_loading_image
         }
         return HttpResponse(json.dumps(json_data), status=200,
-                            mimetype='application/json')
+                            content_type='application/json')
     raise Http404(_("Error: Invalid request (expected an AJAX request)"))
 
 
@@ -437,5 +440,5 @@ def graph_analytics_boxes_edit_position(request, graph_slug):
             graph.set_option('collapsibles', params['collapsibles'])
             graph.set_option('positions', params['positions'])
             graph.save()
-        return HttpResponse(status=200, mimetype='application/json')
+        return HttpResponse(status=200, content_type='application/json')
     raise Http404(_("Error: Invalid request (expected an AJAX POST request)"))

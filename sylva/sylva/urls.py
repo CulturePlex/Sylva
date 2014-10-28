@@ -101,7 +101,7 @@ if settings.DEBUG:
 
         # static server
         url(r'^static/(?P<path>.*)$', 'django.views.static.serve',
-            {'document_root': settings.STATIC_ROOT, 'indexing': True}),
+            {'document_root': settings.STATIC_ROOT, 'show_indexes': True}),
 
         # static media server
         url(r'^media/(?P<path>.*)$', 'django.views.static.serve',
@@ -119,7 +119,7 @@ if settings.TEST and not settings.DEBUG:
     urlpatterns += patterns('',
         # static server
         url(r'^static/(?P<path>.*)$', 'django.views.static.serve',
-            {'document_root': settings.STATIC_ROOT, 'indexing': False}),
+            {'document_root': settings.STATIC_ROOT, 'show_indexes': False}),
 
         # static media server
         url(r'^media/(?P<path>.*)$', 'django.views.static.serve',

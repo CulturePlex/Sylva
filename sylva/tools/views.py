@@ -3,24 +3,26 @@ try:
     import ujson as json
 except ImportError:
     import json  # NOQA
+from datetime import datetime
 
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.http import Http404
 from django.shortcuts import (get_object_or_404, render_to_response,
                               HttpResponse, redirect)
-from django.http import Http404
-from django.utils.translation import gettext as _
 from django.template import RequestContext
 from django.template.loader import render_to_string
+from django.utils.translation import gettext as _
+from django.views.decorators.http import condition
 
 from guardian.decorators import permission_required
 
 from data.models import Data
 from graphs.models import Graph
-
-from converters import GEXFConverter, CSVConverter
+from graphs.utils import graph_last_modified
+from tools.converters import GEXFConverter, CSVConverter
 
 
 @login_required()
@@ -73,6 +75,8 @@ def ajax_nodes_create(request, graph_slug):
             properties = elem_data.get('properties', '{}')
             node = graph.nodes.create(str(label.id), properties)
             ids_dict[elem_id] = node.id
+        graph.last_modified = datetime.now()
+        graph.data.save()
         return HttpResponse(json.dumps(ids_dict), mimetype='application/json')
     raise Http404(_("Error: Invalid request (expected an AJAX request)"))
 
@@ -90,11 +94,15 @@ def ajax_relationships_create(request, graph_slug):
                                                           source=source.label,
                                                           target=target.label)
             properties = elem.get("properties", "{}")
-            graph.relationships.create(source, target, str(label.id), properties)
+            graph.relationships.create(source, target, str(label.id),
+                                       properties)
+        graph.last_modified = datetime.now()
+        graph.data.save()
         return HttpResponse(json.dumps({}), mimetype='application/json')
     raise Http404(_("Error: Invalid request (expected an AJAX request)"))
 
 
+@condition(last_modified_func=graph_last_modified)
 @permission_required("data.view_data", (Data, "graph__slug", "graph_slug"),
                      return_403=True)
 def graph_export_gexf(request, graph_slug):
@@ -106,11 +114,12 @@ def graph_export_gexf(request, graph_slug):
     converter = GEXFConverter(graph)
     response = HttpResponse(converter.stream_export(),
                             mimetype='application/xml')
-    attachment = 'attachment; filename=%s.gexf' % graph_slug.replace("-", "_")
+    attachment = ('attachment; filename=%s_data.gexf' % graph_slug)
     response['Content-Disposition'] = attachment
     return response
 
 
+@condition(last_modified_func=graph_last_modified)
 @permission_required("data.view_data", (Data, "graph__slug", "graph_slug"),
                      return_403=True)
 def graph_export_csv(request, graph_slug):
