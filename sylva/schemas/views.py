@@ -329,7 +329,7 @@ def schema_export(request, graph_slug):
         messages.error(request, _("You are trying to export an empty schema!"))
         return redirect(reverse('dashboard'))
     schema = graph.schema.export()
-    response = HttpResponse(json.dumps(schema), mimetype='application/json')
+    response = HttpResponse(json.dumps(schema), content_type='application/json')
     attachment = 'attachment; filename=%s_schema.json' % graph_slug
     response['Content-Disposition'] = attachment
     return response
@@ -361,7 +361,7 @@ def schema_import(request, graph_slug):
                     response = {'type': 'data',
                                 'action': 'import_schema'}
                     return HttpResponse(json.dumps(response), status=200,
-                                        mimetype='application/json')
+                                        content_type='application/json')
                 else:
                     return redirect(schema_edit, graph_slug)
         except ValueError:
@@ -395,7 +395,7 @@ def schema_import(request, graph_slug):
                     'action': 'import_schema',
                     'html': response}
         return HttpResponse(json.dumps(response), status=200,
-                            mimetype='application/json')
+                            content_type='application/json')
     else:
         return response
 
@@ -514,7 +514,7 @@ def schema_nodetype_edit_color(request, graph_slug):
         with transaction.atomic():
             nodetype.set_color(color)
             nodetype.save()
-        return HttpResponse(status=200, mimetype='application/json')
+        return HttpResponse(status=200, content_type='application/json')
     raise Http404(_("Error: Invalid requestquest (expected an AJAX POST request)"))
 
 
@@ -543,5 +543,5 @@ def schema_reltype_edit_color(request, graph_slug):
                 reltype.set_color(color)
                 reltype.set_color_mode(color_mode)
                 reltype.save()
-        return HttpResponse(status=200, mimetype='application/json')
+        return HttpResponse(status=200, content_type='application/json')
     raise Http404(_("Error: Invalid request (expected an AJAX POST request)"))

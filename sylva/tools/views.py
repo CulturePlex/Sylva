@@ -56,7 +56,7 @@ def graph_import_tool(request, graph_slug):
                     'action': 'import_graph',
                     'html': response}
         return HttpResponse(json.dumps(response), status=200,
-                            mimetype='application/json')
+                            content_type='application/json')
     else:
         return response
 
@@ -77,7 +77,7 @@ def ajax_nodes_create(request, graph_slug):
             ids_dict[elem_id] = node.id
         graph.last_modified = datetime.now()
         graph.data.save()
-        return HttpResponse(json.dumps(ids_dict), mimetype='application/json')
+        return HttpResponse(json.dumps(ids_dict), content_type='application/json')
     raise Http404(_("Error: Invalid request (expected an AJAX request)"))
 
 
@@ -98,7 +98,7 @@ def ajax_relationships_create(request, graph_slug):
                                        properties)
         graph.last_modified = datetime.now()
         graph.data.save()
-        return HttpResponse(json.dumps({}), mimetype='application/json')
+        return HttpResponse(json.dumps({}), content_type='application/json')
     raise Http404(_("Error: Invalid request (expected an AJAX request)"))
 
 
@@ -113,7 +113,7 @@ def graph_export_gexf(request, graph_slug):
         return redirect(reverse('dashboard'))
     converter = GEXFConverter(graph)
     response = HttpResponse(converter.stream_export(),
-                            mimetype='application/xml')
+                            content_type='application/xml')
     attachment = ('attachment; filename=%s_data.gexf' % graph_slug)
     response['Content-Disposition'] = attachment
     return response

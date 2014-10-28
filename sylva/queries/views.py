@@ -375,7 +375,7 @@ def parse_query_results(request, graph_slug):
         #                           context_instance=RequestContext(request))
         return HttpResponse(json.dumps([r for r in results]),
                             status=200,
-                            mimetype='application/json')
+                            content_type='application/json')
 
 
 @is_enabled(settings.ENABLE_QUERIES)

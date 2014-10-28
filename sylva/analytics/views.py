@@ -36,7 +36,7 @@ def analytics_run(request, graph_slug):
         task = AsyncResult(analytic.task_id)
         data = [task.id, analytic.algorithm]
     json_data = json.dumps(data)
-    return HttpResponse(json_data, mimetype='application/json')
+    return HttpResponse(json_data, content_type='application/json')
 
 
 @is_enabled(settings.ENABLE_ANALYTICS)
@@ -51,7 +51,7 @@ def analytics_estimate(request, graph_slug):
         estimation = graph.analysis.estimate(algorithm)
         data = [algorithm, estimation]
     json_data = json.dumps(data)
-    return HttpResponse(json_data, mimetype='application/json')
+    return HttpResponse(json_data, content_type='application/json')
 
 
 @is_enabled(settings.ENABLE_ANALYTICS)
@@ -75,7 +75,7 @@ def analytics_status(request, graph_slug):
                                               analytic.values.url]
     data = analytics_results
     json_data = json.dumps(data)
-    return HttpResponse(json_data, mimetype='application/json')
+    return HttpResponse(json_data, content_type='application/json')
 
 
 @is_enabled(settings.ENABLE_ANALYTICS)
@@ -88,7 +88,7 @@ def analytics_analytic(request, graph_slug):
         analytic = Analytic.objects.get(pk=analytic_id)
         data = [analytic.results.url, analytic.algorithm, analytic.values.url]
     json_data = json.dumps(data)
-    return HttpResponse(json_data, mimetype='application/json')
+    return HttpResponse(json_data, content_type='application/json')
 
 
 # @condition(etag_func=None)

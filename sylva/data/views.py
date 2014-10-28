@@ -105,7 +105,7 @@ def nodes_lookup(request, graph_slug, with_properties=False, page_size=10):
                         "display": node.display
                     })
         return HttpResponse(json.dumps(json_nodes),
-                            status=200, mimetype='application/json')
+                            status=200, content_type='application/json')
     raise Http404(_("Mismatch criteria for matching the search."))
 
 
@@ -191,7 +191,7 @@ def nodes_list_full(request, graph_slug, node_type_id):
                     'action': 'nodes_list',
                     'html': response}
         return HttpResponse(json.dumps(response), status=200,
-                            mimetype='application/json')
+                            content_type='application/json')
     else:
         return response
 
@@ -322,7 +322,7 @@ def nodes_create(request, graph_slug, node_type_id):
                         'node': node.to_json(),
                         'relationships': relationships}
             return HttpResponse(json.dumps(response), status=200,
-                                mimetype='application/json')
+                                content_type='application/json')
         else:
             redirect_url = reverse("nodes_list_full",
                                    args=[graph.slug, node_type_id])
@@ -366,7 +366,7 @@ def nodes_create(request, graph_slug, node_type_id):
                     'action': 'create',
                     'html': response}
         return HttpResponse(json.dumps(response), status=200,
-                            mimetype='application/json')
+                            content_type='application/json')
     else:
         return response
 
@@ -657,7 +657,7 @@ def nodes_edit(request, graph_slug, node_id):
             if not as_new:
                 response['oldRelationshipIds'] = old_relationship_ids
             return HttpResponse(json.dumps(response), status=200,
-                                mimetype='application/json')
+                                content_type='application/json')
         else:
             redirect_url = reverse("nodes_list_full",
                                    args=[graph.slug, nodetype.id])
@@ -704,7 +704,7 @@ def nodes_edit(request, graph_slug, node_id):
                     'action': 'edit',
                     'html': response}
         return HttpResponse(json.dumps(response), status=200,
-                            mimetype='application/json')
+                            content_type='application/json')
     else:
         return response
 
@@ -790,14 +790,14 @@ def nodes_delete(request, graph_slug, node_id):
                                 'nodeId': node_id,
                                 'oldRelationshipIds': old_relationship_ids}
                     return HttpResponse(json.dumps(response), status=200,
-                                        mimetype='application/json')
+                                        content_type='application/json')
                 else:
                     redirect_url = reverse("nodes_list", args=[graph.slug])
                     return redirect(redirect_url)
             elif not confirm and as_modal:
                 changes = {'action': 'nothing'}
                 return HttpResponse(json.dumps(changes), status=200,
-                                    mimetype='application/json')
+                                    content_type='application/json')
     else:
         as_modal = bool(request.GET.copy().get("asModal", False))
     if as_modal:
@@ -827,7 +827,7 @@ def nodes_delete(request, graph_slug, node_id):
                     'action': 'delete',
                     'html': response}
         return HttpResponse(json.dumps(response), status=200,
-                            mimetype='application/json')
+                            content_type='application/json')
     else:
         return response
 
@@ -919,5 +919,5 @@ def collaborators_lookup(request, graph_slug):
             if q in collaborator.username])
         json_collaborators.sort()
         return HttpResponse(json.dumps(json_collaborators),
-                            status=200, mimetype='application/json')
+                            status=200, content_type='application/json')
     raise Http404(_("Mismatch criteria for matching the search."))
