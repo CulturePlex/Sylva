@@ -1537,6 +1537,8 @@
               }
             }
 
+            var position = querySubmenu.position();
+            $('.sigma-queries-submenu').css('right', position.left + 30);
           },
 
           beforeShow: function() {
