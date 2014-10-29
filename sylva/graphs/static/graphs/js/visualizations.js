@@ -76,7 +76,7 @@ sylva:true, alert:true */
         $('#graph-loading').remove();
         spinner.stop();
 
-        // full graph
+        // Full graph
         sylva.graph = data.graph
 
         // Other data
@@ -93,7 +93,11 @@ sylva:true, alert:true */
         $('#sigma-wrapper').removeAttr('style');
         visualizations.sigma();
 
-        initAnalytics(jQuery);
+        try {
+          initAnalytics(jQuery);
+        } catch (error) {
+          console.log('Sylva: Analytics are disabled.');
+        }
 
         $('.sigma-control').not('.analytics-mode').css('display', 'inline-block');
         $('#sigma-node-size').css('display', 'inline-block');
