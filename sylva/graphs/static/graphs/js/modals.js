@@ -482,33 +482,11 @@
          */
         var scrollHeigth = dialog.wrap.height() - options.contentControls.height();
         options.scrollWrapper.css({
-          height: scrollHeigth
+          height: scrollHeigth,
+          overflow: 'auto'
         });
 
-        options.scrollContent.css({
-          width: options.contentTable.width()
-        });
-
-        // Attaching the events for make scrollbars appear and disappear.
-        options.scrollWrapper.on('mouseover', function() {
-          options.scrollWrapper.css({
-            overflow: 'auto'
-          });
-          /* The next lines are for show de horizontal scrollbar only when
-           * it's needed.
-           */
-          if (options.windowWidth >= (options.contentTable.width() + options.modalPadding)) {
-            options.scrollWrapper.css({
-              overflowX: 'hidden'
-            });
-          }
-        });
-
-        options.scrollWrapper.on('mouseout', function() {
-          options.scrollWrapper.css({
-            overflow: 'hidden'
-          });
-        });
+        $('#search-query').width('auto');
       }
     },
 
