@@ -1165,7 +1165,7 @@
 
       // This is for hide the text "Filters".
       // The width of the text and the buttons it's 229px approximately.
-      var needToHideFilterText = analyticsSidebarWidth < 230;
+      var needToHideFilterText = analyticsSidebarWidth < 250;
       that.hideFilterText(needToHideFilterText);
 
       $('#main').width(width);
@@ -1185,7 +1185,12 @@
       $('#full-window-column').width(analyticsSidebarWidth - analyticsSidebarBorder);
       $('#full-window-column').height(height - headerHeight);
 
-      $('#full-window-column').resizable('option', 'minWidth', width * 0.15);
+      var minWidth = 200;
+      if ((width * 0.15) > 200) {
+        minWidth = width * 0.15;
+      }
+
+      $('#full-window-column').resizable('option', 'minWidth', minWidth);
       $('#full-window-column').resizable('option', 'maxWidth', width * 0.33);
 
       $('#graph-controls-and-info').css({
@@ -1506,6 +1511,49 @@
           that.updateBoxPositions(event.target.id, ui);
         }
       };
+
+      // Checking if the queries list it's already created.
+      if (!$('.sigma-query-option').length) {
+
+        // Creating the dropdown list with the queries.
+        $('#sigma-queries-menu').dropit({
+          action: 'click',
+
+          afterLoad: function() {
+            // Creating query list in the filter by query button.
+            var querySubmenu = $('.sigma-queries-submenu');
+            querySubmenu.css({
+              zIndex: 99999
+            });
+
+            if ($.isEmptyObject(sylva.queries)) {
+              var newQuery = $('<li><a class="sigma-query-option" style="font-size: 100%;">' + gettext('New query') + '</a></li>')
+              querySubmenu.append(newQuery);
+
+            } else {
+              for (var key in sylva.queries) {
+                var query = $('<li><a data-query-id="' + key + '" class="sigma-run-query sigma-query-option" style="font-size: 100%;">' + sylva.queries[key] + '</a></li>')
+                querySubmenu.append(query);
+              }
+            }
+
+          },
+
+          beforeShow: function() {
+            var button = $('#sigma-filter-query');
+            button.addClass('active');
+          },
+
+          afterHide: function() {
+            var button = $('#sigma-filter-query');;
+            button.removeAttr('style');
+            button.removeClass('active');
+          }
+        });
+      }
+
+      // For runing the queries.
+      $('.sigma-run-query').on('click', that.runQuery);
 
       // Makes boxes draggable and collapsible.
       for (var i = 0; i < sylva.collapsibles.length; i++) {
@@ -2972,6 +3020,31 @@
       });
 
       sigInst.refresh();
+    },
+
+    // Run queries from filters menu.
+    runQuery: function(event) {
+      $('#sigma-filter-query-i').removeClass('fa-filter');
+      $('#sigma-filter-query-i').addClass('fa-spinner fa-spin');
+
+      var queryId = $(event.target).attr('data-query-id');
+
+      var jqxhr = $.ajax({
+        url: sylva.urls.runQuery + queryId + '/',
+        type: 'POST',
+        dataType: 'json'
+      });
+      jqxhr.success(function(data) {
+        sylva.selectedNodes = data.nodeIds;
+        that.grayfyNonListedNodes(sylva.selectedNodes);
+      });
+      jqxhr.error(function() {
+        alert(gettext("Oops! Something went wrong with the server."));
+      });
+      jqxhr.complete(function() {
+        $('#sigma-filter-query-i').removeClass('fa-spinner fa-spin');
+        $('#sigma-filter-query-i').addClass('fa-filter');
+      });
     }
 
   };

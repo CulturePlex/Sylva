@@ -50,4 +50,8 @@ urlpatterns = patterns('graphs.views',
     url(r'^(?P<graph_slug>[\w-]+)/edit_boxes_position/$',
         'graph_analytics_boxes_edit_position',
         name="graph_analytics_boxes_edit_position"),
+
+    # run queries and return the id of the result nodes
+    url(r'^(?P<graph_slug>[\w-]+)/run_query/(?P<query_id>\d+)/$', 'run_query',
+        name="run_query"),
 )

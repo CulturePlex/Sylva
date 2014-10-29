@@ -28,6 +28,7 @@ from graphs.forms import (GraphForm, GraphDeleteConfirmForm, GraphCloneForm,
                           AddCollaboratorForm)
 from graphs.models import Graph, PERMISSIONS
 from graphs.utils import graph_last_modified
+from queries.models import Query
 from schemas.models import Schema
 from sylva.decorators import is_enabled
 
@@ -90,6 +91,7 @@ def graph_view(request, graph_slug, node_id=None):
         'schemas.views.schema_reltype_edit_color', args=[graph.slug])
     graph_analytics_boxes_edit_position_url = reverse(
         'graph_analytics_boxes_edit_position', args=[graph.slug])
+    run_query_url = reverse('run_query', args=[graph.slug, 0])[:-2]
     node = None
     if node_id:
         node = graph.nodes.get(node_id)
@@ -110,7 +112,9 @@ def graph_view(request, graph_slug, node_id=None):
                                "edit_reltype_color_ajax_url":
                                   edit_reltype_color_ajax_url,
                                "graph_analytics_boxes_edit_position_url":
-                                  graph_analytics_boxes_edit_position_url},
+                                  graph_analytics_boxes_edit_position_url,
+                               "run_query_url":
+                                  run_query_url},
                               context_instance=RequestContext(request))
 
 
@@ -410,6 +414,9 @@ def graph_data(request, graph_slug, node_id=None):
 
         search_loading_image = static('img/loading_24.gif')
 
+        queries = {query.id: query.name
+                   for query in graph.queries.order_by('-id')[:10].reverse()}
+
         json_data = {
             'graph': graph_json,
             'nodetypes': nodetypes,
@@ -418,7 +425,8 @@ def graph_data(request, graph_slug, node_id=None):
             'size': size,
             'collapsibles': collapsibles,
             'positions': positions,
-            'searchLoadingImage': search_loading_image
+            'searchLoadingImage': search_loading_image,
+            'queries': queries
         }
         return HttpResponse(json.dumps(json_data), status=200,
                             content_type='application/json')
@@ -441,4 +449,24 @@ def graph_analytics_boxes_edit_position(request, graph_slug):
             graph.set_option('positions', params['positions'])
             graph.save()
         return HttpResponse(status=200, content_type='application/json')
+    raise Http404(_("Error: Invalid request (expected an AJAX POST request)"))
+
+
+@permission_required("graphs.view_graph", (Graph, "slug", "graph_slug"),
+                     return_403=True)
+def run_query(request, graph_slug, query_id):
+    if (request.is_ajax() or settings.DEBUG):
+        get_object_or_404(Graph, slug=graph_slug)  # Only for checking
+        query = get_object_or_404(Query, id=query_id)
+        try:
+            node_ids = query.execute(only_ids=True)
+        except:
+            node_ids = []
+        dev = []
+        if node_ids:
+            dev = [str(id) for sublist in node_ids for id in sublist]
+            dev = sorted(set(dev))
+        response = {'nodeIds': dev}
+        return HttpResponse(json.dumps(response), status=200,
+                            content_type='application/json')
     raise Http404(_("Error: Invalid request (expected an AJAX POST request)"))

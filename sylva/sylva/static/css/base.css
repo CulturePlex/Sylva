@@ -2064,7 +2064,6 @@ div.relationships-box {
     -moz-box-shadow: 0 0 5px rgba(52,142,130,0.75);
 }
 
-
 input[type="text"].filterBox {
     width: 1px;
     height: 16px;
@@ -2085,7 +2084,6 @@ input[type="text"].filterBox {
     position: relative;
     float: right;
 }
-
 
 input[type="text"]:focus.filterBox {
     width: 80px;
@@ -2234,6 +2232,23 @@ table.toolsBrowse .dataActions .dataOption {
     box-shadow: none;
 }
 
+#sigma-queries-menu {
+    display: inline-block;
+}
+
+.sigma-queries-submenu {
+    z-index: 99999;
+}
+
+#sigma-filter-query {
+    height: 13px;
+    width: 13px;
+}
+
+#sigma-filter-query-i {
+    height: 13px;
+    width: 13px;
+}
 
 /*
     Description
