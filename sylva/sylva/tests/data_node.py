@@ -258,7 +258,7 @@ class DataNodeTestCase(LiveServerTestCase):
         self.browser.find_by_xpath("//div[@class='token-input-dropdown']//li[@class='token-input-dropdown-item2 token-input-selected-dropdown-item']/b").first.click()
         self.browser.find_by_value("Save Bob's type").first.click()
         # Checking
-        self.browser.find_by_xpath("//table[@id='content_table']/tbody/tr/td/p/a[@title='View node' and text()='Alice']").first.click()
+        self.browser.find_by_xpath("//table[@id='content_table']/tbody/tr/td/a[@title='View node']/p[text()='Alice']").first.click()
         self.browser.is_element_present_by_id('wait_for_js', 3)
         js_code = '''
             var instance = sigma.instances(0);
