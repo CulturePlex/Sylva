@@ -189,4 +189,34 @@
     }
   }
 
+  // Function to calculate the best with to short the information
+  $('#content-table').ready(function() {
+    // We get the headers elements, but we remove the first (the element '#')
+    var headers = $('th');
+    // We need the minimun value for the limit of the shorter and the maximun
+    // for the hover option
+    var minimum = 1150; // The width of the table
+    var maximum = 0;
+    $.each(headers, function(index, elem) {
+      // We avoid the first element
+      if (index != 0) {
+        var elemWidth = $(elem).width();
+        if(elemWidth < minimum) {
+          minimum = elemWidth;
+        }
+
+        if(elemWidth > maximum) {
+          maximum = elemWidth;
+        }
+      }
+    });
+    // We change the values of shorten-text and shorten-text:hover
+    $('.shorten-text').css({
+      'max-width': minimum + 'px'
+    });
+    $('.shorten-text:hover').css({
+      'max-width': maximum + 'px'
+    });
+  });
+
 }(jQuery));

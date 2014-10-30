@@ -29,16 +29,16 @@
                 {% if headers %}
                     {% for result in headers %}
                         <th class="header">
-                            <a href="?page={{ results.number }}&order_by={{ result }}&dir={{ dir }}">
-                            <p class="shorten-text">
+                            <a href="?page={{ results.number }}&order_by={{ result }}&dir={{ dir }}" style="text-decoration: none;">
+                                <div class="shorten-text">
                                 {{ result }}
+                                </div>
                                 <a class='remove-sorting' href="?page={{ results.number }}&order_by=default" title="{% trans "Remove from sorting" %}"></a>
                             {% if dir == 'desc' %}
                                 <a class='sorting-asc' href="?page={{ results.number }}&order_by={{ result }}&dir={{ dir }}" title="{% trans "Sorting ascending by " %} {{ order_by }}"></a>
                             {% else %}
                                 <a class='sorting-desc' href="?page={{ results.number }}&order_by={{ result }}&dir={{ dir }}" title="{% trans "Sorting descending by " %} {{ order_by }}"></a>
                             {% endif %}
-                            </p>
                             </a>
                         </th>
                     {% endfor %}

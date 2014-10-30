@@ -74,16 +74,16 @@
                 {% for prop in properties %}
                     <th class="{{ prop.slug }}">
                       <!-- We should maintain the actual page if we have previous pages -->
-                        <a data-modal="list-sort" href="?page={{ nodes.number }}&order_by={{ prop.key }}&dir={{ dir }}" id="{{prop.slug}}">
-                          <p class="shorten-text">
+                        <a data-modal="list-sort" href="?page={{ nodes.number }}&order_by={{ prop.key }}&dir={{ dir }}" id="{{prop.slug}}" style="text-decoration: none;">
+                            <div class="shorten-text">
                             {{ prop.key }}
+                            </div>
                             <a class='remove-sorting' href="?page={{ nodes.number }}&order_by=default" title="{% trans "Remove from sorting" %}"></a>
                         {% if dir == 'desc' %}
                           <a data-modal="list-sort" class='sorting-asc' href="?page={{ nodes.number }}&order_by={{ prop.key }}&dir={{ dir }}" title="{% trans "Sorting ascending by" %} {{ order_by }}"></a>
                         {% else %}
                           <a data-modal="list-sort" class='sorting-desc' href="?page={{ nodes.number }}&order_by={{ prop.key }}&dir={{ dir }}" title="{% trans "Sorting descending by " %} {{ order_by }}"></a>
                         {% endif %}
-                          </p>
                         </a>
                     </th>
                 {% endfor %}
@@ -102,7 +102,11 @@
                     {% elif node|get:prop.key == 'False' %}
                       <td class="{{ prop.slug }} shorten-text"><a class="type-list-false" href="{% url "nodes_view" graph.slug node.id %}" title="{% trans "View node" %}">{{ node|get:prop.key|default:none_label }}</a></td>
                     {% else %}
-                      <td class="{{ prop.slug }}"><p class="shorten-text"><a href="{% url "nodes_view" graph.slug node.id %}" title="{% trans "View node" %}">{{ node|get:prop.key|default:none_label }}</a></p></td>
+                      <td class="{{ prop.slug }}">
+                        <a href="{% url "nodes_view" graph.slug node.id %}" title="{% trans "View node" %}">
+                          <p class="shorten-text">{{ node|get:prop.key|default:none_label }}</p>
+                        </a>
+                      </td>
                     {% endif %}
                   {% endfor %}
                 </tr>

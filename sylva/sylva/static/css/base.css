@@ -2479,6 +2479,7 @@ body :hover > a.headerlink {
     width: 7px;
     height: 7px;
     display: inline-block;
+    padding-top: 3px;
 }
 
 .sorting-asc {
@@ -2486,6 +2487,7 @@ body :hover > a.headerlink {
     width: 7px;
     height: 4px;
     display: inline-block;
+    padding-top: 3px;
 }
 
 .sorting-desc {
@@ -2493,6 +2495,7 @@ body :hover > a.headerlink {
     width: 7px;
     height: 4px;
     display: inline-block;
+    padding-top: 3px;
 }
 
 .type-list-true {
@@ -2520,10 +2523,12 @@ body :hover > a.headerlink {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    display: inline-block;
 }
 
 .shorten-text:hover {
     max-width: 500px;
+    white-space: inherit;
 }
 
 .dropdown {
