@@ -1111,6 +1111,7 @@ diagram.aggregates = [
             checkboxProperty = $("<INPUT>");
             checkboxProperty.addClass("checkbox-property");
             checkboxProperty.attr("type", "checkbox");
+            checkboxProperty.prop("disabled", true);
             // Add and-or div
             divAndOr = $("<DIV>");
             divAndOr.addClass("and-or-option");
@@ -1223,6 +1224,7 @@ diagram.aggregates = [
                 checkboxProperty = $("<INPUT>");
                 checkboxProperty.addClass("checkbox-property");
                 checkboxProperty.attr("type", "checkbox");
+                checkboxProperty.prop("disabled", true);
                 // Add and-or div
                 divAndOr = $("<DIV>");
                 divAndOr.addClass("and-or-option");
@@ -2435,6 +2437,26 @@ diagram.aggregates = [
         diagram.checkTargetType(scopeSource, relationId);
     });
 
+
+    /**
+     * We check if we have one property clicked at least, to allow the
+     * executing of the query.
+     */
+    $("#diagramContainer").on('click', '.checkbox-property', function() {
+        var checkboxes = $('.checkbox-property');
+        var checkBoxesClicked = checkboxes.filter(function() {
+            return $(this).prop('checked');
+        }).length;
+        if(checkBoxesClicked > 0) {
+            $runQuery = $('#run-query');
+            $runQuery.prop('disabled', false);
+            $runQuery.css({
+                'color': '#348E82',
+                'background-color': '#D6E7DF'
+            });
+        }
+    });
+
     /**
      * Add the values of the select lookup in relation with the property
      * selected
@@ -2446,6 +2468,9 @@ diagram.aggregates = [
         var datatype = $('option:selected', this).data("datatype");
         var choices = $('option:selected', this).data("choices");
         var arrayOptions = diagram.lookupOptions(datatype);
+
+        // We change the disabled prop of the checkbox
+        $('#' + fieldId + ' .checkbox-property').prop('disabled', false);
 
         // We show the select lookup
         $(selector).css({

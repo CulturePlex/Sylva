@@ -73,8 +73,8 @@
                         </div>
                     {% endif %}
                 {% endfor %}
-                <input type="submit" id="save-query" name="saveQuery" value="{% trans "Save query" %}" />
-                <span class="buttonLinkOption buttonLinkRight" style="float: none; margin-top: 15px;">
+                <input type="submit" id="save-query" name="saveQuery" value="{% trans "Save Query" %}" />
+                <span class="buttonLinkOption buttonLinkRight" style="float: none; margin-top: 10px;">
                     {% trans "or" %} <a id="cancel-button" href="{% url "queries_list" graph.slug %}">{% trans "Cancel" %}</a>
                 </span>
             </form>
@@ -117,11 +117,14 @@
             <input type="hidden" id="query_fields" name="query_fields" />
             <span class="buttonLinkOption buttonLinkLeft">
                 <input type="submit" id="run-query" name="run-query" value="{% trans "Run" %}" />
-                 {% trans "or" %}
-                <input type="button" id="save-button" name="save-button" value="{% trans "Save" %}" />
+                <!--<input type="button" id="save-button" name="save-button" value="{% trans "Save" %}" />-->
                 <!--<a id="save-button" href="javascript:void(0)">{% trans "Save" %}</a>-->
             </span>
             <span class="buttonLinkOption buttonLinkRight">
+                <!--
+                                <a id="save-button" href="javascript:void(0)">"{% trans "Save" %}"</a>
+            -->
+                <a id="save-button" href="javascript:void(0)">{% trans "Save" %}</a>
                 {% trans "or" %} <a id="clear-button" href="javascript:void(0)">{% trans "Clear" %}</a>
             </span>
         </form>
