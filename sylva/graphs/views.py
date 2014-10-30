@@ -405,18 +405,16 @@ def graph_data(request, graph_slug, node_id=None):
         graph_json, nodetypes, reltypes, node_ids = _jsonify_graph(
             graph, nodes_list, relations_list)
         size = len(nodes_list)
-
         collapsibles = []
         positions = {}
         if 'collapsibles' in graph.get_options():
             collapsibles = graph.get_option('collapsibles')
             positions = graph.get_option('positions')
-
         search_loading_image = static('img/loading_24.gif')
-
         queries = {query.id: query.name
                    for query in graph.queries.order_by('-id')[:10].reverse()}
-
+        # Maybe we can change the previous line if the query object would have
+        # a mod_date.
         json_data = {
             'graph': graph_json,
             'nodetypes': nodetypes,
@@ -462,6 +460,7 @@ def run_query(request, graph_slug, query_id):
             node_ids = query.execute(only_ids=True)
         except:
             node_ids = []
+            print 'An error ocurred during the query execution'
         dev = []
         if node_ids:
             dev = [str(id) for sublist in node_ids for id in sublist]
