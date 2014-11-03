@@ -13,7 +13,7 @@ from django.contrib.auth.models import User
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from django.shortcuts import (get_object_or_404, render_to_response,
+from django.shortcuts import (get_object_or_404, render_to_response, redirect,
                               HttpResponse)
 from django.template import RequestContext
 from django.utils.translation import gettext as _
@@ -24,7 +24,7 @@ from sylva.decorators import is_enabled
 from graphs.models import Data, Graph
 from queries.grammar import QueryParser
 from schemas.models import NodeType, RelationshipType
-from queries.forms import SaveQueryForm
+from queries.forms import SaveQueryForm, QueryDeleteConfirmForm
 
 # from .parser import parse_query
 ASC = "asc"
@@ -341,6 +341,52 @@ def queries_query_results(request, graph_slug, query_id):
                                "order_by": order_by_field,
                                "dir": order_dir,
                                "page_dir": page_dir},
+                              context_instance=RequestContext(request))
+
+
+@permission_required("data.delete_data", (Data, "graph__slug", "graph_slug"),
+                     return_403=True)
+def queries_query_delete(request, graph_slug, query_id):
+    graph = get_object_or_404(Graph, slug=graph_slug)
+    query = graph.queries.get(id=query_id)
+    queries_link = (reverse("queries_list", args=[graph.slug]),
+                    _("Queries"))
+    form = QueryDeleteConfirmForm()
+    if request.POST:
+        data = request.POST.copy()
+        form = QueryDeleteConfirmForm(data=data)
+        if form.is_valid():
+            confirm = bool(int(form.cleaned_data["confirm"]))
+            if confirm:
+                # here we remove the associated reports
+                # query.report_templates.all()
+                # The report is still remaining?
+                pass
+            queries = graph.queries.all()
+            # We add pagination for the list of queries
+            page = request.GET.get('page')
+            page_size = settings.DATA_PAGE_SIZE
+            paginator = Paginator(queries, page_size)
+            try:
+                paginated_queries = paginator.page(page)
+            except PageNotAnInteger:
+                # If page is not an integer, deliver first page.
+                paginated_queries = paginator.page(1)
+            except EmptyPage:
+                # If page is out of range (e.g. 9999), deliver
+                # last page of results.
+                paginated_queries = paginator.page(paginator.num_pages)
+            return render_to_response('queries/queries_list.html',
+                                      {"graph": graph,
+                                       "queries": paginated_queries,
+                                       "queries_link": queries_link},
+                                      context_instance=RequestContext(request))
+            # redirect_url = reverse(queries_link)
+            # return redirect(redirect_url)
+    return render_to_response('queries/queries_query_delete.html',
+                              {"graph": graph,
+                               "form": form,
+                               "queries_link": queries_link},
                               context_instance=RequestContext(request))
 
 

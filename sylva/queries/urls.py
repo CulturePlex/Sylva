@@ -28,6 +28,11 @@ urlpatterns = patterns(
         'queries_query_results',
         name="queries_query_results"),
 
+    # delete query
+    url(r'^(?P<graph_slug>[\w-]+)/query/(?P<query_id>\d+)/delete/$',
+        'queries_query_delete',
+        name="queries_query_delete"),
+
     # another urls
     url(r'^(?P<graph_slug>[\w-]+)/query/$', 'queries_query',
         name="queries_query"),

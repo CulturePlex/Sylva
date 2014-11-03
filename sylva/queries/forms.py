@@ -34,3 +34,15 @@ class SaveQueryForm(ModelForm):
             'query_aliases': forms.HiddenInput(),
             'query_fields': forms.HiddenInput(),
         }
+
+
+class QueryDeleteConfirmForm(forms.Form):
+    CHOICES = (
+        (1, _("Yes")),
+        (0, _("No")),
+    )
+    confirm = forms.ChoiceField(label=_("Are you sure you want to delete "
+                                        "this? All related reports "
+                                        "will be removed"),
+                                choices=CHOICES, required=True,
+                                widget=forms.RadioSelect())

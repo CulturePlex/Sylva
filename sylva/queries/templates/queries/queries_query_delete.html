@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% load i18n graphs static compress %}
+{% get_static_prefix as STATIC_PREFIX %}
+
+{% block navigation_buttons %}
+{{ block.super }}
+{% endblock %}
+
+{% block title %}
+{{ graph.name }}
+{% endblock %}
+
+{% block menu_buttons %}
+{% toolbar on="queries" %}
+{% endblock %}
+
+{% block content_title %}
+{% trans "Delete" as label %}
+{% breadcrumb graph queries_link label %}
+{% endblock %}
+
+{% block content %}
+
+<form method="post" action="." id="queryDelete" name="query_delete">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <br/>
+    <input type="submit" value="{% trans "Delete" %}" />
+    <span class="buttonLinkOption">
+        {% trans "or" %} <a href="{% url "queries_list" graph.slug %}">{% trans "Cancel" %}</a>.</span>
+</form>
+
+{% endblock %}

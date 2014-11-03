@@ -101,8 +101,10 @@
         {% for query in queries %}
             <tr class="{% cycle 'row-even' 'row-odd' %}">
                 <td id="button-edit" class="dataList">
+                    <a href="{% url "queries_query_results" graph.slug query.id %}" alt='{% trans "Run query" %}' title='{% trans "Run query" %}'><i class="fa fa-play-circle"></i></a>
                     <a class="edit" href="{% url "queries_query_edit" graph.slug query.id %}" alt='{% trans "Edit query" %}' title='{% trans "Edit query" %}'>&nbsp;</a>
-                    <a href="{% url "queries_query_results" graph.slug query.id %}" alt='{% trans "Run query" %}' title='{% trans "Run query" %}'><i class="fa fa-play-circle"></i></a></td>
+                    <a href="{% url "queries_query_delete" graph.slug query.id %}" alt='{% trans "Delete query" %}' title='{% trans "Delete query" %}'><i class="fa fa-times-circle"></i></a>
+                </td>
                 <td id="query-name" class=""><div class="shorten-text">{{ query.name }}</div></td>
                 <td id="query-description"><div class="shorten-text">{{ query.description }}</div></td>
                 <td id="query-results-count"><div class="shorten-text">{{ query.results_count }}</div></td>
