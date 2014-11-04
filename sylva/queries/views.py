@@ -93,8 +93,8 @@ def queries_new(request, graph_slug):
     graph = get_object_or_404(Graph, slug=graph_slug)
     nodetypes = NodeType.objects.filter(schema__graph__slug=graph_slug)
     reltypes = RelationshipType.objects.filter(schema__graph__slug=graph_slug)
-    queries_link = (reverse("queries_list", args=[graph.slug]),
-                    _("Queries"))
+    redirect_url = reverse("queries_list", args=[graph.slug])
+    queries_link = (redirect_url, _("Queries"))
     form = SaveQueryForm()
     # We check if we have the variables in the request.session
     if 'query' not in request.session:
@@ -125,12 +125,7 @@ def queries_new(request, graph_slug):
                     query.results_count = 0
                 query.save()
                 graph.save()
-                return render_to_response('queries/queries_list.html',
-                                          {"graph": graph,
-                                           "queries_link": queries_link,
-                                           "queries": graph.queries.all()},
-                                          context_instance=RequestContext(
-                                              request))
+                return redirect(redirect_url)
     else:
         return render_to_response('queries/queries_new.html',
                                   {"graph": graph,
@@ -238,8 +233,8 @@ def queries_query_edit(request, graph_slug, query_id):
     nodetypes = NodeType.objects.filter(schema__graph__slug=graph_slug)
     reltypes = RelationshipType.objects.filter(
         schema__graph__slug=graph_slug)
-    queries_link = (reverse("queries_list", args=[graph.slug]),
-                    _("Queries"))
+    redirect_url = reverse("queries_list", args=[graph.slug])
+    queries_link = (redirect_url, _("Queries"))
     query = graph.queries.get(pk=query_id)
     # We check if we are going to edit the query
     if request.POST:
@@ -256,11 +251,7 @@ def queries_query_edit(request, graph_slug, query_id):
                 else:
                     query.results_count = 0
                 query.save()
-                return render_to_response('queries/queries_list.html',
-                                          {"graph": graph,
-                                           "queries": graph.queries.all()},
-                                          context_instance=RequestContext(
-                                              request))
+                return redirect(redirect_url)
     # We have to get the values of the query to introduce them into the form
     form = SaveQueryForm(instance=query)
     query_dict = json.dumps(query.query_dict)
@@ -344,13 +335,11 @@ def queries_query_results(request, graph_slug, query_id):
                               context_instance=RequestContext(request))
 
 
-@permission_required("data.delete_data", (Data, "graph__slug", "graph_slug"),
-                     return_403=True)
 def queries_query_delete(request, graph_slug, query_id):
     graph = get_object_or_404(Graph, slug=graph_slug)
     query = graph.queries.get(id=query_id)
-    queries_link = (reverse("queries_list", args=[graph.slug]),
-                    _("Queries"))
+    redirect_url = reverse("queries_list", args=[graph.slug])
+    queries_link = (redirect_url, _("Queries"))
     form = QueryDeleteConfirmForm()
     if request.POST:
         data = request.POST.copy()
@@ -359,30 +348,9 @@ def queries_query_delete(request, graph_slug, query_id):
             confirm = bool(int(form.cleaned_data["confirm"]))
             if confirm:
                 # here we remove the associated reports
-                # query.report_templates.all()
-                # The report is still remaining?
-                pass
-            queries = graph.queries.all()
-            # We add pagination for the list of queries
-            page = request.GET.get('page')
-            page_size = settings.DATA_PAGE_SIZE
-            paginator = Paginator(queries, page_size)
-            try:
-                paginated_queries = paginator.page(page)
-            except PageNotAnInteger:
-                # If page is not an integer, deliver first page.
-                paginated_queries = paginator.page(1)
-            except EmptyPage:
-                # If page is out of range (e.g. 9999), deliver
-                # last page of results.
-                paginated_queries = paginator.page(paginator.num_pages)
-            return render_to_response('queries/queries_list.html',
-                                      {"graph": graph,
-                                       "queries": paginated_queries,
-                                       "queries_link": queries_link},
-                                      context_instance=RequestContext(request))
-            # redirect_url = reverse(queries_link)
-            # return redirect(redirect_url)
+                query.report_templates.all().delete()
+                query.delete()
+            return redirect(redirect_url)
     return render_to_response('queries/queries_query_delete.html',
                               {"graph": graph,
                                "form": form,
