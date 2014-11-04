@@ -290,7 +290,7 @@ diagram.aggregates = [
             // First option to choose one
             optionRelDefault = $("<OPTION>");
             optionRelDefault.addClass('option-rel');
-            optionRelDefault.attr('value', '');
+            optionRelDefault.attr('value', 'choose one');
             optionRelDefault.attr('disabled', 'disabled');
             optionRelDefault.attr('selected', 'selected');
             optionRelDefault.html(gettext("choose one"));
@@ -2435,6 +2435,9 @@ diagram.aggregates = [
         // If it doesn't, we load the type and create the connection
         // between the two types
         diagram.checkTargetType(scopeSource, relationId);
+
+        // We restore the "choose one" value
+        $this.val("choose one");
     });
 
 
@@ -2453,6 +2456,13 @@ diagram.aggregates = [
             $runQuery.css({
                 'color': '#348E82',
                 'background-color': '#D6E7DF'
+            });
+        } else {
+            $runQuery = $('#run-query');
+            $runQuery.prop('disabled', true);
+            $runQuery.css({
+                'color': '#9b9b9b',
+                'background-color': '#f2f2f2'
             });
         }
     });
