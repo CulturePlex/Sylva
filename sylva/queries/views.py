@@ -262,6 +262,7 @@ def queries_query_edit(request, graph_slug, query_id):
                                "node_types": nodetypes,
                                "relationship_types": reltypes,
                                "queries_link": queries_link,
+                               "query_name": query.name,
                                "form": form,
                                "query_dict": query_dict,
                                "query_aliases": query_aliases,
@@ -327,6 +328,7 @@ def queries_query_results(request, graph_slug, query_id):
     return render_to_response('queries/queries_new_results.html',
                               {"graph": graph,
                                "queries_link": queries_link,
+                               "query_name": query.name,
                                "headers": headers_results,
                                "results": paginated_results,
                                "order_by": order_by_field,
@@ -354,7 +356,8 @@ def queries_query_delete(request, graph_slug, query_id):
     return render_to_response('queries/queries_query_delete.html',
                               {"graph": graph,
                                "form": form,
-                               "queries_link": queries_link},
+                               "queries_link": queries_link,
+                               "query_name": query.name},
                               context_instance=RequestContext(request))
 
 

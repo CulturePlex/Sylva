@@ -2118,15 +2118,11 @@ diagram.aggregates = [
 
                 $('#' + sourceId + ' .select-rel').val(relationValue);
                 $('#' + sourceId + ' .select-rel').change();
-                $('#' + sourceId + ' .select-rel').change();
 
                 jsPlumb.connect({
                     uuids: [uuidSource, uuidTarget],
                     anchor: ["Perimeter", {shape: "Rectangle"}]
                 });
-
-                /****************************************************
-                ****************************************************/
 
                 // We check if we need to show the 'alias selects' for the relationship boxes
                 diagram.showSelects(relationValue, "relationship");

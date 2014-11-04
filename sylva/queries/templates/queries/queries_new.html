@@ -15,8 +15,12 @@
 {% endblock %}
 
 {% block content_title %}
-{% trans "New" as label %}
-{% breadcrumb graph queries_link label %}
+{% if query_name %}
+    {% breadcrumb graph queries_link query_name %}
+{% else %}
+    {% trans "New" as label %}
+    {% breadcrumb graph queries_link label %}
+{% endif %}
 {% endblock %}
 
 {% block content %}

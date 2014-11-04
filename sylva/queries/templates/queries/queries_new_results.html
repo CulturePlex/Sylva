@@ -16,7 +16,11 @@
 
 {% block content_title %}
 {% trans "Results" as label %}
-{% breadcrumb graph queries_link queries_new label %}
+{% if query_name %}
+    {% breadcrumb graph queries_link query_name label %}
+{% else %}
+    {% breadcrumb graph queries_link label %}
+{% endif %}
 {% endblock %}
 
 {% block content %}
