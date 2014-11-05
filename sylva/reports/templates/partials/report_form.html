@@ -19,7 +19,7 @@
             <p>
               <label> {% trans "Start date" %}
                 
-                <input type="text" sylva-datepicker ng-model="template.date" required="true" view="hours"> 
+                <input type="text" sylva-datepicker readonly="true" ng-model="template.date" required="true" view="hours"> 
      
               </label> 
             </p>
@@ -27,13 +27,13 @@
             <p>
               <label>{% trans "Time" %}
                 
-                <input sylva-timepicker type="text"  ng-model="template.time" placeholder="hh:mm">
+                <input sylva-timepicker readonly="true" type="text"  ng-model="template.time" placeholder="hh:mm">
      
               </label>
             </p>
 
             <p>
-              <label>{% trans Frequency %}
+              <label>{% trans "Frequency" %}
                 
                 <select ng-init="template.frequency = 'w'" ng-model="template.frequency">
      

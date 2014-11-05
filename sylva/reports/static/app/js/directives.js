@@ -824,15 +824,19 @@ directives.directive('sylvaBreadcrumbs', [
     function ($location, parser, GRAPH, DJANGO_URLS) {
     return {
         template: '<h2>' +
-                    '<a href="/graphs/{{ graphSlug }}/">{{graph}}</a> &raquo; ' + 
-                    '<a href="#/">{{ breadText.reports }} </a>' +
+                    '<a href="/graphs/{{ graphSlug }}/">{{graph}}</a> ' + 
+                    '<span> &raquo; </span>' +
+                    '<a ng-href="#/">{{ breadText.reports }}</a>' +
+                    '<span ng-if="reportName"> &raquo; </span>' +
+                    '<a  ng-href="#/edit/{{ reportSlug }}">{{ reportName }}</a>' +
                     '<span ng-repeat="crumb in crumbs">&raquo; {{crumb}} </span>' +
                   '</h2>',
         controller: function ($scope) {
 
             $scope.graph = GRAPH;
             $scope.graphSlug = parser.parse();
-
+            $scope.crumbs = [];
+            $scope.reportName = null;
             $scope.getLocation = function () {
                 return $location.path()
             }
@@ -844,13 +848,18 @@ directives.directive('sylvaBreadcrumbs', [
             };
 
             scope.$watch(scope.getLocation, function (newVal, oldVal) {
+                if (newVal === oldVal) return;
                 var location = scope.getLocation();
                 if (location !== '/' ) {
                     var crumbs = location.split('/')
+                    
                     crumbs.splice(0, 1)
+                    scope.reportSlug = crumbs.splice(crumbs.length - 1, 1)[0]
+                    
                     crumbs[0] = crumbs[0].charAt(0).toUpperCase() + crumbs[0].slice(1);
-                    scope.crumbs = crumbs.reverse();
+                    console.log('crumbs', crumbs)
                 } else {
+                    scope.reportName = null;
                     scope.crumbs = [];
                 } 
 
@@ -865,8 +874,7 @@ directives.directive('sylvaBreadcrumbs', [
             });
 
             scope.$on('name', function (e, name) {
-                scope.crumbs[0] = name;
-                
+                scope.reportName = name; 
             });
         }
     };

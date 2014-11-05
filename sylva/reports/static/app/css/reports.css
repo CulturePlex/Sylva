@@ -1,3 +1,22 @@
+input[type="text"], select {
+  font-size: small;
+}
+
+select {
+  height: 26px;
+  width: 316px;
+  padding-bottom: 4px;
+  padding-top: 4px
+}
+
+
+.buttonLinkOption input {
+  margin: 3px;
+}
+
+.prev-button {
+  margin-left: 3px;
+}
 
 .alink {
 vertical-align: middle;
@@ -16,10 +35,6 @@ th.report {
     width: 10em;
     margin-right: 1em;
     margin-top: 
-}
-
-.edit-cell-inside input[type=text] + label {
-    
 }
 
 .highchart-cont {

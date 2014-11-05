@@ -69,6 +69,7 @@ controllers.controller('BaseReportCtrl', [
             ,   time = template.time.split(':')
             ,   datetime = new Date(date[2], date[1] - 1, date[0], time[0], time[1])
             ,   post = new api.builder();
+            console.log('post', datetime, datetime.toISOString())
             template.start_date = datetime.toISOString()
             post.template = template
             post.$save({
@@ -182,7 +183,6 @@ controllers.controller('EditReportCtrl', [
             ,   year = datetime.getFullYear().toString()
             ,   hour = datetime.getHours().toString()
             ,   minute = datetime.getMinutes().toString();
-
             if (month.length === 1) month = '0' + month;
             if (day.length === 1) day = '0' + day;
             if (hour.length === 1) hour = '0' + hour;
@@ -190,7 +190,7 @@ controllers.controller('EditReportCtrl', [
 
             data.template.time = hour + ':' + minute;
             data.template.date = day + '/' + month + '/' + year;
-
+            console.log('data.template', data.template)
             $scope.template = data.template;
             $scope.resp = {table: data.template.layout, queries: data.queries};
             $scope.prev = $scope.resp;
@@ -203,7 +203,8 @@ controllers.controller('ReportPreviewCtrl', [
     '$controller',
     'api',
     'parser',
-    function ($scope, $controller, api, parser) {
+    'breadService',
+    function ($scope, $controller, api, parser, breadService) {
         $controller('BaseReportCtrl', {$scope: $scope});
         $scope.pdf = parser.pdf();
         api.templates.preview({
@@ -212,6 +213,7 @@ controllers.controller('ReportPreviewCtrl', [
         }, function (data) {
             $scope.template = data.template;
             $scope.resp = {table: data.template.layout, queries: data.queries}
+            breadService.updateName(data.template.name)
         });
 }]);
 
@@ -220,7 +222,8 @@ controllers.controller('ReportHistoryCtrl', [
     '$scope',
     '$controller',
     'api',
-    function ($scope, $controller, api) {
+    'breadService',
+    function ($scope, $controller, api, breadService) {
         $controller('BaseReportCtrl', {$scope: $scope});
         api.history.history({
             graphSlug: $scope.slugs.graph,
@@ -232,6 +235,8 @@ controllers.controller('ReportHistoryCtrl', [
                 ,   datetime = new Date(date)
                 report.date_run = datetime.toString()
             }
+            breadService.updateName(data.name)
+            console.log('date info', datetime.getFullYear().toString(), datetime.getMonth().toString(), datetime.getDate().toString(), datetime.getUTCHours().toString(), datetime.getMinutes().toString())
             $scope.template = data;
             if (data.history.length > 0) $scope.getReport(data.history[0].id)
         });
