@@ -287,5 +287,12 @@
         $(imgId).attr('class','fa fa-eye');
       }
     });
+
+    $('#content-table').ready(function() {
+      var showHideDiv = $('.show-hide-button');
+      // We append the showHideDiv to the search-query div,
+      // We cannot do it in the template because the VS-search plugin.
+      $('#search-query').append(showHideDiv);
+    });
   });
 }(jQuery));

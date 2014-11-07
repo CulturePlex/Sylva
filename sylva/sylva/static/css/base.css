@@ -2533,13 +2533,21 @@ body :hover > a.headerlink {
 .dropdown {
     position: absolute;
     background-color: #FFFFFF;
-    box-shadow: 5px 5px 2px #888888;
+    box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.9);
     padding: 3px;
+    margin-top: 3px;
     display: none;
     width: 10%;
-    border: 1px solid #888888;
-    border-radius: 5px;
-    -moz-border-radius: 5px;
+    border-radius: 4px;
+    -moz-border-radius: 4px;
+}
+
+#search-query {
+    display: flex;
+}
+
+#search {
+    width: 700px;
 }
 
 /* END icons */
