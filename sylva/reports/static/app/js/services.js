@@ -177,6 +177,14 @@ services.factory('tableArray', function () {
         }
     }
 
+    TableArray.prototype.removeAxis = function(coords, axis) {
+        if (axis === 'y') {
+            this.table[coords[0]][coords[1]].yAxis = null;
+        } else {
+            this.table[coords[0]][coords[1]].xAxis = null;
+        }
+    }
+
     TableArray.prototype.addMarkdown = function(coords, markdown) {
         this.table[coords[0]][coords[1]].displayMarkdown = markdown;
     }

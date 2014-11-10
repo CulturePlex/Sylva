@@ -39,7 +39,7 @@ th.report {
 
 .highchart-cont {
   overflow: hidden;
-  height: 200px ;
+  height: 100px ;
 }
 
 .highchart-cont:hover {
@@ -192,6 +192,9 @@ th.report {
   right: 0;
 }
 
+.editable-row {
+  height: 200px;
+}
 
 .close {
   font-size: x-large;
@@ -203,7 +206,7 @@ th.report {
 
 textarea.markdown {
   width: 100%;
-  height: 145px;
+  height: 170px;
   padding: 0px;
   margin: 0px;
   position: absolute;

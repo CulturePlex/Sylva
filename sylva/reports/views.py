@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import datetime
 import json
 import os
 import tempfile
@@ -122,6 +123,7 @@ def preview_report_pdf(request, graph_slug):
 def templates_endpoint(request, graph_slug):
     graph = get_object_or_404(Graph, slug=graph_slug)
     if request.GET.get('queries', '') or request.GET.get('template', ''):
+        #import ipdb; ipdb.set_trace()
         response = {'template': None, 'queries': None}
         if request.GET.get('queries', ''):  # Get queries either for
                                             # new template or for edit.
@@ -140,20 +142,22 @@ def templates_endpoint(request, graph_slug):
             template = get_object_or_404(
                 ReportTemplate, slug=request.GET['template']
             )
+            print template.start_date
             response['template'] = template.dictify()
             if not response['queries']:  # Get template queries for preview.
                 queries = template.queries.all()
                 # Will have to execute queries here
-                response['queries'] = [{'series': query.execute(),
+                response['queries'] = [{'series': [(q[1], q[0]) for q in query.execute()],
                                         'name': query.name, 'id': query.id,
                                         'results': query.query_dict['results']}
                                        for query in queries]
+                #import ipdb; ipdb.set_trace()
     else:  # Get a list of all the reports.
         templates = graph.report_templates.order_by(
             '-last_run',
             '-start_date'
         )
-        paginator = Paginator(templates, 2)
+        paginator = Paginator(templates, 10)
         page = request.GET.get('page')
         try:
             templates = paginator.page(page)
@@ -213,7 +217,14 @@ def builder_endpoint(request, graph_slug):
     graph = get_object_or_404(Graph, slug=graph_slug)
     if request.POST:
         template = json.loads(request.body)['template']
-        start_date = parser.parse(template['start_date'])
+        date_dict = template['start_date']
+        start_date = datetime.datetime(
+            int(date_dict['year']),
+            int(date_dict['month']),
+            int(date_dict['day']),
+            int(date_dict['hour']),
+            int(date_dict['minute'])
+        )
         if template.get('slug', ''):
             new_template = get_object_or_404(
                 ReportTemplate, slug=template['slug']

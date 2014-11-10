@@ -26,7 +26,7 @@ directives.directive('sylvaDatepicker', function () {
         link : function(scope, element, attrs, ngModelCtrl) {
             $(function(){
                 element.datepicker({
-                    dateFormat:'dd/mm/yy',
+                    dateFormat:'mm/dd/yy',
                     onSelect:function (date) {
                         scope.$apply(function () {
                             ngModelCtrl.$setViewValue(date);
@@ -220,7 +220,7 @@ directives.directive('syEditableTable',['tableArray', 'DJANGO_URLS',
         },
         template:   '<div class="editable-table">' +
                         '<div class="edit-rows">' + 
-                          '<div sy-et-row-repeat  queries="queries">' + 
+                          '<div sy-et-row-repeat class="editable-row" queries="queries">' + 
                             '<div sylva-et-cell-repeat class="tcell" row="row" rownum="rownum">' + 
                               '<div sylva-et-cell config="config" class="query" ng-style="cellStyle">' + 
                               '</div>' + 
@@ -279,7 +279,6 @@ directives.directive('syEditableTable',['tableArray', 'DJANGO_URLS',
             scope.plusrow = gettext('+ row')
             scope.plusrow = gettext('+ row')
 
-            console.log('elemchild', ang(elem.children()[0]).children()[0])
             scope.$watch('resp', function (newVal, oldVal) {  
                 if (newVal === oldVal) return;
                 scope.tableArray = tableArray(scope.resp.table);
@@ -366,7 +365,6 @@ directives.directive('syEtRowRepeat', [function () {
                         childScope.$index = i;
                         childScope.row = tableArray.table[i];
                         childScope.rownum = i;
-                        console.log('i', i, childScope.rownum)
                         transclude(childScope, function (clone) {
                             if (i === len - 1) clone.addClass('bottom')
                             
@@ -514,16 +512,16 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', fun
         scope: {
             config: '='
         },
-        template:   '<div ng-hide="md" class="edit-cell-inside">' + 
-                        '<div class="row">' +
-                          '<label class="chart-select">' + 
+        template:   '<div class="row">' +
+                        '<label class="chart-select">' + 
                             '{{ selectText.content }}' + 
-                          '</label>' + 
-                          '<select ng-model="activeQuery" value="query.id" ng-options="query.name group by query.group for query in queries">' + 
+                        '</label>' + 
+                        '<select ng-model="activeQuery" value="query.id" ng-options="query.name group by query.group for query in queries">' + 
                             '<option value="">-----</option>' + 
-                          '</select> ' + 
-                        '</div>' + 
-                        '<hr>' +
+                        '</select> ' + 
+                    '</div>' + 
+                    '<hr>' +
+                    '<div ng-hide="md" class="edit-cell-inside">' +
                         '<div class="row">' +
                             '<div class="col chartcol">' +
                                 '<label>' + 
@@ -536,18 +534,20 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', fun
                                 '</div>' +
                             '</div>' +
                             '<div class="col cellcol">' +
-                                '<label>{{ selectText.series }}</label>' +
-                                '<select ng-model="activeX" ng-options="result.trueAlias for result in xSeries">' + 
-                                    '<option value="">-----</option>' + 
-                                '</select>' +    
-                                '<select ng-model="activeY" ng-options="result.trueAlias for result in ySeries">' + 
-                                    '<option value="">-----</option>' + 
+                                '<label>{{ selectText.xSeries }}</label>' +
+                                '<select ng-model="activeX" ng-value="result" ng-options="result.trueAlias for result in xSeries">' + 
+                                '</select>' +
+                                '<label>{{ selectText.ySeries }}</label><br>' + 
+                                '<label ng-repeat="result in ySeries">' + 
+                                    '<input type="checkbox" ng-model="result.selected" value="{{result.alias}}" />' + 
+                                        '{{ result.trueAlias }} ' +
+                                '</label>' +
+                                '<br>' + 
                                 '</select>' +  
                             '</div>' +
                         '</div>' +
                     '</div>' + 
-                    '<div ng-show="md">' + 
-                      '<span class="close"></span>' + 
+                    '<div ng-show="md">' +  
                       '<textarea ng-model="mdarea" class="markdown">' + 
                       '</textarea>' + 
                       '</div>' + 
@@ -556,9 +556,14 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', fun
             var ang = angular.element
             ,   mdDiv = ang(elem.children()[1])
             ,   md = ang(mdDiv.children()[1])
+            ,   stepChild = ang(ang(ang(elem.children()[2]).children()[0])[0]).children()
+            ,   chartCol = ang(stepChild[0])
+            ,   cellCol = ang(stepChild[1])
             ,   results
             ,   coords
             ,   arrows = false
+            ,   cellWidth
+
             ,   arrowHtml = {
                     left: '<a class="arrow left" title="merge left" ng-href="" ng-click="merge(0)">&#8592</a>',
                     right: '<a class="arrow right" title="merge right" ng-href="" ng-click="merge(2)">&#8594</a>',
@@ -566,7 +571,7 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', fun
                     leftIn: '<a class="arrow left-in" title="collapse left" ng-href="" ng-click="collapse(1)">&#8592</a>'
             };
 
-            console.log('elem', ang(ang(elem.parent()[0])[0]).width())
+            //console.log('elem', ang(ang(elem.parent()[0])[0]))
 
             scope.selectConfig = {
                 bar: {
@@ -580,8 +585,8 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', fun
                     }],
 
                     size: {
-                        width: 150,
-                        height: 150
+                        width: 200,
+                        height: 200
                     },
                     title: {text: 'bar'}
                 },
@@ -596,8 +601,8 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', fun
                     }],
 
                     size: {
-                        width: 150,
-                        height: 150
+                        width: 200,
+                        height: 200
                     },
                     title: {text: 'scatter'}
                 },
@@ -612,8 +617,8 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', fun
                     }],
 
                     size: {
-                        width: 150,
-                        height: 150
+                        width: 200,
+                        height: 200
                     },
                     title: {text: 'line'}
                 },
@@ -628,8 +633,8 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', fun
                     }],
 
                     size: {
-                        width: 150,
-                        height: 150
+                        width: 200,
+                        height: 200
                     },
                     title: {text: 'pie'}
                 }
@@ -638,13 +643,13 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', fun
             scope.selectText = {
                 content: gettext('Content'),
                 chartType: gettext('Chart Type'),
-                series: gettext('Series')
+                xSeries: gettext('X-Series'),
+                ySeries: gettext('Y-Series')
             }
 
             scope.merge = function(ndx) {
 
                 var merges = [[scope.row, scope.col - 1], [scope.row - 1, scope.col], [scope.row, scope.col + 1], [scope.row + 1, scope.col]];
-                console.log('mergedata coords merge', coords, merges[ndx])
                 scope.tableArray.mergeCol([coords, merges[ndx]]);
             }
 
@@ -689,21 +694,46 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', fun
                 coords = [scope.row, scope.col]
                 scope.queries = scope.config.queries;
                 scope.activeQuery = scope.config.activeQuery;
-                scope.activeX = scope.config.activeX;
+                if (!scope.activeX) scope.activeX = scope.config.activeX;
+                //if (scope.config.activeY) scope.config.activeY.selected = true;
                 scope.activeY = scope.config.activeY;
                 scope.chartTypes = scope.config.chartTypes;
                 scope.chartType = scope.config.chartType;
                 scope.tableArray = ctrl.getTableArray();
+                cellWidth = elem.width()
+                chartCol.width(cellWidth * 0.4)
+                cellCol.width(cellWidth * 0.4)
                 if (scope.activeQuery) {
                     results = scope.activeQuery.results.filter(function (el) {
                             return el.properties.length > 0;
                         });
                     trueAlias(results)
-                    scope.xSeries = results
-                    scope.ySeries = results
-                    
+                    var result_dict = findCatagorical(results)
+                    scope.xSeries = result_dict.cat.concat(result_dict.num)
+                    if (!scope.activeX) scope.activeX = scope.xSeries[0]
+                    scope.ySeries = result_dict.num
+                    console.log('resultsY', scope.ySeries)
                 }
             }, true);
+
+            var findCatagorical = function (results) {
+                var catagorical = []
+                ,   numeric = [];
+                for (var i=0; i<results.length; i++) {
+                    var result = results[i]
+                    ,   props = result.properties[0]
+                    ,   datatype = props.datatype;
+                    if (datatype !== 'number' && datatype !== 'float' && 
+                            datatype !== 'auto_increment' &&
+                            datatype !== 'auto_increment_update' && 
+                            props.aggregate === false) {
+                        catagorical.push(result)
+                    } else {
+                        numeric.push(result)
+                    }
+                }
+                return {cat: catagorical, num: numeric}
+            }
 
             var trueAlias = function (results) {
                 for (i=0; i<results.length; i++) {
@@ -741,7 +771,6 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', fun
             scope.$watch('activeQuery', function (newVal, oldVal) {
                 if (newVal == oldVal) return;
                 scope.activeQuery = newVal
-                console.log('activeQuery')
                 ctrl.editing()
                 var name;
                 if (newVal != null) {
@@ -754,11 +783,11 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', fun
                         results = newVal.results.filter(function (el) {
                             return el.properties.length > 0;
                         });
-                        console.log('watched', results)
                         trueAlias(results);
-                        scope.xSeries = results
-                        scope.ySeries = results
-                        console.log('results', scope.xSeries)
+                        var result_dict = findCatagorical(results)
+                        scope.xSeries = result_dict.cat.concat(result_dict.num)
+                        if (!scope.activeX) scope.activeX = scope.xSeries[0]
+                        scope.ySeries = result_dict.num
 
                     }
                 } else {
@@ -769,47 +798,25 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', fun
             }); 
 
             scope.$watch('activeX', function (newVal, oldVal) {
-                if (newVal) {
-                    var props = newVal.properties[0]
-                    ,   init_dt = props.datatype;
-                    if (init_dt !== 'number' && init_dt !== 'float' && init_dt !== 'auto_increment' && init_dt !== 'auto_increment_update' && 
-                        props.aggregate === false && scope.ySeries) {
-                        scope.ySeries = scope.ySeries.filter(function (el) {
-                            var dt = el.properties[0].datatype
-                            return dt === 'number' || dt === 'float' || dt === 'auto_increment' || dt === 'auto_increment_update' ||
-                                el.properties[0].aggregate !== false ; 
-                        })
-                    } else {
-                        scope.ySeries = results;
-                    }
-                    scope.tableArray.addAxis([scope.row, scope.col], 'x', newVal.alias)
-                }
-            });
+                if (!newVal) return;  
+                scope.tableArray.addAxis([scope.row, scope.col], 'x', newVal.alias)
+            })
 
-            scope.$watch('activeY', function (newVal, oldVal) {
-                if (newVal) {
-                    var props = newVal.properties[0]
-                    ,   init_dt = props.datatype;
-                    if (init_dt !== 'number' && init_dt !== 'float' && init_dt !== 'auto_increment' && init_dt !== 'auto_increment_update' && 
-                        props.aggregate === false && scope.xSeries) {
-                        
-                        scope.xSeries = scope.xSeries.filter(function (el) {
-                            var dt = el.properties[0].datatype
-                            return dt === 'number' || dt === 'float' || dt === 'auto_increment' || dt === 'auto_increment_update' ||
-                                el.properties[0].aggregate !== false ; 
-                        })
-                    } else {
-                        scope.xSeries = results;
-                    }
-                    scope.tableArray.addAxis([scope.row, scope.col], 'y', newVal.alias)
+            scope.$watch('ySeries', function (newVal, oldVal) {  
+                console.log('newVal', newVal)
+                if (newVal[0].selected === true) {
+                    scope.tableArray.addAxis([scope.row, scope.col], 'y', newVal[0].alias)
+                    console.log('ta', scope.tableArray)
+                } else {
+                    scope.tableArray.removeAxis([scope.row, scope.col], 'y')
+                    console.log('rmoveta', scope.tableArray)
                 }
-            });
+            }, true)
 
             scope.$watch('chartType', function (newVal, oldVal) {
                 if (newVal == oldVal) return;
                 ctrl.editing()
                 scope.tableArray.addChart([scope.row, scope.col], newVal)
-
             });
         }
     };
@@ -857,7 +864,6 @@ directives.directive('sylvaBreadcrumbs', [
                     scope.reportSlug = crumbs.splice(crumbs.length - 1, 1)[0]
                     
                     crumbs[0] = crumbs[0].charAt(0).toUpperCase() + crumbs[0].slice(1);
-                    console.log('crumbs', crumbs)
                 } else {
                     scope.reportName = null;
                     scope.crumbs = [];

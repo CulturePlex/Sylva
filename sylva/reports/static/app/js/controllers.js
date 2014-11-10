@@ -19,16 +19,34 @@ controllers.controller('ReportListCtrl', [
                 for (var i=0;i<len;i++) {
                     var template = data.templates[i]
                     ,   date = JSON.parse(template.start_date)
-                    ,   datetime = new Date(date)
                     ,   last_run = JSON.parse(template.last_run)
-                    ,   periodicity = template.frequency;
-                    template.start_date = datetime.toString();
+                    ,   periodicity = template.frequency
+                    ,   datetime = new Date(date)
+                    ,   last_datetime = new Date(last_run)
+                    ,   month = datetime.getMonth() + 1
+                    ,   m = month.toString() 
+                    ,   day = datetime.getDate().toString()
+                    ,   year = datetime.getFullYear().toString()
+                    ,   hour = datetime.getUTCHours().toString()
+                    ,   minutes = datetime.getMinutes().toString()
+                    ,   last_month = last_datetime.getMonth() + 1
+                    ,   last_m = month.toString().toString() 
+                    ,   last_day = last_datetime.getDate().toString()
+                    ,   last_year = last_datetime.getFullYear().toString()
+                    ,   last_hour = last_datetime.getUTCHours().toString()
+                    ,   last_minutes = last_datetime.getMinutes().toString();
+                    if (m.length === 1) month = '0' + month;
+                    if (day.length === 1) day = '0' + day; 
+                    if (hour.length === 1) hour = '0' + hour;
+                    if (minutes.length === 1) minutes = '0' + minutes;
+                    if (last_m.length === 1) last_month = '0' + last_month;
+                    if (last_day.length === 1) last_day = '0' + last_day; 
+                    if (last_hour.length === 1) last_hour = '0' + last_hour;
+                    if (last_minutes.length === 1) last_minutes = '0' + last_minutes;
+                    template.start_date = month + '/' + day + '/' + year + ' ' + hour + ':' + minutes;
                     template.frequency = periods[periodicity];
-                    if (last_run) {
-                        var last_datetime = new Date(last_date)
-                        ,   last_run = last_datetime.toString();
-                    }
-                    template.last_run = last_run;
+                    template.last_run = last_month + '/' + last_day + '/' + last_year + ' ' + last_hour + ':' + last_minutes;
+                    console.log('minutes', minutes, minutes.length)
                 }
             });
         }
@@ -67,10 +85,12 @@ controllers.controller('BaseReportCtrl', [
             // Gonna have to validate here
             var date = template.date.split('/')
             ,   time = template.time.split(':')
-            ,   datetime = new Date(date[2], date[1] - 1, date[0], time[0], time[1])
+            ,   datetime = new Date(date[2], date[1], date[0], time[0], time[1])
             ,   post = new api.builder();
-            console.log('post', datetime, datetime.toISOString())
-            template.start_date = datetime.toISOString()
+
+            console.log('post', template)
+            template.start_date = {year: date[2], month: date[0],
+                                   day: date[1], hour: time[0], minute: time[1]}
             post.template = template
             post.$save({
                 graphSlug: $scope.slugs.graph,
@@ -177,20 +197,18 @@ controllers.controller('EditReportCtrl', [
         }, function (data) {   
             var date = JSON.parse(data.template.start_date)
             ,   datetime = new Date(date)
-            ,   m = datetime.getMonth() + 1
-            ,   month = m.toString()
-            ,   day = datetime.getDate().toString()
-            ,   year = datetime.getFullYear().toString()
-            ,   hour = datetime.getHours().toString()
-            ,   minute = datetime.getMinutes().toString();
+            ,   m = datetime.getUTCMonth() + 1
+            ,   month = m.toString() 
+            ,   day = datetime.getUTCDate().toString()
+            ,   year = datetime.getUTCFullYear().toString()
+            ,   hour = datetime.getUTCHours().toString()
+            ,   minute = datetime.getUTCMinutes().toString();
             if (month.length === 1) month = '0' + month;
             if (day.length === 1) day = '0' + day;
             if (hour.length === 1) hour = '0' + hour;
             if (minute.length === 1) minute = '0' + minute;
-
             data.template.time = hour + ':' + minute;
-            data.template.date = day + '/' + month + '/' + year;
-            console.log('data.template', data.template)
+            data.template.date = month + '/' + day + '/' + year;
             $scope.template = data.template;
             $scope.resp = {table: data.template.layout, queries: data.queries};
             $scope.prev = $scope.resp;
@@ -233,10 +251,9 @@ controllers.controller('ReportHistoryCtrl', [
                 var report = data.history[i]
                 ,   date = JSON.parse(report.date_run)
                 ,   datetime = new Date(date)
-                report.date_run = datetime.toString()
+                report.date_run = datetime.toUTCString()
             }
             breadService.updateName(data.name)
-            console.log('date info', datetime.getFullYear().toString(), datetime.getMonth().toString(), datetime.getDate().toString(), datetime.getUTCHours().toString(), datetime.getMinutes().toString())
             $scope.template = data;
             if (data.history.length > 0) $scope.getReport(data.history[0].id)
         });
