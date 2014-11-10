@@ -38,17 +38,17 @@ def ready_to_execute():
     print('day range: {0}'.format(day_range))
     q_list = [
         Q(frequency='h') &
-        Q(start_date__range=hour_range) |
-        Q(last_run__range=hour_range),
+        (Q(start_date__range=hour_range) |
+         Q(last_run__range=hour_range)),
         Q(frequency='d') &
-        Q(start_date__range=day_range) |
-        Q(last_run__range=day_range),
+        (Q(start_date__range=day_range) |
+         Q(last_run__range=day_range)),
         Q(frequency='w') &
-        Q(start_date__range=week_range) |
-        Q(last_run__range=week_range),
+        (Q(start_date__range=week_range) |
+         Q(last_run__range=week_range)),
         Q(frequency='m') &
-        Q(start_date__range=month_range) |
-        Q(last_run__range=month_range),
+        (Q(start_date__range=month_range) |
+        Q(last_run__range=month_range)),
     ]
     queryset = ReportTemplate.objects.filter(
         reduce(operator.or_, q_list)
