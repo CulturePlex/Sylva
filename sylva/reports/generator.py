@@ -25,7 +25,7 @@ def generate_report():
 
 
 def ready_to_execute():
-    now = datetime.datetime.now(tz.tzutc()).replace(second=0, microsecond=0)
+    now = datetime.datetime.now().replace(second=0, microsecond=0)
     future = now + relativedelta.relativedelta(minutes=+14)
     hour = relativedelta.relativedelta(hours=+1)
     day = relativedelta.relativedelta(days=+1)

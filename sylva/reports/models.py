@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 import datetime
 import json
-from dateutil import tz
 from django.db import models
 from django.utils.translation import gettext as _
 from jsonfield import JSONField
@@ -54,7 +53,7 @@ class ReportTemplate(models.Model):
     def execute(self):
         queries = self.queries.all()
         # EXECUTE QUERIES HERE
-        query_dicts = {query.id: (query.query_dict[:-2], query.name)
+        query_dicts = {query.id: ([(q[1], q[0]) for q in query.execute()], query.name)
                        for query in queries}
         table = []
         for row in self.layout:
@@ -69,10 +68,12 @@ class ReportTemplate(models.Model):
                 new_row.append(cell)
             table.append(new_row)
         report = Report(
-            date_run=datetime.datetime.now(tz.tzutc()),
+            date_run=datetime.datetime.now(),
             table=table,
             template=self
         )
+        self.last_run = datetime.datetime.now()
+        self.save()
         report.save()
         # Here I need to update the last_run attr
 
