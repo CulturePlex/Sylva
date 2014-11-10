@@ -95,18 +95,16 @@
                             <span>{% trans "Types" %}</span>
                             <i class="fa fa-angle-down"></i>
                         </a>
-                        <div id="node-types" style="display: block;">
-                            <table class="toolsBrowse" style="display: table;">
-                                {% for node_type in node_types %}
-                                    <tr>
-                                        <td class="dataActions"><a class="add-box dataOption list" data-type="{{node_type.slug}}" href="javascript:void(0);" style="width: 80px;">{{ node_type.name|capfirst }}</a></td>
-                                    </tr>
-                                {% endfor %}
-                                    <tr>
-                                        <td class="dataActions"><a class="add-box dataOption list" data-type="wildcard" href="javascript:void(0);" style="width: 80px;">{% trans "Wildcard Type" %}</a></td>
-                                    </tr>
-                            </table>
-                        </div>
+                        <table id="node-types" class="toolsBrowse" style="display: inline; right: 11px">
+                            {% for node_type in node_types %}
+                                <tr>
+                                    <td class="dataActions"><a class="add-box dataOption list" data-type="{{node_type.slug}}" href="javascript:void(0);" style="width: 80px;">{{ node_type.name|capfirst }}</a></td>
+                                </tr>
+                            {% endfor %}
+                                <tr>
+                                    <td class="dataActions"><a class="add-box dataOption list" data-type="wildcard" href="javascript:void(0);" style="width: 80px;">{% trans "Wildcard Type" %}</a></td>
+                                </tr>
+                        </table>
                     </li>
                 </ul>
             </nav>

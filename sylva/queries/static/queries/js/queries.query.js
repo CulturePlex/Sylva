@@ -3001,6 +3001,7 @@ diagram.aggregates = [
     });
 
     jsPlumb.bind("connectionDragStop", function(connection) {
+        $('.endpoint-image').css('visibility', 'visible');
         jsPlumb.selectEndpoints().each(function(endpoint) {
             endpoint.removeClass("dragActive");
             var selector = '#' + endpoint.elementId + ' .title';
