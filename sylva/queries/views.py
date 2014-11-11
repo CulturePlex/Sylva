@@ -105,6 +105,7 @@ def queries_new(request, graph_slug):
         request.session['query_fields'] = None
     if 'results_count' not in request.session:
         request.session['results_count'] = None
+    request.session['query_name'] = None
     # We get the query_dicts of the session variable if they exist
     query_dict = request.session['query']
     query_aliases = request.session['query_aliases']
@@ -190,15 +191,22 @@ def queries_new_results(request, graph_slug):
         elif order_dir == DESC:
             order_dir = ASC
     # We store the results count in the session variable.
-    request.session['results_count'] = len(query_results)
+    query_results_length = len(query_results)
+    request.session['results_count'] = query_results_length
     # We treat the headers
     if headers:
         # If the results have headers, we get the position 0
         # and then the results.
-        # Also, we need to substract 1 to the results count
-        request.session['results_count'] = len(query_results) - 1
         headers_results = query_results[0]
-        query_results = query_results[1:]
+        # Also, we need to substract 1 to the results count
+        if query_results_length > 1:
+            request.session['results_count'] = query_results_length - 1
+            query_results = query_results[1:]
+        else:
+            query_results = []
+            messages.error(request,
+                           _("Your query does not return any results! \
+                              Please, check it and try again."))
      # We add pagination for the list of queries
     page = request.GET.get('page')
     page_size = settings.DATA_PAGE_SIZE
@@ -236,6 +244,8 @@ def queries_query_edit(request, graph_slug, query_id):
     redirect_url = reverse("queries_list", args=[graph.slug])
     queries_link = (redirect_url, _("Queries"))
     query = graph.queries.get(pk=query_id)
+    query_name = query.name
+    request.session['query_name'] = query_name
     # We check if we are going to edit the query
     if request.POST:
         data = request.POST.copy()
@@ -262,7 +272,7 @@ def queries_query_edit(request, graph_slug, query_id):
                                "node_types": nodetypes,
                                "relationship_types": reltypes,
                                "queries_link": queries_link,
-                               "query_name": query.name,
+                               "query_name": query_name,
                                "form": form,
                                "query_dict": query_dict,
                                "query_aliases": query_aliases,
@@ -309,9 +319,16 @@ def queries_query_results(request, graph_slug, query_id):
     # We treat the headers
     if headers:
         # If the results have headers, we get the position 0
-        # and then the results.
         headers_results = query_results[0]
-        query_results = query_results[1:]
+        # and then the results.
+        query_results_length = len(query_results)
+        if query_results_length > 1:
+            query_results = query_results[1:]
+        else:
+            query_results = []
+            messages.error(request,
+                           _("Your query does not return any results! \
+                              Please, check it and try again."))
      # We add pagination for the list of queries
     page = request.GET.get('page')
     page_size = settings.DATA_PAGE_SIZE

@@ -70,6 +70,7 @@ sylva:true, alert:true */
                                       gettext('loading...') +
                                      '</div>' +
                                    '</div>');
+      $('#graph-controls .right').css('display', 'inline-block');
 
       // Graph rendering
       var jqxhr = $.getJSON(sylva.urls.viewGraphAjax, function(data) {
