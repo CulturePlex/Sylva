@@ -426,7 +426,8 @@
           });
 
           $('#content2').css({
-            minHeight: 215
+            minHeight: 215,
+            width: 810
           });
 
         } else {
@@ -498,7 +499,7 @@
 
       preProcessHTML: function() {
         $('#content2').css({
-          minHeight: 120
+          minHeight: 170
         });
 
         // Variables for save the collaborator by saving the form.
@@ -522,7 +523,7 @@
       onShow: function() {
         $('#id_new_collaborator_chzn').css({
           position: 'absolute',
-          top: 63,
+          top: 100,
           left: 10
         });
       }

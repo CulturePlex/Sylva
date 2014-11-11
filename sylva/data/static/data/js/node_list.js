@@ -270,9 +270,15 @@
     $('.show-hide-button').hover(function() {
       //$('.show-hide').css('display', 'block');
       $('.dropdown').css('display', 'block');
+      var angle = $('.show-hide-button i')[0];
+      $(angle).removeClass('fa-angle-down');
+      $(angle).addClass('fa-angle-up');
     }, function() {
       //$('.show-hide').css('display', 'none');
       $('.dropdown').css('display', 'none');
+      var angle = $('.show-hide-button i')[0];
+      $(angle).removeClass('fa-angle-up');
+      $(angle).addClass('fa-angle-down');
     });
 
     $('.show-hide').on('click', function() {

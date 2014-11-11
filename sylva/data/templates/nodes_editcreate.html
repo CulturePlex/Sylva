@@ -29,6 +29,7 @@
 {% block content %}
   <div id="content3">
     {% if as_modal %}
+      {% breadcrumb graph.data nodetype action %}
       <div id="save-url" data-url="{{ save_url }}" style="display: none;"></div>
       <div id="delete-url" data-url="{{ delete_url }}" style="display: none;"></div>
     {% endif %}

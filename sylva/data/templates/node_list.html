@@ -55,51 +55,32 @@
     <div id="modal-content-scrollable">
       <div id="content2">
         {% if as_modal %}
+          {% breadcrumb graph.data node_type %}
           <div id="list-url" data-url="{{ list_url }}" style="display: none;"></div>
         {% endif %}
         {% if nodes %}
           <div id="search-query" class="visual-search"></div>
-
-
-
-
-
-
-<!--           <div class="show-hide-button">
-            <a href="#">{% trans "Columns" %}: </a>
-            <ul class="dropdown">
-              {% for prop in properties %}
-                <li><i class="fa fa-eye" id="show-hide-{{prop.slug}}"></i><a style="font-size:11px; margin-left: 5%;" href='javascript:void(0);' data-key="{{prop.slug}}" class="show-hide">{{prop.key}}</a></li>
-              {% endfor %}
-            </ul>
-          </div> -->
-
-        <div class="show-hide-button" style="display: inline-table;">
-          <nav class="menu" style="position: inherit;">
-            <ul>
-              <li>
-                  <a href="javascript:void(0)" class="inline link" style="margin-top: 0;">
-                      <span>{% trans "Columns" %}</span>
-                      <i class="fa fa-angle-down"></i>
-                  </a>
-                  <table class="dropdown">
-                      {% for prop in properties %}
-                        <tr>
-                            <td class="dataActions">
-                              <i class="fa fa-eye" id="show-hide-{{prop.slug}}"></i>
-                              <a style="font-size:11px; background-color: transparent; padding: 4px; -webkit-box-shadow: none; box-shadow: none;" href='javascript:void(0);' data-key="{{prop.slug}}" class="show-hide dataOption list">{{prop.key}}</a></td>
-                        </tr>
-                      {% endfor %}
-                  </table>
-              </li>
-            </ul>
-          </nav>
-        </div>
-
-
-
-
-
+          <div class="show-hide-button" style="display: inline-table;">
+            <nav class="menu" style="position: inherit;">
+              <ul>
+                <li>
+                    <a href="javascript:void(0)" class="inline link" style="margin-top: 0;">
+                        <span>{% trans "Columns" %}</span>
+                        <i class="fa fa-angle-down"></i>
+                    </a>
+                    <table class="dropdown">
+                        {% for prop in properties %}
+                          <tr>
+                              <td class="dataActions">
+                                <i class="fa fa-eye" id="show-hide-{{prop.slug}}"></i>
+                                <a style="font-size:11px; background-color: transparent; padding: 4px; -webkit-box-shadow: none; box-shadow: none;" href='javascript:void(0);' data-key="{{prop.slug}}" class="show-hide dataOption list">{{prop.key}}</a></td>
+                          </tr>
+                        {% endfor %}
+                    </table>
+                </li>
+              </ul>
+            </nav>
+          </div>
           <table id="content_table" class="content-table text-left">
             <thead>
               <tr>

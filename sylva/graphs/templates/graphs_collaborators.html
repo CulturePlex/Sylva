@@ -43,6 +43,8 @@
 {% block content %}
 <div id="content2">
     {% if as_modal %}
+      {% trans "Collaborators" as collaborators %}
+      {% breadcrumb collaborators %}
       <div id="add-url" data-url="{{ add_url }}" style="display: none;"></div>
     {% endif %}
     <div class="content2-first">

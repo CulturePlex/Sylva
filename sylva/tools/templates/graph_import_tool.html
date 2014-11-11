@@ -62,6 +62,8 @@
     </div>
   </div>
   {% if as_modal %}
+    {% trans "Import" as label %}
+    {% breadcrumb label %}
     <div id="modal-content-controls">
       <hr/>
       <input id="submit-cancel" type="submit" value="{% trans "Cancel" %}"/>

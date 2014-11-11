@@ -29,6 +29,7 @@
 {% block content %}
 <div id="content2">
   {% if as_modal %}
+    {% breadcrumb graph.data item_type_object action %}
     <div id="delete-url" data-url="{{ delete_url }}" style="display: none;"></div>
   {% endif %}
   <form id="delete-node-form" action="." method="POST" id="itemType">
