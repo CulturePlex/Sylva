@@ -272,7 +272,7 @@ def queries_query_edit(request, graph_slug, query_id):
                                "node_types": nodetypes,
                                "relationship_types": reltypes,
                                "queries_link": queries_link,
-                               "query_name": query_name,
+                               "query": query,
                                "form": form,
                                "query_dict": query_dict,
                                "query_aliases": query_aliases,
@@ -286,9 +286,11 @@ def queries_query_edit(request, graph_slug, query_id):
                      return_403=True)
 def queries_query_results(request, graph_slug, query_id):
     graph = get_object_or_404(Graph, slug=graph_slug)
+    query = graph.queries.get(pk=query_id)
     queries_link = (reverse("queries_list", args=[graph.slug]),
                     _("Queries"))
-    query = graph.queries.get(pk=query_id)
+    queries_name = (reverse("queries_query_edit", args=[graph.slug, query.id]),
+                    query.name)
     # We add order for the list of queries
     order_by_field = request.GET.get('order_by', 'default')
     order_dir = request.GET.get('dir', 'desc')
@@ -345,7 +347,7 @@ def queries_query_results(request, graph_slug, query_id):
     return render_to_response('queries/queries_new_results.html',
                               {"graph": graph,
                                "queries_link": queries_link,
-                               "query_name": query.name,
+                               "queries_name": queries_name,
                                "headers": headers_results,
                                "results": paginated_results,
                                "order_by": order_by_field,
@@ -354,6 +356,10 @@ def queries_query_results(request, graph_slug, query_id):
                               context_instance=RequestContext(request))
 
 
+@is_enabled(settings.ENABLE_QUERIES)
+@login_required
+@permission_required("data.view_data", (Data, "graph__slug", "graph_slug"),
+                     return_403=True)
 def queries_query_delete(request, graph_slug, query_id):
     graph = get_object_or_404(Graph, slug=graph_slug)
     query = graph.queries.get(id=query_id)
