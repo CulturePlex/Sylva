@@ -21,39 +21,16 @@ controllers.controller('ReportListCtrl', [
                     ,   date = JSON.parse(template.start_date)
                     ,   last_run = JSON.parse(template.last_run)
                     ,   periodicity = template.frequency
-                    ,   datetime = new Date(date)
-                    
-                    ,   month = datetime.getUTCMonth() + 1
-                    ,   m = month.toString() 
-                    ,   day = datetime.getUTCDate().toString()
-                    ,   year = datetime.getUTCFullYear().toString()
-                    ,   hour = datetime.getUTCHours().toString()
-                    ,   minutes = datetime.getUTCMinutes().toString();
+                    ,   datetime = new Date(date);
                     if (last_run) {
-                        var last_datetime = new Date(last_run)
-                        ,   last_month = last_datetime.getUTCMonth() + 1
-                        ,   last_m = month.toString().toString() 
-                        ,   last_day = last_datetime.getUTCDate().toString()
-                        ,   last_year = last_datetime.getUTCFullYear().toString()
-                        ,   last_hour = last_datetime.getUTCHours().toString()
-                        ,   last_minutes = last_datetime.getUTCMinutes().toString();
-                        if (last_m.length === 1) last_month = '0' + last_month;
-                        if (last_day.length === 1) last_day = '0' + last_day; 
-                        if (last_hour.length === 1) last_hour = '0' + last_hour;
-                        if (last_minutes.length === 1) last_minutes = '0' + last_minutes;
-                        template.last_run = last_month + '/' + last_day + '/' + last_year + ' ' + last_hour + ':' + last_minutes;
+                        var last_datetime = new Date(last_run);
+                        template.last_run = last_datetime.toUTCString().replace(/\s*(GMT|UTC)$/, "");
                     } else {
                         template.last_run = null;
                     }
-                    if (m.length === 1) month = '0' + month;
-                    if (day.length === 1) day = '0' + day; 
-                    if (hour.length === 1) hour = '0' + hour;
-                    if (minutes.length === 1) minutes = '0' + minutes;
 
-                    template.start_date = month + '/' + day + '/' + year + ' ' + hour + ':' + minutes;
+                    template.start_date = datetime.toUTCString().replace(/\s*(GMT|UTC)$/, "");
                     template.frequency = periods[periodicity];
-                    
-                    console.log('minutes', minutes, minutes.length)
                 }
             });
         }
@@ -258,8 +235,9 @@ controllers.controller('ReportHistoryCtrl', [
                 var report = data.history[i]
                 ,   date = JSON.parse(report.date_run)
                 ,   datetime = new Date(date)
-                report.date_run = datetime.toUTCString()
+                report.date_run = datetime.toUTCString().replace(/\s*(GMT|UTC)$/, "")
             }
+
             breadService.updateName(data.name)
             $scope.template = data;
             if (data.history.length > 0) $scope.getReport(data.history[0].id)
