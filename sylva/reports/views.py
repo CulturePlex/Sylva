@@ -4,7 +4,6 @@ import json
 import os
 import tempfile
 import urlparse
-from dateutil import parser
 
 from subprocess import Popen, STDOUT, PIPE
 from time import time
@@ -142,7 +141,6 @@ def templates_endpoint(request, graph_slug):
             template = get_object_or_404(
                 ReportTemplate, slug=request.GET['template']
             )
-            print template.start_date
             response['template'] = template.dictify()
             if not response['queries']:  # Get template queries for preview.
                 queries = template.queries.all()

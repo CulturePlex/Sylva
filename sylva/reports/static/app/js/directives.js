@@ -571,8 +571,6 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', fun
                     leftIn: '<a class="arrow left-in" title="collapse left" ng-href="" ng-click="collapse(1)">&#8592</a>'
             };
 
-            //console.log('elem', ang(ang(elem.parent()[0])[0]))
-
             scope.selectConfig = {
                 bar: {
                     options: {
@@ -711,8 +709,7 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', fun
                     var result_dict = findCatagorical(results)
                     scope.xSeries = result_dict.cat.concat(result_dict.num)
                     if (!scope.activeX) scope.activeX = scope.xSeries[0]
-                    scope.ySeries = result_dict.num
-                    console.log('resultsY', scope.ySeries)
+                    scope.ySeries = result_dict.num;
                 }
             }, true);
 
@@ -802,15 +799,12 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', fun
                 scope.tableArray.addAxis([scope.row, scope.col], 'x', newVal.alias)
             })
 
-            scope.$watch('ySeries', function (newVal, oldVal) {  
-                console.log('newVal', newVal)
+            scope.$watch('ySeries', function (newVal, oldVal) {
                 if (!newVal) return;
                 if (newVal[0].selected === true) {
                     scope.tableArray.addAxis([scope.row, scope.col], 'y', newVal[0].alias)
-                    console.log('ta', scope.tableArray)
                 } else {
                     scope.tableArray.removeAxis([scope.row, scope.col], 'y')
-                    console.log('rmoveta', scope.tableArray)
                 }
             }, true)
 
@@ -837,7 +831,7 @@ directives.directive('sylvaBreadcrumbs', [
                     '<a ng-href="#/">{{ breadText.reports }}</a>' +
                     '<span ng-if="reportName"> &raquo; </span>' +
                     '<a  ng-href="#/edit/{{ reportSlug }}">{{ reportName }}</a>' +
-                    '<span ng-repeat="crumb in crumbs">&raquo; {{crumb}} </span>' +
+                    '<span ng-repeat="crumb in crumbs"> &raquo; {{crumb}} </span>' +
                   '</h2>',
         controller: function ($scope) {
 
@@ -856,15 +850,13 @@ directives.directive('sylvaBreadcrumbs', [
             };
 
             scope.$watch(scope.getLocation, function (newVal, oldVal) {
-                if (newVal === oldVal) return;
                 var location = scope.getLocation();
                 if (location !== '/' ) {
                     var crumbs = location.split('/')
-                    
                     crumbs.splice(0, 1)
                     scope.reportSlug = crumbs.splice(crumbs.length - 1, 1)[0]
-                    
-                    crumbs[0] = crumbs[0].charAt(0).toUpperCase() + crumbs[0].slice(1);
+                    if (crumbs[0]) crumbs[0] = crumbs[0].charAt(0).toUpperCase() + crumbs[0].slice(1);
+                    scope.crumbs = crumbs
                 } else {
                     scope.reportName = null;
                     scope.crumbs = [];

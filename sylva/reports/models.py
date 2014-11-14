@@ -73,9 +73,8 @@ class ReportTemplate(models.Model):
             template=self
         )
         self.last_run = datetime.datetime.now()
-        self.save()
+        self.save(update_fields=["last_run"])
         report.save()
-        # Here I need to update the last_run attr
 
     def historify(self):
         report_dict = self.dictify()
