@@ -345,12 +345,19 @@ class GraphDatabase(BlueprintsGraphDatabase):
         skip = offset or 0
         limit = limit or page
         if order_by is not None:
-            script = u"%s order by `%s`.`%s` %s " % (script,
-                                                     order_by[0].replace
-                                                     ('`', '\`'),
-                                                     order_by[1].replace
-                                                     ('`', '\`'),
-                                                     order_by[2])
+            alias = order_by[0]
+            # We check if it is an aggregate
+            if alias == 'aggregate':
+                script = u"%s order by `%s` %s " % (script,
+                                                    order_by[1],
+                                                    order_by[2])
+            else:
+                script = u"%s order by `%s`.`%s` %s " % (script,
+                                                         alias.replace
+                                                         ('`', '\`'),
+                                                         order_by[1].replace
+                                                         ('`', '\`'),
+                                                         order_by[2])
         try:
             paged_script = "%s skip %s limit %s" % (script, skip, limit)
             result = cypher(query=paged_script, params=query_params)
@@ -537,16 +544,16 @@ class GraphDatabase(BlueprintsGraphDatabase):
                     if property_value:
                         if not property_aggregate and not only_ids:
                             result = u"`{0}`.`{1}`".format(
-                                unicode(alias).replace(u"`",
-                                                                      u"\\`"),
+                                unicode(alias).replace(u"`", u"\\`"),
                                 unicode(property_value).replace(u"`", u"\\`")
                             )
                             results_set.add(result)
                         elif property_aggregate and not only_ids:
                             if property_aggregate in AGGREGATES:
-                                result = u"{0}(`{1}`.`{2}`)".format(
+                                result = u"{0}(`{1}`.`{2}`) \
+                                    as `{0}({1}.{2})`".format(
                                     unicode(property_aggregate),
-                                    unicode(alias).replace(u"`",u"\\`"),
+                                    unicode(alias).replace(u"`", u"\\`"),
                                     unicode(property_value).replace(u"`",
                                                                     u"\\`")
                                 )
