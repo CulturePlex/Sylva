@@ -29,6 +29,7 @@ from queries.forms import SaveQueryForm, QueryDeleteConfirmForm
 # from .parser import parse_query
 ASC = "asc"
 DESC = "desc"
+NEW_QUERY = "new_query"
 
 
 @is_enabled(settings.ENABLE_QUERIES)
@@ -38,6 +39,7 @@ DESC = "desc"
 def queries_list(request, graph_slug):
     graph = get_object_or_404(Graph, slug=graph_slug)
     # We create the variables in the session
+    request.session['query_id'] = None
     request.session['query'] = None
     request.session['query_aliases'] = None
     request.session['query_fields'] = None
@@ -46,9 +48,6 @@ def queries_list(request, graph_slug):
     order_by_field = request.GET.get('order_by', 'id')
     order_dir = request.GET.get('dir', '-')
     page_dir = request.GET.get('page_dir', '-')
-    # We need the order_dir for the icons in the frontend
-    # if order_dir not in ["", "-"]:
-    #     order_dir = ""
     if order_by_field == 'id':
         queries = graph.queries.all()
     else:
@@ -94,9 +93,12 @@ def queries_new(request, graph_slug):
     nodetypes = NodeType.objects.filter(schema__graph__slug=graph_slug)
     reltypes = RelationshipType.objects.filter(schema__graph__slug=graph_slug)
     redirect_url = reverse("queries_list", args=[graph.slug])
-    queries_link = (redirect_url, _("Queries"))
     form = SaveQueryForm()
+    # Breadcrumbs variable
+    queries_link = (redirect_url, _("Queries"))
     # We check if we have the variables in the request.session
+    if 'query_id' not in request.session:
+        request.session['query_id'] = None
     if 'query' not in request.session:
         request.session['query'] = None
     if 'query_aliases' not in request.session:
@@ -105,11 +107,17 @@ def queries_new(request, graph_slug):
         request.session['query_fields'] = None
     if 'results_count' not in request.session:
         request.session['results_count'] = None
-    request.session['query_name'] = None
     # We get the query_dicts of the session variable if they exist
-    query_dict = request.session['query']
-    query_aliases = request.session['query_aliases']
-    query_fields = request.session['query_fields']
+    query_id = request.session['query_id']
+    query_dict = None
+    query_aliases = None
+    query_fields = None
+    # If query_id is 'new' means that we need to get the variables of the
+    # session to load the query
+    if query_id == 'new':
+        query_dict = request.session['query']
+        query_aliases = request.session['query_aliases']
+        query_fields = request.session['query_fields']
     if request.POST:
         data = request.POST.copy()
         form = SaveQueryForm(data=data)
@@ -145,12 +153,8 @@ def queries_new(request, graph_slug):
 @permission_required("data.view_data", (Data, "graph__slug", "graph_slug"),
                      return_403=True)
 def queries_new_results(request, graph_slug):
-    # We get the information to mantain the las query in the builder
-    query = request.POST.get("query", "").strip()
-    query_aliases = request.POST.get("query_aliases", "").strip()
-    query_fields = request.POST.get("query_fields", "").strip()
-
     graph = get_object_or_404(Graph, slug=graph_slug)
+    # Breadcrumbs variables
     queries_link = (reverse("queries_list", args=[graph.slug]),
                     _("Queries"))
     queries_new = (reverse("queries_new", args=[graph.slug]),
@@ -159,15 +163,18 @@ def queries_new_results(request, graph_slug):
     order_by_field = request.GET.get('order_by', 'default')
     order_dir = request.GET.get('dir', 'desc')
     page_dir = request.GET.get('page_dir', 'desc')
+    # We get the information to mantain the last query in the builder
+    query = request.POST.get("query", "").strip()
+    query_aliases = request.POST.get("query_aliases", "").strip()
+    query_fields = request.POST.get("query_fields", "").strip()
     # query = "notas of autor with notas that start with lista"
     # see https://gist.github.com/versae/9241069
-    if query is not '':
-        request.session['query'] = query
-        request.session['query_aliases'] = query_aliases
-        request.session['query_fields'] = query_fields
-        query_dict = json.loads(query)
-    else:
-        query_dict = json.loads(request.session['query'])
+    request.session['query_id'] = 'new'
+    request.session['query'] = query
+    request.session['query_aliases'] = query_aliases
+    request.session['query_fields'] = query_fields
+    query_dict = json.loads(query)
+
     headers = True
     if order_by_field == 'default':
         query_results = graph.query(query_dict, headers=headers)
@@ -190,6 +197,9 @@ def queries_new_results(request, graph_slug):
             order_dir = DESC
         elif order_dir == DESC:
             order_dir = ASC
+    # We save the values to export as CSV
+    request.session["csv_results"] = query_results
+    request.session["query_name"] = NEW_QUERY
     # We store the results count in the session variable.
     query_results_length = len(query_results)
     request.session['results_count'] = query_results_length
@@ -219,7 +229,6 @@ def queries_new_results(request, graph_slug):
     except EmptyPage:
         # If page is out of range (e.g. 9999), deliver last page of results.
         paginated_results = paginator.page(paginator.num_pages)
-    # TODO: Try to make the response streamed
     return render_to_response('queries/queries_new_results.html',
                               {"graph": graph,
                                "queries_link": queries_link,
@@ -228,7 +237,8 @@ def queries_new_results(request, graph_slug):
                                "results": paginated_results,
                                "order_by": order_by_field,
                                "dir": order_dir,
-                               "page_dir": page_dir},
+                               "page_dir": page_dir,
+                               "csv_results": query_results},
                               context_instance=RequestContext(request))
 
 
@@ -242,10 +252,32 @@ def queries_query_edit(request, graph_slug, query_id):
     reltypes = RelationshipType.objects.filter(
         schema__graph__slug=graph_slug)
     redirect_url = reverse("queries_list", args=[graph.slug])
-    queries_link = (redirect_url, _("Queries"))
     query = graph.queries.get(pk=query_id)
-    query_name = query.name
-    request.session['query_name'] = query_name
+    # Breadcrumbs variable
+    queries_link = (redirect_url, _("Queries"))
+    # We get the query_dicts
+    query_dict = json.dumps(query.query_dict)
+    query_aliases = json.dumps(query.query_aliases)
+    query_fields = json.dumps(query.query_fields)
+    # We check if we have the variables in the request.session
+    if 'query_id' not in request.session \
+            or request.session['query_id'] is None:
+        request.session['query_id'] = query.id
+    if 'query' not in request.session \
+            or request.session['query'] is None:
+        request.session['query'] = query_dict
+    if 'query_aliases' not in request.session \
+            or request.session['query_aliases'] is None:
+        request.session['query_aliases'] = query_aliases
+    if 'query_fields' not in request.session \
+            or request.session['query_fields'] is None:
+        request.session['query_fields'] = query_fields
+    # We get the session query id to check if the dicts saved in the session
+    # are for this query
+    session_query_id = request.session['query_id']
+    # We check if the query saved and the query edited are different
+    # In that case, we use the query edited
+    different_queries = query.query_dict != request.session['query']
     # We check if we are going to edit the query
     if request.POST:
         data = request.POST.copy()
@@ -264,9 +296,12 @@ def queries_query_edit(request, graph_slug, query_id):
                 return redirect(redirect_url)
     # We have to get the values of the query to introduce them into the form
     form = SaveQueryForm(instance=query)
-    query_dict = json.dumps(query.query_dict)
-    query_aliases = json.dumps(query.query_aliases)
-    query_fields = json.dumps(query.query_fields)
+    # If the queries have changed and the id is the same, we use the dicts
+    # of the session
+    if different_queries and session_query_id == query.id:
+        query_dict = request.session['query']
+        query_aliases = request.session['query_aliases']
+        query_fields = request.session['query_fields']
     return render_to_response('queries/queries_new.html',
                               {"graph": graph,
                                "node_types": nodetypes,
@@ -287,10 +322,22 @@ def queries_query_edit(request, graph_slug, query_id):
 def queries_query_results(request, graph_slug, query_id):
     graph = get_object_or_404(Graph, slug=graph_slug)
     query = graph.queries.get(pk=query_id)
+    # Breadcrumbs variables
     queries_link = (reverse("queries_list", args=[graph.slug]),
                     _("Queries"))
     queries_name = (reverse("queries_query_edit", args=[graph.slug, query.id]),
                     query.name)
+    # We get the information to mantain the last query in the builder
+    query_dict = request.POST.get("query", "").strip()
+    query_aliases = request.POST.get("query_aliases", "").strip()
+    query_fields = request.POST.get("query_fields", "").strip()
+    # We check if the query saved and the query edited are different
+    # In that case, we use the query edited
+    if query_dict == '' or query_dict is None:
+        query_dict = query.query_dict
+    else:
+        query_dict = json.loads(query_dict)
+    different_queries = query.query_dict != query_dict
     # We add order for the list of queries
     order_by_field = request.GET.get('order_by', 'default')
     order_dir = request.GET.get('dir', 'desc')
@@ -300,7 +347,16 @@ def queries_query_results(request, graph_slug, query_id):
     headers = True
     # We need the order_dir for the icons in the frontend
     if order_by_field == 'default':
-        query_results = query.execute(headers=headers)
+        if different_queries and query.id == request.session['query_id']:
+            query_results = graph.query(query_dict, headers=headers)
+            request.session['query'] = json.dumps(query_dict)
+            request.session['query_aliases'] = query_aliases
+            request.session['query_fields'] = query_fields
+        else:
+            query_results = query.execute(headers=headers)
+            request.session['query'] = query.query_dict
+            request.session['query_aliases'] = query.query_aliases
+            request.session['query_fields'] = query.query_fields
     else:
         page_dir = order_dir
         # We split the header to get the alias and the property
@@ -308,7 +364,11 @@ def queries_query_results(request, graph_slug, query_id):
         alias = order_by_values[0]
         prop = order_by_values[1]
         order_by = (alias, prop, order_dir)
-        query_results = query.execute(order_by=order_by, headers=headers)
+        if different_queries and query.id == request.session['query_id']:
+            query_results = graph.query(query_dict, order_by=order_by,
+                                        headers=headers)
+        else:
+            query_results = query.execute(order_by=order_by, headers=headers)
         if not query_results:
             messages.error(request,
                            _("Error: You are trying to sort a \
@@ -318,20 +378,33 @@ def queries_query_results(request, graph_slug, query_id):
             order_dir = DESC
         elif order_dir == DESC:
             order_dir = ASC
+    # We assign the query id to the query_id of the session
+    request.session['query_id'] = query.id
+    # We save the values to export as CSV
+    request.session["csv_results"] = query_results
+    request.session["query_name"] = query.name
+    # We store the results count in the session variable.
+    query_results_length = len(query_results)
+    request.session['results_count'] = query_results_length
+    # We store the datetime of execution
+    query.last_run = datetime.now()
     # We treat the headers
     if headers:
         # If the results have headers, we get the position 0
         headers_results = query_results[0]
         # and then the results.
-        query_results_length = len(query_results)
         if query_results_length > 1:
+            request.session['results_count'] = query_results_length - 1
             query_results = query_results[1:]
+            query.results_count = request.session['results_count']
         else:
             query_results = []
             messages.error(request,
                            _("Your query does not return any results! \
                               Please, check it and try again."))
-     # We add pagination for the list of queries
+    # We save the new changes of the query
+    query.save()
+    # We add pagination for the list of queries
     page = request.GET.get('page')
     page_size = settings.DATA_PAGE_SIZE
     paginator = Paginator(query_results, page_size)
@@ -352,7 +425,8 @@ def queries_query_results(request, graph_slug, query_id):
                                "results": paginated_results,
                                "order_by": order_by_field,
                                "dir": order_dir,
-                               "page_dir": page_dir},
+                               "page_dir": page_dir,
+                               "csv_results": query_results},
                               context_instance=RequestContext(request))
 
 
@@ -364,6 +438,7 @@ def queries_query_delete(request, graph_slug, query_id):
     graph = get_object_or_404(Graph, slug=graph_slug)
     query = graph.queries.get(id=query_id)
     redirect_url = reverse("queries_list", args=[graph.slug])
+    # Breadcrumbs variable
     queries_link = (redirect_url, _("Queries"))
     form = QueryDeleteConfirmForm()
     if request.POST:
