@@ -22,30 +22,37 @@ controllers.controller('ReportListCtrl', [
                     ,   last_run = JSON.parse(template.last_run)
                     ,   periodicity = template.frequency
                     ,   datetime = new Date(date)
-                    ,   last_datetime = new Date(last_run)
-                    ,   month = datetime.getMonth() + 1
+                    
+                    ,   month = datetime.getUTCMonth() + 1
                     ,   m = month.toString() 
-                    ,   day = datetime.getDate().toString()
-                    ,   year = datetime.getFullYear().toString()
+                    ,   day = datetime.getUTCDate().toString()
+                    ,   year = datetime.getUTCFullYear().toString()
                     ,   hour = datetime.getUTCHours().toString()
-                    ,   minutes = datetime.getMinutes().toString()
-                    ,   last_month = last_datetime.getMonth() + 1
-                    ,   last_m = month.toString().toString() 
-                    ,   last_day = last_datetime.getDate().toString()
-                    ,   last_year = last_datetime.getFullYear().toString()
-                    ,   last_hour = last_datetime.getUTCHours().toString()
-                    ,   last_minutes = last_datetime.getMinutes().toString();
+                    ,   minutes = datetime.getUTCMinutes().toString();
+                    if (last_run) {
+                        var last_datetime = new Date(last_run)
+                        ,   last_month = last_datetime.getUTCMonth() + 1
+                        ,   last_m = month.toString().toString() 
+                        ,   last_day = last_datetime.getUTCDate().toString()
+                        ,   last_year = last_datetime.getUTCFullYear().toString()
+                        ,   last_hour = last_datetime.getUTCHours().toString()
+                        ,   last_minutes = last_datetime.getUTCMinutes().toString();
+                        if (last_m.length === 1) last_month = '0' + last_month;
+                        if (last_day.length === 1) last_day = '0' + last_day; 
+                        if (last_hour.length === 1) last_hour = '0' + last_hour;
+                        if (last_minutes.length === 1) last_minutes = '0' + last_minutes;
+                        template.last_run = last_month + '/' + last_day + '/' + last_year + ' ' + last_hour + ':' + last_minutes;
+                    } else {
+                        template.last_run = null;
+                    }
                     if (m.length === 1) month = '0' + month;
                     if (day.length === 1) day = '0' + day; 
                     if (hour.length === 1) hour = '0' + hour;
                     if (minutes.length === 1) minutes = '0' + minutes;
-                    if (last_m.length === 1) last_month = '0' + last_month;
-                    if (last_day.length === 1) last_day = '0' + last_day; 
-                    if (last_hour.length === 1) last_hour = '0' + last_hour;
-                    if (last_minutes.length === 1) last_minutes = '0' + last_minutes;
+
                     template.start_date = month + '/' + day + '/' + year + ' ' + hour + ':' + minutes;
                     template.frequency = periods[periodicity];
-                    template.last_run = last_month + '/' + last_day + '/' + last_year + ' ' + last_hour + ':' + last_minutes;
+                    
                     console.log('minutes', minutes, minutes.length)
                 }
             });
@@ -88,7 +95,7 @@ controllers.controller('BaseReportCtrl', [
             ,   datetime = new Date(date[2], date[1], date[0], time[0], time[1])
             ,   post = new api.builder();
 
-            console.log('post', template)
+            console.log('post', date, time, datetime)
             template.start_date = {year: date[2], month: date[0],
                                    day: date[1], hour: time[0], minute: time[1]}
             post.template = template

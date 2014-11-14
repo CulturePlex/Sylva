@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 import datetime
 import operator
-from dateutil import tz, relativedelta
 from django.db.models import Q
 from models import ReportTemplate
 from sylva.celery import app
@@ -13,7 +12,7 @@ logger = get_task_logger(__name__)
 
 @app.task(name='reports.generate')
 def generate_report():
-    logger.info('Check Reports {0}'.format(datetime.datetime.now()))
+    logger.info('Check Reports at: {0}'.format(datetime.datetime.now()))
     templates = ready_to_execute()
     if templates:
         for template in templates:
@@ -25,31 +24,47 @@ def generate_report():
 
 
 def ready_to_execute():
-    now = datetime.datetime.now().replace(second=0, microsecond=0)
-    future = now + relativedelta.relativedelta(minutes=+14)
-    hour = relativedelta.relativedelta(hours=+1)
-    day = relativedelta.relativedelta(days=+1)
-    week = relativedelta.relativedelta(weeks=+1)
-    month = relativedelta.relativedelta(months=+1)
-    hour_range = [now - hour, future - hour]
-    day_range = [now - day, future - day]
-    week_range = [now - week, future - week]
-    month_range = [now - month, future - month]
-    print('day range: {0}'.format(day_range))
+    now = datetime.datetime.now()
+    # Convert datetime.weekday() to the
+    # same number scale as django lookup week_day.
+    weekday_to_week_day = {0: 2, 1: 3, 2: 4, 3: 5, 4: 6, 5: 7, 6: 1}
+    wd = weekday_to_week_day[now.weekday()]
     q_list = [
+        # Reports that execute on the hour.
         Q(frequency='h') &
-        (Q(start_date__range=hour_range) |
-         Q(last_run__range=hour_range)),
+        Q(start_date__lt=now) &
+        (Q(start_date__minute=now.minute) |
+         Q(last_run__minute=now.minute)),
+
+        # Reports that execute daily.
         Q(frequency='d') &
-        (Q(start_date__range=day_range) |
-         Q(last_run__range=day_range)),
+        Q(start_date__lt=now) &
+        (Q(start_date__hour=now.hour) &
+         Q(start_date__minute=now.minute)) |
+        (Q(last_run__hour=now.hour) &
+         Q(last_run__minute=now.minute)),
+
+        # Reports that execute once a week.
         Q(frequency='w') &
-        (Q(start_date__range=week_range) |
-         Q(last_run__range=week_range)),
+        Q(start_date__lt=now) &
+        (Q(start_date__week_day=wd) &
+         Q(start_date__hour=now.hour) &
+         Q(start_date__minute=now.minute)) |
+        (Q(last_run__week_day=wd) &
+         Q(last_run__hour=now.hour) &
+         Q(last_run__minute=now.minute)),
+
+        # Reports that execute once a month.
         Q(frequency='m') &
-        (Q(start_date__range=month_range) |
-        Q(last_run__range=month_range)),
+        Q(start_date__lt=now) &
+        (Q(start_date__day=now.day) &
+         Q(start_date__hour=now.hour) &
+         Q(start_date__minute=now.minute)) |
+        (Q(last_run__day=now.day) &
+         Q(last_run__hour=now.hour) &
+         Q(last_run__minute=now.minute))
     ]
+
     queryset = ReportTemplate.objects.filter(
         reduce(operator.or_, q_list)
     )

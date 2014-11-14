@@ -804,6 +804,7 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', fun
 
             scope.$watch('ySeries', function (newVal, oldVal) {  
                 console.log('newVal', newVal)
+                if (!newVal) return;
                 if (newVal[0].selected === true) {
                     scope.tableArray.addAxis([scope.row, scope.col], 'y', newVal[0].alias)
                     console.log('ta', scope.tableArray)
@@ -814,7 +815,7 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', fun
             }, true)
 
             scope.$watch('chartType', function (newVal, oldVal) {
-                if (newVal == oldVal) return;
+                if (newVal === oldVal) return;
                 ctrl.editing()
                 scope.tableArray.addChart([scope.row, scope.col], newVal)
             });
