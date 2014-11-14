@@ -20,8 +20,10 @@ class BaseConverter(object):
         (u"'", u'&#39;'),
     )
 
-    def __init__(self, graph):
+    def __init__(self, graph, csv_results=None, query_name=None):
         self.graph = graph
+        self.csv_results = csv_results
+        self.query_name = query_name
 
     def encode_html(self, value):
         return escape(value)
@@ -293,6 +295,40 @@ class CSVConverter(BaseConverter):
                     csv_writer.writerow(csv_properties)
                 zip_file.writestr(csv_name, csv_buffer.getvalue())
                 csv_buffer.close()
+
+        zip_data = zip_buffer.getvalue()
+        zip_buffer.close()
+        zip_name = graph.slug + '.zip'
+
+        return zip_data, zip_name
+
+
+class CSVQueryConverter(BaseConverter):
+    """
+    Converts a Sylva neo4j graph query into CSV files.
+    """
+
+    def export(self):
+        graph = self.graph
+        csv_results = self.csv_results
+        query_name = self.query_name
+        headers = csv_results[0]
+        results = csv_results[1:]
+
+        zip_buffer = StringIO()
+
+        with zipfile.ZipFile(zip_buffer, 'w', zipfile.ZIP_DEFLATED) as \
+                zip_file:
+            csv_name = os.path.join('query', query_name + '.csv')
+            csv_buffer = StringIO()
+            csv_writer = csv.writer(csv_buffer, delimiter=',',
+                                    quotechar='"', quoting=csv.QUOTE_ALL)
+            csv_header = headers
+            csv_writer.writerow(csv_header)
+            for result in results:
+                csv_writer.writerow(result)
+            zip_file.writestr(csv_name, csv_buffer.getvalue())
+            csv_buffer.close()
 
         zip_data = zip_buffer.getvalue()
         zip_buffer.close()

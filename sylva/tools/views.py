@@ -22,7 +22,7 @@ from guardian.decorators import permission_required
 from data.models import Data
 from graphs.models import Graph
 from graphs.utils import graph_last_modified
-from tools.converters import GEXFConverter, CSVConverter
+from tools.converters import GEXFConverter, CSVConverter, CSVQueryConverter
 
 
 @login_required()
@@ -125,6 +125,20 @@ def graph_export_gexf(request, graph_slug):
 def graph_export_csv(request, graph_slug):
     graph = get_object_or_404(Graph, slug=graph_slug)
     converter = CSVConverter(graph)
+    zip_data, zip_name = converter.export()
+    response = HttpResponse(zip_data, content_type='application/zip')
+    response['Content-Disposition'] = 'attachment; filename="%s"' % zip_name
+    return response
+
+
+@condition(last_modified_func=graph_last_modified)
+@permission_required("data.view_data", (Data, "graph__slug", "graph_slug"),
+                     return_403=True)
+def graph_export_queries_csv(request, graph_slug):
+    graph = get_object_or_404(Graph, slug=graph_slug)
+    csv_results = request.session["csv_results"]
+    query_name = request.session["query_name"]
+    converter = CSVQueryConverter(graph, csv_results, query_name)
     zip_data, zip_name = converter.export()
     response = HttpResponse(zip_data, content_type='application/zip')
     response['Content-Disposition'] = 'attachment; filename="%s"' % zip_name

@@ -30,6 +30,7 @@ from queries.forms import SaveQueryForm, QueryDeleteConfirmForm
 ASC = "asc"
 DESC = "desc"
 NEW_QUERY = "new_query"
+AGGREGATES = ["Count", "Max", "Min", "Sum", "Average", "Deviation"]
 
 
 @is_enabled(settings.ENABLE_QUERIES)
@@ -170,21 +171,33 @@ def queries_new_results(request, graph_slug):
     # query = "notas of autor with notas that start with lista"
     # see https://gist.github.com/versae/9241069
     request.session['query_id'] = 'new'
-    request.session['query'] = query
-    request.session['query_aliases'] = query_aliases
-    request.session['query_fields'] = query_fields
-    query_dict = json.loads(query)
+    if query is not '':
+        request.session['query'] = query
+        request.session['query_aliases'] = query_aliases
+        request.session['query_fields'] = query_fields
+        query_dict = json.loads(query)
+    else:
+        query_dict = json.loads(request.session['query'])
 
     headers = True
     if order_by_field == 'default':
         query_results = graph.query(query_dict, headers=headers)
     else:
         page_dir = order_dir
-        # We split the header to get the alias and the property
-        order_by_values = order_by_field.split('.')
-        alias = order_by_values[0]
-        prop = order_by_values[1]
-        order_by = (alias, prop, order_dir)
+        # We check the properties of the results to see if we have
+        # aggregates. This is for a special treatment in the order_by.
+        aggregate = order_by_field.split('(')[0]
+        has_aggregate = aggregate in AGGREGATES
+        if has_aggregate:
+            alias = 'aggregate'
+            value = order_by_field.replace('`', '')
+            order_by = (alias, value, order_dir)
+        else:
+            # We split the header to get the alias and the property
+            order_by_values = order_by_field.split('.')
+            alias = order_by_values[0]
+            prop = order_by_values[1]
+            order_by = (alias, prop, order_dir)
         query_results = graph.query(query_dict,
                                     order_by=order_by, headers=headers)
         if not query_results:
@@ -359,11 +372,20 @@ def queries_query_results(request, graph_slug, query_id):
             request.session['query_fields'] = query.query_fields
     else:
         page_dir = order_dir
-        # We split the header to get the alias and the property
-        order_by_values = order_by_field.split('.')
-        alias = order_by_values[0]
-        prop = order_by_values[1]
-        order_by = (alias, prop, order_dir)
+        # We check the properties of the results to see if we have
+        # aggregates. This is for a special treatment in the order_by.
+        aggregate = order_by_field.split('(')[0]
+        has_aggregate = aggregate in AGGREGATES
+        if has_aggregate:
+            alias = 'aggregate'
+            value = order_by_field.replace('`', '')
+            order_by = (alias, value, order_dir)
+        else:
+            # We split the header to get the alias and the property
+            order_by_values = order_by_field.split('.')
+            alias = order_by_values[0]
+            prop = order_by_values[1]
+            order_by = (alias, prop, order_dir)
         if different_queries and query.id == request.session['query_id']:
             query_results = graph.query(query_dict, order_by=order_by,
                                         headers=headers)
