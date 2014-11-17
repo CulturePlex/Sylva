@@ -173,13 +173,28 @@ services.factory('tableArray', function () {
         if (axis === 'x') {
             this.table[coords[0]][coords[1]].xAxis = alias;
         } else {
-            this.table[coords[0]][coords[1]].yAxis = alias;
+            console.log('coords', coords)
+            if (!('yAxis' in this.table[coords[0]][coords[1]])) {
+                this.table[coords[0]][coords[1]]['yAxis'] = []
+                console.log('post undefined', this.table[coords[0]][coords[1]].yAxis)
+            } 
+            if (this.table[coords[0]][coords[1]].yAxis.indexOf(alias) == -1) {
+                this.table[coords[0]][coords[1]].yAxis.push(alias);
+                console.log('pushed', this.table[coords[0]][coords[1]].yAxis)
+            }
+            
         }
     }
 
-    TableArray.prototype.removeAxis = function(coords, axis) {
+    TableArray.prototype.removeAxis = function(coords, axis, alias) {
         if (axis === 'y') {
-            this.table[coords[0]][coords[1]].yAxis = null;
+            if (!('yAxis' in this.table[coords[0]][coords[1]])) {
+                this.table[coords[0]][coords[1]]['yAxis'] = []
+                console.log('post undefined', this.table[coords[0]][coords[1]].yAxis)
+            } 
+            var i = this.table[coords[0]][coords[1]].yAxis.indexOf(alias)
+            this.table[coords[0]][coords[1]].yAxis.splice(i, 1);
+            
         } else {
             this.table[coords[0]][coords[1]].xAxis = null;
         }
