@@ -25,8 +25,8 @@
 
 {% block content %}
 
-{% if results %}
 <div id="content2">
+{% if results %}
     <div id="query-builder-results">
         <div id="results">
             <table class="content-table">
@@ -87,8 +87,10 @@
             </div>
         </div>
     </div>
-</div>
+{% else %}
+    <p>{% trans "There are not results for this query. Please, check your query or your data." %}</p>
 {% endif %}
+</div>
 {% endblock %}
 
 {% block extra_links %}

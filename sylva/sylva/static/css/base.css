@@ -1140,7 +1140,7 @@ div.initial p:nth-child(3) {
     font-size: 120%;
     font-weight: bold;
     padding: 5px 5px 2px 20px;
-    display: block;
+    display: inline-block;
 }
 
 .graph-instance {
