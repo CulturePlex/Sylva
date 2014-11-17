@@ -230,11 +230,12 @@ def queries_new_results(request, graph_slug):
             messages.error(request,
                            _("Your query does not return any results! \
                               Please, check it and try again."))
-     # We add pagination for the list of queries
+    # We add pagination for the list of queries
     page = request.GET.get('page')
-    page_size = settings.DATA_PAGE_SIZE
-    paginator = Paginator(query_results, page_size)
+    page_size = request.POST.get('rows-number')
     try:
+        page_size = int(page_size)
+        paginator = Paginator(query_results, page_size)
         paginated_results = paginator.page(page)
     except PageNotAnInteger:
         # If page is not an integer, deliver first page.
@@ -242,6 +243,10 @@ def queries_new_results(request, graph_slug):
     except EmptyPage:
         # If page is out of range (e.g. 9999), deliver last page of results.
         paginated_results = paginator.page(paginator.num_pages)
+    except ValueError:
+        messages.error(request,
+                       _("The number of pages should be an integer value."))
+        return redirect(reverse("queries_new", args=[graph.slug]))
     return render_to_response('queries/queries_new_results.html',
                               {"graph": graph,
                                "queries_link": queries_link,
@@ -428,9 +433,10 @@ def queries_query_results(request, graph_slug, query_id):
     query.save()
     # We add pagination for the list of queries
     page = request.GET.get('page')
-    page_size = settings.DATA_PAGE_SIZE
-    paginator = Paginator(query_results, page_size)
+    page_size = request.POST.get('rows-number')
     try:
+        page_size = int(page_size)
+        paginator = Paginator(query_results, page_size)
         paginated_results = paginator.page(page)
     except PageNotAnInteger:
         # If page is not an integer, deliver first page.
@@ -438,6 +444,11 @@ def queries_query_results(request, graph_slug, query_id):
     except EmptyPage:
         # If page is out of range (e.g. 9999), deliver last page of results.
         paginated_results = paginator.page(paginator.num_pages)
+    except ValueError:
+        messages.error(request,
+                       _("The number of pages should be an integer value."))
+        return redirect(reverse("queries_query_edit",
+                                args=[graph.slug, query.id]))
     # TODO: Try to make the response streamed
     return render_to_response('queries/queries_new_results.html',
                               {"graph": graph,
