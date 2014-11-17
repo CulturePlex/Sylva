@@ -621,7 +621,6 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', fun
                 scope.tableArray.collapseCol(coords, dir)
             }
 
-
             // Bind cell to click showing/hiding arrows for merge actions
             elem.bind("click", function (event) {
                 if (!arrows) {
@@ -674,8 +673,8 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', fun
                 // on init for edit report.
                 if (scope.activeQuery) {
                     results = scope.activeQuery.results.filter(function (el) {
-                            return el.properties.length > 0;
-                        });
+                        return el.properties.length > 0;
+                    });
                     result_dict = findCatagorical(results)
                     if (result_dict.num.length > 1) {
                         scope.xSeries = result_dict.cat.concat(result_dict.num)
@@ -690,6 +689,9 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', fun
                             var num_alias = result_dict.num[i].alias;
                             for (var j=0; j<scope.activeYs.length; j++) {
                                 var activeY_alias = scope.activeYs[j].alias
+                                scope.xSeries = scope.xSeries.filter(function (el) {
+                                    return el.alias !== activeY_alias
+                                });
                                 if (num_alias === activeY_alias) {
                                     result_dict.num[i].selected = true;
                                 }
@@ -697,6 +699,10 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', fun
                         }
                     } 
                     scope.ySeries = result_dict.num;
+                    scope.ySeries = scope.ySeries.filter(function (el) {
+                        return el.alias !== scope.activeX.alias
+                    });
+
                     if (scope.ySeries.length == 1) scope.ySeries[0].selected = true;
                 }
             });
