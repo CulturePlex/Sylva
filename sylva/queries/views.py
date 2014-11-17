@@ -227,12 +227,9 @@ def queries_new_results(request, graph_slug):
             query_results = query_results[1:]
         else:
             query_results = []
-            messages.error(request,
-                           _("Your query does not return any results! \
-                              Please, check it and try again."))
     # We add pagination for the list of queries
-    page = request.GET.get('page')
-    page_size = request.POST.get('rows-number')
+    page = request.GET.get('page', 1)
+    page_size = request.POST.get('rows-number', '100')
     try:
         page_size = int(page_size)
         paginator = Paginator(query_results, page_size)
@@ -426,14 +423,11 @@ def queries_query_results(request, graph_slug, query_id):
             query.results_count = request.session['results_count']
         else:
             query_results = []
-            messages.error(request,
-                           _("Your query does not return any results! \
-                              Please, check it and try again."))
     # We save the new changes of the query
     query.save()
     # We add pagination for the list of queries
-    page = request.GET.get('page')
-    page_size = request.POST.get('rows-number')
+    page = request.GET.get('page', 1)
+    page_size = request.POST.get('rows-number', '100')
     try:
         page_size = int(page_size)
         paginator = Paginator(query_results, page_size)
