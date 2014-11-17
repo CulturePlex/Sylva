@@ -33,36 +33,27 @@ def ready_to_execute():
         # Reports that execute on the hour.
         Q(frequency='h') &
         Q(start_date__lt=now) &
-        (Q(start_date__minute=now.minute) |
-         Q(last_run__minute=now.minute)),
+        Q(start_date__minute=now.minute),
 
         # Reports that execute daily.
         Q(frequency='d') &
         Q(start_date__lt=now) &
         (Q(start_date__hour=now.hour) &
-         Q(start_date__minute=now.minute)) |
-        (Q(last_run__hour=now.hour) &
-         Q(last_run__minute=now.minute)),
+         Q(start_date__minute=now.minute)),
 
         # Reports that execute once a week.
         Q(frequency='w') &
         Q(start_date__lt=now) &
         (Q(start_date__week_day=wd) &
          Q(start_date__hour=now.hour) &
-         Q(start_date__minute=now.minute)) |
-        (Q(last_run__week_day=wd) &
-         Q(last_run__hour=now.hour) &
-         Q(last_run__minute=now.minute)),
+         Q(start_date__minute=now.minute)),
 
         # Reports that execute once a month.
         Q(frequency='m') &
         Q(start_date__lt=now) &
         (Q(start_date__day=now.day) &
          Q(start_date__hour=now.hour) &
-         Q(start_date__minute=now.minute)) |
-        (Q(last_run__day=now.day) &
-         Q(last_run__hour=now.hour) &
-         Q(last_run__minute=now.minute))
+         Q(start_date__minute=now.minute))
     ]
 
     queryset = ReportTemplate.objects.filter(
