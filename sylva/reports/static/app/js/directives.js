@@ -182,6 +182,8 @@ directives.directive('sylvaPvCellRepeat', [function () {
                         series = query.series;
                         name = query.name;
                     }
+                    // Here must config chart. 
+                    console.log('series', series)
                     childScope.query = query;
                     childScope.chartConfig = {
                         options: {chart: {type: cell.chartType}},
@@ -477,8 +479,10 @@ directives.directive('sylvaEtCellRepeat', [function () {
                             ,   activeY = activeQuery.results.filter(function (el) {
                                 return el.alias === y;
                             })[0];
-                            activeY.selected = true;
-                            activeYs.push(activeY);
+                            if (activeY) {
+                                activeY.selected = true;
+                                activeYs.push(activeY);
+                            }
                         }
                     }
 
@@ -681,10 +685,12 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', fun
                     } else {
                         scope.xSeries = result_dict.cat
                     }
-                    if (!scope.activeX) scope.activeX = scope.xSeries[0]
+                        if (!scope.activeX) scope.activeX = scope.xSeries[0]
+                        if (scope.xSeries.length == 1) scope.activeX = scope.xSeries[0]
 
                     // Deal with multiple activeYs
                     if (scope.activeYs) {
+                        console.log('activeYs', scope.activeYs)
                         for (var i=0; i<result_dict.num.length; i++) {
                             var num_alias = result_dict.num[i].alias;
                             for (var j=0; j<scope.activeYs.length; j++) {
@@ -771,16 +777,18 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', fun
                         
                         if (result_dict.num.length > 1) {
                             scope.xSeries = result_dict.cat.concat(result_dict.num)
-                            console.log('xSeries', scope.xSeries, result_dict)
                         } else {
                             scope.xSeries = result_dict.cat
                         }
-                        console.log('xSeries', scope.xSeries, result_dict)
                         // Autoselect catagorical value or first numerical.
-                        if (!scope.activeX) scope.activeX = scope.xSeries[0]
-                        if (scope.xSeries.length == 1) scope.activeX = scope.xSeries[0]
-                        scope.ySeries = result_dict.num // ySeries must be numerical
-                        if (scope.ySeries.length == 1) scope.ySeries[0].selected = true;
+                        //if (!scope.activeX) scope.activeX = scope.xSeries[0]
+                        //if (scope.xSeries.length == 1) scope.activeX = scope.xSeries[0]
+                        scope.ySeries = result_dict.num.map(function  (el) {el.selected = ''; return el}) // ySeries must be numerical
+                        //if (scope.ySeries.length == 1) scope.ySeries[0].selected = true;
+                        //if (!scope.activeYs) scope.ySeries[0].selected = true;
+                        console.log('result_d', result_dict.num)
+                        scope.ySeries[0].selected = true;
+                        scope.activeX = scope.xSeries[0]
                     }
                 } else {
                     name = '';
@@ -805,7 +813,7 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', fun
                         scope.xSeries = scope.xSeries.filter(function (el) {
                             return el.alias !== newVal[i].alias
                         });
-                    } else if (newVal[i].selected == false) {
+                    } else if (newVal[i].selected === false) {
                         scope.tableArray.removeAxis([scope.row, scope.col], 'y', newVal[i].alias)
                         scope.xSeries.push(newVal[i])
                     }
