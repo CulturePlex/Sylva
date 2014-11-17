@@ -122,7 +122,6 @@ def preview_report_pdf(request, graph_slug):
 def templates_endpoint(request, graph_slug):
     graph = get_object_or_404(Graph, slug=graph_slug)
     if request.GET.get('queries', '') or request.GET.get('template', ''):
-        #import ipdb; ipdb.set_trace()
         response = {'template': None, 'queries': None}
         if request.GET.get('queries', ''):  # Get queries either for
                                             # new template or for edit.
@@ -137,7 +136,7 @@ def templates_endpoint(request, graph_slug):
                                     'name': query.name, 'id': query.id,
                                     'results': query.query_dict['results']}
                                    for query in queries]
-        if request.GET.get('template', ''):  # Get template for edit or preview.
+        if request.GET.get('template', ''):  # Get template for edit or preview
             template = get_object_or_404(
                 ReportTemplate, slug=request.GET['template']
             )
@@ -163,7 +162,7 @@ def templates_endpoint(request, graph_slug):
             # If page is not an integer, deliver first page.
             templates = paginator.page(1)
         except EmptyPage:
-            # If page is out of range (e.g. 9999), deliver last page of results.
+            # If page is out of range (e.g. 9999), deliver last page of results
             templates = paginator.page(paginator.num_pages)
         template_list = [
             template.dictify() for template in templates.object_list

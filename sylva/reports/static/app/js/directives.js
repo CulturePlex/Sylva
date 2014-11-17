@@ -569,8 +569,8 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', fun
 '</div>',
         link: function(scope, elem, attrs, ctrl) {
             var ang = angular.element
-            ,   mdDiv = ang(elem.children()[1])
-            ,   md = ang(mdDiv.children()[1])
+            ,   mdDiv = ang(elem.children()[3])
+            ,   md = ang(ang(ang(mdDiv[0])[0]).children()[0])
             ,   stepChild = ang(ang(ang(elem.children()[2]).children()[0])[0]).children()
             ,   chartCol = ang(stepChild[0])
             ,   cellCol = ang(stepChild[1])
@@ -587,6 +587,7 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', fun
                     leftIn: '<a class="arrow left-in" title="collapse left" ng-href="" ng-click="collapse(1)">&#8592</a>'
             };
 
+            console.log('mdel', md)
             // Chart type select
             scope.selectConfig = {
                 bar: {options: {chart: {type: 'bar'}},
@@ -636,7 +637,7 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', fun
                     });
 
                     if (parseInt(scope.colspan) > 1) {
-                        
+
                         var leftIn = $compile(arrowHtml['leftIn'])(scope)
                         ,   rightIn = $compile(arrowHtml['rightIn'])(scope);
                         elem.append(leftIn);
@@ -739,6 +740,7 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', fun
                 ,   html = $sanitize(showdown.makeHtml(scope.mdarea))
                 ,   markdown = html;
                 //,   markdown = html);
+                console.log('markdown', markdown)
                 scope.$apply(function () {
                     scope.tableArray.addMarkdown([scope.row, scope.col], markdown);    
                 });
