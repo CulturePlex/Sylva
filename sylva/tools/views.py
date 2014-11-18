@@ -22,7 +22,8 @@ from guardian.decorators import permission_required
 from data.models import Data
 from graphs.models import Graph
 from graphs.utils import graph_last_modified
-from tools.converters import GEXFConverter, CSVConverter, CSVQueryConverter
+from tools.converters import (GEXFConverter, CSVConverter, CSVQueryConverter,
+                              CSVTableConverter)
 
 
 @login_required()
@@ -77,7 +78,8 @@ def ajax_nodes_create(request, graph_slug):
             ids_dict[elem_id] = node.id
         graph.last_modified = datetime.now()
         graph.data.save()
-        return HttpResponse(json.dumps(ids_dict), content_type='application/json')
+        return HttpResponse(json.dumps(ids_dict),
+                            content_type='application/json')
     raise Http404(_("Error: Invalid request (expected an AJAX request)"))
 
 
@@ -111,7 +113,7 @@ def graph_export_gexf(request, graph_slug):
         messages.error(request, _("You are trying to export data from an "
                                   "empty graph"))
         return redirect(reverse('dashboard'))
-    converter = GEXFConverter(graph)
+    converter = GEXFConverter(graph=graph)
     response = HttpResponse(converter.stream_export(),
                             content_type='application/xml')
     attachment = ('attachment; filename=%s_data.gexf' % graph_slug)
@@ -124,7 +126,20 @@ def graph_export_gexf(request, graph_slug):
                      return_403=True)
 def graph_export_csv(request, graph_slug):
     graph = get_object_or_404(Graph, slug=graph_slug)
-    converter = CSVConverter(graph)
+    converter = CSVConverter(graph=graph)
+    zip_data, zip_name = converter.export()
+    response = HttpResponse(zip_data, content_type='application/zip')
+    response['Content-Disposition'] = 'attachment; filename="%s"' % zip_name
+    return response
+
+
+@condition(last_modified_func=graph_last_modified)
+@permission_required("data.view_data", (Data, "graph__slug", "graph_slug"),
+                     return_403=True)
+def graph_export_table_csv(request, graph_slug):
+    graph = get_object_or_404(Graph, slug=graph_slug)
+    node_type_id = request.session.get('node_type_id', None)
+    converter = CSVTableConverter(graph=graph, node_type_id=node_type_id)
     zip_data, zip_name = converter.export()
     response = HttpResponse(zip_data, content_type='application/zip')
     response['Content-Disposition'] = 'attachment; filename="%s"' % zip_name
@@ -136,9 +151,10 @@ def graph_export_csv(request, graph_slug):
                      return_403=True)
 def graph_export_queries_csv(request, graph_slug):
     graph = get_object_or_404(Graph, slug=graph_slug)
-    csv_results = request.session["csv_results"]
-    query_name = request.session["query_name"]
-    converter = CSVQueryConverter(graph, csv_results, query_name)
+    csv_results = request.session.get('csv_results', None)
+    query_name = request.session.get('query_name', None)
+    converter = CSVQueryConverter(graph=graph, csv_results=csv_results,
+                                  query_name=query_name)
     zip_data, zip_name = converter.export()
     response = HttpResponse(zip_data, content_type='application/zip')
     response['Content-Disposition'] = 'attachment; filename="%s"' % zip_name

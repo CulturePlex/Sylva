@@ -161,6 +161,7 @@ def nodes_list_full(request, graph_slug, node_type_id):
                 if not isinstance(prop_value, unicode):
                     prop_value = prop_value.__str__()
                 property_values[prop_key].add(prop_value)
+    request.session['node_type_id'] = node_type_id
     for key in property_values:
         property_values[key] = list(property_values[key])
     if as_modal:

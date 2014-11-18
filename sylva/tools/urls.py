@@ -18,8 +18,12 @@ urlpatterns = patterns('tools.views',
     # export CSV
     url(r'^(?P<graph_slug>[\w-]+)/export/csv/$', 'graph_export_csv',
         name="graph_export_csv"),
+    # export table as CSV
+    url(r'^(?P<graph_slug>[\w-]+)/export/csv/table$',
+        'graph_export_table_csv',
+        name="graph_export_table_csv"),
     # export query as CSV
-    url(r'^(?P<graph_slug>[\w-]+)/export/query_csv/$',
+    url(r'^(?P<graph_slug>[\w-]+)/export/csv/query$',
         'graph_export_queries_csv',
         name="graph_export_queries_csv"),
 )

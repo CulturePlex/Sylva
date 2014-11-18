@@ -7,7 +7,10 @@ try:
 except ImportError:
     from StringIO import StringIO  # NOQA
 
+from django.shortcuts import get_object_or_404
 from django.template.defaultfilters import force_escape as escape
+
+from schemas.models import NodeType
 
 
 class BaseConverter(object):
@@ -20,10 +23,12 @@ class BaseConverter(object):
         (u"'", u'&#39;'),
     )
 
-    def __init__(self, graph, csv_results=None, query_name=None):
+    def __init__(self, graph, csv_results=None, query_name=None,
+                 node_type_id=None):
         self.graph = graph
         self.csv_results = csv_results
         self.query_name = query_name
+        self.node_type_id = node_type_id
 
     def encode_html(self, value):
         return escape(value)
@@ -295,6 +300,50 @@ class CSVConverter(BaseConverter):
                     csv_writer.writerow(csv_properties)
                 zip_file.writestr(csv_name, csv_buffer.getvalue())
                 csv_buffer.close()
+
+        zip_data = zip_buffer.getvalue()
+        zip_buffer.close()
+        zip_name = graph.slug + '.zip'
+
+        return zip_data, zip_name
+
+
+class CSVTableConverter(BaseConverter):
+    """
+    Converts a Sylva neo4j data table into CSV files.
+    """
+
+    def export(self):
+        graph = self.graph
+        node_type_id = self.node_type_id
+        node_type = get_object_or_404(NodeType, id=node_type_id)
+        node_type_name = node_type.name.encode('utf-8')
+        nodes = node_type.all()
+        properties = node_type.properties.all()
+
+        zip_buffer = StringIO()
+
+        with zipfile.ZipFile(zip_buffer, 'w', zipfile.ZIP_DEFLATED) as \
+                zip_file:
+            csv_name = os.path.join('data table', node_type_name + '.csv')
+            csv_buffer = StringIO()
+            csv_writer = csv.writer(csv_buffer, delimiter=',',
+                                    quotechar='"', quoting=csv.QUOTE_ALL)
+            csv_header = []
+            csv_header_encoded = []
+            for prop in properties:
+                csv_header.append(prop.key)
+                csv_header_encoded.append(prop.key.encode('utf-8'))
+            csv_writer.writerow(csv_header_encoded)
+            for node in nodes:
+                csv_node_values = []
+                node_properties = node.properties
+                for header_prop in csv_header:
+                    prop_value = node_properties[header_prop]
+                    csv_node_values.append(prop_value.encode('utf-8'))
+                csv_writer.writerow(csv_node_values)
+            zip_file.writestr(csv_name, csv_buffer.getvalue())
+            csv_buffer.close()
 
         zip_data = zip_buffer.getvalue()
         zip_buffer.close()

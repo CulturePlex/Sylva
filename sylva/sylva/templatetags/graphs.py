@@ -29,6 +29,7 @@ def toolbar(context, on):
     return {'on': on,
             'graph': context["graph"],
             'node_type': context.get("node_type", None),
+            'nodes': context.get("nodes", None),
             'csv_results': context.get("csv_results", None),
             'search_form': search_form,
             'ENABLE_CLONING': settings.ENABLE_CLONING,
