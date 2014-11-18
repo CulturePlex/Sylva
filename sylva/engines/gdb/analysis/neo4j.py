@@ -265,12 +265,11 @@ class Analysis(BaseAnalysis):
     def _get_values_dict(self, values):
         values_dict = dict()
         for key, val in values.iteritems():
-            if val in values_dict.keys():
+            if val in values_dict:
                 if key not in values_dict[val]:
                     values_dict[val].append(key)
             else:
-                values_dict[val] = list()
-                values_dict[val].append(key)
+                values_dict[val] = [key]
         return values_dict
 
     def save(self, results, analytic):
@@ -293,31 +292,22 @@ class Analysis(BaseAnalysis):
         temp_file = tempfile.NamedTemporaryFile(delete=False)
         temp_file.close()
         if not isinstance(results, pd.DataFrame):
-            results.rename({
-                "__id": "node_id",
-                result: algorithm,
-            })
-            results.save(temp_file.name, 'csv')
-            freq_dist = results.to_dataframe()[algorithm].value_counts()
-            # We treat the series to form the dictionary with the value as key
-            # and the keys in a list of values
-            values = results.to_dataframe()
-            values.set_index('node_id', inplace=True)
-            values = values[algorithm]
-            values_dict = self._get_values_dict(values)
-            # SFrame saves the file and appends a .csv at the end :@
-            temp_file_name = temp_file.name + '.csv'
-        else:
-            results.to_csv(temp_file.name,
-                           index=False,
-                           header=['node_id', algorithm])
-            freq_dist = results[algorithm].value_counts()
-            # We treat the series to form the dictionary with the value as key
-            # and the keys in a list of values
-            results.set_index('__id', inplace=True)
-            values = results[algorithm]
-            values_dict = self._get_values_dict(values)
-            temp_file_name = temp_file.name
+            results = results.to_dataframe()
+        results.rename(columns={
+            "__id": "node_id",
+            result: algorithm,
+        }, inplace=True)
+        # Cast to string because otherwise 0.15000 is converted to 0.14999 :-?
+        results = results.astype(str)
+        # A better solution could be to store it as JSON
+        results.to_csv(temp_file.name,
+                       index=False,
+                       header=['node_id', algorithm])  # float_format='%.12f'
+        results.set_index('node_id', inplace=True)
+        values = results[algorithm]
+        freq_dist = values.value_counts()
+        values_dict = self._get_values_dict(values)
+        temp_file_name = temp_file.name
         timestamp = "{:.0f}".format(time.time() * 1000)
         suf_name = "{0}_{1}_{2}".format(
             analytic.dump.graph.slug, analytic.algorithm, timestamp
