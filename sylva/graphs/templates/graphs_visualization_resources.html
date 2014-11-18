@@ -52,10 +52,11 @@
 
   <script type="text/javascript" src="{{ STATIC_PREFIX }}js/jqueryui.timepicker.js"></script>
   <script type="text/javascript" src="{{ STATIC_PREFIX }}js/jquery.formsets.1.2.min.js"></script>
+{% endcompress %}
+{% compress js %}
   <script type="text/javascript" src="{{ STATIC_PREFIX }}js/jquery.tokeninput.js"></script>
   <script type="text/javascript" src="{{ STATIC_PREFIX }}js/datatypes.js"></script>
 {% endcompress %}
-
 {% compress css %}
   <link type="text/css" rel="stylesheet" href="{{ STATIC_PREFIX }}css/jqueryui.1.8.18.css" />
   <link type="text/css" rel="stylesheet" href="{{ STATIC_PREFIX }}graphs/css/colpick/colpick.css" />
