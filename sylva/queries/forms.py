@@ -68,10 +68,3 @@ class QueryOptionsForm(forms.Form):
                                   required=True,
                                   widget=forms.Select(
                                       attrs={'class': 'show_mode'}))
-    select_order_by = forms.ChoiceField(label=_("and sort by"),
-                                        choices=ORDER_BY_CHOICES,
-                                        initial=([c[0] for c in
-                                                 ORDER_BY_CHOICES]),
-                                        required=True,
-                                        widget=forms.Select(
-                                            attrs={'class': 'select_order'}))

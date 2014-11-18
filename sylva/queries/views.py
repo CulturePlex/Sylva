@@ -193,14 +193,12 @@ def queries_new_results(request, graph_slug):
         if form.is_valid():
             rows_number = form.cleaned_data["rows_number"]
             show_mode = form.cleaned_data["show_mode"]
-            select_order_by = form.cleaned_data["select_order_by"]
     else:
         data = request.session.get('data', None)
         form = QueryOptionsForm(data=data)
         if form.is_valid():
             rows_number = form.cleaned_data["rows_number"]
             show_mode = form.cleaned_data["show_mode"]
-            select_order_by = form.cleaned_data["select_order_by"]
     headers = True
     if order_by_field == 'default':
         query_results = graph.query(query_dict, headers=headers)
@@ -396,7 +394,6 @@ def queries_query_results(request, graph_slug, query_id):
         if form.is_valid():
             rows_number = form.cleaned_data["rows_number"]
             show_mode = form.cleaned_data["show_mode"]
-            select_order_by = form.cleaned_data["select_order_by"]
     elif not request.POST and (
             query.id == request.session.get('query_id', None)):
         data = request.session.get('data', None)
@@ -404,7 +401,6 @@ def queries_query_results(request, graph_slug, query_id):
         if form.is_valid():
             rows_number = form.cleaned_data["rows_number"]
             show_mode = form.cleaned_data["show_mode"]
-            select_order_by = form.cleaned_data["select_order_by"]
     headers = True
     # We need the order_dir for the icons in the frontend
     if order_by_field == 'default':
@@ -423,6 +419,8 @@ def queries_query_results(request, graph_slug, query_id):
         page_dir = order_dir
         # We check the properties of the results to see if we have
         # aggregates. This is for a special treatment in the order_by.
+        import ipdb
+        ipdb.set_trace()
         aggregate = order_by_field.split('(')[0]
         has_aggregate = aggregate in AGGREGATES
         if has_aggregate:
@@ -482,7 +480,7 @@ def queries_query_results(request, graph_slug, query_id):
             paginator = Paginator(query_results, page_size)
         else:
             page_size = settings.DATA_PAGE_SIZE
-            query_results = query_results[rows_number:]
+            query_results = query_results[:rows_number]
             paginator = Paginator(query_results, page_size)
         paginated_results = paginator.page(page)
     except PageNotAnInteger:

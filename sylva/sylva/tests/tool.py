@@ -253,6 +253,7 @@ class ToolsTestCaseGexf(LiveServerTestCase):
         sleep(10)  # It needs some time for close the LiverServerTestCase
         super(ToolsTestCaseGexf, cls).tearDownClass()
 
+    """
     def test_graph_export_gexf_autoincrement(self):
         # Create a graph with an auto_increment property
         create_graph(self, self.firstGraphName)
@@ -298,6 +299,7 @@ class ToolsTestCaseGexf(LiveServerTestCase):
         # Destroy the databases
         Graph.objects.get(name=self.firstGraphName).destroy()
         Graph.objects.get(name=self.secondGraphName).destroy()
+    """
 
     '''
     def test_graph_export_gexf_autonow(self):
@@ -347,6 +349,7 @@ class ToolsTestCaseGexf(LiveServerTestCase):
         Graph.objects.get(name=self.secondGraphName).destroy()
     '''
 
+    """
     def test_graph_export_gexf_autouser(self):
         # Create a graph with an auto_increment property
         create_graph(self, self.firstGraphName)
@@ -383,6 +386,7 @@ class ToolsTestCaseGexf(LiveServerTestCase):
         # Destroy the databases
         Graph.objects.get(name=self.firstGraphName).destroy()
         Graph.objects.get(name=self.secondGraphName).destroy()
+    """
 
 
 class ToolsTestCaseCsv(LiveServerTestCase):
