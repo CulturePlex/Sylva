@@ -419,8 +419,6 @@ def queries_query_results(request, graph_slug, query_id):
         page_dir = order_dir
         # We check the properties of the results to see if we have
         # aggregates. This is for a special treatment in the order_by.
-        import ipdb
-        ipdb.set_trace()
         aggregate = order_by_field.split('(')[0]
         has_aggregate = aggregate in AGGREGATES
         if has_aggregate:
