@@ -119,17 +119,21 @@
       {% endif %}
             {% csrf_token %}
             <div id="select-rows-per-page" style="display: inline; float: left; margin-right: 10px;">
-              <span>{% trans "Show " %}</span>
-              <input type="text" id="rows-number" name="rows-number" value="100" style="display: inline; width: 25px;" />
-              <span>{% trans " rows " %}</span>
-              <!-- <select id="select-rows-total" style="display: inline; width: 100px;">
-                <option value="per page">{% trans "per page" %}</option>
-                <option value="in total">{% trans "in total" %}</option>
-              </select>
-              <span>{% trans " and sort by " %}</span>
-              <select id="select-rows-order-by" style="display: inline; width: 100px;">
-                <option value="default">{% trans "default" %}</option>
-              </select> -->
+              {% for field in query_options_form %}
+                {% if field.is_hidden %}
+                    {{ field }}
+                {% else %}
+                    <span>{{ field.label|escape}}:</span>
+                    {{ field|escape }}
+                {% endif %}
+                {% if field.errors %}
+                    <div class="errorlist">
+                    {% for error in field.errors %}
+                        <li>{{ error|escape }}</li>
+                    {% endfor %}
+                    </div>
+                {% endif %}
+              {% endfor %}
             </div>
             <input type="hidden" id="query" name="query" />
             <input type="hidden" id="query_aliases" name="query_aliases" />

@@ -410,8 +410,7 @@ class GraphDatabase(BlueprintsGraphDatabase):
             where = u"WHERE {0} ".format(conditions)
         else:
             where = u""
-        q = u"START {0} {1}{2}RETURN {3}".format(origins, match,
-                                                          where, results)
+        q = u"START {0} {1}{2}RETURN{3}".format(origins, match, where, results)
         print q
         return q, query_params
 
@@ -550,8 +549,7 @@ class GraphDatabase(BlueprintsGraphDatabase):
                             results_set.add(result)
                         elif property_aggregate and not only_ids:
                             if property_aggregate in AGGREGATES:
-                                result = u"{0}(`{1}`.`{2}`) \
-                                    as `{0}({1}.{2})`".format(
+                                result = u"{0}(`{1}`.`{2}`) as `{0}({1}.{2})`".format(
                                     unicode(property_aggregate),
                                     unicode(alias).replace(u"`", u"\\`"),
                                     unicode(property_value).replace(u"`",

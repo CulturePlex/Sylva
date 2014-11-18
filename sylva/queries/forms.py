@@ -46,3 +46,32 @@ class QueryDeleteConfirmForm(forms.Form):
                                         "will be removed"),
                                 choices=CHOICES, required=True,
                                 widget=forms.RadioSelect())
+
+
+class QueryOptionsForm(forms.Form):
+    SHOW_MODE_CHOICES = (
+        ("per_page", _("Per page")),
+        ("in_total", _("In total")),
+    )
+    ORDER_BY_CHOICES = (
+        ("default", _("Default")),
+    )
+    rows_number = forms.IntegerField(label=_("Show"),
+                                     initial=100,
+                                     required=True,
+                                     widget=forms.NumberInput(
+                                         attrs={'class': 'rows_number'}))
+    show_mode = forms.ChoiceField(label=_("rows"),
+                                  choices=SHOW_MODE_CHOICES,
+                                  initial=([c[0] for c in
+                                           SHOW_MODE_CHOICES]),
+                                  required=True,
+                                  widget=forms.Select(
+                                      attrs={'class': 'show_mode'}))
+    select_order_by = forms.ChoiceField(label=_("and sort by"),
+                                        choices=ORDER_BY_CHOICES,
+                                        initial=([c[0] for c in
+                                                 ORDER_BY_CHOICES]),
+                                        required=True,
+                                        widget=forms.Select(
+                                            attrs={'class': 'select_order'}))
