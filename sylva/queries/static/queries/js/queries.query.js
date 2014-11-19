@@ -635,6 +635,7 @@ diagram.aggregates = [
             divFields.addClass("hidden");
             divFields.attr("id", idFields);
             countFields = 0;
+            /*
             if(diagram.fieldsForRels[name].length > 0) {
                 // If we have properties, we add the button to
                 // minimize/maximize the box
@@ -661,7 +662,7 @@ diagram.aggregates = [
                     addFieldIcon.attr('id', 'add-field-icon-prop')
                     addField.append(addFieldIcon);
                 }
-            }
+            }*/
             divCornerButtons.append(anchorEditSelect);
             divAddBox = $("<DIV>");
             divAddBox.append(divFields);
@@ -1603,7 +1604,6 @@ diagram.aggregates = [
 
             if(type == 'source') {
                 var sourceAnchors = [[0, anchor, 1, 0], [1, anchor, 1, 0]];
-                console.log(sourceAnchors);
                 relationshipOptions = {
                     endpoint: [
                         "Image",{
@@ -1955,6 +1955,7 @@ diagram.aggregates = [
             patternsLength = patterns.length;
             checkboxes = jsonDict["checkboxes"];
             aggregates = jsonDict["aggregates"];
+            aggregatesRels = jsonDict["aggregatesRels"];
             var fieldIndex = 0;
             var conditionsIndex = 0;
 
@@ -2075,28 +2076,6 @@ diagram.aggregates = [
                 var optionElem = $(selectsElem).children()[optionsLength - 1];
                 $(optionElem).attr('selected', 'selected');
             }
-            // We check the checkboxes to return
-            for(key in checkboxes) {
-                if(checkboxes.hasOwnProperty(key)) {
-                    var property = checkboxes[key];
-                    var fieldIndex = parseInt(key) + 1;
-                    $("#field" + fieldIndex + " .select-property").val(property);
-                    $("#field" + fieldIndex + ' .checkbox-property').click();
-                }
-            }
-            // We check all the necessary logic for the aggregates
-            for(key in aggregates) {
-                if(aggregates.hasOwnProperty(key)) {
-                    // We get the neccesary info to activate the advanced mode of the box
-                    var selector = $("#field" + fieldIndex + " .select-aggregate");
-                    var idBox = selector.parent().parent().parent().parent().parent().attr('id')
-                    var typename = idBox.split('-')[2];
-                    $('#' + idBox + ' #inlineAdvancedMode_' + typename).click();
-                    // We set the aggregate value
-                    var aggregate = aggregates[key];
-                    selector.val(aggregate);
-                }
-            }
             // Load the relationships between the boxes
             for(var i = 0; i < patternsLength; i++) {
                 var source = jsonDict["query"]["patterns"][i].source.alias;
@@ -2131,6 +2110,44 @@ diagram.aggregates = [
                 // (edit alias feature)
                 diagram.loadQueryWithAlias(idRelBox, relation, relationValue, false)
             }
+            // We check the checkboxes to return
+            for(key in checkboxes) {
+                if(checkboxes.hasOwnProperty(key)) {
+                    var property = checkboxes[key];
+                    var fieldIndex = parseInt(key) + 1;
+                    $("#field" + fieldIndex + " .select-property").val(property);
+                    $("#field" + fieldIndex + ' .checkbox-property').click();
+                }
+            }
+            // We check all the necessary logic for the aggregates
+            for(key in aggregates) {
+                if(aggregates.hasOwnProperty(key)) {
+                    var selector = $("#field" + key + " .select-aggregate");
+                    var idBox = selector.parent().parent().parent().parent().parent().attr('id')
+                    var typename = idBox.split('-')[2];
+                    $('#' + idBox + ' #inlineAdvancedMode_' + typename).click();
+                    // We set the aggregate value
+                    var aggregateValue = aggregates[key][0];
+                    var aggregateDistinct = aggregates[key][1];
+                    $('option[value="' + aggregateValue + '"][data-distinct=' + aggregateDistinct + ']', selector).attr("selected", "selected");
+                }
+            }
+
+            // We check all the necessary logic for the aggregates in relationships
+            for(key in aggregatesRels) {
+                if(aggregatesRels.hasOwnProperty(key)) {
+                    var aggregateValue = aggregatesRels[key][0];
+                    var aggregateDistinct = aggregatesRels[key][1];
+                    var idBox = aggregatesRels[key][2];
+                    var selector = $("#" + key + " .select-aggregate");
+                    var typename = idBox.split('-')[2];
+                    $('#' + idBox + ' #inlineShowHideLink_' + typename).click();
+                    $('#' + idBox + ' #inlineAdvancedMode_' + typename).click();
+                    // We set the aggregate value
+                    selector.val(aggregateValue);
+                    selector.attr('data-distinct', aggregateDistinct);
+                }
+            }
 
             jsPlumb.repaintEverything();
         } catch(error) {
@@ -2154,6 +2171,7 @@ diagram.aggregates = [
         var typesDict = {};
         var checkboxesDict = {};
         var aggregatesDict = {};
+        var aggregatesDictRels = {};
         var fieldsConditionsDict = {};
         // We get the id, typename, left and top of the boxes
         $.each(elements, function(index, element) {
@@ -2185,9 +2203,26 @@ diagram.aggregates = [
         });
         // We get the aggregates if they exist
         $.each(aggregates, function(index, aggregate) {
-            var aggregateValue = $(aggregate).val();
-            if(aggregateValue) {
-                aggregatesDict[index] = aggregateValue;
+            // We get the value to know if we treat relationships or nodes
+            var diagramSelector = $(aggregate).parent().parent().parent().parent().parent().parent();
+            if($(diagramSelector).attr('id') == "diagramContainer") {
+                // This branch if for the relationships case
+                var aggregateValue = $(aggregate).val();
+                if(aggregateValue) {
+                    var aggregateDistinct = $('option:selected', aggregate).data('distinct');
+                    var idBoxRel = $(aggregate).parent().parent().parent().parent().parent().attr('id');
+                    var fieldId = $(aggregate).parent().attr('id');
+                    aggregatesDictRels[fieldId] = [aggregateValue, aggregateDistinct, idBoxRel];
+                }
+            } else {
+                // This branch if for the nodes case
+                var aggregateValue = $(aggregate).val();
+                if(aggregateValue) {
+                    var aggregateDistinct = $('option:selected', aggregate).data('distinct');
+                    // The index + 1 is because the field index start at 1
+                    aggregatesDict[index + 1] = [aggregateValue, aggregateDistinct];
+                }
+
             }
         });
         // We get the fields that are conditions to construct the box properly
@@ -2205,6 +2240,7 @@ diagram.aggregates = [
         fieldsDict['fields'] = diagram.fieldsForNodes;
         fieldsDict['checkboxes'] = checkboxesDict;
         fieldsDict['aggregates'] = aggregatesDict;
+        fieldsDict['aggregatesRels'] = aggregatesDictRels;
         fieldsDict['fieldsConditions'] = fieldsConditionsDict;
         fieldsDict['fieldRelsCounter'] = diagram.fieldRelsCounter;
         saveElements['fields'] = fieldsDict;
@@ -2441,7 +2477,7 @@ diagram.aggregates = [
      * We check if we have one property clicked at least, to allow the
      * executing of the query.
      */
-    $("#diagramContainer").on('click', '.checkbox-property', function() {
+    $("#diagramContainer").on('change', '.checkbox-property', function() {
         var checkboxes = $('.checkbox-property');
         var checkBoxesClicked = checkboxes.filter(function() {
             return $(this).prop('checked');

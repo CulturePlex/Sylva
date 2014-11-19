@@ -236,17 +236,18 @@ def queries_new_results(request, graph_slug):
     # We store the results count in the session variable.
     query_results_length = len(query_results)
     request.session['results_count'] = query_results_length
-    # We treat the headers
-    if headers:
-        # If the results have headers, we get the position 0
-        # and then the results.
-        headers_results = query_results[0]
-        # Also, we need to substract 1 to the results count
-        if query_results_length > 1:
-            request.session['results_count'] = query_results_length - 1
-            query_results = query_results[1:]
-        else:
-            query_results = []
+    # We need to substract 1 to the results count
+    headers_results = []
+    if query_results_length > 1:
+        # We treat the headers
+        if headers:
+            # If the results have headers, we get the position 0
+            # and then the results.
+            headers_results = query_results[0]
+        request.session['results_count'] = query_results_length - 1
+        query_results = query_results[1:]
+    else:
+        query_results = []
     # We add pagination for the list of queries
     page = request.GET.get('page', 1)
     try:
@@ -374,7 +375,7 @@ def queries_query_results(request, graph_slug, query_id):
     # We check if the query saved and the query edited are different
     # In that case, we use the query edited
     if query_dict == '' or query_dict is None:
-        query_dict = query.query_dict
+        query_dict = request.session.get('query', query.query_dict)
     else:
         query_dict = json.loads(query_dict)
     different_queries = query.query_dict != query_dict
@@ -433,6 +434,9 @@ def queries_query_results(request, graph_slug, query_id):
             order_by = (alias, prop, order_dir)
         if different_queries and (
                 query.id == request.session.get('query_id', None)):
+            # We check if the type of query_results is appropiate
+            if type(query_dict) != 'dict':
+                query_dict = json.loads(query_dict)
             query_results = graph.query(query_dict, order_by=order_by,
                                         headers=headers)
         else:
@@ -456,17 +460,18 @@ def queries_query_results(request, graph_slug, query_id):
     request.session['results_count'] = query_results_length
     # We store the datetime of execution
     query.last_run = datetime.now()
-    # We treat the headers
-    if headers:
-        # If the results have headers, we get the position 0
-        headers_results = query_results[0]
-        # and then the results.
-        if query_results_length > 1:
-            request.session['results_count'] = query_results_length - 1
-            query_results = query_results[1:]
-            query.results_count = request.session.get('results_count', None)
-        else:
-            query_results = []
+    # And then the results
+    headers_results = []
+    if query_results_length > 1:
+        # We treat the headers
+        if headers:
+            # If the results have headers, we get the position 0
+            headers_results = query_results[0]
+        request.session['results_count'] = query_results_length - 1
+        query_results = query_results[1:]
+        query.results_count = request.session.get('results_count', None)
+    else:
+        query_results = []
     # We save the new changes of the query
     query.save()
     # We add pagination for the list of queries

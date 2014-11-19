@@ -562,7 +562,7 @@ class GraphDatabase(BlueprintsGraphDatabase):
                             )
                             results_set.add(result)
                         if property_distinct:
-                            distinct_clause = u"DISTINCT"
+                            distinct_clause = u" DISTINCT"
         properties_results = u", ".join(results_set)
         results = u"{0} {1}".format(distinct_clause, properties_results)
         return results

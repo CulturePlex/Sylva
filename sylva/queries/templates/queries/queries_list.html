@@ -108,7 +108,14 @@
                 <td id="query-name" class=""><div class="shorten-text">{{ query.name }}</div></td>
                 <td id="query-description"><div class="shorten-text">{{ query.description }}</div></td>
                 <td id="query-results-count"><div class="shorten-text">{{ query.results_count }}</div></td>
-                <td id="query-last-run"><div class="shorten-text">{{ query.last_run }}</div></td>
+                <td id="query-last-run"><div class="shorten-text">
+                    {% if query.last_run == None %}
+                        {% trans "Not executed yet" %}
+                    {% else %}
+                        {{ query.last_run }}
+                    {% endif %}
+                    </div>
+                </td>
             </tr>
         {% endfor %}
         </table>
