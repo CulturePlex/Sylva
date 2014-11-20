@@ -76,13 +76,6 @@ class ReportTemplate(models.Model):
         self.save(update_fields=["last_run"])
         report.save()
 
-    def historify(self):
-        report_dict = self.dictify()
-        reports = self.reports.order_by('-date_run')
-        report_dict['history'] = [{k: v for (k, v) in report.dictify().items()
-                                   if k != 'table'} for report in reports]
-        return report_dict
-
     def dictify(self):
         template = {
             'name': self.name,

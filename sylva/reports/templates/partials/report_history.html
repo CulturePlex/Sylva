@@ -1,6 +1,6 @@
 {% load i18n %}
 
-{% verbatim %}
+
 <div class="cont">
 <div ng-if="template.history.length > 0">
   <!--Meta Form/Queries-->
@@ -9,15 +9,34 @@
     <div id="history">
       <ul>
         <li ng-repeat="report in template.history">
+          {% verbatim %}
           <h2><a href="" ng-click="getReport(report.id)">{{ report.date_run }}</h2>
+          {% endverbatim %}
         </li>
       </ul>
+        <span class='pagination-info'>
+          
+            {% trans "Showing" %}
+            {% verbatim %} {{ template.num_objects }} {% endverbatim %} 
+            {% trans "of" %}
+            {% verbatim %} {{ template.total_count }} {% endverbatim %} 
+            {% trans "Report Templates." %}
+          
+            <span ng-if="template.previous_page_number"><a ng-click="getPage(template.previous_page_number)"><span class="symbol-medium">←</span></a></span>
+            <span>
+            {% trans "Page" %} 
+            {% verbatim %} {{template.page_number}} {% endverbatim %}
+            {% trans "of" %}
+            {% verbatim %} {{template.num_pages}} {% endverbatim %}
+            <span ng-if="template.next_page_number"><a ng-click="getPage(template.next_page_number)"><span class="symbol-medium">→</span></a>
+        </span>
     </div><!--history-->  
   </div><!--content2-first-->
 
   <!--Report Info/Designer-->
   <div class="content-divider" ng-hide="editable"></div>
 
+  {% verbatim %}
   <div class="content2-cont" ng-hide="editable">
 
     <div class="row">
@@ -42,10 +61,10 @@
     
 
   </div> <!--content2-->
-
+  {% endverbatim %}
 </div><!--if-->
 <div ng-if="template.history.length === 0">
-{% endverbatim %}
+
 
   <h2>{% trans "This report hasn't been run." %}</h2>
 </div>

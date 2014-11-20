@@ -157,24 +157,24 @@ def templates_endpoint(request, graph_slug):
         paginator = Paginator(templates, 10)
         page = request.GET.get('page')
         try:
-            templates = paginator.page(page)
+            templates_paginator = paginator.page(page)
         except PageNotAnInteger:
             # If page is not an integer, deliver first page.
-            templates = paginator.page(1)
+            templates_paginator = paginator.page(1)
         except EmptyPage:
             # If page is out of range (e.g. 9999), deliver last page of results
-            templates = paginator.page(paginator.num_pages)
+            templates_paginator = paginator.page(paginator.num_pages)
         template_list = [
-            template.dictify() for template in templates.object_list
+            template.dictify() for template in templates_paginator.object_list
         ]
-        has_next = templates.has_next()
+        has_next = templates_paginator.has_next()
         if has_next:
-            next_page_number = templates.next_page_number()
+            next_page_number = templates_paginator.next_page_number()
         else:
             next_page_number = None
-        has_previous = templates.has_previous()
+        has_previous = templates_paginator.has_previous()
         if has_previous:
-            previous_page_number = templates.previous_page_number()
+            previous_page_number = templates_paginator.previous_page_number()
         else:
             previous_page_number = None
         response = {
@@ -183,7 +183,7 @@ def templates_endpoint(request, graph_slug):
             'total_count': paginator.count,
             'num_objects': len(template_list),
             'next_page_number': next_page_number,
-            'page_number': templates.number,
+            'page_number': templates_paginator.number,
             'previous_page_number': previous_page_number
         }
     return HttpResponse(json.dumps(response), content_type='application/json')
@@ -199,7 +199,43 @@ def history_endpoint(request, graph_slug):
             template = get_object_or_404(
                 ReportTemplate, slug=request.GET['template']
             )
-            response = template.historify()
+            report_dict = template.dictify()
+            reports = template.reports.order_by('-date_run')
+            paginator = Paginator(reports, 5)
+            page = request.GET.get('page')
+            try:
+                reports_paginator = paginator.page(page)
+            except PageNotAnInteger:
+                # If page is not an integer, deliver first page.
+                reports_paginator = paginator.page(1)
+            except EmptyPage:
+                # If page is out of range (e.g. 9999), deliver last page of results
+                reports_paginator = paginator.page(paginator.num_pages)
+            report_list = [
+                report.dictify() for report in reports_paginator.object_list
+            ]
+            has_next = reports_paginator.has_next()
+            if has_next:
+                next_page_number = reports_paginator.next_page_number()
+            else:
+                next_page_number = None
+            has_previous = reports_paginator.has_previous()
+            if has_previous:
+                previous_page_number = reports_paginator.previous_page_number()
+            else:
+                previous_page_number = None
+            report_dict['history'] = [{k: v for (k, v) in report.items()
+                                   if k != 'table'} for report in report_list]
+            report_dict.update({
+                'reports': report_list,
+                'num_pages': paginator.num_pages,
+                'total_count': paginator.count,
+                'num_objects': len(report_list),
+                'next_page_number': next_page_number,
+                'page_number': reports_paginator.number,
+                'previous_page_number': previous_page_number
+            })
+            response = report_dict
         if request.GET.get('report', ''):
             report = get_object_or_404(Report, id=request.GET['report'])
             response = report.dictify()

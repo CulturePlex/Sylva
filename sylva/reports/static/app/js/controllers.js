@@ -227,21 +227,27 @@ controllers.controller('ReportHistoryCtrl', [
     'breadService',
     function ($scope, $controller, api, breadService) {
         $controller('BaseReportCtrl', {$scope: $scope});
-        api.history.history({
-            graphSlug: $scope.slugs.graph,
-            template: $scope.slugs.template 
-        }, function (data) {
-            for (var i=0; i<data.history.length; i++) {
-                var report = data.history[i]
-                ,   date = JSON.parse(report.date_run)
-                ,   datetime = new Date(date)
-                report.date_run = datetime.toUTCString().replace(/\s*(GMT|UTC)$/, "")
-            }
+        $scope.getPage = function (pageNum) {
+            api.history.history({
+                graphSlug: $scope.slugs.graph,
+                template: $scope.slugs.template,
+                page: pageNum
+            }, function (data) {
+                console.log('data', data.num_objects)
+                for (var i=0; i<data.history.length; i++) {
+                    var report = data.history[i]
+                    ,   date = JSON.parse(report.date_run)
+                    ,   datetime = new Date(date)
+                    report.date_run = datetime.toUTCString().replace(/\s*(GMT|UTC)$/, "")
+                }
 
-            breadService.updateName(data.name)
-            $scope.template = data;
-            if (data.history.length > 0) $scope.getReport(data.history[0].id)
-        });
+                breadService.updateName(data.name)
+                $scope.template = data;
+                if (data.history.length > 0) $scope.getReport(data.history[0].id)
+            });
+        }
+
+        $scope.getPage(1)
 
         $scope.getReport = function (id) {
             api.history.report({
