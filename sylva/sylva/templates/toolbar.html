@@ -118,6 +118,24 @@
                     </a>
                 </td>
             </tr>
+            {% if nodes %}
+            <tr>
+                <td class="dataActions">
+                    <a class="dataOption list" href="{% url "graph_export_table_csv" graph.slug %}" title="{% trans "Export table as CSV files" %}">
+                        {% trans "Export table as CSV" %}
+                    </a>
+                </td>
+            </tr>
+            {% endif %}
+            {% if csv_results %}
+            <tr>
+                <td class="dataActions">
+                    <a class="dataOption list" href="{% url "graph_export_queries_csv" graph.slug %}" title="{% trans "Export query as CSV files" %}">
+                        {% trans "Export query as CSV" %}
+                    </a>
+                </td>
+            </tr>
+            {% endif %}
         {% endif %}
         {% if ENABLE_CLONING and not graph.schema.is_empty and not graph.is_empty %}
             <tr>

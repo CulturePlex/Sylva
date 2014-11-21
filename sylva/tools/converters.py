@@ -339,8 +339,10 @@ class CSVTableConverter(BaseConverter):
                 csv_node_values = []
                 node_properties = node.properties
                 for header_prop in csv_header:
-                    prop_value = node_properties[header_prop]
-                    csv_node_values.append(prop_value.encode('utf-8'))
+                    prop_value = node_properties.get(header_prop, 0)
+                    if isinstance(prop_value, unicode):
+                        prop_value = prop_value.encode('utf-8')
+                    csv_node_values.append(prop_value)
                 csv_writer.writerow(csv_node_values)
             zip_file.writestr(csv_name, csv_buffer.getvalue())
             csv_buffer.close()
