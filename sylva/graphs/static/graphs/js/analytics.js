@@ -111,8 +111,34 @@ var initAnalytics = function($) {
             },
             point: {
               events: {
-                click: function () {
-                  var elements = sylva.analyticAffectedNodes[this.x];
+                mouseOver: function() {
+                  var id = this.x;
+                  var sylvaList = sylva.analyticAffectedNodes[id].map(String);
+                  sylva.Sigma.changeSigmaTypes("aura", sylvaList);
+                },
+                mouseOut: function() {
+                  var point = this;
+                  if(!point.selected) {
+                    sylva.Sigma.cleanSigmaTypes();
+                    // If we had selected nodes, we keep the aura
+                    if(sylva.listClickNodes.length > 0) {
+                      sylva.Sigma.changeSigmaTypes("aura", sylva.listClickNodes);
+                    }
+                  }
+                },
+                click: function() {
+                  var point = this;
+                  if(!point.selected) {
+                    var id = this.x;
+                    var sylvaList = sylva.analyticAffectedNodes[id].map(String);
+                    sylva.Sigma.changeSigmaTypes("aura", sylvaList);
+                    // We store the list of nodes
+                    sylva.listClickNodes = sylvaList;
+                  } else {
+                    sylva.Sigma.cleanSigmaTypes();
+                    // We reset the list of nodes
+                    sylva.listClickNodes = [];
+                  }
                 }
               }
             }
