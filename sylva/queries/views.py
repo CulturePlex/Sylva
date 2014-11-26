@@ -465,11 +465,18 @@ def queries_query_results(request, graph_slug, query_id):
             order_by = (alias, prop, order_dir)
         if different_queries and (
                 query.id == request.session.get('query_id', None)):
-            # We check if the type of query_results is appropiate
-            if type(query_dict) != 'dict':
+            # We check if the type of query_dict is appropiate
+            if not isinstance(query_dict, dict):
                 query_dict = json.loads(query_dict)
             query_results = graph.query(query_dict, order_by=order_by,
                                         headers=headers)
+            request.session['query'] = json.dumps(query_dict)
+            if query_aliases == "" or query_fields == "":
+                query_aliases = request.session['query_aliases']
+                query_fields = request.session['query_fields']
+            else:
+                request.session['query_aliases'] = query_aliases
+                request.session['query_fields'] = query_fields
         else:
             query_results = query.execute(order_by=order_by, headers=headers)
         if not query_results:
