@@ -128,6 +128,7 @@ var initAnalytics = function($) {
                 },
                 click: function() {
                   var point = this;
+                  sylva.Sigma.cleanSigmaTypes();
                   if(!point.selected) {
                     var id = this.x;
                     var sylvaList = sylva.analyticAffectedNodes[id].map(String);
@@ -135,7 +136,6 @@ var initAnalytics = function($) {
                     // We store the list of nodes
                     sylva.listClickNodes = sylvaList;
                   } else {
-                    sylva.Sigma.cleanSigmaTypes();
                     // We reset the list of nodes
                     sylva.listClickNodes = [];
                   }
