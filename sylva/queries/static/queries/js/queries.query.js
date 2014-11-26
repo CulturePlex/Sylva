@@ -864,6 +864,9 @@ diagram.aggregates = [
                         'margin-left': '307px'
                     });
                 } else {
+                    // We need the aggregate value in case that we need to
+                    // change the option in the order by select
+                    var aggregate = $(selectorAggregate).val();
                     // We change the width of the box div
                     $(selectorBox).css({
                         'width': '360px'
@@ -878,6 +881,28 @@ diagram.aggregates = [
                     });
                     // We change the value of the aggregate
                     $(selectorAggregate).val('');
+                    // We need to check if we had the checkbox clicked to
+                    // restore the value in the order by select
+                    var checkboxClicked = $(selectorAggregate).prev().prop('checked');
+                    if(checkboxClicked) {
+                        $this = $(selectorAggregate);
+                        var propertyValue = $this.next().val();
+                        var titleDiv = $this.prev().parent().parent().parent().parent().prev();
+                        var boxAlias = $('select', titleDiv).val();
+                        var orderByField = boxAlias + '.' + propertyValue;
+                        // We add the new option with the aggregate
+                        var aggOrderByField = aggregate + '(' + orderByField + ')';
+
+                        // We remove the option because we have a new option
+                        $('#id_select_order_by option[value="' + aggOrderByField + '"]').remove();
+
+                        // We add the orderByField to the select
+                        var selectNewOption = $("<OPTION>");
+                        //selectNewOption.attr('id', );
+                        selectNewOption.attr('value', orderByField);
+                        selectNewOption.html(orderByField);
+                        $('#id_select_order_by').append(selectNewOption);
+                    }
                 }
 
                 jsPlumb.repaintEverything();
@@ -2110,15 +2135,6 @@ diagram.aggregates = [
                 // (edit alias feature)
                 diagram.loadQueryWithAlias(idRelBox, relation, relationValue, false)
             }
-            // We check the checkboxes to return
-            for(key in checkboxes) {
-                if(checkboxes.hasOwnProperty(key)) {
-                    var property = checkboxes[key];
-                    var fieldIndex = parseInt(key) + 1;
-                    $("#field" + fieldIndex + " .select-property").val(property);
-                    $("#field" + fieldIndex + ' .checkbox-property').click();
-                }
-            }
             // We check all the necessary logic for the aggregates
             for(key in aggregates) {
                 if(aggregates.hasOwnProperty(key)) {
@@ -2130,6 +2146,15 @@ diagram.aggregates = [
                     var aggregateValue = aggregates[key][0];
                     var aggregateDistinct = aggregates[key][1];
                     $('option[value="' + aggregateValue + '"][data-distinct=' + aggregateDistinct + ']', selector).attr("selected", "selected");
+                }
+            }
+            // We check the checkboxes to return
+            for(key in checkboxes) {
+                if(checkboxes.hasOwnProperty(key)) {
+                    var property = checkboxes[key];
+                    var fieldIndex = parseInt(key) + 1;
+                    $("#field" + fieldIndex + " .select-property").val(property);
+                    $("#field" + fieldIndex + ' .checkbox-property').click();
                 }
             }
 
@@ -2496,6 +2521,58 @@ diagram.aggregates = [
                 'color': '#9b9b9b',
                 'background-color': '#f2f2f2'
             });
+        }
+
+        // In this part we are going to treat the adding or removing
+        // of the property in the order by select
+        var $this = $(this);
+        var propertyValue = $this.next().next().val();
+        var titleDiv = $this.parent().parent().parent().parent().prev();
+        var boxAlias = $('select', titleDiv).val();
+        var orderByField = boxAlias + '.' + propertyValue;
+        // We check if there is an aggregate selected
+        var aggregate = $this.next().val();
+        if(aggregate) {
+            orderByField = aggregate + '(' + orderByField + ')';
+        }
+        if($this.prop("checked")) {
+            // We add the orderByField to the select
+            var selectNewOption = $("<OPTION>");
+            //selectNewOption.attr('id', );
+            selectNewOption.attr('value', orderByField);
+            selectNewOption.html(orderByField);
+            $('#id_select_order_by').append(selectNewOption);
+        } else {
+            // We remove the option because the checbox is non clicked
+            $('#id_select_order_by option[value="' + orderByField + '"]').remove();
+        }
+    });
+
+    /**
+     * We check if we need to change the property name in the order by
+     * select when we select an aggregate.
+     */
+    $("#diagramContainer").on('change', '.select-aggregate', function() {
+        var $this = $(this);
+        var checkboxClicked = $this.prev().prop('checked');
+        if(checkboxClicked) {
+            var propertyValue = $this.next().val();
+            var titleDiv = $this.prev().parent().parent().parent().parent().prev();
+            var boxAlias = $('select', titleDiv).val();
+            var orderByField = boxAlias + '.' + propertyValue;
+
+            // We remove the option because we have a new option
+            $('#id_select_order_by option[value="' + orderByField + '"]').remove();
+
+            // We add the new option with the aggregate
+            var aggregate = $this.val();
+            orderByField = aggregate + '(' + orderByField + ')';
+            // We add the orderByField to the select
+            var selectNewOption = $("<OPTION>");
+            //selectNewOption.attr('id', );
+            selectNewOption.attr('value', orderByField);
+            selectNewOption.html(orderByField);
+            $('#id_select_order_by').append(selectNewOption);
         }
     });
 
@@ -2944,6 +3021,20 @@ diagram.aggregates = [
         var iconEditSelect = $('#' + idBox + ' #inlineEditSelect_' + typeName + ' i');
         iconEditSelect.removeClass('fa fa-undo icon-style');
         iconEditSelect.addClass('fa fa-pencil icon-style');
+
+        // We check if we need to change the alias in the order by select
+        var orderByOptions = $('#id_select_order_by option');
+        $.each(orderByOptions, function(index, elem) {
+            var orderByAlias = $(elem).val();
+            var oldOptionVal = orderByAlias.split(".");
+            var oldOptionAlias = oldOptionVal[0];
+            if(oldOptionAlias == oldAlias) {
+                // We change the value of the option
+                var newOptionVal = newAlias + "." + oldOptionVal[1];
+                $(elem).attr("value", newOptionVal);
+                $(elem).html(newOptionVal);
+            }
+        });
     });
 
     /**
@@ -3048,24 +3139,6 @@ diagram.aggregates = [
             });
         });
     });
-
-    // /**
-    //  * Handler for create the JSON file
-    //  */
-    // $(document).on('click', '#run-button', function(event) {
-    //     var query = diagram.generateQuery();
-    //     console.log("query: ");
-    //     console.log(query);
-
-    //     var queryJson = JSON.stringify(query);
-
-    //     $.ajax({
-    //         type: "POST",
-    //         url: diagram.url_query,
-    //         data: {"query": queryJson},
-    //         success: function (data) {}
-    //     });
-    // });
 
     /**
      * Handler for create the JSON file

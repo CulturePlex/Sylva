@@ -171,6 +171,7 @@ def queries_new_results(request, graph_slug):
     order_by_field = request.GET.get('order_by', 'default')
     order_dir = request.GET.get('dir', 'desc')
     page_dir = request.GET.get('page_dir', 'desc')
+    select_order_by = None
     # We get the information to mantain the last query in the builder
     query = request.POST.get("query", "").strip()
     query_aliases = request.POST.get("query_aliases", "").strip()
@@ -189,20 +190,33 @@ def queries_new_results(request, graph_slug):
     if request.POST:
         data = request.POST.copy()
         request.session['data'] = data
-        form = QueryOptionsForm(data=data)
+        # We add the new choice in the form
+        new_choice_order_by = data.get('select_order_by')
+        # form.add_new_choice(new_choice_order_by)
+        form = QueryOptionsForm(data=data,
+                                new_choice=new_choice_order_by)
         if form.is_valid():
             rows_number = form.cleaned_data["rows_number"]
             show_mode = form.cleaned_data["show_mode"]
+            select_order_by = form.cleaned_data["select_order_by"]
     else:
         data = request.session.get('data', None)
-        form = QueryOptionsForm(data=data)
+        # We add the new choice in the form
+        new_choice_order_by = data.get('select_order_by')
+        # form.add_new_choice(new_choice_order_by)
+        form = QueryOptionsForm(data=data,
+                                new_choice=new_choice_order_by)
         if form.is_valid():
             rows_number = form.cleaned_data["rows_number"]
             show_mode = form.cleaned_data["show_mode"]
+            select_order_by = form.cleaned_data["select_order_by"]
     headers = True
-    if order_by_field == 'default':
+    if order_by_field == 'default' and select_order_by == 'default':
         query_results = graph.query(query_dict, headers=headers)
+    # elif order_by_field != 'default' and select_order_by == None:
     else:
+        if order_by_field == 'default' and select_order_by != 'default':
+            order_by_field = select_order_by
         page_dir = order_dir
         # We check the properties of the results to see if we have
         # aggregates. This is for a special treatment in the order_by.
@@ -372,6 +386,9 @@ def queries_query_results(request, graph_slug, query_id):
     query_dict = request.POST.get("query", "").strip()
     query_aliases = request.POST.get("query_aliases", "").strip()
     query_fields = request.POST.get("query_fields", "").strip()
+    # We initialize the select_order_by because we can execute queries directly
+    # from the list of queries
+    select_order_by = 'default'
     # We check if the query saved and the query edited are different
     # In that case, we use the query edited
     if query_dict == '' or query_dict is None:
@@ -391,20 +408,32 @@ def queries_query_results(request, graph_slug, query_id):
     if request.POST:
         data = request.POST.copy()
         request.session['data'] = data
-        form = QueryOptionsForm(data=data)
+        # We add the new choice in the form
+        new_choice_order_by = data.get('select_order_by')
+        # form.add_new_choice(new_choice_order_by)
+        form = QueryOptionsForm(data=data,
+                                new_choice=new_choice_order_by)
         if form.is_valid():
             rows_number = form.cleaned_data["rows_number"]
             show_mode = form.cleaned_data["show_mode"]
+            select_order_by = form.cleaned_data["select_order_by"]
     elif not request.POST and (
             query.id == request.session.get('query_id', None)):
         data = request.session.get('data', None)
-        form = QueryOptionsForm(data=data)
+        # We add the new choice in the form
+        new_choice_order_by = None
+        if data:
+            new_choice_order_by = data.get('select_order_by', None)
+        # form.add_new_choice(new_choice_order_by)
+        form = QueryOptionsForm(data=data,
+                                new_choice=new_choice_order_by)
         if form.is_valid():
             rows_number = form.cleaned_data["rows_number"]
             show_mode = form.cleaned_data["show_mode"]
+            select_order_by = form.cleaned_data["select_order_by"]
     headers = True
     # We need the order_dir for the icons in the frontend
-    if order_by_field == 'default':
+    if order_by_field == 'default' and select_order_by == 'default':
         if different_queries and (
                 query.id == request.session.get('query_id', None)):
             query_results = graph.query(query_dict, headers=headers)
@@ -417,6 +446,8 @@ def queries_query_results(request, graph_slug, query_id):
             request.session['query_aliases'] = query.query_aliases
             request.session['query_fields'] = query.query_fields
     else:
+        if order_by_field == 'default' and select_order_by != 'default':
+            order_by_field = select_order_by
         page_dir = order_dir
         # We check the properties of the results to see if we have
         # aggregates. This is for a special treatment in the order_by.

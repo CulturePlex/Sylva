@@ -68,3 +68,26 @@ class QueryOptionsForm(forms.Form):
                                   required=True,
                                   widget=forms.Select(
                                       attrs={'class': 'show_mode'}))
+    select_order_by = forms.ChoiceField(label=_("and sort by"),
+                                        choices=ORDER_BY_CHOICES,
+                                        initial=([c[0] for c in
+                                                 ORDER_BY_CHOICES]),
+                                        required=True,
+                                        widget=forms.Select(
+                                            attrs={'class': 'select_order'}))
+
+    def __init__(self, new_choice=None, *args, **kwargs):
+        if new_choice:
+            self.ORDER_BY_CHOICES += ((new_choice, new_choice),)
+            # We add the new choice to the choices of the select_order_by
+            select_order_by = self.base_fields.get('select_order_by')
+            select_order_by.choices = self.ORDER_BY_CHOICES
+        else:
+            # We let the choices by default
+            self.ORDER_BY_CHOICES = (("default", _("Default")),)
+            select_order_by = self.base_fields.get('select_order_by')
+            select_order_by.choices = self.ORDER_BY_CHOICES
+        super(QueryOptionsForm, self).__init__(*args, **kwargs)
+
+    def add_new_choice(self, new_choice):
+        self.ORDER_BY_CHOICES += ((new_choice, new_choice),)
