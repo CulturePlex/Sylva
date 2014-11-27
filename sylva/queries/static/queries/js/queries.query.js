@@ -20,6 +20,7 @@ diagram.nodetypesList = {};
 diagram.reltypesCounter = [];
 diagram.reltypesList = {};
 diagram.fieldsForNodes = {};
+diagram.savedFieldsForRels = {};
 diagram.fieldsForRels = {};
 diagram.relindex = {};
 diagram.boxesSelects = {};
@@ -441,6 +442,7 @@ diagram.aggregates = [
                 "display": "none"
             });
             relValue = label + " " + diagram.reltypesCounter[name];
+            diagram.savedFieldsForRels[relValue] = [];
             optionReltype = $("<OPTION>");
             optionReltype.addClass("option-reltype-" + name);
             optionReltype.attr('id', name + diagram.reltypesCounter[name]);
@@ -635,14 +637,13 @@ diagram.aggregates = [
             divFields.addClass("hidden");
             divFields.attr("id", idFields);
             countFields = 0;
-            /*
             if(diagram.fieldsForRels[name].length > 0) {
                 // If we have properties, we add the button to
                 // minimize/maximize the box
                 divCornerButtons.append(anchorShowHide);
                 divCornerButtons.append(anchorAdvancedMode);
                 // Create the select for the properties
-                divField = diagram.addFieldRelRow(name, idFields);
+                divField = diagram.addFieldRelRow(relValue, name, idFields);
                 divFields.append(divField);
                 if (countFields < 5 && countFields > 0) {
                     divFields.addClass("noOverflow");
@@ -662,7 +663,7 @@ diagram.aggregates = [
                     addFieldIcon.attr('id', 'add-field-icon-prop')
                     addField.append(addFieldIcon);
                 }
-            }*/
+            }
             divCornerButtons.append(anchorEditSelect);
             divAddBox = $("<DIV>");
             divAddBox.append(divFields);
@@ -1200,15 +1201,17 @@ diagram.aggregates = [
 
         /**
          * Add a new row for a field in a rel box
+         * - boxAlias
          * - label
          * - idFields
          */
-        diagram.addFieldRelRow = function(label, idFields) {
+        diagram.addFieldRelRow = function(boxAlias, label, idFields) {
             var model, lengthFields, fieldId, selectProperty, selectLookup, field, datatype, optionProperty, inputLookup, divField, divAndOr, selectAndOr, removeField, removeFieldIcon, checkboxProperty;
             var fields = diagram.fieldsForRels[label];
             lengthFields = fields.length;
             diagram.fieldRelsCounter++;
             fieldId = "field-" + diagram.fieldRelsCounter + "-" + label;
+            diagram.savedFieldsForRels[boxAlias].push(fieldId);
             divField = $("<DIV>");
             divField.addClass("field");
             divField.css({
@@ -1971,6 +1974,7 @@ diagram.aggregates = [
             jsonDict = JSON.parse(jsonQuery);
             types = jsonDict["aliases"]["types"];
             nodetypes = {};
+            reltypes = {};
             origins = jsonDict["query"]["origins"];
             originsLength = origins.length;
             conditions = jsonDict["query"]["conditions"];
@@ -1982,6 +1986,7 @@ diagram.aggregates = [
             aggregates = jsonDict["aggregates"];
             aggregatesRels = jsonDict["aggregatesRels"];
             var fieldIndex = 0;
+            var fieldIndexRel = 0;
             var conditionsIndex = 0;
 
             // We save the node types to load the boxes
@@ -1989,8 +1994,12 @@ diagram.aggregates = [
                 if(origins[i].type == "node") {
                     nodeAlias = origins[i].alias;
                     nodetypes[nodeAlias] = types[nodeAlias];
+                } else {
+                    relAlias = origins[i].alias;
+                    reltypes[relAlias] = types[relAlias];
                 }
             }
+
             // We store the conditions in a dictionary
             var conditionsAlias = [];
             for(var i = 0; i < conditionsLength; i++) {
@@ -2101,6 +2110,7 @@ diagram.aggregates = [
                 var optionElem = $(selectsElem).children()[optionsLength - 1];
                 $(optionElem).attr('selected', 'selected');
             }
+
             // Load the relationships between the boxes
             for(var i = 0; i < patternsLength; i++) {
                 var source = jsonDict["query"]["patterns"][i].source.alias;
@@ -2135,6 +2145,81 @@ diagram.aggregates = [
                 // (edit alias feature)
                 diagram.loadQueryWithAlias(idRelBox, relation, relationValue, false)
             }
+
+            // We will check the conditions for the relationships
+            for(key in reltypes) {
+                if(reltypes.hasOwnProperty(key)) {
+                    // We check if we have fields for the rel
+                    if( typeof jsonDict["fieldsRels"] != "undefined") {
+                        id = reltypes[key].id;
+                        typename = reltypes[key].typename;
+                        // We click the button to show the properties
+                        $('#' + id + ' #inlineShowHideLink_' + typename).click();
+                        // We change the counter to get the correct id of the box
+                        counter = parseInt(id.split("-")[1]);
+                        //diagram.Counter = counter - 1;
+                        fieldsRels = jsonDict["fieldsRels"][key];
+                        // Load the conditions for the box
+                        // This loop could be replace if we have a
+                        // dict instead an array
+                        // ---------------------------------------
+                        // Every index in the loop is an index for a field
+                        var boxFields = 0;
+                        fieldIndexRel++;
+                        fieldIndex++;
+                        for(var i = 0; i < fields.length; i++) {
+                            boxFields++;
+                            // If we have more than one field, we add
+                            // a new field
+                            if(boxFields > 1) {
+                                $('#' + id + ' .select-and-or').change();
+                                fieldIndexRel++;
+                                fieldIndex++;
+                            }
+                            // We check if we have conditions
+                            if(jsonDict["fieldsConditions"][fieldIndex - 1]) {
+                                conditions = conditionsDict[key][conditionsIndex];
+                                // lookup
+                                lookup = conditions[0];
+                                // property
+                                property = conditions[1];
+                                // value
+                                // we check if the lookup is 'is between'
+                                if(lookup == "between") {
+                                    value1 = conditions[2][0];
+                                    value2 = conditions[2][1];
+                                } else {
+                                    value = conditions[2];
+                                }
+                                // We have to check the and-or value
+                                andOr = conditions[3];
+                                // We set the values in the correct position
+                                //$field = $('#' + id + " #field" + (i+1));
+                                $('#' + id + " #field-" + fieldIndexRel + "-" + typename + " .select-property").val(property);
+                                $('#' + id + " #field-" + fieldIndexRel + "-" + typename + " .select-property").change();
+                                $('#' + id + " #field-" + fieldIndexRel + "-" + typename + " .select-lookup").val(lookup);
+                                $('#' + id + " #field-" + fieldIndexRel + "-" + typename + " .select-lookup").change();
+                                // If the lookup is "is between", we have two inputs
+                                if(lookup == "between") {
+                                    $($('#' + id + " #field-" + fieldIndexRel + "-" + typename + " .lookup-value")[0]).val(value);
+                                    $($('#' + id + " #field-" + fieldIndexRel + "-" + typename + " .lookup-value")[1]).val(value);
+                                } else {
+                                    $('#' + id + " #field-" + fieldIndexRel + "-" + typename + " .lookup-value").val(value);
+                                }
+                                if(andOr != "not") {
+                                    $('#' + id + " #field-" + fieldIndexRel + "-" + typename + " .select-and-or").val(andOr);
+                                }
+                                conditionsIndex++;
+                            } else {
+                                // If we dont have conditions, we let the user to change the lookups or the 'and-or' select
+                                $('#' + id + " #field-" + fieldIndexRel + "-" + typename + " .select-property").change();
+                            }
+                        }
+                    }
+                    conditionsIndex = 0;
+                }
+            }
+
             // We check all the necessary logic for the aggregates
             for(key in aggregates) {
                 if(aggregates.hasOwnProperty(key)) {
@@ -2146,15 +2231,6 @@ diagram.aggregates = [
                     var aggregateValue = aggregates[key][0];
                     var aggregateDistinct = aggregates[key][1];
                     $('option[value="' + aggregateValue + '"][data-distinct=' + aggregateDistinct + ']', selector).attr("selected", "selected");
-                }
-            }
-            // We check the checkboxes to return
-            for(key in checkboxes) {
-                if(checkboxes.hasOwnProperty(key)) {
-                    var property = checkboxes[key];
-                    var fieldIndex = parseInt(key) + 1;
-                    $("#field" + fieldIndex + " .select-property").val(property);
-                    $("#field" + fieldIndex + ' .checkbox-property').click();
                 }
             }
 
@@ -2171,6 +2247,16 @@ diagram.aggregates = [
                     // We set the aggregate value
                     selector.val(aggregateValue);
                     selector.attr('data-distinct', aggregateDistinct);
+                }
+            }
+
+            // We check the checkboxes to return
+            for(key in checkboxes) {
+                if(checkboxes.hasOwnProperty(key)) {
+                    var property = checkboxes[key];
+                    var fieldIndex = parseInt(key) + 1;
+                    $("#field" + fieldIndex + " .select-property").val(property);
+                    $("#field" + fieldIndex + ' .checkbox-property').click();
                 }
             }
 
@@ -2263,6 +2349,7 @@ diagram.aggregates = [
         saveElements['aliases'] = aliasDict;
         // We store all the important values
         fieldsDict['fields'] = diagram.fieldsForNodes;
+        fieldsDict['fieldsRels'] = diagram.savedFieldsForRels;
         fieldsDict['checkboxes'] = checkboxesDict;
         fieldsDict['aggregates'] = aggregatesDict;
         fieldsDict['aggregatesRels'] = aggregatesDictRels;
@@ -2349,6 +2436,7 @@ diagram.aggregates = [
      */
     $("#diagramContainer").on('change', '.select-and-or-rel', function() {
         var $this = $(this);
+        var boxAlias = $this.data("boxalias");
         var label = $this.data("label");
         var parentId = $this.data("parentid");
 
@@ -2356,7 +2444,7 @@ diagram.aggregates = [
         // of a new field
         var field = $this.parent().parent();
         if($(field).next().length == 0) {
-            divField = diagram.addFieldRelRow(label, parentId);
+            divField = diagram.addFieldRelRow(boxAlias, label, parentId);
 
             $("#" + parentId).append(divField);
         }

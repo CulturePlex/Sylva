@@ -214,6 +214,7 @@
     var query_fields = '{{ query_fields|safe }}';
     query_fields = JSON.parse(query_fields);
     query["fields"] = query_fields["fields"];
+    query["fieldsRels"] = query_fields["fieldsRels"];
     query["fieldRelsCounter"] = query_fields["fieldRelsCounter"];
     query["checkboxes"] = query_fields["checkboxes"];
     query["aggregates"] = query_fields["aggregates"];
