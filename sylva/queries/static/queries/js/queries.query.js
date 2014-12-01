@@ -1818,11 +1818,17 @@ diagram.aggregates = [
             var aggregate = $(property).prev().find(":selected");
             var aggregateValue = $(aggregate).val();
             var aggregateDistinct = '';
+            // We store the alias that we use for the headers
+            var headerAlias = '';
             // We check if the aggregate value is not the "choose one" option
             if(aggregateValue != '') {
                 aggregateDistinct = $(aggregate).data("distinct");
+                // If we have aggregate, we build an appropiate alias
+                headerAlias = aggregateValue + '(' + alias + '.' + propertyName + ')'
             } else {
                 aggregateValue = false;
+                // We build the appropiate alias
+                headerAlias = alias + '.' + propertyName
             }
 
             // We store the checked properties
@@ -1834,6 +1840,7 @@ diagram.aggregates = [
                 propertiesDict["aggregate"] = aggregateValue;
                 propertiesDict["distinct"] = aggregateDistinct;
                 propertiesDict["datatype"] = datatype;
+                propertiesDict["alias"] = headerAlias;
                 propertiesChecked[alias].push(propertiesDict);
             }
 
