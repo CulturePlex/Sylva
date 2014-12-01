@@ -2242,7 +2242,7 @@ diagram.aggregates = [
                     var idBox = aggregatesRels[key][2];
                     var selector = $("#" + key + " .select-aggregate");
                     var typename = idBox.split('-')[2];
-                    $('#' + idBox + ' #inlineShowHideLink_' + typename).click();
+
                     $('#' + idBox + ' #inlineAdvancedMode_' + typename).click();
                     // We set the aggregate value
                     selector.val(aggregateValue);
@@ -2254,9 +2254,9 @@ diagram.aggregates = [
             for(key in checkboxes) {
                 if(checkboxes.hasOwnProperty(key)) {
                     var property = checkboxes[key];
-                    var fieldIndex = parseInt(key) + 1;
-                    $("#field" + fieldIndex + " .select-property").val(property);
-                    $("#field" + fieldIndex + ' .checkbox-property').click();
+                    var fieldIndex = key;
+                    $("#" + fieldIndex + " .select-property").val(property);
+                    $("#" + fieldIndex + ' .checkbox-property').click();
                 }
             }
 
@@ -2309,7 +2309,8 @@ diagram.aggregates = [
         // We get the checkboxes checked and the property to return
         $.each(checkboxes, function(index, checkbox) {
             if($(checkbox).prop('checked')) {
-                checkboxesDict[index] = $(checkbox).next().next().val();
+                var fieldIndex = $(checkbox).parent().attr('id');
+                checkboxesDict[fieldIndex] = $(checkbox).next().next().val();
             }
         });
         // We get the aggregates if they exist
