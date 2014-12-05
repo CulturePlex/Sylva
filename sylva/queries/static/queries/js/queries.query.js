@@ -610,6 +610,53 @@ diagram.aggregates = [
                 }
             });
 
+            anchorRemoveRelation = $("<A>");
+            anchorRemoveRelation.addClass("remove-box-relation");
+            anchorRemoveRelation.attr("href", "javascript:void(0);");
+            anchorRemoveRelation.attr("id", "inlineRemoveRelationLink_"+ name);
+            var iconRemoveRelation = $("<I>");
+            iconRemoveRelation.addClass("fa fa-times-circle icon-style");
+            iconRemoveRelation.attr('id', 'remove-relation-icon')
+            iconRemoveRelation.css({
+                'margin-right': '4px'
+            });
+            iconRemoveRelation.attr('id', 'icon-toggle');
+
+            anchorRemoveRelation.append(iconRemoveRelation);
+            anchorRemoveRelation.click(function () {
+                // We get the connections by type (scope)
+                var connections = jsPlumb.select({scope:name});
+                // We check the connections between the source and the target
+                // to get the idrel appropiated
+                var connectionToDelete = undefined;
+                connections.each(function(connection) {
+                    if(connection.idrel == idBox)
+                        connectionToDelete = connection;
+                });
+
+                if(connectionToDelete) {
+                    // We get the alias of the box to remove it in the selects
+                    var boxAlias = $('#' + idBox + ' .select-reltype-' + name).val();
+                    // We treat the alias if we have the boxAlias defined
+                    if(boxAlias) {
+                        // We remove the boxAlias in the other selects
+                        diagram.removeAlias(name, boxAlias, "relationship");
+
+                        // We remove the boxAlias of the list
+                        var aliasIndex = diagram.reltypesList[name].indexOf(boxAlias);
+                        diagram.reltypesList[name].splice(aliasIndex, 1);
+                    }
+
+                    // We remove the connection
+                    jsPlumb.detach(connectionToDelete);
+
+                    // We check if we have only one box to hide the selects for the alias
+                    diagram.hideSelects(name, "relationship");
+
+                    jsPlumb.repaintEverything();
+                }
+            });
+
             // We create the div for the corner buttons
             divCornerButtons = $("<DIV>");
             divCornerButtons.addClass("corner-buttons");
@@ -637,6 +684,7 @@ diagram.aggregates = [
             divFields.addClass("hidden");
             divFields.attr("id", idFields);
             countFields = 0;
+            divCornerButtons.append(anchorRemoveRelation);
             if(diagram.fieldsForRels[name].length > 0) {
                 // If we have properties, we add the button to
                 // minimize/maximize the box
@@ -1653,7 +1701,7 @@ diagram.aggregates = [
                             id:"arrow"}],
                         [ "Label", {
                             label:name,
-                            id:"label"}],
+                            id:label}],
                         ["Custom", {
                             create:function(component) {
                                 var divBox = diagram.addRelationBox(name, label, idRel);
@@ -1723,8 +1771,14 @@ diagram.aggregates = [
          * if we have loaded some box with the target equal to targetType.
          * If not, we load a box with that target and create a relationship
          * between the boxes.
+         * - targetType
+         * - relation
+         * - sourceId
+         * - label
+         * - name
+         * - idRel
          */
-        diagram.checkTargetType = function(targetType, relation) {
+        diagram.checkTargetType = function(targetType, relation, sourceId, label, name, idRel) {
             var elems = $('#diagram').children();
             var numberOfBoxes = 0;
             var uuidSource = relation + "-source";
@@ -1755,6 +1809,7 @@ diagram.aggregates = [
 
                 // We update the elems variable to include the new box added
                 elems = $('#diagram').children();
+                var targetId = "";
                 // We get the id of the new box and we create the connection
                 $.each(elems, function(index, elem) {
                     var elemId = $(elem).attr('id');
@@ -1762,15 +1817,87 @@ diagram.aggregates = [
                         var filter = new RegExp(".-" + targetType);
                         if(elemId.match(filter)) {
                             uuidTarget = elemId + "-target";
+                            targetId = elemId;
                         }
                     }
                 });
 
                 // We create the connection
-                jsPlumb.connect({uuids:[uuidSource, uuidTarget]});
+                diagram.addRelation(sourceId, targetId, label, name, idRel);
 
                 jsPlumb.repaintEverything();
             }
+        };
+
+        /**
+         * Function to create a new relatioship between two boxes
+         * - sourceId
+         * - targetId
+         * - label
+         * - name
+         * - idRel
+         */
+        diagram.addRelation = function(sourceId, targetId, label, name, idRel) {
+            // We create the connection between the boxes.
+            jsPlumb.connect({
+                scope: name,
+                source: sourceId,
+                target: targetId,
+                detachable:false,
+                connector:"Flowchart",
+                endpoint: "Blank",
+                anchor:"Continuous",
+                connectorStyle: {
+                    strokeStyle: '#AEAA78',
+                    lineWidth: 2
+                },
+                overlays:[
+                    [ "PlainArrow", {
+                        foldback: 0,
+                        width:10,
+                        length:10,
+                        location:1,
+                        id:"arrow"}],
+                    [ "Label", {
+                        label: name,
+                        id: label}],
+                    ["Custom", {
+                        create:function(component) {
+                            var divBox = diagram.addRelationBox(name, label, idRel);
+                            return divBox;
+                        },
+                        location:0.5,
+                        id:"diagramBoxRel-" + diagram.CounterRels + "-" + name
+                    }]
+                ],
+                paintStyle: {
+                    strokeStyle: '#AEAA78'
+                },
+                backgroundPaintStyle: {
+                    strokeStyle: '#AEAA78',
+                    lineWidth: 3
+                }
+            });
+
+            // We check if the type is wildcard
+            if(name == "WildcardRel")
+                   name = "wildcard";
+            // We remove the relation row in the source box
+            var idDivRelSourceBox = "#div-" + sourceId + "-" + name;
+            $(idDivRelSourceBox).remove();
+            // We still have the endpoints to create connections.
+            // We need to remove the source endpoint of the relationship.
+            var endpointUuid = sourceId + '-' + name + '-source';
+            jsPlumb.deleteEndpoint(endpointUuid);
+            // We decrement the value of the relationship index to calculate
+            // the anchor for the source endpoints
+            diagram.relindex[sourceId]--;
+            // We will repaint everything and recalculate anchors
+            var sourceIdSplitted = sourceId.split('-');
+            var indexAndName = sourceIdSplitted[1] + '-' + sourceIdSplitted[2];
+            var idAllRels = 'diagramAllRel-' + indexAndName;
+            diagram.recalculateAnchor(sourceId, idAllRels);
+            jsPlumb.repaintEverything();
         };
     };
 
@@ -2129,6 +2256,7 @@ diagram.aggregates = [
                 var relation = jsonDict["query"]["patterns"][i].relation.alias;
                 var relationValue = types[relation].typename;
                 var relationName = relationValue;
+                var idRelBox = types[relation].id
 
                 // We check if the relationship is of type wildcard
                 if(relationValue == "WildcardRel")
@@ -2140,14 +2268,14 @@ diagram.aggregates = [
                 $('#' + sourceId + ' .select-rel').val(relationValue);
                 $('#' + sourceId + ' .select-rel').change();
 
-                jsPlumb.connect({
-                    uuids: [uuidSource, uuidTarget],
-                    anchor: ["Perimeter", {shape: "Rectangle"}]
-                });
+                diagram.addRelation(sourceId, targetId, relationValue, relationName, idRelBox);
+                // jsPlumb.connect({
+                //     uuids: [uuidSource, uuidTarget],
+                //     anchor: "Continuous"
+                // });
 
                 // We check if we need to show the 'alias selects' for the relationship boxes
                 diagram.showSelects(relationValue, "relationship");
-                idRelBox = types[relation].id
                 // We check if we need to change the alias
                 // (edit alias feature)
                 diagram.loadQueryWithAlias(idRelBox, relation, relationValue, false)
@@ -2513,10 +2641,19 @@ diagram.aggregates = [
         var source = $('option:selected', selectField).data("source");
         var scopeSource = $('option:selected', selectField).data("scope");
 
-        // If exists a relationship with that id, we dont add the
-        // relationship
-
-        if($('#div-' + relationId).length == 0) {
+        // We check if the box already has a connection of that type
+        var existsRel = false;
+        var boxConnections = jsPlumb.select({source:idBox});
+        boxConnections.each(function(elem) {
+            var idBoxRel = elem.idrel;
+            // We split the idBoxRel value to check the rel name
+            var idBoxRelName = idBoxRel.split('-')[2];
+            if(idBoxRelName == name) {
+                existsRel = true;
+            }
+        });
+        // We check if we have already selected that relation
+        if(!existsRel && ($('#div-' + relationId).length == 0)) {
 
             // We check if we have the type in the reltypesList. If not,
             // we create it.
@@ -2587,7 +2724,7 @@ diagram.aggregates = [
         // We check if the target type is already loaded
         // If it doesn't, we load the type and create the connection
         // between the two types
-        diagram.checkTargetType(scopeSource, relationId);
+        diagram.checkTargetType(scopeSource, relationId, idBox, label, name, idrel);
 
         // We restore the "choose one" value
         $this.val("choose one");
@@ -3152,6 +3289,8 @@ diagram.aggregates = [
             var idBoxRel = info.connection.getOverlays()[2].id;
             // We store the name in the label variable
             var nameRel = info.connection.getOverlays()[1].label;
+            // We store the label in the label id
+            var labelRel = info.connection.getOverlays()[1].id;
             info.connection.idrel = idBoxRel;
             // We hide the label overlay
             //info.connection.getOverlays()[1].setVisible(false);
@@ -3163,8 +3302,6 @@ diagram.aggregates = [
             diagram.CounterRels++;
 
             $('.endpoint-image').css('visibility', 'visible');
-            info.sourceEndpoint.addClass("endpointInvisible");
-            //info.targetEndpoint.addClass("endpointInvisible");
             info.targetEndpoint.removeClass("dragActive");
             info.targetEndpoint.removeClass("dropHover");
 
@@ -3234,6 +3371,22 @@ diagram.aggregates = [
                 });
             });
         });
+        var sourceIdValue = connection.sourceId;
+        var targetIdValue = connection.targetId;
+
+        var idBoxRel = connection.getOverlays()[2].id;
+        // We store the name in the label variable
+        var nameRel = connection.getOverlays()[1].label;
+        // We store the label in the label id
+        var labelRel = connection.getOverlays()[1].id;
+        connection.idrel = idBoxRel;
+        // We get the modelid of the box before detach the connection
+        var relModelId = $('#' + idBoxRel + ' .title').data('modelid');
+        // We remove the connection that we dragged
+        jsPlumb.detach(connection);
+
+        // And we add the new connection with "Continuous" anchors
+        diagram.addRelation(sourceIdValue, targetIdValue, labelRel, nameRel, relModelId);
     });
 
     /**
