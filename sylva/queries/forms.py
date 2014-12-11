@@ -56,6 +56,10 @@ class QueryOptionsForm(forms.Form):
     ORDER_BY_CHOICES = (
         ("default", _("Default")),
     )
+    DIR_CHOICES = (
+        ("ASC", _("Ascending")),
+        ("DESC", _("Descending")),
+    )
     rows_number = forms.IntegerField(label=_("Show"),
                                      initial=100,
                                      required=True,
@@ -75,6 +79,11 @@ class QueryOptionsForm(forms.Form):
                                         required=True,
                                         widget=forms.Select(
                                             attrs={'class': 'select_order'}))
+    dir_order_by = forms.ChoiceField(label=_("with direction"),
+                                     choices=DIR_CHOICES,
+                                     required=True,
+                                     widget=forms.Select(
+                                         attrs={'class': 'select_dir'}))
 
     def __init__(self, new_choice=None, *args, **kwargs):
         if new_choice:

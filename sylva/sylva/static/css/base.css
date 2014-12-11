@@ -2901,6 +2901,11 @@ body :hover > a.headerlink {
     width: 100px !important;
 }
 
+.select_dir {
+    display: inline !important;
+    width: 110px !important;
+}
+
 /* END Queries */
 
 
