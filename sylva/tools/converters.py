@@ -374,10 +374,17 @@ class CSVQueryConverter(BaseConverter):
             csv_buffer = StringIO()
             csv_writer = csv.writer(csv_buffer, delimiter=',',
                                     quotechar='"', quoting=csv.QUOTE_ALL)
-            csv_header = headers
+            csv_header = []
+            for header in headers:
+                csv_header.append(header.encode('utf-8'))
             csv_writer.writerow(csv_header)
+            results_encoded = []
             for result in results:
-                csv_writer.writerow(result)
+                for individual_result in result:
+                    if isinstance(individual_result, unicode):
+                        individual_result = individual_result.encode('utf-8')
+                    results_encoded.append(individual_result)
+                csv_writer.writerow(results_encoded)
             zip_file.writestr(csv_name, csv_buffer.getvalue())
             csv_buffer.close()
 
