@@ -933,7 +933,7 @@ diagram.aggregates = [
                     // We need to check if we had the checkbox clicked to
                     // restore the value in the order by select
                     var checkboxClicked = $(selectorAggregate).prev().prop('checked');
-                    if(checkboxClicked) {
+                    if(checkboxClicked && aggregate) {
                         $this = $(selectorAggregate);
                         var propertyValue = $this.next().val();
                         var titleDiv = $this.prev().parent().parent().parent().parent().prev();
@@ -3259,13 +3259,31 @@ diagram.aggregates = [
         var orderByOptions = $('#id_select_order_by option');
         $.each(orderByOptions, function(index, elem) {
             var orderByAlias = $(elem).val();
-            var oldOptionVal = orderByAlias.split(".");
-            var oldOptionAlias = oldOptionVal[0];
-            if(oldOptionAlias == oldAlias) {
-                // We change the value of the option
-                var newOptionVal = newAlias + "." + oldOptionVal[1];
-                $(elem).attr("value", newOptionVal);
-                $(elem).html(newOptionVal);
+            // We check if we have an aggregate selected
+            // If the length is bigger than 1
+            var isThereAgg = orderByAlias.split("(").length > 1;
+            if(isThereAgg) {
+                var orderByAliasSplitted = orderByAlias.split(/["(",")"]+/);
+                var aggregateValue = orderByAliasSplitted[0];
+                var oldOptionVal = orderByAliasSplitted[1];
+                var oldOptionValWithoutAgg = oldOptionVal.split(".");
+                var oldOptionAlias = oldOptionValWithoutAgg[0];
+                if(oldOptionAlias == oldAlias) {
+                    // We change the value of the option
+                    var newOptionVal = newAlias + "." + oldOptionValWithoutAgg[1];
+                    var newOptionAggregate = aggregateValue + "(" + newOptionVal + ")";
+                    $(elem).attr("value", newOptionAggregate);
+                    $(elem).html(newOptionAggregate);
+                }
+            } else {
+                var oldOptionVal = orderByAlias.split(".");
+                var oldOptionAlias = oldOptionVal[0];
+                if(oldOptionAlias == oldAlias) {
+                    // We change the value of the option
+                    var newOptionVal = newAlias + "." + oldOptionVal[1];
+                    $(elem).attr("value", newOptionVal);
+                    $(elem).html(newOptionVal);
+                }
             }
         });
     });
