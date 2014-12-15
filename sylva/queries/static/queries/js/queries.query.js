@@ -2254,8 +2254,11 @@ diagram.aggregates = [
                 var targetId = types[target].id;
 
                 var relation = jsonDict["query"]["patterns"][i].relation.alias;
-                var relationValue = types[relation].typename;
-                var relationName = relationValue;
+                var idRel = jsonDict["query"]["patterns"][i].relation.type_id;
+                var relationTypeName = types[relation].typename;
+                // We need to change the first letter to uppercase
+                var relationValue = relationTypeName.charAt(0).toUpperCase() + relationTypeName.slice(1);
+                var relationName = relationTypeName;
                 var idRelBox = types[relation].id
 
                 // We check if the relationship is of type wildcard
@@ -2265,14 +2268,10 @@ diagram.aggregates = [
                 var uuidSource = sourceId + '-' + relationName + '-source';
                 var uuidTarget = targetId + '-target';
 
-                $('#' + sourceId + ' .select-rel').val(relationValue);
+                $('#' + sourceId + ' .select-rel').val(relationName);
                 $('#' + sourceId + ' .select-rel').change();
 
-                diagram.addRelation(sourceId, targetId, relationValue, relationName, idRelBox);
-                // jsPlumb.connect({
-                //     uuids: [uuidSource, uuidTarget],
-                //     anchor: "Continuous"
-                // });
+                diagram.addRelation(sourceId, targetId, relationValue, relationName, idRel);
 
                 // We check if we need to show the 'alias selects' for the relationship boxes
                 diagram.showSelects(relationValue, "relationship");
