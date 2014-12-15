@@ -2387,8 +2387,16 @@ diagram.aggregates = [
             // We check the checkboxes to return
             for(key in checkboxes) {
                 if(checkboxes.hasOwnProperty(key)) {
+                    // After update the way to get the checkboxes,
+                    // now we have that the fieldIndex is equals to
+                    // #field"Id". So, we need to add the #field part
+                    // for a correct execution in the saved queries.
                     var property = checkboxes[key];
                     var fieldIndex = key;
+                    if(!isNaN(parseInt(key))) {
+                        key = parseInt(key) + 1;
+                        fieldIndex = "field" + key;
+                    }
                     $("#" + fieldIndex + " .select-property").val(property);
                     $("#" + fieldIndex + ' .checkbox-property').click();
                 }
