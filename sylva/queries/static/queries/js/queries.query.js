@@ -417,10 +417,10 @@ diagram.aggregates = [
              *  Title part
              */
 
-            if(diagram.reltypesCounter[name] >= 0) {
+            if(diagram.reltypesCounter[name] >= 1) {
                 diagram.reltypesCounter[name]++;
             } else {
-                diagram.reltypesCounter[name] = 0;
+                diagram.reltypesCounter[name] = 1;
             }
 
             divTitle = $("<DIV>");
@@ -472,7 +472,7 @@ diagram.aggregates = [
             iconToggle = $("<I>");
             iconToggle.addClass("fa fa-plus-circle icon-style");
             iconToggle.css({
-                'margin-right': '4px'
+                'margin-right': '8px'
             });
             iconToggle.attr('id', 'icon-toggle');
 
@@ -1499,9 +1499,9 @@ diagram.aggregates = [
             } else if(numberOfBoxes == 0) {
                 // We reset the counter
                 if(elemType == "node") {
-                    diagram.nodetypesCounter[typeName] = 0;
+                    diagram.nodetypesCounter[typeName] = 1;
                 } else {
-                    diagram.reltypesCounter[typeName] = 0;
+                    diagram.reltypesCounter[typeName] = 1;
                 }
             }
         };
@@ -3149,35 +3149,34 @@ diagram.aggregates = [
      */
     $("#diagramContainer").on('click', '.remove-relation', function() {
         var $this = $(this);
-        var patternId = $this.data("parentid");
-        var idBox = $this.data("idbox");
-        var idAllRels = $this.data("relsid");
-        var divRelId = $this.data("divrelid");
+        var sourceId = $this.data("idbox");
         var name = $this.data("name");
-
-        diagram.relindex[idBox]--;
-
-        // We check if we have the connection to get the idrel value
-        var endpointSelector = patternId + '-source';
-        var connections = jsPlumb.getEndpoint(endpointSelector).connections;
-        var connectionsLength = connections.length;
-        if(connectionsLength > 0) {
-            // We get the id of the relationship box to remove it in the selects
-            var idrel = connections[0].idrel;
-            // We get the alias of the box to remove it in the selects
-            var boxAlias = $('#' + idrel + ' .select-reltype-' + name).val();
-        }
-
+        var patternId = sourceId + "-" + name;
+        // We check if the type is wildcard
+        if(name == "WildcardRel")
+               name = "wildcard";
+        // We remove the relation row in the source box
+        var idDivRelSourceBox = "#div-" + sourceId + "-" + name;
+        $(idDivRelSourceBox).remove();
+        // We still have the endpoints to create connections.
+        // We need to remove the source endpoint of the relationship.
         var oldEndpointRelIndex = jsPlumb.getEndpoint(patternId + '-source').relIndex;
-        jsPlumb.deleteEndpoint(patternId + '-source');
-        $('#' + divRelId).remove();
+        var endpointUuid = sourceId + '-' + name + '-source';
+        jsPlumb.deleteEndpoint(endpointUuid);
+        // We decrement the value of the relationship index to calculate
+        // the anchor for the source endpoints
+        diagram.relindex[sourceId]--;
+        // We will repaint everything and recalculate anchors
+        var sourceIdSplitted = sourceId.split('-');
+        var indexAndName = sourceIdSplitted[1] + '-' + sourceIdSplitted[2];
+        var idAllRels = 'diagramAllRel-' + indexAndName;
 
         // Recalculate anchor if we have source endpoints already
-        if(jsPlumb.getEndpoints(idBox).length > 1) {
+        if(jsPlumb.getEndpoints(sourceId).length > 1) {
             // We start at index 1 because the index 0 si the target
-            var endpointsLength = jsPlumb.getEndpoints(idBox).length;
+            var endpointsLength = jsPlumb.getEndpoints(sourceId).length;
             for(var i = 1; i < endpointsLength; i++) {
-                var endpoint = jsPlumb.getEndpoints(idBox)[i];
+                var endpoint = jsPlumb.getEndpoints(sourceId)[i];
                 var anchor = 0;
                 // This is for the case that we have removed some
                 // element and need to update the rel index.
@@ -3185,28 +3184,15 @@ diagram.aggregates = [
                 // extra: The target endpoint
                 if(endpoint.relIndex > oldEndpointRelIndex) {
                     var newRelIndex = endpoint.relIndex - 1;
-                    anchor = diagram.calculateAnchor(idBox, idAllRels, newRelIndex);
+                    anchor = diagram.calculateAnchor(sourceId, idAllRels, newRelIndex);
                     endpoint.relIndex = newRelIndex;
 
                 } else {
-                    anchor = diagram.calculateAnchor(idBox, idAllRels, endpoint.relIndex);
+                    anchor = diagram.calculateAnchor(sourceId, idAllRels, endpoint.relIndex);
                 }
                 endpoint.anchor.y = anchor;
             }
         }
-
-        // We treat the alias if we have the boxAlias defined
-        if(boxAlias) {
-            // We remove the boxAlias in the other selects
-            diagram.removeAlias(name, boxAlias, "relationship");
-
-            // We remove the boxAlias of the list
-            var aliasIndex = diagram.reltypesList[name].indexOf(boxAlias);
-            diagram.reltypesList[name].splice(aliasIndex, 1);
-        }
-
-        // We check if we have only one box to hide the selects for the alias
-        diagram.hideSelects(name, "relationship");
 
         jsPlumb.repaintEverything();
     });
@@ -3360,7 +3346,19 @@ diagram.aggregates = [
                 var compareWildcard = (scopeSource == "wildcard") ||
                                         (scopeTarget == "wildcard");
                 if(compare || compareWildcard) {
+                    // We need to check here if the target box has
+                    // the advanced mode activate. So, we assign the
+                    // width of the box to the endpoint width
+                    var boxWidth = $('#' + endpoint.elementId).css('width');
                     endpoint.addClass("dragActive");
+                    if(boxWidth == "440px") {
+                        // We select the endpoint to change the width and
+                        // position it correctly
+                        $(".dragActive").css({
+                            'width': '440px',
+                            'margin-left': '-40px'
+                        });
+                    }
                     var selector = '#' + endpoint.elementId + ' .title';
                     $(selector).on('mouseover', function() {
                         $(selector).css({
@@ -3380,6 +3378,9 @@ diagram.aggregates = [
     jsPlumb.bind("connectionDragStop", function(connection) {
         $('.endpoint-image').css('visibility', 'visible');
         jsPlumb.selectEndpoints().each(function(endpoint) {
+            $(".dragActive").css({
+                'margin-left': '0px'
+            });
             endpoint.removeClass("dragActive");
             var selector = '#' + endpoint.elementId + ' .title';
             $(selector).on('mouseover', function() {
@@ -3401,6 +3402,8 @@ diagram.aggregates = [
         var relModelId = $('#' + idBoxRel + ' .title').data('modelid');
         // We remove the connection that we dragged
         jsPlumb.detach(connection);
+        // We substract 1 to the counter of the relationship
+        diagram.reltypesCounter[nameRel]--;
 
         // And we add the new connection with "Continuous" anchors
         diagram.addRelation(sourceIdValue, targetIdValue, labelRel, nameRel, relModelId);
