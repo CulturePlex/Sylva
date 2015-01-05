@@ -545,8 +545,8 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', 'ST
             '<div class="highchart-cont">' + 
                 '<div>' +
                     '<a href="" ng-click="setChartType(\'column\')"><img ng-src="{{ static_prefix }}app/media/svg/bar.svg" /></a>' +
-                    '<a href="" ng-click="setChartType(\'line\')"><img ng-src="{{ static_prefix }}app/media/svg/line.svg" />' +
-                    '<a href="" ng-click="setChartType(\'pie\')"><img ng-src="{{ static_prefix }}app/media/svg/pie.svg" />' +
+                    '<a href="" ng-click="setChartType(\'line\')"><img ng-src="{{ static_prefix }}app/media/svg/line.svg" /></a>' +
+                    '<a href="" ng-click="setChartType(\'pie\')"><img ng-src="{{ static_prefix }}app/media/svg/pie.svg" /></a>' +
                 '</div>' + 
             '</div>' +
         '</div>' +
