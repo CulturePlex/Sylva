@@ -380,6 +380,8 @@ def queries_query_edit(request, graph_slug, query_id):
     query = graph.queries.get(pk=query_id)
     # Breadcrumbs variable
     queries_link = (redirect_url, _("Queries"))
+    # We get the modal variable
+    as_modal = bool(request.GET.get("asModal", False))
     # We declare the form for the results options
     query_options_form = QueryOptionsForm()
     # We get the query_dicts
@@ -429,18 +431,48 @@ def queries_query_edit(request, graph_slug, query_id):
         query_dict = request.session.get('query', None)
         query_aliases = request.session.get('query_aliases', None)
         query_fields = request.session.get('query_fields', None)
-    return render_to_response('queries/queries_new.html',
-                              {"graph": graph,
-                               "node_types": nodetypes,
-                               "relationship_types": reltypes,
-                               "queries_link": queries_link,
-                               "query": query,
-                               "form": form,
-                               "query_options_form": query_options_form,
-                               "query_dict": query_dict,
-                               "query_aliases": query_aliases,
-                               "query_fields": query_fields},
-                              context_instance=RequestContext(request))
+    # return render_to_response('queries/queries_new.html',
+    #                           {"graph": graph,
+    #                            "node_types": nodetypes,
+    #                            "relationship_types": reltypes,
+    #                            "queries_link": queries_link,
+    #                            "query": query,
+    #                            "form": form,
+    #                            "query_options_form": query_options_form,
+    #                            "query_dict": query_dict,
+    #                            "query_aliases": query_aliases,
+    #                            "query_fields": query_fields},
+    #                           context_instance=RequestContext(request))
+    if as_modal:
+        base_template = 'empty.html'
+        render = render_to_string
+    else:
+        base_template = 'base.html'
+        render = render_to_response
+    add_url = reverse("queries_new", args=[graph_slug])
+    broader_context = {"graph": graph,
+                       "node_types": nodetypes,
+                       "relationship_types": reltypes,
+                       "queries_link": queries_link,
+                       "query": query,
+                       "form": form,
+                       "query_options_form": query_options_form,
+                       "query_dict": query_dict,
+                       "query_aliases": query_aliases,
+                       "query_fields": query_fields,
+                       "base_template": base_template,
+                       "as_modal": as_modal,
+                       "add_url": add_url}
+    response = render('queries/queries_new.html', broader_context,
+                      context_instance=RequestContext(request))
+    if as_modal:
+        response = {'type': 'html',
+                    'action': 'queries_new',
+                    'html': response}
+        return HttpResponse(json.dumps(response), status=200,
+                            content_type='application/json')
+    else:
+        return response
 
 
 @is_enabled(settings.ENABLE_QUERIES)

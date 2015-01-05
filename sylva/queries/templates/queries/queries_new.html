@@ -1,14 +1,16 @@
-{% extends "base.html" %}
+{% extends base_template %}
 {% load i18n graphs static compress %}
 {% get_static_prefix as STATIC_PREFIX %}
 
-{% block navigation_buttons %}
-{{ block.super }}
-{% endblock %}
+{% if not as_modal %}
+    {% block navigation_buttons %}
+    {{ block.super }}
+    {% endblock %}
 
-{% block title %}
-{{ graph.name }}
-{% endblock %}
+    {% block title %}
+    {{ graph.name }}
+    {% endblock %}
+{% endif %}
 
 {% block menu_buttons %}
 {% toolbar on="queries" %}

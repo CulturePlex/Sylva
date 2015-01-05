@@ -609,6 +609,7 @@
       },
 
       preProcessHTML: function() {
+        // Event to create a new query
         $('#create-query').on('click', function() {
           var queriesNewUrl = $(event.target).attr('href');
 
@@ -619,9 +620,63 @@
 
           return false;
         });
+
+        // Event to edit an existing query
+        $('a.edit').on('click', function() {
+          var queriesNewUrl = $(event.target).attr('href');
+
+          $.modal.close();
+          setTimeout(function() {
+            that.queriesNew.start(queriesNewUrl, false);
+          }, fast);
+
+          return false;
+        });
+
+        // A function for handling the pagination and sorting events.
+        var handlePagination = function(event) {
+          var queriesListUrl = $('#queries-url').attr('data-url');
+
+          if ($(event.target).attr('href') != undefined) {
+            var pagAndOrderParams = $(event.target).attr('href');
+          } else {
+            var pagAndOrderParams = $(event.target).parent().attr('href');
+          }
+
+          pagAndOrderUrl = queriesListUrl + pagAndOrderParams;
+
+          $.modal.close();
+          setTimeout(function() {
+            that.queriesList.start(pagAndOrderUrl, false);
+          }, fast);
+
+          return false;
+        };
+
+        // The events for the previous function.
+        $('span.step-links > a').on('click', handlePagination);
+        $('a.remove-sorting').on('click', handlePagination);
+        $('a.sorting-asc').on('click', handlePagination);
+        $('a.sorting-desc').on('click', handlePagination);
+        $('.shorten-text').on('click', handlePagination);
+
+        // Binding cancel action.
+        $('#modal-cancel').on('click', function() {
+          that.closeModalLib();
+          return false;
+        });
       },
 
-      onShow: function() {}
+      onShow: function() {
+        $('#simplemodal-container').css({
+          width: 1000,
+          left: 100
+        });
+
+        $('#modal-cancel').css({
+          'margin-left': '10px'
+        });
+      }
     },
 
     queriesNew: {
@@ -645,7 +700,11 @@
         });
       },
 
-      onShow: function() {}
+      onShow: function() {
+        $('#simplemodal-container').css({
+          width: 1170,
+        });
+      }
     },
 
     queriesResults: {
