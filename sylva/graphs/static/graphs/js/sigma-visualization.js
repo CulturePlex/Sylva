@@ -518,6 +518,13 @@
       return false;
     },
 
+    callQueriesModal: function(event) {
+      var link = $('#queriesMenu');
+      sylva.modals.queriesList.start(link.attr('href'), true);
+
+      return false;
+    },
+
     /* *****
      * Functions for interact with the graph representation.
      ***** */
@@ -1587,6 +1594,7 @@
       $('#collaborators-button').on('click', that.callCollaboratorsModal);
       $('a[data-modal="import-schema"]').on('click', that.callImportSchemaModal);
       $('a[data-modal="import-data"]').on('click', that.callImportDataModal);
+      $('#queriesMenu').on('click', that.callQueriesModal);
     },
 
     /* Perform the cancelation of the analytics mode. Also perform the
@@ -1645,6 +1653,7 @@
       $('#collaborators-button').off('click', that.callCollaboratorsModal);
       $('a[data-modal="import-schema"]').off('click', that.callImportSchemaModal);
       $('a[data-modal="import-data"]').off('click', that.callImportDataModal);
+      $('#queriesMenu').off('click', that.callQueriesModal);
     },
 
 

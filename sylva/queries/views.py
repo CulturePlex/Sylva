@@ -16,6 +16,7 @@ from django.contrib import messages
 from django.shortcuts import (get_object_or_404, render_to_response, redirect,
                               HttpResponse)
 from django.template import RequestContext
+from django.template.loader import render_to_string
 from django.utils.translation import gettext as _
 
 from guardian.decorators import permission_required
@@ -51,6 +52,8 @@ def queries_list(request, graph_slug):
     order_by_field = request.GET.get('order_by', 'id')
     order_dir = request.GET.get('dir', '-')
     page_dir = request.GET.get('page_dir', '-')
+    # We get the modal variable
+    as_modal = bool(request.GET.get("asModal", False))
     if order_by_field == 'id':
         queries = graph.queries.all()
     else:
@@ -78,13 +81,31 @@ def queries_list(request, graph_slug):
     except EmptyPage:
         # If page is out of range (e.g. 9999), deliver last page of results.
         paginated_queries = paginator.page(paginator.num_pages)
-    return render_to_response('queries/queries_list.html',
-                              {"graph": graph,
-                               "queries": paginated_queries,
-                               "order_by": order_by_field,
-                               "dir": order_dir,
-                               "page_dir": page_dir},
-                              context_instance=RequestContext(request))
+    if as_modal:
+        base_template = 'empty.html'
+        render = render_to_string
+    else:
+        base_template = 'base.html'
+        render = render_to_response
+    add_url = reverse("queries_list", args=[graph_slug])
+    broader_context = {"graph": graph,
+                       "queries": paginated_queries,
+                       "order_by": order_by_field,
+                       "dir": order_dir,
+                       "page_dir": page_dir,
+                       "base_template": base_template,
+                       "as_modal": as_modal,
+                       "add_url": add_url}
+    response = render('queries/queries_list.html', broader_context,
+                      context_instance=RequestContext(request))
+    if as_modal:
+        response = {'type': 'html',
+                    'action': 'queries_list',
+                    'html': response}
+        return HttpResponse(json.dumps(response), status=200,
+                            content_type='application/json')
+    else:
+        return response
 
 
 @is_enabled(settings.ENABLE_QUERIES)
@@ -101,6 +122,8 @@ def queries_new(request, graph_slug):
     query_options_form = QueryOptionsForm()
     # Breadcrumbs variable
     queries_link = (redirect_url, _("Queries"))
+    # We get the modal variable
+    as_modal = bool(request.GET.get("asModal", False))
     # We check if we have the variables in the request.session
     if 'query_id' not in request.session:
         request.session['query_id'] = None
@@ -141,17 +164,35 @@ def queries_new(request, graph_slug):
                 graph.save()
                 return redirect(redirect_url)
     else:
-        return render_to_response('queries/queries_new.html',
-                                  {"graph": graph,
-                                   "queries_link": queries_link,
-                                   "node_types": nodetypes,
-                                   "relationship_types": reltypes,
-                                   "form": form,
-                                   "query_options_form": query_options_form,
-                                   "query_dict": query_dict,
-                                   "query_aliases": query_aliases,
-                                   "query_fields": query_fields},
-                                  context_instance=RequestContext(request))
+        if as_modal:
+            base_template = 'empty.html'
+            render = render_to_string
+        else:
+            base_template = 'base.html'
+            render = render_to_response
+        add_url = reverse("queries_new", args=[graph_slug])
+        broader_context = {"graph": graph,
+                           "queries_link": queries_link,
+                           "node_types": nodetypes,
+                           "relationship_types": reltypes,
+                           "form": form,
+                           "query_options_form": query_options_form,
+                           "query_dict": query_dict,
+                           "query_aliases": query_aliases,
+                           "query_fields": query_fields,
+                           "base_template": base_template,
+                           "as_modal": as_modal,
+                           "add_url": add_url}
+        response = render('queries/queries_new.html', broader_context,
+                          context_instance=RequestContext(request))
+        if as_modal:
+            response = {'type': 'html',
+                        'action': 'queries_new',
+                        'html': response}
+            return HttpResponse(json.dumps(response), status=200,
+                                content_type='application/json')
+        else:
+            return response
 
 
 @is_enabled(settings.ENABLE_QUERIES)
@@ -172,6 +213,8 @@ def queries_new_results(request, graph_slug):
     order_dir = request.GET.get('dir', 'desc')
     page_dir = request.GET.get('page_dir', 'desc')
     select_order_by = None
+    # We get the modal variable
+    as_modal = bool(request.GET.get("asModal", False))
     # We get the information to mantain the last query in the builder
     query = request.POST.get("query", "").strip()
     query_aliases = request.POST.get("query_aliases", "").strip()
@@ -282,17 +325,46 @@ def queries_new_results(request, graph_slug):
     except EmptyPage:
         # If page is out of range (e.g. 9999), deliver last page of results.
         paginated_results = paginator.page(paginator.num_pages)
-    return render_to_response('queries/queries_new_results.html',
-                              {"graph": graph,
-                               "queries_link": queries_link,
-                               "queries_new": queries_new,
-                               "headers": headers_results,
-                               "results": paginated_results,
-                               "order_by": order_by_field,
-                               "dir": order_dir,
-                               "page_dir": page_dir,
-                               "csv_results": query_results},
-                              context_instance=RequestContext(request))
+    # return render_to_response('queries/queries_new_results.html',
+    #                           {"graph": graph,
+    #                            "queries_link": queries_link,
+    #                            "queries_new": queries_new,
+    #                            "headers": headers_results,
+    #                            "results": paginated_results,
+    #                            "order_by": order_by_field,
+    #                            "dir": order_dir,
+    #                            "page_dir": page_dir,
+    #                            "csv_results": query_results},
+    #                           context_instance=RequestContext(request))
+    if as_modal:
+        base_template = 'empty.html'
+        render = render_to_string
+    else:
+        base_template = 'base.html'
+        render = render_to_response
+    add_url = reverse("queries_new_results", args=[graph_slug])
+    broader_context = {"graph": graph,
+                       "queries_link": queries_link,
+                       "queries_new": queries_new,
+                       "headers": headers_results,
+                       "results": paginated_results,
+                       "order_by": order_by_field,
+                       "dir": order_dir,
+                       "page_dir": page_dir,
+                       "csv_results": query_results,
+                       "base_template": base_template,
+                       "as_modal": as_modal,
+                       "add_url": add_url}
+    response = render('queries/queries_new_results.html', broader_context,
+                      context_instance=RequestContext(request))
+    if as_modal:
+        response = {'type': 'html',
+                    'action': 'queries_results',
+                    'html': response}
+        return HttpResponse(json.dumps(response), status=200,
+                            content_type='application/json')
+    else:
+        return response
 
 
 @is_enabled(settings.ENABLE_QUERIES)
