@@ -520,7 +520,7 @@ directives.directive('sylvaEtCellRepeat', [function () {
 }]);
 
 // THIS DIRECTIVE HAS SOME REPITITION AND WILL REQUIRE CLEANUP
-directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', function ($sanitize, $compile, DJANGO_URLS) {
+directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', 'STATIC_PREFIX', function ($sanitize, $compile, DJANGO_URLS, STATIC_PREFIX) {
     return {
         require: '^syEditableTable',
         scope: {
@@ -542,9 +542,11 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', fun
             '<label>' + 
                 '{{ selectText.chartType }}' + 
             '</label>' + 
-            '<div class="highchart-cont">' +
-                '<div ng-repeat="(chartType, options) in selectConfig">' + 
-                    '<div highchart config=options></div>' +
+            '<div class="highchart-cont">' + 
+                '<div>' +
+                    '<a href="" ng-click="setChartType(\'column\')"><img ng-src="{{ static_prefix }}app/media/svg/bar.svg" /></a>' +
+                    '<a href="" ng-click="setChartType(\'line\')"><img ng-src="{{ static_prefix }}app/media/svg/line.svg" />' +
+                    '<a href="" ng-click="setChartType(\'pie\')"><img ng-src="{{ static_prefix }}app/media/svg/pie.svg" />' +
                 '</div>' + 
             '</div>' +
         '</div>' +
@@ -587,8 +589,9 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', fun
                     leftIn: '<a class="arrow left-in" title="collapse left" ng-href="" ng-click="collapse(1)">&#8592</a>'
             };
 
+            scope.static_prefix = STATIC_PREFIX;
             console.log('mdel', md)
-            // Chart type select
+            // Chart type select don't really need this anymore.
             scope.selectConfig = {
                 bar: {options: {chart: {type: 'bar'}},
                       series: [{data: [[1, 6], [2, 6.5], [3, 7], [4, 7.5]]}],
@@ -822,10 +825,15 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', fun
                 }
             }, true)
 
+            scope.setChartType = function (type) {
+                scope.chartType = type;
+            };
+
             scope.$watch('chartType', function (newVal, oldVal) {
                 if (newVal === oldVal) return;
                 ctrl.editing()
                 scope.tableArray.addChart([scope.row, scope.col], newVal)
+                console.log("newVal", newVal, scope.tableArray)
             });
         }
     };

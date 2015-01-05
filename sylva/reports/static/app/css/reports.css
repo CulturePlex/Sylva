@@ -256,6 +256,11 @@ textarea.markdown {
   height: 175px;
 }
 
+img {
+  height: 150px;
+  width: 150px;
+  float: left; 
+}
 
 
 .display-cell h1              { margin: .67em 0; font: normal 22px Georgia;}

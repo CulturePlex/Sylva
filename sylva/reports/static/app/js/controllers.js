@@ -259,3 +259,28 @@ controllers.controller('ReportHistoryCtrl', [
             });
         }
 }]);
+
+
+controllers.controller('Chart', [
+    '$scope',
+    function ($scope) {
+        console.log('charts')
+        $scope.charts = {
+                bar: {options: {chart: {type: 'column'}},
+                      series: [{data: [[1, 6], [2, 6.5], [3, 7], [4, 7.5]]}],
+                      size: {width: 200, height: 200},
+                      title: {text: 'column'}},
+                scatter: {options: {chart: {type: 'scatter'}},
+                          series: [{data: [[1, 6], [2, 6.5], [3, 7], [4, 7.5]]}],
+                          size: {width: 200, height: 200},
+                          title: {text: 'scatter'}},
+                line: {options: {chart: {type: 'line'} },
+                       series: [{data: [[1, 6], [2, 6.5], [3, 7], [4, 7.5]]}],
+                       size: {width: 200, height: 200},
+                       title: {text: 'line'}},
+                pie: {options: {chart: {type: 'pie'}},
+                      series: [{data: [['a', 6], ['b', 6.5], ['c', 7], ['d', 7.5]]}],
+                      size: {width: 200, height: 200},
+                      title: {text: 'pie'}}
+            }
+}])
