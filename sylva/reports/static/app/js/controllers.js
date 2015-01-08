@@ -72,7 +72,6 @@ controllers.controller('BaseReportCtrl', [
             ,   datetime = new Date(date[2], date[1], date[0], time[0], time[1])
             ,   post = new api.builder();
 
-            console.log('post', date, time, datetime)
             template.start_date = {year: date[2], month: date[0],
                                    day: date[1], hour: time[0], minute: time[1]}
             post.template = template
@@ -233,7 +232,6 @@ controllers.controller('ReportHistoryCtrl', [
                 template: $scope.slugs.template,
                 page: pageNum
             }, function (data) {
-                console.log('data', data.num_objects)
                 for (var i=0; i<data.history.length; i++) {
                     var report = data.history[i]
                     ,   date = JSON.parse(report.date_run)
@@ -264,7 +262,6 @@ controllers.controller('ReportHistoryCtrl', [
 controllers.controller('Chart', [
     '$scope',
     function ($scope) {
-        console.log('charts')
         $scope.charts = {
                 bar: {options: {chart: {type: 'column'}},
                       series: [{data: [[1, 6], [2, 6.5], [3, 7], [4, 7.5]]}],

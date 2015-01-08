@@ -180,7 +180,7 @@ services.factory('tableArray', function () {
             } 
             if (this.table[coords[0]][coords[1]].yAxis.indexOf(alias) == -1) {
                 this.table[coords[0]][coords[1]].yAxis.push(alias);
-                console.log('pushed', this.table[coords[0]][coords[1]].yAxis)
+                console.log('addedToTable')
             }
             
         }

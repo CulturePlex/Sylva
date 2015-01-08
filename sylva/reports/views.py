@@ -41,7 +41,6 @@ def reports_index_view(request, graph_slug):
         pdf = True  # hmmm gotta fix this
     else:
         pdf = False
-    print 'pdf', pdf
     c = {}
     c.update(csrf(request))  # Maybe pass this as constant?
     report_name = _("New Report")
