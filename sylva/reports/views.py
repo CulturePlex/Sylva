@@ -143,7 +143,7 @@ def templates_endpoint(request, graph_slug):
             if not response['queries']:  # Get template queries for preview.
                 queries = template.queries.all()
                 # Will have to execute queries here
-                response['queries'] = [{'series': query.execute(),
+                response['queries'] = [{'series': query.execute(headers=True),
                                         'name': query.name, 'id': query.id,
                                         'results': query.query_dict['results']}
                                        for query in queries]
@@ -223,8 +223,10 @@ def history_endpoint(request, graph_slug):
                 previous_page_number = reports_paginator.previous_page_number()
             else:
                 previous_page_number = None
-            report_dict['history'] = [{k: v for (k, v) in report.items()
-                                   if k != 'table'} for report in report_list]
+            report_dict['history'] = [
+                {k: v for (k, v) in report.items() if k != 'table'}
+                for report in report_list
+            ]
             report_dict.update({
                 'reports': report_list,
                 'num_pages': paginator.num_pages,

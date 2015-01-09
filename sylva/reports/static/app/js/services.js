@@ -198,6 +198,7 @@ services.factory('tableArray', function () {
         } else {
             this.table[coords[0]][coords[1]].xAxis = null;
         }
+        console.log('removedFromTable')
     }
 
     TableArray.prototype.addMarkdown = function(coords, markdown) {

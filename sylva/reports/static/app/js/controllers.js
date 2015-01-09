@@ -212,6 +212,7 @@ controllers.controller('ReportPreviewCtrl', [
             graphSlug: $scope.slugs.graph,
             template: $scope.slugs.template,  
         }, function (data) {
+            console.log('previewData', data)
             $scope.template = data.template;
             $scope.resp = {table: data.template.layout, queries: data.queries}
             breadService.updateName(data.template.name)
