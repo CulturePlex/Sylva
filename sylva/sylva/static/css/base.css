@@ -1265,6 +1265,11 @@ div.initial p:nth-child(3) {
     font-family: Georgia;
 }
 
+#graph-support {
+    z-index: -1;
+    position: relative;
+}
+
 .dashboard-graphs .button,.dashboard-graphs .disabled {
     position: relative;
     float: right;

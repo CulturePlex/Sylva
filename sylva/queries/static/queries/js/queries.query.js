@@ -1871,11 +1871,12 @@ diagram.aggregates = [
                     }]
                 ],
                 paintStyle: {
-                    strokeStyle: '#AEAA78'
+                    strokeStyle: '#AEAA78',
+                    lineWidth: 2
                 },
                 backgroundPaintStyle: {
                     strokeStyle: '#AEAA78',
-                    lineWidth: 3
+                    lineWidth: 4
                 }
             });
 
