@@ -161,37 +161,62 @@ directives.directive('sylvaPvCellRepeat', [function () {
                 childScopes = [];
             }
 
-
+            // This should be refactored
             for (var i=0; i<len; i++) {
                 var cell = scope.row[i]
                 ,   query = cell.displayQuery
-                ,   series = cell.series
+                ,   chartSeries = cell.series
                 ,   name = cell.name
                 ,   colspan = parseInt(cell.colspan)
                 ,   cellWidth = (tableWidth / numCols - ((numCols + 1) * 2 / numCols)) * colspan + (2 * (colspan - 1)) + 'px'
                 ,   block;      
                     
-
                 childScope = scope.$new();
                 childScope.$index = i;
                 childScope.cellStyle = {width: cellWidth};
 
-                console.log('xAxisyAxis', cell.xAxis, cell.yAxis)
+                
+                // This should be refactored
                 if (query) {
-                    if (!series) {
-                        query = ctrl.getQueries().filter(function (el) {
-                                return el.id === query;
-                            })[0];
-                        series = query.series;
+                    query = ctrl.getQueries().filter(function (el) {
+                        return el.id === query;
+                    })[0];
+                    var series = query.series;
+                    if (!chartSeries) {
+
                         name = query.name;
-                        console.log('query', query)
+                        var header = series[0]
+                        ,   xSeriesNdx = header.indexOf(cell.xAxis)
+                        ,   chartSeries = [];
+
+                        for (var j=0; j<cell.yAxis.length; j++) {
+                            var ser = []
+                            ,   ySeries = cell.yAxis[j]
+                            ,   ndx = header.indexOf(ySeries);
+                            if (ndx === -1) ndx = j
+                            for (var k=1; k<series.length; k++) {
+                                var row = series[k]
+                                ,   x;
+                                if (xSeriesNdx === -1 && cell.xAxis) {
+                                    x = cell.xAxis;
+                                } else {
+                                    x = row[xSeriesNdx];
+                                }
+                                var point = [x, row[ndx]];
+                                ser.push(point);
+                            }
+                            chartSeries.push({name: ySeries, data: ser});
+                        }
+                        
+                    } else {
+                        chartSeries = [{name: "ySeries", data: series}]
                     }
                     // Here must config chart. 
                     childScope.query = query;
                     childScope.chartConfig = {
                         options: {chart: {type: cell.chartType}},
                         xAxis: {catagories: []},
-                        series: [{data: series}],
+                        series: chartSeries,
                         title: {text: name},     
                         loading: false
                     };
