@@ -1263,6 +1263,7 @@ div.initial p:nth-child(3) {
 .graph-description {
     font-style: italic;
     font-family: Georgia;
+    display: block;
 }
 
 #graph-support {

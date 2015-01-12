@@ -2270,15 +2270,16 @@ diagram.aggregates = [
                 var uuidTarget = targetId + '-target';
 
                 $('#' + sourceId + ' .select-rel').val(relationName);
+                var labelRel = $('option:selected', '#' + sourceId + ' .select-rel').data('label');
                 $('#' + sourceId + ' .select-rel').change();
 
-                diagram.addRelation(sourceId, targetId, relationValue, relationName, idRel);
+                diagram.addRelation(sourceId, targetId, labelRel, relationName, idRel);
 
                 // We check if we need to show the 'alias selects' for the relationship boxes
-                diagram.showSelects(relationValue, "relationship");
+                diagram.showSelects(labelRel, "relationship");
                 // We check if we need to change the alias
                 // (edit alias feature)
-                diagram.loadQueryWithAlias(idRelBox, relation, relationValue, false)
+                diagram.loadQueryWithAlias(idRelBox, relation, labelRel, false)
             }
 
             // We will check the conditions for the relationships
@@ -3446,7 +3447,7 @@ diagram.aggregates = [
         // We are going to assign the values for the elements of the form
         var numberOfResults = $('.content-table tr').length;
         $('#id_results_count').val(numberOfResults);
-        $('#id_last_run').val('1987-11-01');
+        $('#id_last_run').val('1918-12-01');
         $('#id_query_dict').val(JSON.stringify(queryElements['query']));
         $('#id_query_aliases').val(JSON.stringify(queryElements['aliases']));
         $('#id_query_fields').val(JSON.stringify(queryElements['fields']));
