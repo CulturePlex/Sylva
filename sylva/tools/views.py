@@ -140,9 +140,10 @@ def graph_export_table_csv(request, graph_slug):
     graph = get_object_or_404(Graph, slug=graph_slug)
     node_type_id = request.session.get('node_type_id', None)
     converter = CSVTableConverter(graph=graph, node_type_id=node_type_id)
-    zip_data, zip_name = converter.export()
-    response = HttpResponse(zip_data, content_type='application/zip')
-    response['Content-Disposition'] = 'attachment; filename="%s"' % zip_name
+    csv_name, csv_data = converter.export()
+    export_name = graph_slug + '_' + csv_name
+    response = HttpResponse(csv_data, content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="%s"' % export_name
     return response
 
 
@@ -155,7 +156,8 @@ def graph_export_queries_csv(request, graph_slug):
     query_name = request.session.get('query_name', None)
     converter = CSVQueryConverter(graph=graph, csv_results=csv_results,
                                   query_name=query_name)
-    zip_data, zip_name = converter.export()
-    response = HttpResponse(zip_data, content_type='application/zip')
-    response['Content-Disposition'] = 'attachment; filename="%s"' % zip_name
+    csv_name, csv_data = converter.export()
+    export_name = graph_slug + '_' + csv_name
+    response = HttpResponse(csv_data, content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="%s"' % export_name
     return response
