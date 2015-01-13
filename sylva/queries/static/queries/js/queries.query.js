@@ -2106,6 +2106,7 @@ diagram.aggregates = [
      */
     diagram.loadQuery = function(jsonQuery) {
         try {
+
             jsonDict = JSON.parse(jsonQuery);
             types = jsonDict["aliases"]["types"];
             nodetypes = {};
@@ -2120,6 +2121,8 @@ diagram.aggregates = [
             checkboxes = jsonDict["checkboxes"];
             aggregates = jsonDict["aggregates"];
             aggregatesRels = jsonDict["aggregatesRels"];
+            sortingParams = jsonDict["sortingParams"];
+
             var fieldIndex = 0;
             var fieldIndexRel = 0;
             var conditionsIndex = 0;
@@ -2404,6 +2407,16 @@ diagram.aggregates = [
                 }
             }
 
+            // Once all the boxes are setting up, we set the sorting params
+            for(key in sortingParams) {
+                if(sortingParams.hasOwnProperty(key)) {
+                    var elementId = "#id_" + key;
+                    // We set the value for that element
+                    var elementValue = sortingParams[key];
+                    $(elementId).val(elementValue);
+                }
+            }
+
             jsPlumb.repaintEverything();
         } catch(error) {
             alert(error);
@@ -2417,6 +2430,7 @@ diagram.aggregates = [
         var saveElements = {};
         var query = diagram.generateQuery();
         saveElements["query"] = query;
+
         // The input is for the edit alias option
         var elements = $('.title select, .title input');
         var checkboxes = $('.checkbox-property');
@@ -2428,6 +2442,8 @@ diagram.aggregates = [
         var aggregatesDict = {};
         var aggregatesDictRels = {};
         var fieldsConditionsDict = {};
+        var sortingParamsDict = {};
+
         // We get the id, typename, left and top of the boxes
         $.each(elements, function(index, element) {
             var valuesDict = {};
@@ -2450,6 +2466,7 @@ diagram.aggregates = [
             typesDict[alias] = valuesDict;
         });
         aliasDict["types"] = typesDict;
+
         // We get the checkboxes checked and the property to return
         $.each(checkboxes, function(index, checkbox) {
             if($(checkbox).prop('checked')) {
@@ -2457,6 +2474,7 @@ diagram.aggregates = [
                 checkboxesDict[fieldIndex] = $(checkbox).next().next().val();
             }
         });
+
         // We get the aggregates if they exist
         $.each(aggregates, function(index, aggregate) {
             // We get the value to know if we treat relationships or nodes
@@ -2481,6 +2499,7 @@ diagram.aggregates = [
 
             }
         });
+
         // We get the fields that are conditions to construct the box properly
         $.each(checkboxes, function(index, checkbox) {
             var lookup = $(checkbox).next().next().next().val();
@@ -2492,6 +2511,14 @@ diagram.aggregates = [
             }
         });
         saveElements['aliases'] = aliasDict;
+
+        // We get the params of the sorting settings and save them into
+        // the fields dict
+        sortingParamsDict['rows_number'] = $('#id_rows_number').val();
+        sortingParamsDict['show_mode'] = $('#id_show_mode').val();
+        sortingParamsDict['select_order_by'] = $('#id_select_order_by').val();
+        sortingParamsDict['dir_order_by'] = $('#id_dir_order_by').val();
+
         // We store all the important values
         fieldsDict['fields'] = diagram.fieldsForNodes;
         fieldsDict['fieldsRels'] = diagram.savedFieldsForRels;
@@ -2500,8 +2527,10 @@ diagram.aggregates = [
         fieldsDict['aggregatesRels'] = aggregatesDictRels;
         fieldsDict['fieldsConditions'] = fieldsConditionsDict;
         fieldsDict['fieldRelsCounter'] = diagram.fieldRelsCounter;
+        fieldsDict['sortingParams'] = sortingParamsDict;
+
         saveElements['fields'] = fieldsDict;
-        // What we do with nodetypesCounter and reltypesCounter?
+
         return saveElements;
     };
 
