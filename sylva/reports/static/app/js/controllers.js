@@ -104,7 +104,7 @@ controllers.controller('NewReportCtrl', [
 
         var exampleTable = [[{"col": 0, "colspan": "1", "id": "cell1", "row": 0, 
                              "rowspan": "1", "displayQuery": 1, "chartType": "pie",
-                             "series": [
+                             "demo": "true", "series": [
                                 ['Keanu Reeves',36],
                                 ['Linus Torvalds',24],
                                 ['Tyrion Lannister',20],
@@ -113,8 +113,8 @@ controllers.controller('NewReportCtrl', [
                                 ['Javier de la Rosa',24]
                             ]}, 
                             {"col": 1, "colspan": "1", "id": "cell2", "row": 0, 
-                             "rowspan": "1", "displayQuery": 1, "chartType": "pie",
-                             "series": [
+                             "rowspan": "1", "displayQuery": 1, "chartType": "line",
+                             "demo": "true","series": [
                                 ['Keanu Reeves',36],
                                 ['Linus Torvalds',24],
                                 ['Tyrion Lannister',20],
@@ -124,7 +124,7 @@ controllers.controller('NewReportCtrl', [
                             ]}], 
                             [{"col": 0, "colspan": "1", "id": "cell3", "row": 1,
                              "rowspan": "1","displayQuery": 1, "chartType": "column",
-                             "series": [
+                             "demo": "true", "series": [
                                 ['Keanu Reeves',36],
                                 ['Linus Torvalds',24],
                                 ['Tyrion Lannister',20],
@@ -133,8 +133,8 @@ controllers.controller('NewReportCtrl', [
                                 ['Javier de la Rosa',24]
                             ]}, 
                             {"col": 1, "colspan": "1", "id": "cell4", "row": 1,
-                             "rowspan": "1","displayQuery": 1, "chartType": "column",
-                             "series": [
+                             "rowspan": "1","displayQuery": 1, "chartType": "pie",
+                             "demo": "true", "series": [
                                 ['Keanu Reeves',36],
                                 ['Linus Torvalds',24],
                                 ['Tyrion Lannister',20],

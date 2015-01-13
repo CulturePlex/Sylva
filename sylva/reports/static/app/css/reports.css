@@ -39,13 +39,22 @@ th.report {
 
 .highchart-cont {
   overflow: hidden;
-  height: 100px ;
+  height: 100px;
+  max-width: 200px;
 }
 
 .highchart-cont:hover {
   overflow-y: scroll;
 }
 
+.hoverdiv {
+  height: 75px;
+  overflow: hidden;
+}
+
+.hoverdiv:hover {
+  overflow-y:scroll; 
+}
 .background-text {
   color: #99999D;
   font-style: italic;
@@ -95,7 +104,7 @@ th.report {
 }
 
 .table-button {
-  margin: 1px;
+  margin: 2px;
 }
 
 .editable-table {

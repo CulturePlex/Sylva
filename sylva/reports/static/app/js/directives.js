@@ -169,47 +169,55 @@ directives.directive('sylvaPvCellRepeat', [function () {
                 ,   name = cell.name
                 ,   colspan = parseInt(cell.colspan)
                 ,   cellWidth = (tableWidth / numCols - ((numCols + 1) * 2 / numCols)) * colspan + (2 * (colspan - 1)) + 'px'
-                ,   block;      
-                    
+                ,   block
+                ,   demo = cell.demo || false;     
+                console.log("cell", cell)
                 childScope = scope.$new();
                 childScope.$index = i;
                 childScope.cellStyle = {width: cellWidth};
 
                 
                 // This should be refactored
-                if (query) {
-                    query = ctrl.getQueries().filter(function (el) {
-                        return el.id === query;
-                    })[0];
-                    var series = query.series;
-                    if (!chartSeries) {
+                if (cell.displayMarkdown) {
+                    childScope.markdown = cell.displayMarkdown;
+                } else {
+                    if (query && demo === false) {
+                        query = ctrl.getQueries().filter(function (el) {
+                            return el.id === query;
+                        })[0];
+                        var series = query.series;
+                        if (!chartSeries) {
+                            name = query.name;
+                            var header = series[0]
+                            ,   xSeriesNdx = header.indexOf(cell.xAxis)
+                            ,   chartSeries = [];
 
-                        name = query.name;
-                        var header = series[0]
-                        ,   xSeriesNdx = header.indexOf(cell.xAxis)
-                        ,   chartSeries = [];
-
-                        for (var j=0; j<cell.yAxis.length; j++) {
-                            var ser = []
-                            ,   ySeries = cell.yAxis[j]
-                            ,   ndx = header.indexOf(ySeries);
-                            if (ndx === -1) ndx = j
-                            for (var k=1; k<series.length; k++) {
-                                var row = series[k]
-                                ,   x;
-                                if (xSeriesNdx === -1 && cell.xAxis) {
-                                    x = cell.xAxis;
-                                } else {
-                                    x = row[xSeriesNdx];
+                            for (var j=0; j<cell.yAxis.length; j++) {
+                                var ser = []
+                                ,   ySeries = cell.yAxis[j]
+                                ,   ndx = header.indexOf(ySeries);
+                                if (ndx === -1) ndx = j
+                                for (var k=1; k<series.length; k++) {
+                                    var row = series[k]
+                                    ,   x;
+                                    if (xSeriesNdx === -1 && cell.xAxis) {
+                                        x = cell.xAxis;
+                                    } else {
+                                        x = row[xSeriesNdx];
+                                    }
+                                    var point = [x, row[ndx]];
+                                    ser.push(point);
                                 }
-                                var point = [x, row[ndx]];
-                                ser.push(point);
+                                chartSeries.push({name: ySeries, data: ser});
                             }
-                            chartSeries.push({name: ySeries, data: ser});
+                            
+                        } else {
+                            chartSeries = [{name: "ySeries", data: series}]
                         }
-                        
                     } else {
-                        chartSeries = [{name: "ySeries", data: series}]
+                        console.log('no query', chartSeries)
+                        chartSeries = [{name: "ySeries", data: chartSeries}]
+                        name = "Rad Chart"
                     }
                     // Here must config chart. 
                     childScope.query = query;
@@ -218,12 +226,11 @@ directives.directive('sylvaPvCellRepeat', [function () {
                         xAxis: {catagories: []},
                         series: chartSeries,
                         title: {text: name},     
-                        loading: false
-                    };
-                } else if (cell.displayMarkdown) {
-                    childScope.markdown = cell.displayMarkdown;
+                        loading: false 
+                    }
                 }
 
+                console.log('config', childScope.chartConfig)
                 transclude(childScope, function (clone) {
                     previous.after(clone);
                     block = {}
@@ -232,9 +239,9 @@ directives.directive('sylvaPvCellRepeat', [function () {
                     childScopes.push(block)
                     previous = clone
                 });
-            } 
+            }
         }
-    };
+    }
 }]);
 
 
@@ -365,7 +372,7 @@ directives.directive('syEditableTable',['tableArray', 'DJANGO_URLS',
             });
 
             addCol.bind('click', function () {
-                if (scope.tableArray.numCols < 4) {
+                if (scope.tableArray.numCols < 3) {
                     scope.$apply(function () {
                         scope.tableArray.addCol();
                     });
@@ -613,17 +620,26 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', 'ST
             '</div>' +
         '</div>' +
         '<div class="col cellcol">' +
-            '<label>{{ selectText.xSeries }}</label>' +
-            '<select ng-model="activeX" ng-value="result" ' +
-                'ng-options="result as (result.alias + \', \'+ + result.property + \'. Aggr: \' + result.aggregate) for result in xSeries' +
-            '">' + 
-            '</select>' +
-            '<label>{{ selectText.ySeries }}</label><br>' + 
-            '<label ng-repeat="result in ySeries">' + 
-                '<input type="checkbox" ng-model="result.selected" value="{{result}}" />' + 
-                '{{ result.name }}' + ', ' + '{{result.property}}' + '. Aggr: ' + '{{result.aggregate}}' + 
-            '</label>' +
-            '<br>' +   
+            '<div style="margin:2px;">' +
+                '<label>{{ selectText.xSeries }}</label>' +
+                '<select ng-model="activeX" ng-value="result" ' +
+                    'ng-options="result as (result.alias) for result in xSeries' +
+                '">' + 
+                '</select>' +
+            '</div>' +
+            '<div style="margin:2px;">' +
+                '<label>{{ selectText.ySeries }}</label><br>' + 
+                '<div class="hoverdiv">' +
+                    '<div style="margin:5px;">' + 
+                        '<label ng-repeat="result in ySeries">' + 
+                            '<input type="checkbox" ng-model="result.selected" value="{{result}}" />' + 
+                            '{{ result.alias }}' + 
+                            '<br>' +
+                        '</label>' +
+                        
+                    '</div>' +  
+                '</div>' +
+            '</div>' + 
         '</div>' +
     '</div>' +
 '</div>' + 
