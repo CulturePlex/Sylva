@@ -57,8 +57,8 @@ class QueryOptionsForm(forms.Form):
         ("default", _("Default")),
     )
     DIR_CHOICES = (
-        ("ASC", _("Ascending")),
-        ("DESC", _("Descending")),
+        ("asc", _("Ascending")),
+        ("desc", _("Descending")),
     )
     rows_number = forms.IntegerField(label=_("Show"),
                                      initial=100,

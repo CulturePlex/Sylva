@@ -258,7 +258,8 @@ def queries_new_results(request, graph_slug):
     headers = True
     if order_by_field == 'default' and select_order_by == 'default':
         query_results = graph.query(query_dict, headers=headers)
-    # elif order_by_field != 'default' and select_order_by == None:
+    elif order_by_field == 'no_order':
+        query_results = graph.query(query_dict, headers=headers)
     else:
         if order_by_field == 'default' and select_order_by != 'default':
             order_by_field = select_order_by
@@ -325,17 +326,6 @@ def queries_new_results(request, graph_slug):
     except EmptyPage:
         # If page is out of range (e.g. 9999), deliver last page of results.
         paginated_results = paginator.page(paginator.num_pages)
-    # return render_to_response('queries/queries_new_results.html',
-    #                           {"graph": graph,
-    #                            "queries_link": queries_link,
-    #                            "queries_new": queries_new,
-    #                            "headers": headers_results,
-    #                            "results": paginated_results,
-    #                            "order_by": order_by_field,
-    #                            "dir": order_dir,
-    #                            "page_dir": page_dir,
-    #                            "csv_results": query_results},
-    #                           context_instance=RequestContext(request))
     if as_modal:
         base_template = 'empty.html'
         render = render_to_string
@@ -431,18 +421,6 @@ def queries_query_edit(request, graph_slug, query_id):
         query_dict = request.session.get('query', None)
         query_aliases = request.session.get('query_aliases', None)
         query_fields = request.session.get('query_fields', None)
-    # return render_to_response('queries/queries_new.html',
-    #                           {"graph": graph,
-    #                            "node_types": nodetypes,
-    #                            "relationship_types": reltypes,
-    #                            "queries_link": queries_link,
-    #                            "query": query,
-    #                            "form": form,
-    #                            "query_options_form": query_options_form,
-    #                            "query_dict": query_dict,
-    #                            "query_aliases": query_aliases,
-    #                            "query_fields": query_fields},
-    #                           context_instance=RequestContext(request))
     if as_modal:
         base_template = 'empty.html'
         render = render_to_string
@@ -543,6 +521,18 @@ def queries_query_results(request, graph_slug, query_id):
     headers = True
     # We need the order_dir for the icons in the frontend
     if order_by_field == 'default' and select_order_by == 'default':
+        if different_queries and (
+                query.id == request.session.get('query_id', None)):
+            query_results = graph.query(query_dict, headers=headers)
+            request.session['query'] = json.dumps(query_dict)
+            request.session['query_aliases'] = query_aliases
+            request.session['query_fields'] = query_fields
+        else:
+            query_results = query.execute(headers=headers)
+            request.session['query'] = query.query_dict
+            request.session['query_aliases'] = query.query_aliases
+            request.session['query_fields'] = query.query_fields
+    elif order_by_field == 'no_order':
         if different_queries and (
                 query.id == request.session.get('query_id', None)):
             query_results = graph.query(query_dict, headers=headers)

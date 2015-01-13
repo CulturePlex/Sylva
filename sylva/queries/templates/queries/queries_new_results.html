@@ -37,7 +37,7 @@
                                 <div class="shorten-text">
                                 {{ result }}
                                 </div>
-                                <a class='remove-sorting' href="?page={{ results.number }}&order_by=default" title="{% trans "Remove from sorting" %}"></a>
+                                <a class='remove-sorting' href="?page={{ results.number }}&order_by=no_order" title="{% trans "Remove from sorting" %}"></a>
                             {% if dir == 'desc' %}
                                 <a class='sorting-asc' href="?page={{ results.number }}&order_by={{ result }}&dir={{ dir }}" title="{% trans "Sorting ascending by " %} {{ order_by }}"></a>
                             {% else %}
