@@ -9,6 +9,10 @@ select {
   padding-top: 4px
 }
 
+.ng-hide {
+  visibility: hidden;
+}
+
 
 .buttonLinkOption input {
   margin: 3px;

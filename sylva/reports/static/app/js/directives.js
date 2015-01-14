@@ -170,8 +170,7 @@ directives.directive('sylvaPvCellRepeat', [function () {
                 ,   colspan = parseInt(cell.colspan)
                 ,   cellWidth = (tableWidth / numCols - ((numCols + 1) * 2 / numCols)) * colspan + (2 * (colspan - 1)) + 'px'
                 ,   block
-                ,   demo = cell.demo || false;     
-                console.log("cell", cell)
+                ,   demo = cell.demo || false;
                 childScope = scope.$new();
                 childScope.$index = i;
                 childScope.cellStyle = {width: cellWidth};
@@ -215,7 +214,6 @@ directives.directive('sylvaPvCellRepeat', [function () {
                             chartSeries = [{name: "ySeries", data: series}]
                         }
                     } else {
-                        console.log('no query', chartSeries)
                         chartSeries = [{name: "ySeries", data: chartSeries}]
                         name = "Rad Chart"
                     }
@@ -230,7 +228,6 @@ directives.directive('sylvaPvCellRepeat', [function () {
                     }
                 }
 
-                console.log('config', childScope.chartConfig)
                 transclude(childScope, function (clone) {
                     previous.after(clone);
                     block = {}
@@ -531,7 +528,6 @@ directives.directive('sylvaEtCellRepeat', [function () {
                         return el.id === query;
                     })[0];
 
-                    console.log('xAxis', xAxis)
                     if (activeQuery) {
                         var results = ctrl.parseResults(activeQuery.results);
                         var results = results.num.concat(results.cat)
@@ -589,7 +585,7 @@ directives.directive('sylvaEtCellRepeat', [function () {
 }]);
 
 // THIS DIRECTIVE HAS SOME REPITITION AND WILL REQUIRE CLEANUP
-directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', 'STATIC_PREFIX', function ($sanitize, $compile, DJANGO_URLS, STATIC_PREFIX) {
+directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', 'STATIC_PREFIX', '$anchorScroll', '$location', function ($sanitize, $compile, DJANGO_URLS, STATIC_PREFIX, $anchorScroll, $location) {
     return {
         require: '^syEditableTable',
         scope: {
@@ -611,12 +607,11 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', 'ST
             '<label>' + 
                 '{{ selectText.chartType }}' + 
             '</label>' + 
-            '<div class="highchart-cont">' + 
-                '<div>' +
-                    '<a href="" ng-click="setChartType(\'column\')"><img ng-src="{{ static_prefix }}app/svg/bar.svg" /></a>' +
-                    '<a href="" ng-click="setChartType(\'line\')"><img ng-src="{{ static_prefix }}app/svg/line.svg" /></a>' +
-                    '<a href="" ng-click="setChartType(\'pie\')"><img ng-src="{{ static_prefix }}app/svg/pie.svg" /></a>' +
-                '</div>' + 
+            '<div id="highscroll" style="position: relative;"class="highchart-cont">' + 
+                    '<a href="" id="column" ng-click="setChartType(\'column\')"><img ng-src="{{ static_prefix }}app/svg/bar.svg" /></a>' +
+                    '<a href="" id="line" ng-click="setChartType(\'line\')"><img ng-src="{{ static_prefix }}app/svg/line.svg" /></a>' +
+                    '<a href="" id="pie" ng-click="setChartType(\'pie\')"><img ng-src="{{ static_prefix }}app/svg/pie.svg" /></a>' +
+
             '</div>' +
         '</div>' +
         '<div class="col cellcol">' +
@@ -654,6 +649,8 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', 'ST
             ,   stepChild = ang(ang(ang(elem.children()[2]).children()[0])[0]).children()
             ,   chartCol = ang(stepChild[0])
             ,   cellCol = ang(stepChild[1])
+            ,   chartDiv = ang(chartCol.children()[1])
+            ,   chartCont = ang(chartDiv.children()[0])
             ,   results
             ,   coords
             ,   arrows = false
@@ -686,6 +683,15 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', 'ST
             scope.collapse = function (dir) {
                 scope.tableArray.collapseCol(coords, dir)
             }
+
+            chartDiv.hover(function () {
+            }, function () {
+                if (scope.chartType) {
+                    var chart = $('#' + scope.chartType);
+                    chart.get(0).scrollIntoView();
+                }
+
+            });
 
             // Bind cell to click showing/hiding arrows for merge actions
             elem.bind("click", function (event) {
@@ -728,16 +734,30 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', 'ST
                     scope.activeX = scope.config.activeX;
                     scope.chartTypes = scope.config.chartTypes;
                     scope.chartType = scope.config.chartType;
+
                 }
                 scope.activeYs = scope.config.activeYs;
                 scope.tableArray = ctrl.getTableArray();
                 cellWidth = elem.width()
                 chartCol.width(cellWidth * 0.4)
                 cellCol.width(cellWidth * 0.4)
+                chartDiv.ready(function () {
+                    
+                //setTimeout(function () {
+                    if (scope.chartType) {
+                        var chart = $('#' + scope.chartType);
+                        console.log("chartType", chart.offset())
+                        chart.get(0).scrollIntoView();
+                    }
+                //}, 2000)
 
+            });
                 // Here is the active query/ xy series code that executes
                 // on init for edit report.
                 if (scope.activeQuery) {
+
+                    //chart.get(0).scrollIntoView();
+
                     results = scope.activeQuery.results.filter(function (el) {
                         return el.properties.length > 0;
                     });
@@ -780,7 +800,6 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', 'ST
 
                     if (scope.ySeries.length == 1) scope.ySeries[0].selected = true;
                 }
-                console.log('activeX', scope.activeX, scope.xSeries)
             });
     
             // Markdown - broken
@@ -845,12 +864,10 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', 'ST
             }); 
 
             scope.$watch('activeX', function (newVal, oldVal) {
-                if (!newVal || newVal == oldVal) return; 
-                console.log('new', newVal)
+                if (!newVal || newVal == oldVal) return;
                 scope.tableArray.addAxis([scope.row, scope.col], 'x', newVal.alias)
                 scope.ySeries = result_dict.num
                 scope.ySeries = scope.ySeries.filter(function (el) {
-                    console.log('el', el.alias)
                     return el.alias !== newVal.alias;
                 });
             })
@@ -873,6 +890,7 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', 'ST
 
             scope.setChartType = function (type) {
                 scope.chartType = type;
+                console.log("type", scope.chartType)
             };
 
             scope.$watch('chartType', function (newVal, oldVal) {
