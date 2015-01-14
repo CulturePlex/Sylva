@@ -59,6 +59,7 @@ controllers.controller('BaseReportCtrl', [
         $scope.designReport = function () {
             // Using is report form - edit and new ctrls
             $scope.editable = true;
+            console.log("editable", $scope.editable)
             breadService.design()
         };
 

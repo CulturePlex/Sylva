@@ -287,6 +287,10 @@ directives.directive('syEditableTable',['tableArray', 'DJANGO_URLS',
                 $scope.prev = $scope.resp;
             };
 
+            this.editable = function () {
+                return $scope.editable;
+            }
+
             // Helper functions for sorting query result data types
             this.parseResults = function (results) {
                 
@@ -741,22 +745,15 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', 'ST
                 cellWidth = elem.width()
                 chartCol.width(cellWidth * 0.4)
                 cellCol.width(cellWidth * 0.4)
-                chartDiv.ready(function () {
-                    
-                //setTimeout(function () {
-                    if (scope.chartType) {
-                        var chart = $('#' + scope.chartType);
-                        console.log("chartType", chart.offset())
-                        chart.get(0).scrollIntoView();
-                    }
-                //}, 2000)
 
-            });
+                scope.$watch(ctrl.editable, function () {
+                    var chart = $('#' + scope.chartType);
+                    chart.get(0).scrollIntoView();
+                })
+
                 // Here is the active query/ xy series code that executes
                 // on init for edit report.
                 if (scope.activeQuery) {
-
-                    //chart.get(0).scrollIntoView();
 
                     results = scope.activeQuery.results.filter(function (el) {
                         return el.properties.length > 0;
@@ -890,7 +887,6 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', 'ST
 
             scope.setChartType = function (type) {
                 scope.chartType = type;
-                console.log("type", scope.chartType)
             };
 
             scope.$watch('chartType', function (newVal, oldVal) {
