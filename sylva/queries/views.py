@@ -579,14 +579,14 @@ def queries_query_results(request, graph_slug, query_id):
             request.session['query'] = json.dumps(query_dict)
             request.session['query_aliases'] = query_aliases
             request.session['query_fields'] = query_fields
+            # Let's check if the sorting params are different
+            if different_sorting_params:
+                request.session['query_fields'] = json.dumps(query_fields)
         else:
             query_results = query.execute(headers=headers)
             request.session['query'] = query.query_dict
             request.session['query_aliases'] = query.query_aliases
             request.session['query_fields'] = query.query_fields
-            # Let's check if the sorting params are different
-            if different_sorting_params:
-                request.session['query_fields'] = query_fields
     elif order_by_field == NO_ORDER:
         if different_queries and (
                 query.id == request.session.get('query_id', None)):
@@ -594,14 +594,14 @@ def queries_query_results(request, graph_slug, query_id):
             request.session['query'] = json.dumps(query_dict)
             request.session['query_aliases'] = query_aliases
             request.session['query_fields'] = query_fields
+            # Let's check if the sorting params are different
+            if different_sorting_params:
+                request.session['query_fields'] = json.dumps(query_fields)
         else:
             query_results = query.execute(headers=headers)
             request.session['query'] = query.query_dict
             request.session['query_aliases'] = query.query_aliases
             request.session['query_fields'] = query.query_fields
-            # Let's check if the sorting params are different
-            if different_sorting_params:
-                request.session['query_fields'] = query_fields
     else:
         if order_by_field == DEFAULT and select_order_by != DEFAULT:
             order_by_field = select_order_by
@@ -634,12 +634,9 @@ def queries_query_results(request, graph_slug, query_id):
                 query_fields = request.session['query_fields']
             else:
                 request.session['query_aliases'] = query_aliases
-                request.session['query_fields'] = query_fields
+                request.session['query_fields'] = json.dumps(query_fields)
         else:
             query_results = query.execute(order_by=order_by, headers=headers)
-            # Let's check if the sorting params are different
-            if different_sorting_params:
-                request.session['query_fields'] = query_fields
         if not query_results:
             messages.error(request,
                            _("Error: You are trying to sort a \
