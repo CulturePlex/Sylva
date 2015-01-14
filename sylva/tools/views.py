@@ -22,6 +22,7 @@ from guardian.decorators import permission_required
 from data.models import Data
 from graphs.models import Graph
 from graphs.utils import graph_last_modified
+from schemas.models import NodeType
 from tools.converters import (GEXFConverter, CSVConverter, CSVQueryConverter,
                               CSVTableConverter)
 
@@ -139,10 +140,12 @@ def graph_export_csv(request, graph_slug):
 def graph_export_table_csv(request, graph_slug):
     graph = get_object_or_404(Graph, slug=graph_slug)
     node_type_id = request.session.get('node_type_id', None)
+    node_type = get_object_or_404(NodeType, id=node_type_id)
+
     converter = CSVTableConverter(graph=graph, node_type_id=node_type_id)
-    csv_name, csv_data = converter.export()
-    export_name = graph_slug + '_' + csv_name
-    response = HttpResponse(csv_data, content_type='text/csv')
+    export_name = graph_slug + '_' + node_type.name + '.csv'
+
+    response = HttpResponse(converter.stream_export(), content_type='text/csv')
     response['Content-Disposition'] = 'attachment; filename="%s"' % export_name
     return response
 
@@ -154,10 +157,13 @@ def graph_export_queries_csv(request, graph_slug):
     graph = get_object_or_404(Graph, slug=graph_slug)
     csv_results = request.session.get('csv_results', None)
     query_name = request.session.get('query_name', None)
+
     converter = CSVQueryConverter(graph=graph, csv_results=csv_results,
                                   query_name=query_name)
-    csv_name, csv_data = converter.export()
+    query_name = query_name.decode('utf-8')
+    csv_name = query_name + '.csv'
     export_name = graph_slug + '_' + csv_name
-    response = HttpResponse(csv_data, content_type='text/csv')
+
+    response = HttpResponse(converter.stream_export(), content_type='text/csv')
     response['Content-Disposition'] = 'attachment; filename="%s"' % export_name
     return response

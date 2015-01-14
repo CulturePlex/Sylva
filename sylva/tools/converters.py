@@ -313,26 +313,22 @@ class CSVTableConverter(BaseConverter):
     Converts a Sylva neo4j data table into CSV files.
     """
 
-    def export(self):
+    def stream_export(self):
         node_type_id = self.node_type_id
         node_type = get_object_or_404(NodeType, id=node_type_id)
-        node_type_name = node_type.name.encode('utf-8')
         nodes = node_type.all()
         properties = node_type.properties.all()
-        # We decode the name
-        node_type_name = node_type_name.decode('utf-8')
-        csv_name = node_type_name + '.csv'
-
-        file_buffer = StringIO()
-        csv_file = open(csv_name, 'w')
-        csv_writer = csv.writer(file_buffer, delimiter=',',
-                                quotechar='"', quoting=csv.QUOTE_ALL)
         csv_header = []
         csv_header_encoded = []
+
         for prop in properties:
             csv_header.append(prop.key)
-            csv_header_encoded.append(prop.key.encode('utf-8'))
-        csv_writer.writerow(csv_header_encoded)
+            csv_quoted_element = '"{}"'.format(prop.key.encode('utf-8'))
+            csv_header_encoded.append(csv_quoted_element)
+        csv_header_formatted = ','.join(csv_header_encoded)
+        yield csv_header_formatted
+        yield '\n'
+
         for node in nodes:
             csv_node_values = []
             node_properties = node.properties
@@ -341,15 +337,11 @@ class CSVTableConverter(BaseConverter):
                 if isinstance(prop_value, unicode):
                     prop_value = prop_value.encode('utf-8')
                 csv_node_values.append(prop_value)
-            csv_writer.writerow(csv_node_values)
-
-        csv_data = file_buffer.getvalue()
-        csv_file.write(csv_data)
-
-        file_buffer.close()
-        csv_file.close()
-
-        return csv_name, csv_data
+            # We use the map(str, list) because we need string types
+            # to use the join() function
+            csv_row_formatted = ','.join(map(str, csv_node_values))
+            yield csv_row_formatted
+            yield '\n'
 
 
 class CSVQueryConverter(BaseConverter):
@@ -357,36 +349,27 @@ class CSVQueryConverter(BaseConverter):
     Converts a Sylva neo4j graph query into CSV files.
     """
 
-    def export(self):
+    def stream_export(self):
         csv_results = self.csv_results
-        query_name = self.query_name
         headers = csv_results[0]
         results = csv_results[1:]
-        # We decode the name
-        query_name = query_name.decode('utf-8')
-        csv_name = query_name + '.csv'
-
-        file_buffer = StringIO()
-        csv_file = open(csv_name, 'w')
-        csv_writer = csv.writer(file_buffer, delimiter=',',
-                                quotechar='"', quoting=csv.QUOTE_ALL)
 
         csv_header = []
         for header in headers:
-            csv_header.append(header.encode('utf-8'))
-        csv_writer.writerow(csv_header)
+            csv_quoted_element = '"{}"'.format(header.encode('utf-8'))
+            csv_header.append(csv_quoted_element)
+        csv_header_formatted = ','.join(csv_header)
+        yield csv_header_formatted
+        yield '\n'
+
         for result in results:
             results_encoded = []
             for individual_result in result:
                 if isinstance(individual_result, unicode):
                     individual_result = individual_result.encode('utf-8')
                 results_encoded.append(individual_result)
-            csv_writer.writerow(results_encoded)
-
-        csv_data = file_buffer.getvalue()
-        csv_file.write(csv_data)
-
-        file_buffer.close()
-        csv_file.close()
-
-        return csv_name, csv_data
+            # We use the map(str, list) because we need string types
+            # to use the join() function
+            csv_row_formatted = ','.join(map(str, results_encoded))
+            yield csv_row_formatted
+            yield '\n'
