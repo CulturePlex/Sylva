@@ -40,6 +40,7 @@ DEFAULT_ROWS_NUMBER = 100
 DEFAULT_SHOW_MODE = "per_page"
 DESC = 'desc'
 ID = 'id'
+NEW = 'new'
 NEW_QUERY = 'new_query'
 NO_ORDER = 'no_order'
 ORDER_DIR_ASC = ''
@@ -241,7 +242,7 @@ def queries_new_results(request, graph_slug):
     query_aliases = request.POST.get("query_aliases", "").strip()
     query_fields = request.POST.get("query_fields", "").strip()
 
-    request.session['query_id'] = 'new'
+    request.session['query_id'] = NEW
     if query is not '':
         request.session['query'] = query
         request.session['query_aliases'] = query_aliases
@@ -276,12 +277,12 @@ def queries_new_results(request, graph_slug):
             dir_order_by = form.cleaned_data["dir_order_by"]
 
     headers = True
-    if order_by_field == 'default' and select_order_by == 'default':
+    if order_by_field == DEFAULT and select_order_by == DEFAULT:
         query_results = graph.query(query_dict, headers=headers)
-    elif order_by_field == 'no_order':
+    elif order_by_field == NO_ORDER:
         query_results = graph.query(query_dict, headers=headers)
     else:
-        if order_by_field == 'default' and select_order_by != 'default':
+        if order_by_field == DEFAULT and select_order_by != DEFAULT:
             order_by_field = select_order_by
             order_dir = dir_order_by
         page_dir = order_dir
@@ -290,7 +291,7 @@ def queries_new_results(request, graph_slug):
         aggregate = order_by_field.split('(')[0]
         has_aggregate = aggregate in AGGREGATES
         if has_aggregate:
-            alias = 'aggregate'
+            alias = AGGREGATE
             value = order_by_field.replace('`', '')
             order_by = (alias, value, order_dir)
         else:
@@ -529,6 +530,10 @@ def queries_query_results(request, graph_slug, query_id):
         query_dict = json.loads(query_dict)
     different_queries = query.query_dict != query_dict
 
+    if query_aliases == '' or query_aliases is None:
+        query_aliases = request.session.get('query_aliases',
+                                            query.query_aliases)
+
     # We compare the session query fields and the new query fields.
     # This is because we can change the sorting params.
     if query_fields == '' or query_fields is None:
@@ -575,13 +580,19 @@ def queries_query_results(request, graph_slug, query_id):
     if order_by_field == DEFAULT and select_order_by == DEFAULT:
         if different_queries and (
                 query.id == request.session.get('query_id', None)):
+            # We check if the type of query_dict is appropiate
+            if not isinstance(query_dict, dict):
+                query_dict = json.loads(query_dict)
             query_results = graph.query(query_dict, headers=headers)
             request.session['query'] = json.dumps(query_dict)
             request.session['query_aliases'] = query_aliases
             request.session['query_fields'] = query_fields
             # Let's check if the sorting params are different
             if different_sorting_params:
-                request.session['query_fields'] = json.dumps(query_fields)
+                # We check if the type of query_field is appropiate
+                if isinstance(query_fields, dict):
+                    query_fields = json.dumps(query_fields)
+                request.session['query_fields'] = query_fields
         else:
             query_results = query.execute(headers=headers)
             request.session['query'] = query.query_dict
@@ -590,13 +601,19 @@ def queries_query_results(request, graph_slug, query_id):
     elif order_by_field == NO_ORDER:
         if different_queries and (
                 query.id == request.session.get('query_id', None)):
+            # We check if the type of query_dict is appropiate
+            if not isinstance(query_dict, dict):
+                query_dict = json.loads(query_dict)
             query_results = graph.query(query_dict, headers=headers)
             request.session['query'] = json.dumps(query_dict)
             request.session['query_aliases'] = query_aliases
             request.session['query_fields'] = query_fields
             # Let's check if the sorting params are different
             if different_sorting_params:
-                request.session['query_fields'] = json.dumps(query_fields)
+                # We check if the type of query_field is appropiate
+                if isinstance(query_fields, dict):
+                    query_fields = json.dumps(query_fields)
+                request.session['query_fields'] = query_fields
         else:
             query_results = query.execute(headers=headers)
             request.session['query'] = query.query_dict
@@ -634,7 +651,10 @@ def queries_query_results(request, graph_slug, query_id):
                 query_fields = request.session['query_fields']
             else:
                 request.session['query_aliases'] = query_aliases
-                request.session['query_fields'] = json.dumps(query_fields)
+                # We check if the type of query_field is appropiate
+                if isinstance(query_fields, dict):
+                    query_fields = json.dumps(query_fields)
+                request.session['query_fields'] = query_fields
         else:
             query_results = query.execute(order_by=order_by, headers=headers)
         if not query_results:
