@@ -128,8 +128,12 @@ def templates_endpoint(request, graph_slug):
             # dummy series data
             # This will all change soon
             dummy_series = [
-                [1, 6], [2, 6.5], [3, 7], [4, 7.5],
-                [5, 8], [6, 8.5], [7, 9], [8, 9]
+                ["color", "count1", "count2", "count3", "count4", "count5"],
+                ["yellow", 6, 7, 8, 9, 10],
+                ["blue", 6.5, 5.5, 8, 7, 11],
+                ["purple", 4.5, 5.5, 6, 9, 9.5],
+                ["red", 5, 5.5, 4.5, 3, 6],
+                ["green", 5, 6, 7.5, 9, 10]
             ]
             response['queries'] = [{'series': dummy_series,
                                     'name': query.name, 'id': query.id,

@@ -165,7 +165,6 @@ directives.directive('sylvaPvCellRepeat', [function () {
             for (var i=0; i<len; i++) {
                 var cell = scope.row[i]
                 ,   query = cell.displayQuery
-                ,   chartSeries = cell.series
                 ,   name = cell.name
                 ,   colspan = parseInt(cell.colspan)
                 ,   cellWidth = (tableWidth / numCols - ((numCols + 1) * 2 / numCols)) * colspan + (2 * (colspan - 1)) + 'px'
@@ -175,49 +174,56 @@ directives.directive('sylvaPvCellRepeat', [function () {
                 childScope.$index = i;
                 childScope.cellStyle = {width: cellWidth};
 
-                
                 // This should be refactored
                 if (cell.displayMarkdown) {
                     childScope.markdown = cell.displayMarkdown;
                 } else {
+                    // This is for all cases except new report
                     if (query && demo === false) {
-                        query = ctrl.getQueries().filter(function (el) {
-                            return el.id === query;
-                        })[0];
-                        var series = query.series;
-                        if (!chartSeries) {
-                            name = query.name;
-                            var header = series[0]
-                            ,   xSeriesNdx = header.indexOf(cell.xAxis)
-                            ,   chartSeries = [];
+                        // This is preview, we need to run query
+                        if (!cell.series) {
 
-                            for (var j=0; j<cell.yAxis.length; j++) {
-                                var ser = []
-                                ,   ySeries = cell.yAxis[j]
-                                ,   ndx = header.indexOf(ySeries);
-                                if (ndx === -1) ndx = j
-                                for (var k=1; k<series.length; k++) {
-                                    var row = series[k]
-                                    ,   x;
-                                    if (xSeriesNdx === -1 && cell.xAxis) {
-                                        x = cell.xAxis;
-                                    } else {
-                                        x = row[xSeriesNdx];
-                                    }
-                                    var point = [x, row[ndx]];
-                                    ser.push(point);
-                                }
-                                chartSeries.push({name: ySeries, data: ser});
-                            }
-                            
+                            query = ctrl.getQueries().filter(function (el) {
+                                return el.id === query;
+                            })[0];
+                            var series = query.series;
+                        // THis is either builder mode, or history
                         } else {
-                            chartSeries = [{name: "ySeries", data: series}]
+                            var series = cell.series
                         }
+                        name = query.name;
+
+                        var header = series[0]
+                        // xSeries is often catagorical, can only be one
+                        ,   xSeriesNdx = header.indexOf(cell.xAxis)
+                        ,   chartSeries = [];
+                        if (xSeriesNdx === -1) xSeriesNdx = 0
+                        // Can be multiple y series composed of numeric var
+                        // with the xSeries vars, here we build a object for
+                        // Each series
+                        for (var j=0; j<cell.yAxis.length; j++) {
+                            var ser = []
+                            // this is the alias of the ySeries
+                            ,   ySeries = cell.yAxis[j]
+                            // this is the position of the ySeries in the series arr
+                            ,   ndx = header.indexOf(ySeries);
+                            if (ndx === -1) ndx = j + 1
+                            for (var k=1; k<series.length; k++) {
+                                var row = series[k]
+                                ,   x;
+                                x = row[xSeriesNdx];
+                                var point = [x, row[ndx]];
+                                ser.push(point);
+                            }
+                            chartSeries.push({name: ySeries, data: ser});
+                        }
+                            
                     } else {
-                        chartSeries = [{name: "ySeries", data: chartSeries}]
+                        // This is the new chart demo (demo="true")
+                        chartSeries = [{name: "ySeries", data: cell.series}]
                         name = "Rad Chart"
                     }
-                    // Here must config chart. 
+                    // Here must config chart.
                     childScope.query = query;
                     childScope.chartConfig = {
                         options: {chart: {type: cell.chartType}},
@@ -746,7 +752,8 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', 'ST
                 chartCol.width(cellWidth * 0.4)
                 cellCol.width(cellWidth * 0.4)
 
-                scope.$watch(ctrl.editable, function () {
+                scope.$watch(ctrl.editable, function (newVal, oldVal) {
+                    if (newVal == oldVal) return;
                     var chart = $('#' + scope.chartType);
                     chart.get(0).scrollIntoView();
                 })
