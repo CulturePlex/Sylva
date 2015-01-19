@@ -6,7 +6,6 @@ import tempfile
 import urlparse
 
 from collections import defaultdict
-from functools import partial
 from subprocess import Popen, STDOUT, PIPE
 from time import time
 
@@ -243,10 +242,9 @@ def history_endpoint(request, graph_slug):
                 while bucket < now:
                     buckets.append(bucket)
                     bucket += interval
-                p = partial(_key, buckets=buckets)
                 report_buckets = defaultdict(list)
                 for report in reports:
-                    report_buckets[p(report.date_run)].append(report.dictify())
+                    report_buckets[_key(report.date_run, buckets)].append(report.dictify())
                 report_buckets = [
                     {"bucket": b, "reports": r} for (b, r) in report_buckets.items()
                 ]
