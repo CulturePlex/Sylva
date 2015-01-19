@@ -69,13 +69,13 @@ def list_endpoint(request, graph_slug):
         '-last_run',
         '-start_date'
     )
-    templates = [template.dictify() for template in templates]
     page = request.GET.get('page', "")
     pgntr, output, next_page_num, prev_page_num = paginate(
         templates, 10, page
     )
+    templates = [template.dictify() for template in output.object_list]
     response = {
-        'templates': output.object_list,
+        'templates': templates,
         'num_pages': pgntr.num_pages,
         'total_count': pgntr.count,
         'num_objects': len(templates),
