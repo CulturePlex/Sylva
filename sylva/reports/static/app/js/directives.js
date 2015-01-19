@@ -224,6 +224,7 @@ directives.directive('sylvaPvCellRepeat', [function () {
                         name = "Rad Chart"
                     }
                     // Here must config chart.
+                    console.log("cell", cell)
                     childScope.query = query;
                     childScope.chartConfig = {
                         options: {chart: {type: cell.chartType}},
@@ -617,11 +618,10 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', 'ST
             '<label>' + 
                 '{{ selectText.chartType }}' + 
             '</label>' + 
-            '<div id="highscroll" style="position: relative;"class="highchart-cont">' + 
-                    '<a href="" id="column" ng-click="setChartType(\'column\')"><img ng-src="{{ static_prefix }}app/svg/bar.svg" /></a>' +
-                    '<a href="" id="line" ng-click="setChartType(\'line\')"><img ng-src="{{ static_prefix }}app/svg/line.svg" /></a>' +
-                    '<a href="" id="pie" ng-click="setChartType(\'pie\')"><img ng-src="{{ static_prefix }}app/svg/pie.svg" /></a>' +
-
+            '<div ng-attr-id="{{\'highscroll\' + row + col}}" style="position: relative;"class="highchart-cont">' + 
+                '<a href="" id="column" ng-click="setChartType(\'column\')"><img ng-src="{{ static_prefix }}app/svg/bar.svg" /></a>' +
+                '<a href="" id="line" ng-click="setChartType(\'line\')"><img ng-src="{{ static_prefix }}app/svg/line.svg" /></a>' +
+                '<a href="" id="pie" ng-click="setChartType(\'pie\')"><img ng-src="{{ static_prefix }}app/svg/pie.svg" /></a>' +
             '</div>' +
         '</div>' +
         '<div class="col cellcol">' +
@@ -636,12 +636,14 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', 'ST
                 '<label>{{ selectText.ySeries }}</label><br>' + 
                 '<div class="hoverdiv">' +
                     '<div style="margin:5px;">' + 
-                        '<label ng-repeat="result in ySeries">' + 
+                        '<ul>' +
+                        '<li ng-repeat="result in ySeries">' + 
+                            '<label>' +
                             '<input type="checkbox" ng-model="result.selected" value="{{result}}" />' + 
                             '{{ result.alias }}' + 
-                            '<br>' +
-                        '</label>' +
-                        
+                            '</label>' +
+                        '</li>' +
+                        '</ul>' +
                     '</div>' +  
                 '</div>' +
             '</div>' + 
@@ -697,11 +699,27 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', 'ST
             chartDiv.hover(function () {
             }, function () {
                 if (scope.chartType) {
-                    var chart = $('#' + scope.chartType);
-                    chart.get(0).scrollIntoView();
+                    chartScroll();
                 }
 
             });
+
+            var chartScroll = function () {
+                var chart = $("#highscroll" + scope.row + scope.col)
+                if (scope.chartType === 'line') {
+                    chart.animate({
+                        scrollTop: 150
+                    });
+                } else if (scope.chartType == 'column'){ 
+                    chart.animate({
+                        scrollTop: 0
+                    });
+                } else if (scope.chartType == 'pie') {
+                    chart.animate({
+                        scrollTop: 300
+                    });
+                }
+            }
 
             // Bind cell to click showing/hiding arrows for merge actions
             elem.bind("click", function (event) {
@@ -754,9 +772,9 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', 'ST
 
                 scope.$watch(ctrl.editable, function (newVal, oldVal) {
                     if (newVal == oldVal) return;
-                    var chart = $('#' + scope.chartType);
-                    chart.get(0).scrollIntoView();
-                })
+                    if (!scope.chartType) return;
+                    chartScroll();
+                });
 
                 // Here is the active query/ xy series code that executes
                 // on init for edit report.
@@ -827,6 +845,7 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', 'ST
                 if (newVal == oldVal) return;
                 // Turns off preview mode with Matrix Graph
                 ctrl.editing()
+                scope.tableArray.table[scope.row][scope.col].ySeries = [];
                 var name;
                 // Set to no query by user.
                 if (newVal != null) {
@@ -884,8 +903,11 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', 'ST
                         return el.alias !== val.alias;
                     });
                     if (val.selected === true) {
+                        console.log("adding", val.alias)
                         scope.tableArray.addAxis([scope.row, scope.col], 'y', val.alias)
-                    } else if (!val.selected) {
+                        console.log("tableArray", scope.tableArray.table)
+                    } else if (val.selected === false) {
+                        console.log("removing", val.alias)
                         scope.tableArray.removeAxis([scope.row, scope.col], 'y', val.alias)
                         scope.xSeries.push(val);
                     }

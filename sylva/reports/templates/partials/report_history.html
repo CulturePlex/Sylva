@@ -2,17 +2,29 @@
 
 
 <div class="cont">
-<div ng-if="template.history.length > 0">
+<div ng-if="template.reports">
   <!--Meta Form/Queries-->
   <div class="content2-first" ng-hide="editable">
     
     <div id="history">
-      <ul>
-        <li ng-repeat="report in template.history">
-          {% verbatim %}
-          <h2><a href="" ng-click="getReport(report.id)">{{ report.date_run }}</a></h2>
-          {% endverbatim %}
+      <ul style="min-height: 250px">
+        {% verbatim %}
+        <li ng-repeat="bucket in template.reports | orderBy:bucket.bucket:reverse">
+          <h2 ng-click="expand(bucket)"><a href="">
+            <span ng-hide="bucket.expanded">&#8680;</span> 
+            <span ng-show="bucket.expanded">&#8681;</span>
+            Period of {{ bucket.display }}</h2>
+            </a>
+          <ul ng-show="bucket.expanded">
+            <li ng-repeat="report in bucket.reports">
+              <h3><a href="" ng-click="getReport(report.id)">{{ report.date_run }}</a></h3>
+            </li>
+          </ul>
+          
+          
+          
         </li>
+        {% endverbatim %}
       </ul>
         <span class='pagination-info'>
           
@@ -63,7 +75,7 @@
   </div> <!--content2-->
   {% endverbatim %}
 </div><!--if-->
-<div ng-if="template.history.length === 0">
+<div ng-if="!template.reports">
 
 
   <h2>{% trans "This report hasn't been run." %}</h2>

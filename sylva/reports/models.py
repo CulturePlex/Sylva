@@ -53,7 +53,7 @@ class ReportTemplate(models.Model):
     def execute(self):
         queries = self.queries.all()
         # EXECUTE QUERIES HERE
-        query_dicts = {query.id: (query.execute(header=True), query.name)
+        query_dicts = {query.id: (query.execute(headers=True), query.name)
                        for query in queries}
         table = []
         for row in self.layout:

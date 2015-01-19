@@ -235,21 +235,39 @@ controllers.controller('ReportHistoryCtrl', [
                 template: $scope.slugs.template,
                 page: pageNum
             }, function (data) {
-                for (var i=0; i<data.history.length; i++) {
-                    var report = data.history[i]
-                    ,   date = JSON.parse(report.date_run)
-                    ,   datetime = new Date(date)
-                    report.date_run = datetime.toUTCString().replace(/\s*(GMT|UTC)$/, "")
-                }
+                console.log("reportdatga", data)
+                for (var i=0; i<data.reports.length; i++) {
+                    var history = data.reports[i].reports;
+                    var mostRecent = history[0];
+                    var datetime = new Date(data.reports[i].bucket);
+                    data.reports[i]["display"] = datetime.toUTCString().replace(/\s*(GMT|UTC)$/, "").replace("00:00:00", "")
+                    for (var j=0; j<history.length; j++) {
+                        var report = history[j]
+                        ,   date = JSON.parse(report.date_run)
+                        ,   datetime = new Date(date)
+                        report.date_run = datetime.toUTCString().replace(/\s*(GMT|UTC)$/, "")
 
+                        if (datetime > mostRecent.date_run) mostRecent = report;
+                    }
+                }
+                console.log()
                 breadService.updateName(data.name)
                 $scope.template = data;
-                if (data.history.length > 0) $scope.getReport(data.history[0].id)
+                if (data.reports.length > 0) $scope.getReport(mostRecent.id)
             });
         }
 
         $scope.getPage(1)
 
+        $scope.expanded = {}
+
+        $scope.expand = function (bucket) {
+            if (bucket.expanded) {
+                bucket.expanded = false;
+            } else {
+               bucket.expanded = true; 
+            }
+        }
         $scope.getReport = function (id) {
             api.history.report({
                 graphSlug: $scope.slugs.graph,

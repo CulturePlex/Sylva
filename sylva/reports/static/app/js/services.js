@@ -176,11 +176,10 @@ services.factory('tableArray', function () {
             console.log('coords', coords)
             if (!('yAxis' in this.table[coords[0]][coords[1]])) {
                 this.table[coords[0]][coords[1]]['yAxis'] = []
-                console.log('post undefined', this.table[coords[0]][coords[1]].yAxis)
             } 
             if (this.table[coords[0]][coords[1]].yAxis.indexOf(alias) == -1) {
                 this.table[coords[0]][coords[1]].yAxis.push(alias);
-                console.log('addedToTable')
+                console.log('addedToTable', this.table[coords[0]][coords[1]].yAxis)
             }
             
         }
@@ -190,7 +189,6 @@ services.factory('tableArray', function () {
         if (axis === 'y') {
             if (!('yAxis' in this.table[coords[0]][coords[1]])) {
                 this.table[coords[0]][coords[1]]['yAxis'] = []
-                console.log('post undefined', this.table[coords[0]][coords[1]].yAxis)
             } 
             var i = this.table[coords[0]][coords[1]].yAxis.indexOf(alias)
             this.table[coords[0]][coords[1]].yAxis.splice(i, 1);
@@ -198,7 +196,6 @@ services.factory('tableArray', function () {
         } else {
             this.table[coords[0]][coords[1]].xAxis = null;
         }
-        console.log('removedFromTable')
     }
 
     TableArray.prototype.addMarkdown = function(coords, markdown) {
