@@ -715,6 +715,7 @@ def queries_query_results(request, graph_slug, query_id):
     # TODO: Try to make the response streamed
     return render_to_response('queries/queries_new_results.html',
                               {"graph": graph,
+                               "query": query,
                                "queries_link": queries_link,
                                "queries_name": queries_name,
                                "headers": headers_results,
@@ -753,6 +754,67 @@ def queries_query_delete(request, graph_slug, query_id):
                                "queries_link": queries_link,
                                "query_name": query.name},
                               context_instance=RequestContext(request))
+
+
+@is_enabled(settings.ENABLE_QUERIES)
+@login_required
+@permission_required("data.view_data", (Data, "graph__slug", "graph_slug"),
+                     return_403=True)
+def queries_query_modify(request, graph_slug, query_id):
+    graph = get_object_or_404(Graph, slug=graph_slug)
+    query = graph.queries.get(id=query_id)
+
+    queries_list_url = reverse("queries_list", args=[graph.slug])
+    edit_query_url = reverse("queries_query_edit", args=[graph.slug, query.id])
+
+    # We get the neccesary values for the query dictionary
+    query_name = query.name
+    query_description = query.description
+    query_dict = request.session['query']
+    query_fields = request.session['query_fields']
+    query_aliases = request.session['query_aliases']
+
+    # We create the data dictionary
+    data = dict()
+    data['graph'] = graph
+    data['name'] = query_name
+    data['description'] = query_description
+    data['query_dict'] = query_dict
+    data['query_fields'] = query_fields
+    data['query_aliases'] = query_aliases
+    data['results_count'] = 0
+    data['last_run'] = datetime.now()
+
+    # Let's save the results
+    if request.POST:
+        # If we click the save, we modify the actual query
+        if 'modify-query' in request.POST:
+            form = SaveQueryForm(data=data, instance=query)
+        # Else, if we click the save as new then we create a new query
+        elif 'save-as-new' in request.POST:
+            form = SaveQueryForm(data=data)
+        if form.is_valid():
+            with transaction.atomic():
+                query = form.save(commit=False)
+                # If the query is new, we need to add it in the graph
+                if 'save-as-new' in request.POST:
+                    graph.queries.add(query)
+                # We treat the results_count
+                results_count = request.session.get('results_count', None)
+                if results_count:
+                    query.results_count = results_count
+                    query.last_run = datetime.now()
+                else:
+                    query.results_count = 0
+                query.save()
+                # If the query is new, we need to add it in the graph
+                if 'save-as-new' in request.POST:
+                    graph.save()
+                return redirect(queries_list_url)
+        else:
+            return redirect(edit_query_url)
+    else:
+        return redirect(edit_query_url)
 
 
 @is_enabled(settings.ENABLE_QUERIES)

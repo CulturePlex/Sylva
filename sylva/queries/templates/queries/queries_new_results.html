@@ -90,6 +90,16 @@
 {% else %}
     <p>{% trans "There are not results for this query. Please, check your query or your data." %}</p>
 {% endif %}
+{% if query %}
+    <form method="post" action="{% url "queries_query_modify" graph.slug query.id %}" id="form-modify-query">
+        {% csrf_token %}
+        <span class="buttonLinkOption buttonLinkLeft">
+            <input type="submit" name="modify-query" id="modify-query" href="javascript:void(0)" value="{% trans "Save" %}"/>
+            {% trans " or " %}
+            <input type="submit" name="save-as-new" id="save-as-new" href="javascript:void(0)" value="{% trans "Save as new" %}" />
+        </span>
+    </form>
+{% endif %}
 </div>
 {% endblock %}
 
