@@ -135,6 +135,9 @@ def history_endpoint(request, graph_slug):
         report_dict = template.dictify()
         reports = template.reports.order_by('-date_run')
         # Sort reports into buckets depending on periodicity
+        # So here I can build and paginate buckets then query
+        # reports only back to oldest bucket, then fill the buckets 
+        # and send them off.
         if reports:
             periodicity = template.frequency
             first_date_run = template.reports.earliest('date_run').date_run
