@@ -417,6 +417,10 @@ diagram.aggregates = [
              *  Title part
              */
 
+            // We need to check if we already have done this, because
+            // we have two operation modes for relationships:
+            // auto connection and drag and drop
+
             if(diagram.reltypesCounter[name] >= 1) {
                 diagram.reltypesCounter[name]++;
             } else {
@@ -430,6 +434,7 @@ diagram.aggregates = [
             });
             divTitle.attr("id", idBox + "-title");
             divTitle.attr("data-modelid", idRel);
+            divTitle.attr('data-slug', name);
             // Select for the type
             selectReltype = $("<SELECT>");
             selectReltype.addClass("select-reltype-" + name);
@@ -441,7 +446,19 @@ diagram.aggregates = [
                 "margin-top": "-1px",
                 "display": "none"
             });
+            // We check if we already have the same alias in the dictionary
+            // values to assign a different value.
             relValue = label + " " + diagram.reltypesCounter[name];
+            Object.keys(diagram.reltypesList).map(function(key){
+                // We need to make the changes if the value is present
+                // in another type.
+                if(name != key) {
+                    arrayValues = diagram.reltypesList[key];
+                    if(arrayValues.indexOf(relValue) != -1) {
+                        relValue = "(" + name + ") " + label + " " + diagram.reltypesCounter[name]
+                    }
+                }
+            });
             diagram.savedFieldsForRels[relValue] = [];
             optionReltype = $("<OPTION>");
             optionReltype.addClass("option-reltype-" + name);
@@ -451,17 +468,41 @@ diagram.aggregates = [
             optionReltype.html(relValue);
             // This for loop is to add the new option in the old boxes
             for(var i = 0; i < diagram.reltypesCounter[name]; i++) {
-                $($('.select-reltype-' + name)[i]).append(optionReltype.clone(true));
+                var alias = $(optionReltype).val();
+                var selectRel = $($('.select-reltype-' + name)[i]);
+                // We check if we already have include this alias
+                if ($("option[value='" + alias + "']", selectRel).length == 0)
+                    selectRel.append(optionReltype.clone(true));
             }
             // This for loop is to include the old options in the new box
             var typeBoxesLength = diagram.reltypesList[name].length;
             for(var i = 0; i < typeBoxesLength; i++) {
                 var alias = diagram.reltypesList[name][i];
-                var id = alias.replace(/\s/g, '');;
-                selectReltype.append("<option class='option-reltype-" + name + "' id='" + id + "' value='" + alias +"' data-modelid='" + idRel + "' selected=''>" + alias + "</option>");
+                var id = alias.replace(/\s/g, '');
+                var selectRelOptions = $('option', selectReltype);
+                var exists = false;
+                // We need to check if already we have included this alias.
+                // This is because the new way to set the relationships:
+                // If we drag, we connect and then reconnect.
+                $.each(selectRelOptions, function(index, elem) {
+                    if($(elem).val() == alias) {
+                        exists = true;
+                    }
+                });
+                if(!exists) {
+                    var optionToInclude = $("<OPTION>");
+                    optionToInclude.addClass("option-reltype-" + name);
+                    optionToInclude.attr('id', id);
+                    optionToInclude.attr('value', alias);
+                    optionToInclude.attr('data-modelid', idRel);
+                    optionToInclude.html(alias);
+                    selectReltype.append();
+                }
             }
-            // We add the new alias to the list of the reltype
-            diagram.reltypesList[name].push(relValue);
+            // We add the new alias to the list of the reltype if it does not
+            // contain it
+            if(diagram.reltypesList[name].indexOf(relValue) == -1)
+                diagram.reltypesList[name].push(relValue);
             selectReltype.append(optionReltype);
             diagram.setName(divTitle, label, name, "relation");
 
@@ -766,7 +807,15 @@ diagram.aggregates = [
             });
             optionNodetype = $("<OPTION>");
             var idAndValue = modelName + diagram.nodetypesCounter[typeName];
+            // We check if we already have the same alias in the dictionary
+            // values to assign a different value
             var boxAlias = modelName + " " + diagram.nodetypesCounter[typeName];
+            Object.keys(diagram.nodetypesList).map(function(key){
+                arrayValues = diagram.nodetypesList[key];
+                if(arrayValues.indexOf(boxAlias) != -1) {
+                    boxAlias = "(" + typeName + ") " + modelName + " " + diagram.nodetypesCounter[name]
+                }
+            });
             optionNodetype.addClass("option-nodetype-" + typeName);
             optionNodetype.attr('id', idAndValue);
             optionNodetype.attr('data-modelid', typeId);
@@ -1601,6 +1650,10 @@ diagram.aggregates = [
         /**
          * Function that encapsules all the necessary to load a query with
          * an alias different to default
+         * - idBox
+         * - newAlias
+         * - typeName
+         * - isNodetype
          */
         diagram.loadQueryWithAlias = function(idBox, newAlias, typeName, isNodetype) {
             // We select the correct value for the alias
@@ -2051,6 +2104,8 @@ diagram.aggregates = [
             var relationAlias = $('#' + relationId + ' .title').children().filter('input, select').val();
             var relationModelId = relationSelector.data('modelid');
             relation.alias = relationAlias;
+            // We save the relation slug to not be confused in queries
+            // with the same box alias
             relation.type = 'relationship';
             relation.type_id = relationModelId;
 
@@ -2257,9 +2312,11 @@ diagram.aggregates = [
                 var target = jsonDict["query"]["patterns"][i].target.alias;
                 var targetId = types[target].id;
 
+                // TODO: We need to find the way to get two relation with same alias
                 var relation = jsonDict["query"]["patterns"][i].relation.alias;
                 var idRel = jsonDict["query"]["patterns"][i].relation.type_id;
                 var relationTypeName = types[relation].typename;
+
                 // We need to change the first letter to uppercase
                 var relationValue = relationTypeName.charAt(0).toUpperCase() + relationTypeName.slice(1);
                 var relationName = relationTypeName;
@@ -2530,6 +2587,8 @@ diagram.aggregates = [
         fieldsDict['sortingParams'] = sortingParamsDict;
 
         saveElements['fields'] = fieldsDict;
+
+        console.log(saveElements);
 
         return saveElements;
     };
@@ -3428,24 +3487,28 @@ diagram.aggregates = [
                 });
             });
         });
-        var sourceIdValue = connection.sourceId;
-        var targetIdValue = connection.targetId;
 
-        var idBoxRel = connection.getOverlays()[2].id;
-        // We store the name in the label variable
-        var nameRel = connection.getOverlays()[1].label;
-        // We store the label in the label id
-        var labelRel = connection.getOverlays()[1].id;
-        connection.idrel = idBoxRel;
-        // We get the modelid of the box before detach the connection
-        var relModelId = $('#' + idBoxRel + ' .title').data('modelid');
-        // We remove the connection that we dragged
-        jsPlumb.detach(connection);
-        // We substract 1 to the counter of the relationship
-        diagram.reltypesCounter[nameRel]--;
+        // We need to control if we have dragged to another box or not
+        if(connection.getConnector()) {
+            var sourceIdValue = connection.sourceId;
+            var targetIdValue = connection.targetId;
 
-        // And we add the new connection with "Continuous" anchors
-        diagram.addRelation(sourceIdValue, targetIdValue, labelRel, nameRel, relModelId);
+            var idBoxRel = connection.getOverlays()[2].id;
+            // We store the name in the label variable
+            var nameRel = connection.getOverlays()[1].label;
+            // We store the label in the label id
+            var labelRel = connection.getOverlays()[1].id;
+            connection.idrel = idBoxRel;
+            // We get the modelid of the box before detach the connection
+            var relModelId = $('#' + idBoxRel + ' .title').data('modelid');
+            // We remove the connection that we dragged
+            jsPlumb.detach(connection);
+            // We substract 1 to the counter of the relationship
+            diagram.reltypesCounter[nameRel]--;
+
+            // And we add the new connection with "Continuous" anchors
+            diagram.addRelation(sourceIdValue, targetIdValue, labelRel, nameRel, relModelId);
+        }
     });
 
     /**
