@@ -179,7 +179,7 @@ def history_endpoint(request, graph_slug):
             reports = template.reports.filter(date_run__gte=oldest).order_by('-date_run')
             report_buckets = defaultdict(list)
             for report in reports:
-                bucket = _get_bucket(report.date_run, buckets)
+                bucket = _get_bucket(report.date_run, output.object_list)
                 report_buckets[bucket].append(report.dictify())
             report_buckets = [
                 {"bucket": b, "reports": r} for (b, r) in report_buckets.items()
