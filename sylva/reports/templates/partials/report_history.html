@@ -9,7 +9,7 @@
     <div id="history">
       <ul style="min-height: 250px">
         {% verbatim %}
-        <li ng-repeat="bucket in template.reports | orderBy:bucket.bucket:reverse">
+        <li ng-repeat="bucket in template.reports | orderBy:'-bucket'">
           <h2 ng-click="expand(bucket)"><a href="">
             <span ng-hide="bucket.expanded">&#8680;</span> 
             <span ng-show="bucket.expanded">&#8681;</span>

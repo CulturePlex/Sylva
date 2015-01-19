@@ -80,29 +80,6 @@ services.factory('tableArray', function () {
         return adjs;
     };
 
-    //TableArray.prototype.rowMerge = function(row, col, dir) {
-    //    var merge = false
-    //    ,   thisRow = this.table[row]
-    //    ,   cellPos = 0
-    //    ,   mergePos = 0
-    //    ,   direction = {up: row - 1, down: row + 1}
-    //    for (var i=0; i<col; i++) {
-    //        cellPos += parseInt(thisRow[i].colspan)
-    //    }
-    //    if (this.table[direction[dir]]) {
-    //        var mergeRow = this.table[direction[dir]]
-    //        ,   j = 0;
-    //        while (mergePos<cellPos) {
-    //            mergePos += parseInt(mergeRow[j].colspan)
-    //            j++;
-    //        }
-    //        console.log('pos', mergePos, cellPos, j)
-    //        if (mergePos === cellPos && thisRow[col].colspan === mergeRow[j].colspan) merge = true;
-    //    }
-        
-    //    return merge
-    //}
-
     TableArray.prototype.addRow = function() { 
         var row = []
         ,   cellId = this.getId();
@@ -173,13 +150,11 @@ services.factory('tableArray', function () {
         if (axis === 'x') {
             this.table[coords[0]][coords[1]].xAxis = alias;
         } else {
-            console.log('coords', coords)
             if (!('yAxis' in this.table[coords[0]][coords[1]])) {
                 this.table[coords[0]][coords[1]]['yAxis'] = []
             } 
             if (this.table[coords[0]][coords[1]].yAxis.indexOf(alias) == -1) {
                 this.table[coords[0]][coords[1]].yAxis.push(alias);
-                console.log('addedToTable', this.table[coords[0]][coords[1]].yAxis)
             }
             
         }
@@ -241,20 +216,6 @@ services.factory('tableArray', function () {
         this.table[cds[0]] = mrgRow;
     };
 
-    // MABE JUST MERGE THIS WITH PREVIOUS METHOD
-    //TableArray.prototype.mergeRow = function(coords) {
-    //    var cds = coords[0]
-    //    ,   mrgCds = coords[1]
-    //    ,   mrgRow = this.table[mrgCds[0]]
-    //    ,   cell = this.table[cds[0]][cds[1]]
-    //    ,   mrgCell = this.table[mrgCds[0]][mrgCds[1]];
-    //    console.log('MERGER',  mrgRow,  mrgCds)
-        //mrgRow.splice(mrgCds[1], 1);
-    //    cell.rowspan = parseInt(cell.rowspan);
-    //    cell.rowspan += parseInt(mrgCell.rowspan);
-    //    mrgCell.rowspan = 0;
-    //};
-
     TableArray.prototype.getId = function() {
         var id = 0
         ,   tlen = this.table.length;
@@ -263,10 +224,6 @@ services.factory('tableArray', function () {
         }
         return id;
     };
-
-    //TableArray.prototype.jsonify = function() {
-    //    console.log('jsonify')
-    //};
 
     return function (table) {
         return new TableArray(table);

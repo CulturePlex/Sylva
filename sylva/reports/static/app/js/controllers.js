@@ -59,7 +59,6 @@ controllers.controller('BaseReportCtrl', [
         $scope.designReport = function () {
             // Using is report form - edit and new ctrls
             $scope.editable = true;
-            console.log("editable", $scope.editable)
             breadService.design()
         };
 
@@ -196,7 +195,6 @@ controllers.controller('EditReportCtrl', [
             $scope.template = data.template;
             $scope.resp = {table: data.template.layout, queries: data.queries};
             $scope.prev = $scope.resp;
-            console.log("queries", data.queries)
         });
 }]);
 
@@ -214,10 +212,9 @@ controllers.controller('ReportPreviewCtrl', [
             graphSlug: $scope.slugs.graph,
             template: $scope.slugs.template,  
         }, function (data) {
-            console.log('previewData', data)
             $scope.template = data.template;
-            $scope.resp = {table: data.template.layout, queries: data.queries}
-            breadService.updateName(data.template.name)
+            $scope.resp = {table: data.template.layout, queries: data.queries};
+            breadService.updateName(data.template.name);
         });
 }]);
 
@@ -235,22 +232,20 @@ controllers.controller('ReportHistoryCtrl', [
                 template: $scope.slugs.template,
                 page: pageNum
             }, function (data) {
-                console.log("reportdatga", data)
                 for (var i=0; i<data.reports.length; i++) {
-                    var history = data.reports[i].reports;
-                    var mostRecent = history[0];
-                    var datetime = new Date(data.reports[i].bucket);
+                    var history = data.reports[i].reports
+                    ,   mostRecent = history[0]
+                    ,   datetime = new Date(data.reports[i].bucket);
                     data.reports[i]["display"] = datetime.toUTCString().replace(/\s*(GMT|UTC)$/, "").replace("00:00:00", "")
                     for (var j=0; j<history.length; j++) {
                         var report = history[j]
                         ,   date = JSON.parse(report.date_run)
-                        ,   datetime = new Date(date)
+                        ,   datetime = new Date(date);
                         report.date_run = datetime.toUTCString().replace(/\s*(GMT|UTC)$/, "")
 
                         if (datetime > mostRecent.date_run) mostRecent = report;
                     }
                 }
-                console.log()
                 breadService.updateName(data.name)
                 $scope.template = data;
                 if (data.reports.length > 0) $scope.getReport(mostRecent.id)
