@@ -5,6 +5,8 @@ from django.conf.urls import patterns, url
 urlpatterns = patterns('reports.views',
     url(r'^(?P<graph_slug>[\w-]+)/$',
     	'reports_index_view', name="reports"),
+    url(r'^(?P<graph_slug>[\w-]+)/list$',
+        'list_endpoint', name='list'),
     url(r'^(?P<graph_slug>[\w-]+)/templates$',
     	'templates_endpoint', name='templates'),
     url(r'^(?P<graph_slug>[\w-]+)/history$',

@@ -106,6 +106,7 @@
 
             <script type="text/javascript">
               var djangoUrls = {
+                list: "{% url 'list' graph_slug=graph.slug %}",
                 templates: "{% url 'templates' graph_slug=graph.slug %}",
                 history: "{% url 'history' graph_slug=graph.slug %}",
                 builder: "{% url 'builder' graph_slug=graph.slug %}",

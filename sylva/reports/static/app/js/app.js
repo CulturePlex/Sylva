@@ -50,10 +50,6 @@ reports.config([
                 templateUrl: DJANGO_URLS.partials + '?name=report_preview',
                 controller: 'ReportPreviewCtrl'
             }).
-            when('/charts', {
-                templateUrl: DJANGO_URLS.partials + '?name=charts',
-                controller: 'Chart'
-            }).
             otherwise({
                 redirectTo: '/'
             });
