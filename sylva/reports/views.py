@@ -132,13 +132,12 @@ def history_endpoint(request, graph_slug):
         template = get_object_or_404(
             ReportTemplate, slug=request.GET['template']
         )
-        report_dict = template.dictify()
-        reports = template.reports.order_by('-date_run')
         # Sort reports into buckets depending on periodicity
         # So here I can build and paginate buckets then query
         # reports only back to oldest bucket, then fill the buckets 
         # and send them off.
-        if reports:
+        first_date_run = template.reports.earliest('date_run').date_run
+        if first_date_run:
             periodicity = template.frequency
             first_date_run = template.reports.earliest('date_run').date_run
             now = datetime.datetime.now()
@@ -172,6 +171,12 @@ def history_endpoint(request, graph_slug):
             while bucket < now:
                 buckets.append(bucket)
                 bucket += interval
+            page = request.GET.get('page', "")
+            pgntr, output, next_page_num, prev_page_num = paginate(
+                buckets, 5, page
+            )
+            oldest = output.object_list[0]
+            reports = template.reports.filter(date_run__gte=oldest).order_by('-date_run')
             report_buckets = defaultdict(list)
             for report in reports:
                 bucket = _get_bucket(report.date_run, buckets)
@@ -179,13 +184,9 @@ def history_endpoint(request, graph_slug):
             report_buckets = [
                 {"bucket": b, "reports": r} for (b, r) in report_buckets.items()
             ]
-            page = request.GET.get('page', "")
-            pgntr, output, next_page_num, prev_page_num = paginate(
-                report_buckets, 5, page
-            )
             response = {
                 'name': template.name,
-                'reports': output.object_list,
+                'reports': report_buckets,
                 'num_pages': pgntr.num_pages,
                 'total_count': pgntr.count,
                 'num_objects': len(report_buckets),
@@ -196,6 +197,7 @@ def history_endpoint(request, graph_slug):
     elif request.GET.get('report', ''):
         report = get_object_or_404(Report, id=request.GET['report'])
         response = report.dictify()
+
     return HttpResponse(json.dumps(response), content_type='application/json')
 
 
