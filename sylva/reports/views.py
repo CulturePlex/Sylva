@@ -208,89 +208,95 @@ def history_endpoint(request, graph_slug):
             report_dict = template.dictify()
             reports = template.reports.order_by('-date_run')
             # Sort reports into buckets depending on periodicity
-            periodicity = template.frequency
-            first_date_run = template.reports.earliest('date_run').date_run
-            now = datetime.datetime.now()
-            if periodicity == "h":
-                start = first_date_run.replace(
-                    hour=0, minute=0, second=0, microsecond=0
-                )
-                interval = datetime.timedelta(days=1)
-                
-            elif periodicity == "d":
-                weekday = first_date_run.weekday()
-                if weekday == 6:
-                    start = first_date_run
-                else:
-                    start = first_date_run - timedelta(days=weekday + 1)
-                start = start.replace(
+            if reports:
+                periodicity = template.frequency
+                first_date_run = template.reports.earliest('date_run').date_run
+                now = datetime.datetime.now()
+                if periodicity == "h":
+                    start = first_date_run.replace(
                         hour=0, minute=0, second=0, microsecond=0
-                ) 
-                interval = datetime.timedelta(weeks=1)
-            elif periodicity == "w":
-                start = first_date_run.replace(
-                        day=1, hour=0, minute=0, second=0, microsecond=0
-                ) 
-                interval = relativedelta.relativedelta(months=1)
-            else:
-                start = first_date_run.replace(
-                    month=1, day=1, hour=0, minute=0, second=0, microsecond=0
-                ) 
-                interval = relativedelta.relativedelta(years=1) 
-            bucket = start + interval
-            buckets = [start, bucket]
-            while bucket < now:
-                buckets.append(bucket)
-                bucket += interval
-            p = partial(_key, buckets=buckets)
-            report_buckets = defaultdict(list)
-            for report in reports:
-                report_buckets[p(report.date_run)].append(report.dictify())
-            report_buckets = [
-                {"bucket": b, "reports": r} for (b, r) in report_buckets.items()
-            ]
-            paginator = Paginator(reports, 5)
-            page = request.GET.get('page')
-            try:
-                reports_paginator = paginator.page(page)
-            except PageNotAnInteger:
-                # If page is not an integer, deliver first page.
-                reports_paginator = paginator.page(1)
-            except EmptyPage:
-                # If page is out of range (e.g. 9999), deliver last page of results
-                reports_paginator = paginator.page(paginator.num_pages)
-            has_next = reports_paginator.has_next()
-            if has_next:
-                next_page_number = reports_paginator.next_page_number()
-            else:
-                next_page_number = None
-            has_previous = reports_paginator.has_previous()
-            if has_previous:
-                previous_page_number = reports_paginator.previous_page_number()
-            else:
-                previous_page_number = None
-            response = {
-                'name': template.name,
-                'reports': report_buckets,
-                'num_pages': paginator.num_pages,
-                'total_count': paginator.count,
-                'num_objects': len(report_buckets),
-                'next_page_number': next_page_number,
-                'page_number': reports_paginator.number,
-                'previous_page_number': previous_page_number
-            }
-        if request.GET.get('report', ''):
+                    )
+                    interval = datetime.timedelta(days=1)
+                    
+                elif periodicity == "d":
+                    weekday = first_date_run.weekday()
+                    if weekday == 6:
+                        start = first_date_run
+                    else:
+                        start = first_date_run - timedelta(days=weekday + 1)
+                    start = start.replace(
+                            hour=0, minute=0, second=0, microsecond=0
+                    ) 
+                    interval = datetime.timedelta(weeks=1)
+                elif periodicity == "w":
+                    start = first_date_run.replace(
+                            day=1, hour=0, minute=0, second=0, microsecond=0
+                    ) 
+                    interval = relativedelta.relativedelta(months=1)
+                else:
+                    start = first_date_run.replace(
+                        month=1, day=1, hour=0, minute=0, second=0, microsecond=0
+                    ) 
+                    interval = relativedelta.relativedelta(years=1) 
+                bucket = start + interval
+                buckets = [start, bucket]
+                while bucket < now:
+                    buckets.append(bucket)
+                    bucket += interval
+                p = partial(_key, buckets=buckets)
+                report_buckets = defaultdict(list)
+                for report in reports:
+                    report_buckets[p(report.date_run)].append(report.dictify())
+                report_buckets = [
+                    {"bucket": b, "reports": r} for (b, r) in report_buckets.items()
+                ]
+                paginator = Paginator(reports, 5)
+                page = request.GET.get('page')
+                try:
+                    reports_paginator = paginator.page(page)
+                except PageNotAnInteger:
+                    # If page is not an integer, deliver first page.
+                    reports_paginator = paginator.page(1)
+                except EmptyPage:
+                    # If page is out of range (e.g. 9999), deliver last page of results
+                    reports_paginator = paginator.page(paginator.num_pages)
+                has_next = reports_paginator.has_next()
+                if has_next:
+                    next_page_number = reports_paginator.next_page_number()
+                else:
+                    next_page_number = None
+                has_previous = reports_paginator.has_previous()
+                if has_previous:
+                    previous_page_number = reports_paginator.previous_page_number()
+                else:
+                    previous_page_number = None
+                response = {
+                    'name': template.name,
+                    'reports': report_buckets,
+                    'num_pages': paginator.num_pages,
+                    'total_count': paginator.count,
+                    'num_objects': len(report_buckets),
+                    'next_page_number': next_page_number,
+                    'page_number': reports_paginator.number,
+                    'previous_page_number': previous_page_number
+                }
+            else:        
+                response = {"reports": []}
+        elif request.GET.get('report', ''):
             report = get_object_or_404(Report, id=request.GET['report'])
             response = report.dictify()
     return HttpResponse(json.dumps(response), content_type='application/json')
 
 
 def _key(date, buckets):
-    for i, b in enumerate(buckets[1:]):
-        bucket = buckets[i]
-        if  bucket <= date < b:
-            return bucket.isoformat()
-
+    # Little search algo.
+    while len(buckets) > 1:
+        ndx = len(buckets) / 2
+        if date >= buckets[ndx]:
+            buckets = buckets[ndx:]
+        else:
+            buckets = buckets[:ndx]
+    return buckets[0].isoformat()
 
 
 @login_required
