@@ -264,7 +264,7 @@ class UserTestCase(LiveServerTestCase):
         self.browser.select('gender', '1')
         self.browser.find_by_name('website').fill('http://www.bobweb.com')
         self.browser.find_by_name('location').fill('London, Ontario')
-        self.browser.find_by_name('birth_date').fill('2015-01-11')
+        self.browser.find_by_name('birth_date').fill('2020-01-11')
         self.browser.find_by_name('about_me').fill('I am a very nice guy')
         self.browser.find_by_name('institution').fill('University')
         self.browser.find_by_name('company').fill('CulturePlex')
