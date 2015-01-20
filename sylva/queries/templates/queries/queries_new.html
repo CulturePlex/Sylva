@@ -231,4 +231,12 @@
     })(jQuery);
 </script>
 {% endif %}
+
+{% if save_as_new %}
+<script type="text/javascript">
+    (function($) {
+        $('#save-button').click();
+    })(jQuery);
+</script>
+{% endif %}
 {% endblock %}

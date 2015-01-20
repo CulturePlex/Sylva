@@ -147,6 +147,8 @@ def queries_new(request, graph_slug):
     query_dict = None
     query_aliases = None
     query_fields = None
+    # Variable to control the save as new to show the form
+    save_as_new = False
 
     # We check if we have the variables in the request.session
     if 'query_id' not in request.session:
@@ -166,6 +168,25 @@ def queries_new(request, graph_slug):
         query_dict = request.session.get('query', None)
         query_aliases = request.session.get('query_aliases', None)
         query_fields = request.session.get('query_fields', None)
+        # We need to check the name and the description for the save as new
+        query_name = request.session.get('query_name', None)
+        query_description = request.session.get('query_description', None)
+        # Variable save as new equals to True
+        save_as_new = True
+
+        # We create the data dictionary for the form for the save as new
+        data = dict()
+        data['graph'] = graph
+        data['name'] = query_name
+        data['description'] = query_description
+        data['query_dict'] = query_dict
+        data['query_fields'] = query_fields
+        data['query_aliases'] = query_aliases
+        data['results_count'] = 0
+        data['last_run'] = datetime.now()
+
+        # And we add the data to the form
+        form = SaveQueryForm(data=data)
 
     if request.POST:
         data = request.POST.copy()
@@ -198,6 +219,7 @@ def queries_new(request, graph_slug):
                            "relationship_types": reltypes,
                            "form": form,
                            "query_options_form": query_options_form,
+                           "save_as_new": save_as_new,
                            "query_dict": query_dict,
                            "query_aliases": query_aliases,
                            "query_fields": query_fields,
@@ -708,7 +730,7 @@ def queries_query_results(request, graph_slug, query_id):
             headers_results = query_results[0]
         request.session['results_count'] = query_results_length - 1
         query_results = query_results[1:]
-        query.results_count = request.session.get('results_count', None)
+        # query.results_count = request.session.get('results_count', None)
     else:
         query_results = []
 
@@ -788,6 +810,7 @@ def queries_query_modify(request, graph_slug, query_id):
 
     queries_list_url = reverse("queries_list", args=[graph.slug])
     edit_query_url = reverse("queries_query_edit", args=[graph.slug, query.id])
+    new_query_url = reverse("queries_new", args=[graph.slug])
 
     # We get the neccesary values for the query dictionary
     query_name = query.name
@@ -809,21 +832,28 @@ def queries_query_modify(request, graph_slug, query_id):
 
     # Let's save the results
     if request.POST:
-        form = SaveQueryForm(data=data, instance=query)
-        if form.is_valid():
-            with transaction.atomic():
-                query = form.save(commit=False)
-                # We treat the results_count
-                results_count = request.session.get('results_count', None)
-                if results_count:
-                    query.results_count = results_count
-                    query.last_run = datetime.now()
-                else:
-                    query.results_count = 0
-                query.save()
-                return redirect(queries_list_url)
-        else:
-            return redirect(edit_query_url)
+        if 'modify-query' in request.POST:
+            form = SaveQueryForm(data=data, instance=query)
+            if form.is_valid():
+                with transaction.atomic():
+                    query = form.save(commit=False)
+                    # We treat the results_count
+                    results_count = request.session.get('results_count', None)
+                    if results_count:
+                        query.results_count = results_count
+                        query.last_run = datetime.now()
+                    else:
+                        query.results_count = 0
+                    query.save()
+                    return redirect(queries_list_url)
+            else:
+                return redirect(edit_query_url)
+        elif 'save-as-new' in request.POST:
+            # We change the query id in session to load the dicts
+            request.session['query_id'] = 'new'
+            request.session['query_name'] = _('new') + ' ' + query_name
+            request.session['query_description'] = _('new') + ' ' + query_description
+            return redirect(new_query_url)
     else:
         return redirect(edit_query_url)
 
