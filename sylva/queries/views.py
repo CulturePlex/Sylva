@@ -455,7 +455,7 @@ def queries_query_edit(request, graph_slug, query_id):
         query_dict = request.session.get('query', None)
         query_aliases = request.session.get('query_aliases', None)
         query_fields = request.session.get('query_fields', None)
-    elif different_sorting_params and session_query_id == query.id:
+    if different_sorting_params and session_query_id == query.id:
         query_fields = request.session.get('query_fields', None)
 
     if as_modal:
@@ -514,9 +514,9 @@ def queries_query_results(request, graph_slug, query_id):
     order_dir = request.GET.get('dir', 'desc')
     page_dir = request.GET.get('page_dir', 'desc')
 
-    # We initialize the select_order_by because we can execute queries directly
-    # from the list of queries
-    select_order_by = DEFAULT
+    # Variable to control if the query has changed to show the save
+    # buttons
+    query_has_changed = False
 
     # The next comparisions are because we can execute the queries
     # directly from the list of queries. So, we could obtain empty
@@ -525,26 +525,37 @@ def queries_query_results(request, graph_slug, query_id):
     # We check if the query saved and the query edited are different
     # In that case, we use the query edited
     if query_dict == '' or query_dict is None:
-        query_dict = request.session.get('query', query.query_dict)
+        query_dict = request.session.get('query')
+        if query_dict is None:
+            query_dict = query.query_dict
     else:
         query_dict = json.loads(query_dict)
     different_queries = query.query_dict != query_dict
 
     if query_aliases == '' or query_aliases is None:
-        query_aliases = request.session.get('query_aliases',
-                                            query.query_aliases)
+        query_aliases = request.session.get('query_aliases')
+        if query_aliases is None:
+            query_aliases = query.query_aliases
 
     # We compare the session query fields and the new query fields.
     # This is because we can change the sorting params.
     if query_fields == '' or query_fields is None:
-        query_fields = request.session.get('query_fields', query.query_fields)
+        query_fields = request.session.get('query_fields')
+        if query_fields is None:
+            query_fields = query.query_fields
     else:
         query_fields = json.loads(query_fields)
     different_sorting_params = query.query_fields != query_fields
 
+    # We get the default sorting params values, in case that we execute
+    # the query from the list of queries.
+    sortingParams = query.query_fields["sortingParams"]
+    rows_number = sortingParams["rows_number"]
+    show_mode = sortingParams["show_mode"]
+    select_order_by = sortingParams["select_order_by"]
+    dir_order_by = sortingParams["dir_order_by"]
+
     # We check if we have options in the form
-    rows_number = DEFAULT_ROWS_NUMBER
-    show_mode = DEFAULT_SHOW_MODE
     if request.POST:
         data = request.POST.copy()
         request.session['data'] = data
@@ -593,6 +604,7 @@ def queries_query_results(request, graph_slug, query_id):
                 if isinstance(query_fields, dict):
                     query_fields = json.dumps(query_fields)
                 request.session['query_fields'] = query_fields
+            query_has_changed = True
         else:
             query_results = query.execute(headers=headers)
             request.session['query'] = query.query_dict
@@ -614,6 +626,7 @@ def queries_query_results(request, graph_slug, query_id):
                 if isinstance(query_fields, dict):
                     query_fields = json.dumps(query_fields)
                 request.session['query_fields'] = query_fields
+            query_has_changed = True
         else:
             query_results = query.execute(headers=headers)
             request.session['query'] = query.query_dict
@@ -655,8 +668,16 @@ def queries_query_results(request, graph_slug, query_id):
                 if isinstance(query_fields, dict):
                     query_fields = json.dumps(query_fields)
                 request.session['query_fields'] = query_fields
+            query_has_changed = True
         else:
             query_results = query.execute(order_by=order_by, headers=headers)
+            # Let's check if the sorting params are different
+            if different_sorting_params:
+                # We check if the type of query_field is appropiate
+                if isinstance(query_fields, dict):
+                    query_fields = json.dumps(query_fields)
+                request.session['query_fields'] = query_fields
+                query_has_changed = True
         if not query_results:
             messages.error(request,
                            _("Error: You are trying to sort a \
@@ -716,6 +737,7 @@ def queries_query_results(request, graph_slug, query_id):
     return render_to_response('queries/queries_new_results.html',
                               {"graph": graph,
                                "query": query,
+                               "query_has_changed": query_has_changed,
                                "queries_link": queries_link,
                                "queries_name": queries_name,
                                "headers": headers_results,
@@ -787,18 +809,10 @@ def queries_query_modify(request, graph_slug, query_id):
 
     # Let's save the results
     if request.POST:
-        # If we click the save, we modify the actual query
-        if 'modify-query' in request.POST:
-            form = SaveQueryForm(data=data, instance=query)
-        # Else, if we click the save as new then we create a new query
-        elif 'save-as-new' in request.POST:
-            form = SaveQueryForm(data=data)
+        form = SaveQueryForm(data=data, instance=query)
         if form.is_valid():
             with transaction.atomic():
                 query = form.save(commit=False)
-                # If the query is new, we need to add it in the graph
-                if 'save-as-new' in request.POST:
-                    graph.queries.add(query)
                 # We treat the results_count
                 results_count = request.session.get('results_count', None)
                 if results_count:
@@ -807,9 +821,6 @@ def queries_query_modify(request, graph_slug, query_id):
                 else:
                     query.results_count = 0
                 query.save()
-                # If the query is new, we need to add it in the graph
-                if 'save-as-new' in request.POST:
-                    graph.save()
                 return redirect(queries_list_url)
         else:
             return redirect(edit_query_url)
@@ -860,8 +871,8 @@ def graph_query_collaborators(request, graph_slug):
         graph = get_object_or_404(Graph, slug=graph_slug)
         term = request.GET["term"]
         if graph and term:
-            #collabs = graph.get_collaborators(include_anonymous=True,
-            #                                  as_queryset=True)
+            # collabs = graph.get_collaborators(include_anonymous=True,
+            #                                   as_queryset=True)
             lookups = (Q(username__icontains=term) |
                        Q(first_name__icontains=term) |
                        Q(last_name__icontains=term) |
