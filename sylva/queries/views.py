@@ -164,7 +164,7 @@ def queries_new(request, graph_slug):
 
     # If query_id is 'new' means that we need to get the variables of the
     # session to load the query
-    if query_id == 'new':
+    if query_id == NEW:
         query_dict = request.session.get('query', None)
         query_aliases = request.session.get('query_aliases', None)
         query_fields = request.session.get('query_fields', None)
@@ -850,9 +850,9 @@ def queries_query_modify(request, graph_slug, query_id):
                 return redirect(edit_query_url)
         elif 'save-as-new' in request.POST:
             # We change the query id in session to load the dicts
-            request.session['query_id'] = 'new'
-            request.session['query_name'] = _('new') + ' ' + query_name
-            request.session['query_description'] = _('new') + ' ' + query_description
+            request.session['query_id'] = NEW
+            request.session['query_name'] = _(NEW) + ' ' + query_name
+            request.session['query_description'] = _(NEW) + ' ' + query_description
             return redirect(new_query_url)
     else:
         return redirect(edit_query_url)

@@ -57,9 +57,12 @@
                 {% if as_new %}
                 {% trans "or" %}
                 <input type="submit" name="as-new" value="{% trans "Save as new" %} {{ nodetype.name|capfirst }}"/>
+                {% else %}
+                {% trans "or" %}
+                <input type="submit" class="input-like-link" name="add-another" id="add-another" value="{% trans "Save and Add Another" %} {{ nodetype.name|capfirst }}" />
                 {% endif %}
               </span>
-              <span class="buttonLinkOption buttonLinkRight">
+              <span class="buttonLinkOption buttonLinkRight" style="padding-top: 5px;">
                 {% if delete %}
                 {% trans "or" %}
                 <a href="{% url "nodes_delete" graph.slug node.id %}">{% trans "Remove" %}</a>
