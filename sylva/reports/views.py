@@ -121,6 +121,24 @@ def templates_endpoint(request, graph_slug):
     return HttpResponse(json.dumps(response), content_type='application/json')
 
 
+def delete_endpoint(request, graph_slug):
+    response = {}
+    if request.POST:
+        template_slug = json.loads(request.body)['template']
+        template = get_object_or_404(
+            ReportTemplate, slug=template_slug
+        )
+        template.delete()
+    elif request.GET.get("template"):
+        template = get_object_or_404(
+            ReportTemplate, slug=request.GET["template"]
+        )
+        response = template.dictify()
+        response.update({"num_reports": template.reports.count()})
+    return HttpResponse(json.dumps(response), content_type="application/json")
+
+
+
 @login_required
 @is_enabled(settings.ENABLE_REPORTS)
 @permission_required("schemas.view_schema",

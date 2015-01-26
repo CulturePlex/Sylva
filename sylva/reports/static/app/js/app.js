@@ -50,6 +50,10 @@ reports.config([
                 templateUrl: DJANGO_URLS.partials + '?name=report_preview',
                 controller: 'ReportPreviewCtrl'
             }).
+            when('/delete/:reportSlug', {
+                templateUrl: DJANGO_URLS.partials + '?name=delete_report',
+                controller: 'DeleteReportCtrl'
+            }).
             otherwise({
                 redirectTo: '/'
             });

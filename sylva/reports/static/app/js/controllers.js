@@ -13,9 +13,7 @@ controllers.controller('ReportListCtrl', [
         $scope.graph = parser.parse();
         var periods = {h: 'Hourly', d: 'Daily', w: 'Weekly' , m: 'Monthly'}
         $scope.getPage = function (pageNum) {
-            console.log("hello", pageNum)
             api.list.list({page: pageNum}, function (data) {
-                console.log("data", data)
                 $scope.data = data;
                 var len = data.templates.length;
                 for (var i=0;i<len;i++) {
@@ -158,9 +156,7 @@ controllers.controller('NewReportCtrl', [
                         "rowspan": "1", "displayQuery": "", "chartType": "",
                         "series": "", "xAxis":"", "yAxis": []}]]
 
-        api.templates.blank({
-            graphSlug: $scope.slugs.graph, 
-        }, function (data) {
+        api.templates.blank({}, function (data) {
             data.layout = layout;
             $scope.template.layout = layout;
             $scope.resp = {table: layout, queries: data.queries}
@@ -177,7 +173,6 @@ controllers.controller('EditReportCtrl', [
         // Done except post
         $controller('BaseReportCtrl', {$scope: $scope});
         api.templates.edit({
-            graphSlug: $scope.slugs.graph,
             template: $scope.slugs.template
         }, function (data) {   
             var date = JSON.parse(data.template.start_date)
@@ -211,7 +206,6 @@ controllers.controller('ReportPreviewCtrl', [
         $controller('BaseReportCtrl', {$scope: $scope});
         $scope.pdf = parser.pdf();
         api.templates.preview({
-            graphSlug: $scope.slugs.graph,
             template: $scope.slugs.template,  
         }, function (data) {
             $scope.template = data.template;
@@ -230,7 +224,6 @@ controllers.controller('ReportHistoryCtrl', [
         $controller('BaseReportCtrl', {$scope: $scope});
         $scope.getPage = function (pageNum) {
             api.history.history({
-                graphSlug: $scope.slugs.graph,
                 template: $scope.slugs.template,
                 page: pageNum
             }, function (data) {
@@ -274,4 +267,35 @@ controllers.controller('ReportHistoryCtrl', [
                 $scope.resp = {table: data.table}
             });
         }
+}]);
+
+
+controllers.controller("DeleteReportCtrl", [
+    '$scope',
+    '$controller',
+    '$location',
+    'api',
+    "breadService",
+    function ($scope, $controller, $location, api, parser, breadService) {
+        $controller('BaseReportCtrl', {$scope: $scope});
+        $scope.getTemplate = function () {
+            api.del.get({
+                template: $scope.slugs.template;
+            }, function (data) {
+                breadService.updateName(data.name);
+                $scope.template = data;
+            });
+        }
+
+        $scope.deleteReport = function () {
+            var post = new api.del();
+            post.template = $scope.slugs.template;
+            post.$save({}, function (data) {
+                var redirect = '/';
+                $location.path(redirect);
+            });
+        }
+
+        $scope.getTemplate();
+
 }]);

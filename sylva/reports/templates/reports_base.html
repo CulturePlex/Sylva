@@ -111,6 +111,7 @@
                 history: "{% url 'history' graph_slug=graph.slug %}",
                 builder: "{% url 'builder' graph_slug=graph.slug %}",
                 preview: "{% url 'preview' graph_slug=graph.slug %}",
+                del: "{% url 'delete' graph_slug=graph.slug %}",
                 partials: "{% url 'partials' graph_slug=graph.slug %}"
               }
               angular.module('reports').constant("GRAPH", "{{ graph.slug }}");

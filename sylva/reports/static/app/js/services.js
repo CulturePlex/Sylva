@@ -21,13 +21,18 @@ services.factory('api', ['$resource',  'DJANGO_URLS', function ($resource, DJANG
         report: {method: 'GET'}
     });
 
-    var builder= $resource(DJANGO_URLS.builder, {}, {});
+    var del = $resource(DJANGO_URLS.del, {}, {
+        get: {method: 'GET'}
+    });
+
+    var builder = $resource(DJANGO_URLS.builder, {}, {});
 
     return {
         templates: templates,
         history: history,
         builder: builder,
-        list: list
+        list: list,
+        del: del
     };
 }]);
 
