@@ -491,6 +491,11 @@ class GraphDatabase(BlueprintsGraphDatabase):
     def _query_generator_origins(self, origins_dict, conditions_alias):
         origins_set = set()
         for origin_dict in origins_dict:
+            # This is to maintain the logic for the older queries
+            try:
+                alias = origin_dict['slug']
+            except KeyError:
+                alias = origin_dict['alias']
             if origin_dict["type"] == "node":
                 node_type = origin_dict["type_id"]
                 # wildcard type
@@ -498,7 +503,7 @@ class GraphDatabase(BlueprintsGraphDatabase):
                     node_type = '*'
                 origin = u"""`{alias}`=node:`{nidx}`('label:{type}')""".format(
                     nidx=unicode(self.nidx.name).replace(u"`", u"\\`"),
-                    alias=unicode(origin_dict["alias"]).replace(u"`", u"\\`"),
+                    alias=unicode(alias).replace(u"`", u"\\`"),
                     type=node_type,
                 )
                 origins_set.add(origin)
@@ -508,13 +513,12 @@ class GraphDatabase(BlueprintsGraphDatabase):
                 if relation_type == WILDCARD_TYPE:
                     origin = u"""`{alias}`=rel:`{ridx}`('graph:{graph_id}')""".format(
                         ridx=unicode(self.ridx.name).replace(u"`", u"\\`"),
-                        alias=unicode(origin_dict["alias"]).replace(u"`",
+                        alias=unicode(alias).replace(u"`",
                                                                     u"\\`"),
                         graph_id=self.graph_id,
                     )
                 # TODO: Why with not rel indices in START the query is faster?
                 else:
-                    alias = origin_dict["alias"]
                     if alias in conditions_alias:
                         origin = u"""`{alias}`=rel:`{ridx}`('label:{type}')""".format(
                             ridx=unicode(self.ridx.name).replace(u"`",
@@ -540,6 +544,13 @@ class GraphDatabase(BlueprintsGraphDatabase):
                     property_value = prop["property"]
                     property_aggregate = prop["aggregate"]
                     property_distinct = prop["distinct"]
+                    # We will use the property show_alias to show the alias
+                    # in a correct way while we use the slug to execute the
+                    # query.
+                    # try:
+                    #     property_show_alias = prop["showAlias"]
+                    # except KeyError:
+                    #     property_show_alias = alias
                     if property_value:
                         if not property_aggregate and not only_ids:
                             result = u"`{0}`.`{1}`".format(
@@ -549,7 +560,7 @@ class GraphDatabase(BlueprintsGraphDatabase):
                             results_set.add(result)
                         elif property_aggregate and not only_ids:
                             if property_aggregate in AGGREGATES:
-                                result = u"{0}(`{1}`.`{2}`) as `{0}({1}.{2})`".format(
+                                result = u"{0}(`{1}`.`{2}`)".format(
                                     unicode(property_aggregate),
                                     unicode(alias).replace(u"`", u"\\`"),
                                     unicode(property_value).replace(u"`",
@@ -558,7 +569,7 @@ class GraphDatabase(BlueprintsGraphDatabase):
                                 results_set.add(result)
                         else:
                             result = u"ID(`{0}`)".format(
-                                unicode(alias).replace(u"`", u"\\`"),
+                                unicode(alias).replace(u"`", u"\\`")
                             )
                             results_set.add(result)
                         if property_distinct:
@@ -572,7 +583,10 @@ class GraphDatabase(BlueprintsGraphDatabase):
         for pattern_dict in patterns_dict:
                 source = pattern_dict["source"]["alias"]
                 target = pattern_dict["target"]["alias"]
-                relation = pattern_dict["relation"]["alias"]
+                try:
+                    relation = pattern_dict["relation"]["slug"]
+                except KeyError:
+                    relation = pattern_dict["relation"]["alias"]
                 relation_type = pattern_dict["relation"]["type_id"]
                 # wildcard type
                 if relation_type == -1:

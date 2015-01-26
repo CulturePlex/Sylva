@@ -5,7 +5,6 @@ import os
 import tempfile
 import urlparse
 
-from collections import defaultdict
 from subprocess import Popen, STDOUT, PIPE
 from time import time
 
@@ -14,8 +13,8 @@ from django.conf import settings
 from django.shortcuts import (render_to_response, get_object_or_404,
                               HttpResponse)
 from django.template import RequestContext
-from django.core.context_processors import csrf
-from django.utils.translation import ugettext as _
+from django.db.models import Q
+from django.core.exceptions import ObjectDoesNotExist
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.core.urlresolvers import reverse
 from django.contrib.staticfiles import finders
@@ -133,13 +132,9 @@ def history_endpoint(request, graph_slug):
             ReportTemplate, slug=request.GET['template']
         )
         # Sort reports into buckets depending on periodicity
-        # So here I can build and paginate buckets then query
-        # reports only back to oldest bucket, then fill the buckets 
-        # and send them off.
-        first_date_run = template.reports.earliest('date_run').date_run
-        if first_date_run:
-            periodicity = template.frequency
+        try:
             first_date_run = template.reports.earliest('date_run').date_run
+            periodicity = template.frequency
             now = datetime.datetime.now()
             if periodicity == "h":
                 start = first_date_run.replace(
@@ -151,33 +146,39 @@ def history_endpoint(request, graph_slug):
                 if weekday == 6:
                     start = first_date_run
                 else:
-                    start = first_date_run - timedelta(days=weekday + 1)
+                    start = first_date_run - datetime.timedelta(
+                        days=weekday + 1
+                    )
                 start = start.replace(
-                        hour=0, minute=0, second=0, microsecond=0
-                ) 
+                    hour=0, minute=0, second=0, microsecond=0
+                )
                 interval = datetime.timedelta(weeks=1)
             elif periodicity == "w":
                 start = first_date_run.replace(
-                        day=1, hour=0, minute=0, second=0, microsecond=0
-                ) 
+                    day=1, hour=0, minute=0, second=0, microsecond=0
+                )
                 interval = relativedelta.relativedelta(months=1)
             else:
                 start = first_date_run.replace(
                     month=1, day=1, hour=0, minute=0, second=0, microsecond=0
-                ) 
-                interval = relativedelta.relativedelta(years=1) 
+                )
+                interval = relativedelta.relativedelta(years=1)
             bucket = start + interval
             buckets = [start, bucket]
             while bucket < now:
                 buckets.append(bucket)
                 bucket += interval
             page = request.GET.get('page', "")
+            buckets.reverse()  # Generate these in reverse when I have time.
             pgntr, output, next_page_num, prev_page_num = paginate(
                 buckets, 5, page
             )
             oldest = output.object_list[0]
-            reports = template.reports.filter(date_run__gte=oldest).order_by('-date_run')
-            report_buckets = defaultdict(list)
+            newest = output.object_list[-1]
+            reports = template.reports.filter(
+                Q(date_run__gte=oldest) & Q(date_run__lt=newest)
+            ).order_by('-date_run')
+            report_buckets = {k.isoformat(): [] for k in output.object_list}
             for report in reports:
                 bucket = _get_bucket(report.date_run, output.object_list)
                 report_buckets[bucket].append(report.dictify())
@@ -194,10 +195,11 @@ def history_endpoint(request, graph_slug):
                 'page_number': output.number,
                 'previous_page_number': prev_page_num
             }
+        except ObjectDoesNotExist:
+            pass
     elif request.GET.get('report', ''):
         report = get_object_or_404(Report, id=request.GET['report'])
         response = report.dictify()
-
     return HttpResponse(json.dumps(response), content_type='application/json')
 
 

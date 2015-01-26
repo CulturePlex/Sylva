@@ -55,12 +55,14 @@
                     <div class="shorten-text">
                     {% trans "Name" %}
                     </div>
-                    <a class='remove-sorting'
-                       href="?page={{ queries.number }}&order_by=id" title="{% trans "Remove from sorting" %}"></a>
-                {% if dir == '-' %}
-                    <a class='sorting-asc' href="?page={{ queries.number }}&order_by=name&dir={{ dir }}" title="{% trans "Sorting ascending by " %} {{ order_by }}"></a>
-                {% else %}
-                    <a class='sorting-desc' href="?page={{ queries.number }}&order_by=name&dir={{ dir }}" title="{% trans "Sorting descending by " %} {{ order_by }} "></a>
+                {% if order_by == 'name' %}
+                        <a class='remove-sorting'
+                           href="?page={{ queries.number }}&order_by=id" title="{% trans "Remove from sorting" %}"></a>
+                    {% if dir == '-' %}
+                        <a class='sorting-asc' href="?page={{ queries.number }}&order_by=name&dir={{ dir }}" title="{% trans "Sorting ascending by " %} {{ order_by }}"></a>
+                    {% else %}
+                        <a class='sorting-desc' href="?page={{ queries.number }}&order_by=name&dir={{ dir }}" title="{% trans "Sorting descending by " %} {{ order_by }} "></a>
+                    {% endif %}
                 {% endif %}
                 </a>
             </th>
@@ -69,11 +71,13 @@
                     <div class="shorten-text">
                     {% trans "Description" %}
                     </div>
-                    <a class='remove-sorting' href="?page={{ queries.number }}&order_by=id" title="{% trans "Remove from sorting" %}"></a>
-                {% if dir == '-' %}
-                    <a class='sorting-asc' href="?page={{ queries.number }}&order_by=description&dir={{ dir }}" title="{% trans "Sorting ascending by " %} {{ order_by }}"></a>
-                {% else %}
-                    <a class='sorting-desc' href="?page={{ queries.number }}&order_by=description&dir={{ dir }}" title="{% trans "Sorting descending by " %} {{ order_by }}"></a>
+                {% if order_by == 'description' %}
+                        <a class='remove-sorting' href="?page={{ queries.number }}&order_by=id" title="{% trans "Remove from sorting" %}"></a>
+                    {% if dir == '-' %}
+                        <a class='sorting-asc' href="?page={{ queries.number }}&order_by=description&dir={{ dir }}" title="{% trans "Sorting ascending by " %} {{ order_by }}"></a>
+                    {% else %}
+                        <a class='sorting-desc' href="?page={{ queries.number }}&order_by=description&dir={{ dir }}" title="{% trans "Sorting descending by " %} {{ order_by }}"></a>
+                    {% endif %}
                 {% endif %}
                 </a>
             </th>
@@ -82,11 +86,13 @@
                     <div class="shorten-text">
                     {% trans "Results count" %}
                     </div>
-                    <a class='remove-sorting' href="?page={{ queries.number }}&order_by=id" title="{% trans "Remove from sorting" %}"></a>
-                {% if dir == '-' %}
-                    <a class='sorting-asc' href="?page={{ queries.number }}&order_by=results_count&dir={{ dir }}" title="{% trans "Sorting ascending by " %} {{ order_by }}"></a>
-                {% else %}
-                    <a class='sorting-desc' href="?page={{ queries.number }}&order_by=results_count&dir={{ dir }}" title="{% trans "Sorting descending by " %} {{ order_by }}"></a>
+                {% if order_by == 'results_count' %}
+                        <a class='remove-sorting' href="?page={{ queries.number }}&order_by=id" title="{% trans "Remove from sorting" %}"></a>
+                    {% if dir == '-' %}
+                        <a class='sorting-asc' href="?page={{ queries.number }}&order_by=results_count&dir={{ dir }}" title="{% trans "Sorting ascending by " %} {{ order_by }}"></a>
+                    {% else %}
+                        <a class='sorting-desc' href="?page={{ queries.number }}&order_by=results_count&dir={{ dir }}" title="{% trans "Sorting descending by " %} {{ order_by }}"></a>
+                    {% endif %}
                 {% endif %}
                 </a>
             </th>
@@ -95,11 +101,13 @@
                     <div class="shorten-text">
                     {% trans "Last run" %}
                     </div>
-                    <a class='remove-sorting' href="?page={{ queries.number }}&order_by=id" title="{% trans "Remove from sorting" %}"></a>
-                {% if dir == '-' %}
-                    <a class='sorting-asc' href="?page={{ queries.number }}&order_by=last_run&dir={{ dir }}" title="{% trans "Sorting ascending by " %} {{ order_by }}"></a>
-                {% else %}
-                    <a class='sorting-desc' href="?page={{ queries.number }}&order_by=last_run&dir={{ dir }}" title="{% trans "Sorting descending by " %} {{ order_by }}"></a>
+                {% if order_by == 'last_run' %}
+                        <a class='remove-sorting' href="?page={{ queries.number }}&order_by=id" title="{% trans "Remove from sorting" %}"></a>
+                    {% if dir == '-' %}
+                        <a class='sorting-asc' href="?page={{ queries.number }}&order_by=last_run&dir={{ dir }}" title="{% trans "Sorting ascending by " %} {{ order_by }}"></a>
+                    {% else %}
+                        <a class='sorting-desc' href="?page={{ queries.number }}&order_by=last_run&dir={{ dir }}" title="{% trans "Sorting descending by " %} {{ order_by }}"></a>
+                    {% endif %}
                 {% endif %}
                 </a>
             </th>

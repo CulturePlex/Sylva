@@ -92,11 +92,13 @@
                             <div class="shorten-text">
                             {{ prop.key }}
                             </div>
-                            <a class='remove-sorting' href="?page={{ nodes.number }}&order_by=default" title="{% trans "Remove from sorting" %}"></a>
-                        {% if dir == 'desc' %}
-                          <a data-modal="list-sort" class='sorting-asc' href="?page={{ nodes.number }}&order_by={{ prop.key }}&dir={{ dir }}" title="{% trans "Sorting ascending by" %} {{ order_by }}"></a>
-                        {% else %}
-                          <a data-modal="list-sort" class='sorting-desc' href="?page={{ nodes.number }}&order_by={{ prop.key }}&dir={{ dir }}" title="{% trans "Sorting descending by " %} {{ order_by }}"></a>
+                        {% if order_by == prop.key %}
+                              <a class='remove-sorting' href="?page={{ nodes.number }}&order_by=default" title="{% trans "Remove from sorting" %}"></a>
+                          {% if dir == 'desc' %}
+                            <a data-modal="list-sort" class='sorting-asc' href="?page={{ nodes.number }}&order_by={{ prop.key }}&dir={{ dir }}" title="{% trans "Sorting ascending by" %} {{ order_by }}"></a>
+                          {% else %}
+                            <a data-modal="list-sort" class='sorting-desc' href="?page={{ nodes.number }}&order_by={{ prop.key }}&dir={{ dir }}" title="{% trans "Sorting descending by " %} {{ order_by }}"></a>
+                          {% endif %}
                         {% endif %}
                         </a>
                     </th>

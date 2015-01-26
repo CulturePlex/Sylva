@@ -314,7 +314,8 @@ diagram.aggregates = [
 
             divTitle = diagram.addTitleDiv(graphName, model, typeName, modelName, idTopBox, idBox, idAllRels, relationsIds);
             // Create the select for the properties
-            var boxalias = divTitle.data('boxalias');
+            //var boxalias = divTitle.data('boxalias');
+            var boxalias = divTitle.data('slug');
             diagram.fieldsForNodes[boxalias] = [];
             divField = diagram.addFieldRow(graphName, typeName, idFields, typeName, boxalias, idBox, idAllRels);
             divFields.append(divField);
@@ -427,6 +428,11 @@ diagram.aggregates = [
                 diagram.reltypesCounter[name] = 1;
             }
 
+            // We get the relValue and the slug name to avoid duplicate
+            // keys for queries.
+            slugValue = name + "_" + diagram.reltypesCounter[name];
+            relValue = label + " " + diagram.reltypesCounter[name];
+
             divTitle = $("<DIV>");
             divTitle.addClass("title");
             divTitle.css({
@@ -434,7 +440,7 @@ diagram.aggregates = [
             });
             divTitle.attr("id", idBox + "-title");
             divTitle.attr("data-modelid", idRel);
-            divTitle.attr('data-slug', name);
+            divTitle.attr('data-slug', slugValue);
             // Select for the type
             selectReltype = $("<SELECT>");
             selectReltype.addClass("select-reltype-" + name);
@@ -446,9 +452,7 @@ diagram.aggregates = [
                 "margin-top": "-1px",
                 "display": "none"
             });
-            // We check if we already have the same alias in the dictionary
-            // values to assign a different value.
-            relValue = label + " " + diagram.reltypesCounter[name];
+            /*
             Object.keys(diagram.reltypesList).map(function(key){
                 // We need to make the changes if the value is present
                 // in another type.
@@ -458,8 +462,9 @@ diagram.aggregates = [
                         relValue = "(" + name + ") " + label + " " + diagram.reltypesCounter[name]
                     }
                 }
-            });
-            diagram.savedFieldsForRels[relValue] = [];
+            });*/
+            //diagram.savedFieldsForRels[relValue] = [];
+            diagram.savedFieldsForRels[slugValue] = [];
             optionReltype = $("<OPTION>");
             optionReltype.addClass("option-reltype-" + name);
             optionReltype.attr('id', name + diagram.reltypesCounter[name]);
@@ -732,7 +737,7 @@ diagram.aggregates = [
                 divCornerButtons.append(anchorShowHide);
                 divCornerButtons.append(anchorAdvancedMode);
                 // Create the select for the properties
-                divField = diagram.addFieldRelRow(relValue, name, idFields);
+                divField = diagram.addFieldRelRow(slugValue, name, idFields);
                 divFields.append(divField);
                 if (countFields < 5 && countFields > 0) {
                     divFields.addClass("noOverflow");
@@ -790,10 +795,17 @@ diagram.aggregates = [
             if(typeName != "wildcard") {
                 typeId = model.id;
             }
+
+            // We get the alias for the box and the slug value to avoid
+            // duplicated values for boxes with the same key
+            var boxAlias = modelName + " " + diagram.nodetypesCounter[typeName];
+            var slugValue = typeName + "_" + diagram.nodetypesCounter[typeName];
+
             divTitle = $("<DIV>");
             divTitle.addClass("title");
             divTitle.attr('id', idBox + "-title");
             divTitle.attr('data-modelid', typeId);
+            divTitle.attr('data-slug', slugValue);
             // Select for the type
             selectNodetype = $("<SELECT>");
             selectNodetype.addClass("select-nodetype-" + typeName);
@@ -807,15 +819,13 @@ diagram.aggregates = [
             });
             optionNodetype = $("<OPTION>");
             var idAndValue = modelName + diagram.nodetypesCounter[typeName];
-            // We check if we already have the same alias in the dictionary
-            // values to assign a different value
-            var boxAlias = modelName + " " + diagram.nodetypesCounter[typeName];
+            /*
             Object.keys(diagram.nodetypesList).map(function(key){
                 arrayValues = diagram.nodetypesList[key];
                 if(arrayValues.indexOf(boxAlias) != -1) {
                     boxAlias = "(" + typeName + ") " + modelName + " " + diagram.nodetypesCounter[name]
                 }
-            });
+            });*/
             optionNodetype.addClass("option-nodetype-" + typeName);
             optionNodetype.attr('id', idAndValue);
             optionNodetype.attr('data-modelid', typeId);
@@ -986,10 +996,15 @@ diagram.aggregates = [
                         $this = $(selectorAggregate);
                         var propertyValue = $this.next().val();
                         var titleDiv = $this.prev().parent().parent().parent().parent().prev();
+                        var boxSlug = $(titleDiv).data('slug');
                         var boxAlias = $('select', titleDiv).val();
-                        var orderByField = boxAlias + '.' + propertyValue;
+
+                        // We use the slug for the value and alias for the html
+                        var orderByFieldVal = boxSlug + '.' + propertyValue;
+                        var orderByFieldHTML = boxAlias + '.' + propertyValue;
+
                         // We add the new option with the aggregate
-                        var aggOrderByField = aggregate + '(' + orderByField + ')';
+                        var aggOrderByField = aggregate + '(' + orderByFieldVal + ')';
 
                         // We remove the option because we have a new option
                         $('#id_select_order_by option[value="' + aggOrderByField + '"]').remove();
@@ -997,8 +1012,8 @@ diagram.aggregates = [
                         // We add the orderByField to the select
                         var selectNewOption = $("<OPTION>");
                         //selectNewOption.attr('id', );
-                        selectNewOption.attr('value', orderByField);
-                        selectNewOption.html(orderByField);
+                        selectNewOption.attr('value', orderByFieldVal);
+                        selectNewOption.html(orderByFieldHTML);
                         $('#id_select_order_by').append(selectNewOption);
                     }
                 }
@@ -1972,7 +1987,8 @@ diagram.aggregates = [
             // We really should think about another solution to get the parent element
             var parent = $(property).parent().parent().parent().parent().parent();
             var parentId = $(parent).attr('id');
-            var alias = $('#' + parentId + ' .title').children().filter('input, select').val();
+            var showAlias = $('#' + parentId + ' .title').children().filter('input, select').val();
+            var alias = $('#' + parentId + ' .title').data('slug');
             var propertyName = $(property).val();
             var propertyValue = $(property).next().next().val();
 
@@ -1999,17 +2015,21 @@ diagram.aggregates = [
             var aggregate = $(property).prev().find(":selected");
             var aggregateValue = $(aggregate).val();
             var aggregateDistinct = '';
-            // We store the alias that we use for the headers
+            // We store the slug used for the query
+            var headerSlug = '';
+            // We store how we want to show the alias in the headers
             var headerAlias = '';
             // We check if the aggregate value is not the "choose one" option
             if(aggregateValue != '') {
                 aggregateDistinct = $(aggregate).data("distinct");
                 // If we have aggregate, we build an appropiate alias
-                headerAlias = aggregateValue + '(' + alias + '.' + propertyName + ')'
+                headerSlug = aggregateValue + '(' + alias + '.' + propertyName + ')';
+                headerAlias = aggregateValue + '(' + showAlias + '.' + propertyName + ')';
             } else {
                 aggregateValue = false;
                 // We build the appropiate alias
-                headerAlias = alias + '.' + propertyName
+                headerSlug = alias + '.' + propertyName
+                headerAlias = showAlias + '.' + propertyName
             }
 
             // We store the checked properties
@@ -2021,7 +2041,8 @@ diagram.aggregates = [
                 propertiesDict["aggregate"] = aggregateValue;
                 propertiesDict["distinct"] = aggregateDistinct;
                 propertiesDict["datatype"] = datatype;
-                propertiesDict["alias"] = headerAlias;
+                propertiesDict["alias"] = headerSlug;
+                propertiesDict["showAlias"] = headerAlias;
                 propertiesChecked[alias].push(propertiesDict);
             }
 
@@ -2068,9 +2089,11 @@ diagram.aggregates = [
                 type = "node";
             var alias = $(element).val();
             var type_id = $(element).data('modelid');
+            var slug = $(element).parent().parent().data('slug');
             origin.alias = alias;
             origin.type = type;
             origin.type_id = type_id;
+            origin.slug = slug;
             originsArray.push(origin);
         });
 
@@ -2101,8 +2124,10 @@ diagram.aggregates = [
                 alert("There's been an error in the relationship " + sourceId + "-" + targetId + ". Please remove it and try again");
             }
             //var relationAlias = $('#' + relationId + ' .title select').val();
+            var relationSlug = $('#' + relationId + ' .title').data('slug');
             var relationAlias = $('#' + relationId + ' .title').children().filter('input, select').val();
             var relationModelId = relationSelector.data('modelid');
+            relation.slug = relationSlug;
             relation.alias = relationAlias;
             // We save the relation slug to not be confused in queries
             // with the same box alias
@@ -2111,7 +2136,8 @@ diagram.aggregates = [
 
             var sourceSelector = $('#' + sourceId + ' .title');
             //var sourceAlias = $('#' + sourceId + ' .title select').val();
-            var sourceAlias = $('#' + sourceId + ' .title').children().filter('input, select').val();
+           // var sourceAlias = $('#' + sourceId + ' .title').children().filter('input, select').val();
+           var sourceAlias = $('#' + sourceId + ' .title').data('slug');
             var sourceModelId = sourceSelector.data('modelid');
             source.alias = sourceAlias;
             source.type = 'node';
@@ -2119,7 +2145,8 @@ diagram.aggregates = [
 
             var targetSelector = $('#' + targetId + ' .title');
             //var targetAlias = $('#' + targetId + ' .title select').val();
-            var targetAlias = $('#' + targetId + ' .title').children().filter('input, select').val();
+            //var targetAlias = $('#' + targetId + ' .title').children().filter('input, select').val();
+            var targetAlias = $('#' + targetId + ' .title').data('slug');
             var targetModelId = targetSelector.data('modelid');
             target.alias = targetAlias;
             target.type = 'node';
@@ -2139,8 +2166,9 @@ diagram.aggregates = [
         var elements = $('input, option').filter(function(){ return $(this).attr("class") && $(this).attr("class").match(/(option-reltype|option-nodetype)./) && $(this).attr("selected");});
         $.each(elements, function(index, element) {
             var result = {};
-            var alias = $(element).val();
-            var properties = propertiesChecked[element.value];
+
+            var alias = $(element).parent().parent().data('slug');
+            var properties = propertiesChecked[alias];
 
             if(!properties)
                 properties = new Array();
@@ -2185,10 +2213,16 @@ diagram.aggregates = [
             // We save the node types to load the boxes
             for(var i = 0; i < originsLength; i++) {
                 if(origins[i].type == "node") {
+                    // We check if we have the slug value or we use the alias
+                    // for older queries
                     nodeAlias = origins[i].alias;
+                    if(origins[i].slug)
+                        nodeAlias = origins[i].slug
                     nodetypes[nodeAlias] = types[nodeAlias];
                 } else {
                     relAlias = origins[i].alias;
+                    if(origins[i].slug)
+                        relAlias = origins[i].slug
                     reltypes[relAlias] = types[relAlias];
                 }
             }
@@ -2225,6 +2259,11 @@ diagram.aggregates = [
                     // We change the counter to get the correct id of the box
                     counter = parseInt(id.split("-")[1]);
                     diagram.Counter = counter - 1;
+                    // This is to replace the alias if we have edited it.
+                    // We need to maintain the old logic.
+                    alias = nodetypes[key].alias;
+                    if(alias == undefined)
+                        alias = key;
                     typename = nodetypes[key].typename;
                     leftPos = nodetypes[key].left;
                     topPos = nodetypes[key].top;
@@ -2292,7 +2331,7 @@ diagram.aggregates = [
                     conditionsIndex = 0;
                     // We check if we need to change the alias
                     // (edit alias feature)
-                    diagram.loadQueryWithAlias(id, key, typename, true)
+                    diagram.loadQueryWithAlias(id, alias, typename, true)
                 }
                 // We check if we have to show the 'alias selects' for this type
                 diagram.showSelects(typename, "node");
@@ -2313,8 +2352,13 @@ diagram.aggregates = [
                 var targetId = types[target].id;
 
                 // TODO: We need to find the way to get two relation with same alias
-                var relation = jsonDict["query"]["patterns"][i].relation.alias;
-                var idRel = jsonDict["query"]["patterns"][i].relation.type_id;
+                var queryRelation = jsonDict["query"]["patterns"][i].relation;
+                relation = queryRelation.alias;
+                relationAlias = queryRelation.alias;
+                if(queryRelation.slug) {
+                    relation = queryRelation.slug;
+                }
+                var idRel = queryRelation.type_id;
                 var relationTypeName = types[relation].typename;
 
                 // We need to change the first letter to uppercase
@@ -2339,7 +2383,7 @@ diagram.aggregates = [
                 diagram.showSelects(labelRel, "relationship");
                 // We check if we need to change the alias
                 // (edit alias feature)
-                diagram.loadQueryWithAlias(idRelBox, relation, labelRel, false)
+                diagram.loadQueryWithAlias(idRelBox, relationAlias, labelRel, false)
             }
 
             // We will check the conditions for the relationships
@@ -2516,11 +2560,15 @@ diagram.aggregates = [
             var top = $(parent).css('top');
 
             valuesDict['id'] = id;
+            valuesDict['alias'] = alias;
             valuesDict['typename'] = typename;
             valuesDict['left'] = left;
             valuesDict['top'] = top;
 
-            typesDict[alias] = valuesDict;
+            // We obtain the slug value to save the values
+            var slugValue = $(element).parent().data('slug');
+
+            typesDict[slugValue] = valuesDict;
         });
         aliasDict["types"] = typesDict;
 
@@ -2588,8 +2636,6 @@ diagram.aggregates = [
 
         saveElements['fields'] = fieldsDict;
 
-        console.log(saveElements);
-
         return saveElements;
     };
 
@@ -2622,7 +2668,8 @@ diagram.aggregates = [
         var modelName = $this.data("model");
         var graphName = $this.data("graph");
         var typeName = $this.data("typename");
-        var boxalias = $this.data("boxalias");
+        //var boxalias = $this.data("boxalias");
+        var boxalias = $this.data("slug");
         var idBox = $this.data("idbox");
         var idAllRels = $this.data("idallrels");
 
@@ -2649,7 +2696,8 @@ diagram.aggregates = [
             var modelName = $this.data("model");
             var graphName = $this.data("graph");
             var typeName = $this.data("typename");
-            var boxalias = $this.data("boxalias");
+            //var boxalias = $this.data("boxalias");
+            var boxalias = $this.data("slug");
             var idBox = $this.data("idbox");
             var idAllRels = $this.data("idallrels");
 
@@ -2669,7 +2717,8 @@ diagram.aggregates = [
      */
     $("#diagramContainer").on('change', '.select-and-or-rel', function() {
         var $this = $(this);
-        var boxAlias = $this.data("boxalias");
+        //var boxAlias = $this.data("boxalias");
+        var boxAlias = $this.data('slug');
         var label = $this.data("label");
         var parentId = $this.data("parentid");
 
@@ -2858,23 +2907,29 @@ diagram.aggregates = [
         var $this = $(this);
         var propertyValue = $this.next().next().val();
         var titleDiv = $this.parent().parent().parent().parent().prev();
+        var boxSlug = $(titleDiv).data('slug');
         var boxAlias = $('select', titleDiv).val();
-        var orderByField = boxAlias + '.' + propertyValue;
+
+        // We use the slug for the value and alias for the html
+        var orderByFieldVal = boxSlug + '.' + propertyValue;
+        var orderByFieldHTML = boxAlias + '.' + propertyValue;
+
         // We check if there is an aggregate selected
         var aggregate = $this.next().val();
         if(aggregate) {
-            orderByField = aggregate + '(' + orderByField + ')';
+            orderByFieldVal = aggregate + '(' + orderByFieldVal + ')';
+            orderByFieldHTML = aggregate + '(' + orderByFieldHTML + ')';
         }
         if($this.prop("checked")) {
             // We add the orderByField to the select
             var selectNewOption = $("<OPTION>");
             //selectNewOption.attr('id', );
-            selectNewOption.attr('value', orderByField);
-            selectNewOption.html(orderByField);
+            selectNewOption.attr('value', orderByFieldVal);
+            selectNewOption.html(orderByFieldHTML);
             $('#id_select_order_by').append(selectNewOption);
         } else {
             // We remove the option because the checbox is non clicked
-            $('#id_select_order_by option[value="' + orderByField + '"]').remove();
+            $('#id_select_order_by option[value="' + orderByFieldVal + '"]').remove();
         }
     });
 
@@ -2888,20 +2943,25 @@ diagram.aggregates = [
         if(checkboxClicked) {
             var propertyValue = $this.next().val();
             var titleDiv = $this.prev().parent().parent().parent().parent().prev();
+            var boxSlug = $(titleDiv).data('slug');
             var boxAlias = $('select', titleDiv).val();
-            var orderByField = boxAlias + '.' + propertyValue;
+
+            // We use the slug for the value and alias for the html
+            var orderByFieldVal = boxSlug + '.' + propertyValue;
+            var orderByFieldHTML = boxAlias + '.' + propertyValue;
 
             // We remove the option because we have a new option
-            $('#id_select_order_by option[value="' + orderByField + '"]').remove();
+            $('#id_select_order_by option[value="' + orderByFieldVal + '"]').remove();
 
             // We add the new option with the aggregate
             var aggregate = $this.val();
-            orderByField = aggregate + '(' + orderByField + ')';
+            orderByFieldVal = aggregate + '(' + orderByFieldVal + ')';
+            orderByFieldHTML = aggregate + '(' + orderByFieldHTML + ')';
             // We add the orderByField to the select
             var selectNewOption = $("<OPTION>");
             //selectNewOption.attr('id', );
-            selectNewOption.attr('value', orderByField);
-            selectNewOption.html(orderByField);
+            selectNewOption.attr('value', orderByFieldVal);
+            selectNewOption.html(orderByFieldHTML);
             $('#id_select_order_by').append(selectNewOption);
         }
     });

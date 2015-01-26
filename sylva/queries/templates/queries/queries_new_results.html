@@ -37,11 +37,13 @@
                                 <div class="shorten-text">
                                 {{ result }}
                                 </div>
-                                <a class='remove-sorting' href="?page={{ results.number }}&order_by=no_order" title="{% trans "Remove from sorting" %}"></a>
-                            {% if dir == 'desc' %}
-                                <a class='sorting-asc' href="?page={{ results.number }}&order_by={{ result }}&dir={{ dir }}" title="{% trans "Sorting ascending by " %} {{ order_by }}"></a>
-                            {% else %}
-                                <a class='sorting-desc' href="?page={{ results.number }}&order_by={{ result }}&dir={{ dir }}" title="{% trans "Sorting descending by " %} {{ order_by }}"></a>
+                            {% if result == order_by %}
+                                    <a class='remove-sorting' href="?page={{ results.number }}&order_by=no_order" title="{% trans "Remove from sorting" %}"></a>
+                                {% if dir == 'desc' %}
+                                    <a class='sorting-asc' href="?page={{ results.number }}&order_by={{ key|safe }}&dir={{ dir }}" title="{% trans "Sorting ascending by " %} {{ order_by }}"></a>
+                                {% else %}
+                                    <a class='sorting-desc' href="?page={{ results.number }}&order_by={{ key|safe }}&dir={{ dir }}" title="{% trans "Sorting descending by " %} {{ order_by }}"></a>
+                                {% endif %}
                             {% endif %}
                             </a>
                         </th>
@@ -56,6 +58,20 @@
                 {% endfor %}
             </table>
             <div class="pagination">
+                {% if query_has_changed %}
+                <div id="div-modify-query" style="margin-top: 2em;">
+                    <form method="post" action="{% url "queries_query_modify" graph.slug query.id %}" id="form-modify-query">
+                        {% csrf_token %}
+                        <span class="buttonLinkOption buttonLinkLeft">
+                            <input type="submit" name="modify-query" id="modify-query" href="javascript:void(0)" value="{% trans "Save Changes" %}" style="margin-top: -5px;"/>
+                        </span>
+                        <span class="buttonLinkOption buttonLinkRight" style="padding-top: 2px; margin-right: 10px;">
+                            {% trans " or" %}
+                            <input type="submit" class="input-like-link" name="save-as-new" id="save-as-new" href="javascript:void(0)" value="{% trans "Save Query as New" %}"/>
+                        </span>
+                    </form>
+                </div>
+                {% endif %}
                 {% if results.paginator.per_page < results.paginator.count %}
                   <span class='pagination-info'>
                     {% blocktrans with per_page=results.paginator.per_page count=results.paginator.count %}
@@ -89,16 +105,6 @@
     </div>
 {% else %}
     <p>{% trans "There are not results for this query. Please, check your query or your data." %}</p>
-{% endif %}
-{% if query %}
-    <form method="post" action="{% url "queries_query_modify" graph.slug query.id %}" id="form-modify-query">
-        {% csrf_token %}
-        <span class="buttonLinkOption buttonLinkLeft">
-            <input type="submit" name="modify-query" id="modify-query" href="javascript:void(0)" value="{% trans "Save" %}"/>
-            {% trans " or " %}
-            <input type="submit" name="save-as-new" id="save-as-new" href="javascript:void(0)" value="{% trans "Save as new" %}" />
-        </span>
-    </form>
 {% endif %}
 </div>
 {% endblock %}
