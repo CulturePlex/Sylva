@@ -342,13 +342,30 @@ def queries_new_results(request, graph_slug):
     query_results_length = len(query_results)
     request.session['results_count'] = query_results_length
 
-    headers_results = []
+    headers_final_results = []
     if query_results_length > 1:
         # We treat the headers
         if headers:
-            # If the results have headers, we get the position 0
-            # and then the results.
-            headers_results = query_results[0]
+            # If the results have headers, we create a dictionary to have
+            # the headers showed to the user and the headers using in the
+            # backend (this is for the order by click in the header)
+            # headers_results = dict()
+            # headers_query_results = query_results[0]
+            # properties_results = query_dict['results']
+            # for prop in properties_results:
+            #     prop_properties = prop['properties']
+            #     for prop_property in prop_properties:
+            #         alias = prop_property['alias']
+            #         if alias
+            #         headers_results[] = prop_property['showAlias']
+            # # After obtain the dict, we will order it by the results headers
+            # headers_final_results = dict()
+            # for header in headers_query_results:
+            #     for key, value in headers_results.items():
+            #         if value == header:
+            #             headers_final_results[key] = value
+            # query_dict['results'][0]['properties'][0]['alias']
+            headers_final_results = query_results[0]
         request.session['results_count'] = query_results_length - 1
         query_results = query_results[1:]
     else:
@@ -382,7 +399,7 @@ def queries_new_results(request, graph_slug):
     broader_context = {"graph": graph,
                        "queries_link": queries_link,
                        "queries_new": queries_new,
-                       "headers": headers_results,
+                       "headers": headers_final_results,
                        "results": paginated_results,
                        "order_by": order_by_field,
                        "dir": order_dir,
@@ -571,11 +588,18 @@ def queries_query_results(request, graph_slug, query_id):
 
     # We get the default sorting params values, in case that we execute
     # the query from the list of queries.
-    sortingParams = query.query_fields["sortingParams"]
-    rows_number = sortingParams["rows_number"]
-    show_mode = sortingParams["show_mode"]
-    select_order_by = sortingParams["select_order_by"]
-    dir_order_by = sortingParams["dir_order_by"]
+    # Older queries has not the field sortingParams, we need to control it.
+    try:
+        sortingParams = query.query_fields["sortingParams"]
+        rows_number = sortingParams["rows_number"]
+        show_mode = sortingParams["show_mode"]
+        select_order_by = sortingParams["select_order_by"]
+        dir_order_by = sortingParams["dir_order_by"]
+    except KeyError:
+        # We set the default values
+        rows_number = DEFAULT_ROWS_NUMBER
+        show_mode = DEFAULT_SHOW_MODE
+        select_order_by = DEFAULT
 
     # We check if we have options in the form
     if request.POST:
@@ -722,12 +746,31 @@ def queries_query_results(request, graph_slug, query_id):
     # We store the datetime of execution
     query.last_run = datetime.now()
     # And then the results
-    headers_results = []
+    headers_final_results = []
     if query_results_length > 1:
         # We treat the headers
         if headers:
-            # If the results have headers, we get the position 0
-            headers_results = query_results[0]
+            # If the results have headers, we create a dictionary to have
+            # the headers showed to the user and the headers using in the
+            # backend (this is for the order by click in the header)
+            # headers_results = dict()
+            # properties_results = query_dict['results']
+            # for prop in properties_results:
+            #     prop_properties = prop['properties']
+            #     for prop_property in prop_properties:
+            #         # We need to control the older queries keys
+            #         try:
+            #             headers_results[prop_property['alias']] = prop_property['showAlias']
+            #         except KeyError:
+            #             headers_results[prop_property['alias']] = prop_property['alias']
+            # # After obtain the dict, we will order it by the results headers
+            # headers_final_results = dict()
+            # headers_query_results = query_results[0]
+            # for header in headers_query_results:
+            #     for key, value in headers_results.items():
+            #         if value == header:
+            #             headers_final_results[key] = value
+            headers_final_results = query_results[0]
         request.session['results_count'] = query_results_length - 1
         query_results = query_results[1:]
         # query.results_count = request.session.get('results_count', None)
@@ -762,7 +805,7 @@ def queries_query_results(request, graph_slug, query_id):
                                "query_has_changed": query_has_changed,
                                "queries_link": queries_link,
                                "queries_name": queries_name,
-                               "headers": headers_results,
+                               "headers": headers_final_results,
                                "results": paginated_results,
                                "order_by": order_by_field,
                                "dir": order_dir,
