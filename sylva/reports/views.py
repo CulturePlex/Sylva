@@ -121,6 +121,10 @@ def templates_endpoint(request, graph_slug):
     return HttpResponse(json.dumps(response), content_type='application/json')
 
 
+@login_required
+@is_enabled(settings.ENABLE_REPORTS)
+@permission_required("schemas.view_schema",
+                     (Schema, "graph__slug", "graph_slug"), return_403=True)
 def delete_endpoint(request, graph_slug):
     response = {}
     if request.POST:
@@ -136,7 +140,6 @@ def delete_endpoint(request, graph_slug):
         response = template.dictify()
         response.update({"num_reports": template.reports.count()})
     return HttpResponse(json.dumps(response), content_type="application/json")
-
 
 
 @login_required

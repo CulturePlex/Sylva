@@ -1,17 +1,14 @@
 {% load i18n %}
 <div>
-	
-	<h2>{% trans "Are you sure you want to delete:" %} {% verbatim %} {{template.name}}{% endverbatim %}?</h2>
-	<br />
-	<h3>{% trans "There are " %}{% verbatim %}<b>{{template.num_reports}}</b>{% endverbatim %}{% trans " reports associated with this template, <b>they will all be deleted.</b>" %}
-	</h3>
-	<br />
-		<div>
-			<input type="submit" value="Delete" ng-click="deleteReport()">
-			{% trans "or" %}
-			<a href="#">{% trans "Cancel" %}</a>
-		</div>
-            
-
+    <h2>{% trans "Are you sure you want to delete:" %} {% verbatim %} {{template.name}}{% endverbatim %}?</h2>
+    <br />
+    <h3>{% trans "There are " %}{% verbatim %}<b>{{template.num_reports}}</b>{% endverbatim %}{% trans " reports associated with this template, <b>they will all be deleted.</b>" %}
+    </h3>
+    <br />
+    <div>
+        <input type="submit" value="Delete" ng-click="deleteReport()">
+        {% trans "or" %}
+        <a href="#">{% trans "Cancel" %}</a>
+    </div>
 </div>
 

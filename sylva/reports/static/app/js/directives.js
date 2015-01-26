@@ -224,7 +224,6 @@ directives.directive('sylvaPvCellRepeat', [function () {
                         name = "Rad Chart"
                     }
                     // Here must config chart.
-                    console.log("cell", cell)
                     childScope.query = query;
                     childScope.chartConfig = {
                         options: {chart: {type: cell.chartType}},
@@ -903,11 +902,8 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', 'ST
                         return el.alias !== val.alias;
                     });
                     if (val.selected === true) {
-                        console.log("adding", val.alias)
                         scope.tableArray.addAxis([scope.row, scope.col], 'y', val.alias)
-                        console.log("tableArray", scope.tableArray.table)
                     } else if (val.selected === false) {
-                        console.log("removing", val.alias)
                         scope.tableArray.removeAxis([scope.row, scope.col], 'y', val.alias)
                         scope.xSeries.push(val);
                     }
