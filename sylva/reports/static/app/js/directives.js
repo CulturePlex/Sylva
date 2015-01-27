@@ -133,7 +133,7 @@ directives.directive('sylvaPvRowRepeat', ['tableArray', function (tableArray) {
 }]);
 
 
-directives.directive('sylvaPvCellRepeat', [function () {
+directives.directive('sylvaPvCellRepeat', ['$sanitize', function ($sanitize) {
     return {
         transclude: 'element',
         require: '^sylvaPvRowRepeat',
@@ -176,7 +176,9 @@ directives.directive('sylvaPvCellRepeat', [function () {
 
                 // This should be refactored
                 if (cell.displayMarkdown) {
-                    childScope.markdown = cell.displayMarkdown;
+                    var showdown = new Showdown.converter({})
+                    ,   html = $sanitize(showdown.makeHtml(cell.displayMarkdown))
+                    childScope.markdown = html;
                 } else {
                     // This is for all cases except new report
                     if (query && demo === false) {
@@ -538,6 +540,7 @@ directives.directive('sylvaEtCellRepeat', [function () {
                         return el.id === query;
                     })[0];
 
+                    console.log("cell", cell)
                     if (activeQuery) {
                         var results = ctrl.parseResults(activeQuery.results);
                         var results = results.num.concat(results.cat)
@@ -574,6 +577,7 @@ directives.directive('sylvaEtCellRepeat', [function () {
                         activeQuery: activeQuery,
                         chartTypes: ['column', 'scatter', 'pie', 'line'],
                         chartType: cell.chartType,
+                        markdown: cell.displayMarkdown
                     };
                     
                     childScope.cellStyle = {width: cellWidth};
@@ -768,7 +772,7 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', 'ST
                 cellWidth = elem.width()
                 chartCol.width(cellWidth * 0.4)
                 cellCol.width(cellWidth * 0.4)
-
+                console.log("scopesconfig", scope.config.activeQuery)
                 scope.$watch(ctrl.editable, function (newVal, oldVal) {
                     if (newVal == oldVal) return;
                     if (!scope.chartType) return;
@@ -820,27 +824,30 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', 'ST
                     });
 
                     if (scope.ySeries.length == 1) scope.ySeries[0].selected = true;
+                } else if (scope.config.markdown) {
+                    scope.md = true;
+                    scope.mdarea = scope.config.markdown;
+                    scope.activeQuery = scope.queries[0];
                 }
             });
     
             // Markdown - broken
             md.on('blur keyup change', function () {
-                var showdown = new Showdown.converter({})
-                ,   html = $sanitize(showdown.makeHtml(scope.mdarea))
-                ,   markdown = html;
+
                 scope.$apply(function () {
-                    scope.tableArray.addMarkdown([scope.row, scope.col], markdown);    
+                    scope.tableArray.addMarkdown([scope.row, scope.col], scope.mdarea);    
                 });
             });
 
-            scope.mdarea = '#Heading 1\n' + 'Heading 1\n========\n'+ '##Heading 2\n' + 'Heading 2\n--------------\n' + '###Heading 3\n' +
-                            '1. First item\n' + '2. Second item\n\n' + '+ Unordered items\n' + '- Unordered items\n' + '* Unordered items\n';
+            scope.mdarea = '#Heading 1\n' + '##Heading 2\n' + '###Heading 3\n' +
+                            '* A list of items\n' + ' - sub item\n' + '* Unordered list of items\n' + ' - Unordered list of subitems\n';
 
             scope.mdarea = gettext(scope.mdarea);
 
             // Active query watch - 1st entry on new report.
             // Full query object group, id, name, fake series etc.
             scope.$watch('activeQuery', function (newVal, oldVal) {
+                console.log("newVal", newVal)
                 if (newVal == oldVal) return;
                 // Turns off preview mode with Matrix Graph
                 ctrl.editing()
@@ -850,6 +857,7 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', 'ST
                 if (newVal != null) {
                     // Find newVal by id
                     name = newVal.id || '';
+                    console.log("name", name)
                     if (name === 'markdown') {
                         // Set active query to empty, turn on md mode
                         // Trace here. 
@@ -857,7 +865,6 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', 'ST
                         name = '';
                     } else {
                         scope.md = false;
-                        scope.activeQuery
                         results = newVal.results.filter(function (el) {
                             return el.properties.length > 0;
                         });

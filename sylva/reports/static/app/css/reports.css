@@ -263,6 +263,7 @@ textarea.markdown {
 
 .display-cell {
   height: 175px;
+  overflow: hidden;
 }
 
 img {

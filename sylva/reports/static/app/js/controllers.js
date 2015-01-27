@@ -280,7 +280,7 @@ controllers.controller("DeleteReportCtrl", [
         $controller('BaseReportCtrl', {$scope: $scope});
         $scope.getTemplate = function () {
             api.del.get({
-                template: $scope.slugs.template;
+                template: $scope.slugs.template
             }, function (data) {
                 breadService.updateName(data.name);
                 $scope.template = data;
