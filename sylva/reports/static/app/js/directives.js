@@ -162,6 +162,7 @@ directives.directive('sylvaPvCellRepeat', ['$sanitize', function ($sanitize) {
             }
 
             // This should be refactored
+            console.log("row", scope.row)
             for (var i=0; i<len; i++) {
                 var cell = scope.row[i]
                 ,   query = cell.displayQuery
@@ -203,7 +204,9 @@ directives.directive('sylvaPvCellRepeat', ['$sanitize', function ($sanitize) {
                         // Can be multiple y series composed of numeric var
                         // with the xSeries vars, here we build a object for
                         // Each series
-                        for (var j=0; j<cell.yAxis.length; j++) {
+                        var yLen = cell.yAxis.length;
+                        if (cell.chartType === "pie") yLen = 1
+                        for (var j=0; j<yLen; j++) {
                             var ser = []
                             // this is the alias of the ySeries
                             ,   ySeries = cell.yAxis[j]
@@ -864,6 +867,7 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', 'ST
                         scope.md = true;
                         name = '';
                     } else {
+                        scope.tableArray.table[scope.row][scope.col].displayMarkdown = "";
                         scope.md = false;
                         results = newVal.results.filter(function (el) {
                             return el.properties.length > 0;
