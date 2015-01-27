@@ -411,7 +411,7 @@ class GraphDatabase(BlueprintsGraphDatabase):
         else:
             where = u""
         q = u"START {0} {1}{2}RETURN{3}".format(origins, match, where, results)
-        print q
+
         return q, query_params
 
     def _query_generator_conditions(self, conditions_dict):
@@ -559,9 +559,13 @@ class GraphDatabase(BlueprintsGraphDatabase):
                             )
                             results_set.add(result)
                         elif property_aggregate and not only_ids:
+                            distinct_clause = ""
+                            if property_distinct:
+                                distinct_clause = u"DISTINCT "
                             if property_aggregate in AGGREGATES:
-                                result = u"{0}(`{1}`.`{2}`)".format(
+                                result = u"{0}({1}`{2}`.`{3}`)".format(
                                     unicode(property_aggregate),
+                                    unicode(distinct_clause),
                                     unicode(alias).replace(u"`", u"\\`"),
                                     unicode(property_value).replace(u"`",
                                                                     u"\\`")
@@ -572,10 +576,8 @@ class GraphDatabase(BlueprintsGraphDatabase):
                                 unicode(alias).replace(u"`", u"\\`")
                             )
                             results_set.add(result)
-                        if property_distinct:
-                            distinct_clause = u" DISTINCT"
         properties_results = u", ".join(results_set)
-        results = u"{0} {1}".format(distinct_clause, properties_results)
+        results = u" {0}".format(properties_results)
         return results
 
     def _query_generator_patterns(self, patterns_dict, conditions_alias):
