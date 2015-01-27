@@ -9,7 +9,7 @@ from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from django.http import Http404
+from django.http import Http404, StreamingHttpResponse
 from django.shortcuts import (get_object_or_404, render_to_response,
                               HttpResponse, redirect)
 from django.template import RequestContext
@@ -145,7 +145,8 @@ def graph_export_table_csv(request, graph_slug):
     converter = CSVTableConverter(graph=graph, node_type_id=node_type_id)
     export_name = graph_slug + '_' + node_type.name + '.csv'
 
-    response = HttpResponse(converter.stream_export(), content_type='text/csv')
+    response = StreamingHttpResponse(converter.stream_export(),
+                                     content_type='text/csv')
     response['Content-Disposition'] = 'attachment; filename="%s"' % export_name
     return response
 
@@ -164,6 +165,7 @@ def graph_export_queries_csv(request, graph_slug):
     csv_name = query_name + '.csv'
     export_name = graph_slug + '_' + csv_name
 
-    response = HttpResponse(converter.stream_export(), content_type='text/csv')
+    response = StreamingHttpResponse(converter.stream_export(),
+                                     content_type='text/csv')
     response['Content-Disposition'] = 'attachment; filename="%s"' % export_name
     return response

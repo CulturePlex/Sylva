@@ -592,6 +592,8 @@ def queries_query_results(request, graph_slug, query_id):
     try:
         sortingParams = query.query_fields["sortingParams"]
         rows_number = sortingParams["rows_number"]
+        # We need to transform it to integer to avoid exceptions
+        rows_number = int(rows_number)
         show_mode = sortingParams["show_mode"]
         select_order_by = sortingParams["select_order_by"]
         dir_order_by = sortingParams["dir_order_by"]
