@@ -40,9 +40,9 @@
                             {% if result == order_by %}
                                     <a class='remove-sorting' href="?page={{ results.number }}&order_by=no_order" title="{% trans "Remove from sorting" %}"></a>
                                 {% if dir == 'desc' %}
-                                    <a class='sorting-asc' href="?page={{ results.number }}&order_by={{ key|safe }}&dir={{ dir }}" title="{% trans "Sorting ascending by " %} {{ order_by }}"></a>
+                                    <a class='sorting-asc' href="?page={{ results.number }}&order_by={{ result }}&dir={{ dir }}" title="{% trans "Sorting ascending by " %} {{ order_by }}"></a>
                                 {% else %}
-                                    <a class='sorting-desc' href="?page={{ results.number }}&order_by={{ key|safe }}&dir={{ dir }}" title="{% trans "Sorting descending by " %} {{ order_by }}"></a>
+                                    <a class='sorting-desc' href="?page={{ results.number }}&order_by={{ result }}&dir={{ dir }}" title="{% trans "Sorting descending by " %} {{ order_by }}"></a>
                                 {% endif %}
                             {% endif %}
                             </a>

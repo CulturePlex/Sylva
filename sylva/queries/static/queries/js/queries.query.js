@@ -2461,12 +2461,17 @@ diagram.aggregates = [
             }
 
             // We check all the necessary logic for the aggregates
+            var aggregatesClicked = 0;
             for(key in aggregates) {
                 if(aggregates.hasOwnProperty(key)) {
                     var selector = $("#field" + key + " .select-aggregate");
                     var idBox = selector.parent().parent().parent().parent().parent().attr('id')
                     var typename = idBox.split('-')[2];
-                    $('#' + idBox + ' #inlineAdvancedMode_' + typename).click();
+                    // We need to click only one time, because we don't want to
+                    // hide the aggregates
+                    if(aggregatesClicked == 0)
+                        $('#' + idBox + ' #inlineAdvancedMode_' + typename).click();
+                    aggregatesClicked++;
                     // We set the aggregate value
                     var aggregateValue = aggregates[key][0];
                     var aggregateDistinct = aggregates[key][1];
@@ -2475,6 +2480,7 @@ diagram.aggregates = [
             }
 
             // We check all the necessary logic for the aggregates in relationships
+            var aggregatesClicked = 0;
             for(key in aggregatesRels) {
                 if(aggregatesRels.hasOwnProperty(key)) {
                     var aggregateValue = aggregatesRels[key][0];
@@ -2482,8 +2488,11 @@ diagram.aggregates = [
                     var idBox = aggregatesRels[key][2];
                     var selector = $("#" + key + " .select-aggregate");
                     var typename = idBox.split('-')[2];
-
-                    $('#' + idBox + ' #inlineAdvancedMode_' + typename).click();
+                    // We need to click only one time, because we don't want to
+                    // hide the aggregates
+                    if(aggregatesClicked == 0)
+                        $('#' + idBox + ' #inlineAdvancedMode_' + typename).click();
+                    aggregatesClicked++;
                     // We set the aggregate value
                     selector.val(aggregateValue);
                     selector.attr('data-distinct', aggregateDistinct);
@@ -2696,8 +2705,7 @@ diagram.aggregates = [
             var modelName = $this.data("model");
             var graphName = $this.data("graph");
             var typeName = $this.data("typename");
-            //var boxalias = $this.data("boxalias");
-            var boxalias = $this.data("slug");
+            var boxalias = $this.data("boxalias");
             var idBox = $this.data("idbox");
             var idAllRels = $this.data("idallrels");
 
