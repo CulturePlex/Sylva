@@ -89,7 +89,6 @@ directives.directive('sylvaPvRowRepeat', ['tableArray', function (tableArray) {
             //scope.tableWidth = parseInt(angular.element(elem.parents()[0]).css('width'));
 
             scope.$watch('resp', function (newVal, oldVal) {
-
                 if (newVal == oldVal) return;
                 scope.queries = scope.resp.queries;
                 scope.tableArray = tableArray(scope.resp.table);
@@ -162,7 +161,6 @@ directives.directive('sylvaPvCellRepeat', ['$sanitize', function ($sanitize) {
             }
 
             // This should be refactored
-            console.log("row", scope.row)
             for (var i=0; i<len; i++) {
                 var cell = scope.row[i]
                 ,   query = cell.displayQuery
@@ -253,9 +251,8 @@ directives.directive('sylvaPvCellRepeat', ['$sanitize', function ($sanitize) {
 }]);
 
 
-directives.directive('syEditableTable',['tableArray', 'DJANGO_URLS', 
-                                        'breadService', 
-                                        function (tableArray, DJANGO_URLS, breadService) {
+directives.directive('syEditableTable',[
+    '$compile', 'tableArray', 'DJANGO_URLS', 'breadService', function ($compile, tableArray, DJANGO_URLS, breadService) {
     return {
         transclude: true,
         scope: {
@@ -279,6 +276,7 @@ directives.directive('syEditableTable',['tableArray', 'DJANGO_URLS',
                       '<a class="table-button" href="">{{ buttonText.pluscol }}</a>' + 
                       '<a class="table-button" href="">{{ buttonText.minusrow }}</a>' + 
                       '<a class="table-button" href="">{{ buttonText.minuscol }}</a>' + 
+                      '<a class="table-button" href="">{{ buttonText.pagebreak }}</a>' +
                     '</div>',
         controller: function($scope) {
 
@@ -341,14 +339,16 @@ directives.directive('syEditableTable',['tableArray', 'DJANGO_URLS',
             ,   addRow = ang(buttons.children()[1])
             ,   addCol = ang(buttons.children()[2])
             ,   delRow = ang(buttons.children()[3])
-            ,   delCol = ang(buttons.children()[4]);
+            ,   delCol = ang(buttons.children()[4])
+            ,   pagebreak = ang(buttons.children()[5]);
 
             scope.buttonText = {
                 done: gettext('Done'),
                 plusrow: gettext('+ row'),
                 minusrow: gettext('- row'),
                 pluscol: gettext('+ col'),
-                minuscol: gettext('- col')
+                minuscol: gettext('- col'),
+                pagebreak: gettext("+ pagebreak")
             }
 
             scope.done = gettext('Done');
@@ -406,6 +406,30 @@ directives.directive('syEditableTable',['tableArray', 'DJANGO_URLS',
                     });
                 }
             });
+
+            pagebreak.bind("click", function () {
+                var breakrowNdx = findBreakrowNdx()
+                if (breakrowNdx) {
+                    var ndx = breakrowNdx - 1
+                    ,   pagebreakHtml = $compile("<div style='width: 1150px;'" +
+                                                 "id='pagebreak" + ndx.toString() +  "'>" +
+                                                 "<div style='float: left; width: 1100px; height: 5px; background-color: black;'>" +
+                                                 "</div>" + 
+                                                 "</div>")(scope)
+                    ,   breakrow = $("#row" + ndx.toString()) 
+                    breakrow.after(pagebreakHtml)
+                    scope.tableArray.pagebreaks[ndx] = true;
+                }
+                
+            });
+
+            var findBreakrowNdx = function () {
+                for (var i=1; i - 1<scope.tableArray.numRows; i++) {
+                    if (!(scope.tableArray.pagebreaks[i - 1])) {
+                        return i
+                    }
+                }
+            };
         }
     };
 }]);
@@ -543,7 +567,6 @@ directives.directive('sylvaEtCellRepeat', [function () {
                         return el.id === query;
                     })[0];
 
-                    console.log("cell", cell)
                     if (activeQuery) {
                         var results = ctrl.parseResults(activeQuery.results);
                         var results = results.num.concat(results.cat)
@@ -775,7 +798,6 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', 'ST
                 cellWidth = elem.width()
                 chartCol.width(cellWidth * 0.4)
                 cellCol.width(cellWidth * 0.4)
-                console.log("scopesconfig", scope.config.activeQuery)
                 scope.$watch(ctrl.editable, function (newVal, oldVal) {
                     if (newVal == oldVal) return;
                     if (!scope.chartType) return;
@@ -850,7 +872,6 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', 'ST
             // Active query watch - 1st entry on new report.
             // Full query object group, id, name, fake series etc.
             scope.$watch('activeQuery', function (newVal, oldVal) {
-                console.log("newVal", newVal)
                 if (newVal == oldVal) return;
                 // Turns off preview mode with Matrix Graph
                 ctrl.editing()
@@ -860,7 +881,6 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', 'ST
                 if (newVal != null) {
                     // Find newVal by id
                     name = newVal.id || '';
-                    console.log("name", name)
                     if (name === 'markdown') {
                         // Set active query to empty, turn on md mode
                         // Trace here. 

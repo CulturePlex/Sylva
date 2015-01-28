@@ -69,6 +69,7 @@ services.factory('tableArray', function () {
         this.table = table;
         this.numRows = table.length;
         this.numCols = getNumCols(table[0]);
+        this.pagebreaks = {};
     };
 
     function getNumCols(row) {
