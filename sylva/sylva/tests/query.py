@@ -156,21 +156,21 @@ class QueryTestCase(LiveServerTestCase):
         select_property1.click()
         # We select another property
         select_and_or_option = self.browser.find_by_xpath(
-            "//div[@id='field1']" +
+            "//div[@id='field1']"
             "//option[@class='option-and-or' and text()='And']").first
         select_and_or_option.click()
         select_property2 = self.browser.find_by_xpath(
-            "//div[@id='field2']" +
+            "//div[@id='field2']"
             "//option[@class='option-property' and text()='Name']").first
         select_property2.click()
         # We check if the value of the selects are the value of the properties
         # and the value of the and-or select is "and".
         select_value1 = self.browser.find_by_xpath(
-            "//div[@id='field1']" +
+            "//div[@id='field1']"
             "//select[@class='select-property']").first.value
         spin_assert(lambda: self.assertEqual(select_value1, u"Name"))
         select_value2 = self.browser.find_by_xpath(
-            "//div[@id='field2']" +
+            "//div[@id='field2']"
             "//select[@class='select-property']").first.value
         spin_assert(lambda: self.assertEqual(select_value2, u"Name"))
         select_and_or_value = self.browser.find_by_xpath(
@@ -202,12 +202,12 @@ class QueryTestCase(LiveServerTestCase):
         self.browser.find_by_xpath("//div[@id='diagram']").first.click()
         # We check if we have created the relationship
         relation_box_name = self.browser.find_by_xpath(
-            "//div[@id='diagramBoxRel-0-WildcardRel']" +
+            "//div[@id='diagramBoxRel-0-WildcardRel']"
             "//span[@class='box-name']").first.value
         spin_assert(lambda: self.assertEqual(relation_box_name,
                                              u"WildcardRel"))
         wildcard_box_name = self.browser.find_by_xpath(
-            "//div[@id='diagramBox-2-wildcard']" +
+            "//div[@id='diagramBox-2-wildcard']"
             "//span[@class='box-name']").first.value
         spin_assert(lambda: self.assertEqual(wildcard_box_name, u"Wildcard"))
         Graph.objects.get(name="Bob's graph").destroy()
@@ -239,12 +239,12 @@ class QueryTestCase(LiveServerTestCase):
         self.browser.find_by_xpath("//div[@id='diagram']").first.click()
         # We check if we have created the relationship
         relation_box_name = self.browser.find_by_xpath(
-            "//div[@id='diagramBoxRel-0-WildcardRel']" +
+            "//div[@id='diagramBoxRel-0-WildcardRel']"
             "//span[@class='box-name']").first.value
         spin_assert(lambda: self.assertEqual(relation_box_name,
                                              u"WildcardRel"))
         wildcard_box_name = self.browser.find_by_xpath(
-            "//div[@id='diagramBox-2-wildcard']" +
+            "//div[@id='diagramBox-2-wildcard']"
             "//span[@class='box-name']").first.value
         spin_assert(lambda: self.assertEqual(wildcard_box_name, u"Wildcard"))
         # We select a property for the wildcard box
