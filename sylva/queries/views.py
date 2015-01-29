@@ -342,30 +342,42 @@ def queries_new_results(request, graph_slug):
     query_results_length = len(query_results)
     request.session['results_count'] = query_results_length
 
-    headers_final_results = []
+    headers_final_results = dict()
     if query_results_length > 1:
         # We treat the headers
         if headers:
             # If the results have headers, we create a dictionary to have
             # the headers showed to the user and the headers using in the
             # backend (this is for the order by click in the header)
-            # headers_results = dict()
-            # headers_query_results = query_results[0]
-            # properties_results = query_dict['results']
-            # for prop in properties_results:
-            #     prop_properties = prop['properties']
-            #     for prop_property in prop_properties:
-            #         alias = prop_property['alias']
-            #         if alias
-            #         headers_results[] = prop_property['showAlias']
-            # # After obtain the dict, we will order it by the results headers
-            # headers_final_results = dict()
-            # for header in headers_query_results:
-            #     for key, value in headers_results.items():
-            #         if value == header:
-            #             headers_final_results[key] = value
-            # query_dict['results'][0]['properties'][0]['alias']
-            headers_final_results = query_results[0]
+            # We check if query_aliases is empty
+            if query_aliases is '':
+                query_aliases = request.session['query_aliases']
+            # We check if the type of query_aliases is appropiate to
+            # manipulate it
+            if not isinstance(query_aliases, dict):
+                aliases = json.loads(query_aliases)
+                aliases = aliases['types']
+            else:
+                aliases = query_aliases['types']
+            headers_query_results = query_results[0]
+            # We need to split the headers by '.' to separate the alias from
+            # the property
+            for header in headers_query_results:
+                join_list = []
+                header_splitted = header.split('.')
+                slug = header_splitted[0]
+                prop = header_splitted[1]
+                # We need to check if the alias field exists. Old queries...
+                try:
+                    alias = aliases[slug]['alias']
+                except KeyError:
+                    alias = slug
+                # We append the elements to join them
+                join_list.append(alias)
+                join_list.append(prop)
+                show_alias = ".".join(join_list)
+                # Finally, we add the key-value to our dictionary
+                headers_final_results[header] = show_alias
         request.session['results_count'] = query_results_length - 1
         query_results = query_results[1:]
     else:
@@ -590,13 +602,13 @@ def queries_query_results(request, graph_slug, query_id):
     # the query from the list of queries.
     # Older queries has not the field sortingParams, we need to control it.
     try:
-        sortingParams = query.query_fields["sortingParams"]
-        rows_number = sortingParams["rows_number"]
+        sorting_params = query.query_fields["sortingParams"]
+        rows_number = sorting_params["rows_number"]
         # We need to transform it to integer to avoid exceptions
         rows_number = int(rows_number)
-        show_mode = sortingParams["show_mode"]
-        select_order_by = sortingParams["select_order_by"]
-        dir_order_by = sortingParams["dir_order_by"]
+        show_mode = sorting_params["show_mode"]
+        select_order_by = sorting_params["select_order_by"]
+        dir_order_by = sorting_params["dir_order_by"]
     except KeyError:
         # We set the default values
         rows_number = DEFAULT_ROWS_NUMBER
@@ -748,31 +760,43 @@ def queries_query_results(request, graph_slug, query_id):
     # We store the datetime of execution
     query.last_run = datetime.now()
     # And then the results
-    headers_final_results = []
+    headers_final_results = dict()
     if query_results_length > 1:
         # We treat the headers
         if headers:
             # If the results have headers, we create a dictionary to have
             # the headers showed to the user and the headers using in the
             # backend (this is for the order by click in the header)
-            # headers_results = dict()
-            # properties_results = query_dict['results']
-            # for prop in properties_results:
-            #     prop_properties = prop['properties']
-            #     for prop_property in prop_properties:
-            #         # We need to control the older queries keys
-            #         try:
-            #             headers_results[prop_property['alias']] = prop_property['showAlias']
-            #         except KeyError:
-            #             headers_results[prop_property['alias']] = prop_property['alias']
-            # # After obtain the dict, we will order it by the results headers
-            # headers_final_results = dict()
-            # headers_query_results = query_results[0]
-            # for header in headers_query_results:
-            #     for key, value in headers_results.items():
-            #         if value == header:
-            #             headers_final_results[key] = value
-            headers_final_results = query_results[0]
+            # We use a list of tuples to maintain the order in the final dict
+            headers_final_list = []
+            # We check if the type of query_aliases is appropiate to
+            # manipulate it
+            if not isinstance(query_aliases, dict):
+                aliases = json.loads(query_aliases)
+                aliases = aliases['types']
+            else:
+                aliases = query_aliases['types']
+            headers_query_results = query_results[0]
+            # We need to split the headers by '.' to separate the alias from
+            # the property
+            for header in headers_query_results:
+                join_list = []
+                header_splitted = header.split('.')
+                slug = header_splitted[0]
+                prop = header_splitted[1]
+                # We need to check if the alias field exists. Old queries...
+                try:
+                    alias = aliases[slug]['alias']
+                except KeyError:
+                    alias = slug
+                # We append the elements to join them
+                join_list.append(alias)
+                join_list.append(prop)
+                show_alias = ".".join(join_list)
+                # We add the tuple to our list
+                headers_final_list.append((header, show_alias))
+        # Finally we give the values to our dictionary
+        headers_final_results = dict(headers_final_list)
         request.session['results_count'] = query_results_length - 1
         query_results = query_results[1:]
         # query.results_count = request.session.get('results_count', None)
@@ -897,7 +921,8 @@ def queries_query_modify(request, graph_slug, query_id):
             # We change the query id in session to load the dicts
             request.session['query_id'] = NEW
             request.session['query_name'] = _(NEW) + ' ' + query_name
-            request.session['query_description'] = _(NEW) + ' ' + query_description
+            request.session['query_description'] = (_(NEW) + ' ' +
+                                                    query_description)
             return redirect(new_query_url)
     else:
         return redirect(edit_query_url)

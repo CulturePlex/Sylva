@@ -2373,6 +2373,11 @@ diagram.aggregates = [
                 var uuidSource = sourceId + '-' + relationName + '-source';
                 var uuidTarget = targetId + '-target';
 
+                // We need to check if it is a wildcard rel because the name
+                // is different
+                if(relationValue == "WildcardRel")
+                    relationName = relationValue
+
                 $('#' + sourceId + ' .select-rel').val(relationName);
                 var labelRel = $('option:selected', '#' + sourceId + ' .select-rel').data('label');
                 $('#' + sourceId + ' .select-rel').change();
