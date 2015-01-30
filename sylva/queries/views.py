@@ -258,7 +258,7 @@ def queries_new_results(request, graph_slug):
     page_dir = request.GET.get('page_dir', 'desc')
     select_order_by = None
     # We get the modal variable
-    as_modal = bool(request.GET.get("asModal", False))
+    as_modal = bool(request.POST.get("asModal", False))
     # We get the information to mantain the last query in the builder
     query = request.POST.get("query", "").strip()
     query_aliases = request.POST.get("query_aliases", "").strip()
@@ -267,11 +267,38 @@ def queries_new_results(request, graph_slug):
     request.session['query_id'] = NEW
     if query is not '':
         request.session['query'] = query
-        request.session['query_aliases'] = query_aliases
-        request.session['query_fields'] = query_fields
         query_dict = json.loads(query)
     else:
         query_dict = json.loads(request.session.get('query', None))
+
+    if query_aliases is not '':
+        request.session['query_aliases'] = query_aliases
+        query_aliases = json.loads(query_aliases)
+    else:
+        query_aliases = json.loads(request.session.get('query_aliases', None))
+
+    if query_fields is not '':
+        request.session['query_fields'] = query_fields
+        query_fields = json.loads(query_fields)
+    else:
+        query_fields = json.loads(request.session.get('query_fields', None))
+
+    # We get the default sorting params values, in case that we execute
+    # the query from the list of queries.
+    # Older queries has not the field sortingParams, we need to control it.
+    try:
+        sorting_params = query_fields["sortingParams"]
+        rows_number = sorting_params["rows_number"]
+        # We need to transform it to integer to avoid exceptions
+        rows_number = int(rows_number)
+        show_mode = sorting_params["show_mode"]
+        select_order_by = sorting_params["select_order_by"]
+        dir_order_by = sorting_params["dir_order_by"]
+    except KeyError:
+        # We set the default values
+        rows_number = DEFAULT_ROWS_NUMBER
+        show_mode = DEFAULT_SHOW_MODE
+        select_order_by = DEFAULT
 
     # We check if we have options in the form or we use saved options
     if request.POST:
@@ -297,7 +324,6 @@ def queries_new_results(request, graph_slug):
             show_mode = form.cleaned_data["show_mode"]
             select_order_by = form.cleaned_data["select_order_by"]
             dir_order_by = form.cleaned_data["dir_order_by"]
-
     headers = True
     if order_by_field == DEFAULT and select_order_by == DEFAULT:
         query_results = graph.query(query_dict, headers=headers)
@@ -564,6 +590,8 @@ def queries_query_results(request, graph_slug, query_id):
     order_by_field = request.GET.get('order_by', 'default')
     order_dir = request.GET.get('dir', 'desc')
     page_dir = request.GET.get('page_dir', 'desc')
+    # We get the modal variable
+    as_modal = bool(request.POST.get("asModal", False))
 
     # Variable to control if the query has changed to show the save
     # buttons
@@ -824,20 +852,38 @@ def queries_query_results(request, graph_slug, query_id):
     except EmptyPage:
         # If page is out of range (e.g. 9999), deliver last page of results.
         paginated_results = paginator.page(paginator.num_pages)
-    # TODO: Try to make the response streamed
-    return render_to_response('queries/queries_new_results.html',
-                              {"graph": graph,
-                               "query": query,
-                               "query_has_changed": query_has_changed,
-                               "queries_link": queries_link,
-                               "queries_name": queries_name,
-                               "headers": headers_final_results,
-                               "results": paginated_results,
-                               "order_by": order_by_field,
-                               "dir": order_dir,
-                               "page_dir": page_dir,
-                               "csv_results": query_results},
-                              context_instance=RequestContext(request))
+
+    if as_modal:
+        base_template = 'empty.html'
+        render = render_to_string
+    else:
+        base_template = 'base.html'
+        render = render_to_response
+    add_url = reverse("queries_query_results", args=[graph.slug, query.id])
+    broader_context = {"graph": graph,
+                       "query": query,
+                       "query_has_changed": query_has_changed,
+                       "queries_link": queries_link,
+                       "queries_name": queries_name,
+                       "headers": headers_final_results,
+                       "results": paginated_results,
+                       "order_by": order_by_field,
+                       "dir": order_dir,
+                       "page_dir": page_dir,
+                       "csv_results": query_results,
+                       "base_template": base_template,
+                       "as_modal": as_modal,
+                       "add_url": add_url}
+    response = render('queries/queries_new_results.html', broader_context,
+                      context_instance=RequestContext(request))
+    if as_modal:
+        response = {'type': 'html',
+                    'action': 'queries_results',
+                    'html': response}
+        return HttpResponse(json.dumps(response), status=200,
+                            content_type='application/json')
+    else:
+        return response
 
 
 @is_enabled(settings.ENABLE_QUERIES)
@@ -850,6 +896,8 @@ def queries_query_delete(request, graph_slug, query_id):
     redirect_url = reverse("queries_list", args=[graph.slug])
     # Breadcrumbs variable
     queries_link = (redirect_url, _("Queries"))
+    # We get the modal variable
+    as_modal = bool(request.GET.get("asModal", False))
     form = QueryDeleteConfirmForm()
     if request.POST:
         data = request.POST.copy()
@@ -861,12 +909,31 @@ def queries_query_delete(request, graph_slug, query_id):
                 query.report_templates.all().delete()
                 query.delete()
             return redirect(redirect_url)
-    return render_to_response('queries/queries_query_delete.html',
-                              {"graph": graph,
-                               "form": form,
-                               "queries_link": queries_link,
-                               "query_name": query.name},
-                              context_instance=RequestContext(request))
+
+    if as_modal:
+        base_template = 'empty.html'
+        render = render_to_string
+    else:
+        base_template = 'base.html'
+        render = render_to_response
+    add_url = reverse("queries_query_delete", args=[graph_slug, query_id])
+    broader_context = {"graph": graph,
+                       "form": form,
+                       "queries_link": queries_link,
+                       "query_name": query.name,
+                       "base_template": base_template,
+                       "as_modal": as_modal,
+                       "add_url": add_url}
+    response = render('queries/queries_query_delete.html', broader_context,
+                      context_instance=RequestContext(request))
+    if as_modal:
+        response = {'type': 'html',
+                    'action': 'queries_delete',
+                    'html': response}
+        return HttpResponse(json.dumps(response), status=200,
+                            content_type='application/json')
+    else:
+        return response
 
 
 @is_enabled(settings.ENABLE_QUERIES)

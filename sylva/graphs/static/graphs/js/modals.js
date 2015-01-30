@@ -254,6 +254,8 @@
           modalAction = that.queriesNew;
         } else if (response.action == 'queries_results') {
           modalAction = that.queriesResults;
+        } else if (response.action == 'queries_delete') {
+          modalAction = that.queriesDelete;
         }
         that.showModal(response.html, modalAction);
 
@@ -602,6 +604,8 @@
       onShow: function() {}
     },
 
+    // Modals for queries
+
     queriesList: {
 
       start: function(url, showOverlay) {
@@ -628,6 +632,30 @@
           $.modal.close();
           setTimeout(function() {
             that.queriesNew.start(queriesNewUrl, false);
+          }, fast);
+
+          return false;
+        });
+
+        // Event to execute an existing query
+        $('a.run').on('click', function() {
+          var queriesResultsUrl = $(event.target).parent().attr('href');
+          var params = "&asModal=true";
+          $.modal.close();
+          setTimeout(function() {
+            that.queriesResults.execute(queriesResultsUrl, params);
+          }, fast);
+
+          return false;
+        });
+
+        // Event to delete an existing query
+        $('a.delete').on('click', function() {
+          var queriesDeleteUrl = $(event.target).parent().attr('href');
+
+          $.modal.close();
+          setTimeout(function() {
+            that.queriesDelete.start(queriesDeleteUrl, false);
           }, fast);
 
           return false;
@@ -687,15 +715,38 @@
 
       preProcessHTML: function() {
         $('#run-query').on('click', function() {
+
+          var queryElements = diagram.saveQuery();
+          var query = queryElements['query'];
+          var query_aliases = queryElements['aliases'];
+          var query_fields = queryElements['fields'];
+
+          var queryJson = JSON.stringify(query);
+          var queryAliases = JSON.stringify(query_aliases);
+          var queryFields = JSON.stringify(query_fields);
+
+          $('input[id=query]').val(queryJson);
+          $('input[id=query_aliases]').val(queryAliases);
+          $('input[id=query_fields]').val(queryFields);
+
+          var executeUrl = $('#execute-url').data('url');
           var formSelector = '#form-run-query';
-          var queriesResults = $(formSelector).attr('action');
           var extraParams = '&asModal=true';
+
+          var serializedForm = $(formSelector).serialize();
+          serializedForm += extraParams;
 
           $.modal.close();
           setTimeout(function() {
-            that.queriesResults.start(queriesResults, false);
+            that.queriesResults.execute(executeUrl, serializedForm);
           }, fast);
 
+          return false;
+        });
+
+        // Binding cancel action.
+        $('#modal-cancel').on('click', function() {
+          that.closeModalLib();
           return false;
         });
       },
@@ -704,6 +755,9 @@
         $('#simplemodal-container').css({
           width: 1170,
         });
+        try {
+          diagram.loadQuery(JSON.stringify(query));
+        } catch (e) {}
       }
     },
 
@@ -713,7 +767,95 @@
         that.prepareModal(url, showOverlay, this);
       },
 
-      preProcessHTML: function() {},
+      execute: function(requestUrl, params) {
+        $.modal.close();
+        setTimeout(function() {
+          that.customTextModal(loadingTextFunction);
+        }, fast);
+
+        // Performing the request with the created variables.
+        var jqxhr = $.ajax({
+          url: requestUrl,
+          type: 'POST',
+          data: params,
+          dataType: 'json'
+        });
+        jqxhr.success(function(data) {
+          /* Here we need a double 'setTimeout()' because the previous one, also
+           * inside this function maybe isn't finished when the AJAX request
+           * starts.
+           */
+          setTimeout(function() {
+            $.modal.close(); // Closing the loading modal.
+            setTimeout(function() {
+              that.handleFormServerResponse(data);
+            }, fast);
+          }, fast);
+        });
+        jqxhr.error(function(e) {
+          alert(gettext("Oops! Something went wrong with the server."));
+          that.closeModalLib();
+        });
+      },
+
+      preProcessHTML: function() {
+        // A function for handling the pagination and sorting events.
+        var handlePagination = function(event) {
+          var queriesListUrl = $('#queries-results-url').attr('data-url');
+
+          if ($(event.target).attr('href') != undefined) {
+            var pagAndOrderParams = $(event.target).attr('href');
+          } else {
+            var pagAndOrderParams = $(event.target).parent().attr('href');
+          }
+
+          params = "&asModal=true";
+
+          pagAndOrderUrl = queriesListUrl + pagAndOrderParams;
+
+          $.modal.close();
+          setTimeout(function() {
+            that.queriesResults.execute(pagAndOrderUrl, params);
+          }, fast);
+
+          return false;
+        };
+
+        // The events for the previous function.
+        $('span.step-links > a').on('click', handlePagination);
+        $('a.remove-sorting').on('click', handlePagination);
+        $('a.sorting-asc').on('click', handlePagination);
+        $('a.sorting-desc').on('click', handlePagination);
+        $('.shorten-text').on('click', handlePagination);
+
+        // Binding cancel action.
+        $('#modal-cancel').on('click', function() {
+          that.closeModalLib();
+          return false;
+        });
+      },
+
+      onShow: function() {
+        $('#simplemodal-container').css({
+          width: 1000,
+          left: 100
+        });
+      }
+    },
+
+    queriesDelete: {
+
+      start: function(url, showOverlay) {
+        that.prepareModal(url, showOverlay, this);
+      },
+
+      preProcessHTML: function() {
+        // Binding cancel action.
+        $('#modal-cancel').on('click', function() {
+          that.closeModalLib();
+          return false;
+        });
+      },
 
       onShow: function() {}
     },

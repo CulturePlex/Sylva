@@ -45,6 +45,8 @@
 {% if queries %}
 <div id="content2">
     {% if as_modal %}
+        {% trans "Queries" as label %}
+        {% breadcrumb graph label %}
         <div id="queries-url" data-url="{{ add_url }}" style="display: none;"></div>
     {% endif %}
     <div id="query-list" style="margin-top: 20px;">
@@ -114,9 +116,9 @@
         {% for query in queries %}
             <tr class="{% cycle 'row-even' 'row-odd' %}">
                 <td id="button-edit" class="dataList">
-                    <a href="{% url "queries_query_results" graph.slug query.id %}" alt='{% trans "Run query" %}' title='{% trans "Run query" %}'><i class="fa fa-play-circle"></i></a>
+                    <a class="run" href="{% url "queries_query_results" graph.slug query.id %}" alt='{% trans "Run query" %}' title='{% trans "Run query" %}'><i class="fa fa-play-circle"></i></a>
                     <a class="edit" href="{% url "queries_query_edit" graph.slug query.id %}" alt='{% trans "Edit query" %}' title='{% trans "Edit query" %}'>&nbsp;</a>
-                    <a href="{% url "queries_query_delete" graph.slug query.id %}" alt='{% trans "Delete query" %}' title='{% trans "Delete query" %}'><i class="fa fa-times-circle"></i></a>
+                    <a class="delete" href="{% url "queries_query_delete" graph.slug query.id %}" alt='{% trans "Delete query" %}' title='{% trans "Delete query" %}'><i class="fa fa-times-circle"></i></a>
                 </td>
                 <td id="query-name" class=""><div class="shorten-text">{{ query.name }}</div></td>
                 <td id="query-description"><div class="shorten-text">{{ query.description }}</div></td>

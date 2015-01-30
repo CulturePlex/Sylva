@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends base_template %}
 {% load i18n graphs static compress %}
 {% get_static_prefix as STATIC_PREFIX %}
 
@@ -27,7 +27,12 @@
     <br/>
     <input type="submit" value="{% trans "Delete" %}" />
     <span class="buttonLinkOption">
-        {% trans "or" %} <a href="{% url "queries_list" graph.slug %}">{% trans "Cancel" %}</a>.</span>
+    {% if as_modal %}
+        {% trans "or" %} <a id="modal-cancel" href="javascript:void()">{% trans "Cancel" %}</a>
+    {% else %}
+        {% trans "or" %} <a href="{% url "queries_list" graph.slug %}">{% trans "Cancel" %}</a>
+    {% endif %}
+    </span>
 </form>
 
 {% endblock %}

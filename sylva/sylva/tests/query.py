@@ -39,7 +39,7 @@ def run_query(test):
 def test_results(test):
     result = test.browser.find_by_xpath(
         "//div[@class='shorten-text']").first
-    bobs_type = u"bobs-type_1.Name"
+    bobs_type = u"Bob's type 1.Name"
     spin_assert(lambda: test.assertEqual(result.value, bobs_type))
 
 

@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends base_template %}
 {% load i18n graphs static compress %}
 {% get_static_prefix as STATIC_PREFIX %}
 
@@ -26,6 +26,15 @@
 {% block content %}
 
 <div id="content2">
+{% if as_modal %}
+    {% trans "Results" as label %}
+    {% if queries_name %}
+        {% breadcrumb graph queries_link queries_name label %}
+    {% else %}
+        {% breadcrumb graph queries_link queries_new label %}
+    {% endif %}
+    <div id="queries-results-url" data-url="{{ add_url }}" style="display: none;"></div>
+{% endif %}
 {% if results %}
     <div id="query-builder-results">
         <div id="results">
@@ -99,6 +108,9 @@
                       Showing {{ count }} results.
                     {% endblocktrans %}
                   </span>
+                {% endif %}
+                {% if as_modal %}
+                <a id="modal-cancel" href="javascript:void(0)">{% trans "Cancel" %}</a>
                 {% endif %}
             </div>
         </div>
