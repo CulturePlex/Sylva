@@ -121,8 +121,14 @@ def export_advanced_schema(test, name):
     is passed by parameter.
     """
     test.browser.find_by_id('toolsMenu').first.click()
-    cookies = {test.browser.cookies.all()[0]["name"]: test.browser.cookies.all()[0]["value"], test.browser.cookies.all()[1]["name"]: test.browser.cookies.all()[1]["value"]}
-    result = requests.get(test.live_server_url + '/schemas/' + name + '/export/', cookies=cookies)
+    cookies = {test.browser.cookies.all()[0]["name"]:
+               test.browser.cookies.all()[0]["value"],
+               test.browser.cookies.all()[1]["name"]:
+               test.browser.cookies.all()[1]["value"],
+               test.browser.cookies.all()[2]["name"]:
+               test.browser.cookies.all()[2]["value"]}
+    result = requests.get(test.live_server_url +
+                          '/schemas/' + name + '/export/', cookies=cookies)
     spin_assert(lambda: test.assertEqual(
         result.headers['content-type'], 'application/json'))
     spin_assert(lambda: test.assertEqual(
@@ -192,7 +198,12 @@ def import_advanced_schema_csv(test, name_export, name_import):
 
 def data_export_gexf(test):
     test.browser.find_by_id('toolsMenu').first.click()
-    cookies = {test.browser.cookies.all()[0]["name"]: test.browser.cookies.all()[0]["value"], test.browser.cookies.all()[1]["name"]: test.browser.cookies.all()[1]["value"]}
+    cookies = {test.browser.cookies.all()[0]["name"]:
+               test.browser.cookies.all()[0]["value"],
+               test.browser.cookies.all()[1]["name"]:
+               test.browser.cookies.all()[1]["value"],
+               test.browser.cookies.all()[2]["name"]:
+               test.browser.cookies.all()[2]["value"]}
     result = requests.get(test.live_server_url + '/tools/bobgraph/export/gexf/', cookies=cookies)
     spin_assert(lambda: test.assertEqual(
         result.headers['content-type'], 'application/xml'))
@@ -253,7 +264,6 @@ class ToolsTestCaseGexf(LiveServerTestCase):
         sleep(10)  # It needs some time for close the LiverServerTestCase
         super(ToolsTestCaseGexf, cls).tearDownClass()
 
-    """
     def test_graph_export_gexf_autoincrement(self):
         # Create a graph with an auto_increment property
         create_graph(self, self.firstGraphName)
@@ -299,9 +309,8 @@ class ToolsTestCaseGexf(LiveServerTestCase):
         # Destroy the databases
         Graph.objects.get(name=self.firstGraphName).destroy()
         Graph.objects.get(name=self.secondGraphName).destroy()
-    """
 
-    '''
+
     def test_graph_export_gexf_autonow(self):
         # Create a graph with an auto_increment property
         create_graph(self, self.firstGraphName)
@@ -347,9 +356,8 @@ class ToolsTestCaseGexf(LiveServerTestCase):
         # Destroy the databases
         Graph.objects.get(name=self.firstGraphName).destroy()
         Graph.objects.get(name=self.secondGraphName).destroy()
-    '''
 
-    """
+
     def test_graph_export_gexf_autouser(self):
         # Create a graph with an auto_increment property
         create_graph(self, self.firstGraphName)
@@ -386,7 +394,6 @@ class ToolsTestCaseGexf(LiveServerTestCase):
         # Destroy the databases
         Graph.objects.get(name=self.firstGraphName).destroy()
         Graph.objects.get(name=self.secondGraphName).destroy()
-    """
 
 
 class ToolsTestCaseCsv(LiveServerTestCase):
