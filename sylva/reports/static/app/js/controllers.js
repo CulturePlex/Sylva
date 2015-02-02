@@ -227,6 +227,7 @@ controllers.controller('ReportHistoryCtrl', [
                 template: $scope.slugs.template,
                 page: pageNum
             }, function (data) {
+                console.log('data', data)
                 for (var i=0; i<data.reports.length; i++) {
                     var history = data.reports[i].reports
                     ,   mostRecent = history[0]
@@ -276,12 +277,14 @@ controllers.controller("DeleteReportCtrl", [
     '$location',
     'api',
     "breadService",
-    function ($scope, $controller, $location, api, parser, breadService) {
+    function ($scope, $controller, $location, api,  breadService) {
         $controller('BaseReportCtrl', {$scope: $scope});
         $scope.getTemplate = function () {
             api.del.get({
                 template: $scope.slugs.template
             }, function (data) {
+                console.log("data", data.name)
+                console
                 breadService.updateName(data.name);
                 $scope.template = data;
             });
