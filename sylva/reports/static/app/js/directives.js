@@ -857,7 +857,7 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', 'ST
             });
     
             // Markdown - broken
-            md.on('blur keyup change', function () {
+            md.on('blur change', function () {
 
                 scope.$apply(function () {
                     scope.tableArray.addMarkdown([scope.row, scope.col], scope.mdarea);    
