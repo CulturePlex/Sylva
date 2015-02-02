@@ -2178,6 +2178,11 @@ diagram.aggregates = [
 
             resultsArray.push(result);
         });
+        // We introduce the distinct value, to check if we need to add the
+        // distinct clause to the total result
+        var distinct_clause = {}
+        distinct_clause['has_distinct'] = $('#id_distinct_result').prop('checked');
+        resultsArray.push(distinct_clause);
 
         query["results"] = resultsArray;
 
@@ -2528,7 +2533,13 @@ diagram.aggregates = [
                     var elementId = "#id_" + key;
                     // We set the value for that element
                     var elementValue = sortingParams[key];
-                    $(elementId).val(elementValue);
+                    // We need to check if the key is the distinct checkbox,
+                    // because the treatment is different
+                    if(key == "distinct_result") {
+                        $(elementId).prop('checked', elementValue);
+                    } else {
+                        $(elementId).val(elementValue);
+                    }
                 }
             }
 
@@ -2634,6 +2645,7 @@ diagram.aggregates = [
         // We get the params of the sorting settings and save them into
         // the fields dict
         sortingParamsDict['rows_number'] = $('#id_rows_number').val();
+        sortingParamsDict['distinct_result'] = $('#id_distinct_result').prop('checked');
         sortingParamsDict['show_mode'] = $('#id_show_mode').val();
         sortingParamsDict['select_order_by'] = $('#id_select_order_by').val();
         sortingParamsDict['dir_order_by'] = $('#id_dir_order_by').val();

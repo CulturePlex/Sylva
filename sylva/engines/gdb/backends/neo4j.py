@@ -513,8 +513,7 @@ class GraphDatabase(BlueprintsGraphDatabase):
                 if relation_type == WILDCARD_TYPE:
                     origin = u"""`{alias}`=rel:`{ridx}`('graph:{graph_id}')""".format(
                         ridx=unicode(self.ridx.name).replace(u"`", u"\\`"),
-                        alias=unicode(alias).replace(u"`",
-                                                                    u"\\`"),
+                        alias=unicode(alias).replace(u"`", u"\\`"),
                         graph_id=self.graph_id,
                     )
                 # TODO: Why with not rel indices in START the query is faster?
@@ -533,7 +532,11 @@ class GraphDatabase(BlueprintsGraphDatabase):
     def _query_generator_results(self, results_dict, only_ids):
         results_set = set()
         distinct_clause = ""
-        for result_dict in results_dict:
+        # We get the results dict but the last position that it is for the
+        # distinct clause
+        distinct_pos = len(results_dict) - 1
+        results = results_dict[:distinct_pos]
+        for result_dict in results:
             alias = result_dict["alias"]
             if result_dict["properties"] is None:
                 result = u"`{0}`".format(
@@ -544,13 +547,6 @@ class GraphDatabase(BlueprintsGraphDatabase):
                     property_value = prop["property"]
                     property_aggregate = prop["aggregate"]
                     property_distinct = prop["distinct"]
-                    # We will use the property show_alias to show the alias
-                    # in a correct way while we use the slug to execute the
-                    # query.
-                    # try:
-                    #     property_show_alias = prop["showAlias"]
-                    # except KeyError:
-                    #     property_show_alias = alias
                     if property_value:
                         if not property_aggregate and not only_ids:
                             result = u"`{0}`.`{1}`".format(
@@ -577,7 +573,16 @@ class GraphDatabase(BlueprintsGraphDatabase):
                             )
                             results_set.add(result)
         properties_results = u", ".join(results_set)
-        results = u" {0}".format(properties_results)
+        # We check if we need to add the distinct clause to the total results.
+        # Also, we need to control if this field exists in the old queries.
+        distinct = ""
+        try:
+            has_distinct = results_dict[distinct_pos]["has_distinct"]
+        except KeyError:
+            has_distinct = False
+        if has_distinct:
+            distinct = u"DISTINCT "
+        results = u" {0}{1}".format(distinct, properties_results)
         return results
 
     def _query_generator_patterns(self, patterns_dict, conditions_alias):

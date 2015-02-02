@@ -2911,6 +2911,10 @@ body :hover > a.headerlink {
     width: 25px !important;
 }
 
+.distinct_result {
+    vertical-align: text-bottom;
+}
+
 .show_mode {
     display: inline !important;
     width: 100px !important;

@@ -65,6 +65,12 @@ class QueryOptionsForm(forms.Form):
                                      required=True,
                                      widget=forms.NumberInput(
                                          attrs={'class': 'rows_number'}))
+    distinct_result = forms.BooleanField(label=_("distinct"),
+                                         required=True,
+                                         initial=True,
+                                         widget=forms.CheckboxInput(
+                                             attrs={'class':
+                                                    'distinct_result'}))
     show_mode = forms.ChoiceField(label=_("rows"),
                                   choices=SHOW_MODE_CHOICES,
                                   initial=([c[0] for c in
