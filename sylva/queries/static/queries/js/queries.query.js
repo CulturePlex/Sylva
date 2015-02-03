@@ -2178,13 +2178,16 @@ diagram.aggregates = [
 
             resultsArray.push(result);
         });
-        // We introduce the distinct value, to check if we need to add the
-        // distinct clause to the total result
-        var distinct_clause = {}
-        distinct_clause['has_distinct'] = $('#id_distinct_result').prop('checked');
-        resultsArray.push(distinct_clause);
 
         query["results"] = resultsArray;
+
+        // Meta
+        // Meta dictionary to store meta information to build the query
+        // appropriately
+        var meta_dict = {}
+        meta_dict["has_distinct"] = $('#id_distinct_result').prop('checked');
+
+        query["meta"] = meta_dict
 
         return query;
     };
