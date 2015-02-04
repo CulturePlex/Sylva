@@ -2950,10 +2950,23 @@ diagram.aggregates = [
 
         // We check if there is an aggregate selected
         var aggregate = $this.next().val();
-        if(aggregate) {
-            orderByFieldVal = aggregate + '(' + orderByFieldVal + ')';
-            orderByFieldHTML = aggregate + '(' + orderByFieldHTML + ')';
+
+        var distinctValue = "";
+        var distinctHTML = "";
+        var distinct = $('option:selected', $this).data('distinct');
+        if(distinct) {
+            distinctValue = "DISTINCT ";
+            distinctHTML = " Distinct";
         }
+
+        if(aggregate != '') {
+            orderByFieldVal = aggregate + '(' + distinctValue + orderByFieldVal + ')';
+            orderByFieldHTML = aggregate + distinctHTML + '(' + orderByFieldHTML + ')';
+        } else {
+            orderByFieldVal = boxSlug + '.' + propertyValue;
+            orderByFieldHTML = boxAlias + '.' + propertyValue;
+        }
+
         if($this.prop("checked")) {
             // We add the orderByField to the select
             var selectNewOption = $("<OPTION>");
@@ -2992,12 +3005,15 @@ diagram.aggregates = [
             var aggregate = $this.val();
 
             var distinctValue = "";
+            var distinctHTML = "";
             var distinct = $('option:selected', $this).data('distinct');
-            if(distinct)
-                distinctValue = " Distinct"
+            if(distinct) {
+                distinctValue = "DISTINCT ";
+                distinctHTML = " Distinct";
+            }
 
-            orderByFieldVal = aggregate + distinctValue + '(' + orderByFieldVal + ')';
-            orderByFieldHTML = aggregate + distinctValue + '(' + orderByFieldHTML + ')';
+            orderByFieldVal = aggregate + '(' + distinctValue + orderByFieldVal + ')';
+            orderByFieldHTML = aggregate + distinctHTML + '(' + orderByFieldHTML + ')';
             if(aggregate == '') {
                 orderByFieldVal = boxSlug + '.' + propertyValue;
                 orderByFieldHTML = boxAlias + '.' + propertyValue;
@@ -3450,7 +3466,7 @@ diagram.aggregates = [
         // We check if we need to change the alias in the order by select
         var orderByOptions = $('#id_select_order_by option');
         $.each(orderByOptions, function(index, elem) {
-            var orderByAlias = $(elem).val();
+            var orderByAlias = $(elem).html();
             // We check if we have an aggregate selected
             // If the length is bigger than 1
             var isThereAgg = orderByAlias.split("(").length > 1;
@@ -3464,7 +3480,6 @@ diagram.aggregates = [
                     // We change the value of the option
                     var newOptionVal = newAlias + "." + oldOptionValWithoutAgg[1];
                     var newOptionAggregate = aggregateValue + "(" + newOptionVal + ")";
-                    $(elem).attr("value", newOptionAggregate);
                     $(elem).html(newOptionAggregate);
                 }
             } else {
