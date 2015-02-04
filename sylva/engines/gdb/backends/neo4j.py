@@ -384,6 +384,7 @@ class GraphDatabase(BlueprintsGraphDatabase):
         return results_list
 
     def _query_generator(self, query_dict, only_ids):
+        distinct = ""
         conditions_dict = query_dict["conditions"]
         conditions_result = self._query_generator_conditions(conditions_dict)
         # _query_generator_conditions returns a list
@@ -410,7 +411,16 @@ class GraphDatabase(BlueprintsGraphDatabase):
             where = u"WHERE {0} ".format(conditions)
         else:
             where = u""
-        q = u"START {0} {1}{2}RETURN{3}".format(origins, match, where, results)
+        # We treat the meta dictionary to know if we need to include the global
+        # distinct
+        try:
+            has_distinct = query_dict["meta"]["has_distinct"]
+        except KeyError:
+            has_distinct = False
+        if has_distinct:
+            distinct = u" DISTINCT"
+        q = u"START {0} {1}{2}RETURN{3}{4}".format(origins, match, where,
+                                                   distinct, results)
 
         return q, query_params
 
@@ -531,12 +541,8 @@ class GraphDatabase(BlueprintsGraphDatabase):
 
     def _query_generator_results(self, results_dict, only_ids):
         results_set = set()
-        distinct_clause = ""
-        # We get the results dict but the last position that it is for the
-        # distinct clause
-        distinct_pos = len(results_dict) - 1
-        results = results_dict[:distinct_pos]
-        for result_dict in results:
+
+        for result_dict in results_dict:
             alias = result_dict["alias"]
             if result_dict["properties"] is None:
                 result = u"`{0}`".format(
@@ -573,16 +579,8 @@ class GraphDatabase(BlueprintsGraphDatabase):
                             )
                             results_set.add(result)
         properties_results = u", ".join(results_set)
-        # We check if we need to add the distinct clause to the total results.
-        # Also, we need to control if this field exists in the old queries.
-        distinct = ""
-        try:
-            has_distinct = results_dict[distinct_pos]["has_distinct"]
-        except KeyError:
-            has_distinct = False
-        if has_distinct:
-            distinct = u"DISTINCT "
-        results = u" {0}{1}".format(distinct, properties_results)
+
+        results = u" {0}".format(properties_results)
         return results
 
     def _query_generator_patterns(self, patterns_dict, conditions_alias):

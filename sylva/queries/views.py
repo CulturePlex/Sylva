@@ -4,6 +4,7 @@ try:
 except ImportError:
     import json  # NOQA
 
+import re
 from datetime import datetime
 from django.db import transaction
 from django.db.models import Q
@@ -324,6 +325,7 @@ def queries_new_results(request, graph_slug):
             show_mode = form.cleaned_data["show_mode"]
             select_order_by = form.cleaned_data["select_order_by"]
             dir_order_by = form.cleaned_data["dir_order_by"]
+
     headers = True
     if order_by_field == DEFAULT and select_order_by == DEFAULT:
         query_results = graph.query(query_dict, headers=headers)
@@ -337,6 +339,8 @@ def queries_new_results(request, graph_slug):
         # We check the properties of the results to see if we have
         # aggregates. This is for a special treatment in the order_by.
         aggregate = order_by_field.split('(')[0]
+        # We check if the aggregate has distinct clause
+        aggregate = aggregate.split(' ')[0]
         has_aggregate = aggregate in AGGREGATES
         if has_aggregate:
             alias = AGGREGATE
@@ -369,6 +373,7 @@ def queries_new_results(request, graph_slug):
     request.session['results_count'] = query_results_length
 
     headers_final_results = dict()
+    headers_query_results = []
     if query_results_length > 1:
         # We treat the headers
         if headers:
@@ -390,18 +395,59 @@ def queries_new_results(request, graph_slug):
             # the property
             for header in headers_query_results:
                 join_list = []
-                header_splitted = header.split('.')
-                slug = header_splitted[0]
-                prop = header_splitted[1]
+                # header_splitted = header.split('.')
+
+                # The headers can be defined in three different ways:
+                # slug.property
+                # aggregate (slug.property)
+                # aggregate distinct(slug.property)
+
+                # Let's define some variables
+                aggregate = ''
+                distinct = ''
+                slug = ''
+                prop = ''
+                # Let's check what definition we have...
+                header_splitted = re.split('\)|\(|\\.| ', header)
+                header_first_element = header_splitted[0]
+                # We check if aggregate belongs to the aggregate set
+                if header_first_element not in AGGREGATES:
+                    # We have the slug and the property
+                    slug = header_first_element
+                    prop = header_splitted[1]
+                else:
+                    # We have aggregate, let's get the other elements
+                    aggregate = header_first_element
+                    header_second_element = header_splitted[1]
+                    # We check if we already have the distinct clause
+                    if header_second_element != 'DISTINCT':
+                        # We have the slug and the property
+                        slug = header_second_element
+                        prop = header_splitted[2]
+                    else:
+                        # We have distinct, slug and the property
+                        distinct = u'Distinct'
+                        slug = header_splitted[2]
+                        prop = header_splitted[3]
                 # We need to check if the alias field exists. Old queries...
                 try:
                     alias = aliases[slug]['alias']
                 except KeyError:
                     alias = slug
-                # We append the elements to join them
+                # Let's build the header for the user
+                # We append the elements to join them to get the alias to show
                 join_list.append(alias)
                 join_list.append(prop)
                 show_alias = ".".join(join_list)
+                # In case that we had aggregate, we need to change it
+                if aggregate in AGGREGATES:
+                    if distinct == 'Distinct':
+                        show_alias = '{0} {1}({2})'.format(aggregate,
+                                                           distinct,
+                                                           show_alias)
+                    else:
+                        show_alias = '{0} ({1})'.format(aggregate,
+                                                        show_alias)
                 # Finally, we add the key-value to our dictionary
                 headers_final_results[header] = show_alias
         request.session['results_count'] = query_results_length - 1
@@ -437,6 +483,7 @@ def queries_new_results(request, graph_slug):
     broader_context = {"graph": graph,
                        "queries_link": queries_link,
                        "queries_new": queries_new,
+                       "headers_results": headers_query_results,
                        "headers": headers_final_results,
                        "results": paginated_results,
                        "order_by": order_by_field,
@@ -728,6 +775,8 @@ def queries_query_results(request, graph_slug, query_id):
         # We check the properties of the results to see if we have
         # aggregates. This is for a special treatment in the order_by.
         aggregate = order_by_field.split('(')[0]
+        # We check if the aggregate has distinct clause
+        aggregate = aggregate.split(' ')[0]
         has_aggregate = aggregate in AGGREGATES
         if has_aggregate:
             alias = AGGREGATE
@@ -787,16 +836,18 @@ def queries_query_results(request, graph_slug, query_id):
     request.session['results_count'] = query_results_length
     # We store the datetime of execution
     query.last_run = datetime.now()
-    # And then the results
+
     headers_final_results = dict()
+    headers_query_results = []
     if query_results_length > 1:
         # We treat the headers
         if headers:
             # If the results have headers, we create a dictionary to have
             # the headers showed to the user and the headers using in the
             # backend (this is for the order by click in the header)
-            # We use a list of tuples to maintain the order in the final dict
-            headers_final_list = []
+            # We check if query_aliases is empty
+            if query_aliases is '':
+                query_aliases = request.session['query_aliases']
             # We check if the type of query_aliases is appropiate to
             # manipulate it
             if not isinstance(query_aliases, dict):
@@ -809,28 +860,65 @@ def queries_query_results(request, graph_slug, query_id):
             # the property
             for header in headers_query_results:
                 join_list = []
-                header_splitted = header.split('.')
-                slug = header_splitted[0]
-                prop = header_splitted[1]
+                # header_splitted = header.split('.')
+
+                # The headers can be defined in three different ways:
+                # slug.property
+                # aggregate (slug.property)
+                # aggregate distinct(slug.property)
+
+                # Let's define some variables
+                aggregate = ''
+                distinct = ''
+                slug = ''
+                prop = ''
+                # Let's check what definition we have...
+                header_splitted = re.split('\)|\(|\\.| ', header)
+                header_first_element = header_splitted[0]
+                # We check if aggregate belongs to the aggregate set
+                if header_first_element not in AGGREGATES:
+                    # We have the slug and the property
+                    slug = header_first_element
+                    prop = header_splitted[1]
+                else:
+                    # We have aggregate, let's get the other elements
+                    aggregate = header_first_element
+                    header_second_element = header_splitted[1]
+                    # We check if we already have the distinct clause
+                    if header_second_element != 'DISTINCT':
+                        # We have the slug and the property
+                        slug = header_second_element
+                        prop = header_splitted[2]
+                    else:
+                        # We have distinct, slug and the property
+                        distinct = u'Distinct'
+                        slug = header_splitted[2]
+                        prop = header_splitted[3]
                 # We need to check if the alias field exists. Old queries...
                 try:
                     alias = aliases[slug]['alias']
                 except KeyError:
                     alias = slug
-                # We append the elements to join them
+                # Let's build the header for the user
+                # We append the elements to join them to get the alias to show
                 join_list.append(alias)
                 join_list.append(prop)
                 show_alias = ".".join(join_list)
-                # We add the tuple to our list
-                headers_final_list.append((header, show_alias))
-        # Finally we give the values to our dictionary
-        headers_final_results = dict(headers_final_list)
+                # In case that we had aggregate, we need to change it
+                if aggregate in AGGREGATES:
+                    if distinct == 'Distinct':
+                        show_alias = '{0} {1}({2})'.format(aggregate,
+                                                           distinct,
+                                                           show_alias)
+                    else:
+                        show_alias = '{0} ({1})'.format(aggregate,
+                                                        show_alias)
+                # Finally, we add the key-value to our dictionary
+                headers_final_results[header] = show_alias
         request.session['results_count'] = query_results_length - 1
         query_results = query_results[1:]
-        # query.results_count = request.session.get('results_count', None)
     else:
         query_results = []
-
     # We save the new changes of the query
     query.save()
 
@@ -865,6 +953,7 @@ def queries_query_results(request, graph_slug, query_id):
                        "query_has_changed": query_has_changed,
                        "queries_link": queries_link,
                        "queries_name": queries_name,
+                       "headers_results": headers_query_results,
                        "headers": headers_final_results,
                        "results": paginated_results,
                        "order_by": order_by_field,

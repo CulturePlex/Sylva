@@ -993,28 +993,30 @@ diagram.aggregates = [
                     // restore the value in the order by select
                     var checkboxClicked = $(selectorAggregate).prev().prop('checked');
                     if(checkboxClicked && aggregate) {
-                        $this = $(selectorAggregate);
-                        var propertyValue = $this.next().val();
-                        var titleDiv = $this.prev().parent().parent().parent().parent().prev();
-                        var boxSlug = $(titleDiv).data('slug');
-                        var boxAlias = $('select', titleDiv).val();
+                        // We need to take into account that we could have
+                        // more than one aggregate
+                        var aggregates = $(selectorAggregate);
+                        $.each(aggregates, function(index, elem) {
+                            var fieldId = $(elem).parent().attr('id');
+                            var propertyValue = $(elem).next().val();
+                            var titleDiv = $(elem).prev().parent().parent().parent().parent().prev();
+                            var boxSlug = $(titleDiv).data('slug');
+                            var boxAlias = $('select', titleDiv).val();
 
-                        // We use the slug for the value and alias for the html
-                        var orderByFieldVal = boxSlug + '.' + propertyValue;
-                        var orderByFieldHTML = boxAlias + '.' + propertyValue;
+                            // We use the slug for the value and alias for the html
+                            var orderByFieldVal = boxSlug + '.' + propertyValue;
+                            var orderByFieldHTML = boxAlias + '.' + propertyValue;
 
-                        // We add the new option with the aggregate
-                        var aggOrderByField = aggregate + '(' + orderByFieldVal + ')';
+                            // We remove the option because we have a new option
+                            $('#id_select_order_by option[data-fieldid="' + fieldId + '"]').remove();
 
-                        // We remove the option because we have a new option
-                        $('#id_select_order_by option[value="' + aggOrderByField + '"]').remove();
-
-                        // We add the orderByField to the select
-                        var selectNewOption = $("<OPTION>");
-                        //selectNewOption.attr('id', );
-                        selectNewOption.attr('value', orderByFieldVal);
-                        selectNewOption.html(orderByFieldHTML);
-                        $('#id_select_order_by').append(selectNewOption);
+                            // We add the orderByField to the select
+                            var selectNewOption = $("<OPTION>");
+                            selectNewOption.attr('data-fieldid', fieldId);
+                            selectNewOption.attr('value', orderByFieldVal);
+                            selectNewOption.html(orderByFieldHTML);
+                            $('#id_select_order_by').append(selectNewOption);
+                        });
                     }
                 }
 
@@ -1287,12 +1289,13 @@ diagram.aggregates = [
             // Select for the aggregates elements
             selectAggregate = $("<SELECT>");
             selectAggregate.addClass("select-aggregate");
+            $(selectAggregate).prop('disabled', true);
             // We check if we have other aggregates visibles
             displayAggregates = $("#" + idBox + " .select-aggregate").css('display');
             selectAggregate.css({
                 'display': displayAggregates
-            })
-            selectAggregate.append("<option class='option-aggregate' value='' selected='selected' disabled>" + gettext("choose one") + "</option>");
+            });
+            selectAggregate.append("<option class='option-aggregate' value='' selected='selected'>" + gettext("None") + "</option>");
             for(var i = 0; i < diagram.aggregates.length; i++) {
                 // We append the aggregate and the aggregate Distinct
                 var aggregate = diagram.aggregates[i];
@@ -1395,7 +1398,8 @@ diagram.aggregates = [
                 // Select for the aggregates elements
                 selectAggregate = $("<SELECT>");
                 selectAggregate.addClass("select-aggregate");
-                selectAggregate.append("<option class='option-aggregate' value='' selected='selected' disabled>" + gettext("choose one") + "</option>");
+                $(selectAggregate).prop('disabled', true);
+                selectAggregate.append("<option class='option-aggregate' value='' selected='selected'>" + gettext("None") + "</option>");
                 for(var i = 0; i < diagram.aggregates.length; i++) {
                     // We append the aggregate and the aggregate Distinct
                     var aggregate = diagram.aggregates[i];
@@ -2178,13 +2182,16 @@ diagram.aggregates = [
 
             resultsArray.push(result);
         });
-        // We introduce the distinct value, to check if we need to add the
-        // distinct clause to the total result
-        var distinct_clause = {}
-        distinct_clause['has_distinct'] = $('#id_distinct_result').prop('checked');
-        resultsArray.push(distinct_clause);
 
         query["results"] = resultsArray;
+
+        // Meta
+        // Meta dictionary to store meta information to build the query
+        // appropriately
+        var meta_dict = {}
+        meta_dict["has_distinct"] = $('#id_distinct_result').prop('checked');
+
+        query["meta"] = meta_dict
 
         return query;
     };
@@ -2470,6 +2477,24 @@ diagram.aggregates = [
                 }
             }
 
+            // We check the checkboxes to return
+            for(key in checkboxes) {
+                if(checkboxes.hasOwnProperty(key)) {
+                    // After update the way to get the checkboxes,
+                    // now we have that the fieldIndex is equals to
+                    // #field"Id". So, we need to add the #field part
+                    // for a correct execution in the saved queries.
+                    var property = checkboxes[key];
+                    var fieldIndex = key;
+                    if(!isNaN(parseInt(key))) {
+                        key = parseInt(key) + 1;
+                        fieldIndex = "field" + key;
+                    }
+                    $("#" + fieldIndex + " .select-property").val(property);
+                    $("#" + fieldIndex + ' .checkbox-property').click();
+                }
+            }
+
             // We check all the necessary logic for the aggregates
             var aggregatesClicked = 0;
             for(key in aggregates) {
@@ -2486,6 +2511,7 @@ diagram.aggregates = [
                     var aggregateValue = aggregates[key][0];
                     var aggregateDistinct = aggregates[key][1];
                     $('option[value="' + aggregateValue + '"][data-distinct=' + aggregateDistinct + ']', selector).attr("selected", "selected");
+                    $(selector).change();
                 }
             }
 
@@ -2506,24 +2532,6 @@ diagram.aggregates = [
                     // We set the aggregate value
                     selector.val(aggregateValue);
                     selector.attr('data-distinct', aggregateDistinct);
-                }
-            }
-
-            // We check the checkboxes to return
-            for(key in checkboxes) {
-                if(checkboxes.hasOwnProperty(key)) {
-                    // After update the way to get the checkboxes,
-                    // now we have that the fieldIndex is equals to
-                    // #field"Id". So, we need to add the #field part
-                    // for a correct execution in the saved queries.
-                    var property = checkboxes[key];
-                    var fieldIndex = key;
-                    if(!isNaN(parseInt(key))) {
-                        key = parseInt(key) + 1;
-                        fieldIndex = "field" + key;
-                    }
-                    $("#" + fieldIndex + " .select-property").val(property);
-                    $("#" + fieldIndex + ' .checkbox-property').click();
                 }
             }
 
@@ -2930,6 +2938,7 @@ diagram.aggregates = [
         // In this part we are going to treat the adding or removing
         // of the property in the order by select
         var $this = $(this);
+        var fieldId = $this.parent().attr('id');
         var propertyValue = $this.next().next().val();
         var titleDiv = $this.parent().parent().parent().parent().prev();
         var boxSlug = $(titleDiv).data('slug');
@@ -2941,20 +2950,33 @@ diagram.aggregates = [
 
         // We check if there is an aggregate selected
         var aggregate = $this.next().val();
-        if(aggregate) {
-            orderByFieldVal = aggregate + '(' + orderByFieldVal + ')';
-            orderByFieldHTML = aggregate + '(' + orderByFieldHTML + ')';
+
+        var distinctValue = "";
+        var distinctHTML = "";
+        var distinct = $('option:selected', $this).data('distinct');
+        if(distinct) {
+            distinctValue = "DISTINCT ";
+            distinctHTML = " Distinct";
         }
+
+        if(aggregate != '') {
+            orderByFieldVal = aggregate + '(' + distinctValue + orderByFieldVal + ')';
+            orderByFieldHTML = aggregate + distinctHTML + '(' + orderByFieldHTML + ')';
+        } else {
+            orderByFieldVal = boxSlug + '.' + propertyValue;
+            orderByFieldHTML = boxAlias + '.' + propertyValue;
+        }
+
         if($this.prop("checked")) {
             // We add the orderByField to the select
             var selectNewOption = $("<OPTION>");
-            //selectNewOption.attr('id', );
+            selectNewOption.attr('data-fieldid', fieldId);
             selectNewOption.attr('value', orderByFieldVal);
             selectNewOption.html(orderByFieldHTML);
             $('#id_select_order_by').append(selectNewOption);
         } else {
             // We remove the option because the checbox is non clicked
-            $('#id_select_order_by option[value="' + orderByFieldVal + '"]').remove();
+            $('#id_select_order_by option[data-fieldid="' + fieldId + '"]').remove();
         }
     });
 
@@ -2966,25 +2988,40 @@ diagram.aggregates = [
         var $this = $(this);
         var checkboxClicked = $this.prev().prop('checked');
         if(checkboxClicked) {
+            var fieldId = $this.parent().attr('id');
             var propertyValue = $this.next().val();
             var titleDiv = $this.prev().parent().parent().parent().parent().prev();
             var boxSlug = $(titleDiv).data('slug');
             var boxAlias = $('select', titleDiv).val();
 
-            // We use the slug for the value and alias for the html
             var orderByFieldVal = boxSlug + '.' + propertyValue;
             var orderByFieldHTML = boxAlias + '.' + propertyValue;
 
-            // We remove the option because we have a new option
-            $('#id_select_order_by option[value="' + orderByFieldVal + '"]').remove();
+            // We check and remove the option because we have a new option
+            $('#id_select_order_by option[data-fieldid="' + fieldId + '"]').remove();
 
-            // We add the new option with the aggregate
+            // We add the new option with the aggregate in case that the
+            // aggregate is distinct to '' (None option)
             var aggregate = $this.val();
-            orderByFieldVal = aggregate + '(' + orderByFieldVal + ')';
-            orderByFieldHTML = aggregate + '(' + orderByFieldHTML + ')';
+
+            var distinctValue = "";
+            var distinctHTML = "";
+            var distinct = $('option:selected', $this).data('distinct');
+            if(distinct) {
+                distinctValue = "DISTINCT ";
+                distinctHTML = " Distinct";
+            }
+
+            orderByFieldVal = aggregate + '(' + distinctValue + orderByFieldVal + ')';
+            orderByFieldHTML = aggregate + distinctHTML + '(' + orderByFieldHTML + ')';
+            if(aggregate == '') {
+                orderByFieldVal = boxSlug + '.' + propertyValue;
+                orderByFieldHTML = boxAlias + '.' + propertyValue;
+            }
+
             // We add the orderByField to the select
             var selectNewOption = $("<OPTION>");
-            //selectNewOption.attr('id', );
+            selectNewOption.attr('data-fieldid', fieldId);
             selectNewOption.attr('value', orderByFieldVal);
             selectNewOption.html(orderByFieldHTML);
             $('#id_select_order_by').append(selectNewOption);
@@ -3005,6 +3042,9 @@ diagram.aggregates = [
 
         // We change the disabled prop of the checkbox
         $('#' + fieldId + ' .checkbox-property').prop('disabled', false);
+
+        // We change the disabled prop of the aggregate select
+        $('#' + fieldId + ' .select-aggregate').prop('disabled', false);
 
         // We show the select lookup
         $(selector).css({
@@ -3426,7 +3466,7 @@ diagram.aggregates = [
         // We check if we need to change the alias in the order by select
         var orderByOptions = $('#id_select_order_by option');
         $.each(orderByOptions, function(index, elem) {
-            var orderByAlias = $(elem).val();
+            var orderByAlias = $(elem).html();
             // We check if we have an aggregate selected
             // If the length is bigger than 1
             var isThereAgg = orderByAlias.split("(").length > 1;
@@ -3440,7 +3480,6 @@ diagram.aggregates = [
                     // We change the value of the option
                     var newOptionVal = newAlias + "." + oldOptionValWithoutAgg[1];
                     var newOptionAggregate = aggregateValue + "(" + newOptionVal + ")";
-                    $(elem).attr("value", newOptionAggregate);
                     $(elem).html(newOptionAggregate);
                 }
             } else {

@@ -3,7 +3,7 @@
 
   <!--Meta Form/Queries-->
   <div class="content2-first" ng-hide="editable">
-    
+
     <div class="input-container">
       <!--Design Report View-->
       <!--Metadata Form-->
@@ -18,40 +18,40 @@
 
             <p>
               <label> {% trans "Start date" %}
-                
-                <input type="text" sylva-datepicker readonly="true" ng-model="template.date" required="true" view="hours"> 
-     
-              </label> 
+
+                <input type="text" sylva-datepicker readonly="true" ng-model="template.date" required="true" view="hours">
+
+              </label>
             </p>
 
             <p>
               <label>{% trans "Time" %}
-                
+
                 <input sylva-timepicker readonly="true" type="text"  ng-model="template.time" placeholder="hh:mm">
-     
+
               </label>
             </p>
 
             <p>
               <label>{% trans "Frequency" %}
-                
+
                 <select ng-init="template.frequency = 'w'" ng-model="template.frequency">
-     
+
                   <option value="h">{% trans "Hourly" %}</option>
                   <option value="d">{% trans "Daily" %}</option>
                   <option value="w">{% trans "Weekly" %}</option>
                   <option value="m">{% trans "Monthly" %}</option>
-                </select>  
+                </select>
               </label>
             </p>
             <p>
             </p>
           </div> <!--innerForm-->
           <span class="buttonLinkOption buttonLinkLeft">
-            
+
             <input type="submit" value="Save Report" ng-click="saveReport(template)">
             <a class="button" href="" ng-click="designReport()">
- 
+
               {% trans "Design Report" %}
             </a>
             <a class="alink" href="">{% trans "Advanced" %}</a>
@@ -60,7 +60,7 @@
       </div><!--formContainer-->
     </div> <!--input-container div -->
   </div><!--content2-first-->
-  
+
   <!--Report Info/Designer-->
   <div class="content-divider" ng-hide="editable"></div>
 
@@ -80,8 +80,8 @@
           </div>
         </div>
       </div>
-    </div> <!--row--> 
-    
+    </div> <!--row-->
+
 
   </div> <!--content2-->
 
@@ -90,4 +90,4 @@
       <div sy-editable-table resp="resp" prev="prev" editable="editable">
       </div>
     </div><!--row-->
-  </div> 
+  </div>
