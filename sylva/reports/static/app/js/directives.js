@@ -92,7 +92,7 @@ directives.directive('sylvaPvRowRepeat', ['tableArray', function (tableArray) {
                 if (newVal == oldVal) return;
                 scope.queries = scope.resp.queries;
                 scope.tableArray = tableArray(scope.resp.table);
-                
+
                 var numScopes = childScopes.length;
                 if (numScopes > 0) {
                     for (var i=0; i<numScopes; i++) {
@@ -102,7 +102,7 @@ directives.directive('sylvaPvRowRepeat', ['tableArray', function (tableArray) {
                     }
                     childScopes = [];
                 }
-                
+
                 var previous = elem
                 ,   childScope
                 ,   block
@@ -125,7 +125,7 @@ directives.directive('sylvaPvRowRepeat', ['tableArray', function (tableArray) {
                         childScopes.push(block);
                         previous = clone;
                     });
-                }  
+                }
             }, true);
         }
     };
@@ -220,7 +220,7 @@ directives.directive('sylvaPvCellRepeat', ['$sanitize', function ($sanitize) {
                             }
                             chartSeries.push({name: ySeries, data: ser});
                         }
-                            
+
                     } else {
                         // This is the new chart demo (demo="true")
                         chartSeries = [{name: "ySeries", data: cell.series}]
@@ -232,8 +232,8 @@ directives.directive('sylvaPvCellRepeat', ['$sanitize', function ($sanitize) {
                         options: {chart: {type: cell.chartType}},
                         xAxis: {catagories: []},
                         series: chartSeries,
-                        title: {text: name},     
-                        loading: false 
+                        title: {text: name},
+                        loading: false
                     }
                 }
 
@@ -261,21 +261,23 @@ directives.directive('syEditableTable',[
             editable: '='
         },
         template:   '<div class="editable-table">' +
-                        '<div class="edit-rows">' + 
-                          '<div sy-et-row-repeat class="editable-row" queries="queries">' + 
-                            '<div sylva-et-cell-repeat class="tcell" row="row" rownum="rownum">' + 
-                              '<div sylva-et-cell config="config" class="query" ng-style="cellStyle">' + 
-                              '</div>' + 
-                            '</div>' + 
-                          '</div>' + 
-                        '</div>' + 
+                      '<div class="pages">' +
+                        '<div class="edit-rows">' +
+                          '<div sy-et-row-repeat class="editable-row" queries="queries">' +
+                            '<div sylva-et-cell-repeat class="tcell" row="row" rownum="rownum">' +
+                              '<div sylva-et-cell config="config" class="query" ng-style="cellStyle">' +
+                              '</div>' +
+                            '</div>' +
+                          '</div>' +
+                        '</div>' +
+                      '</div>' +
                     '</div>' +
-                    '<div>' + 
-                      '<a class="button" href="">{{ buttonText.done }}</a> ' +  
-                      '<a class="table-button" href="">{{ buttonText.plusrow }}</a>' + 
-                      '<a class="table-button" href="">{{ buttonText.pluscol }}</a>' + 
-                      '<a class="table-button" href="">{{ buttonText.minusrow }}</a>' + 
-                      '<a class="table-button" href="">{{ buttonText.minuscol }}</a>' + 
+                    '<div>' +
+                      '<a class="button" href="">{{ buttonText.done }}</a> ' +
+                      '<a class="table-button" href="">{{ buttonText.plusrow }}</a>' +
+                      '<a class="table-button" href="">{{ buttonText.pluscol }}</a>' +
+                      '<a class="table-button" href="">{{ buttonText.minusrow }}</a>' +
+                      '<a class="table-button" href="">{{ buttonText.minuscol }}</a>' +
                       '<a class="table-button" href="">{{ buttonText.pagebreak }}</a>' +
                     '</div>',
         controller: function($scope) {
@@ -302,7 +304,7 @@ directives.directive('syEditableTable',[
 
             // Helper functions for sorting query result data types
             this.parseResults = function (results) {
-                
+
                 var catagorical = []
                 ,   numeric = [];
                 for (var i=0; i<results.length; i++) {
@@ -314,9 +316,9 @@ directives.directive('syEditableTable',[
                         ,   datatype = prop.datatype
                         ,   element = {alias: prop.alias, name: alias, datatype: datatype,
                                        property: prop.property, aggregate: prop.aggregate};
-                        if (datatype !== 'number' && datatype !== 'float' && 
+                        if (datatype !== 'number' && datatype !== 'float' &&
                                 datatype !== 'auto_increment' &&
-                                datatype !== 'auto_increment_update' && 
+                                datatype !== 'auto_increment_update' &&
                                 prop.aggregate === false) {
                             catagorical.push(element)
                         } else {
@@ -331,9 +333,10 @@ directives.directive('syEditableTable',[
         link: function(scope, elem, attrs) {
 
             var ang = angular.element
+            ,   pages = ang(ang(elem.children()[0]).children()[0])
             //,   rows = ang(elem.children()[0])
             //,   rowWidth = parseInt(rows.css('width'))
-            ,   rows = ang(ang(elem.children()[0]).children()[0])
+            ,   rows = ang(pages.children()[0])
             ,   buttons = ang(elem.children()[1])
             ,   editMeta = ang(buttons.children()[0])
             ,   addRow = ang(buttons.children()[1])
@@ -341,6 +344,7 @@ directives.directive('syEditableTable',[
             ,   delRow = ang(buttons.children()[3])
             ,   delCol = ang(buttons.children()[4])
             ,   pagebreak = ang(buttons.children()[5]);
+
 
             scope.buttonText = {
                 done: gettext('Done'),
@@ -356,7 +360,7 @@ directives.directive('syEditableTable',[
             scope.plusrow = gettext('+ row')
             scope.plusrow = gettext('+ row')
 
-            scope.$watch('resp', function (newVal, oldVal) {  
+            scope.$watch('resp', function (newVal, oldVal) {
                 if (newVal === oldVal) return;
                 scope.tableArray = tableArray(scope.resp.table);
                 scope.tableWidth = parseInt(rows.css('width'));
@@ -373,12 +377,13 @@ directives.directive('syEditableTable',[
                 scope.$apply(function () {
                     scope.editable = false;
                     breadService.meta();
-
                 });
             });
 
             addRow.bind('click', function () {
                 scope.$apply(function () {
+                    var height = parseInt(pages.css("height")) + 202 + 'px';
+                    pages.css("height", height)
                     scope.tableArray.addRow();
                 });
             });
@@ -394,7 +399,10 @@ directives.directive('syEditableTable',[
             delRow.bind('click', function () {
                 if (scope.tableArray.numRows > 1)  {
                     scope.$apply(function () {
+                        var height = parseInt(pages.css("height")) - 202 + 'px';
+                        pages.css("height", height)
                         scope.tableArray.delRow();
+                        removeBreaks();
                     });
                 }
             });
@@ -411,20 +419,30 @@ directives.directive('syEditableTable',[
                 var breakrowNdx = findBreakrowNdx()
                 if (breakrowNdx) {
                     var ndx = breakrowNdx - 1
-                    ,   pagebreakHtml = $compile("<div style='width: 1150px;'" +
+                    ,   pagebreakHtml = $compile("<div class='pagebreak' style='width: 1150px;'" +
                                                  "id='pagebreak" + ndx.toString() +  "'>" +
                                                  "<div style='float: left; width: 1100px; height: 5px; background-color: black;'>" +
-                                                 "</div>" + 
+                                                 "</div>" +
                                                  "</div>")(scope)
-                    ,   breakrow = $("#row" + ndx.toString()) 
+                    ,   breakrow = $("#row" + ndx.toString())
                     breakrow.after(pagebreakHtml)
                     scope.tableArray.pagebreaks[ndx] = true;
+
                 }
-                
+
             });
 
+            var removeBreaks = function () {
+                angular.forEach(scope.tableArray.pagebreaks, function (v, k) {
+                    if (parseInt(k) + 1 == scope.tableArray.numRows) {
+                        $("#pagebreak" + k.toString()).remove();
+                        scope.tableArray.pagebreaks[k] = false;
+                    }
+                });
+            }
+
             var findBreakrowNdx = function () {
-                for (var i=1; i - 1<scope.tableArray.numRows; i++) {
+                for (var i=1; i - 1<scope.tableArray.numRows - 1; i++) {
                     if (!(scope.tableArray.pagebreaks[i - 1])) {
                         return i
                     }
@@ -449,14 +467,14 @@ directives.directive('syEtRowRepeat', [function () {
             ,   tableArray
             ,   numScopes
             ,   len;
-            
+
             scope.$watchCollection(ctrl.getTableArray, function (newVal, oldVal) {
 
                 if (newVal == oldVal) return;
                 tableArray = ctrl.getTableArray();
                 numScopes = childScopes.length;
 
-                if (!previous) {   
+                if (!previous) {
                     previous = elem
                     len = tableArray.table.length;
 
@@ -468,7 +486,7 @@ directives.directive('syEtRowRepeat', [function () {
                         childScope.rownum = i;
                         transclude(childScope, function (clone) {
                             if (i === len - 1) clone.addClass('bottom')
-                            
+
                             clone.attr('id', rowId);
                             clone.addClass('trow');
                             previous.after(clone);
@@ -505,7 +523,7 @@ directives.directive('syEtRowRepeat', [function () {
                     childScopes.splice(numScopes - 1, 1)
                     childScopes[numScopes - 2].element.addClass('bottom');
                     previous = childScopes[numScopes - 2].element
-                }         
+                }
             });
         }
     };
@@ -541,20 +559,20 @@ directives.directive('sylvaEtCellRepeat', [function () {
             function destroyRow() {
                 for (var i=0; i<numScopes; i++) {
                     childScopes[i].element.remove();
-                    childScopes[i].scope.$destroy(); 
+                    childScopes[i].scope.$destroy();
                     console.log('Scope destroyed:', childScopes[i].scope.$$destroyed)
                 }
                 childScopes = [];
             }
-            
+
             scope.$watch('row.length', function (newVal, oldVal) {
                 previous = elem;
                 tableWidth = ctrl.getTableWidth();
                 tableArray = ctrl.getTableArray();
-                numCols = tableArray.numCols;  
+                numCols = tableArray.numCols;
                 numScopes = childScopes.length;
                 len = scope.row.length;
-                
+
                 destroyRow();
                 for (var i=0; i<len; i++) {
                     var cell = scope.row[i]
@@ -576,9 +594,9 @@ directives.directive('sylvaEtCellRepeat', [function () {
 
                         // Find all of the active y Series
                         var activeYs = [];
-                        
+
                         for (var j=0; j<yAxis.length; j++) {
-                            
+
                             var y = yAxis[j]
                             ,   activeY = results.filter(function (el) {
                                 return el.alias === y;
@@ -605,7 +623,7 @@ directives.directive('sylvaEtCellRepeat', [function () {
                         chartType: cell.chartType,
                         markdown: cell.displayMarkdown
                     };
-                    
+
                     childScope.cellStyle = {width: cellWidth};
                     transclude(childScope, function (clone) {
 
@@ -620,7 +638,7 @@ directives.directive('sylvaEtCellRepeat', [function () {
                     });
                 }
             });
-        }            
+        }
     };
 }]);
 
@@ -631,23 +649,23 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', 'ST
         scope: {
             config: '='
         },
-        template:   
+        template:
 '<div class="row">' +
-    '<label class="chart-select">' + 
-        '{{ selectText.content }}' + 
-    '</label>' + 
-    '<select ng-model="activeQuery" value="query.id" ng-options="query.name group by query.group for query in queries">' + 
-        '<option value="">-----</option>' + 
-    '</select> ' + 
-'</div>' + 
+    '<label class="chart-select">' +
+        '{{ selectText.content }}' +
+    '</label>' +
+    '<select ng-model="activeQuery" value="query.id" ng-options="query.name group by query.group for query in queries">' +
+        '<option value="">-----</option>' +
+    '</select> ' +
+'</div>' +
 '<hr>' +
 '<div ng-hide="md" class="edit-cell-inside">' +
     '<div class="row">' +
         '<div class="col chartcol">' +
-            '<label>' + 
-                '{{ selectText.chartType }}' + 
-            '</label>' + 
-            '<div ng-attr-id="{{\'highscroll\' + row + col}}" style="position: relative;"class="highchart-cont">' + 
+            '<label>' +
+                '{{ selectText.chartType }}' +
+            '</label>' +
+            '<div ng-attr-id="{{\'highscroll\' + row + col}}" style="position: relative;"class="highchart-cont">' +
                 '<a href="" id="column" ng-click="setChartType(\'column\')"><img ng-src="{{ static_prefix }}app/svg/bar.svg" /></a>' +
                 '<a href="" id="line" ng-click="setChartType(\'line\')"><img ng-src="{{ static_prefix }}app/svg/line.svg" /></a>' +
                 '<a href="" id="pie" ng-click="setChartType(\'pie\')"><img ng-src="{{ static_prefix }}app/svg/pie.svg" /></a>' +
@@ -658,30 +676,30 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', 'ST
                 '<label>{{ selectText.xSeries }}</label>' +
                 '<select ng-model="activeX" ng-value="result" ' +
                     'ng-options="result as (result.alias) for result in xSeries' +
-                '">' + 
+                '">' +
                 '</select>' +
             '</div>' +
             '<div style="margin:2px;">' +
-                '<label>{{ selectText.ySeries }}</label><br>' + 
+                '<label>{{ selectText.ySeries }}</label><br>' +
                 '<div class="hoverdiv">' +
-                    '<div style="margin:5px;">' + 
+                    '<div style="margin:5px;">' +
                         '<ul>' +
-                        '<li ng-repeat="result in ySeries">' + 
+                        '<li ng-repeat="result in ySeries">' +
                             '<label>' +
-                            '<input type="checkbox" ng-model="result.selected" value="{{result}}" />' + 
-                            '{{ result.alias }}' + 
+                            '<input type="checkbox" ng-model="result.selected" value="{{result}}" />' +
+                            '{{ result.alias }}' +
                             '</label>' +
                         '</li>' +
                         '</ul>' +
-                    '</div>' +  
+                    '</div>' +
                 '</div>' +
-            '</div>' + 
+            '</div>' +
         '</div>' +
     '</div>' +
-'</div>' + 
-'<div ng-show="md">' +  
-    '<textarea ng-model="mdarea" class="markdown">' + 
-    '</textarea>' + 
+'</div>' +
+'<div ng-show="md">' +
+    '<textarea ng-model="mdarea" class="markdown">' +
+    '</textarea>' +
 '</div>',
         link: function(scope, elem, attrs, ctrl) {
             var ang = angular.element
@@ -706,7 +724,7 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', 'ST
             };
 
             scope.static_prefix = STATIC_PREFIX;
-                
+
             // Translation
             scope.selectText = {
                 content: gettext('Content'),
@@ -739,7 +757,7 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', 'ST
                     chart.animate({
                         scrollTop: 150
                     });
-                } else if (scope.chartType == 'column'){ 
+                } else if (scope.chartType == 'column'){
                     chart.animate({
                         scrollTop: 0
                     });
@@ -766,7 +784,7 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', 'ST
                         ,   rightIn = $compile(arrowHtml['rightIn'])(scope);
                         elem.append(leftIn);
                         elem.append(rightIn);
-                    } 
+                    }
 
                     arrows = true;
                 } else {
@@ -829,7 +847,7 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', 'ST
                     // Deal with multiple activeYs
 
                     if (scope.activeYs) {
-                        
+
                         for (var i=0; i<result_dict.num.length; i++) {
                             var num_alias = result_dict.num[i].alias;
                             for (var j=0; j<scope.activeYs.length; j++) {
@@ -842,7 +860,7 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', 'ST
                                 }
                             }
                         }
-                    } 
+                    }
                     scope.ySeries = result_dict.num;
                     scope.ySeries = scope.ySeries.filter(function (el) {
                         return el.alias !== scope.activeX.alias
@@ -855,12 +873,12 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', 'ST
                     scope.activeQuery = scope.queries[0];
                 }
             });
-    
+
             // Markdown - broken
             md.on('blur change', function () {
 
                 scope.$apply(function () {
-                    scope.tableArray.addMarkdown([scope.row, scope.col], scope.mdarea);    
+                    scope.tableArray.addMarkdown([scope.row, scope.col], scope.mdarea);
                 });
             });
 
@@ -883,7 +901,7 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', 'ST
                     name = newVal.id || '';
                     if (name === 'markdown') {
                         // Set active query to empty, turn on md mode
-                        // Trace here. 
+                        // Trace here.
                         scope.md = true;
                         name = '';
                     } else {
@@ -895,7 +913,7 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', 'ST
 
                         // Sort query results by type.
                         result_dict = ctrl.parseResults(results)
-                        
+
                         if (result_dict.num.length > 1) {
                             scope.xSeries = result_dict.cat.concat(result_dict.num)
                         } else {
@@ -914,7 +932,7 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', 'ST
                     name = '';
                 }
                 scope.tableArray.addQuery([scope.row, scope.col], name);
-            }); 
+            });
 
             scope.$watch('activeX', function (newVal, oldVal) {
                 if (!newVal || newVal == oldVal) return;
@@ -963,7 +981,7 @@ directives.directive('sylvaBreadcrumbs', [
     function ($location, parser, GRAPH, DJANGO_URLS) {
     return {
         template: '<h2>' +
-                    '<a href="/graphs/{{ graphSlug }}/">{{graph}}</a> ' + 
+                    '<a href="/graphs/{{ graphSlug }}/">{{graph}}</a> ' +
                     '<span> &raquo; </span>' +
                     '<a ng-href="#/">{{ breadText.reports }}</a>' +
                     '<span ng-if="reportName"> &raquo; </span>' +
@@ -981,7 +999,7 @@ directives.directive('sylvaBreadcrumbs', [
             }
         },
         link: function (scope, elem, attrs) {
-            
+
             scope.breadText = {
                 reports: gettext('Reports')
             };
@@ -997,7 +1015,7 @@ directives.directive('sylvaBreadcrumbs', [
                 } else {
                     scope.reportName = null;
                     scope.crumbs = [];
-                } 
+                }
 
             });
 
@@ -1010,7 +1028,7 @@ directives.directive('sylvaBreadcrumbs', [
             });
 
             scope.$on('name', function (e, name) {
-                scope.reportName = name; 
+                scope.reportName = name;
             });
         }
     };
