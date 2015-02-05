@@ -262,6 +262,10 @@
           modalAction = that.schemaNodetypeEditCreate;
         } else if (response.action == 'schema_relationship_editcreate') {
           modalAction = that.schemaRelationshipEditCreate;
+        } else if (response.action == 'schema_nodetype_delete') {
+          modalAction = that.schemaNodetypeDelete;
+        } else if (response.action == 'schema_relationship_delete') {
+          modalAction = that.schemaRelationshipDelete;
         }
         that.showModal(response.html, modalAction);
 
@@ -950,6 +954,18 @@
       },
 
       preProcessHTML: function() {
+        // Remove nodetype
+        $('span a.delete').on('click', function(){
+          var url = $(event.target).attr('href');
+
+          $.modal.close();
+          setTimeout(function() {
+            that.schemaNodetypeDelete.start(url, false);
+          }, fast);
+
+          return false;
+        });
+
         // Binding cancel action.
         $('#modal-cancel').on('click', function() {
           that.closeModalLib();
@@ -966,6 +982,62 @@
     },
 
     schemaRelationshipEditCreate: {
+
+      start: function(url, showOverlay) {
+        that.prepareModal(url, showOverlay, this);
+      },
+
+      preProcessHTML: function() {
+        // Remove relationship
+        $('span a.delete').on('click', function(){
+          var url = $(event.target).attr('href');
+
+          $.modal.close();
+          setTimeout(function() {
+            that.schemaRelationshipDelete.start(url, false);
+          }, fast);
+
+          return false;
+        });
+
+        // Binding cancel action.
+        $('#modal-cancel').on('click', function() {
+          that.closeModalLib();
+          return false;
+        });
+      },
+
+      onShow: function() {
+        $('#simplemodal-container').css({
+          width: 1170,
+          left: 100
+        });
+      }
+    },
+
+    schemaNodetypeDelete: {
+
+      start: function(url, showOverlay) {
+        that.prepareModal(url, showOverlay, this);
+      },
+
+      preProcessHTML: function() {
+        // Binding cancel action.
+        $('#modal-cancel').on('click', function() {
+          that.closeModalLib();
+          return false;
+        });
+      },
+
+      onShow: function() {
+        $('#simplemodal-container').css({
+          width: 1170,
+          left: 100
+        });
+      }
+    },
+
+    schemaRelationshipDelete: {
 
       start: function(url, showOverlay) {
         that.prepareModal(url, showOverlay, this);

@@ -68,6 +68,8 @@ def schema_edit(request, graph_slug):
 def schema_nodetype_delete(request, graph_slug, nodetype_id):
     graph = get_object_or_404(Graph, slug=graph_slug)
     nodetype = get_object_or_404(NodeType, id=nodetype_id)
+    # We get the modal variable
+    as_modal = bool(request.GET.get("asModal", False))
     count = graph.nodes.count(label=nodetype.id)
     redirect_url = reverse("schema_edit", args=[graph.slug])
     if count == 0:
@@ -91,17 +93,33 @@ def schema_nodetype_delete(request, graph_slug, nodetype_id):
                     graph.nodes.delete(label=nodetype.id)
                 nodetype.delete()
                 return redirect(redirect_url)
-    return render_to_response('schemas_item_delete.html',
-                              {"graph": graph,
-                               "item_type_label": _("Type"),
-                               "item_type": "node",
-                               "item_type_id": nodetype_id,
-                               "item_type_name": nodetype.name,
-                               "item_type_count": count,
-                               "item_type_object": nodetype,
-                               "form": form,
-                               "type_id": nodetype_id},
-                              context_instance=RequestContext(request))
+    if as_modal:
+        base_template = 'empty.html'
+        render = render_to_string
+    else:
+        base_template = 'base.html'
+        render = render_to_response
+    broader_context = {"graph": graph,
+                       "item_type_label": _("Type"),
+                       "item_type": "node",
+                       "item_type_id": nodetype_id,
+                       "item_type_name": nodetype.name,
+                       "item_type_count": count,
+                       "item_type_object": nodetype,
+                       "form": form,
+                       "type_id": nodetype_id,
+                       "base_template": base_template,
+                       "as_modal": as_modal}
+    response = render('schemas_item_delete.html', broader_context,
+                      context_instance=RequestContext(request))
+    if as_modal:
+        response = {'type': 'html',
+                    'action': 'schema_nodetype_delete',
+                    'html': response}
+        return HttpResponse(json.dumps(response), status=200,
+                            content_type='application/json')
+    else:
+        return response
 
 
 @permission_required("schemas.change_schema",
@@ -334,6 +352,8 @@ def schema_relationshiptype_delete(request, graph_slug,
     graph = get_object_or_404(Graph, slug=graph_slug)
     relationshiptype = get_object_or_404(RelationshipType,
                                          id=relationshiptype_id)
+    # We get the modal variable
+    as_modal = bool(request.GET.get("asModal", False))
     count = graph.relationships.count(label=relationshiptype.id)
     redirect_url = reverse("schema_edit", args=[graph.slug])
     if count == 0:
@@ -357,17 +377,33 @@ def schema_relationshiptype_delete(request, graph_slug,
                     graph.relationships.delete(label=relationshiptype.id)
                 relationshiptype.delete()
                 return redirect(redirect_url)
-    return render_to_response('schemas_item_delete.html',
-                              {"graph": graph,
-                               "item_type_label": _("Allowed Relationship"),
-                               "item_type": "relationship",
-                               "item_type_id": relationshiptype_id,
-                               "item_type_name": relationshiptype.name,
-                               "item_type_count": count,
-                               "item_type_object": relationshiptype,
-                               "form": form,
-                               "type_id": relationshiptype_id},
-                              context_instance=RequestContext(request))
+    if as_modal:
+        base_template = 'empty.html'
+        render = render_to_string
+    else:
+        base_template = 'base.html'
+        render = render_to_response
+    broader_context = {"graph": graph,
+                       "item_type_label": _("Allowed Relationship"),
+                       "item_type": "relationship",
+                       "item_type_id": relationshiptype_id,
+                       "item_type_name": relationshiptype.name,
+                       "item_type_count": count,
+                       "item_type_object": relationshiptype,
+                       "form": form,
+                       "type_id": relationshiptype_id,
+                       "base_template": base_template,
+                       "as_modal": as_modal}
+    response = render('schemas_item_delete.html', broader_context,
+                      context_instance=RequestContext(request))
+    if as_modal:
+        response = {'type': 'html',
+                    'action': 'schema_relationship_delete',
+                    'html': response}
+        return HttpResponse(json.dumps(response), status=200,
+                            content_type='application/json')
+    else:
+        return response
 
 
 @permission_required("data.change_data", (Data, "graph__slug", "graph_slug"),
