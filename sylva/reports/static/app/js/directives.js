@@ -9,7 +9,7 @@ var gettext = window.gettext || String;
 
 directives.directive('sylvaUpdateText', ['breadService', function (breadService) {
     return {
-        link:function(scope) {
+        link: function(scope) {
             scope.$watch('template.name', function (newVal, oldVal) {
                 breadService.updateName(newVal);
                 scope.template.name = newVal
@@ -23,7 +23,7 @@ directives.directive('sylvaDatepicker', function () {
     return {
         restrict: 'A',
         require : 'ngModel',
-        link : function(scope, element, attrs, ngModelCtrl) {
+        link: function(scope, element, attrs, ngModelCtrl) {
             $(function(){
                 element.datepicker({
                     dateFormat:'mm/dd/yy',
@@ -363,7 +363,8 @@ directives.directive('syEditableTable',[
             scope.$watch('resp', function (newVal, oldVal) {
                 if (newVal === oldVal) return;
                 scope.tableArray = tableArray(scope.resp.table);
-                scope.tableWidth = parseInt(rows.css('width'));
+                scope.tableWidth = 1100;
+                console.log("tableWidth", scope.tableWidth)
 
                 scope.queries = [{name: 'markdown', id: 'markdown', group: 'text'}];
 
@@ -382,8 +383,6 @@ directives.directive('syEditableTable',[
 
             addRow.bind('click', function () {
                 scope.$apply(function () {
-                    var height = parseInt(pages.css("height")) + 202 + 'px';
-                    pages.css("height", height)
                     scope.tableArray.addRow();
                 });
             });
@@ -399,8 +398,6 @@ directives.directive('syEditableTable',[
             delRow.bind('click', function () {
                 if (scope.tableArray.numRows > 1)  {
                     scope.$apply(function () {
-                        var height = parseInt(pages.css("height")) - 202 + 'px';
-                        pages.css("height", height)
                         scope.tableArray.delRow();
                         removeBreaks();
                     });
@@ -419,13 +416,20 @@ directives.directive('syEditableTable',[
                 var breakrowNdx = findBreakrowNdx()
                 if (breakrowNdx) {
                     var ndx = breakrowNdx - 1
-                    ,   pagebreakHtml = $compile("<div class='pagebreak' style='width: 1150px;'" +
+                    ,   pagebreakHtml = $compile("<div class='pagebreak'" +
                                                  "id='pagebreak" + ndx.toString() +  "'>" +
-                                                 "<div style='float: left; width: 1100px; height: 5px; background-color: black;'>" +
+                                                 //"<div class='bottompageborder'></div>" +
+                                                 "<hr class='breakline' /> " +
+
                                                  "</div>" +
+                                                 //"<div class='toppageborder'></div>" +
                                                  "</div>")(scope)
                     ,   breakrow = $("#row" + ndx.toString())
-                    breakrow.after(pagebreakHtml)
+                    ,   nextrow = $("#row" + (ndx + 1).toString())
+                    breakrow.addClass("bottom");
+                    breakrow.css("margin-bottom", 20);
+                    nextrow.css("margin-top", 20);
+                    breakrow.after(pagebreakHtml);
                     scope.tableArray.pagebreaks[ndx] = true;
 
                 }
@@ -436,7 +440,9 @@ directives.directive('syEditableTable',[
                 angular.forEach(scope.tableArray.pagebreaks, function (v, k) {
                     if (parseInt(k) + 1 == scope.tableArray.numRows) {
                         $("#pagebreak" + k.toString()).remove();
+                        $("#row" + k.toString()).css("margin-bottom", 0)
                         scope.tableArray.pagebreaks[k] = false;
+
                     }
                 });
             }
