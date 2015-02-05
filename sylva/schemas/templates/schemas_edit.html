@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends base_template %}
 {% load i18n graphs static compress %}
 {% get_static_prefix as STATIC_PREFIX %}
 
@@ -156,6 +156,13 @@
           {% trans "New allowed Relationship" %}
         </a>
       </span>
+      {% if as_modal %}
+        <span class="buttonLinkOption">
+          <a id="modal-cancel" class="button" href="javascript:void()">
+            {% trans "Cancel" %}
+          </a>
+        </span>
+      {% endif %}
     </div>
 
   {% else %}

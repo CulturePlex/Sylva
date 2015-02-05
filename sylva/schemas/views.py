@@ -35,11 +35,32 @@ def schema_edit(request, graph_slug):
     graph = get_object_or_404(Graph, slug=graph_slug)
     nodetypes = NodeType.objects.filter(schema__graph__slug=graph_slug)
     reltypes = None
-    return render_to_response('schemas_edit.html',
-                              {"graph": graph,
-                               "node_types": nodetypes,
-                               "relationship_types": reltypes},
-                              context_instance=RequestContext(request))
+    # We get the modal variable
+    as_modal = bool(request.GET.get("asModal", False))
+
+    if as_modal:
+        base_template = 'empty.html'
+        render = render_to_string
+    else:
+        base_template = 'base.html'
+        render = render_to_response
+    add_url = reverse("schema_edit", args=[graph_slug])
+    broader_context = {"graph": graph,
+                       "node_types": nodetypes,
+                       "relationship_types": reltypes,
+                       "base_template": base_template,
+                       "as_modal": as_modal,
+                       "add_url": add_url}
+    response = render('schemas_edit.html', broader_context,
+                      context_instance=RequestContext(request))
+    if as_modal:
+        response = {'type': 'html',
+                    'action': 'schema_main',
+                    'html': response}
+        return HttpResponse(json.dumps(response), status=200,
+                            content_type='application/json')
+    else:
+        return response
 
 
 @permission_required("schemas.change_schema",
@@ -97,6 +118,8 @@ def schema_nodetype_edit(request, graph_slug, nodetype_id):
 
 def schema_nodetype_editcreate(request, graph_slug, nodetype_id=None):
     graph = get_object_or_404(Graph, slug=graph_slug)
+    # We get the modal variable
+    as_modal = bool(request.GET.get("asModal", False))
     if nodetype_id:
         empty_nodetype = get_object_or_404(NodeType, id=nodetype_id)
     else:
@@ -151,21 +174,37 @@ def schema_nodetype_editcreate(request, graph_slug, nodetype_id=None):
                 else:
                     redirect_url = reverse("schema_edit", args=[graph.slug])
             return redirect(redirect_url)
-    return render_to_response('schemas_item_edit.html',
-                              {"graph": graph,
-                               "item_type_label": _("Type"),
-                               "item_type": "node",
-                               "item_type_id": nodetype_id,
-                               "form": form,
-                               "fields_to_hide": ["plural_name",
-                                                  "inverse", "plural_inverse",
-                                                  "arity_source",
-                                                  "arity_target",
-                                                  "validation",
-                                                  "inheritance"],
-                               "item_type_object": empty_nodetype,
-                               "formset": formset},
-                              context_instance=RequestContext(request))
+    if as_modal:
+        base_template = 'empty.html'
+        render = render_to_string
+    else:
+        base_template = 'base.html'
+        render = render_to_response
+    broader_context = {"graph": graph,
+                       "item_type_label": _("Type"),
+                       "item_type": "node",
+                       "item_type_id": nodetype_id,
+                       "form": form,
+                       "fields_to_hide": ["plural_name",
+                                          "inverse", "plural_inverse",
+                                          "arity_source",
+                                          "arity_target",
+                                          "validation",
+                                          "inheritance"],
+                       "item_type_object": empty_nodetype,
+                       "formset": formset,
+                       "base_template": base_template,
+                       "as_modal": as_modal}
+    response = render('schemas_item_edit.html', broader_context,
+                      context_instance=RequestContext(request))
+    if as_modal:
+        response = {'type': 'html',
+                    'action': 'schema_nodetype_editcreate',
+                    'html': response}
+        return HttpResponse(json.dumps(response), status=200,
+                            content_type='application/json')
+    else:
+        return response
 
 
 @permission_required("data.change_data", (Data, "graph__slug", "graph_slug"),
@@ -191,6 +230,8 @@ def schema_relationshiptype_edit(request, graph_slug, relationshiptype_id):
 def schema_relationshiptype_editcreate(request, graph_slug,
                                        relationshiptype_id=None):
     graph = get_object_or_404(Graph, slug=graph_slug)
+    # We get the modal variable
+    as_modal = bool(request.GET.get("asModal", False))
     if relationshiptype_id:
         empty_relationshiptype = get_object_or_404(RelationshipType,
                                                    id=relationshiptype_id)
@@ -254,20 +295,36 @@ def schema_relationshiptype_editcreate(request, graph_slug,
                 else:
                     redirect_url = reverse("schema_edit", args=[graph.slug])
             return redirect(redirect_url)
-    return render_to_response('schemas_item_edit.html',
-                              {"graph": graph,
-                               "item_type_label": _("Allowed Relationship"),
-                               "item_type": "relationship",
-                               "item_type_id": relationshiptype_id,
-                               "form": form,
-                               "fields_to_hide": ["plural_name",
-                                                  "inverse", "plural_inverse",
-                                                  "arity_source",
-                                                  "arity_target",
-                                                  "validation",
-                                                  "inheritance"],
-                               "formset": formset},
-                              context_instance=RequestContext(request))
+    if as_modal:
+        base_template = 'empty.html'
+        render = render_to_string
+    else:
+        base_template = 'base.html'
+        render = render_to_response
+    broader_context = {"graph": graph,
+                       "item_type_label": _("Allowed Relationship"),
+                       "item_type": "relationship",
+                       "item_type_id": relationshiptype_id,
+                       "form": form,
+                       "fields_to_hide": ["plural_name",
+                                          "inverse", "plural_inverse",
+                                          "arity_source",
+                                          "arity_target",
+                                          "validation",
+                                          "inheritance"],
+                       "formset": formset,
+                       "base_template": base_template,
+                       "as_modal": as_modal}
+    response = render('schemas_item_edit.html', broader_context,
+                      context_instance=RequestContext(request))
+    if as_modal:
+        response = {'type': 'html',
+                    'action': 'schema_relationship_editcreate',
+                    'html': response}
+        return HttpResponse(json.dumps(response), status=200,
+                            content_type='application/json')
+    else:
+        return response
 
 
 @permission_required("schemas.change_schema",

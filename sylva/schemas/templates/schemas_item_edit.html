@@ -1,5 +1,6 @@
-{% extends "base.html" %}
-{% load i18n graphs compress %}
+{% extends base_template %}
+{% load i18n graphs static compress %}
+{% get_static_prefix as STATIC_PREFIX %}
 
 {% block navigation_buttons %}
 {{ block.super }}
@@ -49,7 +50,12 @@
                 <a class="delete" href="{% url "schema_nodetype_delete" graph.slug item_type_id %}">{% trans "Remove" %}</a>
                 {% endif %}
             {% endif %}
-            {% trans "or" %} <a href="{% url "schema_edit" graph.slug %}">{% trans "Cancel" %}</a>.
+            {% trans "or" %}
+            {% if as_modal %}
+                <a id="modal-cancel" href="javascript:void()">{% trans "Cancel" %}</a>.
+            {% else %}
+                <a href="{% url "schema_edit" graph.slug %}">{% trans "Cancel" %}</a>.
+            {% endif %}
         </span>
 
     </div>

@@ -256,6 +256,12 @@
           modalAction = that.queriesResults;
         } else if (response.action == 'queries_delete') {
           modalAction = that.queriesDelete;
+        } else if (response.action == 'schema_main') {
+          modalAction = that.schemaMainView;
+        } else if (response.action == 'schema_nodetype_editcreate') {
+          modalAction = that.schemaNodetypeEditCreate;
+        } else if (response.action == 'schema_relationship_editcreate') {
+          modalAction = that.schemaRelationshipEditCreate;
         }
         that.showModal(response.html, modalAction);
 
@@ -837,8 +843,7 @@
 
       onShow: function() {
         $('#simplemodal-container').css({
-          width: 1000,
-          left: 100
+          width: 1000
         });
       }
     },
@@ -859,6 +864,128 @@
 
       onShow: function() {}
     },
+
+    // Schema modals
+
+    schemaMainView: {
+
+      start: function(url, showOverlay) {
+        that.prepareModal(url, showOverlay, this);
+      },
+
+      preProcessHTML: function() {
+        // This is for create a new nodetype
+        $('#schemaNewType').on('click', function() {
+          var url = $(event.target).attr('href');
+
+          $.modal.close();
+          setTimeout(function() {
+            that.schemaNodetypeEditCreate.start(url, false);
+          }, fast);
+
+          return false;
+        });
+
+        // This is for edit nodetypes
+        $('fieldset.module h2 a').on('click', function() {
+          var url = $(event.target).attr('href');
+
+          $.modal.close();
+          setTimeout(function() {
+            that.schemaNodetypeEditCreate.start(url, false);
+          }, fast);
+
+          return false;
+        });
+
+        // This if for create a new relationship
+        $('#allowedRelations').on('click', function() {
+          var url = $(event.target).attr('href');
+
+          $.modal.close();
+          setTimeout(function() {
+            that.schemaRelationshipEditCreate.start(url, false);
+          }, fast);
+
+          return false;
+        });
+
+        // This is for create and edit relationships
+        $('div.form-row a').on('click', function() {
+          var url = $(event.target).attr('href');
+
+          $.modal.close();
+          setTimeout(function() {
+            that.schemaRelationshipEditCreate.start(url, false);
+          }, fast);
+
+          return false;
+        });
+
+        // Binding cancel action.
+        $('#modal-cancel').on('click', function() {
+          that.closeModalLib();
+          return false;
+        });
+      },
+
+      onShow: function() {
+        $('#simplemodal-container').css({
+          width: 1170,
+          left: 100
+        });
+
+        $('#diagramContainer').ready(function(){
+          try {
+            // diagram.loadModels();
+          } catch(e) {}
+        });
+      }
+    },
+
+    schemaNodetypeEditCreate: {
+
+      start: function(url, showOverlay) {
+        that.prepareModal(url, showOverlay, this);
+      },
+
+      preProcessHTML: function() {
+        // Binding cancel action.
+        $('#modal-cancel').on('click', function() {
+          that.closeModalLib();
+          return false;
+        });
+      },
+
+      onShow: function() {
+        $('#simplemodal-container').css({
+          width: 1170,
+          left: 100
+        });
+      }
+    },
+
+    schemaRelationshipEditCreate: {
+
+      start: function(url, showOverlay) {
+        that.prepareModal(url, showOverlay, this);
+      },
+
+      preProcessHTML: function() {
+        // Binding cancel action.
+        $('#modal-cancel').on('click', function() {
+          that.closeModalLib();
+          return false;
+        });
+      },
+
+      onShow: function() {
+        $('#simplemodal-container').css({
+          width: 1170,
+          left: 100
+        });
+      }
+    }
 
   };
 
