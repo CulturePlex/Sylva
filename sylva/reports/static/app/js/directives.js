@@ -19,6 +19,34 @@ directives.directive('sylvaUpdateText', ['breadService', function (breadService)
 }]);
 
 
+
+directives.directive('sylvaColpick', function () {
+    return {
+        restrict: 'A',
+        require : 'ngModel',
+        link: function(scope, element, attrs, ngModelCtrl) {
+            if (attrs.color) element.css('background-color', attrs.color)
+            $(function(){
+                element.colpick({
+                    layout:'hex',
+                    submit:0,
+                    colorScheme:'dark',
+                    onChange:function(hsb, hex, rgb, el, bySetColor) {
+                        $(el).css('background-color','#' + hex);
+                        // Fill the text box just if the color was set using the picker, and not the colpickSetColor function.
+                        if(!bySetColor) $(el).val(hex);
+                        scope.$apply(function () {
+                            ngModelCtrl.$setViewValue('#' + hex);
+                        });
+                    }
+                })
+            });
+        }
+    };
+});
+
+
+
 directives.directive('sylvaDatepicker', function () {
     return {
         restrict: 'A',
@@ -210,6 +238,12 @@ directives.directive('sylvaPvCellRepeat', ['$sanitize', function ($sanitize) {
                             ,   ySeries = cell.yAxis[j]
                             // this is the position of the ySeries in the series arr
                             ,   ndx = header.indexOf(ySeries);
+                            if (cell.colors) {
+
+                                var color = cell.colors[ySeries];
+                            } else {
+                                var color = ""
+                            }
                             if (ndx === -1) ndx = j + 1
                             for (var k=1; k<series.length; k++) {
                                 var row = series[k]
@@ -218,7 +252,7 @@ directives.directive('sylvaPvCellRepeat', ['$sanitize', function ($sanitize) {
                                 var point = [x, row[ndx]];
                                 ser.push(point);
                             }
-                            chartSeries.push({name: ySeries, data: ser});
+                            chartSeries.push({name: ySeries, data: ser, color: color});
                         }
 
                     } else {
@@ -364,7 +398,6 @@ directives.directive('syEditableTable',[
                 if (newVal === oldVal) return;
                 scope.tableArray = tableArray(scope.resp.table);
                 scope.tableWidth = 1100;
-                console.log("tableWidth", scope.tableWidth)
 
                 scope.queries = [{name: 'markdown', id: 'markdown', group: 'text'}];
 
@@ -412,29 +445,86 @@ directives.directive('syEditableTable',[
                 }
             });
 
+            function canMoveUp(ndx) {
+                var brNdx = findBreakrowNdx(1, ndx + 1);
+                console.log("upbrk", ndx, brNdx)
+                if (ndx > 0 && brNdx[0]) return true;
+                return false;
+            }
+
+            function canMoveDown(ndx) {
+                var brNdx = findBreakrowNdx(ndx + 1, scope.tableArray.numRows);
+                console.log("brk", brNdx)
+                if (ndx + 2 < scope.tableArray.numRows && brNdx[0]) return true;
+                return false;
+            }
+
+            scope.moveUp = function (ndx) {
+                var brArr = findBreakrowNdx(1, ndx + 1);
+                var brNdx = brArr[brArr.length - 1]
+                console.log("moveup", brNdx)
+                scope.removeBreak(ndx)
+                buildBreakrow(brNdx)
+            }
+
+            scope.moveDown = function (ndx) {
+                var brNdx = findBreakrowNdx(ndx + 1, scope.tableArray.numRows)[0];
+                scope.removeBreak(ndx)
+                buildBreakrow(brNdx)
+            }
+
+            scope.removeBreak = function (ndx) {
+                console.log("remove", ndx)
+                $("#pagebreak" + ndx.toString()).remove()
+                scope.tableArray.pagebreaks[ndx] = false;
+            }
+
             pagebreak.bind("click", function () {
-                var breakrowNdx = findBreakrowNdx()
+                var breakrowNdx = findBreakrowNdx(1, scope.tableArray.numRows)[0]
                 if (breakrowNdx) {
-                    var ndx = breakrowNdx - 1
-                    ,   pagebreakHtml = $compile("<div class='pagebreak'" +
-                                                 "id='pagebreak" + ndx.toString() +  "'>" +
-                                                 //"<div class='bottompageborder'></div>" +
-                                                 "<hr class='breakline' /> " +
-
-                                                 "</div>" +
-                                                 //"<div class='toppageborder'></div>" +
-                                                 "</div>")(scope)
-                    ,   breakrow = $("#row" + ndx.toString())
-                    ,   nextrow = $("#row" + (ndx + 1).toString())
-                    breakrow.addClass("bottom");
-                    breakrow.css("margin-bottom", 20);
-                    nextrow.css("margin-top", 20);
-                    breakrow.after(pagebreakHtml);
-                    scope.tableArray.pagebreaks[ndx] = true;
-
+                    buildBreakrow(breakrowNdx)
                 }
 
             });
+
+            function buildBreakrow (breakrowNdx) {
+                var ndx = breakrowNdx - 1
+                ,   pagebreakHtml = $compile("<div class='pagebreak'" +
+                                             "id='pagebreak" + ndx.toString() +  "'>" +
+                                             "<hr class='breakline' /> " +
+                                             "</div>")(scope)
+                ,   breakrow = $("#row" + ndx.toString())
+                ,   nextrow = $("#row" + (ndx + 1).toString())
+                ,   moveUp = "<a href='' ng-click='moveUp(" + ndx + ")'style='font-size: 200%; z-index:10px; position:absolute; right:45%; margin-top:10px;'>&#8593;</a>"
+                ,   moveDown = "<a href='' ng-click='moveDown(" + ndx + ")' style='font-size: 200%; z-index:10px; position:absolute; right:55%; margin-top:10px;'>&#8595;</a>"
+                ,   del = "<a href='' ng-click='removeBreak(" + ndx + ")' style='font-size: 200%; z-index:10px; position:absolute; right:50%; margin-top:10px;'>X</a>";
+
+                var controlsOn;
+                pagebreakHtml.on("click", function () {
+
+                    if (controlsOn) {
+                        $("#controls").remove()
+                        controlsOn = false;
+                    } else {
+                        controlsOn = true;
+                        var controls = "<span id='controls'>";
+                        if (canMoveUp(ndx)) {
+                            controls = controls + moveUp
+                        }
+                        if (canMoveDown(ndx)) {
+                            controls = controls + moveDown
+                        }
+                        controls = controls + del + "</span>"
+                        controls = $compile(controls)(scope)
+                        ang(this).append(controls)
+                    }
+                });
+                breakrow.addClass("bottom");
+                breakrow.css("margin-bottom", 20);
+                nextrow.css("margin-top", 20);
+                breakrow.after(pagebreakHtml);
+                scope.tableArray.pagebreaks[ndx] = true;
+            }
 
             var removeBreaks = function () {
                 angular.forEach(scope.tableArray.pagebreaks, function (v, k) {
@@ -447,12 +537,16 @@ directives.directive('syEditableTable',[
                 });
             }
 
-            var findBreakrowNdx = function () {
-                for (var i=1; i - 1<scope.tableArray.numRows - 1; i++) {
+            var findBreakrowNdx = function (start, stop) {
+                var arr = [];
+                for (var i=start; i<stop; i++) {
+                    console.log("loop", i-1, scope.tableArray.pagebreaks[i - 1])
                     if (!(scope.tableArray.pagebreaks[i - 1])) {
-                        return i
+                        console.log("success")
+                        arr.push(i)
                     }
                 }
+                return arr;
             };
         }
     };
@@ -621,6 +715,7 @@ directives.directive('sylvaEtCellRepeat', [function () {
                         row: scope.rownum,
                         col: i,
                         colspan: cell.colspan,
+                        colors: cell.colors,
                         activeX: activeX,
                         activeYs: activeYs,
                         queries: ctrl.getQueries(),
@@ -689,14 +784,23 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', 'ST
                 '<label>{{ selectText.ySeries }}</label><br>' +
                 '<div class="hoverdiv">' +
                     '<div style="margin:5px;">' +
+                        '<form>' +
                         '<ul>' +
-                        '<li ng-repeat="result in ySeries">' +
+                        '<li class="checklist" ng-hide="pie" ng-repeat="result in ySeries">' +
+                            '<label style="float:left;">' +
+                            '<input  type="checkbox" ng-model="result.selected" value="{{result}}" />' +
+                            '{{ result.alias }}' +
+                            '</label>' +
+                            '<div sylva-colpick color="{{colors[result.alias]}}" ng-model="colors[result.alias]" id="colpick{{$index}}" style="float:left; margin-right:3px; height:5px;width:5px;border:3px solid #c0c0c0;padding:2px"></div>' +
+                        '</li>' +
+                        '<li class="checklist" ng-show="pie" ng-repeat="result in ySeries">' +
                             '<label>' +
-                            '<input type="checkbox" ng-model="result.selected" value="{{result}}" />' +
+                            '<input name="ysergroup" type="radio" ng-model="$parent.yser" ng-value="result.alias" />' +
                             '{{ result.alias }}' +
                             '</label>' +
                         '</li>' +
                         '</ul>' +
+                        '</form>' +
                     '</div>' +
                 '</div>' +
             '</div>' +
@@ -738,6 +842,12 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', 'ST
                 xSeries: gettext('X-Series'),
                 ySeries: gettext('Y-Series')
             }
+            //scope.colors = {};
+
+            scope.$watch("colors", function (newVal, oldVal) {
+                if (newVal == oldVal) return;
+                scope.tableArray.table[scope.row][scope.col]["colors"] = scope.colors
+            }, true);
 
             // Methods for resizing columns
             scope.merge = function(ndx) {
@@ -817,16 +927,20 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', 'ST
                     scope.chartType = scope.config.chartType;
 
                 }
+                scope.colors = scope.config.colors || {}
                 scope.activeYs = scope.config.activeYs;
                 scope.tableArray = ctrl.getTableArray();
                 cellWidth = elem.width()
                 chartCol.width(cellWidth * 0.4)
-                cellCol.width(cellWidth * 0.4)
+                cellCol.width(cellWidth * 0.5)
                 scope.$watch(ctrl.editable, function (newVal, oldVal) {
                     if (newVal == oldVal) return;
                     if (!scope.chartType) return;
                     chartScroll();
                 });
+
+
+
 
                 // Here is the active query/ xy series code that executes
                 // on init for edit report.
@@ -871,8 +985,12 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', 'ST
                     scope.ySeries = scope.ySeries.filter(function (el) {
                         return el.alias !== scope.activeX.alias
                     });
-
                     if (scope.ySeries.length == 1) scope.ySeries[0].selected = true;
+                    if (scope.chartType === "pie") {
+                        scope.pie = true;
+                        scope.yser = scope.activeYs[0].alias
+                    }
+
                 } else if (scope.config.markdown) {
                     scope.md = true;
                     scope.mdarea = scope.config.markdown;
@@ -969,7 +1087,23 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', 'ST
                 scope.chartType = type;
             };
 
+
+            scope.$watch('yser', function (newVal, oldVal) {
+                if (newVal == oldVal) return;
+                angular.forEach(scope.ySeries, function (el) {
+                    scope.tableArray.removeAxis([scope.row, scope.col], 'y', el.alias)
+                });
+                scope.tableArray.addAxis([scope.row, scope.col], 'y', newVal)
+            });
+
             scope.$watch('chartType', function (newVal, oldVal) {
+                if (newVal === oldVal) return;
+                if (newVal === "pie") {
+                    scope.pie = true;
+                    if (scope.yser == undefined) scope.yser = scope.ySeries[0].alias;
+                } else {
+                    scope.pie = false;
+                }
                 if (newVal === oldVal) return;
                 ctrl.editing()
                 scope.tableArray.addChart([scope.row, scope.col], newVal)

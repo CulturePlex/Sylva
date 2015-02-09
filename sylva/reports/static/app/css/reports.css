@@ -87,6 +87,9 @@ th.report {
   width: 50%;
  }
 
+.checklist {
+    text-align: left;
+}
  .chartcol {
   width: 40%;
  }
@@ -148,12 +151,14 @@ th.report {
     height: 50px;
     border-bottom: 1px solid black;
     border-top: 1px solid black;
+    text-align: center;
 }
 
 .breakline {
     border-top: dotted 1px red;
     width: 1100px;
     margin-top: 24.5px;
+    float: left;
 }
 
 .bottom .tcell {
