@@ -90,10 +90,10 @@
     <div class="content2-second diagram" style="padding-left: 0px; float: none; width: 1140px;">
         {% if as_modal %}
             {% if query %}
-                {% breadcrumb graph queries_link query.name %}
+                {% breadcrumb queries_link query.name %}
             {% else %}
                 {% trans "New" as label %}
-                {% breadcrumb graph queries_link label %}
+                {% breadcrumb queries_link label %}
             {% endif %}
         {% endif %}
         <h2 id="diagramTitle">{% trans "Diagram" %}</h2>
@@ -121,6 +121,9 @@
              <div id="diagram"></div>
         </div>
     </div>
+    {% if as_modal %}
+    <div id="modal-content-controls" class="modal-content-controls">
+    {% endif %}
     <div id="run-query-div">
       {% if query %}
         <form method="post" action="{% url "queries_query_results" graph.slug query.id %}" id="form-run-query">
@@ -170,6 +173,9 @@
               <a id="modal-cancel" href="javascript:void(0)">{% trans "Cancel" %}</a>
             </span>
             {% endif %}
+        {% if as_modal %}
+        </div>
+        {% endif %}
         </form>
     </div>
 </div>

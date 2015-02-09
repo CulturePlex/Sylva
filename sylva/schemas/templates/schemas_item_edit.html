@@ -21,6 +21,10 @@
 {% endblock %}
 
 {% block content %}
+{% if as_modal %}
+    {% trans "New" as label %}
+    {% breadcrumb graph.schema item_type_label %}
+{% endif %}
 <div id="content2">
 <form action="." method="POST" id="itemType">
 {% csrf_token %}
@@ -38,6 +42,9 @@
             {% endif %}
             </p>
         {% endfor %}
+        {% if as_modal %}
+        <div id="modal-content-controls" class="modal-content-controls">
+        {% endif %}
         <span class="buttonLinkOption buttonLinkLeft">
             <input type="submit" value="{% trans "Save Type" %}"/>
         </span>
@@ -57,7 +64,9 @@
                 <a href="{% url "schema_edit" graph.slug %}">{% trans "Cancel" %}</a>.
             {% endif %}
         </span>
-
+        {% if as_modal %}
+        </div>
+        {% endif %}
     </div>
     <div class="content-divider"></div>
     <div class="content2-second">

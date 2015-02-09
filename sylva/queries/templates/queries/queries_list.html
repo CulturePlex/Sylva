@@ -46,7 +46,7 @@
 <div id="content2">
     {% if as_modal %}
         {% trans "Queries" as label %}
-        {% breadcrumb graph label %}
+        {% breadcrumb label %}
         <div id="queries-url" data-url="{{ add_url }}" style="display: none;"></div>
     {% endif %}
     <div id="query-list" style="margin-top: 20px;">
@@ -169,6 +169,9 @@
     </div>
 </div>
 {% endif %}
+{% if as_modal %}
+<div id="modal-content-controls" class="modal-content-controls">
+{% endif %}
 <div id="query-builder" style="margin-top: 20px;">
     {% if not as_modal %}
         <a class="button" id="create-query" href="{% url "queries_new" graph.slug %}">{% trans "New Query" %}</a>
@@ -177,4 +180,7 @@
         <a class="button" id="modal-cancel">{% trans "Cancel" %}</a>
     {% endif %}
 </div>
+{% if as_modal %}
+</div>
+{% endif %}
 {% endblock %}

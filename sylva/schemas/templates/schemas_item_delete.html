@@ -26,6 +26,9 @@
 {% endblock %}
 
 {% block content %}
+{% if as_modal %}
+  {% breadcrumb graph.schema item_type_object label %}
+{% endif %}
 <div id="content2">
   <form action="." method="POST" id="itemType">
   {% csrf_token %}

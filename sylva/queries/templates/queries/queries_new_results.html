@@ -29,9 +29,9 @@
 {% if as_modal %}
     {% trans "Results" as label %}
     {% if queries_name %}
-        {% breadcrumb graph queries_link queries_name label %}
+        {% breadcrumb queries_link queries_name label %}
     {% else %}
-        {% breadcrumb graph queries_link queries_new label %}
+        {% breadcrumb queries_link queries_new label %}
     {% endif %}
     <div id="queries-results-url" data-url="{{ add_url }}" style="display: none;"></div>
 {% endif %}
