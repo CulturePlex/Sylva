@@ -127,7 +127,6 @@ th.report {
 
 .edit-rows {
   width: 1120px;
-  margin-top: 10px;
 }
 
 .trow {
@@ -136,9 +135,7 @@ th.report {
 }
 
 .pages {
-  min-height: 204px;
-  padding-top: 10px;
-  padding-bottom: 20px;
+  height: 402px;
   border: 1px solid black;
   width: 1120px;
 }
@@ -161,20 +158,24 @@ th.report {
     float: left;
 }
 
-.bottom .tcell {
-  border-bottom: 2px solid #348E82;
+.tcell.top {
+  border-top: 0px;
+}
+
+.colorbox {
+    float:left; margin: 2px; margin-right:5px; height:5px;width:5px;border:3px solid #c0c0c0;padding:2px
 }
 
 .tcell {
-  border-top: 2px solid #348E82;
+  border-top: 2px dotted #D6E7DF;
   height: 100%;
   float: left;
   position: relative;
-  border-left: 2px solid #348E82;
+  border-left: 2px dotted #D6E7DF;
 }
 
-.tcell.final {
-  border-right: 2px solid #348E82;
+.tcell.first {
+  border-left: 0px;
 }
 
 .chart-canvas {
@@ -251,7 +252,13 @@ textarea.markdown {
   position: absolute;
   bottom:0;
   text-align: left;
-  outline: 0px solid transparent;
+  border: none;
+
+  outline: none;
+
+   -webkit-box-shadow: none;
+   -moz-box-shadow: none;
+   box-shadow: none;
 }
 
 .arrow.down {
@@ -262,7 +269,7 @@ textarea.markdown {
 .query {
   text-align: center;
   width: 70%;
-  margin: 0 auto;
+  margin-top: 10px ;
   height: 175px
 }
 
