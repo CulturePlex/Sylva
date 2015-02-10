@@ -338,7 +338,6 @@ directives.directive('syEditableTable',[
 
             // Helper functions for sorting query result data types
             this.parseResults = function (results) {
-
                 var catagorical = []
                 ,   numeric = [];
                 for (var i=0; i<results.length; i++) {
@@ -368,8 +367,6 @@ directives.directive('syEditableTable',[
 
             var ang = angular.element
             ,   pages = ang(ang(elem.children()[0]).children()[0])
-            //,   rows = ang(elem.children()[0])
-            //,   rowWidth = parseInt(rows.css('width'))
             ,   rows = ang(pages.children()[0])
             ,   buttons = ang(elem.children()[1])
             ,   editMeta = ang(buttons.children()[0])
@@ -438,7 +435,6 @@ directives.directive('syEditableTable',[
                         removeBreaks();
                         var height = parseInt(pages.css("height"));
                         var newHeight = (height - 202).toString() + "px";
-                        console.log("height", newHeight)
                         pages.css("height", newHeight)
                     });
                 }
@@ -454,14 +450,12 @@ directives.directive('syEditableTable',[
 
             function canMoveUp(ndx) {
                 var brNdx = findBreakrowNdx(1, ndx + 1);
-                console.log("upbrk", ndx, brNdx)
                 if (ndx > 0 && brNdx[0]) return true;
                 return false;
             }
 
             function canMoveDown(ndx) {
                 var brNdx = findBreakrowNdx(ndx + 1, scope.tableArray.numRows);
-                console.log("brk", brNdx)
                 if (ndx + 2 < scope.tableArray.numRows && brNdx[0]) return true;
                 return false;
             }
@@ -469,7 +463,6 @@ directives.directive('syEditableTable',[
             scope.moveUp = function (ndx) {
                 var brArr = findBreakrowNdx(1, ndx + 1);
                 var brNdx = brArr[brArr.length - 1]
-                console.log("moveup", brNdx)
                 scope.removeBreak(ndx)
                 buildBreakrow(brNdx)
             }
@@ -480,21 +473,16 @@ directives.directive('syEditableTable',[
                 buildBreakrow(brNdx)
             }
 
-            // BREAKROW SIZING SHOULD BE REASSESSED
-
             scope.removeBreak = function (ndx) {
-                console.log("remove", ndx)
                 $("#pagebreak" + ndx.toString()).remove()
                 scope.tableArray.pagebreaks[ndx] = false;
                 var breakrow = $("#row" + ndx.toString())
                 ,   nextrow = $("#row" + (ndx + 1).toString());
-                console.log("children", nextrow.children())
                 angular.forEach(nextrow.children(), function (elem) {
                     ang(elem).removeClass("top")
                 })
                 var height = parseInt(pages.css("height"));
                 var newHeight = (height - 50).toString() + "px";
-                console.log("height", newHeight)
                 pages.css("height", newHeight)
             }
 
@@ -521,7 +509,6 @@ directives.directive('syEditableTable',[
 
                 var controlsOn;
                 pagebreakHtml.on("click", function () {
-
                     if (controlsOn) {
                         $("#controls").remove()
                         controlsOn = false;
@@ -541,9 +528,7 @@ directives.directive('syEditableTable',[
                 });
                 var height = parseInt(pages.css("height"));
                 var newHeight = (height + 50).toString() + "px";
-                console.log("height", newHeight)
                 pages.css("height", newHeight)
-                console.log("children", nextrow.children())
                 angular.forEach(nextrow.children(), function (elem) {
                     ang(elem).addClass("top")
                 })
@@ -558,7 +543,6 @@ directives.directive('syEditableTable',[
                         scope.tableArray.pagebreaks[k] = false;
                         var height = parseInt(pages.css("height"));
                         var newHeight = (height - 50).toString() + "px";
-                        console.log("height", newHeight)
                         pages.css("height", newHeight)
                         return;
                     }
@@ -568,9 +552,7 @@ directives.directive('syEditableTable',[
             var findBreakrowNdx = function (start, stop) {
                 var arr = [];
                 for (var i=start; i<stop; i++) {
-                    console.log("loop", i-1, scope.tableArray.pagebreaks[i - 1])
                     if (!(scope.tableArray.pagebreaks[i - 1])) {
-                        console.log("success")
                         arr.push(i)
                     }
                 }
@@ -630,10 +612,8 @@ directives.directive('syEtRowRepeat', [function () {
                     childScope.$index = numScopes;
                     childScope.row = tableArray.table[numScopes];
                     childScope.rownum = newVal.numRows - 1;
-                    //childScopes[numScopes - 1].element.removeClass('bottom')
 
                     transclude(childScope, function (clone) {
-                        //clone.addClass('bottom')
                         clone.attr('id', 'row' + numScopes);
                         clone.addClass('trow');
                         previous.after(clone);
@@ -648,9 +628,8 @@ directives.directive('syEtRowRepeat', [function () {
                     var scopeToRemove = childScopes[numScopes - 1]
                     scopeToRemove.element.remove();
                     scopeToRemove.scope.$destroy();
-                    childScopes.splice(numScopes - 1, 1)
-                    childScopes[numScopes - 2].element.addClass('bottom');
-                    previous = childScopes[numScopes - 2].element
+                    childScopes.splice(numScopes - 1, 1);
+                    previous = childScopes[numScopes - 2].element;
                 }
             });
         }
@@ -758,7 +737,6 @@ directives.directive('sylvaEtCellRepeat', [function () {
 
                         if (i === 0) {clone.addClass('first')}
                         if (scope.rownum == 0) {clone.addClass("top")}
-                        console.log("row", scope.row, scope.rownum)
                         clone.attr('id', cell.id)
                         previous.after(clone);
                         block = {};
@@ -816,18 +794,13 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', 'ST
                     '<div style="margin:5px;">' +
                         '<form>' +
                         '<ul>' +
-                        '<li class="checklist" ng-hide="pie" ng-repeat="result in ySeries">' +
+                        '<li class="checklist" ng-repeat="result in ySeries">' +
                             '<label style="float:left;">' +
-                            '<input  type="checkbox" ng-model="result.selected" value="{{result}}" />' +
+                            '<input ng-hide="pie" type="checkbox" ng-model="result.selected" value="{{result}}" />' +
+                            '<input ng-show="pie" name="ysergroup" type="radio" ng-model="$parent.yser" ng-value="result.alias" />' +
                             '{{ result.alias }}' +
                             '</label>' +
-                            '<div sylva-colpick color="{{colors[result.alias]}}" ng-model="colors[result.alias]" id="colpick{{$index}}" class="colorbox"></div>' +
-                        '</li>' +
-                        '<li class="checklist" ng-show="pie" ng-repeat="result in ySeries">' +
-                            '<label>' +
-                            '<input name="ysergroup" type="radio" ng-model="$parent.yser" ng-value="result.alias" />' +
-                            '{{ result.alias }}' +
-                            '</label>' +
+                            '<div ng-hide="pie" sylva-colpick color="{{colors[result.alias]}}" ng-model="colors[result.alias]" id="colpick{{$index}}" class="colorbox"></div>' +
                         '</li>' +
                         '</ul>' +
                         '</form>' +
@@ -845,7 +818,7 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', 'ST
             var ang = angular.element
             ,   mdDiv = ang(elem.children()[3])
             ,   md = ang(ang(ang(mdDiv[0])[0]).children()[0])
-            ,   stepChild = ang(ang(ang(elem.children()[2]).children()[0])[0]).children()
+            ,   stepChild = ang(ang(ang(elem.children()[1]).children()[0])[0]).children()
             ,   chartCol = ang(stepChild[0])
             ,   cellCol = ang(stepChild[1])
             ,   chartDiv = ang(chartCol.children()[1])
@@ -898,7 +871,7 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', 'ST
             });
 
             var chartScroll = function () {
-                var chart = $("#highscroll" + scope.row + scope.col)
+                var chart = $("#highscroll" + scope.row + scope.col);
                 if (scope.chartType === 'line') {
                     chart.animate({
                         scrollTop: 150
