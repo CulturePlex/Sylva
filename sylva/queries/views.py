@@ -455,6 +455,10 @@ def queries_new_results(request, graph_slug):
     else:
         query_results = []
 
+    # We add the headers to the session to use them if we export the results
+    request.session["headers_final_results"] = headers_final_results
+    request.session["headers_query_results"] = headers_query_results
+
     # We add pagination for the list of queries
     page = request.GET.get('page', 1)
     try:
@@ -919,6 +923,11 @@ def queries_query_results(request, graph_slug, query_id):
         query_results = query_results[1:]
     else:
         query_results = []
+
+    # We add the headers to the session to use them if we export the results
+    request.session["headers_formatted"] = headers_final_results
+    request.session["headers_raw"] = headers_query_results
+
     # We save the new changes of the query
     query.save()
 

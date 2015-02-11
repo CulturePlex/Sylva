@@ -24,11 +24,14 @@ class BaseConverter(object):
     )
 
     def __init__(self, graph, csv_results=None, query_name=None,
-                 node_type_id=None):
+                 node_type_id=None, headers_formatted=None,
+                 headers_raw=None):
         self.graph = graph
         self.csv_results = csv_results
         self.query_name = query_name
         self.node_type_id = node_type_id
+        self.headers_formatted = headers_formatted
+        self.headers_raw = headers_raw
 
     def encode_html(self, value):
         return escape(value)
@@ -350,13 +353,16 @@ class CSVQueryConverter(BaseConverter):
     """
 
     def stream_export(self):
+        headers_formatted = self.headers_formatted
+        headers_raw = self.headers_raw
         csv_results = self.csv_results
-        headers = csv_results[0]
         results = csv_results[1:]
 
         csv_header = []
-        for header in headers:
-            csv_quoted_element = '"{}"'.format(header.encode('utf-8'))
+        for header in headers_raw:
+            header_formatted = headers_formatted[header]
+            csv_quoted_element = '"{}"'.format(
+                header_formatted.encode('utf-8'))
             csv_header.append(csv_quoted_element)
         csv_header_formatted = ','.join(csv_header)
         yield csv_header_formatted

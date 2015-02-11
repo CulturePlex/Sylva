@@ -158,9 +158,13 @@ def graph_export_queries_csv(request, graph_slug):
     graph = get_object_or_404(Graph, slug=graph_slug)
     csv_results = request.session.get('csv_results', None)
     query_name = request.session.get('query_name', None)
+    headers_formatted = request.session.get('headers_formatted', None)
+    headers_raw = request.session.get('headers_raw', None)
 
     converter = CSVQueryConverter(graph=graph, csv_results=csv_results,
-                                  query_name=query_name)
+                                  query_name=query_name,
+                                  headers_formatted=headers_formatted,
+                                  headers_raw=headers_raw)
     query_name = query_name.decode('utf-8')
     csv_name = query_name + '.csv'
     export_name = graph_slug + '_' + csv_name
