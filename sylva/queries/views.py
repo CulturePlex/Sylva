@@ -903,6 +903,24 @@ def queries_query_results(request, graph_slug, query_id):
                     alias = aliases[slug]['alias']
                 except KeyError:
                     alias = slug
+                    # Also, we need to check if prop is really the prop because
+                    # with the split method, we could have splitted the index
+                    # of the alias
+                    try:
+                        # We cast to int to check if the prop is the index
+                        # (It throws ValueError exception in that case)
+                        alias_index = int(prop)
+
+                        alias_index_list = list()
+                        alias_index_list.append(alias)
+                        alias_index_list.append(prop)
+                        alias = " ".join(alias_index_list)
+
+                        prop = header_splitted[2]
+                    except ValueError:
+                        # If there is a ValueError exception, the prop is
+                        # correct
+                        pass
                 # Let's build the header for the user
                 # We append the elements to join them to get the alias to show
                 join_list.append(alias)
