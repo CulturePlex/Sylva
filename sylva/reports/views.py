@@ -271,8 +271,7 @@ def builder_endpoint(request, graph_slug):
                 graph=graph
             )
         query_set = set()
-        # Take another look at this.
-        for row in template['layout']:
+        for row in template['layout']['layout']:
             query_set.update(set(cell['displayQuery'] for cell in row))
         queries = set(query for query in new_template.queries.all())
         query_ids = set(query.id for query in queries)

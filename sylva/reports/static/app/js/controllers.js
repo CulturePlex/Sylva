@@ -7,7 +7,7 @@ var controllers = angular.module('reports.controllers', []);
 controllers.controller('ReportListCtrl', [
     '$scope',
     '$location',
-    'api', 
+    'api',
     'parser',
     function ($scope, $location, api, parser) {
         $scope.graph = parser.parse();
@@ -42,14 +42,14 @@ controllers.controller('ReportListCtrl', [
 controllers.controller('BaseReportCtrl', [
     '$scope',
     '$location',
-    '$routeParams', 
+    '$routeParams',
     'GRAPH',
     'api',
     'breadService',
     function ($scope, $location, $routeParams, GRAPH, api, breadService) {
 
         $scope.slugs = {
-            graph: GRAPH, 
+            graph: GRAPH,
             template: $routeParams.reportSlug
         };
         // Thess variables may be necessary
@@ -75,6 +75,7 @@ controllers.controller('BaseReportCtrl', [
             template.start_date = {year: date[2], month: date[0],
                                    day: date[1], hour: time[0], minute: time[1]}
             post.template = template
+            console.log("template", template)
             post.$save({
                 graphSlug: $scope.slugs.graph,
                 report: template.slug
@@ -87,7 +88,7 @@ controllers.controller('BaseReportCtrl', [
 
 
 controllers.controller('NewReportCtrl', [
-    '$scope', 
+    '$scope',
     '$controller',
     'api',
     function ($scope, $controller, api) {
@@ -102,7 +103,7 @@ controllers.controller('NewReportCtrl', [
             nameHtml: '<h2>New Report</h2>'
         };
 
-        var exampleTable = [[{"col": 0, "colspan": "1", "id": "cell1", "row": 0, 
+        var exampleTable = [[{"col": 0, "colspan": "1", "id": "cell1", "row": 0,
                              "rowspan": "1", "displayQuery": 1, "chartType": "pie",
                              "demo": "true", "series": [
                                 ['Keanu Reeves',36],
@@ -111,8 +112,8 @@ controllers.controller('NewReportCtrl', [
                                 ['Morpheus',1],
                                 ['Félix Lope de Vega Carpio',156],
                                 ['Javier de la Rosa',24]
-                            ]}, 
-                            {"col": 1, "colspan": "1", "id": "cell2", "row": 0, 
+                            ]},
+                            {"col": 1, "colspan": "1", "id": "cell2", "row": 0,
                              "rowspan": "1", "displayQuery": 1, "chartType": "line",
                              "demo": "true","series": [
                                 ['Keanu Reeves',36],
@@ -121,7 +122,7 @@ controllers.controller('NewReportCtrl', [
                                 ['Morpheus',1],
                                 ['Félix Lope de Vega Carpio',156],
                                 ['Javier de la Rosa',24]
-                            ]}], 
+                            ]}],
                             [{"col": 0, "colspan": "1", "id": "cell3", "row": 1,
                              "rowspan": "1","displayQuery": 1, "chartType": "column",
                              "demo": "true", "series": [
@@ -131,7 +132,7 @@ controllers.controller('NewReportCtrl', [
                                 ['Morpheus',1],
                                 ['Félix Lope de Vega Carpio',156],
                                 ['Javier de la Rosa',24]
-                            ]}, 
+                            ]},
                             {"col": 1, "colspan": "1", "id": "cell4", "row": 1,
                              "rowspan": "1","displayQuery": 1, "chartType": "pie",
                              "demo": "true", "series": [
@@ -143,30 +144,30 @@ controllers.controller('NewReportCtrl', [
                                 ['Javier de la Rosa',24]
                             ]}]];
 
-        var layout = [[{"col": 0, "colspan": "1", "id": "cell1", "row": 0, 
+        var layout = [[{"col": 0, "colspan": "1", "id": "cell1", "row": 0,
                         "rowspan": "1", "displayQuery": "", "chartType": "",
-                        "series": '', "xAxis":"", "yAxis": []}, 
+                        "series": '', "xAxis":"", "yAxis": []},
                        {"col": 1, "colspan": "1", "id": "cell2", "row": 0,
                         "rowspan": "1", "displayQuery": "", "chartType": "",
-                        "series": "", "xAxis":"", "yAxis": []}], 
+                        "series": "", "xAxis":"", "yAxis": []}],
                       [{"col": 0, "colspan": "1", "id": "cell3", "row": 1,
                         "rowspan": "1","displayQuery": "", "chartType": "",
-                        "series": "", "xAxis":"", "yAxis": []}, 
+                        "series": "", "xAxis":"", "yAxis": []},
                        {"col": 1, "colspan": "1", "id": "cell4", "row": 1,
                         "rowspan": "1", "displayQuery": "", "chartType": "",
                         "series": "", "xAxis":"", "yAxis": []}]]
 
         api.templates.blank({}, function (data) {
             data.layout = layout;
-            $scope.template.layout = layout;
-            $scope.resp = {table: layout, queries: data.queries}
-            $scope.prev = {table: exampleTable, queries: data.queries}
+            $scope.template.layout = {layout: layout, pagebreaks: {}};
+            $scope.resp = {table: {layout: layout, pagebreaks: {}}, queries: data.queries}
+            $scope.prev = {table: {layout: exampleTable, pagebreaks: {}}, queries: data.queries}
         });
 }]);
 
 
 controllers.controller('EditReportCtrl', [
-    '$scope', 
+    '$scope',
     '$controller',
     'api',
     function ($scope, $controller, api) {
@@ -174,11 +175,11 @@ controllers.controller('EditReportCtrl', [
         $controller('BaseReportCtrl', {$scope: $scope});
         api.templates.edit({
             template: $scope.slugs.template
-        }, function (data) {   
+        }, function (data) {
             var date = JSON.parse(data.template.start_date)
             ,   datetime = new Date(date)
             ,   m = datetime.getUTCMonth() + 1
-            ,   month = m.toString() 
+            ,   month = m.toString()
             ,   day = datetime.getUTCDate().toString()
             ,   year = datetime.getUTCFullYear().toString()
             ,   hour = datetime.getUTCHours().toString()
@@ -206,7 +207,7 @@ controllers.controller('ReportPreviewCtrl', [
         $controller('BaseReportCtrl', {$scope: $scope});
         $scope.pdf = parser.pdf();
         api.templates.preview({
-            template: $scope.slugs.template,  
+            template: $scope.slugs.template,
         }, function (data) {
             $scope.template = data.template;
             $scope.resp = {table: data.template.layout, queries: data.queries};
@@ -256,7 +257,7 @@ controllers.controller('ReportHistoryCtrl', [
             if (bucket.expanded) {
                 bucket.expanded = false;
             } else {
-               bucket.expanded = true; 
+               bucket.expanded = true;
             }
         }
         $scope.getReport = function (id) {

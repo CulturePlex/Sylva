@@ -69,7 +69,6 @@ services.factory('tableArray', function () {
         this.table = table;
         this.numRows = table.length;
         this.numCols = getNumCols(table[0]);
-        this.pagebreaks = {};
     };
 
     function getNumCols(row) {
@@ -91,7 +90,7 @@ services.factory('tableArray', function () {
         return adjs;
     };
 
-    TableArray.prototype.addRow = function() { 
+    TableArray.prototype.addRow = function() {
         var row = []
         ,   cellId = this.getId();
         for (var i=0; i<this.numCols; i++) {
@@ -105,9 +104,9 @@ services.factory('tableArray', function () {
             };
             row.push(cell);
             cellId++;
-        }   
-        this.table.push(row); 
-        this.numRows++;     
+        }
+        this.table.push(row);
+        this.numRows++;
     };
 
     TableArray.prototype.addCol = function() {
@@ -128,7 +127,7 @@ services.factory('tableArray', function () {
             for (var j=0; j<newRlen; j++) {
                 row[j].id = 'cell' + cellId;
                 cellId++;
-            }     
+            }
         }
         this.numCols++;
     };
@@ -150,7 +149,7 @@ services.factory('tableArray', function () {
                 el.splice(el.length - 1, 1);
             }
         });
-        this.numCols -= 1;     
+        this.numCols -= 1;
     }
 
     TableArray.prototype.addQuery = function(coords, query) {
@@ -163,11 +162,11 @@ services.factory('tableArray', function () {
         } else {
             if (!('yAxis' in this.table[coords[0]][coords[1]])) {
                 this.table[coords[0]][coords[1]]['yAxis'] = []
-            } 
+            }
             if (this.table[coords[0]][coords[1]].yAxis.indexOf(alias) == -1) {
                 this.table[coords[0]][coords[1]].yAxis.push(alias);
             }
-            
+
         }
     }
 
@@ -175,10 +174,10 @@ services.factory('tableArray', function () {
         if (axis === 'y') {
             if (!('yAxis' in this.table[coords[0]][coords[1]])) {
                 this.table[coords[0]][coords[1]]['yAxis'] = []
-            } 
+            }
             var i = this.table[coords[0]][coords[1]].yAxis.indexOf(alias)
             this.table[coords[0]][coords[1]].yAxis.splice(i, 1);
-            
+
         } else {
             this.table[coords[0]][coords[1]].xAxis = null;
         }
@@ -198,7 +197,7 @@ services.factory('tableArray', function () {
 
     TableArray.prototype.collapseCol = function (coords, dir) {
         var colspan = this.table[coords[0]][coords[1]].colspan
-        this.table[coords[0]][coords[1]].colspan = parseInt(colspan) - 1; 
+        this.table[coords[0]][coords[1]].colspan = parseInt(colspan) - 1;
         var cell = {
                 colspan: '1',
                 id: '',
@@ -211,9 +210,9 @@ services.factory('tableArray', function () {
             this.table[coords[0]].splice(coords[1] + 1, 0, cell)
         } else {
             cell.col = coords[1]
-            this.table[coords[0]].splice(coords[1], 0, cell) 
+            this.table[coords[0]].splice(coords[1], 0, cell)
         }
-    }   
+    }
 
     TableArray.prototype.mergeCol = function(coords) {
         var cds = coords[0]

@@ -19,7 +19,6 @@ directives.directive('sylvaUpdateText', ['breadService', function (breadService)
 }]);
 
 
-
 directives.directive('sylvaColpick', function () {
     return {
         restrict: 'A',
@@ -119,8 +118,7 @@ directives.directive('sylvaPvRowRepeat', ['tableArray', function (tableArray) {
             scope.$watch('resp', function (newVal, oldVal) {
                 if (newVal == oldVal) return;
                 scope.queries = scope.resp.queries;
-                scope.tableArray = tableArray(scope.resp.table);
-
+                scope.tableArray = tableArray(scope.resp.table.layout);
                 var numScopes = childScopes.length;
                 if (numScopes > 0) {
                     for (var i=0; i<numScopes; i++) {
@@ -318,7 +316,7 @@ directives.directive('syEditableTable',[
 
             this.getTableArray = function() {
                 return $scope.tableArray;
-            }
+            };
 
             this.getQueries = function() {
                 return $scope.queries;
@@ -334,7 +332,7 @@ directives.directive('syEditableTable',[
 
             this.editable = function () {
                 return $scope.editable;
-            }
+            };
 
             // Helper functions for sorting query result data types
             this.parseResults = function (results) {
@@ -376,7 +374,6 @@ directives.directive('syEditableTable',[
             ,   delCol = ang(buttons.children()[4])
             ,   pagebreak = ang(buttons.children()[5]);
 
-
             scope.buttonText = {
                 done: gettext('Done'),
                 plusrow: gettext('+ row'),
@@ -393,7 +390,7 @@ directives.directive('syEditableTable',[
 
             scope.$watch('resp', function (newVal, oldVal) {
                 if (newVal === oldVal) return;
-                scope.tableArray = tableArray(scope.resp.table);
+                scope.tableArray = tableArray(scope.resp.table.layout);
                 scope.tableWidth = 1100;
 
                 scope.queries = [{name: 'markdown', id: 'markdown', group: 'text'}];
@@ -402,6 +399,24 @@ directives.directive('syEditableTable',[
                     query['group'] = 'queries';
                     scope.queries.push(query);
                 });
+
+                var numBreaks = 0;
+                angular.forEach(scope.resp.table.pagebreaks, function (v, k) {
+                        if (v === true) numBreaks++
+                });
+
+
+                setTimeout(function () {
+                    angular.forEach(scope.resp.table.pagebreaks, function (val, key) {
+                        if (val === true) {
+                            buildBreakrow(parseInt(key) + 1);
+                        }
+                    });
+                    var height = (numBreaks * 50) + (scope.tableArray.numRows * 202);
+                    pages.css("height", height);
+                }, 500)
+
+
             });
 
             editMeta.bind('click', function () {
@@ -475,7 +490,7 @@ directives.directive('syEditableTable',[
 
             scope.removeBreak = function (ndx) {
                 $("#pagebreak" + ndx.toString()).remove()
-                scope.tableArray.pagebreaks[ndx] = false;
+                scope.resp.table.pagebreaks[ndx] = false;
                 var breakrow = $("#row" + ndx.toString())
                 ,   nextrow = $("#row" + (ndx + 1).toString());
                 angular.forEach(nextrow.children(), function (elem) {
@@ -489,7 +504,6 @@ directives.directive('syEditableTable',[
             pagebreak.bind("click", function () {
                 var breakrowNdx = findBreakrowNdx(1, scope.tableArray.numRows)[0]
                 if (breakrowNdx) {
-
                     buildBreakrow(breakrowNdx)
                 }
 
@@ -506,7 +520,6 @@ directives.directive('syEditableTable',[
                 ,   moveUp = "<a href='' ng-click='moveUp(" + ndx + ")'style='font-size: 200%; z-index:10px; position:absolute; right:45%; margin-top:10px;'>&#8593;</a>"
                 ,   moveDown = "<a href='' ng-click='moveDown(" + ndx + ")' style='font-size: 200%; z-index:10px; position:absolute; right:55%; margin-top:10px;'>&#8595;</a>"
                 ,   del = "<a href='' ng-click='removeBreak(" + ndx + ")' style='font-size: 200%; z-index:10px; position:absolute; right:50%; margin-top:10px;'>X</a>";
-
                 var controlsOn;
                 pagebreakHtml.on("click", function () {
                     if (controlsOn) {
@@ -533,14 +546,14 @@ directives.directive('syEditableTable',[
                     ang(elem).addClass("top")
                 })
                 breakrow.after(pagebreakHtml);
-                scope.tableArray.pagebreaks[ndx] = true;
+                scope.resp.table.pagebreaks[ndx] = true;
             }
 
             var removeBreaks = function () {
-                angular.forEach(scope.tableArray.pagebreaks, function (v, k) {
+                angular.forEach(scope.resp.table.pagebreaks, function (v, k) {
                     if (v === true && parseInt(k) + 1 == scope.tableArray.numRows) {
                         $("#pagebreak" + k.toString()).remove();
-                        scope.tableArray.pagebreaks[k] = false;
+                        scope.resp.table.pagebreaks[k] = false;
                         var height = parseInt(pages.css("height"));
                         var newHeight = (height - 50).toString() + "px";
                         pages.css("height", newHeight)
@@ -552,7 +565,7 @@ directives.directive('syEditableTable',[
             var findBreakrowNdx = function (start, stop) {
                 var arr = [];
                 for (var i=start; i<stop; i++) {
-                    if (!(scope.tableArray.pagebreaks[i - 1])) {
+                    if (!(scope.resp.table.pagebreaks[i - 1])) {
                         arr.push(i)
                     }
                 }
@@ -595,8 +608,7 @@ directives.directive('syEtRowRepeat', [function () {
                         childScope.row = tableArray.table[i];
                         childScope.rownum = i;
                         transclude(childScope, function (clone) {
-                            if (i === 0) clone.addClass('top')
-
+                            //if (i === 0) clone.addClass('top')
                             clone.attr('id', rowId);
                             clone.addClass('trow');
                             previous.after(clone);
@@ -816,8 +828,8 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', 'ST
 '</div>',
         link: function(scope, elem, attrs, ctrl) {
             var ang = angular.element
-            ,   mdDiv = ang(elem.children()[3])
-            ,   md = ang(ang(ang(mdDiv[0])[0]).children()[0])
+            ,   mdDiv = ang(elem.children()[2])
+            ,   md = ang(ang(ang(ang(mdDiv[0])[0])[0]).children()[0])
             ,   stepChild = ang(ang(ang(elem.children()[1]).children()[0])[0]).children()
             ,   chartCol = ang(stepChild[0])
             ,   cellCol = ang(stepChild[1])
@@ -835,7 +847,6 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', 'ST
                     rightIn: '<a class="arrow right-in" title="collapse right" ng-href="" ng-click="collapse(0)">&#8594</a>',
                     leftIn: '<a class="arrow left-in" title="collapse left" ng-href="" ng-click="collapse(1)">&#8592</a>'
             };
-
             scope.static_prefix = STATIC_PREFIX;
 
             // Translation
