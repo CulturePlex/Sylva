@@ -26,4 +26,8 @@ urlpatterns = patterns(
     # Get the list of nodes or relationships of a specific dump
     url(r'^(?P<graph_slug>[\w-]+)/dump/$',
         'analytics_dump', name="analytics_dump"),
+
+    # Stop the task execution
+    url(r'^(?P<graph_slug>[\w-]+)/stop/$',
+        'analytics_stop', name="analytics_stop"),
 )

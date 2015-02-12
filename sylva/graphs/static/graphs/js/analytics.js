@@ -308,12 +308,17 @@ var initAnalytics = function($) {
       // If we have finished analytics, we show them
       for(key in analyticsResults) {
         if(analyticsResults.hasOwnProperty(key)) {
-          resultsUrl = analyticsResults[key][0];
-          analyticId = analyticsResults[key][1];
-          analyticTaskStart = analyticsResults[key][2];
-          algorithm = analyticsResults[key][3];
-          valuesUrl = analyticsResults[key][4];
-          getResults(resultsUrl, algorithm, analyticId, analyticTaskStart, valuesUrl);
+          // We get the status: OK or REVOKED
+          analyticStatus = analyticsResults[key][0]
+          if(analyticStatus == 'OK') {
+            resultsUrl = analyticsResults[key][1];
+            analyticId = analyticsResults[key][2];
+            analyticTaskStart = analyticsResults[key][3];
+            algorithm = analyticsResults[key][4];
+            valuesUrl = analyticsResults[key][5];
+            getResults(resultsUrl, algorithm, analyticId, analyticTaskStart, valuesUrl);
+          }
+
           $(progressBarId).attr('value', 100);
           // We remove the element of the list of analytics executing
           var index = analyticsExecuting.indexOf(key);
@@ -345,6 +350,7 @@ var initAnalytics = function($) {
     var plotId = $this.data('plot');
     var etaId = $this.data('eta');
     var progressBarId = "#progress-bar-" + measure;
+    var stopAnalyticId = "#stop-analytic-" + measure;
 
     // We check if we have to apply the algorithm over a subgraph
     var inputSelected = $this.next().children()[0];
@@ -381,13 +387,31 @@ var initAnalytics = function($) {
       }).done(function(data) {
         var taskId = data[0];
         var algorithm = data[1];
+        $(stopAnalyticId).attr('data-taskid', taskId);
+
         analyticsExecuting.push(taskId);
         getTaskState(analyticsExecuting, progressBarId);
+
         $(progressBarId).css({
           'display': 'inline-block'
         });
       });
     });
+  });
+
+  $('.stop-analytic').on('click', function() {
+    $this = $(this);
+    var analyticTaskId = $this.attr('data-taskid');
+
+    if(analyticTaskId != '') {
+      $.ajax({
+        type: "POST",
+        url: sylva.urls.analyticsStop,
+        data: {"task_id": analyticTaskId}
+      }).done(function(taskId){
+        console.log('Analytic with id: ' + taskId + ' stopped!');
+      });
+    }
   });
 
   $('.analytics-measure').accordion({
