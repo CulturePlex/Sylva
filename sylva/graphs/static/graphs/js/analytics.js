@@ -27,7 +27,16 @@ var analyticsPieSubtitle = {
 // Variable to store the analytics that actually are executing
 var analyticsExecuting = new Array();
 
-var analyticsId = {};
+// Varieble to store the ids to render the charts
+var analyticsId = {
+  "connected_components": "connected_components-results",
+  "triangle_counting": "triangle_counting-results",
+  "graph_coloring": "graph_coloring-results",
+  "betweenness_centrality": "betweenness_centrality-results",
+  "pagerank": "pagerank-results",
+  "kcore": "kcore-results"
+};
+
 var taskTime = 0;
 
 var initAnalytics = function($) {
@@ -256,39 +265,60 @@ var initAnalytics = function($) {
           }
         }
 
-        // Create the chart
         optionsScatter = getHighchartsOptions(chartType, algorithm, parentArray);
-        var chart = new Highcharts.Chart(optionsScatter);
 
-        // We hide the estimated time and the progress bar
-        etaId = '#' + algorithm +"-eta";
-        progressBarId = '#progress-bar-' + algorithm;
-        $(etaId).html("");
-        $(progressBarId).css({
-          "display": "none"
-        });
-        $(progressBarId).attr('value', 0);
+        // Here, we need to catch the exception if the analytic is running
+        // right now or it was running before. In that case, we save the
+        // attributes in localStorage to load them when we enter in
+        // fullscreen mode
+        // Create the chart
+        try {
+          // This is the regular case
+          var chart = new Highcharts.Chart(optionsScatter);
 
-        if(analyticId != "") {
-          selectAnalyticsId = '#last-analytics-' + algorithm;
-          $(selectAnalyticsId).prepend("<option value=" + analyticId + " selected>" + gettext(moment.duration(-1, "seconds").humanize(true)) + "</option>");
-          $(selectAnalyticsId).css({
-            'display': 'inline-block'
+          // We hide the estimated time and the progress bar
+          etaId = '#' + algorithm +"-eta";
+          progressBarId = '#progress-bar-' + algorithm;
+          $(etaId).html("");
+          $(progressBarId).css({
+            "display": "none"
           });
-        }
+          $(progressBarId).attr('value', 0);
 
-        // We get the values data
-        $.ajax({
-          type: "GET",
-          dataType: 'json',
-          url: valuesUrl,
-          success: function(data) {
-            sylva.analyticAffectedNodes = data;
-          },
-          error: function(e) {
-            alert("Error: " + e);
+          if(analyticId != "") {
+            selectAnalyticsId = '#last-analytics-' + algorithm;
+            $(selectAnalyticsId).prepend("<option value=" + analyticId + " selected>" + gettext(moment.duration(-1, "seconds").humanize(true)) + "</option>");
+            $(selectAnalyticsId).css({
+              'display': 'inline-block'
+            });
           }
-        });
+
+          // We get the values data
+          $.ajax({
+            type: "GET",
+            dataType: 'json',
+            url: valuesUrl,
+            success: function(data) {
+              sylva.analyticAffectedNodes = data;
+            },
+            error: function(e) {
+              alert("Error: " + e);
+            }
+          });
+
+          // We remove the value in localStorage
+          localStorage.removeItem('analyticsExecuting');
+          localStorage.removeItem('progressBarId');
+        } catch(e) {
+          // This is the case that we have 'past' analytics.
+          // We store the parameters for each analytic that we had.
+          var resultsParameters = new Array(resultsUrl, algorithm, analyticId, analyticTaskStart, valuesUrl);
+          analyticsResults = localStorage.getItem('analyticsResults');
+          analyticsResults = JSON.parse(analyticsResults);
+          analyticsResults.push(resultsParameters);
+          analyticsResults = JSON.stringify(analyticsResults);
+          localStorage.setItem('analyticsResults', analyticsResults);
+        }
       },
       error: function (e) {
         alert("Error: " + e);
@@ -298,6 +328,10 @@ var initAnalytics = function($) {
 
   // pole state of the current task
   var getTaskState = function(analyticsExecuting, progressBarId) {
+    // We store the analyticsExecuting and the progressBarId in case that
+    // we navigate to another view or refresh the page
+    localStorage.setItem("analyticsExecuting", analyticsExecuting);
+    localStorage.setItem("progressBarId", progressBarId);
     progressBarMax = $(progressBarId).attr('max');
     analyticsRequest = JSON.stringify(analyticsExecuting);
     $.ajax({
@@ -339,6 +373,10 @@ var initAnalytics = function($) {
           $(progressBarId).attr('value', taskTime);
         }
       }
+      // We check if we have finalized with the tasks to clean the localStorage
+      // localStorage.removeItem("analyticsExecuting");
+      // localStorage.removeItem("progressBarId");
+
       // create the infinite loop of Ajax calls to check the state
       // of the current task
     });
@@ -361,7 +399,7 @@ var initAnalytics = function($) {
       var subgraph = JSON.stringify(sylva.selectedNodes);
     }
 
-    analyticsId[measure] = plotId;
+    //analyticsId[measure] = plotId;
     $('#' + etaId).html(gettext("Estimating time"));
 
     jQuery.ajax({
@@ -543,5 +581,56 @@ var initAnalytics = function($) {
     $('.div-selected-nodes').css(
       {'display':'none'}
     );
+  });
+
+  // When the document is loaded, we check if we have some analytic running
+  $(document).ready(function() {
+    // We create the array where we store the attributes to draw the analytic
+    // results
+    var arrayResults = new Array();
+    localStorage.setItem('analyticsResults', JSON.stringify(arrayResults));
+
+    analyticsExecutingStored = localStorage.getItem('analyticsExecuting');
+    progressBarIdStored = localStorage.getItem('progressBarId');
+
+    console.log("it worked!");
+    if(analyticsExecutingStored != null && progressBarIdStored != null) {
+      console.log("Inside, we have analytics running!");
+      // We need to split the string stored
+      analyticsExecutingSplitted = analyticsExecutingStored.split(',');
+      getTaskState(analyticsExecutingSplitted, progressBarIdStored);
+    }
+  });
+
+  // We check if we have entered into the analytics to load the charts
+  // of the analytics that we had running
+  $('#sigma-go-analytics').on('click', function() {
+    pastAnalyticsResults = localStorage.getItem('analyticsResults');
+    pastAnalyticsResults = JSON.parse(pastAnalyticsResults);
+    index = 0;
+    total_length = pastAnalyticsResults.length;
+    while(index < total_length) {
+      pastAnalytic = pastAnalyticsResults[index];
+      resultsUrl = pastAnalytic[0];
+      algorithm = pastAnalytic[1];
+      analyticId = pastAnalytic[2];
+      analyticTaskStart = pastAnalytic[3];
+      valuesUrl = pastAnalytic[4];
+
+      // We activate the collapsible menu of the algorithm
+      $('#' + algorithm).accordion({
+        collapsible:true,
+        active:0,
+        activate: function(event, ui) {
+          // We need wait until the accordion is expanded
+          getResults(resultsUrl, algorithm, analyticId, analyticTaskStart, valuesUrl);
+        }
+      });
+
+      index++;
+    }
+
+    // We remove all the elements of localStorage
+    localStorage.clear();
   });
 };
