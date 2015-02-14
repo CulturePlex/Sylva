@@ -159,9 +159,9 @@ controllers.controller('NewReportCtrl', [
 
         api.templates.blank({}, function (data) {
             data.layout = layout;
-            $scope.template.layout = {layout: layout, pagebreaks: {}};
-            $scope.resp = {table: {layout: layout, pagebreaks: {}}, queries: data.queries}
-            $scope.prev = {table: {layout: exampleTable, pagebreaks: {}}, queries: data.queries}
+            $scope.resp = {table: {layout: layout, pagebreaks: {0: false, 1: false}}, queries: data.queries}
+            $scope.prev = {table: {layout: exampleTable, pagebreaks: {0: false, 1: false}}, queries: data.queries}
+            $scope.template.layout = $scope.resp.table
         });
 }]);
 
@@ -228,7 +228,6 @@ controllers.controller('ReportHistoryCtrl', [
                 template: $scope.slugs.template,
                 page: pageNum
             }, function (data) {
-                console.log('data', data)
                 for (var i=0; i<data.reports.length; i++) {
                     var history = data.reports[i].reports
                     ,   mostRecent = history[0]

@@ -106,6 +106,10 @@ directives.directive('sylvaPvRowRepeat', ['tableArray', function (tableArray) {
             this.getTableArray = function() {
                 return $scope.tableArray;
             }
+
+            this.getRowHeight = function () {
+                return $scope.rowHeight;
+            }
         },
         link: function (scope, elem, attrs, ctrl, transclude) {
 
@@ -114,11 +118,32 @@ directives.directive('sylvaPvRowRepeat', ['tableArray', function (tableArray) {
 
             scope.tableWidth = parseInt(attrs.width)
             //scope.tableWidth = parseInt(angular.element(elem.parents()[0]).css('width'));
+            var rowHeight = function (pagebreaks) {
+                var heights = {}
+                ,   rows = [];
+                angular.forEach(pagebreaks, function (v, k) {
+                    rows.push(k)
+                    console.log("k numrows", k, scope.tableArray.numRows - 1)
+                    if (v === true || parseInt(k) === scope.tableArray.numRows - 1) {
+                        var numRows = rows.length;
+                        for (var i=0; i<numRows; i++) {
+                            var row = rows[i]
+                            ,   height = 919.0 / numRows;
+                            heights[row] = height;
+                        }
+                        rows = [];
+                    }
+                });
+                return heights;
+            }
 
             scope.$watch('resp', function (newVal, oldVal) {
                 if (newVal == oldVal) return;
-                scope.queries = scope.resp.queries;
+                console.log("pagebreaks", scope.resp.table.pagebreaks)
                 scope.tableArray = tableArray(scope.resp.table.layout);
+                scope.queries = scope.resp.queries;
+                scope.rowHeight = rowHeight(scope.resp.table.pagebreaks)
+                console.log("heights", scope.rowHeight)
                 var numScopes = childScopes.length;
                 if (numScopes > 0) {
                     for (var i=0; i<numScopes; i++) {
@@ -176,6 +201,7 @@ directives.directive('sylvaPvCellRepeat', ['$sanitize', function ($sanitize) {
             ,   numCols = tableArray.numCols
             ,   ang = angular.element;
 
+            scope.rowHeight = ctrl.getRowHeight()
             if (childScopes.length > 0) {
 
                 for (var i=0; i<len; i++) {
@@ -197,7 +223,7 @@ directives.directive('sylvaPvCellRepeat', ['$sanitize', function ($sanitize) {
                 ,   demo = cell.demo || false;
                 childScope = scope.$new();
                 childScope.$index = i;
-                childScope.cellStyle = {width: cellWidth};
+                childScope.cellStyle = {width: cellWidth, height: scope.rowHeight[cell.row]};
 
                 // This should be refactored
                 if (cell.displayMarkdown) {
@@ -334,6 +360,10 @@ directives.directive('syEditableTable',[
                 return $scope.editable;
             };
 
+            this.getRowHeight = function () {
+                return $scope.resp.rowHeight
+            }
+
             // Helper functions for sorting query result data types
             this.parseResults = function (results) {
                 var catagorical = []
@@ -414,10 +444,16 @@ directives.directive('syEditableTable',[
                     });
                     var height = (numBreaks * 50) + (scope.tableArray.numRows * 202);
                     pages.css("height", height);
+
                 }, 500)
 
-
+                // scope.resp.rowHeight = rowHeight(scope.resp.table.pagebreaks)
             });
+
+            scope.$watch("resp.table.pagebreaks", function (newVal, oldVal) {
+                if (newVal === oldVal) return;
+                // scope.resp.rowHeight = rowHeight(scope.resp.table.pagebreaks)
+            }, true);
 
             editMeta.bind('click', function () {
                 scope.$apply(function () {
@@ -432,6 +468,8 @@ directives.directive('syEditableTable',[
                     var height = parseInt(pages.css("height"));
                     var newHeight = (height + 202).toString() + "px";
                     pages.css("height", newHeight)
+                    scope.resp.table.pagebreaks[scope.tableArray.numRows - 1] = false;
+                    console.log("added", scope.resp.table.pagebreaks)
                 });
             });
 
@@ -451,6 +489,8 @@ directives.directive('syEditableTable',[
                         var height = parseInt(pages.css("height"));
                         var newHeight = (height - 202).toString() + "px";
                         pages.css("height", newHeight)
+                        delete scope.resp.table.pagebreaks[scope.tableArray.numRows]
+                        console.log("delete", scope.resp.table.pagebreaks)
                     });
                 }
             });
@@ -499,6 +539,9 @@ directives.directive('syEditableTable',[
                 var height = parseInt(pages.css("height"));
                 var newHeight = (height - 50).toString() + "px";
                 pages.css("height", newHeight)
+                scope.$apply(function () {
+                    // scope.resp.rowHeight = rowHeight(scope.resp.table.pagebreaks)
+                });
             }
 
             pagebreak.bind("click", function () {
@@ -546,7 +589,11 @@ directives.directive('syEditableTable',[
                     ang(elem).addClass("top")
                 })
                 breakrow.after(pagebreakHtml);
-                scope.resp.table.pagebreaks[ndx] = true;
+
+                //scope.$apply(function () {
+                    scope.resp.table.pagebreaks[ndx] = true;
+                    // scope.resp.rowHeight = rowHeight(scope.resp.table.pagebreaks)
+                //});
             }
 
             var removeBreaks = function () {
@@ -557,6 +604,7 @@ directives.directive('syEditableTable',[
                         var height = parseInt(pages.css("height"));
                         var newHeight = (height - 50).toString() + "px";
                         pages.css("height", newHeight)
+                        // scope.resp.rowHeight = rowHeight(scope.resp.table.pagebreaks)
                         return;
                     }
                 });
@@ -1032,6 +1080,8 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', 'ST
                 // Turns off preview mode with Matrix Graph
                 ctrl.editing()
                 scope.tableArray.table[scope.row][scope.col].ySeries = [];
+                scope.tableArray.table[scope.row][scope.col].xAxis = "";
+                scope.tableArray.table[scope.row][scope.col].yAxis = [];
                 var name;
                 // Set to no query by user.
                 if (newVal != null) {

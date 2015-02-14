@@ -134,6 +134,10 @@ th.report {
   width: 1100px;
 }
 
+.prev-pages {
+  border: 1px solid black;
+}
+
 .pages {
   height: 402px;
   border: 1px solid black;
