@@ -593,9 +593,7 @@ var initAnalytics = function($) {
     analyticsExecutingStored = localStorage.getItem('analyticsExecuting');
     progressBarIdStored = localStorage.getItem('progressBarId');
 
-    console.log("it worked!");
     if(analyticsExecutingStored != null && progressBarIdStored != null) {
-      console.log("Inside, we have analytics running!");
       // We need to split the string stored
       analyticsExecutingSplitted = analyticsExecutingStored.split(',');
       getTaskState(analyticsExecutingSplitted, progressBarIdStored);

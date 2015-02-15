@@ -56,6 +56,15 @@
 </ol>-->
 
 {% if node_types %}
+{% if as_modal %}
+    {% if query %}
+        {% breadcrumb queries_link query.name %}
+    {% else %}
+        {% trans "New" as label %}
+        {% breadcrumb queries_link label %}
+    {% endif %}
+    <div id="save-url" data-url="{{ add_url }}" style="display: none;"></div>
+{% endif %}
 <div id="query-new-wrapper" style="display: inline-block;">
     <div id="div-save-query" style="float: left; display: none;">
         <h2>{% trans "Query" %}</h2>
@@ -88,14 +97,6 @@
     </div>
     <div class="content-divider" style="display: none;"></div>
     <div class="content2-second diagram" style="padding-left: 0px; float: none; width: 1140px;">
-        {% if as_modal %}
-            {% if query %}
-                {% breadcrumb queries_link query.name %}
-            {% else %}
-                {% trans "New" as label %}
-                {% breadcrumb queries_link label %}
-            {% endif %}
-        {% endif %}
         <h2 id="diagramTitle">{% trans "Diagram" %}</h2>
         <div id="diagramContainer">
            <nav id="select-node" class="menu">

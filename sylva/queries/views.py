@@ -191,6 +191,7 @@ def queries_new(request, graph_slug):
 
     if request.POST:
         data = request.POST.copy()
+        as_modal = bool(data.get("asModal", False))
         form = SaveQueryForm(data=data)
         if form.is_valid():
             with transaction.atomic():
@@ -205,7 +206,13 @@ def queries_new(request, graph_slug):
                     query.results_count = 0
                 query.save()
                 graph.save()
-                return redirect(redirect_url)
+                if as_modal:
+                    response = {'type': 'data',
+                                'action': 'queries_list'}
+                    return HttpResponse(json.dumps(response), status=200,
+                                        content_type='application/json')
+                else:
+                    return redirect(redirect_url)
     else:
         if as_modal:
             base_template = 'empty.html'
@@ -560,6 +567,7 @@ def queries_query_edit(request, graph_slug, query_id):
     # We check if we are going to edit the query
     if request.POST:
         data = request.POST.copy()
+        as_modal = bool(data.get("asModal", False))
         form = SaveQueryForm(data=data, instance=query)
         if form.is_valid():
             with transaction.atomic():
@@ -572,7 +580,13 @@ def queries_query_edit(request, graph_slug, query_id):
                 else:
                     query.results_count = 0
                 query.save()
-                return redirect(redirect_url)
+                if as_modal:
+                    response = {'type': 'data',
+                                'action': 'queries_list'}
+                    return HttpResponse(json.dumps(response), status=200,
+                                        content_type='application/json')
+                else:
+                    return redirect(redirect_url)
 
     # We have to get the values of the query to introduce them into the form
     form = SaveQueryForm(instance=query)
@@ -1017,6 +1031,7 @@ def queries_query_delete(request, graph_slug, query_id):
     form = QueryDeleteConfirmForm()
     if request.POST:
         data = request.POST.copy()
+        as_modal = bool(data.get("asModal", False))
         form = QueryDeleteConfirmForm(data=data)
         if form.is_valid():
             confirm = bool(int(form.cleaned_data["confirm"]))
@@ -1024,7 +1039,13 @@ def queries_query_delete(request, graph_slug, query_id):
                 # here we remove the associated reports
                 query.report_templates.all().delete()
                 query.delete()
-            return redirect(redirect_url)
+            if as_modal:
+                response = {'type': 'data',
+                            'action': 'queries_list'}
+                return HttpResponse(json.dumps(response), status=200,
+                                    content_type='application/json')
+            else:
+                return redirect(redirect_url)
 
     if as_modal:
         base_template = 'empty.html'
@@ -1032,14 +1053,14 @@ def queries_query_delete(request, graph_slug, query_id):
     else:
         base_template = 'base.html'
         render = render_to_response
-    add_url = reverse("queries_query_delete", args=[graph_slug, query_id])
+    delete_url = reverse("queries_query_delete", args=[graph_slug, query_id])
     broader_context = {"graph": graph,
                        "form": form,
                        "queries_link": queries_link,
                        "query_name": query.name,
                        "base_template": base_template,
                        "as_modal": as_modal,
-                       "add_url": add_url}
+                       "delete_url": delete_url}
     response = render('queries/queries_query_delete.html', broader_context,
                       context_instance=RequestContext(request))
     if as_modal:

@@ -21,11 +21,16 @@
 
 {% block content %}
 
+{% if as_modal %}
+    {% trans "Delete" as label %}
+    {% breadcrumb queries_link query_name label %}
+    <div id="delete-url" data-url="{{ delete_url }}" style="display: none;"></div>
+{% endif %}
 <form method="post" action="." id="queryDelete" name="query_delete">
     {% csrf_token %}
     {{ form.as_p }}
     <br/>
-    <input type="submit" value="{% trans "Delete" %}" />
+    <input id='submit-delete-query' type="submit" value="{% trans "Delete" %}" />
     <span class="buttonLinkOption">
     {% if as_modal %}
         {% trans "or" %} <a id="modal-cancel" href="javascript:void()">{% trans "Cancel" %}</a>

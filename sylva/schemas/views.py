@@ -76,29 +76,44 @@ def schema_nodetype_delete(request, graph_slug, nodetype_id):
         form = TypeDeleteConfirmForm()
         if request.POST:
             data = request.POST.copy()
+            as_modal = bool(data.get("asModal", False))
             form = TypeDeleteConfirmForm(data=data)
             if form.is_valid():
                 confirm = bool(int(form.cleaned_data["confirm"]))
                 if confirm:
                     nodetype.delete()
-                    return redirect(redirect_url)
+                    if as_modal:
+                        response = {'type': 'data',
+                                    'action': 'schema_main'}
+                        return HttpResponse(json.dumps(response), status=200,
+                                            content_type='application/json')
+                    else:
+                        return redirect(redirect_url)
     else:
         form = TypeDeleteForm(count=count)
         if request.POST:
             data = request.POST.copy()
+            as_modal = bool(data.get("asModal", False))
             form = TypeDeleteForm(data=data, count=count)
             if form.is_valid():
                 option = form.cleaned_data["option"]
                 if option == ON_DELETE_CASCADE:
                     graph.nodes.delete(label=nodetype.id)
                 nodetype.delete()
-                return redirect(redirect_url)
+                if as_modal:
+                    response = {'type': 'data',
+                                'action': 'schema_main'}
+                    return HttpResponse(json.dumps(response), status=200,
+                                        content_type='application/json')
+                else:
+                    return redirect(redirect_url)
     if as_modal:
         base_template = 'empty.html'
         render = render_to_string
     else:
         base_template = 'base.html'
         render = render_to_response
+    add_url = reverse("schema_nodetype_delete", args=[graph_slug, nodetype_id])
     broader_context = {"graph": graph,
                        "item_type_label": _("Type"),
                        "item_type": "node",
@@ -109,6 +124,7 @@ def schema_nodetype_delete(request, graph_slug, nodetype_id):
                        "form": form,
                        "type_id": nodetype_id,
                        "base_template": base_template,
+                       "add_url": add_url,
                        "as_modal": as_modal}
     response = render('schemas_item_delete.html', broader_context,
                       context_instance=RequestContext(request))
@@ -140,8 +156,11 @@ def schema_nodetype_editcreate(request, graph_slug, nodetype_id=None):
     as_modal = bool(request.GET.get("asModal", False))
     if nodetype_id:
         empty_nodetype = get_object_or_404(NodeType, id=nodetype_id)
+        add_url = reverse("schema_nodetype_edit", args=[graph_slug,
+                                                        nodetype_id])
     else:
         empty_nodetype = NodeType()
+        add_url = reverse("schema_nodetype_create", args=[graph_slug])
     form = NodeTypeForm(instance=empty_nodetype)
     formset = NodePropertyFormSet(instance=empty_nodetype)
     changed_props = request.session.get('schema_changed_props', None)
@@ -152,6 +171,7 @@ def schema_nodetype_editcreate(request, graph_slug, nodetype_id=None):
         del request.session['schema_deleted_props']
     if request.POST:
         data = request.POST.copy()
+        as_modal = bool(data.get("asModal", False))
         form = NodeTypeForm(data=data, instance=empty_nodetype)
         formset = NodePropertyFormSet(data=data, instance=empty_nodetype)
         if form.is_valid() and formset.is_valid():
@@ -189,9 +209,17 @@ def schema_nodetype_editcreate(request, graph_slug, nodetype_id=None):
                     messages.success(request, _("Your changes were saved"))
                     redirect_url = reverse("schema_nodetype_properties_mend",
                                            args=[graph.slug, node_type.id])
+                    action = "schema_nodetype_editcreate"
                 else:
                     redirect_url = reverse("schema_edit", args=[graph.slug])
-            return redirect(redirect_url)
+                    action = "schema_main"
+            if as_modal:
+                response = {'type': 'data',
+                            'action': action}
+                return HttpResponse(json.dumps(response), status=200,
+                                    content_type='application/json')
+            else:
+                return redirect(redirect_url)
     if as_modal:
         base_template = 'empty.html'
         render = render_to_string
@@ -212,6 +240,7 @@ def schema_nodetype_editcreate(request, graph_slug, nodetype_id=None):
                        "item_type_object": empty_nodetype,
                        "formset": formset,
                        "base_template": base_template,
+                       "add_url": add_url,
                        "as_modal": as_modal}
     response = render('schemas_item_edit.html', broader_context,
                       context_instance=RequestContext(request))
@@ -253,8 +282,11 @@ def schema_relationshiptype_editcreate(request, graph_slug,
     if relationshiptype_id:
         empty_relationshiptype = get_object_or_404(RelationshipType,
                                                    id=relationshiptype_id)
+        add_url = reverse("schema_relationshiptype_edit",
+                          args=[graph_slug, relationshiptype_id])
     else:
         empty_relationshiptype = RelationshipType()
+        add_url = reverse("schema_relationshiptype_create", args=[graph_slug])
     initial = {"arity_source": None, "arity_target": None}
     for field_name in ["source", "name", "target", "inverse"]:
         if field_name in request.GET:
@@ -270,6 +302,7 @@ def schema_relationshiptype_editcreate(request, graph_slug,
         del request.session['schema_deleted_props']
     if request.POST:
         data = request.POST.copy()
+        as_modal = bool(data.get("asModal", False))
         form = RelationshipTypeForm(data=data, schema=graph.schema,
                                     instance=empty_relationshiptype)
         formset = RelationshipTypeFormSet(data=data,
@@ -310,9 +343,17 @@ def schema_relationshiptype_editcreate(request, graph_slug,
                     redirect_url = \
                         reverse("schema_relationshiptype_properties_mend",
                                 args=[graph.slug, relationshiptype.id])
+                    action = "schema_relationship_editcreate"
                 else:
                     redirect_url = reverse("schema_edit", args=[graph.slug])
-            return redirect(redirect_url)
+                    action = "schema_main"
+            if as_modal:
+                response = {'type': 'data',
+                            'action': action}
+                return HttpResponse(json.dumps(response), status=200,
+                                    content_type='application/json')
+            else:
+                return redirect(redirect_url)
     if as_modal:
         base_template = 'empty.html'
         render = render_to_string
@@ -332,6 +373,7 @@ def schema_relationshiptype_editcreate(request, graph_slug,
                                           "inheritance"],
                        "formset": formset,
                        "base_template": base_template,
+                       "add_url": add_url,
                        "as_modal": as_modal}
     response = render('schemas_item_edit.html', broader_context,
                       context_instance=RequestContext(request))
@@ -360,29 +402,45 @@ def schema_relationshiptype_delete(request, graph_slug,
         form = TypeDeleteConfirmForm()
         if request.POST:
             data = request.POST.copy()
+            as_modal = bool(data.get("asModal", False))
             form = TypeDeleteConfirmForm(data=data)
             if form.is_valid():
                 confirm = bool(int(form.cleaned_data["confirm"]))
                 if confirm:
                     relationshiptype.delete()
-                    return redirect(redirect_url)
+                    if as_modal:
+                        response = {'type': 'data',
+                                    'action': 'schema_main'}
+                        return HttpResponse(json.dumps(response), status=200,
+                                            content_type='application/json')
+                    else:
+                        return redirect(redirect_url)
     else:
         form = TypeDeleteForm(count=count)
         if request.POST:
             data = request.POST.copy()
+            as_modal = bool(data.get("asModal", False))
             form = TypeDeleteForm(data=data, count=count)
             if form.is_valid():
                 option = form.cleaned_data["option"]
                 if option == ON_DELETE_CASCADE:
                     graph.relationships.delete(label=relationshiptype.id)
                 relationshiptype.delete()
-                return redirect(redirect_url)
+                if as_modal:
+                    response = {'type': 'data',
+                                'action': 'schema_main'}
+                    return HttpResponse(json.dumps(response), status=200,
+                                        content_type='application/json')
+                else:
+                    return redirect(redirect_url)
     if as_modal:
         base_template = 'empty.html'
         render = render_to_string
     else:
         base_template = 'base.html'
         render = render_to_response
+    add_url = reverse("schema_relationshiptype_delete",
+                      args=[graph_slug, relationshiptype_id])
     broader_context = {"graph": graph,
                        "item_type_label": _("Allowed Relationship"),
                        "item_type": "relationship",
@@ -393,6 +451,7 @@ def schema_relationshiptype_delete(request, graph_slug,
                        "form": form,
                        "type_id": relationshiptype_id,
                        "base_template": base_template,
+                       "add_url": add_url,
                        "as_modal": as_modal}
     response = render('schemas_item_delete.html', broader_context,
                       context_instance=RequestContext(request))

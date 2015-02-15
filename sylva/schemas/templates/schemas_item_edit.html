@@ -24,6 +24,7 @@
 {% if as_modal %}
     {% trans "New" as label %}
     {% breadcrumb graph.schema item_type_label %}
+    <div id="save-schema-url" data-url="{{ add_url }}" style="display: none;"></div>
 {% endif %}
 <div id="content2">
 <form action="." method="POST" id="itemType">
@@ -46,7 +47,7 @@
         <div id="modal-content-controls" class="modal-content-controls">
         {% endif %}
         <span class="buttonLinkOption buttonLinkLeft">
-            <input type="submit" value="{% trans "Save Type" %}"/>
+            <input type="submit" id="save-schema-type" value="{% trans "Save Type" %}"/>
         </span>
         <span class="buttonLinkOption buttonLinkRight">
             {% if item_type_id %}

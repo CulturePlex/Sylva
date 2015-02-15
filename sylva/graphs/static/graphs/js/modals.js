@@ -221,7 +221,7 @@
           }, fast);
         }, fast);
       });
-      jqxhr.error(function() {
+      jqxhr.error(function(e) {
         alert(gettext("Oops! Something went wrong with the server."));
         that.closeModalLib();
       });
@@ -650,13 +650,15 @@
         // Event to execute an existing query
         $('a.run').on('click', function() {
           var queriesResultsUrl = $(event.target).parent().attr('href');
-          var params = "&asModal=true";
-          $.modal.close();
-          setTimeout(function() {
-            that.queriesResults.execute(queriesResultsUrl, params);
-          }, fast);
+          var formSelector = '';
+          var extraParams = "&asModal=true";
 
-          return false;
+          var requestInfo = {};
+          requestInfo.url = queriesResultsUrl;
+          requestInfo.formSelector = formSelector;
+          requestInfo.extraParams = extraParams;
+
+          return sylva.modals.saveModalForm(requestInfo);
         });
 
         // Event to delete an existing query
@@ -708,7 +710,7 @@
       onShow: function() {
         $('#simplemodal-container').css({
           width: 1000,
-          left: 100
+          left: 140
         });
 
         $('#modal-cancel').css({
@@ -739,19 +741,45 @@
           $('input[id=query_aliases]').val(queryAliases);
           $('input[id=query_fields]').val(queryFields);
 
+          // Variables to treat the form correctly.
           var executeUrl = $('#execute-url').data('url');
           var formSelector = '#form-run-query';
           var extraParams = '&asModal=true';
 
-          var serializedForm = $(formSelector).serialize();
-          serializedForm += extraParams;
+          var requestInfo = {};
+          requestInfo.url = executeUrl;
+          requestInfo.formSelector = formSelector;
+          requestInfo.extraParams = extraParams;
 
-          $.modal.close();
-          setTimeout(function() {
-            that.queriesResults.execute(executeUrl, serializedForm);
-          }, fast);
+          return sylva.modals.saveModalForm(requestInfo);
+        });
 
-          return false;
+        $('#save-query').on('click', function() {
+          // We set the values for the respective dictionaries
+          var queryElements = diagram.saveQuery();
+          var query = queryElements['query'];
+          var query_aliases = queryElements['aliases'];
+          var query_fields = queryElements['fields'];
+
+          var queryJson = JSON.stringify(query);
+          var queryAliases = JSON.stringify(query_aliases);
+          var queryFields = JSON.stringify(query_fields);
+
+          $('input[id=id_query_dict]').val(queryJson);
+          $('input[id=id_query_aliases]').val(queryAliases);
+          $('input[id=id_query_fields]').val(queryFields);
+
+          // Binding save action
+          var saveUrl = $('#save-url').attr('data-url');
+          var formSelector = '#form-save-query';
+          var extraParams = '&asModal=true';
+
+          var requestInfo = {};
+          requestInfo.url = saveUrl;
+          requestInfo.formSelector = formSelector;
+          requestInfo.extraParams = extraParams;
+
+          return sylva.modals.saveModalForm(requestInfo);
         });
 
         // Binding cancel action.
@@ -764,6 +792,7 @@
       onShow: function() {
         $('#simplemodal-container').css({
           width: 1170,
+          left: 55
         });
         try {
           diagram.loadQuery(JSON.stringify(query));
@@ -777,37 +806,6 @@
         that.prepareModal(url, showOverlay, this);
       },
 
-      execute: function(requestUrl, params) {
-        $.modal.close();
-        setTimeout(function() {
-          that.customTextModal(loadingTextFunction);
-        }, fast);
-
-        // Performing the request with the created variables.
-        var jqxhr = $.ajax({
-          url: requestUrl,
-          type: 'POST',
-          data: params,
-          dataType: 'json'
-        });
-        jqxhr.success(function(data) {
-          /* Here we need a double 'setTimeout()' because the previous one, also
-           * inside this function maybe isn't finished when the AJAX request
-           * starts.
-           */
-          setTimeout(function() {
-            $.modal.close(); // Closing the loading modal.
-            setTimeout(function() {
-              that.handleFormServerResponse(data);
-            }, fast);
-          }, fast);
-        });
-        jqxhr.error(function(e) {
-          alert(gettext("Oops! Something went wrong with the server."));
-          that.closeModalLib();
-        });
-      },
-
       preProcessHTML: function() {
         // A function for handling the pagination and sorting events.
         var handlePagination = function(event) {
@@ -819,16 +817,16 @@
             var pagAndOrderParams = $(event.target).parent().attr('href');
           }
 
-          params = "&asModal=true";
-
           pagAndOrderUrl = queriesListUrl + pagAndOrderParams;
+          formSelector = '';
+          extraParams = "&asModal=true";
 
-          $.modal.close();
-          setTimeout(function() {
-            that.queriesResults.execute(pagAndOrderUrl, params);
-          }, fast);
+          var requestInfo = {};
+          requestInfo.url = pagAndOrderUrl;
+          requestInfo.formSelector = formSelector;
+          requestInfo.extraParams = extraParams;
 
-          return false;
+          return sylva.modals.saveModalForm(requestInfo);
         };
 
         // The events for the previous function.
@@ -847,7 +845,8 @@
 
       onShow: function() {
         $('#simplemodal-container').css({
-          width: 1000
+          width: 1000,
+          left: 140
         });
       }
     },
@@ -859,6 +858,17 @@
       },
 
       preProcessHTML: function() {
+        // Variables for save the node by saving the form.
+        var deleteURL = $('#delete-url').attr('data-url');
+        var formSelector = '#queryDelete';
+        var extraParams = '&asModal=true';
+
+        // Binding the event to delete a query
+        $('#submit-delete-query').attr('onclick',
+          "return sylva.modals.saveModalForm({url: '" + deleteURL + "'" +
+            ", formSelector: '" + formSelector + "'" +
+            ", extraParams: '" + extraParams + "'" +
+            "})");
         // Binding cancel action.
         $('#modal-cancel').on('click', function() {
           that.closeModalLib();
@@ -936,7 +946,7 @@
       onShow: function() {
         $('#simplemodal-container').css({
           width: 1170,
-          left: 100
+          left: 55.5
         });
 
         $('#diagramContainer').ready(function(){
@@ -954,6 +964,18 @@
       },
 
       preProcessHTML: function() {
+        // Variables for save the node by saving the form.
+        var saveUrl = $('#save-schema-url').attr('data-url');
+        var formSelector = '#itemType';
+        var extraParams = '&asModal=true';
+
+        // Binding the save event
+        $('#save-schema-type').attr('onclick',
+          "return sylva.modals.saveModalForm({url: '" + saveUrl + "'" +
+            ", formSelector: '" + formSelector + "'" +
+            ", extraParams: '" + extraParams + "'" +
+          "})");
+
         // Remove nodetype
         $('span a.delete').on('click', function(){
           var url = $(event.target).attr('href');
@@ -976,7 +998,7 @@
       onShow: function() {
         $('#simplemodal-container').css({
           width: 1170,
-          left: 100
+          left: 55.5
         });
       }
     },
@@ -988,6 +1010,18 @@
       },
 
       preProcessHTML: function() {
+        // Variables for save the node by saving the form.
+        var saveUrl = $('#save-schema-url').attr('data-url');
+        var formSelector = '#itemType';
+        var extraParams = '&asModal=true';
+
+        // Binding the save event
+        $('#save-schema-type').attr('onclick',
+          "return sylva.modals.saveModalForm({url: '" + saveUrl + "'" +
+            ", formSelector: '" + formSelector + "'" +
+            ", extraParams: '" + extraParams + "'" +
+          "})");
+
         // Remove relationship
         $('span a.delete').on('click', function(){
           var url = $(event.target).attr('href');
@@ -1010,7 +1044,7 @@
       onShow: function() {
         $('#simplemodal-container').css({
           width: 1170,
-          left: 100
+          left: 55.5
         });
       }
     },
@@ -1022,6 +1056,18 @@
       },
 
       preProcessHTML: function() {
+        // Variables for save the node by saving the form.
+        var saveUrl = $('#delete-schema-url').attr('data-url');
+        var formSelector = '#itemType';
+        var extraParams = '&asModal=true';
+
+        // Binding the save event
+        $('#delete-schema-type').attr('onclick',
+          "return sylva.modals.saveModalForm({url: '" + saveUrl + "'" +
+            ", formSelector: '" + formSelector + "'" +
+            ", extraParams: '" + extraParams + "'" +
+          "})");
+
         // Binding cancel action.
         $('#modal-cancel').on('click', function() {
           that.closeModalLib();
@@ -1031,8 +1077,8 @@
 
       onShow: function() {
         $('#simplemodal-container').css({
-          width: 1170,
-          left: 100
+          height: 160,
+          top: 240
         });
       }
     },
@@ -1044,6 +1090,18 @@
       },
 
       preProcessHTML: function() {
+        // Variables for save the node by saving the form.
+        var saveUrl = $('#delete-schema-url').attr('data-url');
+        var formSelector = '#itemType';
+        var extraParams = '&asModal=true';
+
+        // Binding the save event
+        $('#delete-schema-type').attr('onclick',
+          "return sylva.modals.saveModalForm({url: '" + saveUrl + "'" +
+            ", formSelector: '" + formSelector + "'" +
+            ", extraParams: '" + extraParams + "'" +
+          "})");
+
         // Binding cancel action.
         $('#modal-cancel').on('click', function() {
           that.closeModalLib();
@@ -1053,8 +1111,8 @@
 
       onShow: function() {
         $('#simplemodal-container').css({
-          width: 1170,
-          left: 100
+          height: 160,
+          top: 240
         });
       }
     }
