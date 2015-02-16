@@ -123,7 +123,6 @@ directives.directive('sylvaPvRowRepeat', ['tableArray', function (tableArray) {
                 ,   rows = [];
                 angular.forEach(pagebreaks, function (v, k) {
                     rows.push(k)
-                    console.log("k numrows", k, scope.tableArray.numRows - 1)
                     if (v === true || parseInt(k) === scope.tableArray.numRows - 1) {
                         var numRows = rows.length;
                         for (var i=0; i<numRows; i++) {
@@ -139,11 +138,9 @@ directives.directive('sylvaPvRowRepeat', ['tableArray', function (tableArray) {
 
             scope.$watch('resp', function (newVal, oldVal) {
                 if (newVal == oldVal) return;
-                console.log("pagebreaks", scope.resp.table.pagebreaks)
                 scope.tableArray = tableArray(scope.resp.table.layout);
                 scope.queries = scope.resp.queries;
                 scope.rowHeight = rowHeight(scope.resp.table.pagebreaks)
-                console.log("heights", scope.rowHeight)
                 var numScopes = childScopes.length;
                 if (numScopes > 0) {
                     for (var i=0; i<numScopes; i++) {
@@ -469,7 +466,6 @@ directives.directive('syEditableTable',[
                     var newHeight = (height + 202).toString() + "px";
                     pages.css("height", newHeight)
                     scope.resp.table.pagebreaks[scope.tableArray.numRows - 1] = false;
-                    console.log("added", scope.resp.table.pagebreaks)
                 });
             });
 
@@ -490,7 +486,6 @@ directives.directive('syEditableTable',[
                         var newHeight = (height - 202).toString() + "px";
                         pages.css("height", newHeight)
                         delete scope.resp.table.pagebreaks[scope.tableArray.numRows]
-                        console.log("delete", scope.resp.table.pagebreaks)
                     });
                 }
             });
@@ -896,8 +891,8 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', 'ST
                     leftIn: '<a class="arrow left-in" title="collapse left" ng-href="" ng-click="collapse(1)">&#8592</a>'
             };
             scope.static_prefix = STATIC_PREFIX;
-
             // Translation
+
             scope.selectText = {
                 content: gettext('Content'),
                 chartType: gettext('Chart Type'),
@@ -989,7 +984,8 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', 'ST
                     scope.chartType = scope.config.chartType;
 
                 }
-                scope.colors = scope.config.colors || {}
+                scope.colors = scope.config.colors;
+                console.log("configcolors", scope.config.colors)
                 scope.activeYs = scope.config.activeYs;
                 scope.tableArray = ctrl.getTableArray();
                 cellWidth = elem.width()
@@ -1053,11 +1049,14 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', 'ST
                         scope.yser = scope.activeYs[0].alias
                     }
 
+
+
                 } else if (scope.config.markdown) {
                     scope.md = true;
                     scope.mdarea = scope.config.markdown;
                     scope.activeQuery = scope.queries[0];
                 }
+
             });
 
             // Markdown - broken
@@ -1082,6 +1081,9 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', 'ST
                 scope.tableArray.table[scope.row][scope.col].ySeries = [];
                 scope.tableArray.table[scope.row][scope.col].xAxis = "";
                 scope.tableArray.table[scope.row][scope.col].yAxis = [];
+
+
+
                 var name;
                 // Set to no query by user.
                 if (newVal != null) {
@@ -1101,6 +1103,18 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', 'ST
 
                         // Sort query results by type.
                         result_dict = ctrl.parseResults(results)
+                        if (scope.colors == undefined) {
+                            scope.colors = {}
+                            console.log("activeYs", scope.ySeries)
+                            var ser = result_dict.cat.concat(result_dict.num);
+                            angular.forEach(ser, function (elem) {
+                                var col = simple_colors[Math.floor(Math.random() * simple_colors.length)]
+
+                                scope.colors[elem.alias] = "#" + col;
+                            });
+                            console.log("scope.colors", scope.colors)
+
+                        }
 
                         if (result_dict.num.length > 1) {
                             scope.xSeries = result_dict.cat.concat(result_dict.num)
@@ -1119,6 +1133,8 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', 'ST
                 } else {
                     name = '';
                 }
+                console.log("colors", scope.colors)
+
                 scope.tableArray.addQuery([scope.row, scope.col], name);
             });
 
