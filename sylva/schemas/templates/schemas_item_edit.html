@@ -112,7 +112,7 @@
                                 {{ form.datatype.help_text }}
                                 </span>
                             </td>
-                            <td {% if not form.instance.default %}class="hidden"{% endif %}>
+                            <td {% if form.instance.datatype == "c"  %}class="choices"{% elif not form.instance.default %}class="hidden"{% endif %}>
                                 {{ form.default.errors }}
                                 {{ form.default.label_tag }}
                                 {{ form.default }}

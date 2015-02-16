@@ -44,6 +44,8 @@ class Query(models.Model):
         self.has_numeric_results = False
         results = self.query_dict['results']
         for result in results:
+            if 'properties' not in result:
+                continue
             properties = result['properties']
             for prop in properties:
                 # We check if the query has number values or aggregates
