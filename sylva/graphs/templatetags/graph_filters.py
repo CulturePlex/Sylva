@@ -8,6 +8,7 @@ register = template.Library()
 
 @register.filter
 def get(value, key, default=None):
+    default = u"" if default is None else default
     return unicode(value.get(key, default))
 
 
@@ -17,6 +18,7 @@ def list_analytics(graph, algorithm):
         algorithm=algorithm,
         dump__graph=graph).order_by('-task_start')[:10]
     return l
+
 
 @register.filter
 def get_iso_format(analytic):
