@@ -6,9 +6,22 @@
     </h3>
     <br />
     <div>
-        <input type="submit" value="Delete" ng-click="deleteReport()">
+        <form>
+        <ul id="id_confirm">
+            <li>
+                <label for="id_confirm_0">
+                    <input id="id_confirm_0" name="confirm" type="radio" ng-model="confirmed.val" value="1" /> Yes
+                </label>
+            </li>
+            <li>
+                <label for="id_confirm_1">
+                    <input id="id_confirm_1" name="confirm" type="radio" ng-model="confirmed.val" value="0" /> No
+                </label>
+            </li>
+        </ul>
+        <input type="submit" value="Delete" ng-click="deleteReport(confirmed)" />
         {% trans "or" %}
         <a href="#">{% trans "Cancel" %}</a>
+        </form>
     </div>
 </div>
-
