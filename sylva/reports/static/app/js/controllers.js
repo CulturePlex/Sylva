@@ -64,6 +64,16 @@ controllers.controller('BaseReportCtrl', [
 
         $scope.editable;
 
+        $scope.advanced;
+
+        $scope.showAdvanced = function () {
+            $scope.advanced = true;
+        }
+
+        $scope.hideAdvanced = function () {
+            $scope.advanced = false;
+        }
+
         $scope.saveReport = function (template) {
             // Used in report form - both edit and new ctrls
             // Gonna have to validate here
