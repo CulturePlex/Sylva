@@ -177,11 +177,16 @@ diagram.CurrentRelations = {};
                 // Navigate to the delete view
                 // We create the delete url with the specific parameters:
                 // graph slug and nodetype id
+                var addModalParam = "";
+                if(asModal)
+                    addModalParam = "?asModal=true";
+
                 var deleteUrl = "/schemas/" +
                                 graphName +
                                 "/types/" +
                                 model.id +
-                                "/delete/";
+                                "/delete/" +
+                                addModalParam;
                 var jqxhr = $.ajax({
                     url: deleteUrl,
                     type: 'GET'
@@ -467,7 +472,11 @@ diagram.CurrentRelations = {};
             }
             jsPlumb.repaintEverything();
         };
-        diagram.loadModels();
+
+        if(!asModal) {
+            diagram.loadModels();
+        }
     };
+
     $(document).ready(init);
 })(jQuery);

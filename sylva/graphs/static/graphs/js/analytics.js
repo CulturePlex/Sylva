@@ -306,18 +306,18 @@ var initAnalytics = function($) {
             }
           });
 
-          // We remove the value in localStorage
+          // We save the algorithms to open the accordions automatically
+          analyticsResults = localStorage.getItem('analyticsResults');
+          analyticsResults = JSON.parse(analyticsResults);
+          analyticsResults.push(algorithm);
+          analyticsResults = JSON.stringify(analyticsResults);
+          localStorage.setItem('analyticsResults', analyticsResults);
+
+          // We remove the values in localStorage
           localStorage.removeItem('analyticsExecuting');
           localStorage.removeItem('progressBarId');
         } catch(e) {
-          // This is the case that we have 'past' analytics.
-          // We store the parameters for each analytic that we had.
-          var resultsParameters = new Array(resultsUrl, algorithm, analyticId, analyticTaskStart, valuesUrl);
-          analyticsResults = localStorage.getItem('analyticsResults');
-          analyticsResults = JSON.parse(analyticsResults);
-          analyticsResults.push(resultsParameters);
-          analyticsResults = JSON.stringify(analyticsResults);
-          localStorage.setItem('analyticsResults', analyticsResults);
+
         }
       },
       error: function (e) {
@@ -600,30 +600,25 @@ var initAnalytics = function($) {
     }
   });
 
-  // We check if we have entered into the analytics to load the charts
+  // We check if we have entered into the analytics view to load the charts
   // of the analytics that we had running
   $('#sigma-go-analytics').on('click', function() {
     pastAnalyticsResults = localStorage.getItem('analyticsResults');
     pastAnalyticsResults = JSON.parse(pastAnalyticsResults);
     index = 0;
     total_length = pastAnalyticsResults.length;
+
     while(index < total_length) {
-      pastAnalytic = pastAnalyticsResults[index];
-      resultsUrl = pastAnalytic[0];
-      algorithm = pastAnalytic[1];
-      analyticId = pastAnalytic[2];
-      analyticTaskStart = pastAnalytic[3];
-      valuesUrl = pastAnalytic[4];
+      algorithm = pastAnalyticsResults[index];
 
       // We activate the collapsible menu of the algorithm
       $('#' + algorithm).accordion({
         collapsible:true,
-        active:0,
-        activate: function(event, ui) {
-          // We need wait until the accordion is expanded
-          getResults(resultsUrl, algorithm, analyticId, analyticTaskStart, valuesUrl);
-        }
+        active:0
       });
+
+      // We change the size
+      $("#" + algorithm + "-results .highcharts-container").width($('#analytics-menu').width());
 
       index++;
     }

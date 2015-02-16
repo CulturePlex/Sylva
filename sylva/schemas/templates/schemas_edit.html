@@ -215,6 +215,15 @@
       </li>
     {% endif %}
   </ol>
+  {% if as_modal %}
+  <script type="text/javascript">
+    var asModal = true;
+  </script>
+  {% else %}
+  <script type="text/javascript">
+    var asModal = false;
+  </script>
+  {% endif %}
 {% endblock content %}
 
 {% block extra_links %}

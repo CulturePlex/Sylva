@@ -177,7 +177,9 @@
         <a class="button" id="create-query" href="{% url "queries_new" graph.slug %}">{% trans "New Query" %}</a>
     {% else %}
         <a class="button" id="create-query" href="{% url "queries_new" graph.slug %}">{% trans "New Query" %}</a>
-        <a class="button" id="modal-cancel">{% trans "Cancel" %}</a>
+        <span class="buttonLinkOption">
+            <a id="modal-cancel">{% trans "Cancel" %}</a>
+        </span>
     {% endif %}
 </div>
 {% if as_modal %}

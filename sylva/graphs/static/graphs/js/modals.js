@@ -949,11 +949,7 @@
           left: 55.5
         });
 
-        $('#diagramContainer').ready(function(){
-          try {
-            // diagram.loadModels();
-          } catch(e) {}
-        });
+        diagram.loadModels();
       }
     },
 
