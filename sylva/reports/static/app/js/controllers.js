@@ -288,13 +288,22 @@ controllers.controller("DeleteReportCtrl", [
             });
         }
 
-        $scope.deleteReport = function () {
-            var post = new api.del();
-            post.template = $scope.slugs.template;
-            post.$save({}, function (data) {
+        $scope.confirmed = {val: 0}
+        $scope.deleteReport = function (confirmed) {
+            console.log("confirmed", confirmed)
+            if (parseInt(confirmed.val) ===  1) {
+                console.log("confirmed")
+                var post = new api.del();
+                post.template = $scope.slugs.template;
+                post.$save({}, function (data) {
+                    var redirect = '/';
+                    $location.path(redirect);
+                });
+            } else {
+                console.log("noconfimr")
                 var redirect = '/';
                 $location.path(redirect);
-            });
+            }
         }
 
         $scope.getTemplate();

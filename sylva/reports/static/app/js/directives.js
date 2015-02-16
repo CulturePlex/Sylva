@@ -117,7 +117,9 @@ directives.directive('sylvaPvRowRepeat', ['tableArray', function (tableArray) {
             ,   parent = elem.parent();
 
             scope.tableWidth = parseInt(attrs.width)
-            //scope.tableWidth = parseInt(angular.element(elem.parents()[0]).css('width'));
+            scope.canvasWidth = parseInt(angular.element(elem.parents()[0]).css('width'));
+            var aspectRatio = 1.295;
+            console.log("tableWidth", scope.tableWidth)
             var rowHeight = function (pagebreaks) {
                 var heights = {}
                 ,   rows = [];
@@ -127,8 +129,10 @@ directives.directive('sylvaPvRowRepeat', ['tableArray', function (tableArray) {
                         var numRows = rows.length;
                         for (var i=0; i<numRows; i++) {
                             var row = rows[i]
-                            ,   height = 919.0 / numRows;
+                            ,   pageHeight = scope.canvasWidth * aspectRatio
+                            ,   height = pageHeight / numRows;
                             heights[row] = height;
+                            console.log("pageHeight", pageHeight, height)
                         }
                         rows = [];
                     }
@@ -1105,15 +1109,12 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', 'ST
                         result_dict = ctrl.parseResults(results)
                         if (scope.colors == undefined) {
                             scope.colors = {}
-                            console.log("activeYs", scope.ySeries)
                             var ser = result_dict.cat.concat(result_dict.num);
                             angular.forEach(ser, function (elem) {
+                                // This should be a service.
                                 var col = simple_colors[Math.floor(Math.random() * simple_colors.length)]
-
-                                scope.colors[elem.alias] = "#" + col;
+                                if(!(elem.alias in scope.colors)) scope.colors[elem.alias] = "#" + col;
                             });
-                            console.log("scope.colors", scope.colors)
-
                         }
 
                         if (result_dict.num.length > 1) {
