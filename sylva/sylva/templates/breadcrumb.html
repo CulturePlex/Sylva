@@ -3,7 +3,7 @@
 <h2>
 {% for link, text in links %}
     {% if link %}
-        <a href="{{ link }}">{{ text }}</a>
+        <a class="breadcrumb" href="{{ link }}">{{ text }}</a>
     {% else %}
         {{ text|truncatewords_html:5 }}
     {% endif %}

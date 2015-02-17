@@ -315,6 +315,52 @@
       }
     },
 
+    // This function handles all the logic about the breadcrumbs
+    treatBreadcrumbs: function(url) {
+      // We have to 'guess' the modal related with the url.
+      // We split the url by "/"
+      var urlSplitted = url.split('/');
+      // Once splitted, we need to check the positions 1 and 3 because they
+      // have the information that we need.
+      // The position 1 is the app (Data, Schema, Queries...)
+      // The position 3 is the view inside the app (List, edit, create...)
+      var app = urlSplitted[1];
+      var appView = urlSplitted[3];
+      // This example is only with queries, so let's check the appView directly
+      var breadcrumbModal = "";
+      // Let's check the app
+      if(app == "queries") {
+        // Inside the app, we need to check the view
+        if(appView != "") {
+          breadcrumbModal = "queriesNew";
+        } else {
+          breadcrumbModal = "queriesList";
+        }
+      } else if(app == "reports") {
+        // Nothing by now
+      } else if(app == "schemas") {
+        if(appView == "types") {
+          // Nodes
+          breadcrumbModal = "schemaNodetypeEditCreate";
+        } else if(appView == "allowed") {
+          // Relationships
+          breadcrumbModal = "schemaRelationshipEditCreate";
+        } else {
+          breadcrumbModal = "schemaMainView";
+        }
+      } else if(app == "data") {
+        // We need to think about it yet.
+      }
+
+      var asModal = "?asModal=true";
+      url = url + asModal;
+
+      $.modal.close();
+      setTimeout(function() {
+        that[breadcrumbModal].start(url, false);
+      }, fast);
+    },
+
     /* ****
      * Upper level 'actions' for use them in the 'mini-framework'.
      *
@@ -673,6 +719,15 @@
           return false;
         });
 
+        // Event to handle the breadcrumbs
+        $('.breadcrumb').on('click', function() {
+          var breadcrumbUrl = $(event.target).attr('href');
+
+          that.treatBreadcrumbs(breadcrumbUrl);
+
+          return false;
+        });
+
         // A function for handling the pagination and sorting events.
         var handlePagination = function(event) {
           var queriesListUrl = $('#queries-url').attr('data-url');
@@ -782,6 +837,15 @@
           return sylva.modals.saveModalForm(requestInfo);
         });
 
+        // Event to handle the breadcrumbs
+        $('.breadcrumb').on('click', function() {
+          var breadcrumbUrl = $(event.target).attr('href');
+
+          that.treatBreadcrumbs(breadcrumbUrl);
+
+          return false;
+        });
+
         // Binding cancel action.
         $('#modal-cancel').on('click', function() {
           that.closeModalLib();
@@ -836,6 +900,15 @@
         $('a.sorting-desc').on('click', handlePagination);
         $('.shorten-text').on('click', handlePagination);
 
+        // Event to handle the breadcrumbs
+        $('.breadcrumb').on('click', function() {
+          var breadcrumbUrl = $(event.target).attr('href');
+
+          that.treatBreadcrumbs(breadcrumbUrl);
+
+          return false;
+        });
+
         // Binding cancel action.
         $('#modal-cancel').on('click', function() {
           that.closeModalLib();
@@ -869,6 +942,16 @@
             ", formSelector: '" + formSelector + "'" +
             ", extraParams: '" + extraParams + "'" +
             "})");
+
+        // Event to handle the breadcrumbs
+        $('.breadcrumb').on('click', function() {
+          var breadcrumbUrl = $(event.target).attr('href');
+
+          that.treatBreadcrumbs(breadcrumbUrl);
+
+          return false;
+        });
+
         // Binding cancel action.
         $('#modal-cancel').on('click', function() {
           that.closeModalLib();
@@ -936,6 +1019,15 @@
           return false;
         });
 
+        // Event to handle the breadcrumbs
+        $('.breadcrumb').on('click', function() {
+          var breadcrumbUrl = $(event.target).attr('href');
+
+          that.treatBreadcrumbs(breadcrumbUrl);
+
+          return false;
+        });
+
         // Binding cancel action.
         $('#modal-cancel').on('click', function() {
           that.closeModalLib();
@@ -950,6 +1042,22 @@
         });
 
         diagram.loadModels();
+
+        // This is for the delete icon of the boxes
+        $('.inlineDelete').on('click', function() {
+          var url = $(event.target).parent().data('deleteurl');
+
+          var asModal = "?asModal=true";
+
+          url = url + asModal;
+
+          $.modal.close();
+          setTimeout(function() {
+            that.schemaNodetypeDelete.start(url, false);
+          }, fast);
+
+          return false;
+        });
       }
     },
 
@@ -980,6 +1088,15 @@
           setTimeout(function() {
             that.schemaNodetypeDelete.start(url, false);
           }, fast);
+
+          return false;
+        });
+
+        // Event to handle the breadcrumbs
+        $('.breadcrumb').on('click', function() {
+          var breadcrumbUrl = $(event.target).attr('href');
+
+          that.treatBreadcrumbs(breadcrumbUrl);
 
           return false;
         });
@@ -1030,6 +1147,15 @@
           return false;
         });
 
+        // Event to handle the breadcrumbs
+        $('.breadcrumb').on('click', function() {
+          var breadcrumbUrl = $(event.target).attr('href');
+
+          that.treatBreadcrumbs(breadcrumbUrl);
+
+          return false;
+        });
+
         // Binding cancel action.
         $('#modal-cancel').on('click', function() {
           that.closeModalLib();
@@ -1064,6 +1190,15 @@
             ", extraParams: '" + extraParams + "'" +
           "})");
 
+        // Event to handle the breadcrumbs
+        $('.breadcrumb').on('click', function() {
+          var breadcrumbUrl = $(event.target).attr('href');
+
+          that.treatBreadcrumbs(breadcrumbUrl);
+
+          return false;
+        });
+
         // Binding cancel action.
         $('#modal-cancel').on('click', function() {
           that.closeModalLib();
@@ -1097,6 +1232,15 @@
             ", formSelector: '" + formSelector + "'" +
             ", extraParams: '" + extraParams + "'" +
           "})");
+
+        // Event to handle the breadcrumbs
+        $('.breadcrumb').on('click', function() {
+          var breadcrumbUrl = $(event.target).attr('href');
+
+          that.treatBreadcrumbs(breadcrumbUrl);
+
+          return false;
+        });
 
         // Binding cancel action.
         $('#modal-cancel').on('click', function() {

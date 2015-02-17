@@ -131,7 +131,6 @@ diagram.CurrentRelations = {};
 
             var iconShowHide = $("<I>");
             iconShowHide.addClass("fa fa-minus-circle");
-            iconShowHide.attr('id', 'icon-showhide');
             iconShowHide.css({
                 "color": "white",
                 "float": "right",
@@ -160,44 +159,24 @@ diagram.CurrentRelations = {};
             var anchorDelete = $("<A>");
             anchorDelete.attr("href", "javascript:void(0);");
             anchorDelete.attr("id", "inlineDeleteLink_"+ modelName);
-            anchorDelete.addClass("inline-deleteLink");
+            anchorDelete.addClass("inlineDelete");
+            var deleteUrl = "/schemas/" +
+                            graphName +
+                            "/types/" +
+                            model.id +
+                            "/delete/";
+            anchorDelete.attr('data-deleteurl', deleteUrl);
 
             var iconDelete = $("<I>");
-            iconDelete.addClass("fa fa-times-circle icon-style");
+            iconDelete.addClass("fa fa-times-circle icon-style icon-delete");
             iconDelete.css({
                 "color": "white",
                 "float": "right",
                 "margin-right": "8px",
                 "margin-top": "3px"
             });
-            iconDelete.attr('id', 'icon-delete');
 
             anchorDelete.append(iconDelete);
-            anchorDelete.click(function () {
-                // Navigate to the delete view
-                // We create the delete url with the specific parameters:
-                // graph slug and nodetype id
-                var addModalParam = "";
-                if(asModal)
-                    addModalParam = "?asModal=true";
-
-                var deleteUrl = "/schemas/" +
-                                graphName +
-                                "/types/" +
-                                model.id +
-                                "/delete/" +
-                                addModalParam;
-                var jqxhr = $.ajax({
-                    url: deleteUrl,
-                    type: 'GET'
-                });
-                jqxhr.success(function() {
-                    window.location.href = deleteUrl;
-                });
-                jqxhr.error(function() {
-                    alert(gettext("Oops! Something went wrong with the server."));
-                });
-            });
 
             divTitle.append(anchorDelete);
             lengthFields = model.fields.length;
@@ -397,6 +376,8 @@ diagram.CurrentRelations = {};
                 currentLabel = connection.getLabel();
                 connection.setLabel(currentLabel + "<br/>"+ label);
             }
+
+            jsPlumb.repaintEverything();
         };
 
        /**
@@ -467,14 +448,25 @@ diagram.CurrentRelations = {};
                 if (!JSON.parse(position.status)) {
                     titleAnchor = $("#diagramBox_"+ position.modelName +" > div > a");
                     $('#iconToggle', titleAnchor).addClass('fa fa-plus-circle');
-                    $("#diagramFields_"+ position.modelName).toggleClass("hidden");
+                    //$("#diagramFields_"+ position.modelName).toggleClass("hidden");
                 }
             }
+            jsPlumb.repaintEverything();
+            // We need to invoke this method again, because when we set the
+            // positions of the boxes, sometimes the relationships are not
+            // positioned fine.
             jsPlumb.repaintEverything();
         };
 
         if(!asModal) {
             diagram.loadModels();
+
+            $('.inlineDelete').on('click', function () {
+                // Navigate to the delete view
+                url = $(this).data('deleteurl');
+
+                window.location.href = url;
+            });
         }
     };
 
