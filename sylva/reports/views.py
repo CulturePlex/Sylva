@@ -291,6 +291,7 @@ def builder_endpoint(request, graph_slug):
 @permission_required("schemas.view_schema",
                      (Schema, "graph__slug", "graph_slug"), return_403=True)
 def preview_report_pdf(request, graph_slug):
+    import ipdb; ipdb.set_trace()
     parsed_url = urlparse.urlparse(
         request.build_absolute_uri()
     )

@@ -5,11 +5,11 @@ page = require('webpage').create();
 system = require('system');
 
 url = system.args[1];
-filname = system.args[2];
+filename = system.args[2];
 domain = system.args[3]; //ask chavi about this
 csrfToken = system.args[4];
 sessionId = system.args[5];
-
+console.log("filename", filename, "fsdddddddddddddddddddddddddddddddddddddddddddddddddddddsdfdsdffd")
 phantom.addCookie({'domain': domain, 'name':'csrftoken',
                    'value': csrfToken});
 phantom.addCookie({'domain': domain, 'name':'sessionid',
@@ -34,9 +34,9 @@ page.open(url, function (status) {
         //page.evaluate(function(data) {
         //}, data);
         console.log('opened page')
-        // Now create the filname file and exit PhantomJS
+        // Now create the filename file and exit PhantomJS
         window.setTimeout(function () {
-        	page.render(filname);
+        	page.render(filename);
         	phantom.exit();
         }, 1000);
     }
