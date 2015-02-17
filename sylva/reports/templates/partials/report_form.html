@@ -44,7 +44,10 @@
                 </select>
               </label>
             </p>
-            <p>
+            <p ng-show="advanced">
+              <label>{% trans "Email to" %}
+                  <input type="text" placeholder="Enter Email" ng-maxlength="25">
+             </label>
             </p>
           </div> <!--innerForm-->
           <span class="buttonLinkOption buttonLinkLeft">
@@ -54,7 +57,8 @@
 
               {% trans "Design Report" %}
             </a>
-            <a class="alink" href="">{% trans "Advanced" %}</a>
+            <a class="alink" ng-hide="advanced" ng-click="showAdvanced()" href="">{% trans "Advanced" %}</a>
+            <a class="alink" ng-show="advanced" ng-click="hideAdvanced()" href="">{% trans "Hide advanced" %}</a>
           </span>
         </form>
       </div><!--formContainer-->
