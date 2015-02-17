@@ -854,11 +854,9 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', 'ST
                         '<form>' +
                         '<ul>' +
                         '<li class="checklist" ng-repeat="result in ySeries">' +
-                            '<label style="float:left;">' +
                             '<input ng-hide="pie" type="checkbox" ng-model="result.selected" value="{{result}}" />' +
                             '<input ng-show="pie" name="ysergroup" type="radio" ng-model="$parent.yser" ng-value="result.alias" />' +
                             '{{ result.alias }}' +
-                            '</label>' +
                             '<div ng-hide="pie" sylva-colpick color="{{colors[result.alias]}}" ng-model="colors[result.alias]" id="colpick{{$index}}" class="colorbox"></div>' +
                         '</li>' +
                         '</ul>' +
