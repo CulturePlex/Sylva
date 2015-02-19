@@ -460,3 +460,159 @@ class QueryTestCase(LiveServerTestCase):
         # Right now, we are in the results view. Let's check it
         test_results(self)
         Graph.objects.get(name="Bob's graph").destroy()
+
+    def test_query_builder_lookups_starts_with(self):
+        create_graph(self)
+        create_schema(self)
+        create_type(self)
+        create_data(self)
+        queries_menu(self)
+        create_query(self)
+        # We select a property
+        select_property = self.browser.find_by_xpath(
+            "//option[@class='option-property' and text()='Name']").first
+        select_property.click()
+        select_value = self.browser.find_by_xpath(
+            "//select[@class='select-property']").first.value
+        spin_assert(lambda: self.assertEqual(select_value, u"Name"))
+        checkbox = self.browser.find_by_xpath(
+            "//div[@id='field1']//input[@class='checkbox-property']").first
+        checkbox.click()
+        # We select the lookup
+        select_lookup = self.browser.find_by_xpath(
+            "//select[@class='select-lookup']").first
+        select_lookup.click()
+        lookup_option = self.browser.find_by_xpath(
+            "//option[@class='lookup-option' and text()='starts with']").first
+        lookup_option.click()
+        spin_assert(lambda: self.assertEqual(select_lookup.value,
+                                             u"istartswith"))
+        # We need to click outside for a correct behaviour of the rel select
+        self.browser.find_by_xpath("//div[@id='diagram']").first.click()
+        # We fill the input for the lookup value
+        lookup_input_value = self.browser.find_by_xpath(
+            "//input[@class='lookup-value']").first.fill(u"B")
+        # We need to click outside for a correct behaviour of the input field
+        self.browser.find_by_xpath("//div[@id='diagram']").first.click()
+        # We run the query
+        run_query(self)
+        # Right now, we are in the results view. Let's check it
+        test_results(self)
+        Graph.objects.get(name="Bob's graph").destroy()
+
+    def test_query_builder_lookups_not_starts_with(self):
+        create_graph(self)
+        create_schema(self)
+        create_type(self)
+        create_data(self)
+        queries_menu(self)
+        create_query(self)
+        # We select a property
+        select_property = self.browser.find_by_xpath(
+            "//option[@class='option-property' and text()='Name']").first
+        select_property.click()
+        select_value = self.browser.find_by_xpath(
+            "//select[@class='select-property']").first.value
+        spin_assert(lambda: self.assertEqual(select_value, u"Name"))
+        checkbox = self.browser.find_by_xpath(
+            "//div[@id='field1']//input[@class='checkbox-property']").first
+        checkbox.click()
+        # We select the lookup
+        select_lookup = self.browser.find_by_xpath(
+            "//select[@class='select-lookup']").first
+        select_lookup.click()
+        lookup_option = self.browser.find_by_xpath(
+            "//option[@class='lookup-option' and text()='starts with']").first
+        lookup_option.click()
+        spin_assert(lambda: self.assertEqual(select_lookup.value,
+                                             u"istartswith"))
+        # We need to click outside for a correct behaviour of the rel select
+        self.browser.find_by_xpath("//div[@id='diagram']").first.click()
+        # We fill the input for the lookup value
+        lookup_input_value = self.browser.find_by_xpath(
+            "//input[@class='lookup-value']").first.fill(u"C")
+        # We need to click outside for a correct behaviour of the input field
+        self.browser.find_by_xpath("//div[@id='diagram']").first.click()
+        # We run the query
+        run_query(self)
+        # Right now, we are in the results view. Let's check it
+        test_no_results(self)
+        Graph.objects.get(name="Bob's graph").destroy()
+
+    def test_query_builder_lookups_ends_with(self):
+        create_graph(self)
+        create_schema(self)
+        create_type(self)
+        create_data(self)
+        queries_menu(self)
+        create_query(self)
+        # We select a property
+        select_property = self.browser.find_by_xpath(
+            "//option[@class='option-property' and text()='Name']").first
+        select_property.click()
+        select_value = self.browser.find_by_xpath(
+            "//select[@class='select-property']").first.value
+        spin_assert(lambda: self.assertEqual(select_value, u"Name"))
+        checkbox = self.browser.find_by_xpath(
+            "//div[@id='field1']//input[@class='checkbox-property']").first
+        checkbox.click()
+        # We select the lookup
+        select_lookup = self.browser.find_by_xpath(
+            "//select[@class='select-lookup']").first
+        select_lookup.click()
+        lookup_option = self.browser.find_by_xpath(
+            "//option[@class='lookup-option' and text()='ends with']").first
+        lookup_option.click()
+        spin_assert(lambda: self.assertEqual(select_lookup.value,
+                                             u"iendswith"))
+        # We need to click outside for a correct behaviour of the rel select
+        self.browser.find_by_xpath("//div[@id='diagram']").first.click()
+        # We fill the input for the lookup value
+        lookup_input_value = self.browser.find_by_xpath(
+            "//input[@class='lookup-value']").first.fill(u"e")
+        # We need to click outside for a correct behaviour of the input field
+        self.browser.find_by_xpath("//div[@id='diagram']").first.click()
+        # We run the query
+        run_query(self)
+        # Right now, we are in the results view. Let's check it
+        test_results(self)
+        Graph.objects.get(name="Bob's graph").destroy()
+
+    def test_query_builder_lookups_not_ends_with(self):
+        create_graph(self)
+        create_schema(self)
+        create_type(self)
+        create_data(self)
+        queries_menu(self)
+        create_query(self)
+        # We select a property
+        select_property = self.browser.find_by_xpath(
+            "//option[@class='option-property' and text()='Name']").first
+        select_property.click()
+        select_value = self.browser.find_by_xpath(
+            "//select[@class='select-property']").first.value
+        spin_assert(lambda: self.assertEqual(select_value, u"Name"))
+        checkbox = self.browser.find_by_xpath(
+            "//div[@id='field1']//input[@class='checkbox-property']").first
+        checkbox.click()
+        # We select the lookup
+        select_lookup = self.browser.find_by_xpath(
+            "//select[@class='select-lookup']").first
+        select_lookup.click()
+        lookup_option = self.browser.find_by_xpath(
+            "//option[@class='lookup-option' and text()='ends with']").first
+        lookup_option.click()
+        spin_assert(lambda: self.assertEqual(select_lookup.value,
+                                             u"iendswith"))
+        # We need to click outside for a correct behaviour of the rel select
+        self.browser.find_by_xpath("//div[@id='diagram']").first.click()
+        # We fill the input for the lookup value
+        lookup_input_value = self.browser.find_by_xpath(
+            "//input[@class='lookup-value']").first.fill(u"h")
+        # We need to click outside for a correct behaviour of the input field
+        self.browser.find_by_xpath("//div[@id='diagram']").first.click()
+        # We run the query
+        run_query(self)
+        # Right now, we are in the results view. Let's check it
+        test_no_results(self)
+        Graph.objects.get(name="Bob's graph").destroy()
