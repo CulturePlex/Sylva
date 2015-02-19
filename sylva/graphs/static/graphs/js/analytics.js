@@ -287,7 +287,15 @@ var initAnalytics = function($) {
 
           if(analyticId != "") {
             selectAnalyticsId = '#last-analytics-' + algorithm;
+            // We remove the running option or the choose one
+            $('option[value="running"]', selectAnalyticsId).remove();
+            $('option[value="default"]', selectAnalyticsId).remove();
+            // We add the new analytic
             $(selectAnalyticsId).prepend("<option value=" + analyticId + " selected>" + gettext(moment.duration(-1, "seconds").humanize(true)) + "</option>");
+            // We add the default option
+            $(selectAnalyticsId).prepend("<option value='default' disabled>" + gettext('Choose one') + "</option>");
+            // We remove the disabled attribute of the select
+            $(selectAnalyticsId).prop('disabled', false);
             $(selectAnalyticsId).css({
               'display': 'inline-block'
             });
@@ -350,6 +358,10 @@ var initAnalytics = function($) {
             analyticTaskStart = analyticsResults[key][3];
             algorithm = analyticsResults[key][4];
             valuesUrl = analyticsResults[key][5];
+
+            // We hide the stop button
+            $('#stop-analytic-' + algorithm).css('visibility', 'hidden');
+
             getResults(resultsUrl, algorithm, analyticId, analyticTaskStart, valuesUrl);
           }
 
@@ -414,6 +426,14 @@ var initAnalytics = function($) {
       } else {
         $(progressBarId).attr('max', 300);
       }
+
+      // We remove the value attribute of the progress bar to simulate
+      // the infinite bar
+      $(progressBarId).removeAttr("value");
+      $(progressBarId).css({
+        'display': 'inline-block'
+      });
+
       $('#' + etaId).html(gettext("Estimated time ") + etaTime.toFixed(2) + gettext(" seconds"));
       jQuery.ajax({
         type: "POST",
@@ -427,12 +447,23 @@ var initAnalytics = function($) {
         var algorithm = data[1];
         $(stopAnalyticId).attr('data-taskid', taskId);
 
+        // We show the stop analytic button
+        $(stopAnalyticId).css('visibility', 'visible');
+
+        // We add the info of the analytic running to the select
+        selectAnalyticsId = '#last-analytics-' + algorithm;
+        // We get the choose one option
+        var defaultOption = $('option[value="default"]', selectAnalyticsId);
+        // We remove the default option
+        $('option[value="default"]', selectAnalyticsId).remove();
+        // We add the new analytic
+        $(selectAnalyticsId).prepend("<option value='running' selected>(" + gettext("running") + ")</option>");
+        // We set the select to disable
+        $(selectAnalyticsId).prop('disabled', 'disabled');
+
         analyticsExecuting.push(taskId);
         getTaskState(analyticsExecuting, progressBarId);
 
-        $(progressBarId).css({
-          'display': 'inline-block'
-        });
       });
     });
   });
@@ -446,8 +477,29 @@ var initAnalytics = function($) {
         type: "POST",
         url: sylva.urls.analyticsStop,
         data: {"task_id": analyticTaskId}
-      }).done(function(taskId){
-        console.log('Analytic with id: ' + taskId + ' stopped!');
+      }).done(function(data){
+        // Data contains the analytic id and the algorithm
+        analyticId = data[0];
+        algorithm = data[1];
+
+        // We need to add the analytic to the select, info for the user
+        selectAnalyticsId = '#last-analytics-' + algorithm;
+        // We enable the select field
+        $(selectAnalyticsId).prop('disabled', false);
+        // We remove the running option
+        $('option[value="running"]', selectAnalyticsId).remove();
+        // We add the new analytic
+        $(selectAnalyticsId).prepend("<option value='" + analyticId +"' selected disabled>" + gettext("Stopped analytic") + "</option>");
+        // We add again the default option
+        $(selectAnalyticsId).prepend("<option value='default' disabled>" + gettext("Choose one") + "</option>");
+
+        // We hide the stop button
+        stopAnalyticId = '#stop-analytic-' + algorithm;
+        $(stopAnalyticId).css('visibility', 'hidden');
+
+        // We hide the progress bar
+        progressBarId = '#progress-bar-' + algorithm;
+        $(progressBarId).css('display', 'none');
       });
     }
   });
@@ -593,7 +645,9 @@ var initAnalytics = function($) {
     analyticsExecutingStored = localStorage.getItem('analyticsExecuting');
     progressBarIdStored = localStorage.getItem('progressBarId');
 
-    if(analyticsExecutingStored != null && progressBarIdStored != null) {
+    if(analyticsExecutingStored != null &&
+       analyticsExecutingStored != '' &&
+       progressBarIdStored != null) {
       // We need to split the string stored
       analyticsExecutingSplitted = analyticsExecutingStored.split(',');
       getTaskState(analyticsExecutingSplitted, progressBarIdStored);
@@ -607,7 +661,7 @@ var initAnalytics = function($) {
     pastAnalyticsResults = JSON.parse(pastAnalyticsResults);
     index = 0;
     total_length = pastAnalyticsResults.length;
-
+    /*
     while(index < total_length) {
       algorithm = pastAnalyticsResults[index];
 
@@ -622,7 +676,7 @@ var initAnalytics = function($) {
 
       index++;
     }
-
+    */
     // We remove all the elements of localStorage
     localStorage.clear();
   });

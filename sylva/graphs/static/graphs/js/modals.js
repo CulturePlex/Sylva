@@ -753,7 +753,7 @@
         $('a.remove-sorting').on('click', handlePagination);
         $('a.sorting-asc').on('click', handlePagination);
         $('a.sorting-desc').on('click', handlePagination);
-        $('.shorten-text').on('click', handlePagination);
+        $('th a div.shorten-text').on('click', handlePagination);
 
         // Binding cancel action.
         $('#modal-cancel').on('click', function() {
@@ -898,7 +898,7 @@
         $('a.remove-sorting').on('click', handlePagination);
         $('a.sorting-asc').on('click', handlePagination);
         $('a.sorting-desc').on('click', handlePagination);
-        $('.shorten-text').on('click', handlePagination);
+        $('th a div.shorten-text').on('click', handlePagination);
 
         // Event to handle the breadcrumbs
         $('.breadcrumb').on('click', function() {

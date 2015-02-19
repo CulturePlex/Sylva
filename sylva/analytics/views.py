@@ -154,7 +154,11 @@ def analytics_dump(request, graph_slug):
                      (Data, "graph__slug", "graph_slug"), return_403=True)
 def analytics_stop(request, graph_slug):
     task_id = request.POST.get('task_id')
-    data = task_id
+    # We stop the algorith
     app.control.revoke(task_id, terminate=True)
+    # We get the analytic to give the info to the user
+    analytic = Analytic.objects.filter(dump__graph__slug=graph_slug,
+                                       task_id=task_id).latest()
+    data = [analytic.id, analytic.algorithm]
     json_data = json.dumps(data)
     return HttpResponse(json_data, content_type='application/json')
