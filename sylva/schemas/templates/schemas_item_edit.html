@@ -60,7 +60,7 @@
             {% endif %}
             {% trans "or" %}
             {% if as_modal %}
-                <a id="modal-cancel" href="javascript:void()">{% trans "Cancel" %}</a>.
+                <a id="modal-cancel" data-url="{{ schema_main_url }}" href="javascript:void()">{% trans "Cancel" %}</a>.
             {% else %}
                 <a href="{% url "schema_edit" graph.slug %}">{% trans "Cancel" %}</a>.
             {% endif %}
@@ -70,7 +70,11 @@
         {% endif %}
     </div>
     <div class="content-divider"></div>
+    {% if as_modal %}
+    <div class="content2-second" style="overflow: auto; max-height: 370px;">
+    {% else %}
     <div class="content2-second">
+    {% endif %}
         <h2 id="propertiesTitle">{% trans "Properties" %}</h2>
         <table cellspacing="0" class="itemtype-properties-table" width="100%">
             <tbody class="dynamic">

@@ -269,7 +269,7 @@
         }
         that.showModal(response.html, modalAction);
 
-      } else { // If it is not, is a final reponse.
+      } else if(response.type == 'data') { // If it is not, is a final reponse.
 
         that.destroyOverlay(); // Exiting, so destroying the overlay layer.
 
@@ -311,6 +311,22 @@
           var order = $('#sigma-graph-layout-order').find('option:selected').attr('id');
           var drawHidden = $('#sigma-hidden-layout').prop('checked');
           sylva.Sigma.redrawLayout(type, degreeOrder, order, drawHidden);
+        }
+      } else {
+        // This is the new option: redirection
+        switch (response.action) {
+          case 'queries_list':
+            url = response.url;
+
+            setTimeout(function() {
+              that.queriesList.start(url, false);
+            }, fast);
+
+            return false;
+            break;
+          case 'nothing':
+          default:
+            break;
         }
       }
     },
@@ -848,7 +864,13 @@
 
         // Binding cancel action.
         $('#modal-cancel').on('click', function() {
-          that.closeModalLib();
+          var url = $(event.target).data('url');
+
+          $.modal.close();
+          setTimeout(function() {
+            that.queriesList.start(url, false);
+          }, fast);
+
           return false;
         });
       },
@@ -911,7 +933,13 @@
 
         // Binding cancel action.
         $('#modal-cancel').on('click', function() {
-          that.closeModalLib();
+          var url = $(event.target).data('url');
+
+          $.modal.close();
+          setTimeout(function() {
+            that.queriesList.start(url, false);
+          }, fast);
+
           return false;
         });
       },
@@ -954,7 +982,13 @@
 
         // Binding cancel action.
         $('#modal-cancel').on('click', function() {
-          that.closeModalLib();
+          var url = $(event.target).data('url');
+
+          $.modal.close();
+          setTimeout(function() {
+            that.queriesList.start(url, false);
+          }, fast);
+
           return false;
         });
       },
@@ -1103,7 +1137,13 @@
 
         // Binding cancel action.
         $('#modal-cancel').on('click', function() {
-          that.closeModalLib();
+          var url = $(event.target).data('url');
+
+          $.modal.close();
+          setTimeout(function() {
+            that.schemaMainView.start(url, false);
+          }, fast);
+
           return false;
         });
       },
@@ -1158,7 +1198,13 @@
 
         // Binding cancel action.
         $('#modal-cancel').on('click', function() {
-          that.closeModalLib();
+          var url = $(event.target).data('url');
+
+          $.modal.close();
+          setTimeout(function() {
+            that.schemaMainView.start(url, false);
+          }, fast);
+
           return false;
         });
       },
@@ -1201,7 +1247,13 @@
 
         // Binding cancel action.
         $('#modal-cancel').on('click', function() {
-          that.closeModalLib();
+          var url = $(event.target).data('url');
+
+          $.modal.close();
+          setTimeout(function() {
+            that.schemaMainView.start(url, false);
+          }, fast);
+
           return false;
         });
       },
@@ -1244,7 +1296,13 @@
 
         // Binding cancel action.
         $('#modal-cancel').on('click', function() {
-          that.closeModalLib();
+          var url = $(event.target).data('url');
+
+          $.modal.close();
+          setTimeout(function() {
+            that.schemaMainView.start(url, false);
+          }, fast);
+
           return false;
         });
       },

@@ -43,7 +43,7 @@
       <span class="buttonLinkOption buttonLinkRight">
         {% trans "or" %}
         {% if as_modal %}
-          <a id="modal-cancel" href="javascript:void()">{% trans "Cancel" %}</a>.
+          <a id="modal-cancel" data-url="{{ schema_main_url }}" href="javascript:void()">{% trans "Cancel" %}</a>.
         {% else %}
           <a href="{% url "schema_edit" graph.slug %}">{% trans "Cancel" %}</a>.
         {% endif %}

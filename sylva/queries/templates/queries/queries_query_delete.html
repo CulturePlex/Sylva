@@ -33,7 +33,7 @@
     <input id='submit-delete-query' type="submit" value="{% trans "Delete" %}" />
     <span class="buttonLinkOption">
     {% if as_modal %}
-        {% trans "or" %} <a id="modal-cancel" href="javascript:void()">{% trans "Cancel" %}</a>
+        {% trans "or" %} <a id="modal-cancel" data-url="{{ queries_list_url }}" href="javascript:void()">{% trans "Cancel" %}</a>
     {% else %}
         {% trans "or" %} <a href="{% url "queries_list" graph.slug %}">{% trans "Cancel" %}</a>
     {% endif %}

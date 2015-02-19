@@ -171,7 +171,7 @@
               <a id="save-button" href="javascript:void(0)">{% trans "Save" %}</a>
               {% trans "or" %} <a id="clear-button" href="javascript:void(0)">{% trans "Clear" %}</a>
               {% trans "or" %}
-              <a id="modal-cancel" href="javascript:void(0)">{% trans "Cancel" %}</a>
+              <a id="modal-cancel" data-url="{{ queries_list_url }}" href="javascript:void(0)">{% trans "Cancel" %}</a>
             </span>
             {% endif %}
         {% if as_modal %}

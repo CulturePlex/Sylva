@@ -125,6 +125,7 @@ def schema_nodetype_delete(request, graph_slug, nodetype_id):
                        "type_id": nodetype_id,
                        "base_template": base_template,
                        "add_url": add_url,
+                       "schema_main_url": redirect_url,
                        "as_modal": as_modal}
     response = render('schemas_item_delete.html', broader_context,
                       context_instance=RequestContext(request))
@@ -154,6 +155,8 @@ def schema_nodetype_editcreate(request, graph_slug, nodetype_id=None):
     graph = get_object_or_404(Graph, slug=graph_slug)
     # We get the modal variable
     as_modal = bool(request.GET.get("asModal", False))
+    # We get the schema main view breadcrumb
+    schema_main_url = reverse("schema_edit", args=[graph.slug])
     if nodetype_id:
         empty_nodetype = get_object_or_404(NodeType, id=nodetype_id)
         add_url = reverse("schema_nodetype_edit", args=[graph_slug,
@@ -241,6 +244,7 @@ def schema_nodetype_editcreate(request, graph_slug, nodetype_id=None):
                        "formset": formset,
                        "base_template": base_template,
                        "add_url": add_url,
+                       "schema_main_url": schema_main_url,
                        "as_modal": as_modal}
     response = render('schemas_item_edit.html', broader_context,
                       context_instance=RequestContext(request))
@@ -279,6 +283,8 @@ def schema_relationshiptype_editcreate(request, graph_slug,
     graph = get_object_or_404(Graph, slug=graph_slug)
     # We get the modal variable
     as_modal = bool(request.GET.get("asModal", False))
+    # We get the schema main view url
+    schema_main_url = reverse("schema_edit", args=[graph.slug])
     if relationshiptype_id:
         empty_relationshiptype = get_object_or_404(RelationshipType,
                                                    id=relationshiptype_id)
@@ -374,6 +380,7 @@ def schema_relationshiptype_editcreate(request, graph_slug,
                        "formset": formset,
                        "base_template": base_template,
                        "add_url": add_url,
+                       "schema_main_url": schema_main_url,
                        "as_modal": as_modal}
     response = render('schemas_item_edit.html', broader_context,
                       context_instance=RequestContext(request))
@@ -452,6 +459,7 @@ def schema_relationshiptype_delete(request, graph_slug,
                        "type_id": relationshiptype_id,
                        "base_template": base_template,
                        "add_url": add_url,
+                       "schema_main_url": redirect_url,
                        "as_modal": as_modal}
     response = render('schemas_item_delete.html', broader_context,
                       context_instance=RequestContext(request))

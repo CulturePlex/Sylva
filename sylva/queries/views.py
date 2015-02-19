@@ -207,8 +207,9 @@ def queries_new(request, graph_slug):
                 query.save()
                 graph.save()
                 if as_modal:
-                    response = {'type': 'data',
-                                'action': 'queries_list'}
+                    response = {'type': 'redirect',
+                                'action': 'queries_list',
+                                'url': redirect_url}
                     return HttpResponse(json.dumps(response), status=200,
                                         content_type='application/json')
                 else:
@@ -233,7 +234,8 @@ def queries_new(request, graph_slug):
                            "query_fields": query_fields,
                            "base_template": base_template,
                            "as_modal": as_modal,
-                           "add_url": add_url}
+                           "add_url": add_url,
+                           "queries_list_url": redirect_url}
         response = render('queries/queries_new.html', broader_context,
                           context_instance=RequestContext(request))
         if as_modal:
@@ -254,8 +256,8 @@ def queries_new_results(request, graph_slug):
     graph = get_object_or_404(Graph, slug=graph_slug)
 
     # Breadcrumbs variables
-    queries_link = (reverse("queries_list", args=[graph.slug]),
-                    _("Queries"))
+    redirect_url = reverse("queries_list", args=[graph.slug])
+    queries_link = (redirect_url, _("Queries"))
     queries_new = (reverse("queries_new", args=[graph.slug]),
                    _("New"))
     # We declare the form with the results options
@@ -503,7 +505,8 @@ def queries_new_results(request, graph_slug):
                        "csv_results": query_results,
                        "base_template": base_template,
                        "as_modal": as_modal,
-                       "add_url": add_url}
+                       "add_url": add_url,
+                       "queries_list_url": redirect_url}
     response = render('queries/queries_new_results.html', broader_context,
                       context_instance=RequestContext(request))
     if as_modal:
@@ -581,8 +584,9 @@ def queries_query_edit(request, graph_slug, query_id):
                     query.results_count = 0
                 query.save()
                 if as_modal:
-                    response = {'type': 'data',
-                                'action': 'queries_list'}
+                    response = {'type': 'redirect',
+                                'action': 'queries_list',
+                                'url': redirect_url}
                     return HttpResponse(json.dumps(response), status=200,
                                         content_type='application/json')
                 else:
@@ -619,7 +623,8 @@ def queries_query_edit(request, graph_slug, query_id):
                        "query_fields": query_fields,
                        "base_template": base_template,
                        "as_modal": as_modal,
-                       "add_url": add_url}
+                       "add_url": add_url,
+                       "queries_list_url": redirect_url}
     response = render('queries/queries_new.html', broader_context,
                       context_instance=RequestContext(request))
     if as_modal:
@@ -641,8 +646,8 @@ def queries_query_results(request, graph_slug, query_id):
     query = graph.queries.get(pk=query_id)
 
     # Breadcrumbs variables
-    queries_link = (reverse("queries_list", args=[graph.slug]),
-                    _("Queries"))
+    redirect_url = reverse("queries_list", args=[graph.slug])
+    queries_link = (redirect_url, _("Queries"))
     queries_name = (reverse("queries_query_edit", args=[graph.slug, query.id]),
                     query.name)
     # We declare the form to get the options for the results table
@@ -1003,7 +1008,8 @@ def queries_query_results(request, graph_slug, query_id):
                        "csv_results": query_results,
                        "base_template": base_template,
                        "as_modal": as_modal,
-                       "add_url": add_url}
+                       "add_url": add_url,
+                       "queries_list_url": redirect_url}
     response = render('queries/queries_new_results.html', broader_context,
                       context_instance=RequestContext(request))
     if as_modal:
@@ -1040,8 +1046,9 @@ def queries_query_delete(request, graph_slug, query_id):
                 query.report_templates.all().delete()
                 query.delete()
             if as_modal:
-                response = {'type': 'data',
-                            'action': 'queries_list'}
+                response = {'type': 'redirect',
+                            'action': 'queries_list',
+                            'url': redirect_url}
                 return HttpResponse(json.dumps(response), status=200,
                                     content_type='application/json')
             else:
@@ -1060,7 +1067,8 @@ def queries_query_delete(request, graph_slug, query_id):
                        "query_name": query.name,
                        "base_template": base_template,
                        "as_modal": as_modal,
-                       "delete_url": delete_url}
+                       "delete_url": delete_url,
+                       "queries_list_url": redirect_url}
     response = render('queries/queries_query_delete.html', broader_context,
                       context_instance=RequestContext(request))
     if as_modal:
