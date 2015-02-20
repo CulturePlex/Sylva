@@ -16,6 +16,36 @@
   // For some animations we need the same time that the 'fast' jQuery, 200ms.
   var fast = 200;
 
+  // Function that calculates the with of the headers to adapt the cells
+  var calculateTextLength = function() {
+    var headers = $('th');
+    // We need the minimun value for the limit of the shorter and the maximun
+    // for the hover option
+    var minimum = 1150; // The width of the table
+    var maximum = 0;
+    $.each(headers, function(index, elem) {
+      // We avoid the first element
+      if (index != 0) {
+        var elemWidth = $(elem).width();
+        if(elemWidth < minimum) {
+          minimum = elemWidth;
+        }
+
+        if(elemWidth > maximum) {
+          maximum = elemWidth;
+        }
+      }
+    });
+
+    // We change the values of shorten-text and shorten-text:hover
+    $('.shorten-text').css({
+      'max-width': minimum + 'px'
+    });
+    $('.shorten-text:hover').css({
+      'max-width': maximum + 'px'
+    });
+  };
+
   var modals = {
 
     init: function() {
@@ -342,6 +372,8 @@
       // The position 3 is the view inside the app (List, edit, create...)
       var app = urlSplitted[1];
       var appView = urlSplitted[3];
+      // When editing or creating nodes, we have one more option
+      var editCreate = urlSplitted[5];
       // This example is only with queries, so let's check the appView directly
       var breadcrumbModal = "";
       // Let's check the app
@@ -365,7 +397,10 @@
           breadcrumbModal = "schemaMainView";
         }
       } else if(app == "data") {
-        // We need to think about it yet.
+        // Editing and creation of nodes
+        if(appView == "nodes" || appView == "types") {
+          breadcrumbModal = "listNodes";
+        }
       }
 
       var asModal = "?asModal=true";
@@ -568,6 +603,9 @@
         });
 
         $('#search-query').width('auto');
+
+        // Apply shorten text to the cells of the table
+        calculateTextLength();
       }
     },
 
@@ -781,12 +819,15 @@
       onShow: function() {
         $('#simplemodal-container').css({
           width: 1000,
-          left: 140
+          left: 139
         });
 
         $('#modal-cancel').css({
           'margin-left': '10px'
         });
+
+        // Apply shorten text to the cells of the table
+        calculateTextLength();
       }
     },
 
@@ -947,8 +988,11 @@
       onShow: function() {
         $('#simplemodal-container').css({
           width: 1000,
-          left: 140
+          left: 139
         });
+
+        // Apply shorten text to the cells of the table
+        calculateTextLength();
       }
     },
 
@@ -991,6 +1035,21 @@
 
           return false;
         });
+
+        // Getting HTML elemetns as variables.
+        var scrollWrapper = $('#modal-content-scrollable-wrapper');
+        var scrollContent = $('#modal-content-scrollable');
+        var contentControls = $('.content2-full-bottom');
+        scrollWrapper.addClass('modal-content-scrollable-wrapper');
+        // Calculating the width of the table.
+        var contentTable = $('#content_table');
+
+        return {
+          contentControls: contentControls,
+          scrollWrapper: scrollWrapper,
+          scrollContent: scrollContent,
+          contentTable: contentTable
+        };
       },
 
       onShow: function() {}
@@ -1072,7 +1131,9 @@
       onShow: function() {
         $('#simplemodal-container').css({
           width: 1170,
-          left: 55.5
+          left: 55.5,
+          'top': '2%',
+          'height': '93.5%'
         });
 
         diagram.loadModels();
@@ -1146,14 +1207,24 @@
 
           return false;
         });
+
+        // Getting HTML elemetns as variables.
+        var scrollWrapper = $('#modal-content-scrollable-wrapper');
+        var scrollContent = $('#modal-content-scrollable');
+        var contentControls = $('.content2-full-bottom');
+        scrollWrapper.addClass('modal-content-scrollable-wrapper');
+        // Calculating the width of the table.
+        var contentTable = $('#content_table');
+
+        return {
+          contentControls: contentControls,
+          scrollWrapper: scrollWrapper,
+          scrollContent: scrollContent,
+          contentTable: contentTable
+        };
       },
 
-      onShow: function() {
-        $('#simplemodal-container').css({
-          width: 1170,
-          left: 55.5
-        });
-      }
+      onShow: function() {}
     },
 
     schemaRelationshipEditCreate: {
@@ -1207,14 +1278,24 @@
 
           return false;
         });
+
+        // Getting HTML elemetns as variables.
+        var scrollWrapper = $('#modal-content-scrollable-wrapper');
+        var scrollContent = $('#modal-content-scrollable');
+        var contentControls = $('.content2-full-bottom');
+        scrollWrapper.addClass('modal-content-scrollable-wrapper');
+        // Calculating the width of the table.
+        var contentTable = $('#content_table');
+
+        return {
+          contentControls: contentControls,
+          scrollWrapper: scrollWrapper,
+          scrollContent: scrollContent,
+          contentTable: contentTable
+        };
       },
 
-      onShow: function() {
-        $('#simplemodal-container').css({
-          width: 1170,
-          left: 55.5
-        });
-      }
+      onShow: function() {}
     },
 
     schemaNodetypeDelete: {
@@ -1256,14 +1337,24 @@
 
           return false;
         });
+
+        // Getting HTML elemetns as variables.
+        var scrollWrapper = $('#modal-content-scrollable-wrapper');
+        var scrollContent = $('#modal-content-scrollable');
+        var contentControls = $('.content2-full-bottom');
+        scrollWrapper.addClass('modal-content-scrollable-wrapper');
+        // Calculating the width of the table.
+        var contentTable = $('#content_table');
+
+        return {
+          contentControls: contentControls,
+          scrollWrapper: scrollWrapper,
+          scrollContent: scrollContent,
+          contentTable: contentTable
+        };
       },
 
-      onShow: function() {
-        $('#simplemodal-container').css({
-          height: 160,
-          top: 240
-        });
-      }
+      onShow: function() {}
     },
 
     schemaRelationshipDelete: {
@@ -1305,14 +1396,24 @@
 
           return false;
         });
+
+        // Getting HTML elemetns as variables.
+        var scrollWrapper = $('#modal-content-scrollable-wrapper');
+        var scrollContent = $('#modal-content-scrollable');
+        var contentControls = $('.content2-full-bottom');
+        scrollWrapper.addClass('modal-content-scrollable-wrapper');
+        // Calculating the width of the table.
+        var contentTable = $('#content_table');
+
+        return {
+          contentControls: contentControls,
+          scrollWrapper: scrollWrapper,
+          scrollContent: scrollContent,
+          contentTable: contentTable
+        };
       },
 
-      onShow: function() {
-        $('#simplemodal-container').css({
-          height: 160,
-          top: 240
-        });
-      }
+      onShow: function() {}
     }
 
   };
@@ -1354,6 +1455,15 @@
         }, fast);
       });
     }
+
+    // Event to handle the breadcrumbs
+    $('.breadcrumb').on('click', function() {
+      var breadcrumbUrl = $(event.target).attr('href');
+
+      that.treatBreadcrumbs(breadcrumbUrl);
+
+      return false;
+    });
 
     $('#submit-cancel').on('click', function() {
       // The next is the way to completely close the modal.

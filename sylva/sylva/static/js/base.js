@@ -190,7 +190,7 @@
   }
 
   // Function to calculate the best with to short the information
-  $('#content-table').ready(function() {
+  var calculateTextLength = function() {
     // We get the headers elements, but we remove the first (the element '#')
     var headers = $('th');
     // We need the minimun value for the limit of the shorter and the maximun
@@ -210,6 +210,7 @@
         }
       }
     });
+
     // We change the values of shorten-text and shorten-text:hover
     $('.shorten-text').css({
       'max-width': minimum + 'px'
@@ -217,6 +218,10 @@
     $('.shorten-text:hover').css({
       'max-width': maximum + 'px'
     });
+  };
+
+  $(document).ready(function() {
+    calculateTextLength();
   });
 
 }(jQuery));
