@@ -314,16 +314,8 @@ var initAnalytics = function($) {
             }
           });
 
-          // We save the algorithms to open the accordions automatically
-          analyticsResults = localStorage.getItem('analyticsResults');
-          analyticsResults = JSON.parse(analyticsResults);
-          analyticsResults.push(algorithm);
-          analyticsResults = JSON.stringify(analyticsResults);
-          localStorage.setItem('analyticsResults', analyticsResults);
-
           // We remove the values in localStorage
-          localStorage.removeItem('analyticsExecuting');
-          localStorage.removeItem('progressBarId');
+          localStorage.clear()
         } catch(e) {
 
         }
@@ -336,10 +328,9 @@ var initAnalytics = function($) {
 
   // pole state of the current task
   var getTaskState = function(analyticsExecuting, progressBarId) {
-    // We store the analyticsExecuting and the progressBarId in case that
+    // We store the analyticsExecuting in case that
     // we navigate to another view or refresh the page
     localStorage.setItem("analyticsExecuting", analyticsExecuting);
-    localStorage.setItem("progressBarId", progressBarId);
     progressBarMax = $(progressBarId).attr('max');
     analyticsRequest = JSON.stringify(analyticsExecuting);
     $.ajax({
@@ -373,6 +364,17 @@ var initAnalytics = function($) {
           // If we dont have more analytics executing, we reset the time for the progress bars
           if(analyticsExecuting.length == 0)
             taskTime = 0;
+
+          // We remove the analytic of the localStorage array
+          analyticsExecutingStored = localStorage.getItem('analyticsExecuting');
+          analyticsExecutingSplitted = analyticsExecutingStored.split(',');
+          var index = analyticsExecutingSplitted.indexOf(key);
+          if(index > -1) {
+            analyticsExecutingSplitted.splice(index, 1);
+            localStorage.removeItem(key);
+            // We update the local storage analytics array
+            localStorage.setItem('analyticsExecuting', JSON.stringify(analyticsExecutingSplitted));
+          }
         }
       }
       if(analyticsExecuting.length > 0) {
@@ -385,12 +387,6 @@ var initAnalytics = function($) {
           $(progressBarId).attr('value', taskTime);
         }
       }
-      // We check if we have finalized with the tasks to clean the localStorage
-      // localStorage.removeItem("analyticsExecuting");
-      // localStorage.removeItem("progressBarId");
-
-      // create the infinite loop of Ajax calls to check the state
-      // of the current task
     });
   }
 
@@ -421,11 +417,8 @@ var initAnalytics = function($) {
     }).done(function(data){
       var algorithm = data[0];
       var etaTime = data[1];
-      if(etaTime < 10) {
-        $(progressBarId).attr('max', 100);
-      } else {
-        $(progressBarId).attr('max', 300);
-      }
+
+      $(progressBarId).attr('max', 300);
 
       // We remove the value attribute of the progress bar to simulate
       // the infinite bar
@@ -445,6 +438,8 @@ var initAnalytics = function($) {
       }).done(function(data) {
         var taskId = data[0];
         var algorithm = data[1];
+        var graph = data[2];
+
         $(stopAnalyticId).attr('data-taskid', taskId);
 
         // We show the stop analytic button
@@ -462,8 +457,14 @@ var initAnalytics = function($) {
         $(selectAnalyticsId).prop('disabled', 'disabled');
 
         analyticsExecuting.push(taskId);
-        getTaskState(analyticsExecuting, progressBarId);
 
+        // We store the algorithm of the taskId in case that we need to
+        // navigate to another view or refresh the page
+         // We also store the graph, because we need to take care if we
+        // navaigate to another graph
+        var algorithmAndGraph = Array(algorithm, graph);
+        localStorage.setItem(taskId, JSON.stringify(algorithmAndGraph));
+        getTaskState(analyticsExecuting, progressBarId);
       });
     });
   });
@@ -500,6 +501,17 @@ var initAnalytics = function($) {
         // We hide the progress bar
         progressBarId = '#progress-bar-' + algorithm;
         $(progressBarId).css('display', 'none');
+
+        // We remove the analytic of the localStorage array
+        analyticsExecutingStored = localStorage.getItem('analyticsExecuting');
+        analyticsExecutingSplitted = analyticsExecutingStored.split(',');
+        var index = analyticsExecutingSplitted.indexOf(analyticTaskId);
+        if(index > -1) {
+          analyticsExecutingSplitted.splice(index, 1);
+          localStorage.removeItem(analyticTaskId);
+          // We update the local storage analytics array
+          localStorage.setItem('analyticsExecuting', JSON.stringify(analyticsExecutingSplitted));
+        }
       });
     }
   });
@@ -637,47 +649,62 @@ var initAnalytics = function($) {
 
   // When the document is loaded, we check if we have some analytic running
   $(document).ready(function() {
-    // We create the array where we store the attributes to draw the analytic
-    // results
-    var arrayResults = new Array();
-    localStorage.setItem('analyticsResults', JSON.stringify(arrayResults));
+    // Let's get the graph to check if the analytics belong to it
+    var graphName = sylva.urls.viewGraphAjax;
+    graphName = graphName.split('/')[2];
 
     analyticsExecutingStored = localStorage.getItem('analyticsExecuting');
-    progressBarIdStored = localStorage.getItem('progressBarId');
 
     if(analyticsExecutingStored != null &&
-       analyticsExecutingStored != '' &&
-       progressBarIdStored != null) {
+       analyticsExecutingStored != '') {
       // We need to split the string stored
       analyticsExecutingSplitted = analyticsExecutingStored.split(',');
-      getTaskState(analyticsExecutingSplitted, progressBarIdStored);
+
+      // We iterate over the analytics that are running to format the selects
+      // and all the analytics side
+      index = 0;
+      var analyticsLength = analyticsExecutingSplitted.length;
+      while(index < analyticsLength) {
+        // We get the task id
+        var taskId = analyticsExecutingSplitted[index];
+        // We get the algorithm and the graph
+        var algorithmAndGraph = localStorage.getItem(taskId);
+        var algorithm = JSON.parse(algorithmAndGraph)[0];
+        var graph = JSON.parse(algorithmAndGraph)[1];
+
+        if(graph == graphName) {
+          var stopAnalyticId = "#stop-analytic-" + algorithm;
+          $(stopAnalyticId).attr('data-taskid', taskId);
+
+          // We show the stop analytic button
+          $(stopAnalyticId).css('visibility', 'visible');
+          // We add the info of the analytic running to the select
+          selectAnalyticsId = '#last-analytics-' + algorithm;
+          // We get the choose one option
+          var defaultOption = $('option[value="default"]', selectAnalyticsId);
+          // We remove the default option
+          $('option[value="default"]', selectAnalyticsId).remove();
+          // We add the new analytic
+          $(selectAnalyticsId).prepend("<option value='running' selected>(" + gettext("running") + ")</option>");
+          // We set the select to disable
+          $(selectAnalyticsId).prop('disabled', 'disabled');
+
+
+          var progressBarId = '#progress-bar-' + algorithm;
+          $(progressBarId).attr('max', 300);
+
+          // We remove the value attribute of the progress bar to simulate
+          // the infinite bar
+          $(progressBarId).removeAttr("value");
+          $(progressBarId).css({
+            'display': 'inline-block'
+          });
+
+          getTaskState(analyticsExecutingSplitted, progressBarId);
+        }
+
+        index = index + 1;
+      }
     }
-  });
-
-  // We check if we have entered into the analytics view to load the charts
-  // of the analytics that we had running
-  $('#sigma-go-analytics').on('click', function() {
-    pastAnalyticsResults = localStorage.getItem('analyticsResults');
-    pastAnalyticsResults = JSON.parse(pastAnalyticsResults);
-    index = 0;
-    total_length = pastAnalyticsResults.length;
-    /*
-    while(index < total_length) {
-      algorithm = pastAnalyticsResults[index];
-
-      // We activate the collapsible menu of the algorithm
-      $('#' + algorithm).accordion({
-        collapsible:true,
-        active:0
-      });
-
-      // We change the size
-      $("#" + algorithm + "-results .highcharts-container").width($('#analytics-menu').width());
-
-      index++;
-    }
-    */
-    // We remove all the elements of localStorage
-    localStorage.clear();
   });
 };

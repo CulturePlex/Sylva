@@ -167,7 +167,11 @@
             <select id="last-analytics-{{ key }}" class="last-analytics">
               <option value="default" selected="selected" disabled="true">{% trans "Choose one" %}</option>
               {% for analytic in graph|list_analytics:key %}
-                  <option value="{{ analytic.id }}">{{ analytic.task_start|timesince }}</option>
+                  {% if analytic.task_status == 'Ready' %}
+                    <option value="{{ analytic.id }}">{{ analytic.task_start|timesince }}</option>
+                  {% else %}
+                    <option value="{{ analytic.id }}" disabled>{{ analytic.task_start|timesince }} ({% trans "Stopped"%})</option>
+                  {% endif %}
               {% endfor %}
             </select>
             {% else %}

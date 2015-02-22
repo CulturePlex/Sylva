@@ -21,7 +21,6 @@ from graphs.models import Graph, Data
 
 REVOKED = 'REVOKED'
 STATUS_OK = 'OK'
-STATUS_REVOKED = 'REVOKED'
 
 
 @is_enabled(settings.ENABLE_ANALYTICS)
@@ -40,7 +39,7 @@ def analytics_run(request, graph_slug):
     if request.is_ajax() and algorithm in available_algorithms:
         analytic = graph.analysis.run(algorithm, subgraph)
         task = AsyncResult(analytic.task_id)
-        data = [task.id, analytic.algorithm]
+        data = [task.id, analytic.algorithm, graph_slug]
     json_data = json.dumps(data)
     return HttpResponse(json_data, content_type='application/json')
 
@@ -85,9 +84,9 @@ def analytics_status(request, graph_slug):
                                                   analytic.algorithm,
                                                   analytic.values.url]
                 except ValueError:
-                    analytics_results[task_id] = [STATUS_REVOKED]
+                    analytics_results[task_id] = [REVOKED]
             elif task.status == REVOKED:
-                analytics_results[task_id] = [STATUS_REVOKED]
+                analytics_results[task_id] = [REVOKED]
     data = analytics_results
     json_data = json.dumps(data)
     return HttpResponse(json_data, content_type='application/json')
