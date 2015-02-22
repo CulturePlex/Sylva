@@ -2120,6 +2120,15 @@ diagram.aggregates = [
             // We get the source and the target of the relation
             var sourceId = element.sourceId;
             var targetId = element.targetId;
+            // We need to check if the targetId contains 'title',
+            // because we use that div for reflexive connections
+            targetArrayElements = targetId.split('-');
+            lastPosition = targetArrayElements.length - 1;
+            isTitle = targetArrayElements[lastPosition];
+            if(isTitle == 'title') {
+                // If contains title, we use the sourceId as targetId
+                targetId = sourceId;
+            }
 
             // We get the selectors for every component to build
             // the json correctly
@@ -2393,6 +2402,11 @@ diagram.aggregates = [
                 $('#' + sourceId + ' .select-rel').val(relationName);
                 var labelRel = $('option:selected', '#' + sourceId + ' .select-rel').data('label');
                 $('#' + sourceId + ' .select-rel').change();
+
+                // We need to control the reflexive relations
+                if(sourceId == targetId) {
+                    targetId = sourceId + '-title';
+                }
 
                 diagram.addRelation(sourceId, targetId, labelRel, relationName, idRel);
 
@@ -3629,6 +3643,11 @@ diagram.aggregates = [
             jsPlumb.detach(connection);
             // We substract 1 to the counter of the relationship
             diagram.reltypesCounter[nameRel]--;
+
+            // We need to control the reflexive relations
+            if(sourceIdValue == targetIdValue) {
+                targetIdValue = sourceIdValue + '-title';
+            }
 
             // And we add the new connection with "Continuous" anchors
             diagram.addRelation(sourceIdValue, targetIdValue, labelRel, nameRel, relModelId);
