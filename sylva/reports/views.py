@@ -330,6 +330,7 @@ def preview_report_pdf(request, graph_slug):
             pdf.close()
     except IOError, e:
         response = HttpResponse('Sorry there has been a IOError:' + e.strerror)
+    # Try except IOError
     os.unlink(filename)
     return response
 

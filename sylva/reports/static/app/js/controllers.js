@@ -85,7 +85,6 @@ controllers.controller('BaseReportCtrl', [
             template.start_date = {year: date[2], month: date[0],
                                    day: date[1], hour: time[0], minute: time[1]}
             post.template = template
-            console.log("template", template)
             post.$save({
                 graphSlug: $scope.slugs.graph,
                 report: template.slug
@@ -300,9 +299,7 @@ controllers.controller("DeleteReportCtrl", [
 
         $scope.confirmed = {val: 0}
         $scope.deleteReport = function (confirmed) {
-            console.log("confirmed", confirmed)
             if (parseInt(confirmed.val) ===  1) {
-                console.log("confirmed")
                 var post = new api.del();
                 post.template = $scope.slugs.template;
                 post.$save({}, function (data) {
@@ -310,7 +307,6 @@ controllers.controller("DeleteReportCtrl", [
                     $location.path(redirect);
                 });
             } else {
-                console.log("noconfimr")
                 var redirect = '/';
                 $location.path(redirect);
             }

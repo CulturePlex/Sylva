@@ -119,7 +119,6 @@ directives.directive('sylvaPvRowRepeat', ['tableArray', function (tableArray) {
             scope.tableWidth = parseInt(attrs.width)
             scope.canvasWidth = parseInt(angular.element(elem.parents()[0]).css('width'));
             var aspectRatio = 1.295;
-            console.log("tableWidth", scope.tableWidth)
             var rowHeight = function (pagebreaks) {
                 var heights = {}
                 ,   rows = [];
@@ -132,7 +131,6 @@ directives.directive('sylvaPvRowRepeat', ['tableArray', function (tableArray) {
                             ,   pageHeight = scope.canvasWidth * aspectRatio
                             ,   height = pageHeight / numRows;
                             heights[row] = height;
-                            console.log("pageHeight", pageHeight, height)
                         }
                         rows = [];
                     }
@@ -455,6 +453,14 @@ directives.directive('syEditableTable',[
                 if (newVal === oldVal) return;
                 // scope.resp.rowHeight = rowHeight(scope.resp.table.pagebreaks)
             }, true);
+
+            scope.$on('editing', function (e, newVal) {
+                if (newVal != scope.editable && scope.editable != undefined) {
+                    scope.editable = newVal;
+                    breadService.meta();
+                }
+
+            });
 
             editMeta.bind('click', function () {
                 scope.$apply(function () {
@@ -987,7 +993,6 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', 'ST
 
                 }
                 scope.colors = scope.config.colors;
-                console.log("configcolors", scope.config.colors)
                 scope.activeYs = scope.config.activeYs;
                 scope.tableArray = ctrl.getTableArray();
                 cellWidth = elem.width()
@@ -1132,7 +1137,6 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', 'ST
                 } else {
                     name = '';
                 }
-                console.log("colors", scope.colors)
 
                 scope.tableArray.addQuery([scope.row, scope.col], name);
             });
@@ -1197,14 +1201,15 @@ directives.directive('sylvaBreadcrumbs', [
     'parser',
     'GRAPH',
     'DJANGO_URLS',
-    function ($location, parser, GRAPH, DJANGO_URLS) {
+    'breadService',
+    function ($location, parser, GRAPH, DJANGO_URLS, breadService) {
     return {
         template: '<h2>' +
                     '<a href="/graphs/{{ graphSlug }}/">{{graph}}</a> ' +
                     '<span> &raquo; </span>' +
                     '<a ng-href="#/">{{ breadText.reports }}</a>' +
                     '<span ng-if="reportName"> &raquo; </span>' +
-                    '<a  ng-href="#/edit/{{ reportSlug }}">{{ reportName }}</a>' +
+                    '<a ng-href="#/edit/{{ reportSlug }}" ng-click="done()">{{ reportName }}</a>' +
                     '<span ng-repeat="crumb in crumbs"> &raquo; {{crumb}} </span>' +
                   '</h2>',
         controller: function ($scope) {
@@ -1215,6 +1220,14 @@ directives.directive('sylvaBreadcrumbs', [
             $scope.reportName = null;
             $scope.getLocation = function () {
                 return $location.path()
+            }
+
+            $scope.done = function () {
+                breadService.editing(false);
+                if ($scope.crumbs[$scope.crumbs.length - 1] != "Edit") {
+                    $scope.crumbs.pop()
+                    $scope.crumbs.push("Edit")
+                }
             }
         },
         link: function (scope, elem, attrs) {
@@ -1238,7 +1251,9 @@ directives.directive('sylvaBreadcrumbs', [
 
             });
 
+
             scope.$on('design', function () {
+                scope.crumbs.pop();
                 scope.crumbs.push('Design');
             });
 

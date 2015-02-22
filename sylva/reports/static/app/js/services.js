@@ -251,6 +251,9 @@ services.factory('breadService', ['$rootScope', function ($rootScope) {
         },
         updateName: function(newVal) {
             $rootScope.$broadcast('name', newVal);
+        },
+        editing: function (newVal) {
+            $rootScope.$broadcast('editing', newVal);
         }
 
     }
