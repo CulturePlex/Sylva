@@ -27,15 +27,16 @@ directives.directive('sylvaColpick', function () {
             if (attrs.color) element.css('background-color', attrs.color)
             $(function(){
                 element.colpick({
-                    layout:'hex',
-                    submit:0,
-                    colorScheme:'dark',
+                    colorScheme: 'light',
+                    layout: 'hex',
+                    submitText: 'Ok',
+                    color: attrs.color.substr(1),
                     onChange:function(hsb, hex, rgb, el, bySetColor) {
-                        $(el).css('background-color','#' + hex);
+                        $(el).css('background-color','#' + hex.toUpperCase());
                         // Fill the text box just if the color was set using the picker, and not the colpickSetColor function.
-                        if(!bySetColor) $(el).val(hex);
+                        if(!bySetColor) $(el).val(hex.toUpperCase());
                         scope.$apply(function () {
-                            ngModelCtrl.$setViewValue('#' + hex);
+                            ngModelCtrl.$setViewValue('#' + hex.toUpperCase());
                         });
                     }
                 })
@@ -860,10 +861,13 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', 'ST
                         '<form>' +
                         '<ul>' +
                         '<li class="checklist" ng-repeat="result in ySeries">' +
-                            '<input ng-hide="pie" type="checkbox" ng-model="result.selected" value="{{result}}" />' +
+                            '<span ng-hide="pie" >' +
+                            '<i class="fa fa-eye-slash" id="eye{{$index}}{{row}}{{col}}" ng-click="select(result, $index, row, col)" value="{{result}}" style="margin-right: 3px; width: 1em; height: 1em; cursor: pointer; vertical-align: -2px;" />' +
+                            '</span>' +
+                            '<div ng-hide="pie" sylva-colpick color="{{colors[result.alias]}}" ng-model="colors[result.alias]" id="colpick{{$index}}" class="colorbox"></div>' +
+                            //'<input ng-hide="pie" type="checkbox" ng-model="result.selected" value="{{result}}" />' +
                             '<input ng-show="pie" name="ysergroup" type="radio" ng-model="$parent.yser" ng-value="result.alias" />' +
                             '{{ result.alias }}' +
-                            '<div ng-hide="pie" sylva-colpick color="{{colors[result.alias]}}" ng-model="colors[result.alias]" id="colpick{{$index}}" class="colorbox"></div>' +
                         '</li>' +
                         '</ul>' +
                         '</form>' +
@@ -1050,7 +1054,22 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', 'ST
                     scope.ySeries = scope.ySeries.filter(function (el) {
                         return el.alias !== scope.activeX.alias
                     });
-                    if (scope.ySeries.length == 1) scope.ySeries[0].selected = true;
+                    if (scope.ySeries.length == 1) {
+                        scope.ySeries[0].selected = true;
+                        var eye = $("#eye0" + row.toString() + col.toString())
+                        eye.removeClass("fa-eye-slash")
+                        eye.addClass("fa-eye")
+                    } else {
+                        setTimeout(function () {
+                            for (var i=0; i<scope.ySeries.length; i++) {
+                                if (scope.ySeries[i].selected === true) {
+                                    var eye = $("#eye" + i.toString() + scope.row.toString() + scope.col.toString());
+                                    eye.removeClass("fa-eye-slash");
+                                    eye.addClass("fa-eye");
+                                }
+                            }
+                        }, 250)
+                    }
                     if (scope.chartType === "pie") {
                         scope.pie = true;
                         scope.yser = scope.activeYs[0].alias
@@ -1089,8 +1108,6 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', 'ST
                 scope.tableArray.table[scope.row][scope.col].xAxis = "";
                 scope.tableArray.table[scope.row][scope.col].yAxis = [];
 
-
-
                 var name;
                 // Set to no query by user.
                 if (newVal != null) {
@@ -1115,8 +1132,8 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', 'ST
                             var ser = result_dict.cat.concat(result_dict.num);
                             angular.forEach(ser, function (elem) {
                                 // This should be a service.
-                                var col = simple_colors[Math.floor(Math.random() * simple_colors.length)]
-                                if(!(elem.alias in scope.colors)) scope.colors[elem.alias] = "#" + col;
+                                var col = simple_colors[Math.floor(Math.random() * simple_colors.length)];
+                                if(!(elem.alias in scope.colors)) scope.colors[elem.alias] = col;
                             });
                         }
 
@@ -1132,6 +1149,12 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', 'ST
                         //if (scope.ySeries.length == 1) scope.ySeries[0].selected = true;
                         //if (!scope.activeYs) scope.ySeries[0].selected = true;
                         scope.ySeries[0].selected = true;
+                        setTimeout(function () {
+                            var eye = $("#eye0" + scope.row.toString() + scope.col.toString());
+                            eye.removeClass("fa-eye-slash");
+                            eye.addClass("fa-eye");
+                        }, 100)
+
                         scope.activeX = scope.xSeries[0]
                     }
                 } else {
@@ -1150,6 +1173,14 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', 'ST
                 });
             })
 
+            scope.select = function (result, ndx, row, col) {
+                if (result.selected) {
+                    result.selected = false;
+                } else {
+                    result.selected = true;
+                }
+            }
+
             scope.$watch('ySeries', function (newVal, oldVal) {
                 if (!newVal || newVal === oldVal) return;
                 for (var i=0; i<newVal.length; i++) {
@@ -1159,9 +1190,16 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', 'ST
                     });
                     if (val.selected === true) {
                         scope.tableArray.addAxis([scope.row, scope.col], 'y', val.alias)
+                        var eye = $("#eye" + i.toString() + scope.row.toString() + scope.col.toString())
+                        eye.removeClass("fa-eye-slash")
+                        eye.addClass("fa-eye")
+
                     } else if (val.selected === false) {
                         scope.tableArray.removeAxis([scope.row, scope.col], 'y', val.alias)
                         scope.xSeries.push(val);
+                        var eye = $("#eye" + i.toString() + scope.row.toString() + scope.col.toString())
+                        eye.removeClass("fa-eye")
+                        eye.addClass("fa-eye-slash")
                     }
                 }
             }, true)
@@ -1169,7 +1207,6 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', 'ST
             scope.setChartType = function (type) {
                 scope.chartType = type;
             };
-
 
             scope.$watch('yser', function (newVal, oldVal) {
                 if (newVal == oldVal) return;
