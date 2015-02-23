@@ -221,6 +221,7 @@ directives.directive('sylvaPvCellRepeat', ['$sanitize', function ($sanitize) {
                 ,   cellWidth = (tableWidth / numCols - ((numCols + 1) * 2 / numCols)) * colspan + (2 * (colspan - 1)) + 'px'
                 ,   block
                 ,   demo = cell.demo || false;
+                if (query === "" && !(cell.displayMarkdown)) demo = true;
                 childScope = scope.$new();
                 childScope.$index = i;
                 childScope.cellStyle = {width: cellWidth, height: scope.rowHeight[cell.row]};
@@ -233,9 +234,9 @@ directives.directive('sylvaPvCellRepeat', ['$sanitize', function ($sanitize) {
                 } else {
                     // This is for all cases except new report
                     if (query && demo === false) {
+                        (console.log("backend"))
                         // This is preview, we need to run query
                         if (!cell.series) {
-
                             query = ctrl.getQueries().filter(function (el) {
                                 return el.id === query;
                             })[0];
@@ -245,7 +246,6 @@ directives.directive('sylvaPvCellRepeat', ['$sanitize', function ($sanitize) {
                             var series = cell.series
                         }
                         name = query.name;
-
                         var header = series[0]
                         // xSeries is often catagorical, can only be one
                         ,   xSeriesNdx = header.indexOf(cell.xAxis)
@@ -255,7 +255,7 @@ directives.directive('sylvaPvCellRepeat', ['$sanitize', function ($sanitize) {
                         // with the xSeries vars, here we build a object for
                         // Each series
                         var yLen = cell.yAxis.length;
-                        if (cell.chartType === "pie") yLen = 1
+                        if (cell.chartType === "pie") yLen = 1;
                         for (var j=0; j<yLen; j++) {
                             var ser = []
                             // this is the alias of the ySeries
@@ -278,16 +278,34 @@ directives.directive('sylvaPvCellRepeat', ['$sanitize', function ($sanitize) {
                             }
                             chartSeries.push({name: ySeries, data: ser, color: color});
                         }
-
+                    var chartType = cell.chartType
                     } else {
-                        // This is the new chart demo (demo="true")
+                        //This is the new chart demo (demo="true")
+                        if (!cell.series) {
+                            cell.series = [
+                               ['Keanu Reeves',36],
+                               ['Linus Torvalds',24],
+                               ['Tyrion Lannister',20],
+                               ['Morpheus',1],
+                               ['Félix Lope de Vega Carpio',156],
+                               ['Javier de la Rosa',24]
+                           ];
+                        }
+                        var chartTypes = ["pie", "line", "column"]
+                        var ndx = Number(Math.floor(Math.random() * chartTypes.length));
+                        console.log("demo")
+                        var chartType = chartTypes[ndx];
+
                         chartSeries = [{name: "ySeries", data: cell.series}]
                         name = "Rad Chart"
+                        var query = "demo";
                     }
                     // Here must config chart.
+
+                    //console.log("chartSeries", chartSeries, cell.chartType)
                     childScope.query = query;
                     childScope.chartConfig = {
-                        options: {chart: {type: cell.chartType}},
+                        options: {chart: {type: chartType}},
                         xAxis: {catagories: []},
                         series: chartSeries,
                         title: {text: name},
@@ -1055,10 +1073,12 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', 'ST
                         return el.alias !== scope.activeX.alias
                     });
                     if (scope.ySeries.length == 1) {
-                        scope.ySeries[0].selected = true;
-                        var eye = $("#eye0" + scope.row.toString() + scope.col.toString())
-                        eye.removeClass("fa-eye-slash")
-                        eye.addClass("fa-eye")
+                        setTimeout(function () {
+                            scope.ySeries[0].selected = true;
+                            var eye = $("#eye0" + scope.row.toString() + scope.col.toString())
+                            eye.removeClass("fa-eye-slash")
+                            eye.addClass("fa-eye")
+                        }, 250)
                     } else {
                         setTimeout(function () {
                             for (var i=0; i<scope.ySeries.length; i++) {
