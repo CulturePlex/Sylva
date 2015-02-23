@@ -1056,7 +1056,7 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', 'ST
                     });
                     if (scope.ySeries.length == 1) {
                         scope.ySeries[0].selected = true;
-                        var eye = $("#eye0" + row.toString() + col.toString())
+                        var eye = $("#eye0" + scope.row.toString() + scope.col.toString())
                         eye.removeClass("fa-eye-slash")
                         eye.addClass("fa-eye")
                     } else {
@@ -1296,6 +1296,7 @@ directives.directive('sylvaBreadcrumbs', [
 
             scope.$on('meta', function () {
                 scope.crumbs.pop();
+                scope.crumbs.push("Edit");
             });
 
             scope.$on('name', function (e, name) {
