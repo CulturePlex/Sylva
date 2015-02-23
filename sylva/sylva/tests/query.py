@@ -178,7 +178,6 @@ class QueryTestCase(LiveServerTestCase):
         spin_assert(lambda: self.assertEqual(select_and_or_value, u"and"))
         Graph.objects.get(name="Bob's graph").destroy()
 
-    '''
     def test_query_builder_create_wildcard_relationship(self):
         create_graph(self)
         create_schema(self)
@@ -263,7 +262,44 @@ class QueryTestCase(LiveServerTestCase):
         # Right now, we are in the results view. Let's check it
         test_no_results(self)
         Graph.objects.get(name="Bob's graph").destroy()
-    '''
+
+    def test_query_builder_check_click_header(self):
+        create_graph(self)
+        create_schema(self)
+        create_type(self)
+        create_data(self)
+        queries_menu(self)
+        create_query(self)
+        # We select a property
+        select_property = self.browser.find_by_xpath(
+            "//option[@class='option-property' and text()='Name']").first
+        select_property.click()
+        # We check if the value of the select is the value of the property
+        select_value = self.browser.find_by_xpath(
+            "//select[@class='select-property']").first.value
+        spin_assert(lambda: self.assertEqual(select_value, u"Name"))
+        # We check the property to return the property value
+        checkbox = self.browser.find_by_xpath(
+            "//div[@id='field1']//input[@class='checkbox-property']").first
+        checkbox.click()
+        # We get the button to run the query and click it
+        run_query(self)
+        # We check the text u"Bob's node"
+        result_name = self.browser.find_by_xpath(
+            "//tr[@class='row-even']").first.text
+        spin_assert(lambda: self.assertEqual(result_name, u"Bob's node"))
+        # We check that we have only one link, the header itself
+        links_len = len(self.browser.find_by_xpath("//th[@class='header']/a"))
+        spin_assert(lambda: self.assertEqual(links_len, 1))
+        # We click to get the order
+        header = self.browser.find_by_xpath(
+            "//th[@class='header']/a/div").first
+        header.click()
+        # We can check that rigth now we have two more links
+        links_len = len(self.browser.find_by_xpath("//th[@class='header']/a"))
+        spin_assert(lambda: self.assertEqual(links_len, 3))
+        # Right now, we are in the results view. Let's check it
+        Graph.objects.get(name="Bob's graph").destroy()
 
     # Lookups tests
 
