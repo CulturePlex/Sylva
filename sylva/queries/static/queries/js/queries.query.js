@@ -2026,9 +2026,14 @@ diagram.aggregates = [
             // We check if the aggregate value is not the "choose one" option
             if(aggregateValue != '') {
                 aggregateDistinct = $(aggregate).data("distinct");
+                // We check if we have to include the distinct
+                distinctValue = "";
+                if(aggregateDistinct) {
+                    distinctValue = " Distinct";
+                }
                 // If we have aggregate, we build an appropiate alias
-                headerSlug = aggregateValue + '(' + alias + '.' + propertyName + ')';
-                headerAlias = aggregateValue + '(' + showAlias + '.' + propertyName + ')';
+                headerSlug = aggregateValue + distinctValue + '(' + alias + '.' + propertyName + ')';
+                headerAlias = aggregateValue + distinctValue + '(' + showAlias + '.' + propertyName + ')';
             } else {
                 aggregateValue = false;
                 // We build the appropiate alias
@@ -2046,7 +2051,7 @@ diagram.aggregates = [
                 propertiesDict["distinct"] = aggregateDistinct;
                 propertiesDict["datatype"] = datatype;
                 propertiesDict["alias"] = headerSlug;
-                propertiesDict["showAlias"] = headerAlias;
+                propertiesDict["display_alias"] = headerAlias;
                 propertiesChecked[alias].push(propertiesDict);
             }
 

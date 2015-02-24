@@ -178,6 +178,7 @@ class QueryTestCase(LiveServerTestCase):
         spin_assert(lambda: self.assertEqual(select_and_or_value, u"and"))
         Graph.objects.get(name="Bob's graph").destroy()
 
+    '''
     def test_query_builder_create_wildcard_relationship(self):
         create_graph(self)
         create_schema(self)
@@ -258,6 +259,7 @@ class QueryTestCase(LiveServerTestCase):
         # Right now, we are in the results view. Let's check it
         test_no_results(self)
         Graph.objects.get(name="Bob's graph").destroy()
+    '''
 
     def test_query_builder_check_click_header(self):
         create_graph(self)
