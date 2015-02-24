@@ -3547,6 +3547,25 @@ diagram.aggregates = [
             // We check if we have more than one box to show the selects for the alias
             diagram.showSelects(nameRel, "relationship");
         } else {
+            // Here we need to reestablish the normal behaviour of the boxes
+            jsPlumb.selectEndpoints().each(function(endpoint) {
+                $(".dragActive").css({
+                    'margin-left': '0px'
+                });
+                endpoint.removeClass("dragActive");
+                endpoint.removeClass("dropHover");
+                var selector = '#' + endpoint.elementId + ' .title';
+                $(selector).on('mouseover', function() {
+                    $(selector).css({
+                        "box-shadow": ""
+                    });
+                });
+            });
+            $('.endpoint-image').css('visibility', 'visible');
+            // We need to remove the another enpoint that appears
+            endpointToDelete = $('img').not('.endpointDrag');
+            endpointToDelete.remove();
+
             jsPlumb.detach(info.connection);
         }
 
@@ -3577,7 +3596,7 @@ diagram.aggregates = [
 
         jsPlumb.selectEndpoints().each(function(endpoint) {
             var scopeTarget = endpoint.scopeTarget;
-                if(scopeTarget) {
+            if(scopeTarget) {
                 var compare = scopeSource == scopeTarget;
                 var compareWildcard = (scopeSource == "wildcard") ||
                                         (scopeTarget == "wildcard");
