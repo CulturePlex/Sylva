@@ -239,7 +239,7 @@ a.disabled:hover {
     text-decoration: none;
 }
 
-progress {
+.progress {
     display: block;
     position: relative;
     height: 18px;

@@ -161,7 +161,7 @@
               <input id="checkbox-selected-nodes" type='checkbox' checked='checked'/><label class="label-analytics">{% trans "On selected nodes" %}</label>
             </div>
             <h2 id="{{ key }}-eta"></h2>
-            <progress id="progress-bar-{{ key }}" class="progress-bar"></progress>
+            <progress id="progress-bar-{{ key }}" class="progress-bar progress"></progress>
             {% if graph|list_analytics:key %}
             <!-- This select is for the regular behaviour when we have analytics stored -->
             <select id="last-analytics-{{ key }}" class="last-analytics">
