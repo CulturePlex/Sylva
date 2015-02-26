@@ -444,14 +444,16 @@ var initAnalytics = function($) {
       var algorithm = data[0];
       var etaTime = data[1];
 
-      $(progressBarId).attr('max', 300);
-
       // We remove the value attribute of the progress bar to simulate
       // the infinite bar
       $(progressBarId).removeAttr("value");
+      $(progressBarId).removeClass("progress");
       $(progressBarId).css({
-        'display': 'inline-block'
+        'display': 'inline-block',
+        'height': '18px',
+        'width': '198px'
       });
+      $(progressBarId).attr('max', 300);
 
       $('#' + etaId).html(gettext("Estimated time ") + etaTime.toFixed(2) + gettext(" seconds"));
       jQuery.ajax({
@@ -490,6 +492,7 @@ var initAnalytics = function($) {
         // navaigate to another graph
         var algorithmAndGraph = Array(algorithm, graph);
         localStorage.setItem(taskId, JSON.stringify(algorithmAndGraph));
+        $(progressBarId).addClass("progress");
         getTaskState(analyticsExecuting, progressBarId);
       });
     });

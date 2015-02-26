@@ -68,7 +68,7 @@
             </table>
             <div class="pagination">
                 {% if query_has_changed %}
-                <div id="div-modify-query" style="margin-top: 2em;">
+                  <div id="div-modify-query" style="margin-top: 2em;">
                     <form method="post" action="{% url "queries_query_modify" graph.slug query.id %}" id="form-modify-query">
                         {% csrf_token %}
                         <span class="buttonLinkOption buttonLinkLeft">
@@ -79,7 +79,7 @@
                             <input type="submit" class="input-like-link" name="save-as-new" id="save-as-new" href="javascript:void(0)" value="{% trans "Save Query as New" %}"/>
                         </span>
                     </form>
-                </div>
+                  </div>
                 {% endif %}
                 {% if results.paginator.per_page < results.paginator.count %}
                   <span class='pagination-info'>
@@ -108,6 +108,8 @@
                       Showing {{ count }} results.
                     {% endblocktrans %}
                   </span>
+                  <!-- This is neccesary for a correct view of the template -->
+                  <a href=""><span class="symbol-medium"></span></a>
                 {% endif %}
                 {% if as_modal %}
                 <a id="modal-cancel" data-url="{{ queries_list_url }}" href="javascript:void(0)">{% trans "Cancel" %}</a>
