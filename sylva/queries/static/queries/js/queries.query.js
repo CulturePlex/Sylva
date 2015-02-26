@@ -1698,8 +1698,48 @@ diagram.aggregates = [
                 var oldAlias = newElement.val();
                 newElement.val(newAlias);
                 newElement.html(newAlias);
-                // We propagate the new alias of the relationship
-                diagram.propagateValue(newAlias, oldAlias, typeName, isNodetype);
+                // We propagate the new alias.
+                // We need to change the old alias for the new
+                if(isNodetype) {
+                    // We treat the nodetypesList
+                    if (diagram.nodetypesList[typeName]) {
+                        aliases = diagram.nodetypesList[typeName];
+                        // We check the last element
+                        aliasesLength = aliases.length;
+                        lastElement = aliases[aliasesLength - 1];
+                        if(lastElement == oldAlias) {
+                            diagram.nodetypesList[typeName][aliasesLength - 1] = newAlias;
+                        }
+                    }
+                } else {
+                    // We treat the reltypesList
+                    if (diagram.reltypesList[typeName]) {
+                        aliases = diagram.reltypesList[typeName];
+                        // We check the last element
+                        aliasesLength = aliases.length;
+                        lastElement = aliases[aliasesLength - 1];
+                        if(lastElement == oldAlias) {
+                            diagram.reltypesList[typeName][aliasesLength - 1] = newAlias;
+                        }
+                    }
+                }
+                // We iterate over the last options of the selects and
+                // the inputs
+                var selects = $('.select-nodetype-' + typeName);
+                var selectsLength = selects.length;
+                var index = 0;
+                while(index < selectsLength) {
+                    var select = selects[index];
+                    var selectLastElem = select.length - 1;
+                    // We only change the last element of the select
+                    var $lastElemVal = $(select[selectLastElem]);
+                    if($lastElemVal.val() == oldAlias) {
+                        $lastElemVal.attr('id', typeName + diagram.nodetypesCounter[typeName]);
+                        $lastElemVal.attr('value', newAlias);
+                        $lastElemVal.html(newAlias);
+                    }
+                    index++;
+                }
             }
             $('#' + idBox + ' .title select').val(newAlias);
         };
@@ -2285,6 +2325,19 @@ diagram.aggregates = [
                     // We change the counter to get the correct id of the box
                     counter = parseInt(id.split("-")[1]);
                     diagram.Counter = counter - 1;
+                    // We change the counter for the fields, for a correct
+                    // load of some fields
+                    boxFields = jsonDict.fields[key]
+                    // We get the first field, and set the counter to
+                    // that index
+                    firstField = boxFields[0];
+                    // We need to take into account the old queries
+                    if(isNaN(parseInt(firstField))) {
+                        fieldCounter = firstField.replace(/\D/g, "");
+                    } else {
+                        fieldCounter = firstField;
+                    }
+                    diagram.fieldCounter = fieldCounter - 1;
                     // This is to replace the alias if we have edited it.
                     // We need to maintain the old logic.
                     alias = nodetypes[key].alias;
@@ -2306,7 +2359,7 @@ diagram.aggregates = [
                     // ---------------------------------------
                     // Every index in the loop is an index for a field
                     var boxFields = 0;
-                    fieldIndex++;
+                    fieldIndex = diagram.fieldCounter;
                     for(var i = 0; i < fields.length; i++) {
                         boxFields++;
                         // If we have more than one field, we add
@@ -2358,6 +2411,13 @@ diagram.aggregates = [
                     // We check if we need to change the alias
                     // (edit alias feature)
                     diagram.loadQueryWithAlias(id, alias, typename, true)
+                    // We update the nodetypeCounter
+                    newNodeTypeCounter = alias.replace(/\D/g, "");
+                    // We need to take into account if this last alias is
+                    // edited by the user, because we obtain a counter with
+                    // 0 value
+                    if(diagram.nodetypesCounter[typename] <= newNodeTypeCounter)
+                        diagram.nodetypesCounter[typename] = newNodeTypeCounter;
                 }
                 // We check if we have to show the 'alias selects' for this type
                 diagram.showSelects(typename, "node");
