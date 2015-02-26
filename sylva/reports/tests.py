@@ -4,12 +4,12 @@ from datetime import datetime
 from django.test import TestCase
 from django.contrib.auth.models import User
 
-from models import ReportTemplate
+from models import ReportTemplate, Report
 from graphs.models import Graph
 from schemas.models import Schema
 
 
-class TemplateTestCase(TestCase):
+class ReportTemplateTest(TestCase):
 
     def setUp(self):
         self.u = User.objects.create(username='john', password='doe',
@@ -39,7 +39,7 @@ class TemplateTestCase(TestCase):
     def test_report_delete(self):
         template = ReportTemplate(name="test2", start_date=datetime.now(),
                                   frequency="h", last_run=datetime.now(),
-                                  layout={"hello": "world"},
+                                  layout={"hello": "johndoe"},
                                   description="Some", graph=self.graph)
         template.save()
         template_id = template.id
@@ -50,5 +50,46 @@ class TemplateTestCase(TestCase):
             ReportTemplate.objects.get(pk=template_id)
             exists = True
         except ReportTemplate.DoesNotExist:
+            exists = False
+        self.assertEqual(exists, False)
+
+
+class ReportTest(TestCase):
+
+    def setUp(self):
+        self.u = User.objects.create(username='dave', password='bshow',
+                                     is_active=True, is_staff=True)
+        self.u.set_password('excellent')
+        self.u.save()
+        schema = Schema.objects.create()
+        self.graph = Graph.objects.create(name="test_graph2", schema=schema,
+                                          owner=self.u)
+        self.template = ReportTemplate(name="test3", start_date=datetime.now(),
+                                       frequency="h", last_run=datetime.now(),
+                                       layout={"hello": "davebshow"},
+                                       description="Some", graph=self.graph)
+        self.template.save()
+        self.template_id = self.template.id
+        self.datetime = datetime.now()
+        self.report = Report(date_run=self.datetime, table={"hello": "again"},
+                             template=self.template)
+        self.report.save()
+
+    def test_report_creation(self):
+        self.assertIsNotNone(self.report)
+        self.assertEqual(self.report.date_run, self.datetime)
+
+    def test_report_delete(self):
+        report = Report(date_run=datetime.now(), table={"hello": "again"},
+                        template=self.template)
+        report.save()
+        rid = report.id
+        r = Report.objects.get(pk=rid)
+        self.assertIsNotNone(r)
+        r.delete()
+        try:
+            Report.objects.get(pk=rid)
+            exists = True
+        except Report.DoesNotExist:
             exists = False
         self.assertEqual(exists, False)

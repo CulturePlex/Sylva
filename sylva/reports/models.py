@@ -2,7 +2,9 @@
 import datetime
 import json
 from django.db import models
+from django.dispatch import receiver
 from django.utils.translation import gettext as _
+from django.db.models.signals import post_save
 from jsonfield import JSONField
 
 from graphs.models import Graph
@@ -52,7 +54,6 @@ class ReportTemplate(models.Model):
 
     def execute(self):
         queries = self.queries.all()
-        # EXECUTE QUERIES HERE
         query_dicts = {query.id: (query.execute(headers=True), query.name)
                        for query in queries}
         table = []
@@ -114,6 +115,12 @@ class Report(models.Model):
             'date_run': json.dumps(self.date_run, default=_dthandler)
         }
         return report
+
+
+@receiver(post_save, sender=Report)
+def post_report_save(sender, **kwargs):
+    if kwargs.get("created", False):
+        print("Received signal, report created.")
 
 
 def _dthandler(obj):
