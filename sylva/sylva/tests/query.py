@@ -178,7 +178,6 @@ class QueryTestCase(LiveServerTestCase):
         spin_assert(lambda: self.assertEqual(select_and_or_value, u"and"))
         Graph.objects.get(name="Bob's graph").destroy()
 
-    '''
     def test_query_builder_create_wildcard_relationship(self):
         create_graph(self)
         create_schema(self)
@@ -195,12 +194,12 @@ class QueryTestCase(LiveServerTestCase):
         # We select the wildcard relationship
         select_rel = self.browser.find_by_xpath(
             "//select[@class='select-rel']").first
-        select_rel.click()
         select_wildcard_rel = self.browser.find_by_xpath(
             "//option[@class='option-rel' and text()='WildcardRel']").first
+        # We need to execute the commands in this order for a good solution
+        select_rel.click()
         select_wildcard_rel.click()
-        # We need to click outside for a correct behaviour of the rel select
-        self.browser.find_by_xpath("//div[@id='diagram']").first.click()
+        select_property.click()
         # We check if we have created the relationship
         relation_box_name = self.browser.find_by_xpath(
             "//div[@id='diagramBoxRel-0-WildcardRel']").first.value
@@ -230,12 +229,12 @@ class QueryTestCase(LiveServerTestCase):
         # We select the wildcard relationship
         select_rel = self.browser.find_by_xpath(
             "//select[@class='select-rel']").first
-        select_rel.click()
         select_wildcard_rel = self.browser.find_by_xpath(
             "//option[@class='option-rel' and text()='WildcardRel']").first
+        # We need to execute the commands in this order for a good solution
+        select_rel.click()
         select_wildcard_rel.click()
-        # We need to click outside for a correct behaviour of the rel select
-        self.browser.find_by_xpath("//div[@id='diagram']").first.click()
+        select_property.click()
         # We check if we have created the relationship
         relation_box_name = self.browser.find_by_xpath(
             "//div[@id='diagramBoxRel-0-WildcardRel']").first.value
@@ -259,7 +258,6 @@ class QueryTestCase(LiveServerTestCase):
         # Right now, we are in the results view. Let's check it
         test_no_results(self)
         Graph.objects.get(name="Bob's graph").destroy()
-    '''
 
     def test_query_builder_check_click_header(self):
         create_graph(self)
