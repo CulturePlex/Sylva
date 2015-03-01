@@ -196,10 +196,9 @@ class QueryTestCase(LiveServerTestCase):
             "//select[@class='select-rel']").first
         select_wildcard_rel = self.browser.find_by_xpath(
             "//option[@class='option-rel' and text()='WildcardRel']").first
-        # We need to execute the commands in this order for a good solution
-        select_rel.click()
-        select_wildcard_rel.click()
-        select_property.click()
+        # We need to execute these javascript commands
+        js_code = "$('.select-rel').val('WildcardRel').change();"
+        self.browser.execute_script(js_code)
         # We check if we have created the relationship
         relation_box_name = self.browser.find_by_xpath(
             "//div[@id='diagramBoxRel-0-WildcardRel']").first.value
@@ -231,10 +230,9 @@ class QueryTestCase(LiveServerTestCase):
             "//select[@class='select-rel']").first
         select_wildcard_rel = self.browser.find_by_xpath(
             "//option[@class='option-rel' and text()='WildcardRel']").first
-        # We need to execute the commands in this order for a good solution
-        select_rel.click()
-        select_wildcard_rel.click()
-        select_property.click()
+        # We need to execute these javascript commands
+        js_code = "$('.select-rel').val('WildcardRel').change();"
+        self.browser.execute_script(js_code)
         # We check if we have created the relationship
         relation_box_name = self.browser.find_by_xpath(
             "//div[@id='diagramBoxRel-0-WildcardRel']").first.value
