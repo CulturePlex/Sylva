@@ -376,6 +376,9 @@ var initAnalytics = function($) {
             algorithm = analyticsResults[key][4];
             valuesUrl = analyticsResults[key][5];
 
+            // We show the play button
+            $('#' + algorithm + ' .play-algorithm').css('visibility', 'visible');
+
             // We hide the stop button
             $('#stop-analytic-' + algorithm).css('visibility', 'hidden');
 
@@ -470,6 +473,8 @@ var initAnalytics = function($) {
 
         $(stopAnalyticId).attr('data-taskid', taskId);
 
+        // We hide the play button
+        $('#' + measure + ' .play-algorithm').css('visibility', 'hidden');
         // We show the stop analytic button
         $(stopAnalyticId).css('visibility', 'visible');
 
@@ -523,6 +528,8 @@ var initAnalytics = function($) {
         // We add again the default option
         $(selectAnalyticsId).prepend("<option value='default' disabled>" + gettext("Choose one") + "</option>");
 
+        // We show the play button
+        $('#' + algorithm + ' .play-algorithm').css('visibility', 'visible');
         // We hide the stop button
         stopAnalyticId = '#stop-analytic-' + algorithm;
         $(stopAnalyticId).css('visibility', 'hidden');

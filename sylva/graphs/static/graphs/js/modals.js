@@ -98,7 +98,7 @@
       // Creating the HTML to show.
       var textModal = $('<div id="current-modal" style="display:none">');
       $('body').append(textModal);
-      textModal.text(message);
+      //textModal.text(message);
 
       var modalPadding = 10;
 
@@ -1136,8 +1136,6 @@
           'height': '93.5%'
         });
 
-        diagram.loadModels();
-
         // This is for the delete icon of the boxes
         $('.inlineDelete').on('click', function() {
           var url = $(event.target).parent().data('deleteurl');
@@ -1153,6 +1151,8 @@
 
           return false;
         });
+
+        diagram.loadModels();
       }
     },
 

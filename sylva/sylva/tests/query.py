@@ -178,6 +178,40 @@ class QueryTestCase(LiveServerTestCase):
         spin_assert(lambda: self.assertEqual(select_and_or_value, u"and"))
         Graph.objects.get(name="Bob's graph").destroy()
 
+    def test_query_builder_add_more_than_one_property_with_or(self):
+        create_graph(self)
+        create_schema(self)
+        create_type(self)
+        queries_menu(self)
+        create_query(self)
+        # We select a property
+        select_property1 = self.browser.find_by_xpath(
+            "//option[@class='option-property' and text()='Name']").first
+        select_property1.click()
+        # We select another property
+        select_and_or_option = self.browser.find_by_xpath(
+            "//div[@id='field1']"
+            "//option[@class='option-and-or' and text()='Or']").first
+        select_and_or_option.click()
+        select_property2 = self.browser.find_by_xpath(
+            "//div[@id='field2']"
+            "//option[@class='option-property' and text()='Name']").first
+        select_property2.click()
+        # We check if the value of the selects are the value of the properties
+        # and the value of the and-or select is "and".
+        select_value1 = self.browser.find_by_xpath(
+            "//div[@id='field1']"
+            "//select[@class='select-property']").first.value
+        spin_assert(lambda: self.assertEqual(select_value1, u"Name"))
+        select_value2 = self.browser.find_by_xpath(
+            "//div[@id='field2']"
+            "//select[@class='select-property']").first.value
+        spin_assert(lambda: self.assertEqual(select_value2, u"Name"))
+        select_and_or_value = self.browser.find_by_xpath(
+            "//div[@id='field1']//select[@class='select-and-or']").first.value
+        spin_assert(lambda: self.assertEqual(select_and_or_value, u"or"))
+        Graph.objects.get(name="Bob's graph").destroy()
+
     def test_query_builder_create_wildcard_relationship(self):
         create_graph(self)
         create_schema(self)
@@ -292,6 +326,158 @@ class QueryTestCase(LiveServerTestCase):
         # We can check that rigth now we have two more links
         links_len = len(self.browser.find_by_xpath("//th[@class='header']/a"))
         spin_assert(lambda: self.assertEqual(links_len, 3))
+        # Right now, we are in the results view. Let's check it
+        Graph.objects.get(name="Bob's graph").destroy()
+
+    def test_query_builder_create_self_relationship(self):
+        create_graph(self)
+        create_schema(self)
+        create_type(self)
+        # We create the relationship
+        spin_assert(lambda: self.assertEqual(
+            self.browser.title, "SylvaDB - Bob's graph"))
+        self.browser.find_by_id('allowedRelations').first.click()
+        self.browser.select('source', '1')
+        self.browser.find_by_name('name').fill("Bob's rel")
+        self.browser.select('target', '1')
+        self.browser.find_by_id('id_description').fill("This the allowed relationship for Bob's graph")
+        self.browser.find_by_value('Save Type').first.click()
+        spin_assert(lambda: self.assertEqual(
+            self.browser.title, "SylvaDB - Bob's graph"))
+        text = self.browser.find_by_xpath(
+            "//div[@class='form-row indent']/label").first.value
+        spin_assert(lambda: self.assertNotEqual(text.find("Bob's rel"), -1))
+        # Navigate to the menu of queries
+        queries_menu(self)
+        create_query(self)
+        # We select a property
+        select_property = self.browser.find_by_xpath(
+            "//option[@class='option-property' and text()='Name']").first
+        select_property.click()
+        select_value = self.browser.find_by_xpath(
+            "//select[@class='select-property']").first.value
+        spin_assert(lambda: self.assertEqual(select_value, u"Name"))
+        # We select the wildcard relationship
+        select_rel = self.browser.find_by_xpath(
+            "//select[@class='select-rel']").first
+        select_wildcard_rel = self.browser.find_by_xpath(
+            "//option[@class='option-rel' and text()='WildcardRel']").first
+        # We need to execute these javascript commands
+        js_code = "$('.select-rel').val('WildcardRel').change();"
+        self.browser.execute_script(js_code)
+        # We check if we have created the relationship
+        relation_box_name = self.browser.find_by_xpath(
+            "//div[@id='diagramBoxRel-0-WildcardRel']").first.value
+        spin_assert(lambda: self.assertEqual(relation_box_name,
+                                             u"WildcardRel"))
+        wildcard_box_name = self.browser.find_by_xpath(
+            "//div[@id='diagramBox-2-wildcard']//span").first.value
+        spin_assert(lambda: self.assertEqual(wildcard_box_name, u"Wildcard"))
+        Graph.objects.get(name="Bob's graph").destroy()
+
+    def test_query_builder_two_boxes_and_get_results(self):
+        create_graph(self)
+        create_schema(self)
+        create_type(self)
+        create_data(self)
+        queries_menu(self)
+        # We create two boxes
+        create_query(self)
+        node_type = self.browser.find_by_xpath(
+            "//table[@id='node-types']/tbody/tr/td/a").first
+        node_type.click()
+        # We select a property of the boxes
+        select_properties = self.browser.find_by_xpath(
+            "//option[@class='option-property' and text()='Name']")
+        select_properties[0].click()
+        select_properties[1].click()
+        # We check if the value of the select is the value of the property
+        select_value = self.browser.find_by_xpath(
+            "//select[@class='select-property']").first.value
+        spin_assert(lambda: self.assertEqual(select_value, u"Name"))
+        # We check the property to return the property value
+        checkbox1 = self.browser.find_by_xpath(
+            "//div[@id='field1']//input[@class='checkbox-property']").first
+        checkbox1.click()
+        checkbox2 = self.browser.find_by_xpath(
+            "//div[@id='field2']//input[@class='checkbox-property']").first
+        checkbox2.click()
+        # We get the button to run the query and click it
+        run_query(self)
+        # We check the text u"Bob's node"
+        result_name = self.browser.find_by_xpath(
+            "//tr[@class='row-even']").first.text
+        spin_assert(lambda: self.assertEqual(result_name,
+                                             u"Bob's node Bob's node"))
+        # We check that we have only one link, the header itself
+        links_len = len(self.browser.find_by_xpath("//th[@class='header']/a"))
+        spin_assert(lambda: self.assertEqual(links_len, 2))
+        # We click to get the order
+        header = self.browser.find_by_xpath(
+            "//th[@class='header']/a/div").first
+        header.click()
+        # We can check that rigth now we have two more links
+        links_len = len(self.browser.find_by_xpath("//th[@class='header']/a"))
+        spin_assert(lambda: self.assertEqual(links_len, 4))
+        # Right now, we are in the results view. Let's check it
+        Graph.objects.get(name="Bob's graph").destroy()
+
+    def test_query_builder_two_boxes_edit_alias_and_get_results(self):
+        create_graph(self)
+        create_schema(self)
+        create_type(self)
+        create_data(self)
+        queries_menu(self)
+        # We create two boxes
+        create_query(self)
+        node_type = self.browser.find_by_xpath(
+            "//table[@id='node-types']/tbody/tr/td/a").first
+        node_type.click()
+        # We select a property of the boxes
+        select_properties = self.browser.find_by_xpath(
+            "//option[@class='option-property' and text()='Name']")
+        select_properties[0].click()
+        select_properties[1].click()
+        # We check if the value of the select is the value of the property
+        select_value = self.browser.find_by_xpath(
+            "//select[@class='select-property']").first.value
+        spin_assert(lambda: self.assertEqual(select_value, u"Name"))
+        # We check the property to return the property value
+        checkbox1 = self.browser.find_by_xpath(
+            "//div[@id='field1']//input[@class='checkbox-property']").first
+        checkbox1.click()
+        checkbox2 = self.browser.find_by_xpath(
+            "//div[@id='field2']//input[@class='checkbox-property']").first
+        checkbox2.click()
+        # We edit the aliases of both boxes
+        edit_alias1 = self.browser.find_by_xpath(
+            "//div[@id='diagramBox-1-bobs-type']"
+            "//a[@id='inlineEditSelect_bobs-type']/i").first
+        edit_alias2 = self.browser.find_by_xpath(
+            "//div[@id='diagramBox-2-bobs-type']"
+            "//a[@id='inlineEditSelect_bobs-type']/i").first
+        edit_alias1.click()
+        edit_alias2.click()
+        js_code = '''
+            $($('.select-nodetype-bobs-type')[0]).val("Bob1").change();
+            $($('.select-nodetype-bobs-type')[1]).val("Bob2").change();
+        '''
+        self.browser.execute_script(js_code)
+        # We get the button to run the query and click it
+        run_query(self)
+        # We check the headers with the aliases
+        headers = self.browser.find_by_xpath("//th[@class='header']/a/div")
+        header1 = headers[0]
+        header2 = headers[1]
+        spin_assert(lambda: self.assertEqual(header1.text,
+                                             u"Bob1.Name"))
+        spin_assert(lambda: self.assertEqual(header2.text,
+                                             u"Bob2.Name"))
+        # We check the text u"Bob's node"
+        result_name = self.browser.find_by_xpath(
+            "//tr[@class='row-even']").first.text
+        spin_assert(lambda: self.assertEqual(result_name,
+                                             u"Bob's node Bob's node"))
         # Right now, we are in the results view. Let's check it
         Graph.objects.get(name="Bob's graph").destroy()
 
