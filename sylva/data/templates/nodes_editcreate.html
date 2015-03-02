@@ -279,7 +279,13 @@
               addCssClass: "addButton inFormsets",
               addText: "{% trans "Add" %} {{ outgoing_formset.itemtype.name }} ({{ outgoing_formset.itemtype.target.name }})",
               extraClasses: ["row1", "row2"],
-              added: function(row) {$("#{{prefix}} p:last label").hide(); nodeAutocomplete(row.find("input.node_autocomplete"));},
+              added: function(row) {
+                $("#{{prefix}} p:last label").hide();
+                nodeAutocomplete(row.find("input.node_autocomplete"));
+                {% if OPTIONS.ENABLE_AUTOCOMPLETE_NODES_COMBO %}
+                $(".combobox").chosen();
+                {% endif %}
+              },
               deleteCssClass: "delete-rowup{% if outgoing_formset.itemtype.properties.count %}Props{% endif %}",
               deleteText: ""
             });
@@ -298,7 +304,13 @@
               addCssClass: "addButton inFormsets",
               addText: "{% trans "Add" %} "+ label,  // +" ({{ incoming_formset.itemtype.source.name }})",
               extraClasses: ["row1", "row2"],
-              added: function(row) {$("#{{prefix}} p:last label").hide(); nodeAutocomplete(row.find("input.node_autocomplete"));},
+              added: function(row) {
+                $("#{{prefix}} p:last label").hide();
+                nodeAutocomplete(row.find("input.node_autocomplete"));
+                {% if OPTIONS.ENABLE_AUTOCOMPLETE_NODES_COMBO %}
+                $(".combobox").chosen();
+                {% endif %}
+              },
               deleteCssClass: "delete-rowup{% if incoming_formset.itemtype.properties.count %}Props{% endif %}",
               deleteText: ""
             });
@@ -447,6 +459,9 @@
           $link.attr('download', $link.text().split('/').pop());
         });
 
+        {% if OPTIONS.ENABLE_AUTOCOMPLETE_NODES_COMBO %}
+        $('.combobox').chosen();
+        {% endif %}
       });
     }(jQuery));
   </script>

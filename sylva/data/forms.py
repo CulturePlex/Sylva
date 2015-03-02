@@ -42,9 +42,10 @@ class ItemForm(forms.Form):
             "js/datatypes.js",
             "js/jquery.formsets.1.2.min.js",
             "js/jquery.tokeninput.js",
+            "js/chosen.jquery.min.js",
         )
         css = {
-            "all": ("css/jqueryui.1.8.18.css", )
+            "all": ("css/jqueryui.1.8.18.css", "css/chosen.css")
         }
 
     def __init__(self, graph, itemtype, instance=None, *args, **kwargs):
@@ -410,7 +411,6 @@ class RelationshipForm(ItemForm):
                     "help_text": help_text,
                     "widget": forms.TextInput(attrs=input_attrs)
                 }
-                field = forms.CharField(**field_attrs)
             else:
                 field_attrs = {
                     "required": True,
@@ -419,7 +419,15 @@ class RelationshipForm(ItemForm):
                     "help_text": help_text,
                     "choices": [(u"", NULL_OPTION)] + choices,
                 }
-                field = forms.ChoiceField(**field_attrs)
+                if settings.ENABLE_AUTOCOMPLETE_NODES_COMBO:
+                    input_attrs = {
+                        "class": "combobox",
+                        "data-placeholder": NULL_OPTION,
+                    }
+                    field_attrs.update({
+                        "widget": forms.Select(attrs=input_attrs)
+                    })
+            field = forms.ChoiceField(**field_attrs)
             self.fields[itemtype.id] = field
 
     def clean(self):
