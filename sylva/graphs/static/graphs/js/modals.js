@@ -921,9 +921,13 @@
           width: 1170,
           left: 55
         });
-        try {
-          diagram.loadQuery(JSON.stringify(query));
-        } catch (e) {}
+
+        // We need to set a tiny timeout for a correct load of the queries
+        setTimeout(function() {
+          try {
+            diagram.loadQuery(JSON.stringify(query));
+          } catch (e) {}
+        }, 250 );
       }
     },
 
@@ -1126,6 +1130,7 @@
           that.closeModalLib();
           return false;
         });
+
       },
 
       onShow: function() {
@@ -1152,7 +1157,10 @@
           return false;
         });
 
-        diagram.loadModels();
+        // We need to set a tiny timeout for a correct load of the schema
+        setTimeout(function() {
+          diagram.loadModels();
+        }, 250 );
       }
     },
 
