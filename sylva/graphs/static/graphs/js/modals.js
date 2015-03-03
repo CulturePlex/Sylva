@@ -69,6 +69,18 @@
       dialog.data.fadeIn('fast');
     },
 
+    // Function to close the bridge modal with another interaction that the
+    // usual one.
+    closeBridgeModal: function(dialog) {
+      dialog.container.fadeOut('fast');
+      dialog.data.fadeOut('fast');
+
+      setTimeout(function() {
+        $.modal.close();
+        $('#bridge-modal').remove();
+      }, fast);
+    },
+
     // The common behaviour for closing the modals.
     closeModal: function(dialog) {
       dialog.container.fadeOut('fast');
@@ -95,8 +107,20 @@
      * data for the form modals.
      */
     customTextModal: function(message, crateOverlay) {
-      // Creating the HTML to show.
-      var textModal = $('<div id="current-modal" style="display:none">');
+      // Creating the HTML to show. Actually, is an overlay over the
+      // actual modal.
+      var textModal = $('<div id="bridge-modal" style="display:none">');
+      textModal.css({
+        "opacity": "0.3",
+        "height": "100%",
+        "width": "100%",
+        "position": "fixed",
+        "left": "0px",
+        "top": "0px",
+        "z-index": "1002",
+        "background-color": "#000000",
+      });
+
       $('body').append(textModal);
       //textModal.text(message);
 
@@ -113,7 +137,7 @@
 
         // Styles.
         containerCss: {
-          backgroundColor: '#FFFFFF',
+          //backgroundColor: '#FFFFFF',
           borderRadius: modalPadding,
           padding: modalPadding,
           display: 'inline-block'
@@ -124,6 +148,7 @@
           that.openModal(dialog);
         },
         onClose: function(dialog) {
+          that.closeBridgeModal(dialog);
           that.closeModal(dialog);
         },
       });
@@ -131,7 +156,9 @@
 
     // It handles the obtainig of the HTML that the modal will show.
     prepareModal: function(url, showOverlay, modalActions, extraParams) {
-      that.customTextModal(loadingTextFunction, showOverlay);
+
+      if(showOverlay)
+        that.createOverlay();
 
       var params = {
         'asModal': true
@@ -140,6 +167,20 @@
       if (extraParams !== undefined) {
         $.extend(params, extraParams);
       }
+
+      // We create the overlay modal over the actual modal.
+      var bridgeOverlay = $('<div id="bridge-overlay" class="modal-overlay">');
+      bridgeOverlay.css({
+        "opacity": "0.5",
+        "height": "100%",
+        "width": "100%",
+        "position": "fixed",
+        "left": "0px",
+        "top": "0px",
+        "z-index": "1003",
+        "background-color": "#000000",
+      });
+      $('body').append(bridgeOverlay);
 
       // Performing the request with the created variables.
       var jqxhr = $.ajax({
@@ -164,6 +205,7 @@
 
     // It displays the HTML given by 'prepareModal'.
     showModal: function(html, modalActions) {
+      $('#bridge-overlay').remove();
       // Setting the form into the HTML.
       var modalHTML = $('<div id="current-modal" style="display: none;">');
       $('body').append(modalHTML);  // This line need to be executed here, so the internal JS will be executed.
@@ -406,7 +448,6 @@
       var asModal = "?asModal=true";
       url = url + asModal;
 
-      $.modal.close();
       setTimeout(function() {
         that[breadcrumbModal].start(url, false);
       }, fast);
@@ -516,7 +557,6 @@
               params[match[1]] = match[2];
             }
 
-            $.modal.close();
             setTimeout(function() {
               that.listNodes.start(listURL, false, params);
             }, fast);
@@ -532,7 +572,6 @@
           $('a[class="edit"][alt="Edit node"]').on('click', function(event) {
             var editNodeURL = $(event.target).attr('href');
 
-            $.modal.close();
             setTimeout(function() {
               that.editNode.start(editNodeURL, false);
             }, fast);
@@ -558,7 +597,6 @@
         $('#submit-create').on('click', function() {
             var createNodeURL = $(event.target).attr('href');
 
-            $.modal.close();
             setTimeout(function() {
               that.createNode.start(createNodeURL, false);
             }, fast);
@@ -727,7 +765,6 @@
         $('#create-query').on('click', function() {
           var queriesNewUrl = $(event.target).attr('href');
 
-          $.modal.close();
           setTimeout(function() {
             that.queriesNew.start(queriesNewUrl, false);
           }, fast);
@@ -739,7 +776,6 @@
         $('a.edit').on('click', function() {
           var queriesNewUrl = $(event.target).attr('href');
 
-          $.modal.close();
           setTimeout(function() {
             that.queriesNew.start(queriesNewUrl, false);
           }, fast);
@@ -765,7 +801,6 @@
         $('a.delete').on('click', function() {
           var queriesDeleteUrl = $(event.target).parent().attr('href');
 
-          $.modal.close();
           setTimeout(function() {
             that.queriesDelete.start(queriesDeleteUrl, false);
           }, fast);
@@ -794,7 +829,6 @@
 
           pagAndOrderUrl = queriesListUrl + pagAndOrderParams;
 
-          $.modal.close();
           setTimeout(function() {
             that.queriesList.start(pagAndOrderUrl, false);
           }, fast);
@@ -907,7 +941,6 @@
         $('#modal-cancel').on('click', function() {
           var url = $(event.target).data('url');
 
-          $.modal.close();
           setTimeout(function() {
             that.queriesList.start(url, false);
           }, fast);
@@ -980,7 +1013,6 @@
         $('#modal-cancel').on('click', function() {
           var url = $(event.target).data('url');
 
-          $.modal.close();
           setTimeout(function() {
             that.queriesList.start(url, false);
           }, fast);
@@ -1032,7 +1064,6 @@
         $('#modal-cancel').on('click', function() {
           var url = $(event.target).data('url');
 
-          $.modal.close();
           setTimeout(function() {
             that.queriesList.start(url, false);
           }, fast);
@@ -1072,7 +1103,6 @@
         $('#schemaNewType').on('click', function() {
           var url = $(event.target).attr('href');
 
-          $.modal.close();
           setTimeout(function() {
             that.schemaNodetypeEditCreate.start(url, false);
           }, fast);
@@ -1084,7 +1114,6 @@
         $('fieldset.module h2 a').on('click', function() {
           var url = $(event.target).attr('href');
 
-          $.modal.close();
           setTimeout(function() {
             that.schemaNodetypeEditCreate.start(url, false);
           }, fast);
@@ -1096,7 +1125,6 @@
         $('#allowedRelations').on('click', function() {
           var url = $(event.target).attr('href');
 
-          $.modal.close();
           setTimeout(function() {
             that.schemaRelationshipEditCreate.start(url, false);
           }, fast);
@@ -1108,7 +1136,6 @@
         $('div.form-row a').on('click', function() {
           var url = $(event.target).attr('href');
 
-          $.modal.close();
           setTimeout(function() {
             that.schemaRelationshipEditCreate.start(url, false);
           }, fast);
@@ -1149,7 +1176,6 @@
 
           url = url + asModal;
 
-          $.modal.close();
           setTimeout(function() {
             that.schemaNodetypeDelete.start(url, false);
           }, fast);
@@ -1187,7 +1213,6 @@
         $('span a.delete').on('click', function(){
           var url = $(event.target).attr('href');
 
-          $.modal.close();
           setTimeout(function() {
             that.schemaNodetypeDelete.start(url, false);
           }, fast);
@@ -1208,7 +1233,6 @@
         $('#modal-cancel').on('click', function() {
           var url = $(event.target).data('url');
 
-          $.modal.close();
           setTimeout(function() {
             that.schemaMainView.start(url, false);
           }, fast);
@@ -1258,7 +1282,6 @@
         $('span a.delete').on('click', function(){
           var url = $(event.target).attr('href');
 
-          $.modal.close();
           setTimeout(function() {
             that.schemaRelationshipDelete.start(url, false);
           }, fast);
@@ -1279,7 +1302,6 @@
         $('#modal-cancel').on('click', function() {
           var url = $(event.target).data('url');
 
-          $.modal.close();
           setTimeout(function() {
             that.schemaMainView.start(url, false);
           }, fast);
@@ -1338,7 +1360,6 @@
         $('#modal-cancel').on('click', function() {
           var url = $(event.target).data('url');
 
-          $.modal.close();
           setTimeout(function() {
             that.schemaMainView.start(url, false);
           }, fast);
@@ -1397,7 +1418,6 @@
         $('#modal-cancel').on('click', function() {
           var url = $(event.target).data('url');
 
-          $.modal.close();
           setTimeout(function() {
             that.schemaMainView.start(url, false);
           }, fast);

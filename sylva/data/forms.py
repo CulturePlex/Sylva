@@ -411,6 +411,7 @@ class RelationshipForm(ItemForm):
                     "help_text": help_text,
                     "widget": forms.TextInput(attrs=input_attrs)
                 }
+                field = forms.CharField(**field_attrs)
             else:
                 field_attrs = {
                     "required": True,
@@ -427,7 +428,7 @@ class RelationshipForm(ItemForm):
                     field_attrs.update({
                         "widget": forms.Select(attrs=input_attrs)
                     })
-            field = forms.ChoiceField(**field_attrs)
+                field = forms.ChoiceField(**field_attrs)
             self.fields[itemtype.id] = field
 
     def clean(self):
