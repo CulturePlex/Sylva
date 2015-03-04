@@ -2068,11 +2068,13 @@ diagram.aggregates = [
                 aggregateDistinct = $(aggregate).data("distinct");
                 // We check if we have to include the distinct
                 distinctValue = "";
+                distinctSlug = "";
                 if(aggregateDistinct) {
                     distinctValue = " Distinct";
+                    distinctSlug = "DISTINCT ";
                 }
                 // If we have aggregate, we build an appropiate alias
-                headerSlug = aggregateValue + distinctValue + '(' + alias + '.' + propertyName + ')';
+                headerSlug = aggregateValue + '(' + distinctSlug + alias + '.' + propertyName + ')';
                 headerAlias = aggregateValue + distinctValue + '(' + showAlias + '.' + propertyName + ')';
             } else {
                 aggregateValue = false;

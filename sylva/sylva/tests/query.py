@@ -481,6 +481,71 @@ class QueryTestCase(LiveServerTestCase):
         # Right now, we are in the results view. Let's check it
         Graph.objects.get(name="Bob's graph").destroy()
 
+    # Loading queries after executing results
+
+    def test_query_builder_two_boxes_get_results_and_go_back(self):
+        create_graph(self)
+        create_schema(self)
+        create_type(self)
+        create_data(self)
+        queries_menu(self)
+        # We create two boxes
+        create_query(self)
+        node_type = self.browser.find_by_xpath(
+            "//table[@id='node-types']/tbody/tr/td/a").first
+        node_type.click()
+        # We select the correct alias
+        js_code = '''
+            $($('.select-nodetype-bobs-type')[1]).val("Bob's type 2").change();
+        '''
+        self.browser.execute_script(js_code)
+        # We select a property of the boxes
+        select_properties = self.browser.find_by_xpath(
+            "//option[@class='option-property' and text()='Name']")
+        select_properties[0].click()
+        select_properties[1].click()
+        # We check if the value of the select is the value of the property
+        select_value = self.browser.find_by_xpath(
+            "//select[@class='select-property']").first.value
+        spin_assert(lambda: self.assertEqual(select_value, u"Name"))
+        # We check the property to return the property value
+        checkbox1 = self.browser.find_by_xpath(
+            "//div[@id='field1']//input[@class='checkbox-property']").first
+        checkbox1.click()
+        checkbox2 = self.browser.find_by_xpath(
+            "//div[@id='field2']//input[@class='checkbox-property']").first
+        checkbox2.click()
+        # We get the button to run the query and click it
+        run_query(self)
+        # We check the text u"Bob's node"
+        result_name = self.browser.find_by_xpath(
+            "//tr[@class='row-even']").first.text
+        spin_assert(lambda: self.assertEqual(result_name,
+                                             u"Bob's node Bob's node"))
+        # We check that we have only one link, the header itself
+        links_len = len(self.browser.find_by_xpath("//th[@class='header']/a"))
+        spin_assert(lambda: self.assertEqual(links_len, 2))
+        # We click to get the order
+        header = self.browser.find_by_xpath(
+            "//th[@class='header']/a/div").first
+        header.click()
+        # We can check that rigth now we have two more links
+        links_len = len(self.browser.find_by_xpath("//th[@class='header']/a"))
+        spin_assert(lambda: self.assertEqual(links_len, 4))
+        # We navigate to the query builder view
+        breadcrumb_new = self.browser.find_by_xpath(
+            "//header[@class='global']/h2/a")[2]
+        breadcrumb_new.click()
+        # We check if we have loaded the boxes correctly
+        title_text0 = self.browser.find_by_xpath(
+            "//select[@class='select-nodetype-bobs-type']")[0].value
+        title_text1 = self.browser.find_by_xpath(
+            "//select[@class='select-nodetype-bobs-type']")[1].value
+        spin_assert(lambda: self.assertEqual(title_text0, u"Bob's type 1"))
+        spin_assert(lambda: self.assertEqual(title_text1, u"Bob's type 2"))
+        # Right now, we are in the results view. Let's check it
+        Graph.objects.get(name="Bob's graph").destroy()
+
     # Lookups tests
 
     def test_query_builder_lookups_equals(self):
