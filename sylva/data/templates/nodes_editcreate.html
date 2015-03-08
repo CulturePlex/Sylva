@@ -37,7 +37,7 @@
       {% csrf_token %}
       <div id="modal-content-scrollable-wrapper">
         <div id="modal-content-scrollable">
-          <div class="content3-block">
+          <div id="properties-content" class="content3-block">
             <h2 id="propertiesTitle">{% trans "Properties" %}</h2>
             {% for field in node_form %}
               <p {% if field.name in fields_to_hide and not field.value %}class="hidden"{% endif %}>
@@ -254,6 +254,10 @@
     {{ css }}
   {% endfor %}
 
+  <script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/sigma-visualization.js"></script>
+  <script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/modals.js"></script>
+  <script type="text/javascript" src="{{ STATIC_PREFIX }}js/jquery.simplemodal-1.4.4.js"></script>
+
   <!-- We are adding here jQueryUI manually because maybe it is already in the template. -->
   {% if not as_modal %}
     <script src="{{ STATIC_PREFIX }}js/jquery-ui-1.10.4.js"></script>
@@ -462,6 +466,28 @@
         {% if OPTIONS.ENABLE_AUTOCOMPLETE_NODES_COMBO %}
         $('.combobox').chosen();
         {% endif %}
+
+        // We start the modals
+        $(document).ready(function() {
+          sylva.modals.init();
+        });
+
+        // We show the modal for create the new element
+        $('.add-node').on('click', function() {
+          // This is the input field where we need to set the value
+          var inputField = $(this).parent().next().children().find('input[type="text"]')[0];
+          // We set the field global
+          window.inputField = inputField;
+
+          // We clone the form
+          var nodeForm = $('#edit-node-form').clone();
+
+          var url = $(event.target).attr('href');
+          sylva.modals.createNodeOwnView.start(url, true);
+
+          return false;
+        });
+
       });
     }(jQuery));
   </script>

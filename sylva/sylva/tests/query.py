@@ -546,6 +546,179 @@ class QueryTestCase(LiveServerTestCase):
         # Right now, we are in the results view. Let's check it
         Graph.objects.get(name="Bob's graph").destroy()
 
+    # Aggregates
+
+    def test_query_builder_one_box_with_count(self):
+        create_graph(self)
+        create_schema(self)
+        create_type(self)
+        create_data(self)
+        queries_menu(self)
+        # We create one box
+        create_query(self)
+        # We select a property of the boxes
+        select_properties = self.browser.find_by_xpath(
+            "//option[@class='option-property' and text()='Name']")
+        select_properties[0].click()
+        # We check if the value of the select is the value of the property
+        select_value = self.browser.find_by_xpath(
+            "//select[@class='select-property']").first.value
+        spin_assert(lambda: self.assertEqual(select_value, u"Name"))
+        # We check the property to return the property value
+        checkbox1 = self.browser.find_by_xpath(
+            "//div[@id='field1']//input[@class='checkbox-property']").first
+        checkbox1.click()
+        # We click in the advanced mode
+        aggregate = self.browser.find_by_xpath(
+            "//div[@id='diagramBox-1-bobs-type']"
+            "//a[@id='inlineAdvancedMode_bobs-type']/i").first
+        aggregate.click()
+        js_code = '''
+            $('.select-aggregate option[value="Count"][data-distinct="false"]')
+            .prop('selected', 'selected').change()
+        '''
+        self.browser.execute_script(js_code)
+        aggregate_name = self.browser.find_by_xpath(
+            "//select[@class='select-aggregate']").first.value
+        spin_assert(lambda: self.assertEqual(aggregate_name,
+                                             u"Count"))
+        Graph.objects.get(name="Bob's graph").destroy()
+
+    def test_query_builder_one_box_with_count_distinct(self):
+        create_graph(self)
+        create_schema(self)
+        create_type(self)
+        create_data(self)
+        queries_menu(self)
+        # We create one box
+        create_query(self)
+        # We select a property of the boxes
+        select_properties = self.browser.find_by_xpath(
+            "//option[@class='option-property' and text()='Name']")
+        select_properties[0].click()
+        # We check if the value of the select is the value of the property
+        select_value = self.browser.find_by_xpath(
+            "//select[@class='select-property']").first.value
+        spin_assert(lambda: self.assertEqual(select_value, u"Name"))
+        # We check the property to return the property value
+        checkbox1 = self.browser.find_by_xpath(
+            "//div[@id='field1']//input[@class='checkbox-property']").first
+        checkbox1.click()
+        # We click in the advanced mode
+        aggregate = self.browser.find_by_xpath(
+            "//div[@id='diagramBox-1-bobs-type']"
+            "//a[@id='inlineAdvancedMode_bobs-type']/i").first
+        aggregate.click()
+        js_code = '''
+            $('.select-aggregate option[value="Count"][data-distinct="true"]')
+            .prop('selected', 'selected').change()
+        '''
+        self.browser.execute_script(js_code)
+        aggregate_name = self.browser.find_by_xpath(
+            "//select[@class='select-aggregate']").first.value
+        # We need to check if the value is equals to "Count distinct".
+        # Review it.
+        spin_assert(lambda: self.assertEqual(aggregate_name,
+                                             u"Count"))
+        Graph.objects.get(name="Bob's graph").destroy()
+
+    def test_query_builder_one_box_with_aggregate_and_run(self):
+        create_graph(self)
+        create_schema(self)
+        create_type(self)
+        create_data(self)
+        queries_menu(self)
+        # We create one box
+        create_query(self)
+        # We select a property of the boxes
+        select_properties = self.browser.find_by_xpath(
+            "//option[@class='option-property' and text()='Name']")
+        select_properties[0].click()
+        # We check if the value of the select is the value of the property
+        select_value = self.browser.find_by_xpath(
+            "//select[@class='select-property']").first.value
+        spin_assert(lambda: self.assertEqual(select_value, u"Name"))
+        # We check the property to return the property value
+        checkbox1 = self.browser.find_by_xpath(
+            "//div[@id='field1']//input[@class='checkbox-property']").first
+        checkbox1.click()
+        # We click in the advanced mode
+        aggregate = self.browser.find_by_xpath(
+            "//div[@id='diagramBox-1-bobs-type']"
+            "//a[@id='inlineAdvancedMode_bobs-type']/i").first
+        aggregate.click()
+        js_code = '''
+            $('.select-aggregate option[value="Count"][data-distinct="false"]')
+            .prop('selected', 'selected').change()
+        '''
+        self.browser.execute_script(js_code)
+        # We get the button to run the query and click it
+        run_query(self)
+        # We check the headers with the aliases
+        headers = self.browser.find_by_xpath("//th[@class='header']/a/div")
+        header1 = headers[0]
+        spin_assert(lambda: self.assertEqual(header1.text,
+                                             u"Count (Bob's type 1.Name)"))
+        # We check the text u"Bob's node"
+        result_name = self.browser.find_by_xpath(
+            "//tr[@class='row-even']").first.text
+        spin_assert(lambda: self.assertEqual(result_name,
+                                             u"1"))
+        Graph.objects.get(name="Bob's graph").destroy()
+
+    def test_query_builder_one_box_with_aggregate_run_and_go_back(self):
+        create_graph(self)
+        create_schema(self)
+        create_type(self)
+        create_data(self)
+        queries_menu(self)
+        # We create one box
+        create_query(self)
+        # We select a property of the boxes
+        select_properties = self.browser.find_by_xpath(
+            "//option[@class='option-property' and text()='Name']")
+        select_properties[0].click()
+        # We check if the value of the select is the value of the property
+        select_value = self.browser.find_by_xpath(
+            "//select[@class='select-property']").first.value
+        spin_assert(lambda: self.assertEqual(select_value, u"Name"))
+        # We check the property to return the property value
+        checkbox1 = self.browser.find_by_xpath(
+            "//div[@id='field1']//input[@class='checkbox-property']").first
+        checkbox1.click()
+        # We click in the advanced mode
+        aggregate = self.browser.find_by_xpath(
+            "//div[@id='diagramBox-1-bobs-type']"
+            "//a[@id='inlineAdvancedMode_bobs-type']/i").first
+        aggregate.click()
+        js_code = '''
+            $('.select-aggregate option[value="Count"][data-distinct="false"]')
+            .prop('selected', 'selected').change()
+        '''
+        self.browser.execute_script(js_code)
+        # We get the button to run the query and click it
+        run_query(self)
+        # We check the headers with the aliases
+        headers = self.browser.find_by_xpath("//th[@class='header']/a/div")
+        header1 = headers[0]
+        spin_assert(lambda: self.assertEqual(header1.text,
+                                             u"Count (Bob's type 1.Name)"))
+        # We check the text u"Bob's node"
+        result_name = self.browser.find_by_xpath(
+            "//tr[@class='row-even']").first.text
+        spin_assert(lambda: self.assertEqual(result_name,
+                                             u"1"))
+        # We navigate to the query builder view
+        breadcrumb_new = self.browser.find_by_xpath(
+            "//header[@class='global']/h2/a")[2]
+        breadcrumb_new.click()
+        # We check if the aggregate is loaded correctly
+        aggregate_name = self.browser.find_by_xpath(
+            "//select[@class='select-aggregate']").first.value
+        spin_assert(lambda: self.assertEqual(aggregate_name,
+                                             u"Count"))
+        Graph.objects.get(name="Bob's graph").destroy()
+
     # Lookups tests
 
     def test_query_builder_lookups_equals(self):

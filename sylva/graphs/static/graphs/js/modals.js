@@ -52,6 +52,10 @@
       that = this;
     },
 
+    stop: function() {
+      that = null;
+    },
+
     // It creates the black-alpha layer behind the modals.
     createOverlay: function() {
       var overlay = $('<div id="overlay" class="modal-overlay">');
@@ -209,6 +213,9 @@
       // Setting the form into the HTML.
       var modalHTML = $('<div id="current-modal" style="display: none;">');
       $('body').append(modalHTML);  // This line need to be executed here, so the internal JS will be executed.
+      //var onlyPropertiesDiv = $.parseHTML(html)[1];
+      //var newHtml = $(html).clone();
+      //modalHTML.append(newHtml[0]);
       modalHTML.append(html);
 
       // Size variables for the modal library.
@@ -291,6 +298,56 @@
           setTimeout(function() {
             that.handleFormServerResponse(data);
           }, fast);
+        }, fast);
+      });
+      jqxhr.error(function(e) {
+        alert(gettext("Oops! Something went wrong with the server."));
+        that.closeModalLib();
+      });
+
+      // False is needed, that way the form isn't sended.
+      return false;
+    },
+
+    /* This function handles the save and edit nodes but outside of the
+     * dashboard modal menu.
+     */
+    saveModalFormOwnView: function(requestInfo) {
+      // Closing the 'edit node' modal and showing the loading one.
+      $.modal.close();
+      setTimeout(function() {
+        that.customTextModal(loadingTextFunction);
+      }, fast);
+
+      var serializedForm = $(requestInfo.formSelector).serialize();
+      serializedForm += requestInfo.extraParams;
+      window.modalForm = $(requestInfo.formSelector);
+
+      // Performing the request with the created variables.
+      var jqxhr = $.ajax({
+        url: requestInfo.url,
+        type: 'POST',
+        data: serializedForm,
+        dataType: 'json'
+      });
+      jqxhr.success(function(data) {
+        /* Here we need a double 'setTimeout()' because the previous one, also
+         * inside this function maybe isn't finished when the AJAX request
+         * starts.
+         */
+        setTimeout(function() {
+          that.destroyOverlay();
+          $.modal.close(); // Closing the loading modal.
+          // Show the "Add Node" links.
+          $('.add-node').show();
+          // We need to set the input text with the value of the new node
+          $(inputField).focus();
+          // We wait a while until the autocomplete field is visible
+          setTimeout(function(){
+            $(inputField).val($('#id_Name', modalForm).val());
+          }, 1000);
+          // We simulate an "enter key" press to set up the new value
+          $('#id_Name').trigger(jQuery.Event('keypress', {which: 13}));
         }, fast);
       });
       jqxhr.error(function(e) {
@@ -516,6 +573,147 @@
       preProcessHTML: editAndCreateNodePreProcessHTML,
 
       onShow: editAndCreateNodeOnShow
+    },
+
+    createNodeOwnView: {
+
+      start: function(url, showOverlay) {
+
+        ////////////////
+        // Prepare modal
+        ////////////////
+
+        if(showOverlay)
+        that.createOverlay();
+
+        var params = {
+          'asModal': true
+        };
+
+        window.modalAction = this;
+
+        // Performing the request with the created variables.
+        var jqxhr = $.ajax({
+          url: url,
+          type: 'GET',
+          data: params,
+          dataType: 'json'
+        });
+
+        jqxhr.success(function(data) {
+          $.modal.close(); // Closing the loading modal.
+          setTimeout(function() {
+
+            /////////////
+            // Show modal
+            /////////////
+
+            // Setting the form into the HTML.
+            var modalHTML = $('<div id="current-modal" style="display: none;">');
+            $('body').append(modalHTML);  // This line need to be executed here, so the internal JS will be executed.
+            var html = data.html;
+            var saveUrl = $('#save-url', html);
+            var form = $('#edit-node-form', html).attr('id', 'edit-node-form-modal');
+
+            modalHTML.append(saveUrl);
+            modalHTML.append(form);
+
+            // Size variables for the modal library.
+            var windowHeight = Math.max(document.documentElement.clientHeight,
+                window.innerHeight || 0);
+            var windowWidth = Math.max(document.documentElement.clientWidth,
+                window.innerWidth || 0);
+            var modalPadding = 10;
+
+            onShowOptions = {
+              html: html,
+              modalHTML: modalHTML,
+              windowHeight: windowHeight,
+              windowWidth: windowWidth,
+              modalPadding: modalPadding
+            };
+
+            $.extend(onShowOptions, modalAction.preProcessHTML());
+
+            // Creating the modal.
+            $('#' + modalHTML.attr('id')).modal({
+              // Options.
+              modal: true,
+              escClose: false,
+              focus: false,
+
+              // Styles.
+              maxHeight: windowHeight - (modalPadding * 2),
+              maxWidth: windowWidth - (modalPadding * 2),
+              minWidth: "1170px",
+              containerCss: {
+                backgroundColor: '#FFFFFF',
+                borderRadius: modalPadding,
+                padding: modalPadding,
+                display: 'inline-block'
+              },
+
+              // Events.
+              onOpen: function(dialog) {
+                that.openModal(dialog);
+              },
+              onClose: function(dialog) {
+                that.closeModal(dialog);
+              },
+              onShow: function(dialog) {}
+            });
+
+          }, fast);
+        });
+
+        jqxhr.error(function(e) {
+          alert(e);
+          alert(gettext("Oops! Something went wrong with the server."));
+          that.closeModalLib();
+        });
+      },
+
+      preProcessHTML: function() {
+        // Hiding "Add node" links.
+        $('.add-node').hide();
+
+        // Binding the event to save the form
+        $($('#current-modal input[type="submit"]')[0]).on('click', function() {
+          // Variables for save the node by saving the form.
+          var saveURL = $('#save-url').attr('data-url');
+          var formSelector = '#edit-node-form-modal';
+          var extraParams = '&asModal=true';
+
+          var requestInfo = {};
+          requestInfo.url = saveURL;
+          requestInfo.formSelector = formSelector;
+          requestInfo.extraParams = extraParams;
+
+          return sylva.modals.saveModalFormOwnView(requestInfo);
+        });
+
+        $('#submit-cancel').on('click', function() {
+          that.closeModalLib();
+          that.destroyOverlay();
+          $.modal.close();
+          $('#current-modal').remove();
+          $('#bridge-modal').remove();
+
+          // We show the "Add node" links.
+          $('.add-node').show();
+
+          return false;
+        });
+      },
+
+      onShow: function() {
+        $('#simplemodal-container').css({
+          width: 1170,
+          left: 55.5,
+          'top': '2%',
+          'height': '93.5%'
+        });
+      }
     },
 
     listNodes: {
