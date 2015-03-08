@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from engines.gdb.lookups import BaseQ
+from engines.gdb.lookups import BaseQ, BaseF
 
 
 class Q(BaseQ):
@@ -84,7 +84,7 @@ class Q(BaseQ):
         elif self.lookup in ["in", "inrange"]:
             lookup = u"IN"
             match = u"[{0}]".format(u"', '".join([self._escape(m)
-                                      for m in self.match]))
+                                    for m in self.match]))
         elif self.lookup == "isnull":
             if self.match:
                 lookup = u"="
@@ -145,20 +145,35 @@ class Q(BaseQ):
             query = u""
             lookup, match = self._get_lookup_and_match()
         if self.property is not None and self.var is not None:
-            key = u"{0}p{1}".format(prefix, len(params))
-            property = unicode(self.property).replace(u"`", u"\\`")
             if self.nullable is True:
                 nullable = u"!"
             elif self.nullable is False:
                 nullable = u"?"
             else:
                 nullable = u""
-            params[key] = match
-            try:
-                query_format = u"`{0}`.`{1}`{2} {3} {{{4}}}"
+            if isinstance(match, F):
+                query_format = u"`{0}`.`{1}`{2} {3} `{4}`.`{5}`"
                 query = query_format.format(self.var, property, nullable,
-                                            lookup, key)
-            except AttributeError:
-                query = u"%s.`%s`%s %s {%s}" % (self.var, property, nullable,
+                                            lookup, match.var, match.property)
+            else:
+                key = u"{0}p{1}".format(prefix, len(params))
+                property = unicode(self.property).replace(u"`", u"\\`")
+                params[key] = match
+                try:
+                    query_format = u"`{0}`.`{1}`{2} {3} {{{4}}}"
+                    query = query_format.format(self.var, property, nullable,
                                                 lookup, key)
+                except AttributeError:
+                    query = u"%s.`%s`%s %s {%s}" % (self.var, property,
+                                                    nullable, lookup, key)
         return query, params
+
+    def _expression(self, match):
+        """
+        :return: F object built from a match dictionary
+        """
+        return F(var=match["var"], property=match["property"])
+
+
+class F(BaseF):
+    pass

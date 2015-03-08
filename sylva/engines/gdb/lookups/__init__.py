@@ -21,15 +21,21 @@ class BaseQ(object):
               "eq", "equals", "neq", "notequals")
 
     def __init__(self, property=None, lookup=None, match=None,
-                 nullable=None, var=u"n", datatype=None, **kwargs):
+                 nullable=None, var=None, datatype=None, **kwargs):
         self._and = None
         self._or = None
         self._not = None
         self.property = property
         self.lookup = lookup
-        self.match = match
+        if isinstance(match, dict):
+            self.match = self._expression(**match)
+        else:
+            self.match = match
         self.nullable = nullable
-        self.var = var
+        if var is None:
+            self.var = u"n"
+        else:
+            self.var = var
         self.datatype = datatype
         if property and (self.lookup is None or self.match is None):
             for m in self.matchs:
@@ -82,7 +88,12 @@ class BaseQ(object):
         """
         :return query, params: Query string and a dictionary for lookups
         """
-        # return query, params
+        raise NotImplementedError("Method has to be implemented")
+
+    def _expression(self, match):
+        """
+        :return f_expression: F object built from a match dictionary
+        """
         raise NotImplementedError("Method has to be implemented")
 
     def __repr__(self):
@@ -94,3 +105,25 @@ class BaseQ(object):
     def __unicode__(self):
         query, params = self.get_query_objects()
         return query.format(**params)
+
+
+class BaseF(object):
+
+    def __init__(self, property, var=None):
+        if var is None:
+            self.var = u"n"
+        else:
+            self.var = var
+        self.property = property
+
+    def __hash__(self):
+        return hash((self.var, self.property))
+
+    def __repr__(self):
+        return self.__str__()
+
+    def __str__(self):
+        return self.__unicode__().encode('utf-8')
+
+    def __unicode__(self):
+        return u"{}.{}".format(self.var, self.property)
