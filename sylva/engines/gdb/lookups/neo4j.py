@@ -27,6 +27,10 @@ class Q(BaseQ):
         return s
 
     def _get_lookup_and_match(self):
+        if isinstance(self.match, F):
+            expression = self.match
+        else:
+            expression = None
         if self.lookup == "exact":
             lookup = u"="
             match = u"{0}".format(self.match)
@@ -100,7 +104,10 @@ class Q(BaseQ):
         else:
             lookup = self.lookup
             match = u""
-        return lookup, match
+        if expression is None:
+            return lookup, match
+        else:
+            return lookup, expression
 
     def get_query_objects(self, var=None, prefix=None, params=None):
         if var:
@@ -151,13 +158,13 @@ class Q(BaseQ):
                 nullable = u"?"
             else:
                 nullable = u""
+            property = unicode(self.property).replace(u"`", u"\\`")
             if isinstance(match, F):
                 query_format = u"`{0}`.`{1}`{2} {3} `{4}`.`{5}`"
                 query = query_format.format(self.var, property, nullable,
                                             lookup, match.var, match.property)
             else:
                 key = u"{0}p{1}".format(prefix, len(params))
-                property = unicode(self.property).replace(u"`", u"\\`")
                 params[key] = match
                 try:
                     query_format = u"`{0}`.`{1}`{2} {3} {{{4}}}"
