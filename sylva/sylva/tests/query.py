@@ -614,12 +614,11 @@ class QueryTestCase(LiveServerTestCase):
             .prop('selected', 'selected').change()
         '''
         self.browser.execute_script(js_code)
-        aggregate_name = self.browser.find_by_xpath(
-            "//select[@class='select-aggregate']").first.value
+        aggregate_name = self.browser.evaluate_script(
+            "$('.select-aggregate option:selected').html()")
         # We need to check if the value is equals to "Count distinct".
-        # Review it.
         spin_assert(lambda: self.assertEqual(aggregate_name,
-                                             u"Count"))
+                                             u"Count distinct"))
         Graph.objects.get(name="Bob's graph").destroy()
 
     def test_query_builder_one_box_with_aggregate_and_run(self):
@@ -703,7 +702,7 @@ class QueryTestCase(LiveServerTestCase):
         header1 = headers[0]
         spin_assert(lambda: self.assertEqual(header1.text,
                                              u"Count (Bob's type 1.Name)"))
-        # We check the text u"Bob's node"
+        # We check that the value is correct
         result_name = self.browser.find_by_xpath(
             "//tr[@class='row-even']").first.text
         spin_assert(lambda: self.assertEqual(result_name,
@@ -717,6 +716,327 @@ class QueryTestCase(LiveServerTestCase):
             "//select[@class='select-aggregate']").first.value
         spin_assert(lambda: self.assertEqual(aggregate_name,
                                              u"Count"))
+        Graph.objects.get(name="Bob's graph").destroy()
+
+    def test_query_builder_aggregate_run_and_go_back_distinct(self):
+        create_graph(self)
+        create_schema(self)
+        create_type(self)
+        create_data(self)
+        queries_menu(self)
+        # We create one box
+        create_query(self)
+        # We select a property of the boxes
+        select_properties = self.browser.find_by_xpath(
+            "//option[@class='option-property' and text()='Name']")
+        select_properties[0].click()
+        # We check if the value of the select is the value of the property
+        select_value = self.browser.find_by_xpath(
+            "//select[@class='select-property']").first.value
+        spin_assert(lambda: self.assertEqual(select_value, u"Name"))
+        # We check the property to return the property value
+        checkbox1 = self.browser.find_by_xpath(
+            "//div[@id='field1']//input[@class='checkbox-property']").first
+        checkbox1.click()
+        # We click in the advanced mode
+        aggregate = self.browser.find_by_xpath(
+            "//div[@id='diagramBox-1-bobs-type']"
+            "//a[@id='inlineAdvancedMode_bobs-type']/i").first
+        aggregate.click()
+        js_code = '''
+            $('.select-aggregate option[value="Count"][data-distinct="true"]')
+            .prop('selected', 'selected').change()
+        '''
+        self.browser.execute_script(js_code)
+        # We get the button to run the query and click it
+        run_query(self)
+        # We check the headers with the aliases
+        headers = self.browser.find_by_xpath("//th[@class='header']/a/div")
+        header1 = headers[0]
+        spin_assert(lambda: self.assertEqual(
+            header1.text,
+            u"Count Distinct(Bob's type 1.Name)"))
+        # We check the text u"Bob's node"
+        result_name = self.browser.find_by_xpath(
+            "//tr[@class='row-even']").first.text
+        spin_assert(lambda: self.assertEqual(result_name,
+                                             u"1"))
+        # We navigate to the query builder view
+        breadcrumb_new = self.browser.find_by_xpath(
+            "//header[@class='global']/h2/a")[2]
+        breadcrumb_new.click()
+        # We check if the aggregate is loaded correctly
+        aggregate_name = self.browser.evaluate_script(
+            "$('.select-aggregate option:selected').html()")
+        spin_assert(lambda: self.assertEqual(aggregate_name,
+                                             u"Count distinct"))
+        Graph.objects.get(name="Bob's graph").destroy()
+
+    def test_query_builder_two_boxes_with_aggregates(self):
+        create_graph(self)
+        create_schema(self)
+        create_type(self)
+        create_data(self)
+        queries_menu(self)
+        # We create two boxes
+        create_query(self)
+        node_type = self.browser.find_by_xpath(
+            "//table[@id='node-types']/tbody/tr/td/a").first
+        node_type.click()
+        # We select the correct alias
+        js_code = '''
+            $($('.select-nodetype-bobs-type')[1]).val("Bob's type 2").change();
+        '''
+        self.browser.execute_script(js_code)
+        # We select a property of the boxes
+        select_properties = self.browser.find_by_xpath(
+            "//option[@class='option-property' and text()='Name']")
+        select_properties[0].click()
+        select_properties[1].click()
+        # We check if the value of the select is the value of the property
+        select_value = self.browser.find_by_xpath(
+            "//select[@class='select-property']").first.value
+        spin_assert(lambda: self.assertEqual(select_value, u"Name"))
+        # We check the property to return the property value
+        checkbox1 = self.browser.find_by_xpath(
+            "//div[@id='field1']//input[@class='checkbox-property']").first
+        checkbox1.click()
+        checkbox2 = self.browser.find_by_xpath(
+            "//div[@id='field2']//input[@class='checkbox-property']").first
+        checkbox2.click()
+        # We click in the advanced mode
+        aggregate1 = self.browser.find_by_xpath(
+            "//div[@id='diagramBox-1-bobs-type']"
+            "//a[@id='inlineAdvancedMode_bobs-type']/i").first.click()
+        aggregate2 = self.browser.find_by_xpath(
+            "//div[@id='diagramBox-2-bobs-type']"
+            "//a[@id='inlineAdvancedMode_bobs-type']/i").first.click()
+        js_code = '''
+            $($('.select-aggregate option[value="Count"][data-distinct="false"]')[0]).prop('selected', 'selected').change();
+            $($('.select-aggregate option[value="Min"][data-distinct="false"]')[1]).prop('selected', 'selected').change();
+        '''
+        self.browser.execute_script(js_code)
+        aggregates_names = self.browser.find_by_xpath(
+            "//select[@class='select-aggregate']")
+        spin_assert(lambda: self.assertEqual(aggregates_names[0].value,
+                                             u"Count"))
+        spin_assert(lambda: self.assertEqual(aggregates_names[1].value,
+                                             u"Min"))
+        Graph.objects.get(name="Bob's graph").destroy()
+
+    def test_query_builder_two_boxes_with_distinct_aggregates(self):
+        create_graph(self)
+        create_schema(self)
+        create_type(self)
+        create_data(self)
+        queries_menu(self)
+        # We create two boxes
+        create_query(self)
+        node_type = self.browser.find_by_xpath(
+            "//table[@id='node-types']/tbody/tr/td/a").first
+        node_type.click()
+        # We select the correct alias
+        js_code = '''
+            $($('.select-nodetype-bobs-type')[1]).val("Bob's type 2").change();
+        '''
+        self.browser.execute_script(js_code)
+        # We select a property of the boxes
+        select_properties = self.browser.find_by_xpath(
+            "//option[@class='option-property' and text()='Name']")
+        select_properties[0].click()
+        select_properties[1].click()
+        # We check if the value of the select is the value of the property
+        select_value = self.browser.find_by_xpath(
+            "//select[@class='select-property']").first.value
+        spin_assert(lambda: self.assertEqual(select_value, u"Name"))
+        # We check the property to return the property value
+        checkbox1 = self.browser.find_by_xpath(
+            "//div[@id='field1']//input[@class='checkbox-property']").first
+        checkbox1.click()
+        checkbox2 = self.browser.find_by_xpath(
+            "//div[@id='field2']//input[@class='checkbox-property']").first
+        checkbox2.click()
+        # We click in the advanced mode
+        aggregate1 = self.browser.find_by_xpath(
+            "//div[@id='diagramBox-1-bobs-type']"
+            "//a[@id='inlineAdvancedMode_bobs-type']/i").first.click()
+        aggregate2 = self.browser.find_by_xpath(
+            "//div[@id='diagramBox-2-bobs-type']"
+            "//a[@id='inlineAdvancedMode_bobs-type']/i").first.click()
+        js_code = '''
+            $($('.select-aggregate option[value="Count"][data-distinct="true"]')[0]).prop('selected', 'selected').change();
+            $($('.select-aggregate option[value="Min"][data-distinct="true"]')[1]).prop('selected', 'selected').change();
+        '''
+        self.browser.execute_script(js_code)
+        aggregate_name1 = self.browser.evaluate_script(
+            "$($('.select-aggregate option:selected')[0]).html()")
+        aggregate_name2 = self.browser.evaluate_script(
+            "$($('.select-aggregate option:selected')[1]).html()")
+        spin_assert(lambda: self.assertEqual(aggregate_name1,
+                                             u"Count distinct"))
+        spin_assert(lambda: self.assertEqual(aggregate_name2,
+                                             u"Min distinct"))
+        Graph.objects.get(name="Bob's graph").destroy()
+
+    def test_query_builder_boxes_with_aggregates_run_and_go_back(self):
+        create_graph(self)
+        create_schema(self)
+        create_type(self)
+        create_data(self)
+        queries_menu(self)
+        # We create two boxes
+        create_query(self)
+        node_type = self.browser.find_by_xpath(
+            "//table[@id='node-types']/tbody/tr/td/a").first
+        node_type.click()
+        # We select the correct alias
+        js_code = '''
+            $($('.select-nodetype-bobs-type')[1]).val("Bob's type 2").change();
+        '''
+        self.browser.execute_script(js_code)
+        # We select a property of the boxes
+        select_properties = self.browser.find_by_xpath(
+            "//option[@class='option-property' and text()='Name']")
+        select_properties[0].click()
+        select_properties[1].click()
+        # We check if the value of the select is the value of the property
+        select_value = self.browser.find_by_xpath(
+            "//select[@class='select-property']").first.value
+        spin_assert(lambda: self.assertEqual(select_value, u"Name"))
+        # We check the property to return the property value
+        checkbox1 = self.browser.find_by_xpath(
+            "//div[@id='field1']//input[@class='checkbox-property']").first
+        checkbox1.click()
+        checkbox2 = self.browser.find_by_xpath(
+            "//div[@id='field2']//input[@class='checkbox-property']").first
+        checkbox2.click()
+        # We click in the advanced mode
+        aggregate1 = self.browser.find_by_xpath(
+            "//div[@id='diagramBox-1-bobs-type']"
+            "//a[@id='inlineAdvancedMode_bobs-type']/i").first.click()
+        aggregate2 = self.browser.find_by_xpath(
+            "//div[@id='diagramBox-2-bobs-type']"
+            "//a[@id='inlineAdvancedMode_bobs-type']/i").first.click()
+        js_code = '''
+            $($('.select-aggregate option[value="Count"][data-distinct="false"]')[0]).prop('selected', 'selected').change();
+            $($('.select-aggregate option[value="Min"][data-distinct="false"]')[1]).prop('selected', 'selected').change();
+        '''
+        self.browser.execute_script(js_code)
+        # We get the button to run the query and click it
+        run_query(self)
+        # We check the headers with the aliases
+        # We check the headers with the aliases
+        headers = self.browser.find_by_xpath("//th[@class='header']/a/div")
+        header2 = headers[0]
+        header1 = headers[1]
+        spin_assert(lambda: self.assertEqual(
+            header1.text,
+            u"Count (Bob's type 1.Name)"))
+        spin_assert(lambda: self.assertEqual(
+            header2.text,
+            u"Min (Bob's type 2.Name)"))
+        # We check that the value is correct
+        results_name = self.browser.find_by_xpath(
+            "//tr[@class='row-even']/td")
+        result_name2 = results_name[0].text
+        result_name1 = results_name[1].text
+        spin_assert(lambda: self.assertEqual(result_name1,
+                                             u"1"))
+        spin_assert(lambda: self.assertEqual(result_name2,
+                                             u"Bob's node"))
+        # We navigate to the query builder view
+        breadcrumb_new = self.browser.find_by_xpath(
+            "//header[@class='global']/h2/a")[2]
+        breadcrumb_new.click()
+        # We check if the aggregate is loaded correctly
+        aggregate_name1 = self.browser.evaluate_script(
+            "$($('.select-aggregate option:selected')[0]).html()")
+        aggregate_name2 = self.browser.evaluate_script(
+            "$($('.select-aggregate option:selected')[1]).html()")
+        spin_assert(lambda: self.assertEqual(aggregate_name1,
+                                             u"Count"))
+        spin_assert(lambda: self.assertEqual(aggregate_name2,
+                                             u"Min"))
+        Graph.objects.get(name="Bob's graph").destroy()
+
+    def test_query_builder_boxes_aggregates_run_and_go_back_distinct(self):
+        create_graph(self)
+        create_schema(self)
+        create_type(self)
+        create_data(self)
+        queries_menu(self)
+        # We create two boxes
+        create_query(self)
+        node_type = self.browser.find_by_xpath(
+            "//table[@id='node-types']/tbody/tr/td/a").first
+        node_type.click()
+        # We select the correct alias
+        js_code = '''
+            $($('.select-nodetype-bobs-type')[1]).val("Bob's type 2").change();
+        '''
+        self.browser.execute_script(js_code)
+        # We select a property of the boxes
+        select_properties = self.browser.find_by_xpath(
+            "//option[@class='option-property' and text()='Name']")
+        select_properties[0].click()
+        select_properties[1].click()
+        # We check if the value of the select is the value of the property
+        select_value = self.browser.find_by_xpath(
+            "//select[@class='select-property']").first.value
+        spin_assert(lambda: self.assertEqual(select_value, u"Name"))
+        # We check the property to return the property value
+        checkbox1 = self.browser.find_by_xpath(
+            "//div[@id='field1']//input[@class='checkbox-property']").first
+        checkbox1.click()
+        checkbox2 = self.browser.find_by_xpath(
+            "//div[@id='field2']//input[@class='checkbox-property']").first
+        checkbox2.click()
+        # We click in the advanced mode
+        aggregate1 = self.browser.find_by_xpath(
+            "//div[@id='diagramBox-1-bobs-type']"
+            "//a[@id='inlineAdvancedMode_bobs-type']/i").first.click()
+        aggregate2 = self.browser.find_by_xpath(
+            "//div[@id='diagramBox-2-bobs-type']"
+            "//a[@id='inlineAdvancedMode_bobs-type']/i").first.click()
+        js_code = '''
+            $($('.select-aggregate option[value="Count"][data-distinct="true"]')[0]).prop('selected', 'selected').change();
+            $($('.select-aggregate option[value="Min"][data-distinct="true"]')[1]).prop('selected', 'selected').change();
+        '''
+        self.browser.execute_script(js_code)
+        # We get the button to run the query and click it
+        run_query(self)
+        # We check the headers with the aliases
+        headers = self.browser.find_by_xpath("//th[@class='header']/a/div")
+        header2 = headers[0]
+        header1 = headers[1]
+        spin_assert(lambda: self.assertEqual(
+            header1.text,
+            u"Count Distinct(Bob's type 1.Name)"))
+        spin_assert(lambda: self.assertEqual(
+            header2.text,
+            u"Min Distinct(Bob's type 2.Name)"))
+        # We check that the value is correct
+        results_name = self.browser.find_by_xpath(
+            "//tr[@class='row-even']/td")
+        result_name2 = results_name[0].text
+        result_name1 = results_name[1].text
+        spin_assert(lambda: self.assertEqual(result_name1,
+                                             u"1"))
+        spin_assert(lambda: self.assertEqual(result_name2,
+                                             u"Bob's node"))
+        # We navigate to the query builder view
+        breadcrumb_new = self.browser.find_by_xpath(
+            "//header[@class='global']/h2/a")[2]
+        breadcrumb_new.click()
+        # We check if the aggregate is loaded correctly
+        aggregate_name1 = self.browser.evaluate_script(
+            "$($('.select-aggregate option:selected')[0]).html()")
+        aggregate_name2 = self.browser.evaluate_script(
+            "$($('.select-aggregate option:selected')[1]).html()")
+        spin_assert(lambda: self.assertEqual(aggregate_name1,
+                                             u"Count distinct"))
+        spin_assert(lambda: self.assertEqual(aggregate_name2,
+                                             u"Min distinct"))
         Graph.objects.get(name="Bob's graph").destroy()
 
     # Lookups tests
@@ -750,7 +1070,8 @@ class QueryTestCase(LiveServerTestCase):
         self.browser.find_by_xpath("//div[@id='diagram']").first.click()
         # We fill the input for the lookup value
         lookup_input_value = self.browser.find_by_xpath(
-            "//input[@class='lookup-value']").first.fill(u"Bob's node")
+            "//input[@class='lookup-value ui-autocomplete-input']").first.fill(
+            u"Bob's node")
         # We need to click outside for a correct behaviour of the input field
         self.browser.find_by_xpath("//div[@id='diagram']").first.click()
         # We run the query
@@ -789,7 +1110,8 @@ class QueryTestCase(LiveServerTestCase):
         self.browser.find_by_xpath("//div[@id='diagram']").first.click()
         # We fill the input for the lookup value
         lookup_input_value = self.browser.find_by_xpath(
-            "//input[@class='lookup-value']").first.fill(u"Alice's node")
+            "//input[@class='lookup-value ui-autocomplete-input']").first.fill(
+            u"Alice's node")
         # We need to click outside for a correct behaviour of the input field
         self.browser.find_by_xpath("//div[@id='diagram']").first.click()
         # We run the query
@@ -827,7 +1149,8 @@ class QueryTestCase(LiveServerTestCase):
         self.browser.find_by_xpath("//div[@id='diagram']").first.click()
         # We fill the input for the lookup value
         lookup_input_value = self.browser.find_by_xpath(
-            "//input[@class='lookup-value']").first.fill(u"Bob")
+            "//input[@class='lookup-value ui-autocomplete-input']").first.fill(
+            u"Bob")
         # We need to click outside for a correct behaviour of the input field
         self.browser.find_by_xpath("//div[@id='diagram']").first.click()
         # We run the query
@@ -866,7 +1189,8 @@ class QueryTestCase(LiveServerTestCase):
         self.browser.find_by_xpath("//div[@id='diagram']").first.click()
         # We fill the input for the lookup value
         lookup_input_value = self.browser.find_by_xpath(
-            "//input[@class='lookup-value']").first.fill(u"o")
+            "//input[@class='lookup-value ui-autocomplete-input']").first.fill(
+            u"o")
         # We need to click outside for a correct behaviour of the input field
         self.browser.find_by_xpath("//div[@id='diagram']").first.click()
         # We run the query
@@ -906,7 +1230,8 @@ class QueryTestCase(LiveServerTestCase):
         self.browser.find_by_xpath("//div[@id='diagram']").first.click()
         # We fill the input for the lookup value
         lookup_input_value = self.browser.find_by_xpath(
-            "//input[@class='lookup-value']").first.fill(u"x")
+            "//input[@class='lookup-value ui-autocomplete-input']").first.fill(
+            u"x")
         # We need to click outside for a correct behaviour of the input field
         self.browser.find_by_xpath("//div[@id='diagram']").first.click()
         # We run the query
@@ -945,7 +1270,8 @@ class QueryTestCase(LiveServerTestCase):
         self.browser.find_by_xpath("//div[@id='diagram']").first.click()
         # We fill the input for the lookup value
         lookup_input_value = self.browser.find_by_xpath(
-            "//input[@class='lookup-value']").first.fill(u"B")
+            "//input[@class='lookup-value ui-autocomplete-input']").first.fill(
+            u"B")
         # We need to click outside for a correct behaviour of the input field
         self.browser.find_by_xpath("//div[@id='diagram']").first.click()
         # We run the query
@@ -984,7 +1310,8 @@ class QueryTestCase(LiveServerTestCase):
         self.browser.find_by_xpath("//div[@id='diagram']").first.click()
         # We fill the input for the lookup value
         lookup_input_value = self.browser.find_by_xpath(
-            "//input[@class='lookup-value']").first.fill(u"C")
+            "//input[@class='lookup-value ui-autocomplete-input']").first.fill(
+            u"C")
         # We need to click outside for a correct behaviour of the input field
         self.browser.find_by_xpath("//div[@id='diagram']").first.click()
         # We run the query
@@ -1023,7 +1350,8 @@ class QueryTestCase(LiveServerTestCase):
         self.browser.find_by_xpath("//div[@id='diagram']").first.click()
         # We fill the input for the lookup value
         lookup_input_value = self.browser.find_by_xpath(
-            "//input[@class='lookup-value']").first.fill(u"e")
+            "//input[@class='lookup-value ui-autocomplete-input']").first.fill(
+            u"e")
         # We need to click outside for a correct behaviour of the input field
         self.browser.find_by_xpath("//div[@id='diagram']").first.click()
         # We run the query
@@ -1062,7 +1390,8 @@ class QueryTestCase(LiveServerTestCase):
         self.browser.find_by_xpath("//div[@id='diagram']").first.click()
         # We fill the input for the lookup value
         lookup_input_value = self.browser.find_by_xpath(
-            "//input[@class='lookup-value']").first.fill(u"h")
+            "//input[@class='lookup-value ui-autocomplete-input']").first.fill(
+            u"h")
         # We need to click outside for a correct behaviour of the input field
         self.browser.find_by_xpath("//div[@id='diagram']").first.click()
         # We run the query

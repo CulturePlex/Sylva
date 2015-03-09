@@ -28,7 +28,7 @@ class BaseQ(object):
         self.property = property
         self.lookup = lookup
         if isinstance(match, dict):
-            self.match = self._expression(**match)
+            self.match = self._expression(match)
         else:
             self.match = match
         self.nullable = nullable

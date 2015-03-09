@@ -434,6 +434,14 @@ class GraphDatabase(BlueprintsGraphDatabase):
         conditions_length = len(conditions_dict) - 1
         for lookup, property_tuple, match, connector, datatype \
                 in conditions_dict:
+            # This is the option to have properties of another boxes
+            if datatype == "property_box":
+                match_dict = dict()
+                match_splitted = match.split(".")
+                match_dict['var'] = match_splitted[0]
+                match_dict['property'] = match_splitted[1]
+                match = match_dict
+
             if lookup == "between":
                 gte = q_lookup_builder(property=property_tuple[2],
                                        lookup="gte",
@@ -482,6 +490,9 @@ class GraphDatabase(BlueprintsGraphDatabase):
                 condition = query_objects[0]
                 params = query_objects[1]
                 conditions_set.add(unicode(condition))
+                # Uncomment this line to see the difference between use
+                # query params or use the q_element
+                # conditions_set.add(unicode(q_element))
                 query_params.update(params)
                 # We append the two property in the list
                 conditions_alias.add(property_tuple[1])

@@ -26,6 +26,7 @@ diagram.relindex = {};
 diagram.boxesSelects = {};
 diagram.boxesValues = {};
 
+diagram.autocompleteData = {};
 /*
  * The next dictionaries are useful for the distinct options
  * in the lookups
@@ -880,6 +881,8 @@ diagram.aggregates = [
 
             anchorClose.append(iconClose);
             anchorClose.click(function () {
+                // We remove the option in the autocomplete data dict
+                delete diagram.autocompleteData[slugValue];
                 var connections = jsPlumb.getEndpoint(idBox + '-target').connections;
                 // We redraw the endpoint of the endpoints connected to this
                 // target
@@ -1224,6 +1227,9 @@ diagram.aggregates = [
                         optionProperty.attr('data-choices', field.choices);
                     optionProperty.html(field.label);
                     selectProperty.append(optionProperty);
+
+                    // Adding the option to the autocomplete dict
+                    diagram.autocompleteData[boxalias] = boxalias + '.' + field.label;
                 }
                 // Select lookup
                 selectLookup = $("<SELECT>");
@@ -2034,7 +2040,9 @@ diagram.aggregates = [
             var showAlias = $('#' + parentId + ' .title').children().filter('input, select').val();
             var alias = $('#' + parentId + ' .title').data('slug');
             var propertyName = $(property).val();
-            var propertyValue = $(property).next().next().val();
+            var $propertyField = $(property).next().next();
+            var propertyFromAnotherBox = $propertyField.data('boxproperty');
+            var propertyValue = $propertyField.val();
 
             // Treatment for the lookup 'has some value & has no value'
             if(lookup === 'isnull') {
@@ -2117,10 +2125,16 @@ diagram.aggregates = [
                     conditionArray.push("not");
                 }
 
-                if(datatype) {
-                    conditionArray.push(datatype);
+                // We use the key word 'property_box' to know that we have
+                // a property from another box
+                if(propertyFromAnotherBox !== undefined) {
+                    conditionArray.push('property_box');
                 } else {
-                    conditionArray.push("undefined");
+                    if(datatype) {
+                        conditionArray.push(datatype);
+                    } else {
+                        conditionArray.push("undefined");
+                    }
                 }
 
                 conditionsArray.push(conditionArray);
@@ -3446,6 +3460,19 @@ diagram.aggregates = [
         } else {
             // In this branch, the type would be boolean, choices, date or user
         }
+
+        // We add the option to autocomplete the lookup value with
+        // other properties
+        $('.lookup-value').autocomplete({
+            source: function (request, response) {
+                response(diagram.autocompleteData);
+                return;
+            },
+            select: function (event, ui) {
+                // We add a special data to the input
+                $(event.target).attr('data-boxproperty', ui.item.value);
+            },
+        });
     });
 
     /**
