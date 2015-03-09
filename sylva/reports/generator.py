@@ -1,14 +1,43 @@
 # -*- coding: utf-8 -*-
 import datetime
 import operator
+from django.dispatch import receiver
 from django.db.models import Q
-from models import ReportTemplate
+from django.db.models.signals import post_save
+from models import ReportTemplate, Report
+from utils import phantom_process
+from views import reports_index_view
 from sylva.celery import app
 from celery.utils.log import get_task_logger
 
 
 logger = get_task_logger(__name__)
 
+
+@receiver(post_save, sender=Report)
+def post_report_save(sender, **kwargs):
+    if kwargs.get("created", False):
+        email_to = kwargs["instance"].template.email_to.all()
+        if email_to:
+            # Call tasks - it will start with generate pdf, then callback
+            # some async map onto all of the emails needed to be sent.
+            print("email_to")
+        print("Received signal, report created. Length {0}".format(len(email_to)))
+
+
+@app.task(name="reports.pdf")
+def generate_pdf():
+    ### Just need to figure out how to get all these awesome params
+    filename = phantom_process(
+        scheme,
+        netloc,
+        graph_slug,
+        template_slug,
+        domain,
+        csrftoken,
+        sessionid
+    )
+    # open and save on the report instance
 
 @app.task(name='reports.generate')
 def generate_report():

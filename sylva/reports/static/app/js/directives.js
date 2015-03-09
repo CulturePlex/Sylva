@@ -23,6 +23,7 @@ directives.directive('sylvaAutoComplete', ['DJANGO_URLS', function (DJANGO_URLS)
                 onAdd: function (el) {
                     scope.$apply(function () {
                         scope.collabs.push(el);
+                        console.log("scope.collabs", scope.collabs)
                     });
                     elem.tokenInput("clear")
                 }

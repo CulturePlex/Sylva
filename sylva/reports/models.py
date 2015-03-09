@@ -2,15 +2,13 @@
 import datetime
 import json
 from django.db import models
-from django.dispatch import receiver
 from django.contrib.auth.models import User
 from django.utils.translation import gettext as _
-from django.db.models.signals import post_save
 from jsonfield import JSONField
-
 from graphs.models import Graph
 from queries.models import Query
 from sylva.fields import AutoSlugField
+
 
 
 class ReportTemplate(models.Model):
@@ -64,7 +62,7 @@ class ReportTemplate(models.Model):
         query_dicts = {query.id: (query.execute(headers=True), query.name)
                        for query in queries}
         table = []
-        for row in self.layout:
+        for row in self.layout["layout"]:
             new_row = []
             for cell in row:
                 query = cell.get('displayQuery', '')
@@ -120,16 +118,10 @@ class Report(models.Model):
     def dictify(self):
         report = {
             'id': self.id,
-            'table': self.table,
+            'table': selfprint("email_to").table,
             'date_run': json.dumps(self.date_run, default=_dthandler)
         }
         return report
-
-
-@receiver(post_save, sender=Report)
-def post_report_save(sender, **kwargs):
-    if kwargs.get("created", False):
-        print("Received signal, report created.")
 
 
 def _dthandler(obj):

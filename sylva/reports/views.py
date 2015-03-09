@@ -2,10 +2,8 @@
 import datetime
 import json
 import os
-import tempfile
 import urlparse
 
-from subprocess import Popen, STDOUT, PIPE
 from time import time
 
 from dateutil import relativedelta
@@ -16,13 +14,11 @@ from django.template import RequestContext
 from django.db.models import Q
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
-from django.contrib.staticfiles import finders
 from django.contrib.auth.decorators import login_required
 
 from guardian.decorators import permission_required
-
+from utils import phantom_process
 from models import ReportTemplate, Report
 from graphs.models import Graph, Schema
 from queries.models import Query
@@ -262,6 +258,9 @@ def builder_endpoint(request, graph_slug):
             new_template.layout = template['layout']
             new_template.description = template['description']
             new_template.save()
+            for old in new_template.email_to.all():
+                if old.username not in template["collabs"]:
+                    new_template.email_to.remove(old)
         else:
             new_template = ReportTemplate.objects.create(
                 name=template['name'],
@@ -298,33 +297,23 @@ def preview_report_pdf(request, graph_slug):
     parsed_url = urlparse.urlparse(
         request.build_absolute_uri()
     )
-    raster_path = finders.find('phantomjs/rasterize.js')
-    temp_path = os.path.join(tempfile.gettempdir(), str(int(time() * 1000)))
-    filename = '{0}.pdf'.format(temp_path)
     template_slug = request.GET.get('template', '')
-    if request.GET.get('template', ''):
+    if request.GET.get('template', str(int(time() * 1000))):
         download_name = '{0}.pdf'.format(request.GET['template'])
-    else:
-        download_name = temp_path
-    url = '{0}://{1}{2}{3}#/preview/{4}'.format(
-        parsed_url.scheme,
-        parsed_url.netloc,
-        reverse(reports_index_view, kwargs={'graph_slug': graph_slug}),
-        '?pdf=true',
-        template_slug
-    )
+
     domain = parsed_url.hostname
     csrftoken = request.COOKIES.get('csrftoken', 'nocsrftoken')
     sessionid = request.COOKIES.get('sessionid', 'nosessionid')
-    Popen([
-        'phantomjs',
-        raster_path,
-        url,
-        filename,
+    filename = phantom_process(
+        parsed_url.scheme,
+        parsed_url.netloc,
+        reports_index_view,
+        graph_slug,
+        template_slug,
         domain,
         csrftoken,
         sessionid
-    ], stdout=PIPE, stderr=STDOUT).wait()
+    )
     try:
         with open(filename) as pdf:
             response = HttpResponse(pdf.read(), content_type='application/pdf')

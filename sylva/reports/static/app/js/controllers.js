@@ -210,7 +210,7 @@ controllers.controller('EditReportCtrl', [
             data.template.date = month + '/' + day + '/' + year;
             $scope.template = data.template;
             $scope.collabs = data.template.collabs;
-            console.log("collabs", data.template)
+            console.log("ctrl collabs", $scope.collabs)
             $scope.resp = {table: data.template.layout, queries: data.queries};
             $scope.prev = $scope.resp;
         });
