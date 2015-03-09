@@ -46,7 +46,8 @@ controllers.controller('BaseReportCtrl', [
     'GRAPH',
     'api',
     'breadService',
-    function ($scope, $location, $routeParams, GRAPH, api, breadService) {
+    'DJANGO_URLS',
+    function ($scope, $location, $routeParams, GRAPH, api, breadService, DJANGO_URLS) {
 
         $scope.slugs = {
             graph: GRAPH,
@@ -55,6 +56,13 @@ controllers.controller('BaseReportCtrl', [
         // Thess variables may be necessary
         $scope.template = {};
         //////////////////////////////////
+
+        $scope.collabs = [];
+        $scope.collab = ""
+        $scope.removeCollab = function(ndx) {
+            $scope.collabs.splice(ndx, 1)
+        };
+
 
         $scope.designReport = function () {
             // Using is report form - edit and new ctrls
@@ -83,8 +91,9 @@ controllers.controller('BaseReportCtrl', [
             ,   post = new api.builder();
 
             template.start_date = {year: date[2], month: date[0],
-                                   day: date[1], hour: time[0], minute: time[1]}
-            post.template = template
+                                   day: date[1], hour: time[0], minute: time[1]};
+            template.collabs = $scope.collabs;
+            post.template = template;
             post.$save({
                 graphSlug: $scope.slugs.graph,
                 report: template.slug
@@ -200,6 +209,8 @@ controllers.controller('EditReportCtrl', [
             data.template.time = hour + ':' + minute;
             data.template.date = month + '/' + day + '/' + year;
             $scope.template = data.template;
+            $scope.collabs = data.template.collabs;
+            console.log("collabs", data.template)
             $scope.resp = {table: data.template.layout, queries: data.queries};
             $scope.prev = $scope.resp;
         });

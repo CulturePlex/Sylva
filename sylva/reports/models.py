@@ -3,6 +3,7 @@ import datetime
 import json
 from django.db import models
 from django.dispatch import receiver
+from django.contrib.auth.models import User
 from django.utils.translation import gettext as _
 from django.db.models.signals import post_save
 from jsonfield import JSONField
@@ -48,6 +49,12 @@ class ReportTemplate(models.Model):
         blank='true',
         null='true'
     )
+    email_to = models.ManyToManyField(
+        User,
+        verbose_name=_("email_to"),
+        related_name="report_templates",
+        blank=True,
+        null=True)
 
     def __unicode__(self):
         return self.name
@@ -85,7 +92,9 @@ class ReportTemplate(models.Model):
             'frequency': self.frequency,
             'last_run': json.dumps(self.last_run, default=_dthandler),
             'layout': self.layout,
-            'description': self.description
+            'description': self.description,
+            'collabs': [{"id": u.username, "display": u.username} for u in
+                        self.email_to.all()]
         }
         return template
 

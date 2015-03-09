@@ -7,6 +7,32 @@ var directives = angular.module('reports.directives', []);
 var gettext = window.gettext || String;
 
 
+directives.directive('sylvaAutoComplete', ['DJANGO_URLS', function (DJANGO_URLS) {
+    return {
+        require: 'ngModel',
+        scope: {collabs: "="},
+        link: function(scope, elem, attrs, ngModelCtrl) {
+            var params;
+            params = {};
+            params = {
+                minChars: 2,
+                propertyToSearch: "display",
+                tokenLimit: 1,
+                preventDuplicates: true,
+                tokenValue: "id",
+                onAdd: function (el) {
+                    scope.$apply(function () {
+                        scope.collabs.push(el);
+                    });
+                    elem.tokenInput("clear")
+                }
+            };
+            elem.tokenInput(DJANGO_URLS.collabs, params)
+        }
+    }
+}]);
+
+
 directives.directive('sylvaUpdateText', ['breadService', function (breadService) {
     return {
         link: function(scope) {
@@ -234,7 +260,6 @@ directives.directive('sylvaPvCellRepeat', ['$sanitize', function ($sanitize) {
                 } else {
                     // This is for all cases except new report
                     if (query && demo === false) {
-                        (console.log("backend"))
                         // This is preview, we need to run query
                         if (!cell.series) {
                             query = ctrl.getQueries().filter(function (el) {
@@ -293,7 +318,6 @@ directives.directive('sylvaPvCellRepeat', ['$sanitize', function ($sanitize) {
                         }
                         var chartTypes = ["pie", "line", "column"]
                         var ndx = Number(Math.floor(Math.random() * chartTypes.length));
-                        console.log("demo")
                         var chartType = chartTypes[ndx];
 
                         chartSeries = [{name: "ySeries", data: cell.series}]
@@ -302,7 +326,6 @@ directives.directive('sylvaPvCellRepeat', ['$sanitize', function ($sanitize) {
                     }
                     // Here must config chart.
 
-                    //console.log("chartSeries", chartSeries, cell.chartType)
                     childScope.query = query;
                     childScope.chartConfig = {
                         options: {chart: {type: chartType}},

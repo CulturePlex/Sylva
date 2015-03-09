@@ -17,6 +17,7 @@ from django.db.models import Q
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.core.urlresolvers import reverse
+from django.contrib.auth.models import User
 from django.contrib.staticfiles import finders
 from django.contrib.auth.decorators import login_required
 
@@ -270,6 +271,9 @@ def builder_endpoint(request, graph_slug):
                 description=template['description'],
                 graph=graph
             )
+        for collab in template["collabs"]:
+            collab = User.objects.get(username=collab["id"])
+            new_template.email_to.add(collab)
         query_set = set()
         for row in template['layout']['layout']:
             query_set.update(set(cell['displayQuery'] for cell in row))
