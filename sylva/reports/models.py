@@ -118,7 +118,7 @@ class Report(models.Model):
     def dictify(self):
         report = {
             'id': self.id,
-            'table': selfprint("email_to").table,
+            'table': self.table,
             'date_run': json.dumps(self.date_run, default=_dthandler)
         }
         return report
