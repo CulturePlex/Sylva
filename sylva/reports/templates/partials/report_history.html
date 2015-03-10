@@ -5,41 +5,43 @@
 <div ng-if="template.reports">
   <!--Meta Form/Queries-->
   <div class="content2-first" ng-hide="editable">
-    
+
     <div id="history">
       <ul style="min-height: 250px">
         {% verbatim %}
         <li ng-repeat="bucket in template.reports | orderBy:'-bucket'">
           <h2 ng-click="expand(bucket)"><a href="">
-            <span ng-hide="bucket.expanded">&#8680;</span> 
+            <span ng-hide="bucket.expanded">&#8680;</span>
             <span ng-show="bucket.expanded">&#8681;</span>
             Period of {{ bucket.display }}</h2>
             </a>
           <ul ng-show="bucket.expanded">
             <li ng-repeat="report in bucket.reports">
-              <h3><a href="" ng-click="getReport(report.id)">{{ report.date_run }}</a></h3>
+              <h3><a href="" ng-click="getReport(report.id)">{{ report.date_run }}</a>
+                  <a ng-href="/reports/{{slugs.graph}}/pdf/{{report.id}}">pdf</a>
+              </h3>
             </li>
-          </ul> 
+          </ul>
         </li>
         {% endverbatim %}
       </ul>
         <span class='pagination-info'>
-          
+
             {% trans "Showing" %}
-            {% verbatim %} {{ template.num_objects }} {% endverbatim %} 
+            {% verbatim %} {{ template.num_objects }} {% endverbatim %}
             {% trans "of" %}
-            {% verbatim %} {{ template.total_count }} {% endverbatim %} 
+            {% verbatim %} {{ template.total_count }} {% endverbatim %}
             {% trans "Report Periods." %}
-          
+
             <span ng-if="template.previous_page_number"><a ng-click="getPage(template.previous_page_number)"><span class="symbol-medium">←</span></a></span>
             <span>
-            {% trans "Page" %} 
+            {% trans "Page" %}
             {% verbatim %} {{template.page_number}} {% endverbatim %}
             {% trans "of" %}
             {% verbatim %} {{template.num_pages}} {% endverbatim %}
             <span ng-if="template.next_page_number"><a ng-click="getPage(template.next_page_number)"><span class="symbol-medium">→</span></a>
         </span>
-    </div><!--history-->  
+    </div><!--history-->
   </div><!--content2-first-->
 
   <!--Report Info/Designer-->
@@ -66,8 +68,8 @@
           </div>
         </div>
       </div>
-    </div> <!--row--> 
-    
+    </div> <!--row-->
+
 
   </div> <!--content2-->
   {% endverbatim %}

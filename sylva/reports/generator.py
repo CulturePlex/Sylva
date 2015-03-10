@@ -1,43 +1,61 @@
 # -*- coding: utf-8 -*-
 import datetime
 import operator
-from django.dispatch import receiver
+import os
+from importlib import import_module
+from django.conf import settings
+from django.core.files import File
+from django.core.mail import send_mail
 from django.db.models import Q
-from django.db.models.signals import post_save
-from models import ReportTemplate, Report
+from django.contrib.sites.models import Site
+from models import ReportTemplate
 from utils import phantom_process
 from views import reports_index_view
 from sylva.celery import app
 from celery.utils.log import get_task_logger
 
+SessionStore = import_module(settings.SESSION_ENGINE).SessionStore
+
 
 logger = get_task_logger(__name__)
 
 
-@receiver(post_save, sender=Report)
-def post_report_save(sender, **kwargs):
-    if kwargs.get("created", False):
-        email_to = kwargs["instance"].template.email_to.all()
-        if email_to:
-            # Call tasks - it will start with generate pdf, then callback
-            # some async map onto all of the emails needed to be sent.
-            print("email_to")
-        print("Received signal, report created. Length {0}".format(len(email_to)))
+@app.task(name='reports.email')
+def send_email(inst, emails):
+    graph_slug = inst.template.graph.slug
+    site = Site.objects.get_current()
+    url = "{0}://{1}/reports/{2}/pdf/{3}".format("http", site.domain,
+                                                 graph_slug, inst.id)
+    send_mail("Sylva Reports", "Please view this report: {0}".format(url),
+              "davebrownshow@gmail.com", emails, fail_silently=False)
 
 
 @app.task(name="reports.pdf")
-def generate_pdf():
-    ### Just need to figure out how to get all these awesome params
+def generate_pdf(inst):
+    graph_slug = inst.template.graph.slug
+    template_slug = inst.template.slug
+    # Do url parse here
+    site = Site.objects.get_current()
+    sess = SessionStore()
+    sess.save()
+    sessionid = sess.session_key
     filename = phantom_process(
-        scheme,
-        netloc,
+        'http',
+        site.domain,
+        reports_index_view,
         graph_slug,
         template_slug,
-        domain,
-        csrftoken,
+        'localhost',
         sessionid
     )
-    # open and save on the report instance
+    try:
+        with open(filename) as pdf:
+            f = File(pdf)
+            inst.pdf.save(filename.split("/")[-1], f)
+    except IOError:
+        pass
+    os.unlink(filename)
+
 
 @app.task(name='reports.generate')
 def generate_report():

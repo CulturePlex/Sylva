@@ -2,13 +2,14 @@
 import datetime
 import json
 from django.db import models
+from django.dispatch import receiver
+from django.db.models.signals import post_save
 from django.contrib.auth.models import User
 from django.utils.translation import gettext as _
 from jsonfield import JSONField
 from graphs.models import Graph
 from queries.models import Query
 from sylva.fields import AutoSlugField
-
 
 
 class ReportTemplate(models.Model):
@@ -129,6 +130,24 @@ class Report(models.Model):
             'date_run': json.dumps(self.date_run, default=_dthandler)
         }
         return report
+
+
+@receiver(post_save, sender=Report)
+def post_report_save(sender, **kwargs):
+    if kwargs.get("created", False):
+        inst = kwargs["instance"]
+        email_to = inst.template.email_to.all()
+        if email_to:
+            emails = [u.email for u in email_to]
+            # Avoid circular import...? Weird. But this won't register outsid
+            # of models unless I import it in __init__.py, but this causees
+            # celery task queue import error.
+            from generator import generate_pdf, send_email
+            res = (generate_pdf.si(inst) | send_email.si(inst, emails))()
+            # Call tasks - it will start with generate pdf, then callback
+            # some async map onto all of the emails needed to be sent.
+        print("Received signal, report created. Length {0}".format(len(email_to)))
+
 
 
 def _dthandler(obj):

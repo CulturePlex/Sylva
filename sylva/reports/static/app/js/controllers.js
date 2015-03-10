@@ -248,10 +248,12 @@ controllers.controller('ReportHistoryCtrl', [
                 template: $scope.slugs.template,
                 page: pageNum
             }, function (data) {
+                // console.log("data", data)
                 for (var i=0; i<data.reports.length; i++) {
                     var history = data.reports[i].reports
                     ,   mostRecent = history[0]
                     ,   datetime = new Date(data.reports[i].bucket);
+                    // console.log("Most recent", history, mostRecent)
                     data.reports[i]["display"] = datetime.toUTCString().replace(/\s*(GMT|UTC)$/, "").replace("00:00:00", "")
                     for (var j=0; j<history.length; j++) {
                         var report = history[j]
@@ -264,7 +266,10 @@ controllers.controller('ReportHistoryCtrl', [
                 }
                 breadService.updateName(data.name)
                 $scope.template = data;
-                if (data.reports.length > 0) $scope.getReport(mostRecent.id)
+                if (data.reports.length > 0) {
+                    console.log("data.reports", data.reports)
+                    $scope.getReport(mostRecent.id)
+                }
             });
         }
 
@@ -284,8 +289,9 @@ controllers.controller('ReportHistoryCtrl', [
                 graphSlug: $scope.slugs.graph,
                 report: id
             }, function (data) {
+                console.log("reportdata", data.table)
                 $scope.report = data;
-                $scope.resp = {table: data.table}
+                $scope.resp = {table: {layout: data.table}}
             });
         }
 }]);

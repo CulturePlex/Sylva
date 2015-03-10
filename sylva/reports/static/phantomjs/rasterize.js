@@ -7,11 +7,11 @@ system = require('system');
 url = system.args[1];
 filename = system.args[2];
 domain = system.args[3]; //ask chavi about this
-csrfToken = system.args[4];
-sessionId = system.args[5];
+// csrfToken = system.args[4];
+sessionId = system.args[4];
 console.log("filename", filename, "fsdddddddddddddddddddddddddddddddddddddddddddddddddddddsdfdsdffd")
-phantom.addCookie({'domain': domain, 'name':'csrftoken',
-                   'value': csrfToken});
+// phantom.addCookie({'domain': domain, 'name':'csrftoken',
+//                    'value': csrfToken});
 phantom.addCookie({'domain': domain, 'name':'sessionid',
                    'value': sessionId});
 
@@ -24,7 +24,7 @@ page.paperSize = {
 page.open(url, function (status) {
     if (status !== 'success') {
         // If PhantomJS failed to reach the address, print a message
-        console.log('Unable to load the address!');
+        console.log('Unable to load the address!', url);
         phantom.exit();
     } else {
         // If we are here, it means we rendered page successfully

@@ -14,6 +14,7 @@ from django.template import RequestContext
 from django.db.models import Q
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.views.decorators.csrf import csrf_exempt, csrf_protect
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 
@@ -34,10 +35,10 @@ settings.ENABLE_REPORTS = True
 @permission_required("schemas.view_schema",
                      (Schema, "graph__slug", "graph_slug"), return_403=True)
 def reports_index_view(request, graph_slug):
+    graph = get_object_or_404(Graph, slug=graph_slug)
     pdf = request.GET.get('pdf', False)
     if pdf:
         pdf = True
-    graph = get_object_or_404(Graph, slug=graph_slug)
     return render_to_response('reports_base.html', RequestContext(request, {
         'pdf': pdf,
         'graph': graph
@@ -187,7 +188,8 @@ def history_endpoint(request, graph_slug):
                 buckets.append(bucket)
                 bucket += interval
             page = request.GET.get('page', "")
-            buckets.reverse()  # Generate these in reverse when I have time.
+            # THIS WAS BEHAVING FUNNY, NEEDS TO BE CHECKED
+            # buckets.reverse()  # Generate these in reverse when I have time.
             pgntr, output, next_page_num, prev_page_num = paginate(
                 buckets, 5, page
             )
@@ -196,7 +198,11 @@ def history_endpoint(request, graph_slug):
             reports = template.reports.filter(
                 Q(date_run__gte=oldest) & Q(date_run__lt=newest)
             ).order_by('-date_run')
-            report_buckets = {k.isoformat(): [] for k in output.object_list}
+            if len(output.object_list) == 1:
+                report_buckets = {output.object_list[0].isoformat(): []}
+            else:
+                report_buckets = {k.isoformat(): [] for k in
+                                  output.object_list[:-1]}
             for report in reports:
                 bucket = _get_bucket(report.date_run, output.object_list)
                 report_buckets[bucket].append(report.dictify())
@@ -302,7 +308,7 @@ def preview_report_pdf(request, graph_slug):
         download_name = '{0}.pdf'.format(request.GET['template'])
 
     domain = parsed_url.hostname
-    csrftoken = request.COOKIES.get('csrftoken', 'nocsrftoken')
+    # csrftoken = request.COOKIES.get('csrftoken', 'nocsrftoken')
     sessionid = request.COOKIES.get('sessionid', 'nosessionid')
     filename = phantom_process(
         parsed_url.scheme,
@@ -311,7 +317,7 @@ def preview_report_pdf(request, graph_slug):
         graph_slug,
         template_slug,
         domain,
-        csrftoken,
+        # csrftoken,
         sessionid
     )
     try:
@@ -325,6 +331,25 @@ def preview_report_pdf(request, graph_slug):
         response = HttpResponse('Sorry there has been a IOError:' + e.strerror)
     # Try except IOError
     os.unlink(filename)
+    return response
+
+
+@login_required
+@is_enabled(settings.ENABLE_REPORTS)
+@permission_required("schemas.view_schema",
+                     (Schema, "graph__slug", "graph_slug"), return_403=True)
+def pdf_view(request, graph_slug, report_id):
+    report = Report.objects.get(pk=report_id)
+    filename = os.path.join(settings.MEDIA_ROOT, report.pdf.name)
+    try:
+        with open(filename) as pdf:
+            response = HttpResponse(pdf.read(), content_type='application/pdf')
+            response['Content-Disposition'] = 'inline;filename={0}'.format(
+                filename
+            )
+            pdf.close()
+    except IOError, e:
+        response = HttpResponse('Sorry there has been a IOError:' + e.strerror)
     return response
 
 

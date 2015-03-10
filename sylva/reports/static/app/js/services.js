@@ -66,6 +66,7 @@ services.factory('parser', ['$location', function ($location) {
 services.factory('tableArray', function () {
 
     function TableArray(table) {
+        console.log("table", table)
         this.table = table;
         this.numRows = table.length;
         this.numCols = getNumCols(table[0]);
