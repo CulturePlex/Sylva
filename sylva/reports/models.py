@@ -97,6 +97,11 @@ class ReportTemplate(models.Model):
         return template
 
 
+def get_upload(self, filename):
+    return u"%s/%s/pdfs/%s" % (self.template.graph.slug, self.template.slug,
+                               filename)
+
+
 class Report(models.Model):
     date_run = models.DateTimeField()
     slug = AutoSlugField(
@@ -111,6 +116,8 @@ class Report(models.Model):
         verbose_name=_('template'),
         related_name='reports'
     )
+    pdf = models.FileField(_('pdf'), upload_to=get_upload, blank=True,
+                           null=True, max_length=255)
 
     def __unicode__(self):
         return self.date_run.isoformat()
