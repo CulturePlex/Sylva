@@ -481,6 +481,76 @@ class QueryTestCase(LiveServerTestCase):
         # Right now, we are in the results view. Let's check it
         Graph.objects.get(name="Bob's graph").destroy()
 
+    def test_query_builder_two_boxes_edit_alias_and_get_results_go_back(self):
+        create_graph(self)
+        create_schema(self)
+        create_type(self)
+        create_data(self)
+        queries_menu(self)
+        # We create two boxes
+        create_query(self)
+        node_type = self.browser.find_by_xpath(
+            "//table[@id='node-types']/tbody/tr/td/a").first
+        node_type.click()
+        # We select a property of the boxes
+        select_properties = self.browser.find_by_xpath(
+            "//option[@class='option-property' and text()='Name']")
+        select_properties[0].click()
+        select_properties[1].click()
+        # We check if the value of the select is the value of the property
+        select_value = self.browser.find_by_xpath(
+            "//select[@class='select-property']").first.value
+        spin_assert(lambda: self.assertEqual(select_value, u"Name"))
+        # We check the property to return the property value
+        checkbox1 = self.browser.find_by_xpath(
+            "//div[@id='field1']//input[@class='checkbox-property']").first
+        checkbox1.click()
+        checkbox2 = self.browser.find_by_xpath(
+            "//div[@id='field2']//input[@class='checkbox-property']").first
+        checkbox2.click()
+        # We edit the aliases of both boxes
+        edit_alias1 = self.browser.find_by_xpath(
+            "//div[@id='diagramBox-1-bobs-type']"
+            "//a[@id='inlineEditSelect_bobs-type']/i").first
+        edit_alias2 = self.browser.find_by_xpath(
+            "//div[@id='diagramBox-2-bobs-type']"
+            "//a[@id='inlineEditSelect_bobs-type']/i").first
+        edit_alias1.click()
+        edit_alias2.click()
+        js_code = '''
+            $($('.select-nodetype-bobs-type')[0]).val("Bob1").change();
+            $($('.select-nodetype-bobs-type')[1]).val("Bob2").change();
+        '''
+        self.browser.execute_script(js_code)
+        # We get the button to run the query and click it
+        run_query(self)
+        # We check the headers with the aliases
+        headers = self.browser.find_by_xpath("//th[@class='header']/a/div")
+        header1 = headers[0]
+        header2 = headers[1]
+        spin_assert(lambda: self.assertEqual(header1.text,
+                                             u"Bob1.Name"))
+        spin_assert(lambda: self.assertEqual(header2.text,
+                                             u"Bob2.Name"))
+        # We check the text u"Bob's node"
+        result_name = self.browser.find_by_xpath(
+            "//tr[@class='row-even']").first.text
+        spin_assert(lambda: self.assertEqual(result_name,
+                                             u"Bob's node Bob's node"))
+        # We navigate to the query builder view
+        breadcrumb_new = self.browser.find_by_xpath(
+            "//header[@class='global']/h2/a")[2]
+        breadcrumb_new.click()
+        # We check if we have loaded the boxes correctly
+        title_text0 = self.browser.find_by_xpath(
+            "//select[@class='select-nodetype-bobs-type']")[0].value
+        title_text1 = self.browser.find_by_xpath(
+            "//select[@class='select-nodetype-bobs-type']")[1].value
+        spin_assert(lambda: self.assertEqual(title_text0, u"Bob1"))
+        spin_assert(lambda: self.assertEqual(title_text1, u"Bob2"))
+        # Right now, we are in the results view. Let's check it
+        Graph.objects.get(name="Bob's graph").destroy()
+
     # Loading queries after executing results
 
     def test_query_builder_two_boxes_get_results_and_go_back(self):
@@ -1398,4 +1468,76 @@ class QueryTestCase(LiveServerTestCase):
         run_query(self)
         # Right now, we are in the results view. Let's check it
         test_no_results(self)
+        Graph.objects.get(name="Bob's graph").destroy()
+
+    def test_query_builder_lookups_date_option(self):
+        create_graph(self)
+        create_schema(self)
+        # We create the date type
+        self.browser.find_link_by_href(
+            '/schemas/bobs-graph/types/create/').first.click()
+        text = self.browser.find_by_xpath(
+            "//div[@class='content2-first']/h2").first.value
+        spin_assert(lambda: self.assertEqual(text, 'Type'))
+        self.browser.find_by_name('name').first.fill("Bob's type")
+        self.browser.find_by_id('advancedModeButton').first.click()
+        self.browser.find_by_name('properties-0-key').first.fill('Date name')
+        self.browser.find_by_name('properties-0-display').first.check()
+        self.browser.find_by_name('properties-0-required').first.check()
+        self.browser.find_by_xpath(
+            "//select[@id='id_properties-0-datatype']"
+            "/optgroup[@label='Advanced']/option[@value='d']").first.click()
+        self.browser.find_by_name('properties-0-order').first.fill('1')
+        self.browser.find_by_name('properties-0-description').first.fill(
+            "The name of this Bob's node")
+        self.browser.find_by_value('Save Type').first.click()
+        text = self.browser.find_by_id(
+            'diagramBoxField_bobs-graph.bobs-type.undefined').first.value
+        spin_assert(lambda: self.assertEqual(text, "Date name"))
+        # We create the data for the date type
+        self.browser.find_by_id('dataMenu').first.click()
+        self.browser.find_by_xpath(
+            "//a[@class='dataOption new']").first.click()
+        text = self.browser.find_by_id('propertiesTitle').first.value
+        spin_assert(lambda: self.assertEqual(text, 'Properties'))
+        self.browser.find_by_name('Date name').first.fill("01/01/2010")
+        self.browser.find_by_value("Save Bob's type").first.click()
+        text = self.browser.find_by_xpath(
+            "//div[@class='pagination']"
+            "/span[@class='pagination-info']").first.value
+        spin_assert(lambda: self.assertNotEqual(
+            text.find(" elements Bob's type."), -1))
+        # We navigate to the queries menu
+        queries_menu(self)
+        create_query(self)
+        # We select a property
+        select_property = self.browser.find_by_xpath(
+            "//option[@class='option-property' and text()='Date name']").first
+        select_property.click()
+        select_value = self.browser.find_by_xpath(
+            "//select[@class='select-property']").first.value
+        spin_assert(lambda: self.assertEqual(select_value, u"Date name"))
+        checkbox = self.browser.find_by_xpath(
+            "//div[@id='field1']//input[@class='checkbox-property']").first
+        checkbox.click()
+        # We select the lookup
+        select_lookup = self.browser.find_by_xpath(
+            "//select[@class='select-lookup']").first
+        select_lookup.click()
+        lookup_option = self.browser.find_by_xpath(
+            "//option[@class='lookup-option' and text()='equals']").first
+        lookup_option.click()
+        spin_assert(lambda: self.assertEqual(select_lookup.value,
+                                             u"eq"))
+        # Let's check if the javascript calendar is showing
+        # We need to click outside for a correct behaviour of the rel select
+        self.browser.find_by_xpath("//div[@id='diagram']").first.click()
+        # We fill the input for the lookup value
+        lookup_input_value = self.browser.find_by_xpath(
+            "//input[@class='lookup-value time hasDatepicker ui-autocomplete-input']").first.fill(u"01/01/2010")
+        calendar = self.browser.find_by_xpath("//div[@id='ui-datepicker-div']")
+        spin_assert(lambda: self.assertIsNotNone(calendar))
+        # We run the query
+        run_query(self)
+        # Right now, we are in the results view. Let's check it
         Graph.objects.get(name="Bob's graph").destroy()

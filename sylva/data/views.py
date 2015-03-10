@@ -318,10 +318,10 @@ def nodes_create(request, graph_slug, node_type_id):
                         'properties': rel.properties
                     }
                     relationships.append(rel_json)
-
             response = {'type': 'data',
                         'action': 'create',
                         'nodeId': str(node.id),
+                        'nodeLabel': node.display,
                         'node': node.to_json(),
                         'relationships': relationships}
             return HttpResponse(json.dumps(response), status=200,
@@ -659,6 +659,7 @@ def nodes_edit(request, graph_slug, node_id):
             response = {'type': 'data',
                         'action': action,
                         'nodeId': str(node.id),
+                        'nodeLabel': node.display,
                         'node': node.to_json(),
                         'relationships': relationships}
             if not as_new:
@@ -795,6 +796,7 @@ def nodes_delete(request, graph_slug, node_id):
                     response = {'type': 'data',
                                 'action': 'delete',
                                 'nodeId': node_id,
+                                'nodeLabel': node.display,
                                 'oldRelationshipIds': old_relationship_ids}
                     return HttpResponse(json.dumps(response), status=200,
                                         content_type='application/json')

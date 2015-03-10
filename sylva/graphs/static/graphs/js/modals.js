@@ -335,19 +335,17 @@
          * inside this function maybe isn't finished when the AJAX request
          * starts.
          */
+        // We introduce the value in the input field
+        // The value to introduce
+        var nodeId = data.nodeId;
+        var nodeLabel = data.nodeLabel;
+        $(inputField).tokenInput("add", {id: nodeId, name: nodeLabel});
+        // We show the label display
+        $(inputField).prev().children('.token-input-token').find("p").html(nodeLabel);
+
         setTimeout(function() {
           that.destroyOverlay();
           $.modal.close(); // Closing the loading modal.
-          // Show the "Add Node" links.
-          $('.add-node').show();
-          // We need to set the input text with the value of the new node
-          $(inputField).focus();
-          // We wait a while until the autocomplete field is visible
-          setTimeout(function(){
-            $(inputField).val($('#id_Name', modalForm).val());
-          }, 1000);
-          // We simulate an "enter key" press to set up the new value
-          $('#id_Name').trigger(jQuery.Event('keypress', {which: 13}));
         }, fast);
       });
       jqxhr.error(function(e) {
@@ -615,6 +613,13 @@
             var saveUrl = $('#save-url', html);
             var form = $('#edit-node-form', html).attr('id', 'edit-node-form-modal');
 
+            // We show only the properties div and set some styles.
+            var formChildren = $(form).children('#modal-content-scrollable-wrapper').children('#modal-content-scrollable');
+            formChildren.children('.content3-block').css('display', 'none');
+            formChildren.children('.content-divider').css('display', 'none');
+            formChildren.children('#properties-content').css('display', 'inline');
+            formChildren.children('#properties-content').removeClass('content3-block');
+
             modalHTML.append(saveUrl);
             modalHTML.append(form);
 
@@ -660,7 +665,9 @@
               onClose: function(dialog) {
                 that.closeModal(dialog);
               },
-              onShow: function(dialog) {}
+              onShow: function(dialog) {
+                modalAction.onShow(dialog, onShowOptions);
+              }
             });
 
           }, fast);
@@ -674,9 +681,6 @@
       },
 
       preProcessHTML: function() {
-        // Hiding "Add node" links.
-        $('.add-node').hide();
-
         // Binding the event to save the form
         $($('#current-modal input[type="submit"]')[0]).on('click', function() {
           // Variables for save the node by saving the form.
@@ -708,10 +712,8 @@
 
       onShow: function() {
         $('#simplemodal-container').css({
-          width: 1170,
-          left: 55.5,
-          'top': '2%',
-          'height': '93.5%'
+          width: 500,
+          left: "30%"
         });
       }
     },
