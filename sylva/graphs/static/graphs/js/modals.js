@@ -405,11 +405,24 @@
             sylva.Sigma.deleteNode(true, response.node,
               response.oldRelationshipIds);
             sylva.Sigma.addNode(true, response.node, response.relationships);
+
+            // This is for highglight the node that we have just created
+            sylva.Sigma.changeSigmaTypes("aura", [response.node.id.toString()]);
+            // We remove the highlight
+            setTimeout(function() {
+              sylva.Sigma.cleanSigmaTypes();
+            }, 2000);
             break;
 
           case 'new':
           case 'create':
             sylva.Sigma.addNode(false, response.node, response.relationships);
+            // This is for highglight the node that we have just created
+            sylva.Sigma.changeSigmaTypes("aura", [response.node.id.toString()]);
+            // We remove the highlight
+            setTimeout(function() {
+              sylva.Sigma.cleanSigmaTypes();
+            }, 2000);
             break;
 
           case 'delete':

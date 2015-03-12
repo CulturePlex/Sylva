@@ -104,6 +104,7 @@
       ];
 
       sigInst = new sigma();
+
       sigInst.addRenderer({
         type: 'canvas',
         container: $('#sigma-container')[0]
@@ -1773,6 +1774,9 @@
     },
 
     redrawLayout: function(type, degreeOrder, order, drawHidden) {
+      sigInst = sigma.instances(0);
+      that = this;
+
       var xPos = '';
       var yPos = '';
 
@@ -2861,6 +2865,9 @@
 
     // Function used by the modals.
     deleteNode: function(deleteForEditing, node, relationshipIds) {
+      sigInst = sigma.instances(0);
+      that = this;
+
       // 'Obtaining' the node.
       if (deleteForEditing) {
         /* The cooridantes will be saved in the existing node object from
@@ -2952,6 +2959,9 @@
 
     // Function used by the modals.
     addNode: function(addFromEditing, node, relationships) {
+      sigInst = sigma.instances(0);
+      that = this;
+
       // Adding the node to the 'selectedNodes' array.
       var selectedAsEdit = addFromEditing && wasDeletedNodeSelected;
       var selectedAsNew = (!addFromEditing) &&
@@ -3023,6 +3033,8 @@
     },
 
     changeSigmaTypes: function(type, nodeList) {
+      sigInst = sigma.instances(0);
+
       if (!nodeList) {
         nodeList = [];
       }
@@ -3035,6 +3047,8 @@
     },
 
     cleanSigmaTypes: function() {
+      sigInst = sigma.instances(0);
+
       sigInst.graph.nodes().forEach(function(n) {
         delete n['type']
       });
