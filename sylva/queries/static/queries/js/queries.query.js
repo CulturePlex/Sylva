@@ -1229,7 +1229,14 @@ diagram.aggregates = [
                     selectProperty.append(optionProperty);
 
                     // Adding the option to the autocomplete dict
-                    diagram.autocompleteData[boxalias] = boxalias + '.' + field.label;
+                    var optionAutocomplete = {};
+                    var value = boxalias + '.' + field.id;
+                    var label = boxalias + '.' + field.label;
+
+                    optionAutocomplete['value'] = value;
+                    optionAutocomplete['label'] = label;
+
+                    diagram.autocompleteData[boxalias] = optionAutocomplete;
                 }
                 // Select lookup
                 selectLookup = $("<SELECT>");
@@ -2110,6 +2117,15 @@ diagram.aggregates = [
             var andOrVal = $('#' + andOrId + ' .and-or-option select').val();
 
             if((lookup != "undefined") && (lookup != null)) {
+                // We use the key word 'property_box' to know that we have
+                // a property from another box
+                if(propertyFromAnotherBox !== undefined) {
+                    // Let's treat the property to check that there's no
+                    // problem with it
+                    datatype = 'property_box';
+                    propertyValue = propertyFromAnotherBox;
+                }
+
                 var propertyArray = new Array();
                 propertyArray.push(propertyTag);
                 propertyArray.push(alias);
@@ -2125,16 +2141,10 @@ diagram.aggregates = [
                     conditionArray.push("not");
                 }
 
-                // We use the key word 'property_box' to know that we have
-                // a property from another box
-                if(propertyFromAnotherBox !== undefined) {
-                    conditionArray.push('property_box');
+                if(datatype) {
+                    conditionArray.push(datatype);
                 } else {
-                    if(datatype) {
-                        conditionArray.push(datatype);
-                    } else {
-                        conditionArray.push("undefined");
-                    }
+                    conditionArray.push("undefined");
                 }
 
                 conditionsArray.push(conditionArray);
@@ -3468,10 +3478,17 @@ diagram.aggregates = [
                 response(diagram.autocompleteData);
                 return;
             },
+            minLength: 2,
             select: function (event, ui) {
+                event.preventDefault();
+                $(event.target).val(ui.item.label);
                 // We add a special data to the input
                 $(event.target).attr('data-boxproperty', ui.item.value);
             },
+            focus: function(event, ui) {
+                event.preventDefault();
+                $(event.target).val(ui.item.label);
+            }
         });
     });
 

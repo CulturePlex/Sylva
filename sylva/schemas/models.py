@@ -81,6 +81,7 @@ class Schema(models.Model, SchemaMixin):
                 field = {
                     "label": node_property.key,
                     "type": node_property.get_datatype_value(),
+                    "id": node_property.id,
                     #"type": node_property.datatype,
                     "name": node_property.slug,
                     "primary": False,

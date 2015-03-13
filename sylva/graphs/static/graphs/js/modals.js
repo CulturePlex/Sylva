@@ -633,8 +633,16 @@
             formChildren.children('#properties-content').css('display', 'inline');
             formChildren.children('#properties-content').removeClass('content3-block');
 
+            // We need to check if we have defined special types (Date, Time..)
+            // In afirmative case, we need to set up some variables for a
+            // correct behaviour.
+
             modalHTML.append(saveUrl);
             modalHTML.append(form);
+
+            // Let's append some necessary JS scripts
+            modalHTML.append('<script type="text/javascript" src="/static/js/datatypes.js"></script>');
+            modalHTML.append('<script type="text/javascript" src="/static/js/jqueryui.timepicker.js"></script>');
 
             // Size variables for the modal library.
             var windowHeight = Math.max(document.documentElement.clientHeight,
@@ -657,7 +665,7 @@
             $('#' + modalHTML.attr('id')).modal({
               // Options.
               modal: true,
-              escClose: false,
+              escClose: true,
               focus: false,
 
               // Styles.

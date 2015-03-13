@@ -437,10 +437,39 @@ class GraphDatabase(BlueprintsGraphDatabase):
             # This is the option to have properties of another boxes
             if datatype == "property_box":
                 match_dict = dict()
-                match_splitted = match.split(".")
-                match_dict['var'] = match_splitted[0]
-                match_dict['property'] = match_splitted[1]
-                match = match_dict
+                # We catch exception of type IndexError, in case that we
+                # doesn't receive an appropiate array.
+                try:
+                    # We check that the node and the property are correct
+                    match_splitted = match.split(".")
+                    # For the node, we get the slug. We need remove the counter
+                    # of the type.
+                    raw_slug = match_splitted[0]
+                    # We remove the "`"
+                    raw_slug = unicode(raw_slug).replace(u"`", u"")
+                    raw_slug_splitted = raw_slug.split("_")
+                    final_pos = len(raw_slug_splitted)
+                    match_slug = raw_slug_splitted[0: final_pos - 1]
+                    slug = "_".join(match_slug)
+                    match_var = match_splitted[0]
+                    # Let's treat the property
+                    property_id = match_splitted[1]
+                    property_id = int(property_id)
+                    # We filter for slug and then for property
+                    schema = self.graph.schema
+                    nodetype = (schema.nodetype_set.all()
+                                                   .filter(slug=slug)[0])
+                    prop_value = nodetype.properties.all().filter(
+                        id=property_id)
+                    match_property = prop_value[0].key
+                    # Finally, we assign the correct values to the dict
+                    match_dict['var'] = match_var
+                    match_dict['property'] = match_property
+                    match = match_dict
+                except IndexError:
+                    match_dict['var'] = ""
+                    match_dict['property'] = ""
+                    match = match_dict
 
             if lookup == "between":
                 gte = q_lookup_builder(property=property_tuple[2],
