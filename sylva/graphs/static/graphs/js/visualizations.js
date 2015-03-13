@@ -17,6 +17,10 @@ sylva:true, alert:true */
 
   };
 
+  // Flag to control if we are inside the analytics view while we are loading
+  // the graph.
+  var isAnalyticsMode = false;
+
   // DOM
   $(function() {
 
@@ -73,6 +77,7 @@ sylva:true, alert:true */
       $('#graph-controls .right').css('display', 'inline-block');
 
       // Graph rendering
+
       var jqxhr = $.getJSON(sylva.urls.viewGraphAjax, function(data) {
         $('#graph-loading').remove();
         spinner.stop();
@@ -105,6 +110,10 @@ sylva:true, alert:true */
         $('#sigma-node-size').css('display', 'inline-block');
         $('#sigma-graph-layout').css('display', 'inline-block');
         $('#sigma-edge-shape').css('display', 'inline-block');
+
+        if(isAnalyticsMode) {
+          $('#sigma-go-analytics').click();
+        }
       });
 
       // Error handling.
@@ -119,5 +128,79 @@ sylva:true, alert:true */
       });
 
     }
+
+    // Handler to allow navigate to the full screen mode while the graph is
+    // loading
+    $('#sigma-go-analytics').on('click', function() {
+      isAnalyticsMode = true;
+      $('#id_analytics').val('true');
+
+      $('#sigma-go-analytics').hide();
+      $('#graph-node-info').hide();
+      $('nav.main li').hide();
+      $('header.global > h2').hide();
+      $('div.graph-item').hide();
+      $('div#footer').hide();
+
+      $('#link-logo').on('click', false);
+      $('#link-logo').addClass('disabled');
+      linkLogo = $('#link-logo').attr('href');
+      $('#link-logo').removeAttr('href');
+      $('div.inside.clearfix').append($('nav.menu'));
+
+      // Let's start with the needed operations
+      $('.analytics-mode').show();
+
+      $('#sigma-go-fullscreen').hide();
+      $('#graph-labels').hide();
+      $('#graph-layout').hide();
+      $('#graph-rel-types').hide();
+      //$('#graph-controls').hide();
+      $('#full-window-column').hide();
+
+      $('.menu').css({
+        "margin-top": "-31px"
+      });
+
+      $(body).css('height', $(window).height());
+      $('#graph-loading').css('height', $(body).height());
+
+    });
+
+    // Handler to allow navigate from the full screen mode while the graph is
+    // loading
+    $('#sigma-exit-analytics').on('click', function() {
+      isAnalyticsMode = false;
+      $('#id_analytics').val('');
+
+      // Let's start with the needed operations
+      $('.analytics-mode').hide();
+
+      $('#sigma-go-analytics').show();
+      $('#graph-node-info').show();
+      $('nav.main li').show();
+      $('header.global > h2').show();
+      $('div.graph-item').show();
+      $('div#footer').show();
+      //$('#graph-controls').show();
+      $('.menu').css({
+        "margin-top": "0px"
+      });
+
+      $('#link-logo').off('click');
+      $('#link-logo').removeClass('disabled');
+      $('#link-logo').attr('href', linkLogo);
+      $('header').prepend($('nav.menu'));
+
+      $('#graph-loading').css('height', '320px');
+
+    });
+
+    // This function is to fix all the elements in the dashboard screen
+    $(document).ready(function(){
+      $('.graph-item').css({
+        'margin-top': '40px'
+      });
+    });
   });
 })(sylva, jQuery, window, document);
