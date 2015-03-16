@@ -112,6 +112,24 @@ sylva:true, alert:true */
         $('#sigma-edge-shape').css('display', 'inline-block');
 
         if(isAnalyticsMode) {
+          // We remove the style of the elements
+          $(body).removeAttr("style");
+          $('#body').removeAttr("style");
+          $('#canvas-box').removeAttr("style");
+          $('#canvas-container').removeAttr("style");
+          $('#full-window-column').removeAttr("style");
+          $('#graph-loading').removeAttr("style");
+          $('#graph-support').removeAttr("style");
+          $('header').removeAttr("style");
+          $('#sigma-wrapper').removeAttr("style");
+          $('.spinner').removeAttr("style");
+
+          // Show some elements
+          $('#graph-controls').show();
+          $('#canvas-box').css({
+            "display": "none"
+          })
+
           $('#sigma-go-analytics').click();
         }
       });
@@ -132,67 +150,152 @@ sylva:true, alert:true */
     // Handler to allow navigate to the full screen mode while the graph is
     // loading
     $('#sigma-go-analytics').on('click', function() {
-      isAnalyticsMode = true;
-      $('#id_analytics').val('true');
+      // We only fire this event if the graph isn't loaded yet
+      if (sylva.graph === undefined) {
+        isAnalyticsMode = true;
+        $('#id_analytics').val('true');
 
-      $('#sigma-go-analytics').hide();
-      $('#graph-node-info').hide();
-      $('nav.main li').hide();
-      $('header.global > h2').hide();
-      $('div.graph-item').hide();
-      $('div#footer').hide();
+        $('#sigma-go-analytics').hide();
+        $('#graph-node-info').hide();
+        $('nav.main li').hide();
+        $('header.global > h2').hide();
+        $('div.graph-item').hide();
+        $('div#footer').hide();
 
-      $('#link-logo').on('click', false);
-      $('#link-logo').addClass('disabled');
-      linkLogo = $('#link-logo').attr('href');
-      $('#link-logo').removeAttr('href');
-      $('div.inside.clearfix').append($('nav.menu'));
+        $('div.inside.clearfix').append($('nav.menu'));
 
-      // Let's start with the needed operations
-      $('.analytics-mode').show();
+        // Let's start with the needed operations
+        $('.analytics-mode').show();
 
-      $('#sigma-go-fullscreen').hide();
-      $('#graph-labels').hide();
-      $('#graph-layout').hide();
-      $('#graph-rel-types').hide();
-      //$('#graph-controls').hide();
-      $('#full-window-column').hide();
+        $('#sigma-go-fullscreen').hide();
+        $('#graph-labels').hide();
+        $('#graph-layout').hide();
+        $('#graph-rel-types').hide();
+        $('#graph-controls').hide();
+        $('#full-window-column').hide();
 
-      $('.menu').css({
-        "margin-top": "-31px"
-      });
+        /* Styles */
 
-      $(body).css('height', $(window).height());
-      $('#graph-loading').css('height', $(body).height());
+        $(body).css({
+          "height": $(window).height(),
+          "padding-top": "0px"
+        });
+
+        $('#body').css({
+          'padding': 0,
+          'width': $('#main').width()
+        });
+
+        $('#canvas-box').css({
+          "width": "800px",
+          "display": "inline"
+        });
+
+        $('#canvas-container').css({
+          "width": "800px",
+          "display": "inline"
+        });
+
+        $('#full-window-column').css({
+          "display": "",
+          "float": "none",
+          "height": $(body).height(),
+          "pointer-events": "none",
+          "opacity": "0.5",
+          "background": "#CCC"
+        });
+
+        $('#graph-loading').css({
+          "height": $(body).height(),
+          "width": "800px"
+        });
+
+        $('#graph-support').css({
+          "position": "absolute"
+        });
+
+        $('header').css({
+          "padding-top": "0px",
+          "padding-bottom": "1px"
+        })
+
+        $('.menu').css({
+          "margin-top": "-31px"
+        });
+
+        $('#sigma-wrapper').css({
+          "width": "800px",
+          "margin-top": "0px",
+          "float": "left"
+        });
+
+        $('.spinner').css({
+          "left": "375px"
+        });
+      }
 
     });
 
     // Handler to allow navigate from the full screen mode while the graph is
     // loading
     $('#sigma-exit-analytics').on('click', function() {
-      isAnalyticsMode = false;
-      $('#id_analytics').val('');
+      // We only fire this event if the graph isn't loaded yet
+      if (sylva.graph === undefined) {
+        isAnalyticsMode = false;
+        $('#id_analytics').val('');
 
-      // Let's start with the needed operations
-      $('.analytics-mode').hide();
+        // Let's start with the needed operations
+        $('.analytics-mode').hide();
 
-      $('#sigma-go-analytics').show();
-      $('#graph-node-info').show();
-      $('nav.main li').show();
-      $('header.global > h2').show();
-      $('div.graph-item').show();
-      $('div#footer').show();
-      //$('#graph-controls').show();
-      $('.menu').css({
-        "margin-top": "0px"
-      });
+        $('#sigma-go-analytics').show();
+        $('#graph-node-info').show();
+        $('nav.main li').show();
+        $('header.global > h2').show();
+        $('div.graph-item').show();
+        $('div#footer').show();
+        $('#graph-controls').show();
 
-      $('#link-logo').off('click');
-      $('#link-logo').removeClass('disabled');
-      $('#link-logo').attr('href', linkLogo);
-      $('header').prepend($('nav.menu'));
+        $('header').prepend($('nav.menu'));
 
-      $('#graph-loading').css('height', '320px');
+        /* Styles */
+
+        $(body).removeAttr("style");
+        $('#body').removeAttr("style");
+        $('#canvas-box').removeAttr("style");
+        $('#canvas-container').removeAttr("style");
+        $('#full-window-column').removeAttr("style");
+        $('#graph-loading').removeAttr("style");
+        $('#graph-support').removeAttr("style");
+        $('header').removeAttr("style");
+        $('#sigma-wrapper').removeAttr("style");
+        $('.spinner').removeAttr("style");
+
+        $('.menu').css({
+          "margin-top": "0px"
+        });
+
+        $('#full-window-column').css({
+          "display": "none"
+        });
+
+        $('#graph-loading').css({
+          "height": "320px",
+          "opacity": "0.5"
+        });
+
+        $('#sigma-wrapper').css({
+          "width": "1150px",
+          "margin-top": "0px"
+        })
+
+        $('.spinner').css({
+          "position": "relative",
+          "width": "0px",
+          "z-index": "2000000000",
+          "left": "580px",
+          "top": "135px"
+        });
+      }
 
     });
 
