@@ -2,27 +2,26 @@
 import datetime
 import operator
 import os
-from importlib import import_module
 from django.conf import settings
 from django.core.files import File
 from django.core.mail import send_mail
 from django.db.models import Q
 from django.contrib.sites.models import Site
-from models import ReportTemplate
+from celery.utils.log import get_task_logger
+from models import ReportTemplate, Report
 from utils import phantom_process
 from views import reports_index_view
 from sylva.celery import app
-from celery.utils.log import get_task_logger
-
-SessionStore = import_module(settings.SESSION_ENGINE).SessionStore
 
 
 logger = get_task_logger(__name__)
 
 
 @app.task(name='reports.email')
-def send_email(inst, emails):
+def send_email(inst_id):
+    inst = Report.objects.get(pk=inst_id)
     graph_slug = inst.template.graph.slug
+    emails = [u.email for u in inst.template.email_to.all()]
     site = Site.objects.get_current()
     url = "{0}://{1}/reports/{2}/pdf/{3}".format("http", site.domain,
                                                  graph_slug, inst.id)
@@ -31,14 +30,12 @@ def send_email(inst, emails):
 
 
 @app.task(name="reports.pdf")
-def generate_pdf(inst):
+def generate_pdf(inst_id):
+    inst = Report.objects.get(pk=inst_id)
     graph_slug = inst.template.graph.slug
     template_slug = inst.template.slug
-    # Do url parse here
     site = Site.objects.get_current()
-    sess = SessionStore()
-    sess.save()
-    sessionid = sess.session_key
+    sessionid = "nosessionid"
     filename = phantom_process(
         'http',
         site.domain,

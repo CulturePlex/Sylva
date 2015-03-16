@@ -142,7 +142,7 @@ def post_report_save(sender, **kwargs):
             # Avoid circular import...? Weird. But this won't register outsid
             # of models unless I import it in __init__.py, but this causees
             # celery task queue import error.
-            from generator import generate_pdf, send_email
+            from tasks import generate_pdf, send_email
             res = (generate_pdf.si(inst) | send_email.si(inst, emails))()
             # Call tasks - it will start with generate pdf, then callback
             # some async map onto all of the emails needed to be sent.
