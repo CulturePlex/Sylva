@@ -636,6 +636,19 @@
             // We need to check if we have defined special types (Date, Time..)
             // In afirmative case, we need to set up some variables for a
             // correct behaviour.
+            var dateElements = $(formChildren).children('#properties-content').find('.date');
+            $.each(dateElements, function(index, element) {
+              var elementId = $(element).attr('id');
+              var newElementId = elementId + '-date-modal';
+              $(element).attr('id', newElementId);
+            });
+
+            var timeElements = $(formChildren).children('#properties-content').find('.time');
+            $.each(timeElements, function(index, element) {
+              var elementId = $(element).attr('id');
+              var newElementId = elementId + '-time-modal';
+              $(element).attr('id', newElementId);
+            });
 
             modalHTML.append(saveUrl);
             modalHTML.append(form);
@@ -1074,7 +1087,7 @@
       onShow: function() {
         $('#simplemodal-container').css({
           width: 1000,
-          left: 139
+          left: "11%"
         });
 
         $('#modal-cancel').css({
@@ -1173,7 +1186,7 @@
       onShow: function() {
         $('#simplemodal-container').css({
           width: 1170,
-          left: 55
+          left: "4.5%"
         });
 
         // We need to set a tiny timeout for a correct load of the queries
