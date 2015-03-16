@@ -177,6 +177,9 @@ services.factory('tableArray', function () {
             }
             var i = this.table[coords[0]][coords[1]].yAxis.indexOf(alias)
             this.table[coords[0]][coords[1]].yAxis.splice(i, 1);
+            this.table[coords[0]][coords[1]].yAxis = this.table[coords[0]][coords[1]].yAxis.filter(function (el) {
+                return el.alias.alias !== alias;
+            });
 
         } else {
             this.table[coords[0]][coords[1]].xAxis = null;

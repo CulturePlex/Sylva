@@ -284,7 +284,8 @@ directives.directive('sylvaPvCellRepeat', ['$sanitize', function ($sanitize) {
                         for (var j=0; j<yLen; j++) {
                             var ser = []
                             // this is the alias of the ySeries
-                            ,   ySeries = cell.yAxis[j]
+                            ,   ySeries = cell.yAxis[j].alias
+                            ,   display_alias = cell.yAxis[j].display_alias
                             // this is the position of the ySeries in the series arr
                             ,   ndx = header.indexOf(ySeries);
                             if (cell.colors) {
@@ -301,7 +302,7 @@ directives.directive('sylvaPvCellRepeat', ['$sanitize', function ($sanitize) {
                                 var point = [x, row[ndx]];
                                 ser.push(point);
                             }
-                            chartSeries.push({name: ySeries, data: ser, color: color});
+                            chartSeries.push({name: display_alias, data: ser, color: color});
                         }
                     var chartType = cell.chartType
                     } else {
@@ -803,7 +804,7 @@ directives.directive('sylvaEtCellRepeat', [function () {
                         var results = ctrl.parseResults(activeQuery.results);
                         var results = results.num.concat(results.cat)
                         var activeX = results.filter(function (el) {
-                            return el.alias === xAxis;
+                            return el.alias === xAxis.alias;
                         })[0];
 
                         // Find all of the active y Series
@@ -813,7 +814,7 @@ directives.directive('sylvaEtCellRepeat', [function () {
 
                             var y = yAxis[j]
                             ,   activeY = results.filter(function (el) {
-                                return el.alias === y;
+                                return el.alias.alias === y;
                             })[0];
 
                             if (activeY) {
@@ -907,7 +908,7 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', 'ST
                             '</span>' +
                             '<div ng-hide="pie" sylva-colpick color="{{colors[result.alias]}}" ng-model="colors[result.alias]" id="colpick{{$index}}" class="colorbox"></div>' +
                             //'<input ng-hide="pie" type="checkbox" ng-model="result.selected" value="{{result}}" />' +
-                            '<input ng-show="pie" name="ysergroup" type="radio" ng-model="$parent.yser" ng-value="result.alias" />' +
+                            '<input ng-show="pie" name="ysergroup" type="radio" ng-model="$parent.yser" ng-value="result.alias.alias" />' +
                             '{{ result.display_alias }}' +
                         '</li>' +
                         '</ul>' +
@@ -1054,8 +1055,8 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', 'ST
 
                 // Here is the active query/ xy series code that executes
                 // on init for edit report.
-                if (scope.activeQuery) {
 
+                if (scope.activeQuery) {
                     results = scope.activeQuery.results.filter(function (el) {
                         return el.properties.length > 0;
                     });
@@ -1079,9 +1080,9 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', 'ST
                     if (scope.activeYs) {
 
                         for (var i=0; i<result_dict.num.length; i++) {
-                            var num_alias = result_dict.num[i].alias;
+                            var num_alias = result_dict.num[i].alias.alias;
                             for (var j=0; j<scope.activeYs.length; j++) {
-                                var activeY_alias = scope.activeYs[j].alias
+                                var activeY_alias = scope.activeYs[j].alias.alias
                                 scope.xSeries = scope.xSeries.filter(function (el) {
                                     return el.alias !== activeY_alias
                                 });
@@ -1093,7 +1094,7 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', 'ST
                     }
                     scope.ySeries = result_dict.num;
                     scope.ySeries = scope.ySeries.filter(function (el) {
-                        return el.alias !== scope.activeX.alias
+                        return el.alias.alias !== scope.activeX.alias
                     });
                     if (scope.ySeries.length == 1) {
                         setTimeout(function () {
@@ -1115,7 +1116,7 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', 'ST
                     }
                     if (scope.chartType === "pie") {
                         scope.pie = true;
-                        scope.yser = scope.activeYs[0].alias
+                        scope.yser = scope.activeYs[0].alias.alias
                     }
 
 
@@ -1176,7 +1177,7 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', 'ST
                             angular.forEach(ser, function (elem) {
                                 // This should be a service.
                                 var col = simple_colors[Math.floor(Math.random() * simple_colors.length)];
-                                if(!(elem.alias in scope.colors)) scope.colors[elem.alias] = col;
+                                if(!(elem.alias.alias in scope.colors)) scope.colors[elem.alias] = col;
                             });
                         }
 
@@ -1209,10 +1210,10 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', 'ST
 
             scope.$watch('activeX', function (newVal, oldVal) {
                 if (!newVal || newVal == oldVal) return;
-                scope.tableArray.addAxis([scope.row, scope.col], 'x', newVal.alias)
+                scope.tableArray.addAxis([scope.row, scope.col], 'x', {"alias": newVal.alias, "display_alias": newVal.display_alias})
                 scope.ySeries = result_dict.num
                 scope.ySeries = scope.ySeries.filter(function (el) {
-                    return el.alias !== newVal.alias;
+                    return el.alias.alias !== newVal.alias;
                 });
             })
 
@@ -1229,16 +1230,16 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', 'ST
                 for (var i=0; i<newVal.length; i++) {
                     var val = newVal[i];
                     scope.xSeries = scope.xSeries.filter(function (el) {
-                        return el.alias !== val.alias;
+                        return el.alias.alias !== val.alias;
                     });
                     if (val.selected === true) {
-                        scope.tableArray.addAxis([scope.row, scope.col], 'y', val.alias)
+                        scope.tableArray.addAxis([scope.row, scope.col], 'y', {"alias": val.alias, "display_alias": val.display_alias})
                         var eye = $("#eye" + i.toString() + scope.row.toString() + scope.col.toString())
                         eye.removeClass("fa-eye-slash")
                         eye.addClass("fa-eye")
 
                     } else if (val.selected === false) {
-                        scope.tableArray.removeAxis([scope.row, scope.col], 'y', val.alias)
+                        scope.tableArray.removeAxis([scope.row, scope.col], 'y', val.alias.alias)
                         scope.xSeries.push(val);
                         var eye = $("#eye" + i.toString() + scope.row.toString() + scope.col.toString())
                         eye.removeClass("fa-eye")
@@ -1254,7 +1255,7 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', 'ST
             scope.$watch('yser', function (newVal, oldVal) {
                 if (newVal == oldVal) return;
                 angular.forEach(scope.ySeries, function (el) {
-                    scope.tableArray.removeAxis([scope.row, scope.col], 'y', el.alias)
+                    scope.tableArray.removeAxis([scope.row, scope.col], 'y', el.alias.alias)
                 });
                 scope.tableArray.addAxis([scope.row, scope.col], 'y', newVal)
             });
@@ -1263,7 +1264,7 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', 'ST
                 if (newVal === oldVal) return;
                 if (newVal === "pie") {
                     scope.pie = true;
-                    if (scope.yser == undefined) scope.yser = scope.ySeries[0].alias;
+                    if (scope.yser == undefined) scope.yser = scope.ySeries[0].alias.alias;
                 } else {
                     scope.pie = false;
                 }
