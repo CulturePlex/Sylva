@@ -416,7 +416,7 @@ directives.directive('syEditableTable',[
                     for (var j=0; j<props.length; j++) {
                         var prop = props[j]
                         ,   datatype = prop.datatype
-                        ,   element = {alias: prop.alias, name: alias, datatype: datatype,
+                        ,   element = {alias: prop.alias, display_alias: prop.display_alias, datatype: datatype,
                                        property: prop.property, aggregate: prop.aggregate};
                         if (datatype !== 'number' && datatype !== 'float' &&
                                 datatype !== 'auto_increment' &&
@@ -891,7 +891,7 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', 'ST
             '<div style="margin:2px;">' +
                 '<label>{{ selectText.xSeries }}</label>' +
                 '<select ng-model="activeX" ng-value="result" ' +
-                    'ng-options="result as (result.alias) for result in xSeries' +
+                    'ng-options="result as (result.display_alias) for result in xSeries' +
                 '">' +
                 '</select>' +
             '</div>' +
@@ -908,7 +908,7 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', 'ST
                             '<div ng-hide="pie" sylva-colpick color="{{colors[result.alias]}}" ng-model="colors[result.alias]" id="colpick{{$index}}" class="colorbox"></div>' +
                             //'<input ng-hide="pie" type="checkbox" ng-model="result.selected" value="{{result}}" />' +
                             '<input ng-show="pie" name="ysergroup" type="radio" ng-model="$parent.yser" ng-value="result.alias" />' +
-                            '{{ result.alias }}' +
+                            '{{ result.display_alias }}' +
                         '</li>' +
                         '</ul>' +
                         '</form>' +
