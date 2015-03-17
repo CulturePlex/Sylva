@@ -174,6 +174,38 @@ sylva:true, alert:true */
         $('#graph-controls').hide();
         $('#full-window-column').hide();
 
+        $('html').css({
+          "overflow-y": "hidden"
+        });
+
+        var width = document.documentElement.clientWidth;
+
+        var fullWindowColumnWidth = width * 0.2;
+        var borderWidth = fullWindowColumnWidth * 0.012;
+        var canvasBoxWidth = width - fullWindowColumnWidth;
+
+        // Collapsible settings for the analytics side
+        $('.analytics-measure').accordion({
+          collapsible: true,
+          create: function(event, ui) {
+            var box = $(event.target);
+            var children = box.children();
+            var header =  children.first();
+            var body = $(children[1]);
+            var span = header.children().first();
+
+            // The next lines remove jQueryUI style from the boxes.
+            box.removeClass('ui-widget ui-accordion');
+            header.removeClass('ui-accordion-icons ' +
+              'ui-accordion-header ui-helper-reset ui-state-default');
+            body.removeClass('ui-accordion-content ui-widget-content');
+            body.css('height', '');
+            span.remove();
+          },
+          active: false,
+          heightStyle: 'content'
+        });
+
         /* Styles */
 
         $(body).css({
@@ -187,50 +219,57 @@ sylva:true, alert:true */
         });
 
         $('#canvas-box').css({
-          "width": "800px",
+          "width": canvasBoxWidth,
           "display": "inline"
         });
 
         $('#canvas-container').css({
-          "width": "800px",
+          "width": canvasBoxWidth,
           "display": "inline"
         });
 
         $('#full-window-column').css({
           "display": "",
-          "float": "none",
+          "float": "right",
+          "width": fullWindowColumnWidth,
           "height": $(body).height(),
           "pointer-events": "none",
           "opacity": "0.5",
-          "background": "#CCC"
+          "background": "#CCC",
+          "overflow-y": "hidden"
         });
 
         $('#graph-loading').css({
           "height": $(body).height(),
-          "width": "800px"
+          "width": canvasBoxWidth,
+          "margin-left": 0
         });
 
         $('#graph-support').css({
-          "position": "absolute"
+          "position": "fixed"
         });
 
         $('header').css({
           "padding-top": "0px",
           "padding-bottom": "1px"
-        })
+        });
+
+        $('.inside.clearfix').css({
+          "width": $('#main').width()
+        });
 
         $('.menu').css({
           "margin-top": "-31px"
         });
 
         $('#sigma-wrapper').css({
-          "width": "800px",
+          "width": canvasBoxWidth,
           "margin-top": "0px",
           "float": "left"
         });
 
         $('.spinner').css({
-          "left": "375px"
+          "left": "515px"
         });
       }
 
@@ -259,6 +298,7 @@ sylva:true, alert:true */
 
         /* Styles */
 
+        $('html').removeAttr("style");
         $(body).removeAttr("style");
         $('#body').removeAttr("style");
         $('#canvas-box').removeAttr("style");
@@ -269,6 +309,7 @@ sylva:true, alert:true */
         $('header').removeAttr("style");
         $('#sigma-wrapper').removeAttr("style");
         $('.spinner').removeAttr("style");
+        $('.inside.clearfix').removeAttr("style");
 
         $('.menu').css({
           "margin-top": "0px"

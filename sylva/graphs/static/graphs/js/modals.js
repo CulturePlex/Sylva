@@ -264,6 +264,7 @@
         },
         onShow: function(dialog) {
           modalActions.onShow(dialog, onShowOptions);
+          $(document).resize();
         }
       });
     },
@@ -1086,8 +1087,7 @@
 
       onShow: function() {
         $('#simplemodal-container').css({
-          width: 1000,
-          left: "11%"
+          width: 1000
         });
 
         $('#modal-cancel').css({
@@ -1185,8 +1185,7 @@
 
       onShow: function() {
         $('#simplemodal-container').css({
-          width: 1170,
-          left: "4.5%"
+          width: 1170
         });
 
         // We need to set a tiny timeout for a correct load of the queries
@@ -1257,8 +1256,7 @@
 
       onShow: function() {
         $('#simplemodal-container').css({
-          width: 1000,
-          left: 139
+          width: 1000
         });
 
         // Apply shorten text to the cells of the table
@@ -1397,8 +1395,6 @@
       onShow: function() {
         $('#simplemodal-container').css({
           width: 1170,
-          left: 55.5,
-          'top': '2%',
           'height': '93.5%'
         });
 
