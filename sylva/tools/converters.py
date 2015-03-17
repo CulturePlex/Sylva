@@ -322,15 +322,18 @@ class CSVTableConverter(BaseConverter):
         nodes = node_type.all()
         properties = node_type.properties.all()
         csv_header = []
-        csv_header_encoded = []
+
+        csv_file = StringIO()
+        csv_writer = csv.writer(csv_file)
 
         for prop in properties:
-            csv_header.append(prop.key)
-            csv_quoted_element = '"{}"'.format(prop.key.encode('utf-8'))
-            csv_header_encoded.append(csv_quoted_element)
-        csv_header_formatted = ','.join(csv_header_encoded)
-        yield csv_header_formatted
-        yield '\n'
+            header = prop.key
+            csv_header.append(header)
+        csv_writer.writerow(csv_header)
+        yield csv_file.getvalue()
+        # We remove the last element to avoid overlap of values
+        csv_file.seek(0)
+        csv_file.truncate()
 
         for node in nodes:
             csv_node_values = []
@@ -340,11 +343,11 @@ class CSVTableConverter(BaseConverter):
                 if isinstance(prop_value, unicode):
                     prop_value = prop_value.encode('utf-8')
                 csv_node_values.append(prop_value)
-            # We use the map(str, list) because we need string types
-            # to use the join() function
-            csv_row_formatted = ','.join(map(str, csv_node_values))
-            yield csv_row_formatted
-            yield '\n'
+            csv_writer.writerow(csv_node_values)
+            yield csv_file.getvalue()
+            # We remove the last element to avoid overlap of values
+            csv_file.seek(0)
+            csv_file.truncate()
 
 
 class CSVQueryConverter(BaseConverter):
@@ -358,15 +361,18 @@ class CSVQueryConverter(BaseConverter):
         csv_results = self.csv_results
         results = csv_results[1:]
 
+        csv_file = StringIO()
+        csv_writer = csv.writer(csv_file)
+
         csv_header = []
         for header in headers_raw:
             header_formatted = headers_formatted[header]
-            csv_quoted_element = '"{}"'.format(
-                header_formatted.encode('utf-8'))
-            csv_header.append(csv_quoted_element)
-        csv_header_formatted = ','.join(csv_header)
-        yield csv_header_formatted
-        yield '\n'
+            csv_header.append(header_formatted)
+        csv_writer.writerow(csv_header)
+        yield csv_file.getvalue()
+        # We remove the last element to avoid overlap of values
+        csv_file.seek(0)
+        csv_file.truncate()
 
         for result in results:
             results_encoded = []
@@ -374,8 +380,8 @@ class CSVQueryConverter(BaseConverter):
                 if isinstance(individual_result, unicode):
                     individual_result = individual_result.encode('utf-8')
                 results_encoded.append(individual_result)
-            # We use the map(str, list) because we need string types
-            # to use the join() function
-            csv_row_formatted = ','.join(map(str, results_encoded))
-            yield csv_row_formatted
-            yield '\n'
+            csv_writer.writerow(results_encoded)
+            yield csv_file.getvalue()
+            # We remove the last element to avoid overlap of values
+            csv_file.seek(0)
+            csv_file.truncate()
