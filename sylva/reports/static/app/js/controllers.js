@@ -250,8 +250,8 @@ controllers.controller('ReportHistoryCtrl', [
             }, function (data) {
                 for (var i=0; i<data.reports.length; i++) {
                     var history = data.reports[i].reports
-                    ,   mostRecent = history[0]
                     ,   datetime = new Date(data.reports[i].bucket);
+                    if (history[0]) var mostRecent = history[0];
                     data.reports[i]["display"] = datetime.toUTCString().replace(/\s*(GMT|UTC)$/, "").replace("00:00:00", "")
                     for (var j=0; j<history.length; j++) {
                         var report = history[j]
