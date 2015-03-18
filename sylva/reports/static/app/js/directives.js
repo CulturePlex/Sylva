@@ -57,13 +57,17 @@ directives.directive('sylvaColpick', function () {
                     layout: 'hex',
                     submitText: 'Ok',
                     color: attrs.color.substr(1),
-                    onChange:function(hsb, hex, rgb, el, bySetColor) {
+                    onChange: function(hsb, hex, rgb, el, bySetColor) {
                         $(el).css('background-color','#' + hex.toUpperCase());
                         // Fill the text box just if the color was set using the picker, and not the colpickSetColor function.
                         if(!bySetColor) $(el).val(hex.toUpperCase());
                         scope.$apply(function () {
                             ngModelCtrl.$setViewValue('#' + hex.toUpperCase());
                         });
+
+                    },
+                    onSubmit: function(hsb, hex, rgb, el) {
+                        element.colpickHide();
                     }
                 })
             });
