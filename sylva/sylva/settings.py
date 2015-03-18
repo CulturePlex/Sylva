@@ -382,10 +382,3 @@ COMPRESS_ENABLED = True  # By default it's the opposite to 'DEBUG'
 
 # A variable for configure some URLs for the Travis's tests
 TEST = False
-
-
-EMAIL_USE_TLS = True
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = 587
-EMAIL_HOST_USER = 'davebrownshow@gmail.com'
-EMAIL_HOST_PASSWORD = 'Itziri{123'
