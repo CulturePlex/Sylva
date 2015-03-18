@@ -45,13 +45,8 @@
             </p>
             <p ng-show="advanced">
               <label>{% trans "Email to" %}
-                  <input sylva-auto-complete collabs="collabs" ng-model="collab" type="text" placeholder="Enter Email" ng-maxlength="25">
+                  <input sylva-auto-complete precollabs="precollabs" collabs="collabs" ng-model="collab" type="text" placeholder="Enter Email" ng-maxlength="25">
              </label>
-             {% verbatim %}
-             <ul ng-show="advanced">
-                 <li ng-repeat="c in collabs">{{c.display}} <a href="" ng-click="removeCollab($index)">x</a></li>
-             </ul>
-             {% endverbatim%}
             </p>
           </div> <!--innerForm-->
 

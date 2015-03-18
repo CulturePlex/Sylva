@@ -112,6 +112,7 @@ controllers.controller('NewReportCtrl', [
     function ($scope, $controller, api) {
         // Done except post
         $controller('BaseReportCtrl', {$scope: $scope});
+        $scope.precollabs = null;
         $scope.template = {
             name: 'New Report',
             periodicity: 'weekly',
@@ -209,7 +210,7 @@ controllers.controller('EditReportCtrl', [
             data.template.time = hour + ':' + minute;
             data.template.date = month + '/' + day + '/' + year;
             $scope.template = data.template;
-            $scope.collabs = data.template.collabs;
+            $scope.precollabs = data.template.collabs;
             $scope.resp = {table: data.template.layout, queries: data.queries};
             $scope.prev = $scope.resp;
         });
