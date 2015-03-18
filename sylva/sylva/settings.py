@@ -263,7 +263,7 @@ DEFAULT_FROM_EMAIL = "\"SylvaDB\" <info@sylvadb.com>"
 # Celery
 BROKER_URL = 'amqp://guest@localhost//'
 CELERY_RESULT_BACKEND = "amqp"
-CELERY_IMPORTS = ("engines.gdb.analysis.neo4j", "reports.generator")
+CELERY_IMPORTS = ("engines.gdb.analysis.neo4j", "reports.tasks")
 
 # Celery reports scheduler
 CELERYBEAT_SCHEDULE = {
@@ -382,3 +382,10 @@ COMPRESS_ENABLED = True  # By default it's the opposite to 'DEBUG'
 
 # A variable for configure some URLs for the Travis's tests
 TEST = False
+
+
+EMAIL_USE_TLS = True
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_HOST_USER = 'davebrownshow@gmail.com'
+EMAIL_HOST_PASSWORD = 'Itziri{123'

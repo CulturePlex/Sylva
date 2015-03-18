@@ -99,8 +99,8 @@ class ReportTemplate(models.Model):
 
 
 def get_upload(self, filename):
-    return u"%s/%s/pdfs/%s" % (self.template.graph.slug, self.template.slug,
-                               filename)
+    return u"%s/reports/%s/%s" % (self.template.graph.slug, self.template.slug,
+                                  filename)
 
 
 class Report(models.Model):
@@ -117,8 +117,8 @@ class Report(models.Model):
         verbose_name=_('template'),
         related_name='reports'
     )
-    pdf = models.FileField(_('pdf'), upload_to=get_upload, blank=True,
-                           null=True, max_length=255)
+    report_file = models.FileField(_('report_file'), upload_to=get_upload,
+                                   blank=True, null=True, max_length=255)
 
     def __unicode__(self):
         return self.date_run.isoformat()
@@ -136,18 +136,11 @@ class Report(models.Model):
 def post_report_save(sender, **kwargs):
     if kwargs.get("created", False):
         inst = kwargs["instance"]
-        email_to = inst.template.email_to.all()
+        email_to = inst.template.email_to.exists()
         if email_to:
-            emails = [u.email for u in email_to]
-            # Avoid circular import...? Weird. But this won't register outsid
-            # of models unless I import it in __init__.py, but this causees
-            # celery task queue import error.
+            inst_id = inst.id
             from tasks import generate_pdf, send_email
-            res = (generate_pdf.si(inst) | send_email.si(inst, emails))()
-            # Call tasks - it will start with generate pdf, then callback
-            # some async map onto all of the emails needed to be sent.
-        print("Received signal, report created. Length {0}".format(len(email_to)))
-
+            res = (generate_pdf.si(inst_id) | send_email.si(inst_id))()
 
 
 def _dthandler(obj):

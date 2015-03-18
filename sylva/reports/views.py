@@ -340,7 +340,7 @@ def preview_report_pdf(request, graph_slug):
                      (Schema, "graph__slug", "graph_slug"), return_403=True)
 def pdf_view(request, graph_slug, report_id):
     report = Report.objects.get(pk=report_id)
-    filename = os.path.join(settings.MEDIA_ROOT, report.pdf.name)
+    filename = os.path.join(settings.MEDIA_ROOT, report.report_file.name)
     try:
         with open(filename) as pdf:
             response = HttpResponse(pdf.read(), content_type='application/pdf')

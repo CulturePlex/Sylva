@@ -48,7 +48,7 @@ def generate_pdf(inst_id):
     try:
         with open(filename) as pdf:
             f = File(pdf)
-            inst.pdf.save(filename.split("/")[-1], f)
+            inst.report_file.save(filename.split("/")[-1], f)
     except IOError:
         pass
     os.unlink(filename)

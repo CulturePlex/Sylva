@@ -220,7 +220,6 @@ directives.directive('sylvaPvCellRepeat', ['$sanitize', function ($sanitize) {
 
             var childScopes = []
             ,   previous = elem
-            ,   childScope
             ,   len = scope.row.length
             ,   tableWidth = ctrl.getTableWidth()
             ,   tableArray = ctrl.getTableArray()
@@ -248,7 +247,7 @@ directives.directive('sylvaPvCellRepeat', ['$sanitize', function ($sanitize) {
                 ,   block
                 ,   demo = cell.demo || false;
                 if (query === "" && !(cell.displayMarkdown)) demo = true;
-                childScope = scope.$new();
+                var childScope = scope.$new();
                 childScope.$index = i;
                 childScope.cellStyle = {width: cellWidth, height: scope.rowHeight[cell.row]};
 
@@ -273,7 +272,7 @@ directives.directive('sylvaPvCellRepeat', ['$sanitize', function ($sanitize) {
                         name = query.name;
                         var header = series[0]
                         // xSeries is often catagorical, can only be one
-                        ,   xSeriesNdx = header.indexOf(cell.xAxis)
+                        ,   xSeriesNdx = header.indexOf(cell.xAxis.alias)
                         ,   chartSeries = [];
                         if (xSeriesNdx === -1) xSeriesNdx = 0
                         // Can be multiple y series composed of numeric var
@@ -296,9 +295,8 @@ directives.directive('sylvaPvCellRepeat', ['$sanitize', function ($sanitize) {
                             }
                             if (ndx === -1) ndx = j + 1
                             for (var k=1; k<series.length; k++) {
-                                var row = series[k]
-                                ,   x;
-                                x = row[xSeriesNdx];
+                                var row = series[k];
+                                var x = row[xSeriesNdx];
                                 var point = [x, row[ndx]];
                                 ser.push(point);
                             }
@@ -423,9 +421,13 @@ directives.directive('syEditableTable',[
                                 datatype !== 'auto_increment' &&
                                 datatype !== 'auto_increment_update' &&
                                 prop.aggregate === false) {
-                            catagorical.push(element)
+                            element["catagorical"] = true;
+                            element["numeric"] = false;
+                            catagorical.push(element);
                         } else {
-                            numeric.push(element)
+                            element["catagorical"] = false;
+                            element["numeric"] = true;
+                            numeric.push(element);
                         }
                     }
                 }
@@ -801,9 +803,9 @@ directives.directive('sylvaEtCellRepeat', [function () {
                     })[0];
 
                     if (activeQuery) {
-                        var results = ctrl.parseResults(activeQuery.results);
-                        var results = results.num.concat(results.cat)
-                        var activeX = results.filter(function (el) {
+                        var resultsDict = ctrl.parseResults(activeQuery.results)
+                        ,   results = resultsDict.num.concat(resultsDict.cat)
+                        ,   activeX = results.filter(function (el) {
                             return el.alias === xAxis.alias;
                         })[0];
 
@@ -811,10 +813,9 @@ directives.directive('sylvaEtCellRepeat', [function () {
                         var activeYs = [];
 
                         for (var j=0; j<yAxis.length; j++) {
-
                             var y = yAxis[j]
                             ,   activeY = results.filter(function (el) {
-                                return el.alias.alias === y;
+                                return el.alias === y.alias;
                             })[0];
 
                             if (activeY) {
@@ -835,6 +836,8 @@ directives.directive('sylvaEtCellRepeat', [function () {
                         activeYs: activeYs,
                         queries: ctrl.getQueries(),
                         activeQuery: activeQuery,
+                        results: results,
+                        resultsDict: resultsDict,
                         chartTypes: ['column', 'scatter', 'pie', 'line'],
                         chartType: cell.chartType,
                         markdown: cell.displayMarkdown
@@ -908,7 +911,7 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', 'ST
                             '</span>' +
                             '<div ng-hide="pie" sylva-colpick color="{{colors[result.alias]}}" ng-model="colors[result.alias]" id="colpick{{$index}}" class="colorbox"></div>' +
                             //'<input ng-hide="pie" type="checkbox" ng-model="result.selected" value="{{result}}" />' +
-                            '<input ng-show="pie" name="ysergroup" type="radio" ng-model="$parent.yser" ng-value="result.alias.alias" />' +
+                            '<input ng-show="pie" name="ysergroup" type="radio" ng-model="$parent.yser.alias" ng-value="result.alias" />' +
                             '{{ result.display_alias }}' +
                         '</li>' +
                         '</ul>' +
@@ -936,7 +939,6 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', 'ST
             ,   coords
             ,   arrows = false
             ,   cellWidth
-            ,   result_dict
             // Used for binding arrows to click action merge.
             ,   arrowHtml = {
                     left: '<a class="arrow left" title="merge left" ng-href="" ng-click="merge(0)">&#8592</a>',
@@ -953,16 +955,286 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', 'ST
                 xSeries: gettext('X-Series'),
                 ySeries: gettext('Y-Series')
             }
-            //scope.colors = {};
+            // This fires on load or with edits. Sets up the cell params.
+            scope.$watch('config', function (newVal, oldVal) {
+                scope.row = scope.config.row;
+                scope.col = scope.config.col;
+                scope.colspan = scope.config.colspan;
+                var coords = [scope.row, scope.col]
+                scope.queries = scope.config.queries;
+                scope.chartTypes = scope.config.chartTypes;
+                if (!scope.activeQuery) {
+                    scope.activeQuery = scope.config.activeQuery;
+                    scope.activeX = scope.config.activeX;
+                    scope.chartType = scope.config.chartType;
+                    scope.results = scope.config.results;
+                    scope.resultsDict = scope.config.resultsDict
+                    scope.activeYs = scope.config.activeYs || [];
+                }
+                scope.colors = scope.config.colors;
+                // Why are the activeYs outside of the if?
+                scope.tableArray = ctrl.getTableArray();
+                cellWidth = elem.width()
+                chartCol.width(cellWidth * 0.4)
+                cellCol.width(cellWidth * 0.45)
+
+                // Here is the active query/ xy series code that executes
+                // on init for edit report.
+                if (scope.activeQuery) {
+                    var resultsDict = scope.resultsDict
+
+                    // Set up xSeries options and activeX
+                    if (resultsDict.num.length > 1) {
+                        scope.xSeries = resultsDict.cat.concat(resultsDict.num)
+                    } else {
+                        scope.xSeries = resultsDict.cat
+                    }
+
+                    // This either uses the assigned activeX or the first x
+                    // in the series.
+                    if (scope.xSeries) {
+                        scope.activeX = scope.xSeries.filter(function (el) {
+                            return el.alias === scope.activeX.alias;
+                        })[0];
+                    }
+                    if (!scope.activeX) scope.activeX = scope.xSeries[0];
+
+                    // Case of only one option
+                    if (scope.xSeries.length == 1) scope.activeX = scope.xSeries[0];
+
+                    // Deal with multiple activeYs
+                    if (scope.activeYs.length > 0) {
+                        // These nested loops compare activeY aliases with
+                        // results aliases
+
+                        for (var j=0; j<scope.activeYs.length; j++) {
+                            var activeYAlias = scope.activeYs[j].alias
+
+                            // Get any activeYs out of the possible xSeries
+                            scope.xSeries = scope.xSeries.filter(function (el) {
+                                return el.alias !== activeYAlias
+                            });
+
+                            for (var i=0; i<resultsDict.num.length; i++) {
+                                var numAlias = resultsDict.num[i].alias;
+                                // Select the activeY series
+                                if (numAlias === activeYAlias) {
+                                    resultsDict.num[i].selected = true;
+                                }
+                            } // Inside for
+                        } // Outside for
+                    } // if
+
+                    // Remove active x from ySeries options
+                    scope.ySeries = resultsDict.num.filter(function (el) {
+                        return el.alias !== scope.activeX.alias
+                    });
+
+                    // Autoselect series, remove slash, add eyball
+                    if (scope.ySeries.length == 1) {
+                        setTimeout(function () {
+                            scope.ySeries[0].selected = true;
+                            var eye = $("#eye0" + scope.row.toString() + scope.col.toString());
+                            eye.removeClass("fa-eye-slash");
+                            eye.addClass("fa-eye");
+                        }, 250)
+                    } else {
+                        // Remove eye slashes and add eyeballs
+                        setTimeout(function () {
+                            for (var i=0; i<scope.ySeries.length; i++) {
+                                if (scope.ySeries[i].selected === true) {
+                                    var eye = $("#eye" + i.toString() + scope.row.toString() + scope.col.toString());
+                                    eye.removeClass("fa-eye-slash");
+                                    eye.addClass("fa-eye");
+                                }
+                            }
+                        }, 250)
+                    }
+                    // Pies are annoying.
+                    if (scope.chartType === "pie") {
+                        scope.pie = true;
+                        // This yser man idk
+                        scope.yser = scope.activeYs[0]
+                    }
+                // Prep for markdown. This does show/hide with primative
+                // true on scope, and also is watched below.
+                } else if (scope.config.markdown) {
+                    scope.md = true;
+                    scope.mdarea = scope.config.markdown;
+                    scope.activeQuery = scope.queries[0];
+                }
+
+            });
+
+            // Active query watch - 1st entry on new report.
+            // Full query object group, id, name, fake series etc.
+            scope.$watch('activeQuery', function (newVal, oldVal) {
+                if (newVal == oldVal) return;
+                // Turns ctrl.editing() turns off preview mode with Demo
+                ctrl.editing()
+                // Reset table params.
+                scope.tableArray.table[scope.row][scope.col].ySeries = [];
+                scope.tableArray.table[scope.row][scope.col].xAxis = "";
+                scope.tableArray.table[scope.row][scope.col].yAxis = [];
+                scope.tableArray.table[scope.row][scope.col].series = "";
+                var name;
+                // Set to no query by user.
+                if (newVal != null) {
+                    // Find newVal by id
+                    name = newVal.id || '';
+                    if (name === 'markdown') {
+                        // Set active query to empty, turn on md mode
+                        // Trace here.
+                        scope.md = true;
+                        name = '';
+                    } else {
+                        // Is necessary to set to ""
+                        scope.tableArray.table[scope.row][scope.col].displayMarkdown = "";
+                        scope.md = false;
+
+                        // Make sure the results all can be processed.
+                        var results = newVal.results.filter(function (el) {
+                            return el.properties.length > 0;
+                        });
+
+                        // Sort query results by type.
+                        var resultsDict = ctrl.parseResults(results)
+
+                        if (scope.colors == undefined) {
+                            // Randomly assign colors to the results.
+                            scope.colors = {}
+                            var results = resultsDict.cat.concat(resultsDict.num);
+                            angular.forEach(results, function (elem) {
+                                var col = simpleColors[Math.floor(Math.random() * simpleColors.length)];
+                                if(!(elem.alias in scope.colors)) scope.colors[elem.alias] = col;
+                            });
+                        }
+                        var xSeries;
+                        if (resultsDict.num.length > 1) {
+                            xSeries = resultsDict.cat.concat(resultsDict.num);
+                        } else {
+                            xSeries = resultsDict.cat;
+                        }
+                        // Set select to "", then select first y
+                        scope.ySeries = resultsDict.num.map(function  (el) {el.selected = ''; return el}) // ySeries must be numerical
+                        scope.ySeries[0].selected = true;
+                        setTimeout(function () {
+                            var eye = $("#eye0" + scope.row.toString() + scope.col.toString());
+                            eye.removeClass("fa-eye-slash");
+                            eye.addClass("fa-eye");
+                        }, 100)
+
+                        // Remove activeY out of the xSeries
+                        scope.xSeries = xSeries.filter(function (el) {
+                            return el.alias !== scope.ySeries[0].alias;
+                        });
+                        scope.activeX = scope.xSeries[0]
+                    }
+                } else {
+                    name = '';
+                    scope.xSeries = [];
+                    scope.ySeries = [];
+                    scope.activeX = "";
+                    scope.activeYs = [];
+                }
+
+                scope.tableArray.addQuery([scope.row, scope.col], name);
+            });
+
+            scope.$watch('ySeries', function (newVal, oldVal) {
+                if (!newVal || newVal == oldVal) return;
+                scope.tableArray.table[scope.row][scope.col]['yAxis'] = [];
+                for (var i=0; i<newVal.length; i++) {
+                    var val = newVal[i];
+
+                    if (val.selected === true) {
+                        scope.tableArray.addAxis([scope.row, scope.col], 'y', {"alias": val.alias, "display_alias": val.display_alias})
+                        var eye = $("#eye" + i.toString() + scope.row.toString() + scope.col.toString())
+                        eye.removeClass("fa-eye-slash")
+                        eye.addClass("fa-eye")
+                        scope.xSeries = scope.xSeries.filter(function (el) {
+                            return el.alias !== val.alias;
+                        });
+
+                    } else if (val.selected === false) {
+                        // This is a hack
+                        scope.xSeries = scope.xSeries.filter(function (elem) {
+                            return elem.alias != val.alias
+                        })
+                        scope.xSeries.push(val);
+                        var eye = $("#eye" + i.toString() + scope.row.toString() + scope.col.toString())
+                        eye.removeClass("fa-eye")
+                        eye.addClass("fa-eye-slash")
+                    }
+                }
+            }, true)
+
+            scope.$watch('activeX', function (newVal, oldVal) {
+                if (!newVal || newVal == oldVal) return;
+                scope.tableArray.addAxis([scope.row, scope.col], 'x', {"alias": newVal.alias, "display_alias": newVal.display_alias});
+                if (newVal.numeric === true) {
+                    scope.ySeries = scope.ySeries.filter(function (elem) {
+                        return elem.alias != newVal.alias
+                    });
+                }
+                if (oldVal && oldVal.numeric === true) scope.ySeries.push(oldVal)
+            });
+
+            scope.$watch('yser', function (newVal, oldVal) {
+                if (newVal == oldVal) return;
+                scope.tableArray.table[scope.row][scope.col]['yAxis'] = [];
+                scope.tableArray.addAxis([scope.row, scope.col], 'y', {"alias": newVal.alias, "display_alias": newVal.display_alias});
+            });
+
+            scope.$watch('chartType', function (newVal, oldVal) {
+                if (newVal === oldVal) return;
+                if (newVal === "pie") {
+                    scope.pie = true;
+                    if (scope.yser == undefined) {
+                        scope.yser = scope.ySeries[0];
+                    }
+                } else {
+                    scope.pie = false;
+                }
+                // Idk if i need this...
+                ctrl.editing()
+                scope.tableArray.addChart([scope.row, scope.col], newVal)
+            });
 
             scope.$watch("colors", function (newVal, oldVal) {
+                // Just maintain a map of {alias: color} on the table object.
                 if (newVal == oldVal) return;
                 scope.tableArray.table[scope.row][scope.col]["colors"] = scope.colors
             }, true);
 
+            md.on('blur change', function () {
+                scope.$apply(function () {
+                    scope.tableArray.addMarkdown([scope.row, scope.col], scope.mdarea);
+                });
+            });
+
+            scope.mdarea = '#Heading 1\n' + '##Heading 2\n' + '###Heading 3\n' +
+                            '* A list of items\n' + ' - sub item\n' + '* Unordered list of items\n' + ' - Unordered list of subitems\n';
+
+            scope.mdarea = gettext(scope.mdarea);
+
+            scope.select = function (result, ndx, row, col) {
+                if (result.selected) {
+                    result.selected = false;
+                } else {
+                    result.selected = true;
+                }
+            }
+
+            scope.setChartType = function (type) {
+                scope.chartType = type;
+            };
+
+            // All sorts of UI code.
             // Methods for resizing columns
             scope.merge = function(ndx) {
-                var merges = [[scope.row, scope.col - 1], [scope.row - 1, scope.col], [scope.row, scope.col + 1], [scope.row + 1, scope.col]];
+                var merges = [[scope.row, scope.col - 1], [scope.row - 1, scope.col],
+                              [scope.row, scope.col + 1], [scope.row + 1, scope.col]];
                 scope.tableArray.mergeCol([coords, merges[ndx]]);
             }
 
@@ -975,7 +1247,6 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', 'ST
                 if (scope.chartType) {
                     chartScroll();
                 }
-
             });
 
             var chartScroll = function () {
@@ -1001,7 +1272,7 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', 'ST
                     ang('.arrow').remove();
                     var adjs = scope.tableArray.getAdjCells(scope.row, scope.col);
                     angular.forEach(adjs, function (el) {
-                        var arrow = $compile(arrowHtml[el])(scope)
+                        var arrow = $compile(arrowHtml[el])(scope);
                         elem.append(arrow);
                     });
 
@@ -1012,7 +1283,6 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', 'ST
                         elem.append(leftIn);
                         elem.append(rightIn);
                     }
-
                     arrows = true;
                 } else {
                     ang('.arrow').remove();
@@ -1025,252 +1295,14 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', 'ST
                 arrows = false
             });
 
-            scope.$watch('config', function (newVal, oldVal) {
-                scope.row = scope.config.row;
-                scope.col = scope.config.col;
-                scope.colspan = scope.config.colspan;
-                coords = [scope.row, scope.col]
-                scope.queries = scope.config.queries;
-                if (!scope.activeQuery) {
-                    scope.activeQuery = scope.config.activeQuery;
-                    scope.activeX = scope.config.activeX;
-                    scope.chartTypes = scope.config.chartTypes;
-                    scope.chartType = scope.config.chartType;
-
-                }
-                scope.colors = scope.config.colors;
-                scope.activeYs = scope.config.activeYs;
-                scope.tableArray = ctrl.getTableArray();
-                cellWidth = elem.width()
-                chartCol.width(cellWidth * 0.4)
-                cellCol.width(cellWidth * 0.45)
-                scope.$watch(ctrl.editable, function (newVal, oldVal) {
-                    if (newVal == oldVal) return;
-                    if (!scope.chartType) return;
-                    chartScroll();
-                });
-
-
-
-
-                // Here is the active query/ xy series code that executes
-                // on init for edit report.
-
-                if (scope.activeQuery) {
-                    results = scope.activeQuery.results.filter(function (el) {
-                        return el.properties.length > 0;
-                    });
-                    result_dict = ctrl.parseResults(results)
-
-                    if (result_dict.num.length > 1) {
-                        scope.xSeries = result_dict.cat.concat(result_dict.num)
-                    } else {
-                        scope.xSeries = result_dict.cat
-                    }
-                    if (scope.xSeries) {
-                        scope.activeX = scope.xSeries.filter(function (el) {
-                            return el.alias === scope.activeX.alias;
-                        })[0];
-                    }
-                    if (!scope.activeX) scope.activeX = scope.xSeries[0]
-                    if (scope.xSeries.length == 1) scope.activeX = scope.xSeries[0]
-
-                    // Deal with multiple activeYs
-
-                    if (scope.activeYs) {
-
-                        for (var i=0; i<result_dict.num.length; i++) {
-                            var num_alias = result_dict.num[i].alias.alias;
-                            for (var j=0; j<scope.activeYs.length; j++) {
-                                var activeY_alias = scope.activeYs[j].alias.alias
-                                scope.xSeries = scope.xSeries.filter(function (el) {
-                                    return el.alias !== activeY_alias
-                                });
-                                if (num_alias === activeY_alias) {
-                                    result_dict.num[i].selected = true;
-                                }
-                            }
-                        }
-                    }
-                    scope.ySeries = result_dict.num;
-                    scope.ySeries = scope.ySeries.filter(function (el) {
-                        return el.alias.alias !== scope.activeX.alias
-                    });
-                    if (scope.ySeries.length == 1) {
-                        setTimeout(function () {
-                            scope.ySeries[0].selected = true;
-                            var eye = $("#eye0" + scope.row.toString() + scope.col.toString())
-                            eye.removeClass("fa-eye-slash")
-                            eye.addClass("fa-eye")
-                        }, 250)
-                    } else {
-                        setTimeout(function () {
-                            for (var i=0; i<scope.ySeries.length; i++) {
-                                if (scope.ySeries[i].selected === true) {
-                                    var eye = $("#eye" + i.toString() + scope.row.toString() + scope.col.toString());
-                                    eye.removeClass("fa-eye-slash");
-                                    eye.addClass("fa-eye");
-                                }
-                            }
-                        }, 250)
-                    }
-                    if (scope.chartType === "pie") {
-                        scope.pie = true;
-                        scope.yser = scope.activeYs[0].alias.alias
-                    }
-
-
-
-                } else if (scope.config.markdown) {
-                    scope.md = true;
-                    scope.mdarea = scope.config.markdown;
-                    scope.activeQuery = scope.queries[0];
-                }
-
-            });
-
-            // Markdown - broken
-            md.on('blur change', function () {
-
-                scope.$apply(function () {
-                    scope.tableArray.addMarkdown([scope.row, scope.col], scope.mdarea);
-                });
-            });
-
-            scope.mdarea = '#Heading 1\n' + '##Heading 2\n' + '###Heading 3\n' +
-                            '* A list of items\n' + ' - sub item\n' + '* Unordered list of items\n' + ' - Unordered list of subitems\n';
-
-            scope.mdarea = gettext(scope.mdarea);
-
-            // Active query watch - 1st entry on new report.
-            // Full query object group, id, name, fake series etc.
-            scope.$watch('activeQuery', function (newVal, oldVal) {
+            // This was in config watch?
+            scope.$watch(ctrl.editable, function (newVal, oldVal) {
+                // This scrolls to proper chart when user switches
+                // to design mode. Can't be done on load due to hidden
+                // elements.
                 if (newVal == oldVal) return;
-                // Turns off preview mode with Matrix Graph
-                ctrl.editing()
-                scope.tableArray.table[scope.row][scope.col].ySeries = [];
-                scope.tableArray.table[scope.row][scope.col].xAxis = "";
-                scope.tableArray.table[scope.row][scope.col].yAxis = [];
-
-                var name;
-                // Set to no query by user.
-                if (newVal != null) {
-                    // Find newVal by id
-                    name = newVal.id || '';
-                    if (name === 'markdown') {
-                        // Set active query to empty, turn on md mode
-                        // Trace here.
-                        scope.md = true;
-                        name = '';
-                    } else {
-                        scope.tableArray.table[scope.row][scope.col].displayMarkdown = "";
-                        scope.md = false;
-                        results = newVal.results.filter(function (el) {
-                            return el.properties.length > 0;
-                        });
-
-                        // Sort query results by type.
-                        result_dict = ctrl.parseResults(results)
-                        if (scope.colors == undefined) {
-                            scope.colors = {}
-                            var ser = result_dict.cat.concat(result_dict.num);
-                            angular.forEach(ser, function (elem) {
-                                // This should be a service.
-                                var col = simple_colors[Math.floor(Math.random() * simple_colors.length)];
-                                if(!(elem.alias.alias in scope.colors)) scope.colors[elem.alias] = col;
-                            });
-                        }
-
-                        if (result_dict.num.length > 1) {
-                            scope.xSeries = result_dict.cat.concat(result_dict.num)
-                        } else {
-                            scope.xSeries = result_dict.cat
-                        }
-                        // Autoselect catagorical value or first numerical.
-                        //if (!scope.activeX) scope.activeX = scope.xSeries[0]
-                        //if (scope.xSeries.length == 1) scope.activeX = scope.xSeries[0]
-                        scope.ySeries = result_dict.num.map(function  (el) {el.selected = ''; return el}) // ySeries must be numerical
-                        //if (scope.ySeries.length == 1) scope.ySeries[0].selected = true;
-                        //if (!scope.activeYs) scope.ySeries[0].selected = true;
-                        scope.ySeries[0].selected = true;
-                        setTimeout(function () {
-                            var eye = $("#eye0" + scope.row.toString() + scope.col.toString());
-                            eye.removeClass("fa-eye-slash");
-                            eye.addClass("fa-eye");
-                        }, 100)
-
-                        scope.activeX = scope.xSeries[0]
-                    }
-                } else {
-                    name = '';
-                }
-
-                scope.tableArray.addQuery([scope.row, scope.col], name);
-            });
-
-            scope.$watch('activeX', function (newVal, oldVal) {
-                if (!newVal || newVal == oldVal) return;
-                scope.tableArray.addAxis([scope.row, scope.col], 'x', {"alias": newVal.alias, "display_alias": newVal.display_alias})
-                scope.ySeries = result_dict.num
-                scope.ySeries = scope.ySeries.filter(function (el) {
-                    return el.alias.alias !== newVal.alias;
-                });
-            })
-
-            scope.select = function (result, ndx, row, col) {
-                if (result.selected) {
-                    result.selected = false;
-                } else {
-                    result.selected = true;
-                }
-            }
-
-            scope.$watch('ySeries', function (newVal, oldVal) {
-                if (!newVal || newVal === oldVal) return;
-                for (var i=0; i<newVal.length; i++) {
-                    var val = newVal[i];
-                    scope.xSeries = scope.xSeries.filter(function (el) {
-                        return el.alias.alias !== val.alias;
-                    });
-                    if (val.selected === true) {
-                        scope.tableArray.addAxis([scope.row, scope.col], 'y', {"alias": val.alias, "display_alias": val.display_alias})
-                        var eye = $("#eye" + i.toString() + scope.row.toString() + scope.col.toString())
-                        eye.removeClass("fa-eye-slash")
-                        eye.addClass("fa-eye")
-
-                    } else if (val.selected === false) {
-                        scope.tableArray.removeAxis([scope.row, scope.col], 'y', val.alias.alias)
-                        scope.xSeries.push(val);
-                        var eye = $("#eye" + i.toString() + scope.row.toString() + scope.col.toString())
-                        eye.removeClass("fa-eye")
-                        eye.addClass("fa-eye-slash")
-                    }
-                }
-            }, true)
-
-            scope.setChartType = function (type) {
-                scope.chartType = type;
-            };
-
-            scope.$watch('yser', function (newVal, oldVal) {
-                if (newVal == oldVal) return;
-                angular.forEach(scope.ySeries, function (el) {
-                    scope.tableArray.removeAxis([scope.row, scope.col], 'y', el.alias.alias)
-                });
-                scope.tableArray.addAxis([scope.row, scope.col], 'y', newVal)
-            });
-
-            scope.$watch('chartType', function (newVal, oldVal) {
-                if (newVal === oldVal) return;
-                if (newVal === "pie") {
-                    scope.pie = true;
-                    if (scope.yser == undefined) scope.yser = scope.ySeries[0].alias.alias;
-                } else {
-                    scope.pie = false;
-                }
-                if (newVal === oldVal) return;
-                ctrl.editing()
-                scope.tableArray.addChart([scope.row, scope.col], newVal)
+                if (!scope.chartType) return;
+                chartScroll();
             });
         }
     };

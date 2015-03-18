@@ -160,13 +160,7 @@ services.factory('tableArray', function () {
         if (axis === 'x') {
             this.table[coords[0]][coords[1]].xAxis = alias;
         } else {
-            if (!('yAxis' in this.table[coords[0]][coords[1]])) {
-                this.table[coords[0]][coords[1]]['yAxis'] = []
-            }
-            if (this.table[coords[0]][coords[1]].yAxis.indexOf(alias) == -1) {
-                this.table[coords[0]][coords[1]].yAxis.push(alias);
-            }
-
+            this.table[coords[0]][coords[1]].yAxis.push(alias);
         }
     }
 
@@ -178,7 +172,7 @@ services.factory('tableArray', function () {
             var i = this.table[coords[0]][coords[1]].yAxis.indexOf(alias)
             this.table[coords[0]][coords[1]].yAxis.splice(i, 1);
             this.table[coords[0]][coords[1]].yAxis = this.table[coords[0]][coords[1]].yAxis.filter(function (el) {
-                return el.alias.alias !== alias;
+                return el.alias !== alias;
             });
 
         } else {
