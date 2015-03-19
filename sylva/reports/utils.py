@@ -7,7 +7,7 @@ from django.core.urlresolvers import reverse
 
 
 def phantom_process(scheme, netloc, view, graph_slug, template_slug, domain,
-                    sessionid):
+                    csrftoken, sessionid):
     temp_path = os.path.join(tempfile.gettempdir(), str(int(time() * 1000)))
     filename = '{0}.pdf'.format(temp_path)
     raster_path = finders.find('phantomjs/rasterize.js')
@@ -18,13 +18,15 @@ def phantom_process(scheme, netloc, view, graph_slug, template_slug, domain,
         '?pdf=true',
         template_slug
     )
-    print("URLLLLLLLLLL:", url)
+    print("csrftoken:", csrftoken)
     Popen([
         'phantomjs',
         raster_path,
         url,
         filename,
         domain,
+        csrftoken,
         sessionid
     ], stdout=PIPE, stderr=STDOUT).wait()
+    print("filename", filename)
     return filename

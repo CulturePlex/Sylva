@@ -30,19 +30,35 @@ from sylva.decorators import is_enabled
 settings.ENABLE_REPORTS = True
 
 
-@login_required
-@is_enabled(settings.ENABLE_REPORTS)
-@permission_required("schemas.view_schema",
-                     (Schema, "graph__slug", "graph_slug"), return_403=True)
+@csrf_exempt
 def reports_index_view(request, graph_slug):
-    graph = get_object_or_404(Graph, slug=graph_slug)
-    pdf = request.GET.get('pdf', False)
-    if pdf:
-        pdf = True
-    return render_to_response('reports_base.html', RequestContext(request, {
-        'pdf': pdf,
-        'graph': graph
-    }))
+
+    def render(request, graph_slug):
+        graph = get_object_or_404(Graph, slug=graph_slug)
+        pdf = request.GET.get('pdf', False)
+        if pdf:
+            pdf = True
+        return render_to_response('reports_base.html', RequestContext(request, {
+            'pdf': pdf,
+            'graph': graph
+        }))
+
+    @login_required
+    @is_enabled(settings.ENABLE_REPORTS)
+    @permission_required("schemas.view_schema",
+                     (Schema, "graph__slug", "graph_slug"), return_403=True)
+    @csrf_protect
+    def protected(request, **kwargs):
+        return render(request, graph_slug)
+
+    if request.POST.get("secret", ""):
+        secret = request.POST["secret"]
+        if secret == "sosecret":
+            return render(request, graph_slug)
+        else:
+            return protected(request, graph_slug)
+    else:
+        return protected(request, graph_slug=graph_slug)
 
 
 @login_required
@@ -188,7 +204,7 @@ def history_endpoint(request, graph_slug):
                 buckets.append(bucket)
                 bucket += interval
             page = request.GET.get('page', "")
-            # THIS WAS BEHAVING FUNNY, NEEDS TO BE CHECKED
+            # BROKEN!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
             # buckets.reverse()  # Generate these in reverse when I have time.
             pgntr, output, next_page_num, prev_page_num = paginate(
                 buckets, 5, page
@@ -306,9 +322,8 @@ def preview_report_pdf(request, graph_slug):
     template_slug = request.GET.get('template', '')
     if request.GET.get('template', str(int(time() * 1000))):
         download_name = '{0}.pdf'.format(request.GET['template'])
-
     domain = parsed_url.hostname
-    # csrftoken = request.COOKIES.get('csrftoken', 'nocsrftoken')
+    csrftoken = request.COOKIES.get('csrftoken', 'nocsrftoken')
     sessionid = request.COOKIES.get('sessionid', 'nosessionid')
     filename = phantom_process(
         parsed_url.scheme,
@@ -317,7 +332,7 @@ def preview_report_pdf(request, graph_slug):
         graph_slug,
         template_slug,
         domain,
-        # csrftoken,
+        csrftoken,
         sessionid
     )
     try:

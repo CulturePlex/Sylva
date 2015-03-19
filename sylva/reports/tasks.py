@@ -36,6 +36,7 @@ def generate_pdf(inst_id):
     template_slug = inst.template.slug
     site = Site.objects.get_current()
     sessionid = "nosessionid"
+    csrftoken = "nocsrftoken"
     filename = phantom_process(
         'http',
         site.domain,
@@ -43,6 +44,7 @@ def generate_pdf(inst_id):
         graph_slug,
         template_slug,
         'localhost',
+        csrftoken,
         sessionid
     )
     try:

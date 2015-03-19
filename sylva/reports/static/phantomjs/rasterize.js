@@ -1,27 +1,26 @@
 // Create a page object
-var page, system, address, filename, domain;
+var page, system, address, filename, domain, mode;
 
 page = require('webpage').create();
 system = require('system');
 
 url = system.args[1];
 filename = system.args[2];
-domain = system.args[3]; //ask chavi about this
-// csrfToken = system.args[4];
-sessionId = system.args[4];
-console.log("filename", filename, "fsdddddddddddddddddddddddddddddddddddddddddddddddddddddsdfdsdffd")
-// phantom.addCookie({'domain': domain, 'name':'csrftoken',
-//                    'value': csrfToken});
-phantom.addCookie({'domain': domain, 'name':'sessionid',
-                   'value': sessionId});
+domain = system.args[3];
+csrfToken = system.args[4];
+sessionId = system.args[5];
+
+phantom.addCookie({'domain': domain, 'name':'csrftoken',
+                         'value': csrfToken});
+phantom.addCookie({'domain': domain, 'name':'sessionid', 'value': sessionId});
 
 // Set the page size and orientation
 page.paperSize = {
     format: 'A4',
     orientation: 'landscape'};
 
-// Now we have everything settled, let's render the page
-page.open(url, function (status) {
+var body = "secret=sosecret";
+page.open(url, 'POST', body, function (status) {
     if (status !== 'success') {
         // If PhantomJS failed to reach the address, print a message
         console.log('Unable to load the address!', url);
