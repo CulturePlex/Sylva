@@ -158,7 +158,6 @@ directives.directive('sylvaPvRowRepeat', ['tableArray', function (tableArray) {
             }
         },
         link: function (scope, elem, attrs, ctrl, transclude) {
-
             var childScopes = []
             ,   parent = elem.parent()
             ,   aspectRatio = 1.295;
@@ -186,7 +185,9 @@ directives.directive('sylvaPvRowRepeat', ['tableArray', function (tableArray) {
             }
 
             scope.$watch('resp', function (newVal, oldVal) {
-                if (newVal == oldVal) return;
+                console.log("newVal", newVal, oldVal)
+                if (!(newVal) && newVal == oldVal) return;
+
                 scope.tableArray = tableArray(scope.resp.table.layout);
                 scope.queries = scope.resp.queries;
                 scope.rowHeight = rowHeight(scope.resp.table.pagebreaks)
@@ -203,6 +204,7 @@ directives.directive('sylvaPvRowRepeat', ['tableArray', function (tableArray) {
                 var previous = elem
                 ,   block
                 ,   len = scope.tableArray.table.length;
+                console.log("tableArray", scope.tableArray, scope.tableArray.length)
                 for (var i=0; i<len; i++) {
                     var childScope = scope.$new();
                     childScope.$index = i;
@@ -321,6 +323,7 @@ directives.directive('sylvaPvCellRepeat', ['$sanitize', function ($sanitize) {
                                 ser.push(point);
                             }
                             chartSeries.push({name: display_alias, data: ser, color: color});
+                            console.log("chartSeries", chartSeries)
                         }
                     var chartType = cell.chartType
                     } else {

@@ -30,35 +30,58 @@ from sylva.decorators import is_enabled
 settings.ENABLE_REPORTS = True
 
 
-@csrf_exempt
+@login_required
+@is_enabled(settings.ENABLE_REPORTS)
+@permission_required("schemas.view_schema",
+                     (Schema, "graph__slug", "graph_slug"), return_403=True)
 def reports_index_view(request, graph_slug):
+    graph = get_object_or_404(Graph, slug=graph_slug)
+    # Will remove this pdf stuff.
+    pdf = request.GET.get('pdf', False)
+    if pdf:
+        pdf = True
+    return render_to_response('reports_base.html', RequestContext(request, {
+        'pdf': pdf,
+        'graph': graph
+    }))
 
-    def render(request, graph_slug):
+
+@csrf_exempt
+def pdf_gen_view(request, graph_slug, template_slug):
+
+    def render(request, graph_slug, template_slug):
         graph = get_object_or_404(Graph, slug=graph_slug)
-        pdf = request.GET.get('pdf', False)
-        if pdf:
-            pdf = True
-        return render_to_response('reports_base.html', RequestContext(request, {
-            'pdf': pdf,
-            'graph': graph
+        template = get_object_or_404(ReportTemplate, slug=template_slug)
+        queries = template.queries.all()
+        queries = [{'series': query.execute(headers=True), 'name': query.name,
+                    'id': query.id, 'results': query.query_dict['results']}
+                   for query in queries]
+        template_dict = template.dictify()
+        resp = {"table": template_dict["layout"], "queries": queries}
+        return render_to_response('pdf.html', RequestContext(request, {
+            "graph": graph,
+            "template": template_dict,
+            "resp": json.dumps(resp)
         }))
 
     @login_required
     @is_enabled(settings.ENABLE_REPORTS)
     @permission_required("schemas.view_schema",
-                     (Schema, "graph__slug", "graph_slug"), return_403=True)
-    @csrf_protect
+                         (Schema, "graph__slug", "graph_slug"), return_403=True)
     def protected(request, **kwargs):
-        return render(request, graph_slug)
+        return render(request, graph_slug, template_slug)
 
     if request.POST.get("secret", ""):
         secret = request.POST["secret"]
         if secret == "sosecret":
-            return render(request, graph_slug)
+            return render(request, graph_slug, template_slug)
         else:
-            return protected(request, graph_slug)
+            return protected(request, graph_slug=graph_slug,
+                             template_slug=template_slug)
     else:
-        return protected(request, graph_slug=graph_slug)
+        return protected(request, graph_slug=graph_slug,
+                         template_slug=template_slug)
+
 
 
 @login_required
@@ -328,7 +351,7 @@ def preview_report_pdf(request, graph_slug):
     filename = phantom_process(
         parsed_url.scheme,
         parsed_url.netloc,
-        reports_index_view,
+        pdf_gen_view,
         graph_slug,
         template_slug,
         domain,
@@ -354,7 +377,7 @@ def preview_report_pdf(request, graph_slug):
 @permission_required("schemas.view_schema",
                      (Schema, "graph__slug", "graph_slug"), return_403=True)
 def pdf_view(request, graph_slug, report_id):
-    report = Report.objects.get(pk=report_id)
+    report = Report.objects.get(pk=int(report_id))
     filename = os.path.join(settings.MEDIA_ROOT, report.report_file.name)
     try:
         with open(filename) as pdf:

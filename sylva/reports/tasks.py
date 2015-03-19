@@ -10,7 +10,7 @@ from django.contrib.sites.models import Site
 from celery.utils.log import get_task_logger
 from models import ReportTemplate, Report
 from utils import phantom_process
-from views import reports_index_view
+from views import pdf_gen_view
 from sylva.celery import app
 
 
@@ -40,7 +40,7 @@ def generate_pdf(inst_id):
     filename = phantom_process(
         'http',
         site.domain,
-        reports_index_view,
+        pdf_gen_view,
         graph_slug,
         template_slug,
         'localhost',

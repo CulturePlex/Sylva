@@ -19,6 +19,8 @@ urlpatterns = patterns('reports.views',
         'preview_report_pdf', name='preview'),
     url(r'^(?P<graph_slug>[\w-]+)/pdf/(?P<report_id>[\w-]+)$',
         'pdf_view', name='pdf'),
+    url(r'^(?P<graph_slug>[\w-]+)/pdfgen/(?P<template_slug>[\w-]+)$',
+        'pdf_gen_view', name='pdf_gen'),
     url(r'^(?P<graph_slug>[\w-]+)/partials$',
         'partial_view', name='partials'),
 )

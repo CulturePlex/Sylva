@@ -199,6 +199,12 @@ th.report {
   overflow: hidden;
 }
 
+.pdf-cont {
+    padding-bottom: 10px;
+    height: auto;
+    overflow: hidden;
+}
+
 .prev-cont:hover {
   overflow-y: scroll;
 }
