@@ -32,6 +32,13 @@ from graphs.models import Graph
 from schemas.models import NodeType, RelationshipType
 
 
+def serialize_datetime(node):
+    for key, val in node.properties.iteritems():
+        if hasattr(val, 'isoformat'):
+            node[key] = val.isoformat()
+    return node
+
+
 def create_data(properties, data_list, add_edge_extras=False):
     data = []
     #TODO In the preview we must cutthe number of nodes better
@@ -318,6 +325,9 @@ def nodes_create(request, graph_slug, node_type_id):
                         'properties': rel.properties
                     }
                     relationships.append(rel_json)
+            # We need to serialize the date and time types manually
+            # because ujson doesn't do this.
+            node = serialize_datetime(node)
             response = {'type': 'data',
                         'action': 'create',
                         'nodeId': str(node.id),
@@ -655,7 +665,9 @@ def nodes_edit(request, graph_slug, node_id):
                         'properties': rel.properties
                     }
                     relationships.append(rel_json)
-
+            # We need to serialize the date and time types manually
+            # because ujson doesn't do this.
+            node = serialize_datetime(node)
             response = {'type': 'data',
                         'action': action,
                         'nodeId': str(node.id),

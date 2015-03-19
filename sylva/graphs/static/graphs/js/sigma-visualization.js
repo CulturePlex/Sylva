@@ -439,10 +439,18 @@
       var properties = '';
 
       for (var key in node.properties) {
-        var length = key.length + node.properties[key].length;
+        // We need to take care of the time type
+        var emptyTime = false;
+        try {
+          var propertyLength = node.properties[key].length;
+        } catch(e) {
+          var propertyLength = "";
+          emptyTime = true;
+        }
+        var length = key.length + propertyLength;
         var cut = propertyMax - key.length;
-        if (cut > 0) {
-          var property = (length < propertyMax) ? node.properties[key] : node.properties[key].substring(0, cut) + "...";
+        if (cut > 0 && !emptyTime) {
+          var property = (length < propertyMax) ? node.properties[key] : node.properties[key].toString().substring(0, cut) + "...";
         } else {
           var property = '';
           var key = key.substring(0, propertyMax - 3);
