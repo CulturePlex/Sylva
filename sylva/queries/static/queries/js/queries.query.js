@@ -1222,21 +1222,12 @@ diagram.aggregates = [
                     optionProperty = $("<OPTION>");
                     optionProperty.addClass('option-property');
                     optionProperty.attr('value', field.label);
+                    optionProperty.attr('data-propertyid', field.id);
                     optionProperty.attr('data-datatype', field.type);
                     if(field.choices)
                         optionProperty.attr('data-choices', field.choices);
                     optionProperty.html(field.label);
                     selectProperty.append(optionProperty);
-
-                    // Adding the option to the autocomplete dict
-                    var optionAutocomplete = {};
-                    var value = boxalias + '.' + field.id;
-                    var label = boxalias + '.' + field.label;
-
-                    optionAutocomplete['value'] = value;
-                    optionAutocomplete['label'] = label;
-
-                    diagram.autocompleteData[boxalias] = optionAutocomplete;
                 }
                 // Select lookup
                 selectLookup = $("<SELECT>");
@@ -3144,6 +3135,8 @@ diagram.aggregates = [
         var datatype = $('option:selected', this).data("datatype");
         var choices = $('option:selected', this).data("choices");
         var arrayOptions = diagram.lookupOptions(datatype);
+        var propertyId = $('option:selected', this).data("propertyid");
+        var propertyValue = $('option:selected', this).val();
 
         // We change the disabled prop of the checkbox
         $('#' + fieldId + ' .checkbox-property').prop('disabled', false);
@@ -3396,6 +3389,20 @@ diagram.aggregates = [
                 }
             });
         }
+
+        // Adding the option to the autocomplete dict
+        var optionAutocomplete = {};
+        var idBox = $this.parent().parent().parent().parent().parent().attr('id');
+        var $titleElem = $('#' + idBox + ' .title');
+        var showAlias = $titleElem.children().filter('input, select').val();
+        var slugAlias = $titleElem.data('slug');
+        var value = slugAlias + '.' + propertyId;
+        var label = showAlias + '.' + propertyValue;
+
+        optionAutocomplete['value'] = value;
+        optionAutocomplete['label'] = label;
+
+        diagram.autocompleteData[slugAlias] = optionAutocomplete;
     });
 
     /**
@@ -3417,6 +3424,7 @@ diagram.aggregates = [
 
         var datatype = $('#' + fieldId + ' .select-property option:selected').data("datatype");
         var condition = datatype != 'date'
+                        && datatype != 'time'
                         && datatype != 'boolean'
                         && datatype != 'choices'
                         && datatype != 'auto_now'

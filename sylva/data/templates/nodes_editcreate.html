@@ -474,10 +474,15 @@
 
         // We show the modal for create the new element
         $('.add-node').on('click', function() {
-          // This is the input field where we need to set the value
-          var inputField = $(this).parent().next().children().find('input[type="text"]')[1];
+          {% if OPTIONS.ENABLE_AUTOCOMPLETE_NODES_COMBO %}
+          // This is the field where we need to set the value
+          var relatedField = $(this).parent().next().children().find('select');
+          {% else %}
+          // This is the field where we need to set the value
+          var relatedField = $(this).parent().next().children().find('input[type="text"]')[1];
+          {% endif %}
           // We set the field global
-          window.inputField = inputField;
+          window.relatedField = relatedField;
 
           // We clone the form
           var nodeForm = $('#edit-node-form').clone();

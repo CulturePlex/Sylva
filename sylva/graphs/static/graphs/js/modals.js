@@ -336,13 +336,19 @@
          * inside this function maybe isn't finished when the AJAX request
          * starts.
          */
-        // We introduce the value in the input field
+        // We set the value in the related field
         // The value to introduce
         var nodeId = data.nodeId;
         var nodeLabel = data.nodeLabel;
-        $(inputField).tokenInput("add", {id: nodeId, name: nodeLabel});
-        // We show the label display
-        $(inputField).prev().children('.token-input-token').find("p").html(nodeLabel);
+        var tagName = $(relatedField).prop("tagName");
+        if(tagName === "SELECT") {
+          $(relatedField).append('<option value="' + nodeId + '">' + nodeLabel + '</option>');
+          $(relatedField).val(nodeId).trigger("liszt:updated");
+        } else {
+          $(relatedField).tokenInput("add", {id: nodeId, name: nodeLabel});
+          // We show the label display
+          $(relatedField).prev().children('.token-input-token').find("p").html(nodeLabel);
+        }
 
         setTimeout(function() {
           that.destroyOverlay();
