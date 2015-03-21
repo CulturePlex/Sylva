@@ -1,5 +1,5 @@
 // Create a page object
-var page, system, address, filename, domain, mode;
+var page, system, address, filename, domain, mode, secret;
 
 page = require('webpage').create();
 system = require('system');
