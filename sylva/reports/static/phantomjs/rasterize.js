@@ -9,6 +9,7 @@ filename = system.args[2];
 domain = system.args[3];
 csrfToken = system.args[4];
 sessionId = system.args[5];
+secret = system.args[6];
 
 phantom.addCookie({'domain': domain, 'name':'csrftoken',
                          'value': csrfToken});
@@ -19,7 +20,7 @@ page.paperSize = {
     format: 'A4',
     orientation: 'landscape'};
 
-var body = "secret=supersecretpassword";
+var body = "secret=" + secret;
 page.open(url, 'POST', body, function (status) {
     if (status !== 'success') {
         // If PhantomJS failed to reach the address, print a message

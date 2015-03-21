@@ -14,6 +14,9 @@ from views import pdf_gen_view
 from sylva.celery import app
 
 
+SECRET = getattr(settings, "REPORTS_SECRET", "")
+
+
 logger = get_task_logger(__name__)
 
 
@@ -45,7 +48,8 @@ def generate_pdf(inst_id):
         template_slug,
         'localhost',
         csrftoken,
-        sessionid
+        sessionid,
+        SECRET
     )
     try:
         with open(filename) as pdf:
