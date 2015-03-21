@@ -26,6 +26,15 @@ from queries.models import Query
 
 from sylva.decorators import is_enabled
 
+# Workaround for secret key during dev. Mat extract a microservice for security.
+if hasattr(settings, "REPORTS_SECRET"):
+    SECRET = settings.REPORTS_SECRET
+else:
+    try:
+        from sylva.local_settings import REPORTS_SECRET
+    except ImportError:
+        SECRET = ""
+
 
 settings.ENABLE_REPORTS = True
 
@@ -71,9 +80,9 @@ def pdf_gen_view(request, graph_slug, template_slug):
     def protected(request, **kwargs):
         return render(request, graph_slug, template_slug)
 
-    if request.POST.get("secret", ""):
+    if request.POST.get("secret", "") or settings.DEBUG:
         secret = request.POST["secret"]
-        if secret == "sosecret":
+        if secret == SECRET or settings.DEBUG:
             return render(request, graph_slug, template_slug)
         else:
             return protected(request, graph_slug=graph_slug,

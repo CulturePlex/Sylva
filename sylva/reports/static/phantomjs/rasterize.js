@@ -19,7 +19,7 @@ page.paperSize = {
     format: 'A4',
     orientation: 'landscape'};
 
-var body = "secret=sosecret";
+var body = "secret=supersecretpassword";
 page.open(url, 'POST', body, function (status) {
     if (status !== 'success') {
         // If PhantomJS failed to reach the address, print a message
