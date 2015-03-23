@@ -61,7 +61,7 @@ th.report {
 }
 
 .cont {
-    max-height: 600px;
+    /*max-height: 600px;*/
     min-height: 500px
 }
 
@@ -95,7 +95,7 @@ th.report {
  }
 
 .row {
-  float: left;
+  /*float: left;*/
   width: 100%;
 }
 
@@ -112,13 +112,13 @@ th.report {
 
 .editable-table {
   width: 100%;
-  height: 450px;
-  overflow: hidden;
+  /*height: 450px;*/
+  /*overflow: hidden;*/
   margin-bottom: 5px;
 }
 
 .editable-table:hover {
-  overflow-y: scroll;
+  /*overflow-y: scroll;*/
 }
 
 .rows {
@@ -126,12 +126,13 @@ th.report {
 }
 
 .edit-rows {
-  width: 1120px;
+  /*width: 1120px;*/
+  width: 100%;
 }
 
 .trow {
-  margin-left: 11px;
-  width: 1100px;
+  margin-left: 15px;
+  /*width: 1100px;*/
 }
 
 .prev-pages {
@@ -140,19 +141,24 @@ th.report {
 
 .pages {
   height: 402px;
-  border: 1px solid black;
-  width: 1120px;
+  /*border: 1px solid black;*/
+  /*width: 1120px;*/
+  box-shadow: 0 0 0 0.75pt #d1d1d1,0 0 3pt 0.75pt #ccc;
 }
 
 .pagebreak {
     position: relative;
     background-color: white;
-    width: 1122px;
-    right: 1px;
+    /*width: 1122px;*/
+    /*right: 1px;*/
     height: 50px;
-    border-bottom: 1px solid black;
-    border-top: 1px solid black;
+/*    border-bottom: 1px solid black;
+    border-top: 1px solid black;*/
     text-align: center;
+    /* new */
+    width: 1110px;
+    left: -5px;
+    padding: 0 25px 0px 25px;
 }
 
 .breakline {
@@ -277,10 +283,12 @@ textarea.markdown {
 }
 
 .query {
-  text-align: center;
-  width: 70%;
-  margin-top: 10px ;
-  height: 175px
+  /*text-align: center;*/
+  /*width: 70%;*/
+  /*margin-top: 10px ;*/
+  height: 175px;
+  /* new */
+  padding: 5px;
 }
 
 .query select {
