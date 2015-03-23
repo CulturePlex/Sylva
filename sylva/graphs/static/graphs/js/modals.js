@@ -1191,8 +1191,16 @@
 
       onShow: function() {
         $('#simplemodal-container').css({
-          width: 1170
+          width: 1170,
+          "height": "inherit"
         });
+
+        // We need to set a tiny timeout to resize the window
+        setTimeout(function() {
+          try {
+            $(document).resize();
+          } catch (e) {}
+        }, 50 );
 
         // We need to set a tiny timeout for a correct load of the queries
         setTimeout(function() {
@@ -1200,6 +1208,7 @@
             diagram.loadQuery(JSON.stringify(query));
           } catch (e) {}
         }, 250 );
+
       }
     },
 

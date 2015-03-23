@@ -1541,3 +1541,75 @@ class QueryTestCase(LiveServerTestCase):
         run_query(self)
         # Right now, we are in the results view. Let's check it
         Graph.objects.get(name="Bob's graph").destroy()
+
+    def test_query_builder_lookups_choices_option(self):
+        create_graph(self)
+        create_schema(self)
+        # We create the date type
+        self.browser.find_link_by_href(
+            '/schemas/bobs-graph/types/create/').first.click()
+        text = self.browser.find_by_xpath(
+            "//div[@class='content2-first']/h2").first.value
+        spin_assert(lambda: self.assertEqual(text, 'Type'))
+        self.browser.find_by_name('name').first.fill("Bob's type")
+        self.browser.find_by_id('advancedModeButton').first.click()
+        self.browser.find_by_name('properties-0-key').first.fill('Choices name')
+        self.browser.find_by_name('properties-0-display').first.check()
+        self.browser.find_by_name('properties-0-required').first.check()
+        self.browser.find_by_xpath(
+            "//select[@id='id_properties-0-datatype']"
+            "/optgroup[@label='Advanced']/option[@value='c']").first.click()
+        self.browser.find_by_name('properties-0-default').first.fill('Bob, Alice')
+        self.browser.find_by_name('properties-0-order').first.fill('1')
+        self.browser.find_by_name('properties-0-description').first.fill(
+            "The name of this Bob's node")
+        self.browser.find_by_value('Save Type').first.click()
+        text = self.browser.find_by_id(
+            'diagramBoxField_bobs-graph.bobs-type.undefined').first.value
+        spin_assert(lambda: self.assertEqual(text, "Choices name"))
+        # We create the data for the date type
+        self.browser.find_by_id('dataMenu').first.click()
+        self.browser.find_by_xpath(
+            "//a[@class='dataOption new']").first.click()
+        text = self.browser.find_by_id('propertiesTitle').first.value
+        spin_assert(lambda: self.assertEqual(text, 'Properties'))
+        self.browser.select('Choices name', 'bob')
+        self.browser.find_by_value("Save Bob's type").first.click()
+        text = self.browser.find_by_xpath(
+            "//div[@class='pagination']"
+            "/span[@class='pagination-info']").first.value
+        spin_assert(lambda: self.assertNotEqual(
+            text.find(" elements Bob's type."), -1))
+        # We navigate to the queries menu
+        queries_menu(self)
+        create_query(self)
+        # We select a property
+        select_property = self.browser.find_by_xpath(
+            "//option[@class='option-property' and text()='Choices name']").first
+        select_property.click()
+        select_value = self.browser.find_by_xpath(
+            "//select[@class='select-property']").first.value
+        spin_assert(lambda: self.assertEqual(select_value, u"Choices name"))
+        checkbox = self.browser.find_by_xpath(
+            "//div[@id='field1']//input[@class='checkbox-property']").first
+        checkbox.click()
+        # We select the lookup
+        select_lookup = self.browser.find_by_xpath(
+            "//select[@class='select-lookup']").first
+        select_lookup.click()
+        lookup_option = self.browser.find_by_xpath(
+            "//option[@class='lookup-option' and text()='equals']").first
+        lookup_option.click()
+        spin_assert(lambda: self.assertEqual(select_lookup.value,
+                                             u"eq"))
+        # Let's check if the javascript calendar is showing
+        # We need to click outside for a correct behaviour of the rel select
+        self.browser.find_by_xpath("//div[@id='diagram']").first.click()
+        # We fill the input for the lookup value
+        # We need to execute these javascript commands
+        js_code = "$('.lookup-value option[value=\"bob\"]').prop('selected', 'selected').change();"
+        self.browser.execute_script(js_code)
+        # We run the query
+        run_query(self)
+        # Right now, we are in the results view. Let's check it
+        Graph.objects.get(name="Bob's graph").destroy()
