@@ -14,7 +14,7 @@ COMMENT_SYNTAX = (
     (re.compile(r'^application/(.*\+)?xml|text/html$', re.I),
      '<!--', '-->'),
 )
-if getattr(settings, "PROFILE_MIDDLEWARE_JSON", True):
+if getattr(settings, "PROFILING_MIDDLEWARE_JSON", True):
     COMMENT_SYNTAX += (
         (re.compile(r'^application/j(avascript|son)$', re.I),
          '/*', '*/'),
@@ -68,13 +68,13 @@ class ProfileMiddleware(object):
             # respecting some optional settings into a
             # StringIO object.
             stats = hotshot.stats.load(filename)
-            if getattr(settings, 'PROFILE_MIDDLEWARE_STRIP_DIRS', False):
+            if getattr(settings, 'PROFILING_MIDDLEWARE_STRIP_DIRS', False):
                 stats.strip_dirs()
-            if getattr(settings, 'PROFILE_MIDDLEWARE_SORT', None):
-                stats.sort_stats(*settings.PROFILE_MIDDLEWARE_SORT)
+            if getattr(settings, 'PROFILING_MIDDLEWARE_SORT', None):
+                stats.sort_stats(*settings.PROFILING_MIDDLEWARE_SORT)
             stats.stream = StringIO()
             stats.print_stats(*getattr(settings,
-                                       'PROFILE_MIDDLEWARE_RESTRICTIONS', []))
+                                       'PROFILING_MIDDLEWARE_RESTRICTIONS', []))
         finally:
             os.unlink(filename)
         # Construct an HTML/XML or Javascript comment, with
