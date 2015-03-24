@@ -1171,6 +1171,8 @@
         // Event to handle the breadcrumbs
         $('.breadcrumb').on('click', function() {
           var breadcrumbUrl = $(event.target).attr('href');
+          // We remove the query dictionary from memory
+          query = null;
 
           that.treatBreadcrumbs(breadcrumbUrl);
 
@@ -1180,6 +1182,8 @@
         // Binding cancel action.
         $('#modal-cancel').on('click', function() {
           var url = $(event.target).data('url');
+          // We remove the query dictionary from memory
+          query = null;
 
           setTimeout(function() {
             that.queriesList.start(url, false);
@@ -1205,7 +1209,8 @@
         // We need to set a tiny timeout for a correct load of the queries
         setTimeout(function() {
           try {
-            diagram.loadQuery(JSON.stringify(query));
+            if(query !== null)
+              diagram.loadQuery(JSON.stringify(query));
           } catch (e) {}
         }, 250 );
 
