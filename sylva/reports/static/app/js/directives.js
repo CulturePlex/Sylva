@@ -185,7 +185,6 @@ directives.directive('sylvaPvRowRepeat', ['tableArray', function (tableArray) {
             }
 
             scope.$watch('resp', function (newVal, oldVal) {
-                console.log("newVal", newVal, oldVal)
                 if (!(newVal) && newVal == oldVal) return;
 
                 scope.tableArray = tableArray(scope.resp.table.layout);
@@ -204,7 +203,6 @@ directives.directive('sylvaPvRowRepeat', ['tableArray', function (tableArray) {
                 var previous = elem
                 ,   block
                 ,   len = scope.tableArray.table.length;
-                console.log("tableArray", scope.tableArray, scope.tableArray.length)
                 for (var i=0; i<len; i++) {
                     var childScope = scope.$new();
                     childScope.$index = i;
@@ -323,7 +321,6 @@ directives.directive('sylvaPvCellRepeat', ['$sanitize', function ($sanitize) {
                                 ser.push(point);
                             }
                             chartSeries.push({name: display_alias, data: ser, color: color});
-                            console.log("chartSeries", chartSeries)
                         }
                     var chartType = cell.chartType
                     } else {
@@ -957,6 +954,7 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', 'ST
             ,   coords
             ,   arrows = false
             ,   cellWidth
+            ,   previousSelected
             // Used for binding arrows to click action merge.
             ,   arrowHtml = {
                     left: '<a class="arrow left" title="merge left" ng-href="" ng-click="merge(0)">&#8592</a>',
@@ -1038,6 +1036,7 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', 'ST
                                 // Select the activeY series
                                 if (numAlias === activeYAlias) {
                                     resultsDict.num[i].selected = true;
+                                    previousSelected = i;
                                 }
                             } // Inside for
                         } // Outside for
@@ -1159,12 +1158,21 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', 'ST
             scope.$watch('ySeries', function (newVal, oldVal) {
                 if (!newVal || newVal == oldVal) return;
 
+                // Always have a selected y
+                if (newVal.length === 1) {
+                    newVal[0].selected = true;
+                }
+
+                // Keep track if there is a selected y.
+                var selected = false;
                 scope.tableArray.table[scope.row][scope.col]['yAxis'] = [];
 
                 for (var i=0; i<newVal.length; i++) {
                     var val = newVal[i];
 
                     if (val.selected === true) {
+                        selected = true;
+                        previousSelected = i;
                         scope.tableArray.addAxis([scope.row, scope.col], 'y', {"alias": val.alias, "display_alias": val.display_alias});
                         var eye = $("#eye" + i.toString() + scope.row.toString() + scope.col.toString());
                         eye.removeClass("fa-eye-slash");
@@ -1182,6 +1190,16 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', 'ST
                         var eye = $("#eye" + i.toString() + scope.row.toString() + scope.col.toString());
                         eye.removeClass("fa-eye");
                         eye.addClass("fa-eye-slash");
+                    }
+                }
+                // Well, this makes sure one of the yseries items is selected.
+                // It always favors the previous element in the series though
+                // it's the safest way I suppose.
+                if (selected === false) {
+                    if (previousSelected === 0) {
+                        newVal[1].selected = true;
+                    } else {
+                        newVal[previousSelected - 1].selected = true;
                     }
                 }
             }, true)
