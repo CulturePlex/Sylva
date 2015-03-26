@@ -892,7 +892,7 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', 'ST
         '{{ selectText.content }}' +
     '</label>' +
     '<select ng-model="activeQuery" value="query.id" ng-options="query.name group by query.group for query in queries">' +
-        '<option value="">-----</option>' +
+        '<option ng-attr-id="{{\'empty\' + row + col}}" value="">-----</option>' +
     '</select> ' +
 '</div>' +
 //'<hr>' +
@@ -1085,6 +1085,9 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', 'ST
             // Full query object group, id, name, fake series etc.
             scope.$watch('activeQuery', function (newVal, oldVal) {
                 if (newVal == oldVal) return;
+                // Use jQuery to get rid of empty select val.
+                var id = "#empty" + scope.row.toString() + scope.col.toString();
+                $(id).remove();
                 // Turns ctrl.editing() turns off preview mode with Demo
                 ctrl.editing()
                 // Reset table params.
