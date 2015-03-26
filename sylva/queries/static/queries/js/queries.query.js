@@ -208,7 +208,7 @@ diagram.aggregates = [
             divBox.css({
                 "left": (parseInt(Math.random() * 55 + 1) * 10) + "px",
                 "top": (parseInt(Math.random() * 25 + 1) * 10) + "px",
-                "width": "360px"
+                "width": "390px"
             });
             divBox.addClass("body");
             // Allowed relationships
@@ -881,8 +881,12 @@ diagram.aggregates = [
 
             anchorClose.append(iconClose);
             anchorClose.click(function () {
-                // We remove the option in the autocomplete data dict
-                delete diagram.autocompleteData[slugValue];
+                // We remove the option of the properties boxes select
+                var selectBoxesProperties = $('.select-other-boxes-properties');
+                $.each(selectBoxesProperties, function(index, elem) {
+                    $('option[data-slugvalue="' + slugValue + '"]', elem).remove();
+                });
+
                 var connections = jsPlumb.getEndpoint(idBox + '-target').connections;
                 // We redraw the endpoint of the endpoints connected to this
                 // target
@@ -964,7 +968,7 @@ diagram.aggregates = [
                 if(display == "none") {
                     // We change the width of the box div
                     $(selectorBox).css({
-                        'width': '440px'
+                        'width': '465px'
                     });
                     // We show the advanced options
                     $(selectorAggregate).css({
@@ -980,7 +984,7 @@ diagram.aggregates = [
                     var aggregate = $(selectorAggregate).val();
                     // We change the width of the box div
                     $(selectorBox).css({
-                        'width': '360px'
+                        'width': '390px'
                     });
                     // We show the advanced options
                     $(selectorAggregate).css({
@@ -3390,8 +3394,27 @@ diagram.aggregates = [
             });
         }
 
-        // Adding the option to the autocomplete dict
-        var optionAutocomplete = {};
+        // We create the select field to show after the input
+        var selectBoxesProperties = $('<SELECT>');
+        selectBoxesProperties.addClass('select-other-boxes-properties')
+        selectBoxesProperties.css({
+            "width": "20px",
+            "display": "none",
+            "margin-left": "8px",
+            "height": "15px"
+        });
+        selectBoxesProperties.attr("data-propselected", false);
+        // Let's customize the icon
+        /*
+        $(selectBoxesProperties).selectmenu({
+            icons: { 
+                button: "custom-select-icon"
+            }
+        });*/
+        $(selectBoxesProperties).insertAfter($('#' + fieldId + ' .lookup-value'));
+
+        // We add the new property to the select options and we update
+        // all the select that we already have
         var idBox = $this.parent().parent().parent().parent().parent().attr('id');
         var $titleElem = $('#' + idBox + ' .title');
         var showAlias = $titleElem.children().filter('input, select').val();
@@ -3399,10 +3422,44 @@ diagram.aggregates = [
         var value = slugAlias + '.' + propertyId;
         var label = showAlias + '.' + propertyValue;
 
-        optionAutocomplete['value'] = value;
-        optionAutocomplete['label'] = label;
+        // The default option for the selects
+        var optionDefaultProperty = $("<OPTION>");
+        optionDefaultProperty.addClass('option-other-boxes-properties');
+        optionDefaultProperty.attr('value', gettext("clear input"));
+        optionDefaultProperty.attr('selected', 'selected');
+        optionDefaultProperty.html(gettext("clear input"));
 
-        diagram.autocompleteData[slugAlias] = optionAutocomplete;
+        // The new option for the selects
+        var optionBoxesProperty = $("<OPTION>");
+        optionBoxesProperty.addClass('option-other-boxes-properties');
+        optionBoxesProperty.attr('id', value);
+        // We add the slug value to manage the option using this field
+        optionBoxesProperty.attr('data-slugvalue', slugAlias);
+        optionBoxesProperty.attr('value', value);
+        optionBoxesProperty.html(label);
+
+        var allSelectsBoxesProperties = $('.select-other-boxes-properties');
+        // We add all the other options in this select field
+        var oldSelectBoxesProperties = allSelectsBoxesProperties[0];
+        var oldSelectBoxesPropertiesOptions = $('option', oldSelectBoxesProperties);
+        $.each(oldSelectBoxesPropertiesOptions, function(index, elem) {
+            var notDefaultElem = $(elem).val() !== gettext("clear input");
+            if(notDefaultElem)
+                $(selectBoxesProperties).append($(elem).clone(true));
+        });
+        // And now, we append the new option
+        $(selectBoxesProperties).append(optionBoxesProperty);
+
+        // We update all the other selects except the new one
+        $.each(allSelectsBoxesProperties, function(index, elem) {
+            // We get the '0' element because if we use $(), it always
+            // return a new object
+            if(elem !== selectBoxesProperties[0])
+                $(elem).append(optionBoxesProperty.clone(true));
+        });
+
+        // Finally, we append the default option
+        $(selectBoxesProperties).prepend(optionDefaultProperty);
     });
 
     /**
@@ -3419,6 +3476,11 @@ diagram.aggregates = [
 
         // We show the input for the lookup value
         $('#' + fieldId + " .lookup-value").css({
+            "display": "inline"
+        });
+
+        // We show the select for the other boxes properties
+        $('#' + fieldId + " .select-other-boxes-properties").css({
             "display": "inline"
         });
 
@@ -3478,26 +3540,35 @@ diagram.aggregates = [
         } else {
             // In this branch, the type would be boolean, choices, date or user
         }
+    });
 
-        // We add the option to autocomplete the lookup value with
-        // other properties
-        $('.lookup-value').autocomplete({
-            source: function (request, response) {
-                response(diagram.autocompleteData);
-                return;
-            },
-            minLength: 2,
-            select: function (event, ui) {
-                event.preventDefault();
-                $(event.target).val(ui.item.label);
-                // We add a special data to the input
-                $(event.target).attr('data-boxproperty', ui.item.value);
-            },
-            focus: function(event, ui) {
-                event.preventDefault();
-                $(event.target).val(ui.item.label);
-            }
-        });
+    /**
+     * We change the value of the lookup input after select a property
+     * of another box
+     */
+    $("#diagramContainer").on('change', '.select-other-boxes-properties', function() {
+        var $this = $(this);
+        // We are going to set the value for the lookup input
+        var $lookupInput = $this.prev();
+        var propSelected = $('option:selected', this);
+        var propValue = $(propSelected).val();
+        var propHtml = $(propSelected).html();
+        
+        // If the field select is the "clear field", we restore
+        // the input
+        var clearField = propValue === gettext("clear input");
+
+        if(clearField) {
+            // We restore the lookup input
+            $lookupInput.removeAttr('data-boxproperty');
+            $lookupInput.val("");
+            $lookupInput.prop('disabled', '');
+        } else {
+            // We set all the neccesary in the lookup input
+            $lookupInput.attr('data-boxproperty', propValue);
+            $lookupInput.val(propHtml);
+            $lookupInput.prop('disabled', 'disabled');
+        }
     });
 
     /**

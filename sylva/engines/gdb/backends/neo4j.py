@@ -429,7 +429,10 @@ class GraphDatabase(BlueprintsGraphDatabase):
         # This list is used to control when use the index for the relationship,
         # in the origins or in the patterns
         conditions_alias = set()
-        conditions_set = set()
+        # conditions_set = set()
+        # We are going to use a list because when the set add elements,
+        # it include them in order and breaks our pattern with AND, OR
+        conditions_set = list()
         conditions_indexes = enumerate(conditions_dict)
         conditions_length = len(conditions_dict) - 1
         for lookup, property_tuple, match, connector, datatype \
@@ -488,9 +491,13 @@ class GraphDatabase(BlueprintsGraphDatabase):
                 gte_params = gte_query_objects[1]
                 lte_condition = lte_query_objects[0]
                 lte_params = lte_query_objects[1]
-                conditions_set.add(unicode(gte_condition))
+                # conditions_set.add(unicode(gte_condition))
+                if gte_condition not in conditions_set:
+                    conditions_set.append(unicode(gte_condition))
                 query_params.update(gte_params)
-                conditions_set.add(unicode(lte_condition))
+                # conditions_set.add(unicode(lte_condition))
+                if lte_condition not in conditions_set:
+                    conditions_set.append(unicode(lte_condition))
                 query_params.update(lte_params)
                 # We append the two property in the list
                 conditions_alias.add(property_tuple[1])
@@ -504,7 +511,9 @@ class GraphDatabase(BlueprintsGraphDatabase):
                     params=query_params)
                 condition = query_objects[0]
                 params = query_objects[1]
-                conditions_set.add(unicode(condition))
+                # conditions_set.add(unicode(condition))
+                if condition not in conditions_set:
+                    conditions_set.append(unicode(condition))
                 query_params.update(params)
                 # We append the two property in the list
                 conditions_alias.add(property_tuple[1])
@@ -518,7 +527,9 @@ class GraphDatabase(BlueprintsGraphDatabase):
                     params=query_params)
                 condition = query_objects[0]
                 params = query_objects[1]
-                conditions_set.add(unicode(condition))
+                # conditions_set.add(unicode(condition))
+                if condition not in conditions_set:
+                    conditions_set.append(unicode(condition))
                 # Uncomment this line to see the difference between use
                 # query params or use the q_element
                 # conditions_set.add(unicode(q_element))
@@ -529,12 +540,14 @@ class GraphDatabase(BlueprintsGraphDatabase):
                 # We have to get the next element to keep the concordance
                 elem = conditions_indexes.next()
                 connector = u' {} '.format(connector.upper())
-                conditions_set.add(connector)
+                # conditions_set.add(connector)
+                conditions_set.append(connector)
             elif connector == 'not':
                 elem = conditions_indexes.next()
                 if elem[0] < conditions_length:
                     connector = u' AND '
-                    conditions_set.add(connector)
+                    # conditions_set.add(connector)
+                    conditions_set.append(connector)
         conditions = u" ".join(conditions_set)
         return (conditions, query_params, conditions_alias)
 
