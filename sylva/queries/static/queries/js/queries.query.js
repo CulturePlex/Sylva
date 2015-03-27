@@ -3394,24 +3394,44 @@ diagram.aggregates = [
             });
         }
 
-        // We create the select field to show after the input
-        var selectBoxesProperties = $('<SELECT>');
-        selectBoxesProperties.addClass('select-other-boxes-properties')
-        selectBoxesProperties.css({
-            "width": "20px",
-            "display": "none",
-            "margin-left": "8px",
-            "height": "15px"
-        });
-        selectBoxesProperties.attr("data-propselected", false);
-        // Let's customize the icon
-        /*
-        $(selectBoxesProperties).selectmenu({
-            icons: { 
-                button: "custom-select-icon"
-            }
-        });*/
-        $(selectBoxesProperties).insertAfter($('#' + fieldId + ' .lookup-value'));
+        // We check if we have already the select field
+        var selectClass = $this.next().next().next().attr('class');
+
+        // We need to check if we have change the select property
+        // TODO
+
+        if(selectClass !== "select-other-boxes-properties") {
+            // We create the select field to show after the input
+            var selectBoxesProperties = $('<SELECT>');
+            selectBoxesProperties.addClass('select-other-boxes-properties')
+            selectBoxesProperties.css({
+                "width": "20px",
+                "display": "none",
+                "margin-left": "8px",
+                "height": "15px"
+            });
+            selectBoxesProperties.attr("data-propselected", false);
+            // Let's customize the icon
+            /*
+            $(selectBoxesProperties).selectmenu({
+                icons: {
+                    button: "custom-select-icon"
+                }
+            });*/
+            $(selectBoxesProperties).insertAfter($('#' + fieldId + ' .lookup-value'));
+
+            // The default option for the selects
+            var optionDefaultProperty = $("<OPTION>");
+            optionDefaultProperty.addClass('option-other-boxes-properties');
+            optionDefaultProperty.attr('value', gettext("clear input"));
+            optionDefaultProperty.attr('selected', 'selected');
+            optionDefaultProperty.html(gettext("clear input"));
+
+            // We append the default option
+            $(selectBoxesProperties).prepend(optionDefaultProperty);
+        } else {
+            var selectBoxesProperties = $this.next().next().next();
+        }
 
         // We add the new property to the select options and we update
         // all the select that we already have
@@ -3422,44 +3442,72 @@ diagram.aggregates = [
         var value = slugAlias + '.' + propertyId;
         var label = showAlias + '.' + propertyValue;
 
-        // The default option for the selects
-        var optionDefaultProperty = $("<OPTION>");
-        optionDefaultProperty.addClass('option-other-boxes-properties');
-        optionDefaultProperty.attr('value', gettext("clear input"));
-        optionDefaultProperty.attr('selected', 'selected');
-        optionDefaultProperty.html(gettext("clear input"));
-
         // The new option for the selects
         var optionBoxesProperty = $("<OPTION>");
         optionBoxesProperty.addClass('option-other-boxes-properties');
         optionBoxesProperty.attr('id', value);
         // We add the slug value to manage the option using this field
         optionBoxesProperty.attr('data-slugvalue', slugAlias);
+        optionBoxesProperty.attr('data-propname', propertyValue);
+        optionBoxesProperty.attr('data-datatype', datatype);
         optionBoxesProperty.attr('value', value);
         optionBoxesProperty.html(label);
 
-        var allSelectsBoxesProperties = $('.select-other-boxes-properties');
-        // We add all the other options in this select field
-        var oldSelectBoxesProperties = allSelectsBoxesProperties[0];
-        var oldSelectBoxesPropertiesOptions = $('option', oldSelectBoxesProperties);
-        $.each(oldSelectBoxesPropertiesOptions, function(index, elem) {
-            var notDefaultElem = $(elem).val() !== gettext("clear input");
-            if(notDefaultElem)
+        var otherBoxesProperties = $('option:selected', '.select-property');
+        // We define global variables to use them inside the each below
+        window.actualProperty = propertyValue;
+        window.actualDatatype = datatype;
+        window.slugPropValue = value;
+
+        var allSelectsProperties = $('.select-property');
+        var allOptionsBoxesProperties = $('option', '.select-other-boxes-properties');
+        // // We add all the other options in this select field
+        // var oldSelectBoxesProperties = allSelectsBoxesProperties[0];
+        // var oldSelectBoxesPropertiesOptions = $('option', oldSelectBoxesProperties);
+
+        $.each(allOptionsBoxesProperties, function(index, elem) {
+            var containsElem = false;
+            var sameDatatype = true;
+
+            // First, we check if the datatype is equal
+            if($(elem).data('datatype') === actualDatatype) {
+                // And now, we check that the select does not contains
+                // the element
+                if($(elem).val() === actualProperty)
+                    containsElem = true;
+            } else {
+                sameDatatype = false;
+            }
+
+            if(!containsElem && sameDatatype)
                 $(selectBoxesProperties).append($(elem).clone(true));
         });
         // And now, we append the new option
         $(selectBoxesProperties).append(optionBoxesProperty);
 
         // We update all the other selects except the new one
-        $.each(allSelectsBoxesProperties, function(index, elem) {
-            // We get the '0' element because if we use $(), it always
-            // return a new object
-            if(elem !== selectBoxesProperties[0])
-                $(elem).append(optionBoxesProperty.clone(true));
-        });
+        $.each(allSelectsProperties, function(index, elem) {
+            var containsElem = false;
+            var sameDatatype = true;
+            var selectOtherBoxesProperties = $(elem).next().next().next();
+            // First, we check if the datatype is equal
+            var propDatatype = $('option:selected', elem).data('datatype');
+            if(propDatatype === actualDatatype) {
+                // And now, we check that the select does not contains
+                // the element
+                $('option', selectOtherBoxesProperties).filter(
+                    function(index, oldOption) {
+                        if($(oldOption).val() === slugPropValue)
+                            containsElem = true;
+                    });
+            } else {
+                sameDatatype = false;
+            }
 
-        // Finally, we append the default option
-        $(selectBoxesProperties).prepend(optionDefaultProperty);
+            if(!containsElem && sameDatatype) {
+                $(selectOtherBoxesProperties).append(optionBoxesProperty.clone(true));
+            }
+        });
     });
 
     /**
