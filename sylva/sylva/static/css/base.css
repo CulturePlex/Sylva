@@ -202,6 +202,13 @@ select:active {
     text-decoration: none;
 }
 
+.ui-state-default .ui-icon.custom-select-icon {
+    background: url('../img/ui-icons_348e82_256x240.png') no-repeat -196px -116px;
+    width: 10px;
+    height: 10px;
+    display: inline-block;
+}
+
 .button:active,
 .button.active,
 input[type="button"]:active,

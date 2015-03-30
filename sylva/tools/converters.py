@@ -1,6 +1,7 @@
 import datetime
 import csv
 import os
+import unicodecsv
 import zipfile
 try:
     from cStringIO import StringIO
@@ -324,7 +325,7 @@ class CSVTableConverter(BaseConverter):
         csv_header = []
 
         csv_file = StringIO()
-        csv_writer = csv.writer(csv_file)
+        csv_writer = unicodecsv.writer(csv_file, encoding='utf-8')
 
         for prop in properties:
             header = prop.key
@@ -340,8 +341,6 @@ class CSVTableConverter(BaseConverter):
             node_properties = node.properties
             for header_prop in csv_header:
                 prop_value = node_properties.get(header_prop, 0)
-                if isinstance(prop_value, unicode):
-                    prop_value = prop_value.encode('utf-8')
                 csv_node_values.append(prop_value)
             csv_writer.writerow(csv_node_values)
             yield csv_file.getvalue()
@@ -362,7 +361,7 @@ class CSVQueryConverter(BaseConverter):
         results = csv_results[1:]
 
         csv_file = StringIO()
-        csv_writer = csv.writer(csv_file)
+        csv_writer = unicodecsv.writer(csv_file, encoding='utf-8')
 
         csv_header = []
         for header in headers_raw:
@@ -377,8 +376,6 @@ class CSVQueryConverter(BaseConverter):
         for result in results:
             results_encoded = []
             for individual_result in result:
-                if isinstance(individual_result, unicode):
-                    individual_result = individual_result.encode('utf-8')
                 results_encoded.append(individual_result)
             csv_writer.writerow(results_encoded)
             yield csv_file.getvalue()

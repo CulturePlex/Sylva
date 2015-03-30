@@ -26,7 +26,6 @@ diagram.relindex = {};
 diagram.boxesSelects = {};
 diagram.boxesValues = {};
 
-diagram.autocompleteData = {};
 /*
  * The next dictionaries are useful for the distinct options
  * in the lookups
@@ -208,7 +207,7 @@ diagram.aggregates = [
             divBox.css({
                 "left": (parseInt(Math.random() * 55 + 1) * 10) + "px",
                 "top": (parseInt(Math.random() * 25 + 1) * 10) + "px",
-                "width": "360px"
+                "width": "390px"
             });
             divBox.addClass("body");
             // Allowed relationships
@@ -881,8 +880,12 @@ diagram.aggregates = [
 
             anchorClose.append(iconClose);
             anchorClose.click(function () {
-                // We remove the option in the autocomplete data dict
-                delete diagram.autocompleteData[slugValue];
+                // We remove the option of the properties boxes select
+                var selectBoxesProperties = $('.select-other-boxes-properties');
+                $.each(selectBoxesProperties, function(index, elem) {
+                    $('option[data-slugvalue="' + slugValue + '"]', elem).remove();
+                });
+
                 var connections = jsPlumb.getEndpoint(idBox + '-target').connections;
                 // We redraw the endpoint of the endpoints connected to this
                 // target
@@ -964,7 +967,7 @@ diagram.aggregates = [
                 if(display == "none") {
                     // We change the width of the box div
                     $(selectorBox).css({
-                        'width': '440px'
+                        'width': '465px'
                     });
                     // We show the advanced options
                     $(selectorAggregate).css({
@@ -980,7 +983,7 @@ diagram.aggregates = [
                     var aggregate = $(selectorAggregate).val();
                     // We change the width of the box div
                     $(selectorBox).css({
-                        'width': '360px'
+                        'width': '390px'
                     });
                     // We show the advanced options
                     $(selectorAggregate).css({
@@ -2588,6 +2591,13 @@ diagram.aggregates = [
                     }
                     $("#" + fieldIndex + " .select-property").val(property);
                     $("#" + fieldIndex + ' .checkbox-property').click();
+
+                    // If we don't have lookups, we need to "change" the select
+                    // to set the property in the other selects for properties
+                    // of other boxes
+                    var hasLookup = $('#' + fieldIndex + ' .select-lookup').val();
+                    if(hasLookup === null)
+                        $("#" + fieldIndex + " .select-property").change();
                 }
             }
 
@@ -2880,6 +2890,20 @@ diagram.aggregates = [
         diagram.recalculateAnchor(idBox, idAllRels);
 
         jsPlumb.repaintEverything();
+
+        // We remove this property of all the selects with properties
+        // of boxes
+        var optionsOtherBoxesProps = $('option', '.select-other-boxes-properties');
+        $.each(optionsOtherBoxesProps, function(index, elem) {
+            if($(elem).data('fieldid') === fieldId)
+                $(elem).remove();
+        });
+        
+        // We update all the selects in case that we had repeated values
+        var boxProperties = $('#' + idBox + ' .select-property');
+        $.each(boxProperties, function(index, elem) {
+            $(elem).change();
+        });
     });
 
     /**
@@ -3390,8 +3414,44 @@ diagram.aggregates = [
             });
         }
 
-        // Adding the option to the autocomplete dict
-        var optionAutocomplete = {};
+        // We check if we have already the select field
+        var selectClass = $this.next().next().next().attr('class');
+
+        if(selectClass !== "select-other-boxes-properties") {
+            // We create the select field to show after the input
+            var selectBoxesProperties = $('<SELECT>');
+            selectBoxesProperties.addClass('select-other-boxes-properties')
+            selectBoxesProperties.css({
+                "width": "20px",
+                "display": "none",
+                "margin-left": "8px",
+                "height": "15px"
+            });
+            selectBoxesProperties.attr("data-propselected", false);
+            // Let's customize the icon
+            /*
+            $(selectBoxesProperties).selectmenu({
+                icons: {
+                    button: "custom-select-icon"
+                }
+            });*/
+            $(selectBoxesProperties).insertAfter($('#' + fieldId + ' .lookup-value'));
+
+            // The default option for the selects
+            var optionDefaultProperty = $("<OPTION>");
+            optionDefaultProperty.addClass('option-other-boxes-properties');
+            optionDefaultProperty.attr('value', gettext("clear input"));
+            optionDefaultProperty.attr('selected', 'selected');
+            optionDefaultProperty.html(gettext("clear input"));
+
+            // We append the default option
+            $(selectBoxesProperties).prepend(optionDefaultProperty);
+        } else {
+            var selectBoxesProperties = $this.next().next().next();
+        }
+
+        // We add the new property to the select options and we update
+        // all the select that we already have
         var idBox = $this.parent().parent().parent().parent().parent().attr('id');
         var $titleElem = $('#' + idBox + ' .title');
         var showAlias = $titleElem.children().filter('input, select').val();
@@ -3399,10 +3459,154 @@ diagram.aggregates = [
         var value = slugAlias + '.' + propertyId;
         var label = showAlias + '.' + propertyValue;
 
-        optionAutocomplete['value'] = value;
-        optionAutocomplete['label'] = label;
+        var otherBoxesProperties = $('option:selected', '.select-property');
+        // We define global variables to use them inside the each below
+        window.slugValue = slugAlias;
+        window.actualProperty = propertyValue;
+        window.actualDatatype = datatype;
+        window.slugPropValue = value;
+        window.idBox = idBox;
 
-        diagram.autocompleteData[slugAlias] = optionAutocomplete;
+        var allSelectsProperties = $('.select-property');
+        var allOptionsBoxesProperties = $('option', '.select-other-boxes-properties');
+
+        // If we have changed the property, we need to remove the options
+        // of the select.
+        $('option', selectBoxesProperties).filter(
+            function(index, oldOption) {
+                // First, we need to let the "clear type"
+                if($(oldOption).val() !== gettext("clear input"))
+                    if($(oldOption).data('datatype') !== actualDatatype)
+                        $(oldOption).remove();
+            }
+        );
+
+        // We add all the properties of the other selects
+        $.each(allSelectsProperties, function(index, elem) {
+            var containsElem = false;
+            // We need to avoid to add the properties of the same box
+            var idElemBox = $(elem).parent().parent().parent().parent().parent().attr('id');
+
+            if(window.idBox !== idElemBox) {
+                var selectOtherBoxesProperties = $(elem).next().next().next();
+                // First, we check that the select it's not the new one.
+                if(selectOtherBoxesProperties[0] !== selectBoxesProperties[0]) {
+                    var datatype = $('option:selected', elem).data('datatype');
+                    // Now, we check if the datatype is equal
+                    if(datatype === actualDatatype) {
+                        // And now, we check that the select does not contains
+                        // the element
+                        var boxAlias = $(elem).data('boxalias');
+                        var propertyId = $('option:selected', elem).data('propertyid');    
+                        var propertyValue = boxAlias + '.' + propertyId;
+                        $('option', selectBoxesProperties).filter(
+                            function(index, oldOption) {
+                                if($(oldOption).val() === propertyValue)
+                                    containsElem = true;
+                            }
+                        );
+
+                        if(!containsElem) {
+                            var idBox = $(elem).parent().parent().parent().parent().parent().attr('id');
+                            var $titleElem = $('#' + idBox + ' .title');
+                            var showAlias = $titleElem.children().filter('input, select').val();
+                            var slugAlias = $titleElem.data('slug');
+                            var propertyId = $('option:selected', elem).data('propertyid');
+                            var propertyValue = $('option:selected', elem).val();
+                            var fieldId = $(elem).data('fieldid');
+
+                            var value = slugAlias + '.' + propertyId;
+                            var label = showAlias + '.' + propertyValue;
+
+                            // The new option for the selects
+                            var optionBoxesProperty = $("<OPTION>");
+                            optionBoxesProperty.addClass('option-other-boxes-properties');
+                            optionBoxesProperty.attr('id', value);
+                            // We add the slug value to manage the option using this field
+                            optionBoxesProperty.attr('data-slugvalue', slugAlias);
+                            optionBoxesProperty.attr('data-propname', propertyValue);
+                            optionBoxesProperty.attr('data-datatype', datatype);
+                            optionBoxesProperty.attr('data-fieldid', fieldId);
+                            optionBoxesProperty.attr('value', value);
+                            optionBoxesProperty.html(label);
+
+                            $(selectBoxesProperties).append(optionBoxesProperty);
+                        }
+                    }
+                }
+            }
+        });
+
+        // We get the array of properties selected in the actual box
+        var boxProperties = $('#' + idBox + ' .select-property');
+
+        // We update all the other selects except the new one
+        $.each(allSelectsProperties, function(index, elem) {
+            var containsElem = false;
+            // We need to avoid to add the properties of the same box
+            var idElemBox = $(elem).parent().parent().parent().parent().parent().attr('id');
+
+            if(idBox !== idElemBox) {
+                var selectOtherBoxesProperties = $(elem).next().next().next();
+                // First, we check that the select it's not the new one.
+                if(selectOtherBoxesProperties[0] !== selectBoxesProperties[0]) {
+                    // We remove the options of the allSelectsProperties that
+                    // belong to this box. This is done to avoid duplicates and
+                    // datatypes conflicts.
+                    $('option', selectOtherBoxesProperties).filter(
+                        function(index, option) {
+                            if($(option).data('slugvalue') === slugValue)
+                                $(option).remove();
+                        }
+                    );
+                    // We need to iterate over all the properties, because
+                    // we need to take into account repeated properties, etc.
+                    // Now, we check if the datatypes are equals
+                    var propDatatype = $('option:selected', elem).data('datatype');
+                    $.each(boxProperties, function(index, propSelected) {
+                        var datatype = $('option:selected', propSelected).data('datatype');
+                        if(propDatatype === datatype) {
+                            // And now, we check that the select does not contains
+                            // the element
+                            $('option', selectOtherBoxesProperties).filter(
+                                function(index, oldOption) {
+                                    if($(oldOption).val() === slugPropValue)
+                                        containsElem = true;
+                                }
+                            );
+
+                            if(!containsElem) {
+                                var idBox = $(propSelected).parent().parent().parent().parent().parent().attr('id');
+                                var $titleElem = $('#' + idBox + ' .title');
+                                var showAlias = $titleElem.children().filter('input, select').val();
+                                var slugAlias = $titleElem.data('slug');
+                                var propertyId = $('option:selected', propSelected).data('propertyid');
+                                var propertyValue = $('option:selected', propSelected).val();
+                                var fieldId = $(propSelected).data('fieldid');
+
+                                var value = slugAlias + '.' + propertyId;
+                                var label = showAlias + '.' + propertyValue;
+
+                                // The new option for the selects
+                                var optionBoxesProperty = $("<OPTION>");
+                                optionBoxesProperty.addClass('option-other-boxes-properties');
+                                optionBoxesProperty.attr('id', value);
+                                // We add the slug value to manage the option using this field
+                                optionBoxesProperty.attr('data-slugvalue', slugAlias);
+                                optionBoxesProperty.attr('data-propname', propertyValue);
+                                optionBoxesProperty.attr('data-datatype', datatype);
+                                optionBoxesProperty.attr('data-fieldid', fieldId);
+                                optionBoxesProperty.attr('value', value);
+                                optionBoxesProperty.html(label);
+
+                                $(selectOtherBoxesProperties).append(optionBoxesProperty.clone(true));
+                            }
+                        }
+                        
+                    });
+                }
+            }
+        });
     });
 
     /**
@@ -3419,6 +3623,11 @@ diagram.aggregates = [
 
         // We show the input for the lookup value
         $('#' + fieldId + " .lookup-value").css({
+            "display": "inline"
+        });
+
+        // We show the select for the other boxes properties
+        $('#' + fieldId + " .select-other-boxes-properties").css({
             "display": "inline"
         });
 
@@ -3478,26 +3687,35 @@ diagram.aggregates = [
         } else {
             // In this branch, the type would be boolean, choices, date or user
         }
+    });
 
-        // We add the option to autocomplete the lookup value with
-        // other properties
-        $('.lookup-value').autocomplete({
-            source: function (request, response) {
-                response(diagram.autocompleteData);
-                return;
-            },
-            minLength: 2,
-            select: function (event, ui) {
-                event.preventDefault();
-                $(event.target).val(ui.item.label);
-                // We add a special data to the input
-                $(event.target).attr('data-boxproperty', ui.item.value);
-            },
-            focus: function(event, ui) {
-                event.preventDefault();
-                $(event.target).val(ui.item.label);
-            }
-        });
+    /**
+     * We change the value of the lookup input after select a property
+     * of another box
+     */
+    $("#diagramContainer").on('change', '.select-other-boxes-properties', function() {
+        var $this = $(this);
+        // We are going to set the value for the lookup input
+        var $lookupInput = $this.prev();
+        var propSelected = $('option:selected', this);
+        var propValue = $(propSelected).val();
+        var propHtml = $(propSelected).html();
+        
+        // If the field select is the "clear field", we restore
+        // the input
+        var clearField = propValue === gettext("clear input");
+
+        if(clearField) {
+            // We restore the lookup input
+            $lookupInput.removeAttr('data-boxproperty');
+            $lookupInput.val("");
+            $lookupInput.prop('disabled', '');
+        } else {
+            // We set all the neccesary in the lookup input
+            $lookupInput.attr('data-boxproperty', propValue);
+            $lookupInput.val(propHtml);
+            $lookupInput.prop('disabled', 'disabled');
+        }
     });
 
     /**
@@ -3624,6 +3842,19 @@ diagram.aggregates = [
                     $(elem).attr("value", newOptionVal);
                     $(elem).html(newOptionVal);
                 }
+            }
+        });
+
+        // We check if we need to change the alias of the select of other
+        // properties boxes
+        var optionsOtherBoxesProps = $('option', '.select-other-boxes-properties');
+        var boxSlug = $('#' + idBox + '-title').data('slug');
+        $.each(optionsOtherBoxesProps, function(index, elem) {
+            var optionSlug = $(elem).data('slugvalue');
+            if(optionSlug === boxSlug) {
+                var oldOptionVal = $(elem).html().split('.');
+                var newOptionVal = newAlias + "." + oldOptionVal[1];
+                $(elem).html(newOptionVal);
             }
         });
     });

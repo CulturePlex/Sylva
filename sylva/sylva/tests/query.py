@@ -1140,7 +1140,7 @@ class QueryTestCase(LiveServerTestCase):
         self.browser.find_by_xpath("//div[@id='diagram']").first.click()
         # We fill the input for the lookup value
         lookup_input_value = self.browser.find_by_xpath(
-            "//input[@class='lookup-value ui-autocomplete-input']").first.fill(
+            "//input[@class='lookup-value']").first.fill(
             u"Bob's node")
         # We need to click outside for a correct behaviour of the input field
         self.browser.find_by_xpath("//div[@id='diagram']").first.click()
@@ -1180,7 +1180,7 @@ class QueryTestCase(LiveServerTestCase):
         self.browser.find_by_xpath("//div[@id='diagram']").first.click()
         # We fill the input for the lookup value
         lookup_input_value = self.browser.find_by_xpath(
-            "//input[@class='lookup-value ui-autocomplete-input']").first.fill(
+            "//input[@class='lookup-value']").first.fill(
             u"Alice's node")
         # We need to click outside for a correct behaviour of the input field
         self.browser.find_by_xpath("//div[@id='diagram']").first.click()
@@ -1219,7 +1219,7 @@ class QueryTestCase(LiveServerTestCase):
         self.browser.find_by_xpath("//div[@id='diagram']").first.click()
         # We fill the input for the lookup value
         lookup_input_value = self.browser.find_by_xpath(
-            "//input[@class='lookup-value ui-autocomplete-input']").first.fill(
+            "//input[@class='lookup-value']").first.fill(
             u"Bob")
         # We need to click outside for a correct behaviour of the input field
         self.browser.find_by_xpath("//div[@id='diagram']").first.click()
@@ -1259,7 +1259,7 @@ class QueryTestCase(LiveServerTestCase):
         self.browser.find_by_xpath("//div[@id='diagram']").first.click()
         # We fill the input for the lookup value
         lookup_input_value = self.browser.find_by_xpath(
-            "//input[@class='lookup-value ui-autocomplete-input']").first.fill(
+            "//input[@class='lookup-value']").first.fill(
             u"o")
         # We need to click outside for a correct behaviour of the input field
         self.browser.find_by_xpath("//div[@id='diagram']").first.click()
@@ -1300,7 +1300,7 @@ class QueryTestCase(LiveServerTestCase):
         self.browser.find_by_xpath("//div[@id='diagram']").first.click()
         # We fill the input for the lookup value
         lookup_input_value = self.browser.find_by_xpath(
-            "//input[@class='lookup-value ui-autocomplete-input']").first.fill(
+            "//input[@class='lookup-value']").first.fill(
             u"x")
         # We need to click outside for a correct behaviour of the input field
         self.browser.find_by_xpath("//div[@id='diagram']").first.click()
@@ -1340,7 +1340,7 @@ class QueryTestCase(LiveServerTestCase):
         self.browser.find_by_xpath("//div[@id='diagram']").first.click()
         # We fill the input for the lookup value
         lookup_input_value = self.browser.find_by_xpath(
-            "//input[@class='lookup-value ui-autocomplete-input']").first.fill(
+            "//input[@class='lookup-value']").first.fill(
             u"B")
         # We need to click outside for a correct behaviour of the input field
         self.browser.find_by_xpath("//div[@id='diagram']").first.click()
@@ -1380,7 +1380,7 @@ class QueryTestCase(LiveServerTestCase):
         self.browser.find_by_xpath("//div[@id='diagram']").first.click()
         # We fill the input for the lookup value
         lookup_input_value = self.browser.find_by_xpath(
-            "//input[@class='lookup-value ui-autocomplete-input']").first.fill(
+            "//input[@class='lookup-value']").first.fill(
             u"C")
         # We need to click outside for a correct behaviour of the input field
         self.browser.find_by_xpath("//div[@id='diagram']").first.click()
@@ -1420,7 +1420,7 @@ class QueryTestCase(LiveServerTestCase):
         self.browser.find_by_xpath("//div[@id='diagram']").first.click()
         # We fill the input for the lookup value
         lookup_input_value = self.browser.find_by_xpath(
-            "//input[@class='lookup-value ui-autocomplete-input']").first.fill(
+            "//input[@class='lookup-value']").first.fill(
             u"e")
         # We need to click outside for a correct behaviour of the input field
         self.browser.find_by_xpath("//div[@id='diagram']").first.click()
@@ -1460,7 +1460,7 @@ class QueryTestCase(LiveServerTestCase):
         self.browser.find_by_xpath("//div[@id='diagram']").first.click()
         # We fill the input for the lookup value
         lookup_input_value = self.browser.find_by_xpath(
-            "//input[@class='lookup-value ui-autocomplete-input']").first.fill(
+            "//input[@class='lookup-value']").first.fill(
             u"h")
         # We need to click outside for a correct behaviour of the input field
         self.browser.find_by_xpath("//div[@id='diagram']").first.click()
@@ -1534,7 +1534,7 @@ class QueryTestCase(LiveServerTestCase):
         self.browser.find_by_xpath("//div[@id='diagram']").first.click()
         # We fill the input for the lookup value
         lookup_input_value = self.browser.find_by_xpath(
-            "//input[@class='lookup-value time hasDatepicker ui-autocomplete-input']").first.fill(u"01/01/2010")
+            "//input[@class='lookup-value time hasDatepicker']").first.fill(u"01/01/2010")
         calendar = self.browser.find_by_xpath("//div[@id='ui-datepicker-div']")
         spin_assert(lambda: self.assertIsNotNone(calendar))
         # We run the query
