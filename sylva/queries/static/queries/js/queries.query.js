@@ -26,7 +26,6 @@ diagram.relindex = {};
 diagram.boxesSelects = {};
 diagram.boxesValues = {};
 
-diagram.autocompleteData = {};
 /*
  * The next dictionaries are useful for the distinct options
  * in the lookups
@@ -2592,6 +2591,13 @@ diagram.aggregates = [
                     }
                     $("#" + fieldIndex + " .select-property").val(property);
                     $("#" + fieldIndex + ' .checkbox-property').click();
+
+                    // If we don't have lookups, we need to "change" the select
+                    // to set the property in the other selects for properties
+                    // of other boxes
+                    var hasLookup = $('#' + fieldIndex + ' .select-lookup').val();
+                    if(hasLookup === null)
+                        $("#" + fieldIndex + " .select-property").change();
                 }
             }
 
@@ -2884,6 +2890,20 @@ diagram.aggregates = [
         diagram.recalculateAnchor(idBox, idAllRels);
 
         jsPlumb.repaintEverything();
+
+        // We remove this property of all the selects with properties
+        // of boxes
+        var optionsOtherBoxesProps = $('option', '.select-other-boxes-properties');
+        $.each(optionsOtherBoxesProps, function(index, elem) {
+            if($(elem).data('fieldid') === fieldId)
+                $(elem).remove();
+        });
+        
+        // We update all the selects in case that we had repeated values
+        var boxProperties = $('#' + idBox + ' .select-property');
+        $.each(boxProperties, function(index, elem) {
+            $(elem).change();
+        });
     });
 
     /**
@@ -3397,9 +3417,6 @@ diagram.aggregates = [
         // We check if we have already the select field
         var selectClass = $this.next().next().next().attr('class');
 
-        // We need to check if we have change the select property
-        // TODO
-
         if(selectClass !== "select-other-boxes-properties") {
             // We create the select field to show after the input
             var selectBoxesProperties = $('<SELECT>');
@@ -3442,70 +3459,152 @@ diagram.aggregates = [
         var value = slugAlias + '.' + propertyId;
         var label = showAlias + '.' + propertyValue;
 
-        // The new option for the selects
-        var optionBoxesProperty = $("<OPTION>");
-        optionBoxesProperty.addClass('option-other-boxes-properties');
-        optionBoxesProperty.attr('id', value);
-        // We add the slug value to manage the option using this field
-        optionBoxesProperty.attr('data-slugvalue', slugAlias);
-        optionBoxesProperty.attr('data-propname', propertyValue);
-        optionBoxesProperty.attr('data-datatype', datatype);
-        optionBoxesProperty.attr('value', value);
-        optionBoxesProperty.html(label);
-
         var otherBoxesProperties = $('option:selected', '.select-property');
         // We define global variables to use them inside the each below
+        window.slugValue = slugAlias;
         window.actualProperty = propertyValue;
         window.actualDatatype = datatype;
         window.slugPropValue = value;
+        window.idBox = idBox;
 
         var allSelectsProperties = $('.select-property');
         var allOptionsBoxesProperties = $('option', '.select-other-boxes-properties');
-        // // We add all the other options in this select field
-        // var oldSelectBoxesProperties = allSelectsBoxesProperties[0];
-        // var oldSelectBoxesPropertiesOptions = $('option', oldSelectBoxesProperties);
 
-        $.each(allOptionsBoxesProperties, function(index, elem) {
-            var containsElem = false;
-            var sameDatatype = true;
-
-            // First, we check if the datatype is equal
-            if($(elem).data('datatype') === actualDatatype) {
-                // And now, we check that the select does not contains
-                // the element
-                if($(elem).val() === actualProperty)
-                    containsElem = true;
-            } else {
-                sameDatatype = false;
+        // If we have changed the property, we need to remove the options
+        // of the select.
+        $('option', selectBoxesProperties).filter(
+            function(index, oldOption) {
+                // First, we need to let the "clear type"
+                if($(oldOption).val() !== gettext("clear input"))
+                    if($(oldOption).data('datatype') !== actualDatatype)
+                        $(oldOption).remove();
             }
+        );
 
-            if(!containsElem && sameDatatype)
-                $(selectBoxesProperties).append($(elem).clone(true));
+        // We add all the properties of the other selects
+        $.each(allSelectsProperties, function(index, elem) {
+            var containsElem = false;
+            // We need to avoid to add the properties of the same box
+            var idElemBox = $(elem).parent().parent().parent().parent().parent().attr('id');
+
+            if(window.idBox !== idElemBox) {
+                var selectOtherBoxesProperties = $(elem).next().next().next();
+                // First, we check that the select it's not the new one.
+                if(selectOtherBoxesProperties[0] !== selectBoxesProperties[0]) {
+                    var datatype = $('option:selected', elem).data('datatype');
+                    // Now, we check if the datatype is equal
+                    if(datatype === actualDatatype) {
+                        // And now, we check that the select does not contains
+                        // the element
+                        var boxAlias = $(elem).data('boxalias');
+                        var propertyId = $('option:selected', elem).data('propertyid');    
+                        var propertyValue = boxAlias + '.' + propertyId;
+                        $('option', selectBoxesProperties).filter(
+                            function(index, oldOption) {
+                                if($(oldOption).val() === propertyValue)
+                                    containsElem = true;
+                            }
+                        );
+
+                        if(!containsElem) {
+                            var idBox = $(elem).parent().parent().parent().parent().parent().attr('id');
+                            var $titleElem = $('#' + idBox + ' .title');
+                            var showAlias = $titleElem.children().filter('input, select').val();
+                            var slugAlias = $titleElem.data('slug');
+                            var propertyId = $('option:selected', elem).data('propertyid');
+                            var propertyValue = $('option:selected', elem).val();
+                            var fieldId = $(elem).data('fieldid');
+
+                            var value = slugAlias + '.' + propertyId;
+                            var label = showAlias + '.' + propertyValue;
+
+                            // The new option for the selects
+                            var optionBoxesProperty = $("<OPTION>");
+                            optionBoxesProperty.addClass('option-other-boxes-properties');
+                            optionBoxesProperty.attr('id', value);
+                            // We add the slug value to manage the option using this field
+                            optionBoxesProperty.attr('data-slugvalue', slugAlias);
+                            optionBoxesProperty.attr('data-propname', propertyValue);
+                            optionBoxesProperty.attr('data-datatype', datatype);
+                            optionBoxesProperty.attr('data-fieldid', fieldId);
+                            optionBoxesProperty.attr('value', value);
+                            optionBoxesProperty.html(label);
+
+                            $(selectBoxesProperties).append(optionBoxesProperty);
+                        }
+                    }
+                }
+            }
         });
-        // And now, we append the new option
-        $(selectBoxesProperties).append(optionBoxesProperty);
+
+        // We get the array of properties selected in the actual box
+        var boxProperties = $('#' + idBox + ' .select-property');
 
         // We update all the other selects except the new one
         $.each(allSelectsProperties, function(index, elem) {
             var containsElem = false;
-            var sameDatatype = true;
-            var selectOtherBoxesProperties = $(elem).next().next().next();
-            // First, we check if the datatype is equal
-            var propDatatype = $('option:selected', elem).data('datatype');
-            if(propDatatype === actualDatatype) {
-                // And now, we check that the select does not contains
-                // the element
-                $('option', selectOtherBoxesProperties).filter(
-                    function(index, oldOption) {
-                        if($(oldOption).val() === slugPropValue)
-                            containsElem = true;
-                    });
-            } else {
-                sameDatatype = false;
-            }
+            // We need to avoid to add the properties of the same box
+            var idElemBox = $(elem).parent().parent().parent().parent().parent().attr('id');
 
-            if(!containsElem && sameDatatype) {
-                $(selectOtherBoxesProperties).append(optionBoxesProperty.clone(true));
+            if(idBox !== idElemBox) {
+                var selectOtherBoxesProperties = $(elem).next().next().next();
+                // First, we check that the select it's not the new one.
+                if(selectOtherBoxesProperties[0] !== selectBoxesProperties[0]) {
+                    // We remove the options of the allSelectsProperties that
+                    // belong to this box. This is done to avoid duplicates and
+                    // datatypes conflicts.
+                    $('option', selectOtherBoxesProperties).filter(
+                        function(index, option) {
+                            if($(option).data('slugvalue') === slugValue)
+                                $(option).remove();
+                        }
+                    );
+                    // We need to iterate over all the properties, because
+                    // we need to take into account repeated properties, etc.
+                    // Now, we check if the datatypes are equals
+                    var propDatatype = $('option:selected', elem).data('datatype');
+                    $.each(boxProperties, function(index, propSelected) {
+                        var datatype = $('option:selected', propSelected).data('datatype');
+                        if(propDatatype === datatype) {
+                            // And now, we check that the select does not contains
+                            // the element
+                            $('option', selectOtherBoxesProperties).filter(
+                                function(index, oldOption) {
+                                    if($(oldOption).val() === slugPropValue)
+                                        containsElem = true;
+                                }
+                            );
+
+                            if(!containsElem) {
+                                var idBox = $(propSelected).parent().parent().parent().parent().parent().attr('id');
+                                var $titleElem = $('#' + idBox + ' .title');
+                                var showAlias = $titleElem.children().filter('input, select').val();
+                                var slugAlias = $titleElem.data('slug');
+                                var propertyId = $('option:selected', propSelected).data('propertyid');
+                                var propertyValue = $('option:selected', propSelected).val();
+                                var fieldId = $(propSelected).data('fieldid');
+
+                                var value = slugAlias + '.' + propertyId;
+                                var label = showAlias + '.' + propertyValue;
+
+                                // The new option for the selects
+                                var optionBoxesProperty = $("<OPTION>");
+                                optionBoxesProperty.addClass('option-other-boxes-properties');
+                                optionBoxesProperty.attr('id', value);
+                                // We add the slug value to manage the option using this field
+                                optionBoxesProperty.attr('data-slugvalue', slugAlias);
+                                optionBoxesProperty.attr('data-propname', propertyValue);
+                                optionBoxesProperty.attr('data-datatype', datatype);
+                                optionBoxesProperty.attr('data-fieldid', fieldId);
+                                optionBoxesProperty.attr('value', value);
+                                optionBoxesProperty.html(label);
+
+                                $(selectOtherBoxesProperties).append(optionBoxesProperty.clone(true));
+                            }
+                        }
+                        
+                    });
+                }
             }
         });
     });
@@ -3743,6 +3842,19 @@ diagram.aggregates = [
                     $(elem).attr("value", newOptionVal);
                     $(elem).html(newOptionVal);
                 }
+            }
+        });
+
+        // We check if we need to change the alias of the select of other
+        // properties boxes
+        var optionsOtherBoxesProps = $('option', '.select-other-boxes-properties');
+        var boxSlug = $('#' + idBox + '-title').data('slug');
+        $.each(optionsOtherBoxesProps, function(index, elem) {
+            var optionSlug = $(elem).data('slugvalue');
+            if(optionSlug === boxSlug) {
+                var oldOptionVal = $(elem).html().split('.');
+                var newOptionVal = newAlias + "." + oldOptionVal[1];
+                $(elem).html(newOptionVal);
             }
         });
     });
