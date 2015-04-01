@@ -2639,6 +2639,41 @@ diagram.aggregates = [
                 }
             }
 
+            // Now, we need to check if the lookup value of some condition is
+            // a property of another box. In that case, we need to set
+            // it correctly
+            for(key in conditionsDict) {
+                if(conditionsDict.hasOwnProperty(key)) {
+                    // We need to iterate over all the conditions of the key
+                    var conditions = conditionsDict[key];
+                    $.each(conditions, function(index, condition) {
+                        // We need to check if we have a property from another
+                        // box
+                        // Lookup
+                        lookup = condition[0];
+                        // Values
+                        // we check if the lookup is 'is between'
+                        if(lookup == "between") {
+                            value1 = condition[2][0];
+                            value2 = condition[2][1];
+                        } else {
+                            value = condition[2];
+                            var isOtherBoxProp = $('option[value="' + value + '"]', $('.select-other-boxes-properties')).length;
+                            if(isOtherBoxProp > 0) {
+                                // We set the lookup value correctly
+                                var lookupInput = $('.lookup-value').filter(
+                                        function(index, elem) {
+                                            if($(elem).val() === value)
+                                                return elem;
+                                        }
+                                    );
+                                $(lookupInput).next().val(value).change();
+                            }
+                        }
+                    });
+                }
+            }
+
             // We check all the necessary logic for the aggregates
             var aggregatesClicked = 0;
             for(key in aggregates) {
