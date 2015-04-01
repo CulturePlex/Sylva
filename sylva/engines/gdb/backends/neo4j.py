@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+import re
+
+from django.template.defaultfilters import slugify
 from lucenequerybuilder import Q
 from neo4jrestclient.exceptions import NotFoundError
 from pyblueprints.neo4j import Neo4jIndexableGraph as Neo4jGraphDatabase
@@ -443,32 +446,42 @@ class GraphDatabase(BlueprintsGraphDatabase):
                 # We catch exception of type IndexError, in case that we
                 # doesn't receive an appropiate array.
                 try:
-                    # We check that the node and the property are correct
-                    match_splitted = match.split(".")
-                    # For the node, we get the slug. We need remove the counter
-                    # of the type.
-                    raw_slug = match_splitted[0]
-                    # We remove the "`"
-                    raw_slug = unicode(raw_slug).replace(u"`", u"")
-                    raw_slug_splitted = raw_slug.split("_")
-                    final_pos = len(raw_slug_splitted)
-                    match_slug = raw_slug_splitted[0: final_pos - 1]
-                    slug = "_".join(match_slug)
-                    match_var = match_splitted[0]
-                    # Let's treat the property
-                    property_id = match_splitted[1]
-                    property_id = int(property_id)
-                    # We filter for slug and then for property
-                    schema = self.graph.schema
-                    nodetype = (schema.nodetype_set.all()
-                                                   .filter(slug=slug)[0])
-                    prop_value = nodetype.properties.all().filter(
-                        id=property_id)
-                    match_property = prop_value[0].key
-                    # Finally, we assign the correct values to the dict
-                    match_dict['var'] = match_var
-                    match_dict['property'] = match_property
-                    match = match_dict
+                    # The match can be defined in three different ways:
+                    # slug.property_id
+                    # aggregate (slug.property_id)
+                    # aggregate (DISTINCT slug.property_id)
+
+                    # Let's check what definition we have...
+                    match_splitted = re.split('\)|\(|\\.| ', match)
+                    match_first_element = match_splitted[0]
+                    # We check if aggregate belongs to the aggregate set
+                    if match_first_element not in AGGREGATES:
+                        # We have the slug and the property
+                        raw_slug = slugify(match_first_element)
+                        raw_slug_splitted = raw_slug.split("_")
+                        final_pos = len(raw_slug_splitted)
+                        match_slug = raw_slug_splitted[0: final_pos - 1]
+                        slug = "_".join(match_slug)
+                        match_var = match_splitted[0]
+                        # Let's treat the property
+                        property_id = match_splitted[1]
+                        property_id = int(property_id)
+                        # We filter for slug and then for property
+                        schema = self.graph.schema
+                        nodetype = (schema.nodetype_set.all()
+                                                       .filter(slug=slug)[0])
+                        prop_value = nodetype.properties.all().filter(
+                            id=property_id)
+                        match_property = prop_value[0].key
+                        # Finally, we assign the correct values to the dict
+                        match_dict['var'] = match_var
+                        match_dict['property'] = match_property
+                        match = match_dict
+                    else:
+                        # We have aggregate, so let's set empty values for now
+                        match_dict['var'] = ""
+                        match_dict['property'] = ""
+                        match = match_dict
                 except IndexError:
                     match_dict['var'] = ""
                     match_dict['property'] = ""

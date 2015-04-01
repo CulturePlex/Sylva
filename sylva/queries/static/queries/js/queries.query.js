@@ -964,6 +964,7 @@ diagram.aggregates = [
                 var selectorBox = '#' + idBox;
                 var selectorAggregate = '#' + idBox + " .select-aggregate";
                 var selectorRemoveRelation = '#' + idBox + " #remove-relation-icon";
+                window.idBox = idBox;
                 if(display == "none") {
                     // We change the width of the box div
                     $(selectorBox).css({
@@ -1024,6 +1025,43 @@ diagram.aggregates = [
                             $('#id_select_order_by').append(selectNewOption);
                         });
                     }
+                    // We change the aggregate in the select for 
+                    // properties of other boxes
+                    var aggregates = $(selectorAggregate);
+                    $.each(aggregates, function(index, elem) {
+                        var fieldId = $(elem).parent().attr('id');
+                        var propertyValue = $(elem).next().val();
+                        var titleDiv = $(elem).prev().parent().parent().parent().parent().prev();
+                        var boxSlug = $(titleDiv).data('slug');
+                        var boxAlias = $('select', titleDiv).val();
+
+                        // We use the slug for the value and alias for the html
+                        var newValue = boxSlug + '.' + propertyValue;
+                        var newHTML = boxAlias + '.' + propertyValue;
+
+                        var selectOtherBoxesProps = $('.select-other-boxes-properties');
+
+                        window.fieldId = fieldId;
+                        window.newValue = newValue;
+                        window.newHTML = newHTML;
+                        $.each(selectOtherBoxesProps, function(index, elem) {
+                            var anotherIdBox = $(elem).parent().parent().parent().parent().parent().attr('id');
+                            if(idBox !== anotherIdBox) {
+                                var $option = $('option[data-fieldid="' + fieldId + '"]', $(elem));
+                                // Let's check if the value is already in the 
+                                // select
+                                var existsValue = $('option[value="' + newValue + '"]', $(elem)).length;
+
+                                // If exists, we remove it.
+                                if(existsValue > 0) {
+                                    $option.remove();
+                                } else {
+                                    $option.attr('value', newValue);
+                                    $option.html(newHTML);
+                                }
+                            }
+                        });
+                    });
                 }
 
                 jsPlumb.repaintEverything();
@@ -3107,37 +3145,37 @@ diagram.aggregates = [
     $("#diagramContainer").on('change', '.select-aggregate', function() {
         var $this = $(this);
         var checkboxClicked = $this.prev().prop('checked');
+        var fieldId = $this.parent().attr('id');
+        var propertyValue = $this.next().val();
+        var titleDiv = $this.prev().parent().parent().parent().parent().prev();
+        var boxSlug = $(titleDiv).data('slug');
+        var boxAlias = $('select', titleDiv).val();
+        var idBox = $this.parent().parent().parent().parent().parent().attr('id');
+
+        var orderByFieldVal = boxSlug + '.' + propertyValue;
+        var orderByFieldHTML = boxAlias + '.' + propertyValue;
+        // We add the new option with the aggregate in case that the
+        // aggregate is distinct to '' (None option)
+        var aggregate = $this.val();
+
+        var distinctValue = "";
+        var distinctHTML = "";
+        var distinct = $('option:selected', $this).data('distinct');
+        if(distinct) {
+            distinctValue = "DISTINCT ";
+            distinctHTML = " Distinct";
+        }
+
+        orderByFieldVal = aggregate + '(' + distinctValue + orderByFieldVal + ')';
+        orderByFieldHTML = aggregate + distinctHTML + '(' + orderByFieldHTML + ')';
+        if(aggregate == '') {
+            orderByFieldVal = boxSlug + '.' + propertyValue;
+            orderByFieldHTML = boxAlias + '.' + propertyValue;
+        }
+
         if(checkboxClicked) {
-            var fieldId = $this.parent().attr('id');
-            var propertyValue = $this.next().val();
-            var titleDiv = $this.prev().parent().parent().parent().parent().prev();
-            var boxSlug = $(titleDiv).data('slug');
-            var boxAlias = $('select', titleDiv).val();
-
-            var orderByFieldVal = boxSlug + '.' + propertyValue;
-            var orderByFieldHTML = boxAlias + '.' + propertyValue;
-
             // We check and remove the option because we have a new option
             $('#id_select_order_by option[data-fieldid="' + fieldId + '"]').remove();
-
-            // We add the new option with the aggregate in case that the
-            // aggregate is distinct to '' (None option)
-            var aggregate = $this.val();
-
-            var distinctValue = "";
-            var distinctHTML = "";
-            var distinct = $('option:selected', $this).data('distinct');
-            if(distinct) {
-                distinctValue = "DISTINCT ";
-                distinctHTML = " Distinct";
-            }
-
-            orderByFieldVal = aggregate + '(' + distinctValue + orderByFieldVal + ')';
-            orderByFieldHTML = aggregate + distinctHTML + '(' + orderByFieldHTML + ')';
-            if(aggregate == '') {
-                orderByFieldVal = boxSlug + '.' + propertyValue;
-                orderByFieldHTML = boxAlias + '.' + propertyValue;
-            }
 
             // We add the orderByField to the select
             var selectNewOption = $("<OPTION>");
@@ -3146,6 +3184,94 @@ diagram.aggregates = [
             selectNewOption.html(orderByFieldHTML);
             $('#id_select_order_by').append(selectNewOption);
         }
+
+        // We need to treat the select for the other properties boxes
+        var selectOtherBoxesProps = $('.select-other-boxes-properties');
+
+        window.slugValue = slugValue;
+        window.idBox = idBox;
+        window.boxProperties = $('#' + idBox + ' .select-property');
+
+        $.each(selectOtherBoxesProps, function(index, elem) {
+            // First, we check that the changes are going to be in other boxes
+            var anotherIdBox = $(elem).parent().parent().parent().parent().parent().attr('id');
+
+            // We remove the options that belong to this slug to avoid
+            // conflicts
+            $('option', $(elem)).filter(
+                function(index, option) {
+                    if($(option).data('slugvalue') === slugValue)
+                        $(option).remove();
+                }
+            );
+
+            window.selectOtherProps = elem;
+
+            if(idBox !== anotherIdBox) {
+                $.each(boxProperties, function(index, prop) {
+                    var $titleElem = $('#' + idBox + ' .title');
+                    var showAlias = $titleElem.children().filter('input, select').val();
+                    var slugAlias = $titleElem.data('slug');
+                    var propertyId = $('option:selected', $(prop)).data('propertyid');
+                    var propertyValue = $(prop).val();
+                    var datatype = $('option:selected', $(prop)).data('datatype');
+                    var fieldId = $(prop).parent().attr('id');
+
+                    var value = slugAlias + '.' + propertyId;
+                    var label = showAlias + '.' + propertyValue;
+                    
+                    // Let's check if an aggregate exists
+                    var aggregate = $(prop).prev().val();
+                    if(aggregate !== "") {
+                        var distinctValue = "";
+                        var distinctHTML = "";
+                        var distinct = $('option:selected', $(prop).prev()).data('distinct');
+
+                        if(distinct) {
+                            distinctValue = "DISTINCT ";
+                            distinctHTML = " Distinct";
+                        }
+
+                        var newValue = aggregate + '(' + distinctValue + value + ')';
+                        var newHTML = aggregate + distinctHTML + '(' + label + ')';   
+                    } else if(aggregate == '') {
+                        var newValue = value;
+                        var newHTML = label;
+                    }
+
+                    // We check if the prop is already in the select.
+                    // In that case, we change some of its fields
+                    var existsOption = $('option[data-fieldid="' + fieldId + '"]', $(selectOtherProps)).length;
+                    // We need to check if the select contains the value
+                    var isAlready = $('option[value="' + newValue + '"]', $(selectOtherProps)).length;
+
+                    if((existsOption > 0) || (isAlready > 0)) {
+                        var $option = $('option[data-fieldid="' + fieldId + '"]', $(selectOtherProps));
+                        if(isAlready > 0) {
+                            $option.remove();
+                        } else {
+                            $option.attr('value', newValue);
+                            $option.html(newHTML);
+                        }
+                    } else {
+                        // The new option for the selects
+                        var optionBoxesProperty = $("<OPTION>");
+                        optionBoxesProperty.addClass('option-other-boxes-properties');
+                        optionBoxesProperty.attr('id', newValue);
+                        // We add the slug value to manage the option using this field
+                        optionBoxesProperty.attr('data-slugvalue', slugAlias);
+                        optionBoxesProperty.attr('data-propname', propertyValue);
+                        optionBoxesProperty.attr('data-datatype', datatype);
+                        optionBoxesProperty.attr('data-fieldid', fieldId);
+
+                        optionBoxesProperty.attr('value', newValue);
+                        optionBoxesProperty.html(newHTML);
+
+                        $(elem).append(optionBoxesProperty);
+                    }
+                });
+            }
+        });
     });
 
     /**
@@ -3425,7 +3551,8 @@ diagram.aggregates = [
                 "width": "20px",
                 "display": "none",
                 "margin-left": "8px",
-                "height": "15px"
+                "height": "18px",
+                "margin-top": "-4px"
             });
             selectBoxesProperties.attr("data-propselected", false);
             // Let's customize the icon
@@ -3460,6 +3587,7 @@ diagram.aggregates = [
         var label = showAlias + '.' + propertyValue;
 
         var otherBoxesProperties = $('option:selected', '.select-property');
+        
         // We define global variables to use them inside the each below
         window.slugValue = slugAlias;
         window.actualProperty = propertyValue;
@@ -3494,11 +3622,24 @@ diagram.aggregates = [
                     var datatype = $('option:selected', elem).data('datatype');
                     // Now, we check if the datatype is equal
                     if(datatype === actualDatatype) {
-                        // And now, we check that the select does not contains
-                        // the element
                         var boxAlias = $(elem).data('boxalias');
                         var propertyId = $('option:selected', elem).data('propertyid');    
                         var propertyValue = boxAlias + '.' + propertyId;
+                        // Let's check if we have aggregate
+                        var aggregate = $(elem).prev().val();
+                        if(aggregate !== "") {
+                            var distinctValue = "";
+                            var distinctHTML = "";
+                            var distinct = $('option:selected', $(elem).prev()).data('distinct');
+                            if(distinct) {
+                                distinctValue = "DISTINCT ";
+                                distinctHTML = " Distinct";
+                            }
+
+                            propertyValue = aggregate + '(' + distinctValue + propertyValue + ')';
+                        }
+                        // And now, we check that the select does not contains
+                        // the element
                         $('option', selectBoxesProperties).filter(
                             function(index, oldOption) {
                                 if($(oldOption).val() === propertyValue)
@@ -3566,11 +3707,25 @@ diagram.aggregates = [
                     $.each(boxProperties, function(index, propSelected) {
                         var datatype = $('option:selected', propSelected).data('datatype');
                         if(propDatatype === datatype) {
-                            // And now, we check that the select does not contains
-                            // the element
+                            var propertyValue = slugPropValue;
+                            // Let's check if we have aggregate
+                            var aggregate = $(elem).prev().val();
+                            if(aggregate !== "") {
+                                var distinctValue = "";
+                                var distinctHTML = "";
+                                var distinct = $('option:selected', $(elem).prev()).data('distinct');
+                                if(distinct) {
+                                    distinctValue = "DISTINCT ";
+                                    distinctHTML = " Distinct";
+                                }
+
+                                propertyValue = aggregate + '(' + distinctValue + propertyValue + ')';
+                            }
+                            // And now, we check that the select does not
+                            // contains the element
                             $('option', selectOtherBoxesProperties).filter(
                                 function(index, oldOption) {
-                                    if($(oldOption).val() === slugPropValue)
+                                    if($(oldOption).val() === propertyValue)
                                         containsElem = true;
                                 }
                             );
@@ -3586,6 +3741,21 @@ diagram.aggregates = [
 
                                 var value = slugAlias + '.' + propertyId;
                                 var label = showAlias + '.' + propertyValue;
+
+                                // Let's check if we have aggregate
+                                var aggregate = $(propSelected).prev().val();
+                                if(aggregate !== "") {
+                                    var distinctValue = "";
+                                    var distinctHTML = "";
+                                    var distinct = $('option:selected', $(propSelected).prev()).data('distinct');
+                                    if(distinct) {
+                                        distinctValue = "DISTINCT ";
+                                        distinctHTML = " Distinct";
+                                    }
+
+                                    value = aggregate + '(' + distinctValue + value + ')';
+                                    label = aggregate + distinctHTML + '(' + label + ')';
+                                }
 
                                 // The new option for the selects
                                 var optionBoxesProperty = $("<OPTION>");
