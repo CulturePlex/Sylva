@@ -115,8 +115,8 @@ def graph_export_gexf(request, graph_slug):
                                   "empty graph"))
         return redirect(reverse('dashboard'))
     converter = GEXFConverter(graph=graph)
-    response = HttpResponse(converter.stream_export(),
-                            content_type='application/xml')
+    response = StreamingHttpResponse(converter.stream_export(),
+                                     content_type='application/xml')
     attachment = ('attachment; filename=%s_data.gexf' % graph_slug)
     response['Content-Disposition'] = attachment
     return response
