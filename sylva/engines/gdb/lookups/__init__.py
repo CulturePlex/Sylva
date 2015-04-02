@@ -109,15 +109,22 @@ class BaseQ(object):
 
 class BaseF(object):
 
-    def __init__(self, property, var=None):
-        if var is None:
-            self.var = u"n"
+    def __init__(self, property=None, var=None, aggregate=None):
+        if aggregate:
+            self.aggregate = aggregate
         else:
-            self.var = var
-        self.property = property
+            if var is None:
+                self.var = u"n"
+            else:
+                self.var = var
+            self.property = property
 
     def __hash__(self):
-        return hash((self.var, self.property))
+        try:
+            hash_value = hash(self.aggregate)
+        except AttributeError:
+            hash_value = hash((self.var, self.property))
+        return hash_value
 
     def __repr__(self):
         return self.__str__()
@@ -126,4 +133,8 @@ class BaseF(object):
         return self.__unicode__().encode('utf-8')
 
     def __unicode__(self):
-        return u"{}.{}".format(self.var, self.property)
+        try:
+            str_unicode = u"{}".format(self.aggregate)
+        except AttributeError:
+            str_unicode = u"{}.{}".format(self.var, self.property)
+        return str_unicode

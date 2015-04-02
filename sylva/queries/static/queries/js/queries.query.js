@@ -2066,6 +2066,15 @@ diagram.aggregates = [
         var query = {};
         var propertiesChecked = {};
 
+        // Meta
+        // Meta dictionary to store meta information to build the query
+        // appropriately
+        var meta_dict = {}
+        meta_dict["has_distinct"] = $('#id_distinct_result').prop('checked');
+        // Let's declare the array for the special case of aggregates in
+        // conditions.
+        meta_dict["with_statement"] = {};
+
         // Conditions
         var conditionsArray = new Array();
         var properties = $('.select-property');
@@ -2156,6 +2165,19 @@ diagram.aggregates = [
                     // problem with it
                     datatype = 'property_box';
                     propertyValue = propertyFromAnotherBox;
+                    // We need to check if we have aggregates in the
+                    // conditions. In that case, our query has a different
+                    // cypher so we need to store that useful fields.
+                    // Let's check if we have an aggregate
+                    var propSplit = propertyFromAnotherBox.split("(");
+                    var existsAgg = diagram.aggregates.indexOf(propSplit[0]);
+                    if(existsAgg !== -1) {
+                        // We have an aggregate and need to change the query,
+                        // but we need the slug.property_name, not the
+                        // property_id
+                        var propertyWithValue = $propertyField.data('withvalue');
+                        meta_dict["with_statement"][propertyWithValue] = '`' + propertyWithValue + '`';
+                    }
                 }
 
                 var propertyArray = new Array();
@@ -2202,6 +2224,13 @@ diagram.aggregates = [
             origin.type_id = type_id;
             origin.slug = slug;
             originsArray.push(origin);
+
+            // We need to check if the slug has to be included in the
+            // with statement
+            var includeSlug = $.isEmptyObject(meta_dict["with_statement"]);
+            if(!includeSlug) {
+                meta_dict["with_statement"][slug] = slug;
+            }
         });
 
         query["origins"] = originsArray;
@@ -2296,12 +2325,6 @@ diagram.aggregates = [
         });
 
         query["results"] = resultsArray;
-
-        // Meta
-        // Meta dictionary to store meta information to build the query
-        // appropriately
-        var meta_dict = {}
-        meta_dict["has_distinct"] = $('#id_distinct_result').prop('checked');
 
         query["meta"] = meta_dict
 
@@ -3254,6 +3277,7 @@ diagram.aggregates = [
 
                     var value = slugAlias + '.' + propertyId;
                     var label = showAlias + '.' + propertyValue;
+                    var withValue = slugAlias + '.' + propertyValue;
                     
                     // Let's check if an aggregate exists
                     var aggregate = $(prop).prev().val();
@@ -3268,10 +3292,13 @@ diagram.aggregates = [
                         }
 
                         var newValue = aggregate + '(' + distinctValue + value + ')';
-                        var newHTML = aggregate + distinctHTML + '(' + label + ')';   
+                        var newHTML = aggregate + distinctHTML + '(' + label + ')';
+                        var newWithValue = aggregate + '(' + distinctValue + withValue + ')';
+
                     } else if(aggregate == '') {
                         var newValue = value;
                         var newHTML = label;
+                        var newWithValue = withValue;
                     }
 
                     // We check if the prop is already in the select.
@@ -3286,6 +3313,7 @@ diagram.aggregates = [
                             $option.remove();
                         } else {
                             $option.attr('value', newValue);
+                            $option.attr('data-withvalue', newWithValue);
                             $option.html(newHTML);
                         }
                     } else {
@@ -3296,6 +3324,7 @@ diagram.aggregates = [
                         // We add the slug value to manage the option using this field
                         optionBoxesProperty.attr('data-slugvalue', slugAlias);
                         optionBoxesProperty.attr('data-propname', propertyValue);
+                        optionBoxesProperty.attr('data-withvalue', newWithValue);
                         optionBoxesProperty.attr('data-datatype', datatype);
                         optionBoxesProperty.attr('data-fieldid', fieldId);
 
@@ -3693,6 +3722,7 @@ diagram.aggregates = [
 
                             var value = slugAlias + '.' + propertyId;
                             var label = showAlias + '.' + propertyValue;
+                            var withValue = slugAlias + '.' + propertyValue;
 
                             // The new option for the selects
                             var optionBoxesProperty = $("<OPTION>");
@@ -3701,6 +3731,7 @@ diagram.aggregates = [
                             // We add the slug value to manage the option using this field
                             optionBoxesProperty.attr('data-slugvalue', slugAlias);
                             optionBoxesProperty.attr('data-propname', propertyValue);
+                            optionBoxesProperty.attr('data-withvalue', withValue);
                             optionBoxesProperty.attr('data-datatype', datatype);
                             optionBoxesProperty.attr('data-fieldid', fieldId);
                             optionBoxesProperty.attr('value', value);
@@ -3776,6 +3807,7 @@ diagram.aggregates = [
 
                                 var value = slugAlias + '.' + propertyId;
                                 var label = showAlias + '.' + propertyValue;
+                                var withValue = slugAlias + '.' + propertyValue;
 
                                 // Let's check if we have aggregate
                                 var aggregate = $(propSelected).prev().val();
@@ -3790,6 +3822,7 @@ diagram.aggregates = [
 
                                     value = aggregate + '(' + distinctValue + value + ')';
                                     label = aggregate + distinctHTML + '(' + label + ')';
+                                    withValue = aggregate + '(' + distinctValue + withValue + ')';
                                 }
 
                                 // The new option for the selects
@@ -3799,6 +3832,7 @@ diagram.aggregates = [
                                 // We add the slug value to manage the option using this field
                                 optionBoxesProperty.attr('data-slugvalue', slugAlias);
                                 optionBoxesProperty.attr('data-propname', propertyValue);
+                                optionBoxesProperty.attr('data-withvalue', withValue);
                                 optionBoxesProperty.attr('data-datatype', datatype);
                                 optionBoxesProperty.attr('data-fieldid', fieldId);
                                 optionBoxesProperty.attr('value', value);
@@ -3905,6 +3939,7 @@ diagram.aggregates = [
         var propSelected = $('option:selected', this);
         var propValue = $(propSelected).val();
         var propHtml = $(propSelected).html();
+        var propWithValue = $(propSelected).data('withvalue');
         
         // If the field select is the "clear field", we restore
         // the input
@@ -3913,11 +3948,13 @@ diagram.aggregates = [
         if(clearField) {
             // We restore the lookup input
             $lookupInput.removeAttr('data-boxproperty');
+            $lookupInput.removeAttr('data-withvalue');
             $lookupInput.val("");
             $lookupInput.prop('disabled', '');
         } else {
             // We set all the neccesary in the lookup input
             $lookupInput.attr('data-boxproperty', propValue);
+            $lookupInput.attr('data-withvalue', propWithValue);
             $lookupInput.val(propHtml);
             $lookupInput.prop('disabled', 'disabled');
         }
