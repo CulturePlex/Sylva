@@ -19,6 +19,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 
 from guardian.decorators import permission_required
+from forms import ReportTemplateForm
 from utils import phantom_process
 from models import ReportTemplate, Report
 from graphs.models import Graph, Schema
@@ -297,33 +298,45 @@ def builder_endpoint(request, graph_slug):
             int(date_dict['minute'])
         )
         if template.get('slug', ''):
-            new_template = get_object_or_404(
+            template_inst = get_object_or_404(
                 ReportTemplate, slug=template['slug']
             )
-            new_template.name = template['name']
-            new_template.start_date = start_date
-            new_template.frequency = template['frequency']
-            new_template.layout = template['layout']
-            new_template.description = template['description']
-            new_template.save()
+            # Not sure of the best approach for field validation.
+            f = ReportTemplateForm({
+                    "name": template['name'],
+                    "start_date": start_date,
+                    "frequency": template['frequency'],
+                    "layout": template['layout'],
+                    "description": template['description'],
+                    "graph": graph.id
+            }, instance=template_inst)
+            if not f.is_valid():
+                # not sure what to raise here...
+                raise Exception("Invalid form")
+            # So here I would have to save the form and later save model.
+            new_template = f.save()
             for old in new_template.email_to.all():
                 if old.username not in template["collabs"]:
                     new_template.email_to.remove(old)
         else:
-            new_template = ReportTemplate.objects.create(
-                name=template['name'],
-                start_date=start_date,
-                frequency=template['frequency'],
-                layout=template['layout'],
-                description=template['description'],
-                graph=graph
-            )
+            f = ReportTemplateForm({
+                    "name": template['name'],
+                    "start_date": start_date,
+                    "frequency": template['frequency'],
+                    "layout": template['layout'],
+                    "description": template['description'],
+                    "graph": graph.id
+            })
+            if not f.is_valid():
+                raise Exception("Invalid form")
+            new_template = f.save()
         for collab in template["collabs"]:
             collab = User.objects.get(username=collab["id"])
             new_template.email_to.add(collab)
         query_set = set()
         for row in template['layout']['layout']:
             query_set.update(set(cell['displayQuery'] for cell in row))
+
         queries = set(query for query in new_template.queries.all())
         query_ids = set(query.id for query in queries)
         for query in queries:
@@ -334,6 +347,7 @@ def builder_endpoint(request, graph_slug):
                 query = get_object_or_404(Query, id=disp_query)
                 new_template.queries.add(query)
     # Hmm this response is weird.
+        new_template.save()
     return HttpResponse(json.dumps(template), content_type='application/json')
 
 
