@@ -19,9 +19,9 @@ from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 
 from guardian.decorators import permission_required
-from forms import ReportTemplateForm
-from utils import phantom_process
-from models import ReportTemplate, Report
+from reports.forms import ReportTemplateForm
+from reports.utils import phantom_process
+from reports.models import ReportTemplate, Report
 from graphs.models import Graph, Schema
 from queries.models import Query
 
@@ -346,7 +346,6 @@ def builder_endpoint(request, graph_slug):
             if disp_query and disp_query not in query_ids:
                 query = get_object_or_404(Query, id=disp_query)
                 new_template.queries.add(query)
-    # Hmm this response is weird.
         new_template.save()
     return HttpResponse(json.dumps(template), content_type='application/json')
 
