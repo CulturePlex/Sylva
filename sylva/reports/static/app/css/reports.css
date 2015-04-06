@@ -30,6 +30,10 @@ th.report {
   min-width: 66px
 }
 
+.designbutt {
+    margin-top: 10px;
+}
+
 .chart-select {
     float: left;
     width: 10em;
