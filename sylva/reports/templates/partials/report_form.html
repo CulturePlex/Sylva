@@ -53,10 +53,6 @@
           <span class="buttonLinkOption buttonLinkLeft">
 
             <input type="submit" value="Save Report" ng-click="saveReport(template)">
-            <a class="button" href="" ng-click="designReport()">
-
-              {% trans "Design Report" %}
-            </a>
             <a class="alink" ng-hide="advanced" ng-click="showAdvanced()" href="">{% trans "Advanced" %}</a>
             <a class="alink" ng-show="advanced" ng-click="hideAdvanced()" href="">{% trans "Hide advanced" %}</a>
           </span>
@@ -85,8 +81,9 @@
         </div>
       </div>
     </div> <!--row-->
-
-
+    <a class="button designbutt" href="" ng-click="designReport()">
+      {% trans "Design Report" %}
+    </a>
   </div> <!--content2-->
 
   <div class="table-edit" ng-show="editable">
