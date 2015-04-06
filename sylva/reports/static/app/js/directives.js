@@ -1360,7 +1360,7 @@ directives.directive('sylvaBreadcrumbs', [
                     '<span> &raquo; </span>' +
                     '<a ng-href="#/">{{ breadText.reports }}</a>' +
                     '<span ng-if="reportName"> &raquo; </span>' +
-                    '<a ng-href="#/edit/{{ reportSlug }}" ng-click="done()">{{ reportName }}</a>' +
+                    '<a ng-href="#/edit/{{ reportSlug }}" ng-click="done()">{{ reportName | cut:true:20:" ..." }}</a>' +
                     '<span ng-repeat="crumb in crumbs"> &raquo; {{crumb}} </span>' +
                   '</h2>',
         controller: function ($scope) {

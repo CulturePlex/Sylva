@@ -29,7 +29,7 @@ def send_email(inst_id):
     url = "{0}://{1}/reports/{2}/pdf/{3}".format("http", site.domain,
                                                  graph_slug, inst.id)
     send_mail("Sylva Reports", "Please view this report: {0}".format(url),
-              "davebrownshow@gmail.com", emails, fail_silently=False)
+              settings.DEFAULT_FROM_EMAIL, emails, fail_silently=False)
 
 
 @app.task(name="reports.pdf")

@@ -8,7 +8,8 @@ var reports = angular.module('reports', [
     'highcharts-ng',
     'reports.controllers',
     'reports.services',
-    'reports.directives', 
+    'reports.directives',
+    'reports.filters'
 ]);
 
 
@@ -24,7 +25,7 @@ reports.config([
 
 
 // Routing.
-reports.config([ 
+reports.config([
     '$routeProvider',
     'DJANGO_URLS',
     function($routeProvider, DJANGO_URLS) {
@@ -39,7 +40,7 @@ reports.config([
                 controller: 'NewReportCtrl'
             }).
             when('/edit/:reportSlug', {
-                templateUrl: DJANGO_URLS.partials + '?name=report_form', 
+                templateUrl: DJANGO_URLS.partials + '?name=report_form',
                 controller: 'EditReportCtrl'
             }).
             when('/history/:reportSlug', {
@@ -62,8 +63,8 @@ reports.config([
 
 // Django settings.
 reports.run([
-    '$http', 
-    '$cookies', 
+    '$http',
+    '$cookies',
     function($http, $cookies) {
         $http.defaults.headers.post['X-CSRFToken'] = $cookies.csrftoken;
 }]);
