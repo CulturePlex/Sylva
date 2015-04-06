@@ -1437,6 +1437,13 @@
         setTimeout(function() {
           diagram.loadModels();
         }, 250 );
+
+        $(window).on('resize', function() {
+          // We set the max height for the schema and the side buttons
+          var maxHeight = $('.simplemodal-container').height() - $('#diagramTitle').height() - $('.schema-bottom').height() - $($('#simplemodal-container h2')[0]).height();
+          $('#diagramContainer').css('max-height', maxHeight);
+          $('#schemaOverview').css('max-height', maxHeight);
+        });
       }
     },
 
