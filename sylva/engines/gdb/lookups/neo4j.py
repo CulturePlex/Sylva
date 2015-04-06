@@ -160,9 +160,15 @@ class Q(BaseQ):
                 nullable = u""
             property = unicode(self.property).replace(u"`", u"\\`")
             if isinstance(match, F):
-                query_format = u"`{0}`.`{1}`{2} {3} `{4}`.`{5}`"
-                query = query_format.format(self.var, property, nullable,
-                                            lookup, match.var, match.property)
+                try:
+                    query_format = u"`{0}`.`{1}`{2} {3} `{4}`"
+                    query = query_format.format(self.var, property, nullable,
+                                                lookup, match.aggregate)
+                except AttributeError:
+                    query_format = u"`{0}`.`{1}`{2} {3} `{4}`.`{5}`"
+                    query = query_format.format(self.var, property, nullable,
+                                                lookup, match.var,
+                                                match.property)
             else:
                 key = u"{0}p{1}".format(prefix, len(params))
                 params[key] = match
@@ -179,7 +185,12 @@ class Q(BaseQ):
         """
         :return: F object built from a match dictionary
         """
-        return F(var=match["var"], property=match["property"])
+        try:
+            aggregate = match["aggregate"]
+            f_object = F(aggregate=aggregate)
+        except KeyError:
+            f_object = F(var=match["var"], property=match["property"])
+        return f_object
 
 
 class F(BaseF):

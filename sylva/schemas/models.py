@@ -82,7 +82,6 @@ class Schema(models.Model, SchemaMixin):
                     "label": node_property.key,
                     "type": node_property.get_datatype_value(),
                     "id": node_property.id,
-                    #"type": node_property.datatype,
                     "name": node_property.slug,
                     "primary": False,
                     "blank": False,
@@ -95,7 +94,7 @@ class Schema(models.Model, SchemaMixin):
                     field = {
                         "label": rel_property.key,
                         "type": rel_property.get_datatype_value(),
-                        #"type": rel_property.datatype,
+                        "id": rel_property.id,
                         "name": rel_property.slug,
                     }
                     rel_fields.append(field)

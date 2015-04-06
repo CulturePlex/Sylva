@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+import re
+
+from django.template.defaultfilters import slugify
 from lucenequerybuilder import Q
 from neo4jrestclient.exceptions import NotFoundError
 from pyblueprints.neo4j import Neo4jIndexableGraph as Neo4jGraphDatabase
@@ -408,7 +411,18 @@ class GraphDatabase(BlueprintsGraphDatabase):
         else:
             match = u""
         if conditions:
-            where = u"WHERE {0} ".format(conditions)
+            # Let's check if the 'with_statement' exists
+            with_statement = query_dict["meta"]["with_statement"]
+            if with_statement:
+                with_header = "WITH "
+                with_list = []
+                for key, val in with_statement.iteritems():
+                    with_list.append(key + " AS " + val)
+                with_params = ','.join(with_list)
+                _with = with_header + with_params
+                where = u"{0} WHERE {1} ".format(_with, conditions)
+            else:
+                where = u"WHERE {0} ".format(conditions)
         else:
             where = u""
         # We treat the meta dictionary to know if we need to include the global
@@ -443,32 +457,59 @@ class GraphDatabase(BlueprintsGraphDatabase):
                 # We catch exception of type IndexError, in case that we
                 # doesn't receive an appropiate array.
                 try:
-                    # We check that the node and the property are correct
-                    match_splitted = match.split(".")
-                    # For the node, we get the slug. We need remove the counter
-                    # of the type.
-                    raw_slug = match_splitted[0]
-                    # We remove the "`"
-                    raw_slug = unicode(raw_slug).replace(u"`", u"")
-                    raw_slug_splitted = raw_slug.split("_")
-                    final_pos = len(raw_slug_splitted)
-                    match_slug = raw_slug_splitted[0: final_pos - 1]
-                    slug = "_".join(match_slug)
-                    match_var = match_splitted[0]
-                    # Let's treat the property
-                    property_id = match_splitted[1]
-                    property_id = int(property_id)
-                    # We filter for slug and then for property
-                    schema = self.graph.schema
-                    nodetype = (schema.nodetype_set.all()
-                                                   .filter(slug=slug)[0])
-                    prop_value = nodetype.properties.all().filter(
-                        id=property_id)
-                    match_property = prop_value[0].key
-                    # Finally, we assign the correct values to the dict
-                    match_dict['var'] = match_var
-                    match_dict['property'] = match_property
-                    match = match_dict
+                    # The match can be defined in three different ways:
+                    # slug.property_id
+                    # aggregate (slug.property_id)
+                    # aggregate (DISTINCT slug.property_id)
+
+                    # Let's check what definition we have...
+                    match_splitted = re.split('\)|\(|\\.| ', match)
+                    match_first_element = match_splitted[0]
+                    # We check if aggregate belongs to the aggregate set
+                    if match_first_element not in AGGREGATES:
+                        slug = match_first_element
+                        prop = match_splitted[1]
+                        match_var, match_property = (
+                            self._get_slug_and_prop(slug, prop))
+                        # Finally, we assign the correct values to the dict
+                        match_dict['var'] = match_var
+                        match_dict['property'] = match_property
+                        match = match_dict
+                    else:
+                        # We have aggregate
+                        aggregate = match_first_element
+                        match_second_element = match_splitted[1]
+                        # We check if we already have the distinct clause
+                        if match_second_element != 'DISTINCT':
+                            # We get the slug and the property
+                            slug = match_second_element
+                            prop = match_splitted[2]
+                            match_var, match_property = (
+                                self._get_slug_and_prop(slug, prop))
+                            # Once we have the slug and the prop, we build the
+                            # aggregate again
+                            agg_field = u"{0}({1}.{2})".format(aggregate,
+                                                               match_var,
+                                                               match_property)
+                            match_dict['aggregate'] = agg_field
+                            match = match_dict
+                        else:
+                            # We have distinct, slug and the property
+                            distinct = match_second_element
+                            # We get the slug and the property
+                            slug = match_splitted[2]
+                            prop = match_splitted[3]
+                            match_var, match_property = (
+                                self._get_slug_and_prop(slug, prop))
+                            # Once we have the slug and the prop, we build the
+                            # aggregate again
+                            agg_field = (
+                                u"{0}({1} {2}.{3})".format(aggregate,
+                                                           distinct,
+                                                           match_var,
+                                                           match_property))
+                            match_dict['aggregate'] = agg_field
+                            match = match_dict
                 except IndexError:
                     match_dict['var'] = ""
                     match_dict['property'] = ""
@@ -692,3 +733,23 @@ class GraphDatabase(BlueprintsGraphDatabase):
             return Analysis()
         else:
             return None
+
+    def _get_slug_and_prop(self, elem_slug, prop):
+        # We treat the elem_slug param
+        raw_slug = slugify(elem_slug)
+        raw_slug_splitted = raw_slug.split("_")
+        final_pos = len(raw_slug_splitted)
+        match_slug = raw_slug_splitted[0: final_pos - 1]
+        slug = "_".join(match_slug)
+        # Let's treat the property
+        property_id = prop
+        property_id = int(property_id)
+        # We filter for slug and then for property
+        schema = self.graph.schema
+        nodetype = (schema.nodetype_set.all()
+                                       .filter(slug=slug)[0])
+        prop_value = nodetype.properties.all().filter(
+            id=property_id)
+        match_property = prop_value[0].key
+        # Finally, we return the values
+        return elem_slug, match_property
