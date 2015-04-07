@@ -31,11 +31,6 @@
     float: right;
 }
 
-/* #save-button {
-    margin-top: 40px;
-    margin-left: 20px;
-} */
-
 #query-builder-results {
     display: inline;
 }
@@ -85,7 +80,7 @@
 }
 
 #remove-relation-icon, #remove-relation-icon-wild {
-    margin-left: 234px;
+    margin-left: 261px;
 }
 
 #remove-field-icon {
