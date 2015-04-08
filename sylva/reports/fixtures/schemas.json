@@ -1,0 +1,815 @@
+[
+{
+    "pk": 1, 
+    "model": "schemas.schema", 
+    "fields": {
+        "options": "{\"colors\":[\"#5B5BFF\",\"#25A0C5\",\"#5EAE9E\",\"#FF5353\",\"#DD597D\",\"#CA00CA\",\"#A41CC6\",\"#7373FF\",\"#29AFD6\",\"#74BAAC\",\"#FF7373\",\"#E37795\",\"#D900D9\",\"#BA21E0\",\"#8282FF\",\"#4FBDDD\",\"#8DC7BB\",\"#FF8E8E\",\"#E994AB\",\"#FF2DFF\",\"#CB59E8\",\"#9191FF\",\"#67C7E2\",\"#A5D3CA\",\"#FFA4A4\",\"#EDA9BC\",\"#F206FF\",\"#CB59E8\",\"#A8A8FF\",\"#8ED6EA\",\"#C0E0DA\",\"#FFB5B5\",\"#F0B9C8\",\"#FF7DFF\",\"#D881ED\",\"#B7B7FF\",\"#A6DEEE\",\"#CFE7E2\",\"#FFC8C8\",\"#F4CAD6\",\"#FFA8FF\",\"#EFCDF8\",\"#C6C6FF\",\"#C0E7F3\",\"#DCEDEA\",\"#FFEAEA\",\"#F8DAE2\",\"#FFC4FF\",\"#EFCDF8\",\"#DBDBFF\",\"#D8F0F8\",\"#E7F3F1\",\"#FFEAEA\",\"#FAE7EC\",\"#FFE3FF\",\"#F8E9FC\",\"#EEEEFF\",\"#EFF9FC\",\"#F2F9F8\",\"#FFFDFD\",\"#FEFAFB\",\"#FFFDFF\",\"#FFFFFF\",\"#FDFDFF\",\"#FAFDFE\",\"#F7FBFA\"]}"
+    }
+},
+{
+    "pk": 1, 
+    "model": "schemas.nodetype", 
+    "fields": {
+        "slug": "project", 
+        "plural_name": null, 
+        "description": null, 
+        "inheritance": null, 
+        "name": "Project", 
+        "options": "{\"color\":\"#F70000\"}", 
+        "total": 123, 
+        "order": null, 
+        "validation": null, 
+        "schema": 1
+    }
+},
+{
+    "pk": 2, 
+    "model": "schemas.nodetype", 
+    "fields": {
+        "slug": "softskills", 
+        "plural_name": null, 
+        "description": null, 
+        "inheritance": null, 
+        "name": "Softskills", 
+        "options": "{\"color\":\"#B9264F\"}", 
+        "total": 7, 
+        "order": null, 
+        "validation": null, 
+        "schema": 1
+    }
+},
+{
+    "pk": 3, 
+    "model": "schemas.nodetype", 
+    "fields": {
+        "slug": "publication", 
+        "plural_name": null, 
+        "description": null, 
+        "inheritance": null, 
+        "name": "Publication", 
+        "options": "{\"color\":\"#990099\"}", 
+        "total": 0, 
+        "order": null, 
+        "validation": null, 
+        "schema": 1
+    }
+},
+{
+    "pk": 4, 
+    "model": "schemas.nodetype", 
+    "fields": {
+        "slug": "language", 
+        "plural_name": null, 
+        "description": null, 
+        "inheritance": null, 
+        "name": "Language", 
+        "options": "{\"color\":\"#74138C\"}", 
+        "total": 20, 
+        "order": null, 
+        "validation": null, 
+        "schema": 1
+    }
+},
+{
+    "pk": 5, 
+    "model": "schemas.nodetype", 
+    "fields": {
+        "slug": "country", 
+        "plural_name": null, 
+        "description": null, 
+        "inheritance": null, 
+        "name": "Country", 
+        "options": "{\"color\":\"#0000CE\"}", 
+        "total": 28, 
+        "order": null, 
+        "validation": null, 
+        "schema": 1
+    }
+},
+{
+    "pk": 6, 
+    "model": "schemas.nodetype", 
+    "fields": {
+        "slug": "programming", 
+        "plural_name": null, 
+        "description": null, 
+        "inheritance": null, 
+        "name": "Programming", 
+        "options": "{\"color\":\"#1F88A7\"}", 
+        "total": 29, 
+        "order": null, 
+        "validation": null, 
+        "schema": 1
+    }
+},
+{
+    "pk": 7, 
+    "model": "schemas.nodetype", 
+    "fields": {
+        "slug": "traditional", 
+        "plural_name": null, 
+        "description": null, 
+        "inheritance": null, 
+        "name": "Traditional", 
+        "options": "{\"color\":\"#4A9586\"}", 
+        "total": 28, 
+        "order": null, 
+        "validation": null, 
+        "schema": 1
+    }
+},
+{
+    "pk": 8, 
+    "model": "schemas.nodetype", 
+    "fields": {
+        "slug": "student", 
+        "plural_name": null, 
+        "description": null, 
+        "inheritance": null, 
+        "name": "Student", 
+        "options": "{\"color\":\"#FF2626\"}", 
+        "total": 0, 
+        "order": null, 
+        "validation": null, 
+        "schema": 1
+    }
+},
+{
+    "pk": 9, 
+    "model": "schemas.nodetype", 
+    "fields": {
+        "slug": "interdisciplinary-skills", 
+        "plural_name": null, 
+        "description": null, 
+        "inheritance": null, 
+        "name": "Interdisciplinary Skills", 
+        "options": "{\"color\":\"#D73E68\"}", 
+        "total": 29, 
+        "order": null, 
+        "validation": null, 
+        "schema": 1
+    }
+},
+{
+    "pk": 10, 
+    "model": "schemas.nodetype", 
+    "fields": {
+        "slug": "institution", 
+        "plural_name": null, 
+        "description": null, 
+        "inheritance": null, 
+        "name": "Institution", 
+        "options": "{\"color\":\"#B300B3\"}", 
+        "total": 139, 
+        "order": null, 
+        "validation": null, 
+        "schema": 1
+    }
+},
+{
+    "pk": 11, 
+    "model": "schemas.nodetype", 
+    "fields": {
+        "slug": "software", 
+        "plural_name": null, 
+        "description": null, 
+        "inheritance": null, 
+        "name": "Software", 
+        "options": "{\"color\":\"#8D18AB\"}", 
+        "total": 35, 
+        "order": null, 
+        "validation": null, 
+        "schema": 1
+    }
+},
+{
+    "pk": 1, 
+    "model": "schemas.relationshiptype", 
+    "fields": {
+        "inverse": null, 
+        "slug": "is-published", 
+        "plural_name": null, 
+        "description": null, 
+        "inheritance": null, 
+        "arity_source": 0, 
+        "name": "is published", 
+        "source": 1, 
+        "options": "{\"color\":\"#990099\",\"color_mode\":\"target\"}", 
+        "target": 3, 
+        "plural_inverse": null, 
+        "arity_target": 0, 
+        "total": 0, 
+        "order": null, 
+        "validation": null, 
+        "schema": 1
+    }
+},
+{
+    "pk": 2, 
+    "model": "schemas.relationshiptype", 
+    "fields": {
+        "inverse": null, 
+        "slug": "located-in", 
+        "plural_name": null, 
+        "description": null, 
+        "inheritance": null, 
+        "arity_source": 0, 
+        "name": "located in", 
+        "source": 5, 
+        "options": "{\"color\":\"#B300B3\",\"color_mode\":\"target\"}", 
+        "target": 10, 
+        "plural_inverse": null, 
+        "arity_target": 0, 
+        "total": 137, 
+        "order": null, 
+        "validation": null, 
+        "schema": 1
+    }
+},
+{
+    "pk": 3, 
+    "model": "schemas.relationshiptype", 
+    "fields": {
+        "inverse": null, 
+        "slug": "necessary-for", 
+        "plural_name": null, 
+        "description": null, 
+        "inheritance": null, 
+        "arity_source": 0, 
+        "name": "necessary for", 
+        "source": 7, 
+        "options": "{\"color\":\"#F70000\",\"color_mode\":\"target\"}", 
+        "target": 1, 
+        "plural_inverse": null, 
+        "arity_target": 0, 
+        "total": 127, 
+        "order": null, 
+        "validation": null, 
+        "schema": 1
+    }
+},
+{
+    "pk": 4, 
+    "model": "schemas.relationshiptype", 
+    "fields": {
+        "inverse": null, 
+        "slug": "necessary-for-2", 
+        "plural_name": null, 
+        "description": null, 
+        "inheritance": null, 
+        "arity_source": 0, 
+        "name": "necessary for", 
+        "source": 4, 
+        "options": "{\"color\":\"#F70000\",\"color_mode\":\"target\"}", 
+        "target": 1, 
+        "plural_inverse": null, 
+        "arity_target": 0, 
+        "total": 59, 
+        "order": null, 
+        "validation": null, 
+        "schema": 1
+    }
+},
+{
+    "pk": 5, 
+    "model": "schemas.relationshiptype", 
+    "fields": {
+        "inverse": null, 
+        "slug": "necessary-for-3", 
+        "plural_name": null, 
+        "description": null, 
+        "inheritance": null, 
+        "arity_source": 0, 
+        "name": "necessary for", 
+        "source": 9, 
+        "options": "{\"color\":\"#F70000\",\"color_mode\":\"target\"}", 
+        "target": 1, 
+        "plural_inverse": null, 
+        "arity_target": 0, 
+        "total": 189, 
+        "order": null, 
+        "validation": null, 
+        "schema": 1
+    }
+},
+{
+    "pk": 6, 
+    "model": "schemas.relationshiptype", 
+    "fields": {
+        "inverse": null, 
+        "slug": "necessary-for-4", 
+        "plural_name": null, 
+        "description": null, 
+        "inheritance": null, 
+        "arity_source": 0, 
+        "name": "necessary for", 
+        "source": 2, 
+        "options": "{\"color\":\"#F70000\",\"color_mode\":\"target\"}", 
+        "target": 1, 
+        "plural_inverse": null, 
+        "arity_target": 0, 
+        "total": 61, 
+        "order": null, 
+        "validation": null, 
+        "schema": 1
+    }
+},
+{
+    "pk": 7, 
+    "model": "schemas.relationshiptype", 
+    "fields": {
+        "inverse": null, 
+        "slug": "necessary-for-5", 
+        "plural_name": null, 
+        "description": null, 
+        "inheritance": null, 
+        "arity_source": 0, 
+        "name": "necessary for", 
+        "source": 11, 
+        "options": "{\"color\":\"#F70000\",\"color_mode\":\"target\"}", 
+        "target": 1, 
+        "plural_inverse": null, 
+        "arity_target": 0, 
+        "total": 41, 
+        "order": null, 
+        "validation": null, 
+        "schema": 1
+    }
+},
+{
+    "pk": 8, 
+    "model": "schemas.relationshiptype", 
+    "fields": {
+        "inverse": null, 
+        "slug": "necessary-for-6", 
+        "plural_name": null, 
+        "description": null, 
+        "inheritance": null, 
+        "arity_source": 0, 
+        "name": "necessary for", 
+        "source": 6, 
+        "options": "{\"color\":\"#F70000\",\"color_mode\":\"target\"}", 
+        "target": 1, 
+        "plural_inverse": null, 
+        "arity_target": 0, 
+        "total": 84, 
+        "order": null, 
+        "validation": null, 
+        "schema": 1
+    }
+},
+{
+    "pk": 9, 
+    "model": "schemas.relationshiptype", 
+    "fields": {
+        "inverse": null, 
+        "slug": "produced-by", 
+        "plural_name": null, 
+        "description": null, 
+        "inheritance": null, 
+        "arity_source": 0, 
+        "name": "produced by", 
+        "source": 10, 
+        "options": "{\"color\":\"#F70000\",\"color_mode\":\"target\"}", 
+        "target": 1, 
+        "plural_inverse": null, 
+        "arity_target": 0, 
+        "total": 172, 
+        "order": null, 
+        "validation": null, 
+        "schema": 1
+    }
+},
+{
+    "pk": 1, 
+    "model": "schemas.nodeproperty", 
+    "fields": {
+        "node": 1, 
+        "description": "", 
+        "default": "", 
+        "auto": null, 
+        "required": false, 
+        "value": "", 
+        "display": false, 
+        "order": null, 
+        "datatype": "s", 
+        "key": "Funding Agency", 
+        "validation": null, 
+        "slug": "funding-agency"
+    }
+},
+{
+    "pk": 2, 
+    "model": "schemas.nodeproperty", 
+    "fields": {
+        "node": 1, 
+        "description": "", 
+        "default": "", 
+        "auto": null, 
+        "required": false, 
+        "value": "", 
+        "display": false, 
+        "order": null, 
+        "datatype": "x", 
+        "key": "Notes", 
+        "validation": "", 
+        "slug": "notes-2-2"
+    }
+},
+{
+    "pk": 3, 
+    "model": "schemas.nodeproperty", 
+    "fields": {
+        "node": 1, 
+        "description": "", 
+        "default": "", 
+        "auto": null, 
+        "required": true, 
+        "value": "", 
+        "display": true, 
+        "order": null, 
+        "datatype": "s", 
+        "key": "Name", 
+        "validation": "", 
+        "slug": "name-32"
+    }
+},
+{
+    "pk": 4, 
+    "model": "schemas.nodeproperty", 
+    "fields": {
+        "node": 2, 
+        "description": "", 
+        "default": "", 
+        "auto": null, 
+        "required": false, 
+        "value": "", 
+        "display": false, 
+        "order": null, 
+        "datatype": "x", 
+        "key": "Notes", 
+        "validation": "", 
+        "slug": "notes-7-2"
+    }
+},
+{
+    "pk": 5, 
+    "model": "schemas.nodeproperty", 
+    "fields": {
+        "node": 2, 
+        "description": "", 
+        "default": "", 
+        "auto": null, 
+        "required": true, 
+        "value": "", 
+        "display": true, 
+        "order": null, 
+        "datatype": "s", 
+        "key": "Name", 
+        "validation": "", 
+        "slug": "name-37"
+    }
+},
+{
+    "pk": 6, 
+    "model": "schemas.nodeproperty", 
+    "fields": {
+        "node": 3, 
+        "description": "", 
+        "default": "", 
+        "auto": null, 
+        "required": true, 
+        "value": "", 
+        "display": true, 
+        "order": null, 
+        "datatype": "d", 
+        "key": "Date", 
+        "validation": null, 
+        "slug": "date-2"
+    }
+},
+{
+    "pk": 7, 
+    "model": "schemas.nodeproperty", 
+    "fields": {
+        "node": 3, 
+        "description": "", 
+        "default": "", 
+        "auto": null, 
+        "required": false, 
+        "value": "", 
+        "display": false, 
+        "order": null, 
+        "datatype": "n", 
+        "key": "ID", 
+        "validation": null, 
+        "slug": "id-18"
+    }
+},
+{
+    "pk": 8, 
+    "model": "schemas.nodeproperty", 
+    "fields": {
+        "node": 3, 
+        "description": "", 
+        "default": "", 
+        "auto": null, 
+        "required": false, 
+        "value": "", 
+        "display": false, 
+        "order": null, 
+        "datatype": "u", 
+        "key": "Authors", 
+        "validation": null, 
+        "slug": "authors"
+    }
+},
+{
+    "pk": 9, 
+    "model": "schemas.nodeproperty", 
+    "fields": {
+        "node": 4, 
+        "description": "", 
+        "default": "", 
+        "auto": null, 
+        "required": false, 
+        "value": "", 
+        "display": false, 
+        "order": null, 
+        "datatype": "x", 
+        "key": "Notes", 
+        "validation": "", 
+        "slug": "notes-5-2"
+    }
+},
+{
+    "pk": 10, 
+    "model": "schemas.nodeproperty", 
+    "fields": {
+        "node": 4, 
+        "description": "", 
+        "default": "", 
+        "auto": null, 
+        "required": true, 
+        "value": "", 
+        "display": true, 
+        "order": null, 
+        "datatype": "s", 
+        "key": "Name", 
+        "validation": "", 
+        "slug": "name-36"
+    }
+},
+{
+    "pk": 11, 
+    "model": "schemas.nodeproperty", 
+    "fields": {
+        "node": 5, 
+        "description": "", 
+        "default": "", 
+        "auto": null, 
+        "required": true, 
+        "value": "", 
+        "display": true, 
+        "order": null, 
+        "datatype": "u", 
+        "key": "Name", 
+        "validation": "", 
+        "slug": "name-33"
+    }
+},
+{
+    "pk": 12, 
+    "model": "schemas.nodeproperty", 
+    "fields": {
+        "node": 6, 
+        "description": "", 
+        "default": "", 
+        "auto": null, 
+        "required": false, 
+        "value": "", 
+        "display": false, 
+        "order": null, 
+        "datatype": "x", 
+        "key": "Notes", 
+        "validation": "", 
+        "slug": "notes-6-2"
+    }
+},
+{
+    "pk": 13, 
+    "model": "schemas.nodeproperty", 
+    "fields": {
+        "node": 6, 
+        "description": "", 
+        "default": "", 
+        "auto": null, 
+        "required": true, 
+        "value": "", 
+        "display": true, 
+        "order": null, 
+        "datatype": "s", 
+        "key": "Name", 
+        "validation": "", 
+        "slug": "nombre-64"
+    }
+},
+{
+    "pk": 14, 
+    "model": "schemas.nodeproperty", 
+    "fields": {
+        "node": 7, 
+        "description": "", 
+        "default": "", 
+        "auto": null, 
+        "required": false, 
+        "value": "", 
+        "display": false, 
+        "order": null, 
+        "datatype": "x", 
+        "key": "Notes", 
+        "validation": "", 
+        "slug": "notes-9-2"
+    }
+},
+{
+    "pk": 15, 
+    "model": "schemas.nodeproperty", 
+    "fields": {
+        "node": 7, 
+        "description": "", 
+        "default": "", 
+        "auto": null, 
+        "required": true, 
+        "value": "", 
+        "display": true, 
+        "order": null, 
+        "datatype": "s", 
+        "key": "Name", 
+        "validation": "", 
+        "slug": "name-39"
+    }
+},
+{
+    "pk": 16, 
+    "model": "schemas.nodeproperty", 
+    "fields": {
+        "node": 8, 
+        "description": "", 
+        "default": "", 
+        "auto": null, 
+        "required": false, 
+        "value": "", 
+        "display": true, 
+        "order": null, 
+        "datatype": "u", 
+        "key": "nfame", 
+        "validation": null, 
+        "slug": "nfame"
+    }
+},
+{
+    "pk": 17, 
+    "model": "schemas.nodeproperty", 
+    "fields": {
+        "node": 8, 
+        "description": "", 
+        "default": "", 
+        "auto": null, 
+        "required": false, 
+        "value": "", 
+        "display": false, 
+        "order": null, 
+        "datatype": "u", 
+        "key": "Student ID", 
+        "validation": null, 
+        "slug": "student-id"
+    }
+},
+{
+    "pk": 18, 
+    "model": "schemas.nodeproperty", 
+    "fields": {
+        "node": 9, 
+        "description": "", 
+        "default": "", 
+        "auto": null, 
+        "required": false, 
+        "value": "", 
+        "display": false, 
+        "order": null, 
+        "datatype": "x", 
+        "key": "Notes", 
+        "validation": "", 
+        "slug": "notes-3-2"
+    }
+},
+{
+    "pk": 19, 
+    "model": "schemas.nodeproperty", 
+    "fields": {
+        "node": 9, 
+        "description": "", 
+        "default": "", 
+        "auto": null, 
+        "required": true, 
+        "value": "", 
+        "display": true, 
+        "order": null, 
+        "datatype": "s", 
+        "key": "Name", 
+        "validation": "", 
+        "slug": "name-34"
+    }
+},
+{
+    "pk": 20, 
+    "model": "schemas.nodeproperty", 
+    "fields": {
+        "node": 10, 
+        "description": "", 
+        "default": "", 
+        "auto": null, 
+        "required": false, 
+        "value": "", 
+        "display": false, 
+        "order": null, 
+        "datatype": "x", 
+        "key": "Notes", 
+        "validation": "", 
+        "slug": "notes-4-2"
+    }
+},
+{
+    "pk": 21, 
+    "model": "schemas.nodeproperty", 
+    "fields": {
+        "node": 10, 
+        "description": "", 
+        "default": "", 
+        "auto": null, 
+        "required": true, 
+        "value": "", 
+        "display": true, 
+        "order": null, 
+        "datatype": "s", 
+        "key": "Name", 
+        "validation": "", 
+        "slug": "name-35"
+    }
+},
+{
+    "pk": 22, 
+    "model": "schemas.nodeproperty", 
+    "fields": {
+        "node": 11, 
+        "description": "", 
+        "default": "", 
+        "auto": null, 
+        "required": false, 
+        "value": "", 
+        "display": false, 
+        "order": null, 
+        "datatype": "x", 
+        "key": "Notes", 
+        "validation": "", 
+        "slug": "notes-8-2"
+    }
+},
+{
+    "pk": 23, 
+    "model": "schemas.nodeproperty", 
+    "fields": {
+        "node": 11, 
+        "description": "", 
+        "default": "", 
+        "auto": null, 
+        "required": true, 
+        "value": "", 
+        "display": true, 
+        "order": null, 
+        "datatype": "s", 
+        "key": "Name", 
+        "validation": "", 
+        "slug": "name-38"
+    }
+},
+{
+    "pk": 1, 
+    "model": "schemas.relationshipproperty", 
+    "fields": {
+        "description": "", 
+        "relationship": 1, 
+        "default": "", 
+        "auto": null, 
+        "required": false, 
+        "value": "", 
+        "display": false, 
+        "order": null, 
+        "datatype": "u", 
+        "key": "Journal", 
+        "validation": null, 
+        "slug": "journal"
+    }
+}
+]

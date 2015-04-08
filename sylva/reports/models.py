@@ -133,8 +133,10 @@ class Report(models.Model):
 
 
 @receiver(post_save, sender=Report)
-def post_report_save(sender, **kwargs):
-    if kwargs.get("created", False):
+def post_report_save(sender, raw, **kwargs):
+    created = kwargs.get("created", False)
+    raw = kwargs.get("raw", False)
+    if created and not raw:
         inst = kwargs["instance"]
         email_to = inst.template.email_to.exists()
         if email_to:

@@ -1,0 +1,127 @@
+[
+{
+    "pk": 1, 
+    "model": "accounts.account", 
+    "fields": {
+        "relationships": 10000, 
+        "name": "Free", 
+        "privacy": false, 
+        "analytics": null, 
+        "storage": 10240, 
+        "graphs": 10, 
+        "queries": 10, 
+        "nodes": 1000, 
+        "type": 1
+    }
+},
+{
+    "pk": 2, 
+    "model": "accounts.account", 
+    "fields": {
+        "relationships": 100000, 
+        "name": "Basic", 
+        "privacy": true, 
+        "analytics": null, 
+        "storage": 102400, 
+        "graphs": 100, 
+        "queries": 100, 
+        "nodes": 10000, 
+        "type": 2
+    }
+},
+{
+    "pk": 3, 
+    "model": "accounts.account", 
+    "fields": {
+        "relationships": 1000000, 
+        "name": "Premium", 
+        "privacy": true, 
+        "analytics": null, 
+        "storage": 1024000, 
+        "graphs": 1000, 
+        "queries": 1000, 
+        "nodes": 10000, 
+        "type": 3
+    }
+},
+{
+    "pk": 1, 
+    "model": "accounts.userprofile", 
+    "fields": {
+        "website": "", 
+        "account": 1, 
+        "language": "en", 
+        "privacy": "open", 
+        "gender": null, 
+        "company": null, 
+        "lab": null, 
+        "options": null, 
+        "about_me": "", 
+        "location": "", 
+        "mugshot": "", 
+        "birth_date": null, 
+        "institution": null, 
+        "user": -1
+    }
+},
+{
+    "pk": 2, 
+    "model": "accounts.userprofile", 
+    "fields": {
+        "website": "", 
+        "account": 1, 
+        "language": "en", 
+        "privacy": "open", 
+        "gender": null, 
+        "company": null, 
+        "lab": null, 
+        "options": null, 
+        "about_me": "", 
+        "location": "", 
+        "mugshot": "", 
+        "birth_date": null, 
+        "institution": null, 
+        "user": 0
+    }
+},
+{
+    "pk": 3, 
+    "model": "accounts.userprofile", 
+    "fields": {
+        "website": "", 
+        "account": 1, 
+        "language": "en", 
+        "privacy": "open", 
+        "gender": null, 
+        "company": null, 
+        "lab": null, 
+        "options": null, 
+        "about_me": "", 
+        "location": "", 
+        "mugshot": "", 
+        "birth_date": null, 
+        "institution": null, 
+        "user": 1
+    }
+},
+{
+    "pk": 4, 
+    "model": "accounts.userprofile", 
+    "fields": {
+        "website": "", 
+        "account": 1, 
+        "language": "en", 
+        "privacy": "open", 
+        "gender": null, 
+        "company": null, 
+        "lab": null, 
+        "options": null, 
+        "about_me": "", 
+        "location": "", 
+        "mugshot": "", 
+        "birth_date": null, 
+        "institution": null, 
+        "user": 2
+    }
+}
+]

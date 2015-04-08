@@ -1,0 +1,17 @@
+[
+{
+    "pk": 1, 
+    "model": "data.data", 
+    "fields": {
+        "total_analytics": null, 
+        "total_relationships": 870, 
+        "total_storage": 0, 
+        "last_modified_relationships": "2015-03-19T13:38:19.005", 
+        "last_modified_nodes": "2015-03-19T13:35:42.182", 
+        "instance": null, 
+        "total_nodes": 438, 
+        "options": null, 
+        "total_queries": 0
+    }
+}
+]

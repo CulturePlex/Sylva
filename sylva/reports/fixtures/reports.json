@@ -1,0 +1,111 @@
+[
+{
+    "pk": 2, 
+    "model": "reports.reporttemplate", 
+    "fields": {
+        "layout": "{\"layout\":[[{\"rowspan\":\"1\",\"yAxis\":[],\"series\":\"\",\"col\":0,\"xAxis\":\"\",\"colspan\":\"1\",\"chartType\":\"\",\"displayQuery\":\"\",\"id\":\"cell1\",\"row\":0},{\"rowspan\":\"1\",\"yAxis\":[],\"series\":\"\",\"col\":1,\"xAxis\":\"\",\"colspan\":\"1\",\"chartType\":\"\",\"displayQuery\":\"\",\"id\":\"cell2\",\"row\":0}],[{\"rowspan\":\"1\",\"yAxis\":[],\"series\":\"\",\"col\":0,\"xAxis\":\"\",\"colspan\":\"1\",\"chartType\":\"\",\"displayQuery\":\"\",\"id\":\"cell3\",\"row\":1},{\"rowspan\":\"1\",\"yAxis\":[],\"series\":\"\",\"col\":1,\"xAxis\":\"\",\"colspan\":\"1\",\"chartType\":\"\",\"displayQuery\":\"\",\"id\":\"cell4\",\"row\":1}]],\"pagebreaks\":{\"1\":false,\"0\":false}}", 
+        "name": "asdf", 
+        "graph": 1, 
+        "last_run": null, 
+        "slug": "asdf", 
+        "frequency": "w", 
+        "email_to": [], 
+        "queries": [], 
+        "start_date": "2015-04-15T15:30:00", 
+        "description": ""
+    }
+},
+{
+    "pk": 3, 
+    "model": "reports.reporttemplate", 
+    "fields": {
+        "layout": "{\"layout\":[[{\"rowspan\":\"1\",\"yAxis\":[],\"series\":\"\",\"col\":0,\"xAxis\":\"\",\"colspan\":\"1\",\"chartType\":\"\",\"displayQuery\":\"\",\"id\":\"cell1\",\"row\":0},{\"rowspan\":\"1\",\"yAxis\":[],\"series\":\"\",\"col\":1,\"xAxis\":\"\",\"colspan\":\"1\",\"chartType\":\"\",\"displayQuery\":\"\",\"id\":\"cell2\",\"row\":0}],[{\"rowspan\":\"1\",\"yAxis\":[],\"series\":\"\",\"col\":0,\"xAxis\":\"\",\"colspan\":\"1\",\"chartType\":\"\",\"displayQuery\":\"\",\"id\":\"cell3\",\"row\":1},{\"rowspan\":\"1\",\"yAxis\":[],\"series\":\"\",\"col\":1,\"xAxis\":\"\",\"colspan\":\"1\",\"chartType\":\"\",\"displayQuery\":\"\",\"id\":\"cell4\",\"row\":1}]],\"pagebreaks\":{\"1\":false,\"0\":false}}", 
+        "name": "a", 
+        "graph": 1, 
+        "last_run": null, 
+        "slug": "a", 
+        "frequency": "w", 
+        "email_to": [], 
+        "queries": [], 
+        "start_date": "2015-04-21T09:30:00", 
+        "description": ""
+    }
+},
+{
+    "pk": 4, 
+    "model": "reports.reporttemplate", 
+    "fields": {
+        "layout": "{\"layout\":[[{\"rowspan\":\"1\",\"yAxis\":[],\"series\":\"\",\"col\":0,\"xAxis\":\"\",\"colspan\":\"1\",\"chartType\":\"\",\"displayQuery\":\"\",\"id\":\"cell1\",\"row\":0},{\"rowspan\":\"1\",\"yAxis\":[],\"series\":\"\",\"col\":1,\"xAxis\":\"\",\"colspan\":\"1\",\"chartType\":\"\",\"displayQuery\":\"\",\"id\":\"cell2\",\"row\":0}],[{\"rowspan\":\"1\",\"yAxis\":[],\"series\":\"\",\"col\":0,\"xAxis\":\"\",\"colspan\":\"1\",\"chartType\":\"\",\"displayQuery\":\"\",\"id\":\"cell3\",\"row\":1},{\"rowspan\":\"1\",\"yAxis\":[],\"series\":\"\",\"col\":1,\"xAxis\":\"\",\"colspan\":\"1\",\"chartType\":\"\",\"displayQuery\":\"\",\"id\":\"cell4\",\"row\":1}]],\"pagebreaks\":{\"1\":false,\"0\":false}}", 
+        "name": "asdf", 
+        "graph": 1, 
+        "last_run": null, 
+        "slug": "asdf-2", 
+        "frequency": "w", 
+        "email_to": [], 
+        "queries": [], 
+        "start_date": "2015-04-15T08:30:00", 
+        "description": ""
+    }
+},
+{
+    "pk": 5, 
+    "model": "reports.reporttemplate", 
+    "fields": {
+        "layout": "{\"layout\":[[{\"ySeries\":[],\"rowspan\":\"1\",\"displayMarkdown\":\"\",\"yAxis\":[{\"alias\":\"Count(institution_1.Name)\",\"display_alias\":\"Count(Institution 1.Name)\"}],\"colspan\":\"1\",\"col\":0,\"colors\":{\"Count(institution_1.Name)\":\"#25A0C5\",\"country_1.Name\":\"#CA00CA\",\"Count(project_1.Name)\":\"#D8F0F8\"},\"xAxis\":{\"alias\":\"country_1.Name\",\"display_alias\":\"Country 1.Name\"},\"series\":\"\",\"chartType\":\"column\",\"displayQuery\":1,\"id\":\"cell1\",\"row\":0}]],\"pagebreaks\":{\"0\":false}}", 
+        "name": "asdfsadfdasfsa", 
+        "graph": 1, 
+        "last_run": null, 
+        "slug": "test", 
+        "frequency": "w", 
+        "email_to": [
+            1
+        ], 
+        "queries": [
+            1
+        ], 
+        "start_date": "2015-04-08T08:45:00", 
+        "description": ""
+    }
+},
+{
+    "pk": 6, 
+    "model": "reports.reporttemplate", 
+    "fields": {
+        "layout": "{\"layout\":[[{\"ySeries\":[],\"rowspan\":\"1\",\"displayMarkdown\":\"\",\"yAxis\":[{\"alias\":\"Count(institution_1.Name)\",\"display_alias\":\"Count(Institution 1.Name)\"}],\"colspan\":\"1\",\"col\":0,\"colors\":{\"Count(institution_1.Name)\":\"#C6C6FF\",\"country_1.Name\":\"#CB59E8\",\"Count(project_1.Name)\":\"#FFC4FF\"},\"xAxis\":{\"alias\":\"country_1.Name\",\"display_alias\":\"Country 1.Name\"},\"series\":\"\",\"chartType\":\"column\",\"displayQuery\":1,\"id\":\"cell0\",\"row\":0},{\"ySeries\":[],\"rowspan\":\"1\",\"displayMarkdown\":\"asdf\\nadsvasdfasdfsad\",\"yAxis\":[],\"colspan\":\"1\",\"col\":1,\"query\":\"\",\"xAxis\":\"\",\"series\":[[\"Keanu Reeves\",36],[\"Linus Torvalds\",24],[\"Tyrion Lannister\",20],[\"Morpheus\",1],[\"F\\u00e9lix Lope de Vega Carpio\",156],[\"Javier de la Rosa\",24]],\"chartType\":\"column\",\"displayQuery\":\"\",\"id\":\"cell1\",\"row\":0}]],\"pagebreaks\":{\"0\":false}}", 
+        "name": "Testite", 
+        "graph": 1, 
+        "last_run": null, 
+        "slug": "test2", 
+        "frequency": "w", 
+        "email_to": [
+            1, 
+            2
+        ], 
+        "queries": [
+            1
+        ], 
+        "start_date": "2015-04-13T13:45:00", 
+        "description": ""
+    }
+},
+{
+    "pk": 7, 
+    "model": "reports.reporttemplate", 
+    "fields": {
+        "layout": "{\"layout\":[[{\"ySeries\":[],\"rowspan\":\"1\",\"displayMarkdown\":\"\",\"yAxis\":[{\"alias\":\"Count(institution_1.Name)\",\"display_alias\":\"Count(Institution 1.Name)\"}],\"series\":\"\",\"col\":0,\"colors\":{\"Count(institution_1.Name)\":\"#29AFD6\",\"country_1.Name\":\"#74138C\",\"Count(project_1.Name)\":\"#A6DEEE\"},\"xAxis\":{\"alias\":\"country_1.Name\",\"display_alias\":\"Country 1.Name\"},\"colspan\":\"1\",\"chartType\":\"column\",\"displayQuery\":1,\"id\":\"cell1\",\"row\":0},{\"ySeries\":[],\"rowspan\":\"1\",\"displayMarkdown\":\"\",\"yAxis\":[{\"alias\":\"Count(institution_1.Name)\",\"display_alias\":\"Count(Institution 1.Name)\"},{\"alias\":\"Count(project_1.Name)\",\"display_alias\":\"Count(Project 1.Name)\"}],\"series\":\"\",\"col\":1,\"colors\":{\"Count(institution_1.Name)\":\"#A5D3CA\",\"country_1.Name\":\"#FFFDFF\",\"Count(project_1.Name)\":\"#FAE7EC\"},\"xAxis\":{\"alias\":\"country_1.Name\",\"display_alias\":\"Country 1.Name\"},\"colspan\":\"1\",\"chartType\":\"column\",\"displayQuery\":1,\"id\":\"cell2\",\"row\":0}]],\"pagebreaks\":{\"0\":false}}", 
+        "name": "newest", 
+        "graph": 1, 
+        "last_run": null, 
+        "slug": "newest", 
+        "frequency": "w", 
+        "email_to": [
+            2
+        ], 
+        "queries": [
+            1
+        ], 
+        "start_date": "2015-04-02T16:00:00", 
+        "description": ""
+    }
+}
+]

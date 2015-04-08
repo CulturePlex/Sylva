@@ -1,12 +1,21 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime
 
-from django.test import TestCase
+from django.test import TestCase, LiveServerTestCase
 from django.contrib.auth.models import User
 
 from models import ReportTemplate, Report
 from graphs.models import Graph
 from schemas.models import Schema
+
+
+class JasmineTestRunner(LiveServerTestCase):
+
+    fixtures = ["accounts.json", "schemas.json", "graphs.json", "queries.json",
+                "reports.json"]
+
+    def test_add(self):
+        self.assertEqual(1 + 1, 2)
 
 
 class ReportTemplateTest(TestCase):
