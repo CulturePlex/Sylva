@@ -2035,9 +2035,11 @@ diagram.aggregates = [
         // appropriately
         var meta_dict = {}
         meta_dict["has_distinct"] = $('#id_distinct_result').prop('checked');
-        // Let's declare the array for the special case of aggregates in
+        // Let's declare the dictionary for the special case of aggregates in
         // conditions.
         meta_dict["with_statement"] = {};
+        // And the dictionary for properties used in the lookup input
+        meta_dict["boxes_properties"] = {};
 
         // Conditions
         var conditionsArray = new Array();
@@ -2142,6 +2144,16 @@ diagram.aggregates = [
                         // property_id
                         var propertyWithValue = propertyField.data('withvalue');
                         meta_dict["with_statement"][propertyWithValue] = '`' + propertyWithValue + '`';
+                    }
+                    // Also, we are going to include in the meta dict the 
+                    // fieldId of the property, to get it back in case that
+                    // the property is not selected or with conditions.
+                    var selectOtherBoxes = $(property).next().next().next();
+                    var optionFieldId = $('option:selected', selectOtherBoxes).attr('data-fieldid');
+                    var isChecked = $('#' + optionFieldId + ' .checkbox-property').attr('checked');
+                    if(isChecked === undefined) {
+                        var propName = $('option:selected', selectOtherBoxes).attr('data-propname');
+                        meta_dict["boxes_properties"][optionFieldId] = propName;
                     }
                 }
 
@@ -2313,6 +2325,7 @@ diagram.aggregates = [
             aggregates = jsonDict["aggregates"];
             aggregatesRels = jsonDict["aggregatesRels"];
             sortingParams = jsonDict["sortingParams"];
+            meta = jsonDict["query"]["meta"];
 
             var fieldIndex = 0;
             var fieldIndexRel = 0;
@@ -2365,9 +2378,6 @@ diagram.aggregates = [
                     // We change the counter to get the correct id of the box
                     counter = parseInt(id.split("-")[1]);
                     diagram.Counter = counter - 1;
-                    // We change the counter for the fields, for a correct
-                    // load of some fields
-                    boxFields = jsonDict.fields[key]
                     // This is to replace the alias if we have edited it.
                     // We need to maintain the old logic.
                     alias = nodetypes[key].alias;
@@ -2537,6 +2547,9 @@ diagram.aggregates = [
             }
 
             // We will check the conditions for the relationships
+            // We create a variable to set up the index for rels 
+            // fields
+            var setCounterRelsIndex = 0;
             for(key in reltypes) {
                 if(reltypes.hasOwnProperty(key)) {
                     // We check if we have fields for the rel
@@ -2546,9 +2559,6 @@ diagram.aggregates = [
                         // We click the button to show the properties
                         $('#' + id + ' #inlineShowHideLink_' + typename).click();
                         fieldsRels = jsonDict["fieldsRels"][key];
-                        // We create a variable to set up the index for rels 
-                        // fields
-                        var setCounterRelsIndex = 0;
                         // Load the conditions for the box
                         // This loop could be replace if we have a
                         // dict instead an array
@@ -2706,6 +2716,18 @@ diagram.aggregates = [
                     aggregatesClicked++;
                     $('option[value="' + aggregateValue + '"][data-distinct=' + aggregateDistinct + ']', selector).attr("selected", "selected");
                     $(selector).change();
+                }
+            }
+
+            // Here, we are going to check if we need to set properties that
+            // are not included in the conditions or checked.
+            var extraProperties = meta["boxes_properties"];
+            for(key in extraProperties) {
+                if(extraProperties.hasOwnProperty(key)) {
+                    // The key is the fieldId and the value is the property
+                    // value
+                    var value = extraProperties[key];
+                    $('#' + key + ' .select-property').val(value).change();
                 }
             }
 
