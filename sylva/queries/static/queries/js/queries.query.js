@@ -831,6 +831,7 @@ diagram.aggregates = [
             diagram.nodetypesList[typeName].push(boxAlias);
             selectNodetype.append(optionNodetype);
             diagram.setName(divTitle, modelName, typeName, "node");
+            selectNodetype.val(boxAlias).change();
             divTitle.append(selectNodetype);
             // Show/hide button in the corner of the box and its associated event
             anchorShowHide = $("<A>");
@@ -2380,9 +2381,18 @@ diagram.aggregates = [
                     diagram.Counter = counter - 1;
                     // This is to replace the alias if we have edited it.
                     // We need to maintain the old logic.
+                    var fieldsKey = "";
                     alias = nodetypes[key].alias;
-                    if(alias == undefined)
+                    if(alias === undefined) {
                         alias = key;
+                    }
+
+                    if(jsonDict["fields"].hasOwnProperty(alias)) {
+                        fieldsKey = alias;
+                    } else {
+                        fieldsKey = key;
+                    }
+
                     typename = nodetypes[key].typename;
                     leftPos = nodetypes[key].left;
                     topPos = nodetypes[key].top;
@@ -2392,7 +2402,7 @@ diagram.aggregates = [
                         "left": leftPos,
                         "top": topPos
                     });
-                    fields = jsonDict["fields"][key];
+                    fields = jsonDict["fields"][fieldsKey];
                     // Load the conditions for the box
                     // This loop could be replaced if we have a
                     // dict instead an array
@@ -2491,8 +2501,10 @@ diagram.aggregates = [
                 $(optionElem).attr('selected', 'selected');
             }
             // Once we have loaded the boxes, we update the
-            // diagram.fieldsForNodes
-            diagram.fieldsForNodes = jsonDict["fields"];
+            // diagram.fieldsForNodes.
+            // But again, we need to take into account the old queries.
+            if(fieldsKey === key)
+                diagram.fieldsForNodes = jsonDict["fields"];
 
             // Load the relationships between the boxes
             for(var i = 0; i < patternsLength; i++) {
@@ -2558,7 +2570,21 @@ diagram.aggregates = [
                         typename = reltypes[key].typename;
                         // We click the button to show the properties
                         $('#' + id + ' #inlineShowHideLink_' + typename).click();
-                        fieldsRels = jsonDict["fieldsRels"][key];
+                        // This is to replace the alias if we have edited it.
+                        // We need to maintain the old logic.
+                        var fieldsKey = "";
+                        alias = reltypes[key].alias;
+                        if(alias === undefined) {
+                            alias = key;
+                        }
+
+                        if(jsonDict["fieldsRels"].hasOwnProperty(alias)) {
+                            fieldsKey = alias;
+                        } else {
+                            fieldsKey = key;
+                        }
+                        fieldsRels = jsonDict["fieldsRels"][fieldsKey];
+
                         // Load the conditions for the box
                         // This loop could be replace if we have a
                         // dict instead an array
@@ -2648,7 +2674,9 @@ diagram.aggregates = [
             }
             // Once we have loaded the boxes, we update the
             // diagram.savedFieldsForRels
-            diagram.savedFieldsForRels = jsonDict["fieldsRels"];
+            if(fieldsKey === key)
+                diagram.savedFieldsForRels = jsonDict["fieldsRels"];
+            
             // We need to set the diagram.fieldCounterRel to the last
             // element
             if(setCounterRelsIndex !== 0) {
@@ -2721,14 +2749,19 @@ diagram.aggregates = [
 
             // Here, we are going to check if we need to set properties that
             // are not included in the conditions or checked.
-            var extraProperties = meta["boxes_properties"];
-            for(key in extraProperties) {
-                if(extraProperties.hasOwnProperty(key)) {
-                    // The key is the fieldId and the value is the property
-                    // value
-                    var value = extraProperties[key];
-                    $('#' + key + ' .select-property').val(value).change();
+            // We need to take into account saved old queries
+            try {
+                var extraProperties = meta["boxes_properties"];
+                for(key in extraProperties) {
+                    if(extraProperties.hasOwnProperty(key)) {
+                        // The key is the fieldId and the value is the property
+                        // value
+                        var value = extraProperties[key];
+                        $('#' + key + ' .select-property').val(value).change();
+                    }
                 }
+            } catch(e) {
+                // It is a old query, so we do nothing
             }
 
             // Now, we need to check if the lookup value of some condition is
@@ -3165,6 +3198,56 @@ diagram.aggregates = [
         $this.val("choose one");
     });
 
+    /**
+     * Handler to take into account the change the selects for other boxes
+     * properties when we change the selects of the boxes
+     */
+    $("#diagramContainer").on('change', 'select[class*="select-nodetype-"]', function() {
+        // We check if we need to change the alias of the select of other
+        // properties boxes
+        var $this = $(this);
+        var newAlias = $this.val();
+        var optionsOtherBoxesProps = $('option', '.select-other-boxes-properties');
+        var boxSlug = $this.parent().data('slug');
+        $.each(optionsOtherBoxesProps, function(index, elem) {
+            var optionSlug = $(elem).data('slugvalue');
+            if(optionSlug === boxSlug) {
+                // We check if we have an aggregate selected
+                // If the length is bigger than 1
+                var oldOptionVal = $(elem).html();
+                var isThereAgg = oldOptionVal.split("(").length > 1;
+                if(isThereAgg) {
+                    var oldOptionValSplitted = oldOptionVal.split(/["(",")"]+/);
+                    var aggregateValue = oldOptionValSplitted[0];
+                    var oldValue = oldOptionValSplitted[1];
+                    var oldValueWithoutAgg = oldValue.split(".");
+                    var oldAlias = oldValueWithoutAgg[0];
+                    
+                    // We change the value of the option
+                    var newOptionVal = newAlias + "." + oldValueWithoutAgg[1];
+                    var newOptionVal = aggregateValue + "(" + newOptionVal + ")";
+                    $(elem).html(newOptionVal);
+                } else {
+                    var oldOptionValSplitted = oldOptionVal.split(".");
+                    // We change the value of the option
+                    var newOptionVal = newAlias + "." + oldOptionValSplitted[1];
+                    $(elem).html(newOptionVal);
+                }
+                // We need to check if the option is selected to change the
+                // actual value of the lookup input
+                var $lookupInput = $(elem).parent().prev();
+                var lookupValue = $lookupInput.val();
+                //var isSelected = $(elem).prop('selected');
+                var isSelected = lookupValue === oldOptionVal;
+                if(isSelected) {
+                    // We get the lookup
+                    var $lookupInput = $(elem).parent().prev();
+                    // We change the lookup input
+                    $lookupInput.val(newOptionVal);
+                }
+            }
+        });
+    });
 
     /**
      * We check if we have one property clicked at least, to allow the
@@ -4190,12 +4273,33 @@ diagram.aggregates = [
         $.each(optionsOtherBoxesProps, function(index, elem) {
             var optionSlug = $(elem).data('slugvalue');
             if(optionSlug === boxSlug) {
-                var oldOptionVal = $(elem).html().split('.');
-                var newOptionVal = newAlias + "." + oldOptionVal[1];
-                $(elem).html(newOptionVal);
+                // We check if we have an aggregate selected
+                // If the length is bigger than 1
+                var oldOptionVal = $(elem).html();
+                var isThereAgg = oldOptionVal.split("(").length > 1;
+                if(isThereAgg) {
+                    var oldOptionValSplitted = oldOptionVal.split(/["(",")"]+/);
+                    var aggregateValue = oldOptionValSplitted[0];
+                    var oldValue = oldOptionValSplitted[1];
+                    var oldValueWithoutAgg = oldValue.split(".");
+                    var oldAlias = oldValueWithoutAgg[0];
+                    
+                    // We change the value of the option
+                    var newOptionVal = newAlias + "." + oldValueWithoutAgg[1];
+                    var newOptionVal = aggregateValue + "(" + newOptionVal + ")";
+                    $(elem).html(newOptionVal);
+                } else {
+                    var oldOptionValSplitted = oldOptionVal.split(".");
+                    // We change the value of the option
+                    var newOptionVal = newAlias + "." + oldOptionValSplitted[1];
+                    $(elem).html(newOptionVal);
+                }
                 // We need to check if the option is selected to change the
                 // actual value of the lookup input
-                var isSelected = $(elem).prop('selected');
+                var $lookupInput = $(elem).parent().prev();
+                var lookupValue = $lookupInput.val();
+                //var isSelected = $(elem).prop('selected');
+                var isSelected = lookupValue === oldOptionVal;
                 if(isSelected) {
                     // We get the lookup
                     var $lookupInput = $(elem).parent().prev();
