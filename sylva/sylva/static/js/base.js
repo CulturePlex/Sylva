@@ -172,20 +172,25 @@
 
   // Tour feature - cookie control.
   function checkCookieTour() {
-    $.cookie.json = true;
-    tourIds = $.cookie('tour_ids');
-    if (typeof tourIds != 'undefined') {
-      tourId = $('#tour').attr('data-tour-id');
-      index = $.inArray(tourId, tourIds);
-      if (index != -1) {
-        tourIds.splice(index, 1);
-        if (tourIds.length > 0) {
-          $.cookie('tour_ids', tourIds, { expires: 365, path: '/' });
-        } else {
-          $.removeCookie('tour_ids', { path: '/' });
+    try {
+      $.cookie.json = true;
+      tourIds = $.cookie('tour_ids');
+      if (typeof tourIds != 'undefined') {
+        tourId = $('#tour').attr('data-tour-id');
+        index = $.inArray(tourId, tourIds);
+        if (index != -1) {
+          tourIds.splice(index, 1);
+          if (tourIds.length > 0) {
+            $.cookie('tour_ids', tourIds, { expires: 365, path: '/' });
+          } else {
+            $.removeCookie('tour_ids', { path: '/' });
+          }
+          activateTour();
         }
-        activateTour();
       }
+    } catch(e) {
+      // Pass, this is because the reports in modals. They have them own
+      // cookie variable.
     }
   }
 

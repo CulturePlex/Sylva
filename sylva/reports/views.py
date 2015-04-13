@@ -11,6 +11,7 @@ from django.conf import settings
 from django.shortcuts import (render_to_response, get_object_or_404,
                               HttpResponse)
 from django.template import RequestContext
+from django.template.loader import render_to_string
 from django.db.models import Q
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
@@ -40,14 +41,32 @@ settings.ENABLE_REPORTS = True
                      (Schema, "graph__slug", "graph_slug"), return_403=True)
 def reports_index_view(request, graph_slug):
     graph = get_object_or_404(Graph, slug=graph_slug)
+    # We get the modal variable
+    as_modal = bool(request.GET.get("asModal", False))
     # Will remove this pdf stuff.
     pdf = request.GET.get('pdf', False)
     if pdf:
         pdf = True
-    return render_to_response('reports_base.html', RequestContext(request, {
-        'pdf': pdf,
-        'graph': graph
-    }))
+    base_template = 'base.html'
+    if as_modal:
+        render = render_to_string
+    else:
+        render = render_to_response
+    broader_context = {"graph": graph,
+                       "pdf": pdf,
+                       "base_template": base_template,
+                       "as_modal": as_modal}
+    response = render('reports_base.html',
+                      context_instance=RequestContext(request,
+                                                      broader_context))
+    if as_modal:
+        response = {'type': 'html',
+                    'action': 'reports_main',
+                    'html': response}
+        return HttpResponse(json.dumps(response), status=200,
+                            content_type='application/json')
+    else:
+        return response
 
 
 @csrf_exempt
@@ -95,6 +114,7 @@ def pdf_gen_view(request, graph_slug, template_slug):
 def partial_view(request, graph_slug):
     name = request.GET.get('name', '')
     pattern = 'partials/{0}.html'.format(name)
+
     return render_to_response(pattern, RequestContext(request, {}))
 
 

@@ -400,6 +400,8 @@
           modalAction = that.schemaNodetypeDelete;
         } else if (response.action == 'schema_relationship_delete') {
           modalAction = that.schemaRelationshipDelete;
+        } else if (response.action == 'reports_main') {
+          modalAction = that.reportsMainView;
         }
         that.showModal(response.html, modalAction);
 
@@ -502,7 +504,8 @@
           breadcrumbModal = "queriesList";
         }
       } else if(app == "reports") {
-        // Nothing by now
+        // We dont need to treat the breadcrumbs of reports because
+        // it uses Angular and inject the pages by itself.
       } else if(app == "schemas") {
         if(appView == "types") {
           // Nodes
@@ -1699,7 +1702,41 @@
       },
 
       onShow: function() {}
-    }
+    },
+
+    // Reports
+    reportsMainView: {
+
+      start: function(url, showOverlay) {
+        that.prepareModal(url, showOverlay, this);
+      },
+
+      preProcessHTML: function() {
+        // Binding cancel button
+        $('#modal-cancel').on('click', function() {
+          that.closeModalLib();
+          
+          // We need to remove angular to avoid injection problems
+          delete angular;
+
+          return false;
+        });
+      },
+
+      onShow: function() {
+        $('#simplemodal-container').css({
+          width: 1170,
+          'height': '93.5%'
+        });
+
+        $(window).on('resize', function() {
+          // We set the max height for the schema and the side buttons
+          var maxHeight = $('.simplemodal-container').height() - $('#diagramTitle').height() - $('.schema-bottom').height() - $($('#simplemodal-container h2')[0]).height();
+          $('#diagramContainer').css('max-height', maxHeight);
+          $('#schemaOverview').css('max-height', maxHeight);
+        });
+      }
+    },
 
   };
 
