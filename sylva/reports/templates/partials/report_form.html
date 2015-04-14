@@ -15,14 +15,23 @@
                 <input sylva-update-text type="text" ng-model="template.name" placeholder="Report Name">
               </label>
             </p>
-
+            <ul>
+                {% verbatim %}
+                <li style="color: red;"ng-repeat="error in errors.name">{{ error }}</li>
+                {% endverbatim %}
+            </ul>
             <p>
               <label> {% trans "Start date" %}
 
                 <input type="text" sylva-datepicker readonly="true" ng-model="template.date" required="true" view="hours">
-
               </label>
             </p>
+
+            <ul>
+                {% verbatim %}
+                <li style="color: red;"ng-repeat="error in errors.start_date">{{ error }}</li>
+                {% endverbatim %}
+            </ul>
 
             <p>
               <label>{% trans "Time" %}
@@ -43,6 +52,11 @@
                 </select>
               </label>
             </p>
+            <ul>
+                {% verbatim %}
+                <li style="color: red;"ng-repeat="error in errors.frequency">{{ error }}</li>
+                {% endverbatim %}
+            </ul>
             <p ng-show="advanced">
               <label>{% trans "Email to" %}
                   <input sylva-auto-complete precollabs="precollabs" collabs="collabs" ng-model="collab" type="text" placeholder="Enter Email" ng-maxlength="25">

@@ -324,20 +324,19 @@ def builder_endpoint(request, graph_slug):
             # Not sure of the best approach for field validation.
             f = ReportTemplateForm({
                     "name": template['name'],
-                    "start_date": start_date,
+                    "start_date": "start_date",
                     "frequency": template['frequency'],
                     "layout": template['layout'],
                     "description": template['description'],
                     "graph": graph.id
             }, instance=template_inst)
             if not f.is_valid():
-                # not sure what to raise here...
-                raise Exception("Invalid form")
-            # So here I would have to save the form and later save model.
-            new_template = f.save()
-            for old in new_template.email_to.all():
-                if old.username not in template["collabs"]:
-                    new_template.email_to.remove(old)
+                template["errors"] = f.errors
+            else:
+                new_template = f.save()
+                for old in new_template.email_to.all():
+                    if old.username not in template["collabs"]:
+                        new_template.email_to.remove(old)
         else:
             f = ReportTemplateForm({
                     "name": template['name'],
@@ -348,25 +347,27 @@ def builder_endpoint(request, graph_slug):
                     "graph": graph.id
             })
             if not f.is_valid():
-                raise Exception("Invalid form")
-            new_template = f.save()
-        for collab in template["collabs"]:
-            collab = User.objects.get(username=collab["id"])
-            new_template.email_to.add(collab)
-        query_set = set()
-        for row in template['layout']['layout']:
-            query_set.update(set(cell['displayQuery'] for cell in row))
+                template["errors"] = f.errors
+            else:
+                new_template = f.save()
+        if not template.get("errors", ""):
+            for collab in template["collabs"]:
+                collab = User.objects.get(username=collab["id"])
+                new_template.email_to.add(collab)
+            query_set = set()
+            for row in template['layout']['layout']:
+                query_set.update(set(cell['displayQuery'] for cell in row))
 
-        queries = set(query for query in new_template.queries.all())
-        query_ids = set(query.id for query in queries)
-        for query in queries:
-            if query.id not in query_set:
-                new_template.queries.remove(query)
-        for disp_query in query_set:
-            if disp_query and disp_query not in query_ids:
-                query = get_object_or_404(Query, id=disp_query)
-                new_template.queries.add(query)
-        new_template.save()
+            queries = set(query for query in new_template.queries.all())
+            query_ids = set(query.id for query in queries)
+            for query in queries:
+                if query.id not in query_set:
+                    new_template.queries.remove(query)
+            for disp_query in query_set:
+                if disp_query and disp_query not in query_ids:
+                    query = get_object_or_404(Query, id=disp_query)
+                    new_template.queries.add(query)
+            new_template.save()
     return HttpResponse(json.dumps(template), content_type='application/json')
 
 

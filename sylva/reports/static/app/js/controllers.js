@@ -98,8 +98,13 @@ controllers.controller('BaseReportCtrl', [
                 graphSlug: $scope.slugs.graph,
                 report: template.slug
             }, function (data) {
-                var redirect = '/';
-                $location.path(redirect);
+                if (!data.errors) {
+                    var redirect = '/';
+                    $location.path(redirect);
+                } else {
+                    console.log(data.errors)
+                    $scope.errors = data.errors
+                }
             }); // What if post fails
         };
 }]);
@@ -177,6 +182,7 @@ controllers.controller('NewReportCtrl', [
                         "series": "", "xAxis":"", "yAxis": []}]]
 
         api.templates.blank({}, function (data) {
+            console.log("data1", data)
             data.layout = layout;
             $scope.resp = {table: {layout: layout, pagebreaks: {0: false, 1: false}}, queries: data.queries}
             $scope.prev = {table: {layout: exampleTable, pagebreaks: {0: false, 1: false}}, queries: data.queries}
@@ -194,7 +200,9 @@ controllers.controller('EditReportCtrl', [
         $controller('BaseReportCtrl', {$scope: $scope});
         api.templates.edit({
             template: $scope.slugs.template
+
         }, function (data) {
+            console.log("scope.slugs", data)
             var date = JSON.parse(data.template.start_date)
             ,   datetime = new Date(date)
             ,   m = datetime.getUTCMonth() + 1
@@ -265,7 +273,10 @@ controllers.controller('ReportHistoryCtrl', [
                 breadService.updateName(data.name)
                 $scope.template = data;
                 if (data.reports.length > 0) {
-                    $scope.getReport(mostRecent.id)
+                    // This is only until I get the official JSON
+                    try {
+                        $scope.getReport(mostRecent.id)
+                    } catch (err) {console.log("error caught for test")}
                 }
             });
         }
