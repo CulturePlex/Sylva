@@ -29,9 +29,9 @@
             <!--<li><a href="{% url "userena.views.profile_detail" request.user %}" class="text">{{ request.user }}</a></li>-->
             {% block menu_buttons %}
               <!--<li><a href="{% url "dashboard" %}" class="link"><span>{% trans "Dashboard" %}</span></a></li>-->
-              {% if pdf == False %}
-                {% toolbar on="reports" %}
-              {% endif %}
+
+            {% toolbar on="reports" %}
+
             {% endblock %}
             <!--<li><a href="{{ LOGOUT_URL }}" class="link"><span>{% trans "Sign out" %}</span></a></li>-->
           </ul>
@@ -50,7 +50,6 @@
       <!-- end user messages -->
 
       {% block content_title %}
-        {% if pdf == False %}
           <div>
             <header class="reports-header">
               <div id="App1">
@@ -58,7 +57,6 @@
               </div>
             </header>
           </div>
-        {% endif %}
       {% endblock %}
 
       {% if not as_modal %}
@@ -66,11 +64,7 @@
         <div class="inside clearfix">
           {% block contact_navigation %}{% endblock %}
           {% block main_navigation %}
-            {% if pdf == True %}
-              <a href="{% url "dashboard" %}" id="link-logo" title="{% trans "Go to the Dashboard" %}">dashboard</a>
-            {% else %}
               {{ block.super }}
-            {% endif %}
           {% endblock %}
         </div><!-- end .inside -->
       </div><!-- end .nav-wrapper -->
@@ -150,11 +144,7 @@
       <div class="inside">
         <div class="copyright">
           {% block footer %}
-            {% if pdf == True %}
-              <p>&copy; {{ CURRENT_DATE|date:"Y" }} <a href="{{ site.domain }}">{{ PROJECT_NAME }}</a>. {% trans "All rights reserved" %}.</p>
-            {% else %}
               {{ block.super }}
-            {% endif %}
           {% endblock %}
         </div><!-- end .copyright -->
         <div class="top">

@@ -43,17 +43,12 @@ def reports_index_view(request, graph_slug):
     graph = get_object_or_404(Graph, slug=graph_slug)
     # We get the modal variable
     as_modal = bool(request.GET.get("asModal", False))
-    # Will remove this pdf stuff.
-    pdf = request.GET.get('pdf', False)
-    if pdf:
-        pdf = True
     base_template = 'base.html'
     if as_modal:
         render = render_to_string
     else:
         render = render_to_response
     broader_context = {"graph": graph,
-                       "pdf": pdf,
                        "base_template": base_template,
                        "as_modal": as_modal}
     response = render('reports_base.html',
