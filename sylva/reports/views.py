@@ -129,7 +129,7 @@ def list_endpoint(request, graph_slug):
         '-last_run',
         '-start_date'
     )
-    page = request.GET.get('page', "")
+    page = request.GET.get('page', 1)
     pgntr, output, next_page_num, prev_page_num = paginate(
         templates, 10, page
     )
@@ -307,6 +307,7 @@ def _get_bucket(date, buckets):
                      (Schema, "graph__slug", "graph_slug"), return_403=True)
 def builder_endpoint(request, graph_slug):
     graph = get_object_or_404(Graph, slug=graph_slug)
+    template = {}
     if request.POST:
         template = json.loads(request.body)['template']
         date_dict = template['start_date']

@@ -1,0 +1,74 @@
+[
+{
+    "pk": -1,
+    "model": "auth.user",
+    "fields": {
+        "username": "AnonymousUser",
+        "first_name": "",
+        "last_name": "",
+        "is_active": true,
+        "is_superuser": false,
+        "is_staff": false,
+        "last_login": "2015-03-16T19:06:48.900",
+        "groups": [],
+        "user_permissions": [],
+        "password": "",
+        "email": "",
+        "date_joined": "2015-03-16T19:06:48.900"
+    }
+},
+{
+    "pk": 0,
+    "model": "auth.user",
+    "fields": {
+        "username": "admin",
+        "first_name": "",
+        "last_name": "",
+        "is_active": true,
+        "is_superuser": true,
+        "is_staff": true,
+        "last_login": "2015-04-14T17:56:02.974",
+        "groups": [],
+        "user_permissions": [],
+        "password": "pbkdf2_sha256$12000$2vVKacLJTTuy$cPdKzWGGb5497iC0RGo5yK/BxMoEgKjLTawAwveb6UI=",
+        "email": "admin@admin.com",
+        "date_joined": "2015-03-16T19:07:15.973"
+    }
+},
+{
+    "pk": 1,
+    "model": "auth.user",
+    "fields": {
+        "username": "davebshow",
+        "first_name": "",
+        "last_name": "",
+        "is_active": true,
+        "is_superuser": false,
+        "is_staff": false,
+        "last_login": "2015-03-16T20:13:53.285",
+        "groups": [],
+        "user_permissions": [],
+        "password": "pbkdf2_sha256$12000$voZQWkcSYwoS$kbKfVUnEXeT2HpJnHw8ZtRA6yB4VmG/5I80WoX22ado=",
+        "email": "davebshow@gmail.com",
+        "date_joined": "2015-03-16T20:13:53.285"
+    }
+},
+{
+    "pk": 2,
+    "model": "auth.user",
+    "fields": {
+        "username": "davebrownshow",
+        "first_name": "",
+        "last_name": "",
+        "is_active": true,
+        "is_superuser": false,
+        "is_staff": false,
+        "last_login": "2015-03-18T17:38:54.094",
+        "groups": [],
+        "user_permissions": [],
+        "password": "pbkdf2_sha256$12000$FGP3HW1N9Msu$4ne1yXyX4zjflgO9Fc3wW1qX1PAl30Zi+P0YfrnQJIY=",
+        "email": "davebrownshow@gmail.com",
+        "date_joined": "2015-03-18T17:38:54.094"
+    }
+}
+]

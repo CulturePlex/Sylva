@@ -1,26 +1,54 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime
 
-from django.test import TestCase, LiveServerTestCase
+from django.test import TestCase
 from django.contrib.auth.models import User
 
 from models import ReportTemplate, Report
 from graphs.models import Graph
 from schemas.models import Schema
+from django.core.urlresolvers import reverse
 
 
-class JasmineTestRunner(LiveServerTestCase):
+class EndpointTest(TestCase):
 
-    fixtures = ["accounts.json", "schemas.json", "graphs.json", "queries.json",
+    fixtures = ["users.json", "schemas.json", "graphs.json", "queries.json",
                 "reports.json"]
 
-    def test_add(self):
-        self.assertEqual(1 + 1, 2)
+    def setUp(self):
+        response = self.client.login(username='admin', password='admin')
+        self.assertTrue(response)
+
+    def test_list_endpoint(self):
+        url = reverse('list', kwargs={"graph_slug": "dh"})
+        resp = self.client.get(url)
+        self.assertEqual(resp.status_code, 200)
+
+    def test_templates_endpoint(self):
+        url = reverse('templates', kwargs={"graph_slug": "dh"})
+        resp = self.client.get(url)
+        self.assertEqual(resp.status_code, 200)
+
+    def test_history_endpoint(self):
+        url = reverse('history', kwargs={"graph_slug": "dh"})
+        resp = self.client.get(url)
+        self.assertEqual(resp.status_code, 200)
+
+    def test_delete_endpoint(self):
+        url = reverse('delete', kwargs={"graph_slug": "dh"})
+        resp = self.client.get(url)
+        self.assertEqual(resp.status_code, 200)
+
+    def test_builder_endpoint(self):
+        url = reverse('builder', kwargs={"graph_slug": "dh"})
+        resp = self.client.get(url)
+        self.assertEqual(resp.status_code, 200)
 
 
 class ReportTemplateTest(TestCase):
 
     def setUp(self):
+        # Do this with fixtures, since I have to make them anyway.
         self.u = User.objects.create(username='john', password='doe',
                                      is_active=True, is_staff=True)
         self.u.set_password('hello')
