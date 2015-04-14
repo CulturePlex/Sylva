@@ -831,7 +831,7 @@ diagram.aggregates = [
             diagram.nodetypesList[typeName].push(boxAlias);
             selectNodetype.append(optionNodetype);
             diagram.setName(divTitle, modelName, typeName, "node");
-            selectNodetype.val(boxAlias).change();
+            //selectNodetype.val(boxAlias).change();
             divTitle.append(selectNodetype);
             // Show/hide button in the corner of the box and its associated event
             anchorShowHide = $("<A>");
@@ -1030,10 +1030,15 @@ diagram.aggregates = [
                         window.fieldId = fieldId;
                         window.newValue = newValue;
                         window.newHTML = newHTML;
+
                         $.each(selectOtherBoxesProps, function(index, elem) {
                             var anotherIdBox = $(elem).parent().parent().parent().parent().parent().attr('id');
                             if(idBox !== anotherIdBox) {
                                 var $option = $('option[data-fieldid="' + fieldId + '"]', $(elem));
+                                // We get the value of the lookup input to 
+                                // check if we need to change it too.
+                                var $lookupInput = $option.parent().prev();
+                                var sameValue = $option.html() === $lookupInput.val();
                                 // Let's check if the value is already in the 
                                 // select
                                 var existsValue = $('option[value="' + newValue + '"]', $(elem)).length;
@@ -1044,6 +1049,12 @@ diagram.aggregates = [
                                 } else {
                                     $option.attr('value', newValue);
                                     $option.html(newHTML);
+                                }
+
+                                if(sameValue) {
+                                    $('option[value="' + newValue + '"]', elem).change();
+                                    $lookupInput.attr('data-withvalue', newValue);
+                                    $lookupInput.val(newHTML);
                                 }
                             }
                         });
@@ -2817,7 +2828,7 @@ diagram.aggregates = [
 
             jsPlumb.repaintEverything();
         } catch(error) {
-            alert(error);
+            console.log("Error: " + error.message);
         }
     };
 
@@ -3456,6 +3467,8 @@ diagram.aggregates = [
                     // input
                     if(sameValue) {
                         if(fieldId === fieldToChange) {
+                            $(elem).val(newValue).change();
+                            $(elem).prev().attr('data-withvalue', newValue);
                             $(elem).prev().val(newHTML);
                         }
                     }
@@ -4269,43 +4282,44 @@ diagram.aggregates = [
         // We check if we need to change the alias of the select of other
         // properties boxes
         var optionsOtherBoxesProps = $('option', '.select-other-boxes-properties');
-        var boxSlug = $('#' + idBox + '-title').data('slug');
+        //var boxSlug = $('#' + idBox + '-title').data('slug');
         $.each(optionsOtherBoxesProps, function(index, elem) {
-            var optionSlug = $(elem).data('slugvalue');
-            if(optionSlug === boxSlug) {
-                // We check if we have an aggregate selected
-                // If the length is bigger than 1
-                var oldOptionVal = $(elem).html();
-                var isThereAgg = oldOptionVal.split("(").length > 1;
-                if(isThereAgg) {
-                    var oldOptionValSplitted = oldOptionVal.split(/["(",")"]+/);
-                    var aggregateValue = oldOptionValSplitted[0];
-                    var oldValue = oldOptionValSplitted[1];
-                    var oldValueWithoutAgg = oldValue.split(".");
-                    var oldAlias = oldValueWithoutAgg[0];
-                    
+            // We check if we have an aggregate selected
+            // If the length is bigger than 1
+            var oldOptionVal = $(elem).html();
+            var isThereAgg = oldOptionVal.split("(").length > 1;
+            if(isThereAgg) {
+                var oldOptionValSplitted = oldOptionVal.split(/["(",")"]+/);
+                var aggregateValue = oldOptionValSplitted[0];
+                var oldValue = oldOptionValSplitted[1];
+                var oldValueWithoutAgg = oldValue.split(".");
+                var oldOptionAlias = oldValueWithoutAgg[0];
+                if(oldOptionAlias === oldAlias) {
                     // We change the value of the option
                     var newOptionVal = newAlias + "." + oldValueWithoutAgg[1];
                     var newOptionVal = aggregateValue + "(" + newOptionVal + ")";
                     $(elem).html(newOptionVal);
-                } else {
-                    var oldOptionValSplitted = oldOptionVal.split(".");
+                }
+            } else {
+                var oldOptionValSplitted = oldOptionVal.split(".");
+                var oldOptionAlias = oldOptionValSplitted[0];
+                if(oldOptionAlias === oldAlias) {    
                     // We change the value of the option
                     var newOptionVal = newAlias + "." + oldOptionValSplitted[1];
                     $(elem).html(newOptionVal);
                 }
-                // We need to check if the option is selected to change the
-                // actual value of the lookup input
+            }
+            // We need to check if the option is selected to change the
+            // actual value of the lookup input
+            var $lookupInput = $(elem).parent().prev();
+            var lookupValue = $lookupInput.val();
+            //var isSelected = $(elem).prop('selected');
+            var isSelected = lookupValue === oldOptionVal;
+            if(isSelected) {
+                // We get the lookup
                 var $lookupInput = $(elem).parent().prev();
-                var lookupValue = $lookupInput.val();
-                //var isSelected = $(elem).prop('selected');
-                var isSelected = lookupValue === oldOptionVal;
-                if(isSelected) {
-                    // We get the lookup
-                    var $lookupInput = $(elem).parent().prev();
-                    // We change the lookup input
-                    $lookupInput.val(newOptionVal);
-                }
+                // We change the lookup input
+                $lookupInput.val(newOptionVal);
             }
         });
     });
