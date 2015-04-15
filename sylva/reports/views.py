@@ -313,14 +313,14 @@ def builder_endpoint(request, graph_slug):
             int(date_dict['hour']),
             int(date_dict['minute'])
         )
+        # Maybe change this to template instead of slug.
         if template.get('slug', ''):
             template_inst = get_object_or_404(
                 ReportTemplate, slug=template['slug']
             )
-            # Not sure of the best approach for field validation.
             f = ReportTemplateForm({
                     "name": template['name'],
-                    "start_date": "start_date",
+                    "start_date": start_date,
                     "frequency": template['frequency'],
                     "layout": template['layout'],
                     "description": template['description'],

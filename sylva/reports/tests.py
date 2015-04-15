@@ -1,10 +1,14 @@
 # -*- coding: utf-8 -*-
+import json
 from datetime import datetime
 
 from django.test import TestCase
 from django.contrib.auth.models import User
 
-from models import ReportTemplate, Report
+from userena.models import UserenaSignup
+from guardian.shortcuts import assign_perm
+
+from reports.models import ReportTemplate, Report
 from graphs.models import Graph
 from schemas.models import Schema
 from django.core.urlresolvers import reverse
@@ -12,50 +16,115 @@ from django.core.urlresolvers import reverse
 
 class EndpointTest(TestCase):
 
-    fixtures = ["users.json", "schemas.json", "graphs.json", "queries.json",
-                "reports.json"]
+    fixtures = ["schemas.json", "graphs.json", "queries.json", "reports.json"]
 
     def setUp(self):
-        response = self.client.login(username='admin', password='admin')
+        test_user = UserenaSignup.objects.create_user(username="admin",
+            email="admin@admin.com", password="admin")
+        test_user = UserenaSignup.objects.activate_user(
+            test_user.userena_signup.activation_key)
+        response = self.client.login(
+        username="admin", password='admin')
         self.assertTrue(response)
+        graph = Graph.objects.get(pk=1)
+        graph.owner = test_user
+        graph.save()
 
     def test_list_endpoint(self):
-        url = reverse('list', kwargs={"graph_slug": "dh"})
+        url = reverse('list', kwargs={"graph_slug": "dh2014"})
         resp = self.client.get(url)
+        body = json.loads(resp.content)
         self.assertEqual(resp.status_code, 200)
 
     def test_templates_endpoint(self):
-        url = reverse('templates', kwargs={"graph_slug": "dh"})
+        url = reverse('templates', kwargs={"graph_slug": "dh2014"})
         resp = self.client.get(url)
+        body = json.loads(resp.content)
+        self.assertIsNone(body["template"])
+        self.assertIsNone(body["queries"])
         self.assertEqual(resp.status_code, 200)
 
-    def test_history_endpoint(self):
-        url = reverse('history', kwargs={"graph_slug": "dh"})
-        resp = self.client.get(url)
+    def test_templates_endpoint_new(self):
+        url = reverse('templates', kwargs={"graph_slug": "dh2014"})
+        resp = self.client.get(url, {'queries': 'true'})
+        body = json.loads(resp.content)
         self.assertEqual(resp.status_code, 200)
+
+    # def test_templates_endpoint_edit(self):
+    #     url = reverse('templates', kwargs={"graph_slug": "dh2014"})
+    #     resp = self.client.get(url, {'queries': 'true', 'template': 'name_of_template'})
+    #     body = json.loads(resp.content)
+    #     self.assertEqual(resp.status_code, 200)
+    #
+    # This test requires an actual graph backend.
+    # def test_templates_endpoint_preview(self):
+    #     url = reverse('templates', kwargs={"graph_slug": "dh2014"})
+    #     resp = self.client.get(url, {'template': 'name_of_template'})
+    #     body = json.loads(resp.content)
+    #     self.assertEqual(resp.status_code, 200)
 
     def test_delete_endpoint(self):
-        url = reverse('delete', kwargs={"graph_slug": "dh"})
+        url = reverse('delete', kwargs={"graph_slug": "dh2014"})
         resp = self.client.get(url)
+        body = json.loads(resp.content)
         self.assertEqual(resp.status_code, 200)
 
-    def test_builder_endpoint(self):
-        url = reverse('builder', kwargs={"graph_slug": "dh"})
+    # def test_delete_endpoint_del(self):
+    #     url = reverse('delete', kwargs={"graph_slug": "dh2014"})
+    #     resp = self.client.post(url)
+    #     body = json.loads(resp.content)
+    #     self.assertEqual(resp.status_code, 200)
+
+    # def test_delete_endpoint_check(self):
+    #     url = reverse('delete', kwargs={"graph_slug": "dh2014"})
+    #     resp = self.client.get(url, {'template': 'name_of_template'})
+    #     body = json.loads(resp.content)
+    #     self.assertEqual(resp.status_code, 200)
+
+    def test_history_endpoint(self):
+        url = reverse('history', kwargs={"graph_slug": "dh2014"})
         resp = self.client.get(url)
+        body = json.loads(resp.content)
         self.assertEqual(resp.status_code, 200)
+
+    # def test_history_endpoint_hist(self):
+    #     url = reverse('history', kwargs={"graph_slug": "dh2014"})
+    #     resp = self.client.get(url, {"template": "name_of_template"})
+    #     body = json.loads(resp.content)
+    #     self.assertEqual(resp.status_code, 200)
+    #
+    # def test_history_endpoint_inst(self):
+    #     url = reverse('history', kwargs={"graph_slug": "dh2014"})
+    #     resp = self.client.get(url, {"report": "name_of_report"})
+    #     body = json.loads(resp.content)
+    #     self.assertEqual(resp.status_code, 200)
+
+    def test_builder_endpoint(self):
+        url = reverse('builder', kwargs={"graph_slug": "dh2014"})
+        resp = self.client.get(url)
+        body = json.loads(resp.content)
+        self.assertEqual(resp.status_code, 200)
+
+    # def test_builder_endpoint_new(self):
+    #     url = reverse('builder', kwargs={"graph_slug": "dh2014"})
+    #     resp = self.client.post(url)
+    #     body = json.loads(resp.content)
+    #     self.assertEqual(resp.status_code, 200)
+    #
+    # def test_builder_endpoint_edit(self):
+    #     url = reverse('builder', kwargs={"graph_slug": "dh2014"})
+    #     resp = self.client.post(url, {"slug": "name_of_template"})
+    #     body = json.loads(resp.content)
+    #     self.assertEqual(resp.status_code, 200)
 
 
 class ReportTemplateTest(TestCase):
 
+    fixtures = ["schemas.json", "graphs.json", "queries.json", "reports.json"]
+
     def setUp(self):
-        # Do this with fixtures, since I have to make them anyway.
-        self.u = User.objects.create(username='john', password='doe',
-                                     is_active=True, is_staff=True)
-        self.u.set_password('hello')
-        self.u.save()
-        schema = Schema.objects.create()
-        self.graph = Graph.objects.create(name="test_graph", schema=schema,
-                                          owner=self.u)
+
+        self.graph = Graph.objects.get(pk=1)
         self.template = ReportTemplate(name="test", start_date=datetime.now(),
                                        frequency="h", last_run=datetime.now(),
                                        layout={"hello": "world"},
@@ -93,18 +162,16 @@ class ReportTemplateTest(TestCase):
 
 class ReportTest(TestCase):
 
+    fixtures = ["schemas.json", "graphs.json", "queries.json", "reports.json"]
+
     def setUp(self):
-        self.u = User.objects.create(username='dave', password='bshow',
-                                     is_active=True, is_staff=True)
-        self.u.set_password('excellent')
-        self.u.save()
-        schema = Schema.objects.create()
-        self.graph = Graph.objects.create(name="test_graph2", schema=schema,
-                                          owner=self.u)
-        self.template = ReportTemplate(name="test3", start_date=datetime.now(),
+        self.graph = Graph.objects.get(pk=1)
+        self.template = ReportTemplate(name="test", start_date=datetime.now(),
                                        frequency="h", last_run=datetime.now(),
-                                       layout={"hello": "davebshow"},
+                                       layout={"hello": "world"},
                                        description="Some", graph=self.graph)
+        self.template.save()
+        self.template_id = self.template.id
         self.template.save()
         self.template_id = self.template.id
         self.datetime = datetime.now()
