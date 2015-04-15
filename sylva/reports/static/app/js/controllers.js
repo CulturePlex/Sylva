@@ -36,6 +36,16 @@ controllers.controller('ReportListCtrl', [
         }
 
         $scope.getPage(1)
+
+        // Set styles if we are in modals
+        var modal = $('#simplemodal-container');
+        if(modal.length > 0) {
+            $('#simplemodal-container').css({
+                'height': '47%',
+                'width': '1100px'
+            });
+            $('#modal-cancel-button').css("display", "");
+        }
 }]);
 
 
@@ -68,6 +78,21 @@ controllers.controller('BaseReportCtrl', [
             // Using is report form - edit and new ctrls
             $scope.editable = true;
             breadService.design()
+
+            // Set styles if we are in modals
+            var modal = $('#simplemodal-container');
+            if(modal.length > 0) {
+                $('#simplemodal-container').css({
+                    'width': '1220px'
+                });
+                // We set a max height for the editable table
+                // The 0.80 is because we use 82% for the height
+                var maxHeight = modal.height() * 0.80;
+                $('.editable-table').css({
+                    'max-height': maxHeight,
+                    'overflow-y': 'auto'
+                });
+            }
         };
 
         $scope.editable;
@@ -188,6 +213,16 @@ controllers.controller('NewReportCtrl', [
             $scope.prev = {table: {layout: exampleTable, pagebreaks: {0: false, 1: false}}, queries: data.queries}
             $scope.template.layout = $scope.resp.table
         });
+
+        // Set styles if we are in modals
+        var modal = $('#simplemodal-container');
+        if(modal.length > 0) {
+            $('#simplemodal-container').css({
+                'height': '82%',
+                'width': '1220px'
+            });
+            $('#modal-cancel-button').css("display", "none");
+        }
 }]);
 
 
@@ -222,6 +257,16 @@ controllers.controller('EditReportCtrl', [
             $scope.resp = {table: data.template.layout, queries: data.queries};
             $scope.prev = $scope.resp;
         });
+
+        // Set styles if we are in modals
+        var modal = $('#simplemodal-container');
+        if(modal.length > 0) {
+            $('#simplemodal-container').css({
+                'height': '82%',
+                'width': '1220px'
+            });
+            $('#modal-cancel-button').css("display", "none");
+        }
 }]);
 
 
@@ -241,6 +286,16 @@ controllers.controller('ReportPreviewCtrl', [
             $scope.resp = {table: data.template.layout, queries: data.queries};
             breadService.updateName(data.template.name);
         });
+
+        // Set styles if we are in modals
+        var modal = $('#simplemodal-container');
+        if(modal.length > 0) {
+            $('#simplemodal-container').css({
+                'height': '82%',
+                'width': '1220px'
+            });
+            $('#modal-cancel-button').css("display", "none");
+        }
 }]);
 
 
@@ -301,6 +356,16 @@ controllers.controller('ReportHistoryCtrl', [
                 $scope.resp = {table: {layout: data.table}}
             });
         }
+
+        // Set styles if we are in modals
+        var modal = $('#simplemodal-container');
+        if(modal.length > 0) {
+            $('#simplemodal-container').css({
+                'height': '82%',
+                'width': '1220px'
+            });
+            $('#modal-cancel-button').css("display", "none");
+        }
 }]);
 
 
@@ -337,5 +402,11 @@ controllers.controller("DeleteReportCtrl", [
         }
 
         $scope.getTemplate();
+
+        // Set styles if we are in modals
+        var modal = $('#simplemodal-container');
+        if(modal.length > 0) {
+            $('#modal-cancel-button').css("display", "none");
+        }
 
 }]);

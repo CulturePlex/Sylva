@@ -2721,16 +2721,23 @@ diagram.aggregates = [
 
             // We check all the necessary logic for the aggregates
             var aggregatesClicked = 0;
+            var prevIdBox = "";
             for(key in aggregates) {
                 if(aggregates.hasOwnProperty(key)) {
                     var selector = $("#field" + key + " .select-aggregate");
-                    var idBox = selector.parent().parent().parent().parent().parent().attr('id')
+                    var idBox = selector.parent().parent().parent().parent().parent().attr('id');
                     var typename = idBox.split('-')[2];
                     // We need to click only one time, because we don't want to
                     // hide the aggregates
-                    if(aggregatesClicked == 0)
+                    if(idBox !== prevIdBox) {
+                        prevIdBox = idBox;
+                        aggregatesClicked = 0;
+                    }
+
+                    if((aggregatesClicked === 0) && (prevIdBox === idBox)) {
                         $('#' + idBox + ' #inlineAdvancedMode_' + typename).click();
-                    aggregatesClicked++;
+                        aggregatesClicked++;
+                    }
                     // We set the aggregate value
                     var aggregateValue = aggregates[key][0];
                     var aggregateDistinct = aggregates[key][1];
@@ -2741,6 +2748,7 @@ diagram.aggregates = [
 
             // We check all the necessary logic for the aggregates in relationships
             var aggregatesClicked = 0;
+            var prevIdBox = "";
             for(key in aggregatesRels) {
                 if(aggregatesRels.hasOwnProperty(key)) {
                     var aggregateValue = aggregatesRels[key][0];
@@ -2750,8 +2758,15 @@ diagram.aggregates = [
                     var typename = idBox.split('-')[2];
                     // We need to click only one time, because we don't want to
                     // hide the aggregates
-                    if(aggregatesClicked == 0)
+                    if(idBox !== prevIdBox) {
+                        prevIdBox = idBox;
+                        aggregatesClicked = 0;
+                    }
+
+                    if((aggregatesClicked === 0) && (prevIdBox === idBox)) {
                         $('#' + idBox + ' #inlineAdvancedMode_' + typename).click();
+                        aggregatesClicked++;
+                    }
                     aggregatesClicked++;
                     $('option[value="' + aggregateValue + '"][data-distinct=' + aggregateDistinct + ']', selector).attr("selected", "selected");
                     $(selector).change();
@@ -2828,7 +2843,7 @@ diagram.aggregates = [
 
             jsPlumb.repaintEverything();
         } catch(error) {
-            console.log("Error: " + error.message);
+            console.log(error.stack);
         }
     };
 

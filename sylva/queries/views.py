@@ -610,7 +610,7 @@ def queries_query_edit(request, graph_slug, query_id):
     else:
         base_template = 'base.html'
         render = render_to_response
-    add_url = reverse("queries_new", args=[graph_slug])
+    add_url = reverse("queries_query_edit", args=[graph_slug, query_id])
     broader_context = {"graph": graph,
                        "node_types": nodetypes,
                        "relationship_types": reltypes,
