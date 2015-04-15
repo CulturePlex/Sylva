@@ -9,6 +9,7 @@ from userena.models import UserenaSignup
 from guardian.shortcuts import assign_perm
 
 from reports.models import ReportTemplate, Report
+from queries.models import Query
 from graphs.models import Graph
 from schemas.models import Schema
 from django.core.urlresolvers import reverse
@@ -23,8 +24,7 @@ class EndpointTest(TestCase):
             email="admin@admin.com", password="admin")
         test_user = UserenaSignup.objects.activate_user(
             test_user.userena_signup.activation_key)
-        response = self.client.login(
-        username="admin", password='admin')
+        response = self.client.login(username="admin", password='admin')
         self.assertTrue(response)
         graph = Graph.objects.get(pk=1)
         graph.owner = test_user
@@ -123,13 +123,16 @@ class ReportTemplateTest(TestCase):
     fixtures = ["schemas.json", "graphs.json", "queries.json", "reports.json"]
 
     def setUp(self):
-
+        self.query1 = Query.objects.get(pk=1)
+        self.query2 = Query.objects.get(pk=2)
         self.graph = Graph.objects.get(pk=1)
         self.template = ReportTemplate(name="test", start_date=datetime.now(),
                                        frequency="h", last_run=datetime.now(),
                                        layout={"hello": "world"},
                                        description="Some", graph=self.graph)
         self.template.save()
+        self.template.queries.add(self.query1)
+        self.template.queries.add(self.query2)
         self.template_id = self.template.id
 
     def test_template_creation(self):
