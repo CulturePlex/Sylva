@@ -1420,7 +1420,8 @@
       onShow: function() {
         $('#simplemodal-container').css({
           width: 1170,
-          'height': '93.5%'
+          'height': '93.5%',
+          'max-height': '649px'
         });
 
         // This is for the delete icon of the boxes
