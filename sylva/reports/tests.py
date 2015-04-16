@@ -160,7 +160,6 @@ class EndpointTest(TestCase):
     def test_history_endpoint_inst404(self):
         url = reverse('history', kwargs={"graph_slug": "dh2014"})
         resp = self.client.get(url, {"report": 100000})
-        body = json.loads(resp.content)
         self.assertEqual(resp.status_code, 404)
 
     def test_builder_endpoint(self):
