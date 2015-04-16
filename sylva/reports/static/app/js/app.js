@@ -29,7 +29,6 @@ reports.config([
     '$routeProvider',
     'DJANGO_URLS',
     function($routeProvider, DJANGO_URLS) {
-        console.log('DC', DJANGO_URLS)
         $routeProvider.
             when('/', {
                 templateUrl: DJANGO_URLS.partials + '?name=reports',

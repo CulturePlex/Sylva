@@ -21,6 +21,7 @@ module.exports = function(config) {
         'third_party/angular/*.min.js',
         'third_party/angular/*.js',
         'third_party/*.js',
+        '../../../../sylva/static/js/jquery.1.8.3.js',
         'app.js',
         '../../../fixtures/mock_urls.js',
         '*.js'

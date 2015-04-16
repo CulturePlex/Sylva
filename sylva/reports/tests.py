@@ -175,7 +175,7 @@ class EndpointTest(TestCase):
             "frequency": "d",
             "description": "This is a test.",
             "collabs": [],
-            "layout": {"layout": [[{"displayQuery": 1}], [{"displayQuery": 2}]]},
+            "layout": {"layout": [[{"displayQuery": 1}], [{"displayQuery": ""}]]},
             "start_date": {"year": "2015", "month": "8", "day": "10",
                            "hour": "8" ,"minute": "15"}
         }}
@@ -235,7 +235,7 @@ class EndpointTest(TestCase):
     def test_builder_endpoint_edit404(self):
         url = reverse('builder', kwargs={"graph_slug": "dh2014"})
         post_body = {"template": {
-            "name": '',
+            "name": 'test404',
             "frequency": "d",
             "description": "This is a test.",
             "collabs": [],
@@ -248,6 +248,20 @@ class EndpointTest(TestCase):
             content_type="application/json")
         self.assertEqual(resp.status_code, 404)
 
+    def test_builder_endpoint_badquery404(self):
+        url = reverse('builder', kwargs={"graph_slug": "dh2014"})
+        post_body = {"template": {
+            "name": 'testbadquery404',
+            "frequency": "d",
+            "description": "This is a test.",
+            "collabs": [],
+            "layout": {"layout": [[{"displayQuery": 1}], [{"displayQuery": 10}]]},
+            "start_date": {"year": "2015", "month": "8", "day": "10",
+                           "hour": "8" ,"minute": "15"}
+        }}
+        resp = self.client.post(url, json.dumps(post_body),
+            content_type="application/json")
+        self.assertEqual(resp.status_code, 404)
 
 
 class ReportTemplateTest(TestCase):

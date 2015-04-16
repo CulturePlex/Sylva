@@ -333,10 +333,7 @@ controllers.controller('ReportHistoryCtrl', [
                 breadService.updateName(data.name)
                 $scope.template = data;
                 if (data.reports.length > 0) {
-                    // This is only until I get the official JSON
-                    try {
-                        $scope.getReport(mostRecent.id)
-                    } catch (err) {console.log("error caught for test")}
+                    $scope.getReport(mostRecent.id)
                 }
             });
         }
@@ -354,7 +351,6 @@ controllers.controller('ReportHistoryCtrl', [
         }
         $scope.getReport = function (id) {
             api.history.report({
-                graphSlug: $scope.slugs.graph,
                 report: id
             }, function (data) {
                 $scope.report = data;
