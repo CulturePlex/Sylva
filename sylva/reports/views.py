@@ -43,13 +43,11 @@ def reports_index_view(request, graph_slug):
     graph = get_object_or_404(Graph, slug=graph_slug)
     # We get the modal variable
     as_modal = bool(request.GET.get("asModal", False))
-    base_template = 'base.html'
     if as_modal:
         render = render_to_string
     else:
         render = render_to_response
     broader_context = {"graph": graph,
-                       "base_template": base_template,
                        "as_modal": as_modal}
     response = render('reports_base.html',
                       context_instance=RequestContext(request,
@@ -71,16 +69,33 @@ def pdf_gen_view(request, graph_slug, template_slug):
         graph = get_object_or_404(Graph, slug=graph_slug)
         template = get_object_or_404(ReportTemplate, slug=template_slug)
         queries = template.queries.all()
+        as_modal = bool(request.GET.get("asModal", False))
         queries = [{'series': query.execute(headers=True), 'name': query.name,
                     'id': query.id, 'results': query.query_dict['results']}
                    for query in queries]
         template_dict = template.dictify()
         resp = {"table": template_dict["layout"], "queries": queries}
-        return render_to_response('pdf.html', RequestContext(request, {
-            "graph": graph,
-            "template": template_dict,
-            "resp": json.dumps(resp)
-        }))
+
+        if as_modal:
+            render = render_to_string
+        else:
+            render = render_to_response
+        broader_context = {"graph": graph,
+                           "template": template_dict,
+                           "resp": json.dumps(resp),
+                           "as_modal": as_modal}
+        response = render('pdf.html',
+                          context_instance=RequestContext(request,
+                                                          broader_context))
+        if as_modal:
+            response = {'type': 'html',
+                        'action': 'reports_pdf',
+                        'html': response}
+            return HttpResponse(json.dumps(response), status=200,
+                                content_type='application/json')
+        else:
+            return response
+
 
     @login_required
     @is_enabled(settings.ENABLE_REPORTS)

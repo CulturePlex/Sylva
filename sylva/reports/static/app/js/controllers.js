@@ -42,7 +42,9 @@ controllers.controller('ReportListCtrl', [
         if(modal.length > 0) {
             $('#simplemodal-container').css({
                 'height': '47%',
-                'width': '1100px'
+                'width': '1100px',
+                'top': '25%',
+                'left': '7%'
             });
             $('#modal-cancel-button').css("display", "");
         }
@@ -219,7 +221,9 @@ controllers.controller('NewReportCtrl', [
         if(modal.length > 0) {
             $('#simplemodal-container').css({
                 'height': '82%',
-                'width': '1220px'
+                'width': '1220px',
+                'top': '8%',
+                'left': '2.5%'
             });
             $('#modal-cancel-button').css("display", "none");
         }
@@ -263,7 +267,9 @@ controllers.controller('EditReportCtrl', [
         if(modal.length > 0) {
             $('#simplemodal-container').css({
                 'height': '82%',
-                'width': '1220px'
+                'width': '1220px',
+                'top': '8%',
+                'left': '2.5%'
             });
             $('#modal-cancel-button').css("display", "none");
         }
@@ -292,7 +298,9 @@ controllers.controller('ReportPreviewCtrl', [
         if(modal.length > 0) {
             $('#simplemodal-container').css({
                 'height': '82%',
-                'width': '1220px'
+                'width': '1220px',
+                'top': '8%',
+                'left': '2.5%'
             });
             $('#modal-cancel-button').css("display", "none");
         }
@@ -362,7 +370,9 @@ controllers.controller('ReportHistoryCtrl', [
         if(modal.length > 0) {
             $('#simplemodal-container').css({
                 'height': '82%',
-                'width': '1220px'
+                'width': '1220px',
+                'top': '8%',
+                'left': '2.5%'
             });
             $('#modal-cancel-button').css("display", "none");
         }

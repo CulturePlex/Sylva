@@ -218,6 +218,7 @@ diagram.aggregates = [
 
             selectAllRel = $("<SELECT>");
             selectAllRel.addClass("select-rel");
+            selectAllRel.attr("title", gettext("Add a relationship"));
 
             var relationsIds = [];
             if(typeName != "wildcard") {
@@ -291,10 +292,10 @@ diagram.aggregates = [
             // First option to choose one
             optionRelDefault = $("<OPTION>");
             optionRelDefault.addClass('option-rel');
-            optionRelDefault.attr('value', 'choose one');
+            optionRelDefault.attr('value', 'choose relationship');
             optionRelDefault.attr('disabled', 'disabled');
             optionRelDefault.attr('selected', 'selected');
-            optionRelDefault.html(gettext("choose one"));
+            optionRelDefault.html(gettext("choose relationship"));
 
             selectAllRel.prepend(optionRelDefault);
 
@@ -506,6 +507,7 @@ diagram.aggregates = [
             anchorShowHide = $("<A>");
             anchorShowHide.attr("href", "javascript:void(0);");
             anchorShowHide.attr("id", "inlineShowHideLink_"+ name);
+            anchorShowHide.attr("title", gettext("Show/hide box properties"));
             iconToggle = $("<I>");
             iconToggle.addClass("fa fa-plus-circle icon-style");
             iconToggle.css({
@@ -553,7 +555,7 @@ diagram.aggregates = [
             anchorAdvancedMode = $("<A>");
             anchorAdvancedMode.attr("href", "javascript:void(0);");
             anchorAdvancedMode.attr("id", "inlineAdvancedMode_" + name);
-            anchorAdvancedMode.attr("title", gettext("Advanced options"))
+            anchorAdvancedMode.attr("title", gettext("Advanced options"));
             anchorAdvancedMode.css({
                 'display': 'none'
             });
@@ -651,6 +653,7 @@ diagram.aggregates = [
             anchorRemoveRelation.addClass("remove-box-relation");
             anchorRemoveRelation.attr("href", "javascript:void(0);");
             anchorRemoveRelation.attr("id", "inlineRemoveRelationLink_"+ name);
+            anchorRemoveRelation.attr("title", gettext("Remove box"));
             var iconRemoveRelation = $("<I>");
             iconRemoveRelation.addClass("fa fa-times-circle icon-style");
             iconRemoveRelation.attr('id', 'remove-relation-icon')
@@ -837,6 +840,7 @@ diagram.aggregates = [
             anchorShowHide = $("<A>");
             anchorShowHide.attr("href", "javascript:void(0);");
             anchorShowHide.attr("id", "inlineShowHideLink_"+ typeName);
+            anchorShowHide.attr("title", gettext("Show/hide box properties"));
             iconToggle = $("<I>");
             iconToggle.addClass("fa fa-minus-circle icon-style");
             iconToggle.attr('id', 'icon-toggle');
@@ -860,6 +864,7 @@ diagram.aggregates = [
             anchorClose = $("<A>");
             anchorClose.attr("href", "javascript:void(0);");
             anchorClose.attr("id", "inlineDeleteLink_"+ typeName);
+            anchorClose.attr("title", gettext("Remove the box"));
 
             iconClose = $("<I>");
             iconClose.addClass("fa fa-times-circle icon-style");
@@ -1229,6 +1234,7 @@ diagram.aggregates = [
                 });
                 selectProperty.attr('data-fieldid', fieldId);
                 selectProperty.attr('data-boxalias', boxalias);
+                selectProperty.attr("title", gettext("Select a property"));
                 // First option to choose one
                 optionProperty = $("<OPTION>");
                 optionProperty.addClass('option-property');
@@ -1256,6 +1262,7 @@ diagram.aggregates = [
                 // Select lookup
                 selectLookup = $("<SELECT>");
                 selectLookup.addClass("select-lookup");
+                selectLookup.attr("title", gettext("Select a lookup"));
                 selectLookup.css({
                     "width": "80px"
                 });
@@ -1265,9 +1272,11 @@ diagram.aggregates = [
                 selectProperty.addClass("wildCardInput select-property");
                 selectProperty.attr('id', fieldId);
                 selectProperty.attr('data-fieldid', fieldId);
+                selectProperty.attr("title", gettext("Select a property"));
                 // Select lookup
                 selectLookup = $("<SELECT>");
                 selectLookup.addClass("select-lookup");
+                selectLookup.attr("title", gettext("Select a lookup"));
                 selectLookup.css({
                     "width": "80px"
                 });
@@ -1280,6 +1289,7 @@ diagram.aggregates = [
             checkboxProperty = $("<INPUT>");
             checkboxProperty.addClass("checkbox-property");
             checkboxProperty.attr("type", "checkbox");
+            checkboxProperty.attr("title", gettext("Check it to return the property"));
             checkboxProperty.prop("disabled", true);
             // Add and-or div
             divAndOr = $("<DIV>");
@@ -1296,6 +1306,7 @@ diagram.aggregates = [
             selectAndOr.attr('data-boxalias', boxalias);
             selectAndOr.attr('data-idbox', idBox);
             selectAndOr.attr('data-idallrels', idAllRels);
+            selectAndOr.attr("title", gettext("Add another property"));
             selectAndOr.append("<option class='option-and-or' value='not' selected='selected' disabled>" + gettext("choose one") + "</option>");
             selectAndOr.append("<option class='option-and-or' value='and'>" + gettext("And") + "</option>");
             selectAndOr.append("<option class='option-and-or' value='or'>" + gettext("Or") + "</option>");
@@ -1368,6 +1379,7 @@ diagram.aggregates = [
                 selectProperty = $("<SELECT>");
                 selectProperty.addClass("select-property");
                 selectProperty.attr('data-fieldid', fieldId);
+                selectProperty.attr("title", gettext("Select a property"));
                 // First option to choose one
                 optionProperty = $("<OPTION>");
                 optionProperty.addClass('option-property');
@@ -1379,6 +1391,7 @@ diagram.aggregates = [
                 // Select lookup
                 selectLookup = $("<SELECT>");
                 selectLookup.addClass("select-lookup");
+                selectLookup.attr("title", gettext("Select a lookup"));
                 // We get the values for the properties select and the values
                 // for the lookups option in relation with the datatype
                 for(var fieldIndex = 0; fieldIndex < lengthFields; fieldIndex++) {
@@ -1398,6 +1411,7 @@ diagram.aggregates = [
                 checkboxProperty = $("<INPUT>");
                 checkboxProperty.addClass("checkbox-property");
                 checkboxProperty.attr("type", "checkbox");
+                checkboxProperty.attr("title", gettext("Check it to return the property"));
                 checkboxProperty.prop("disabled", true);
                 // Add and-or div
                 divAndOr = $("<DIV>");
@@ -1409,6 +1423,7 @@ diagram.aggregates = [
                 selectAndOr.addClass("select-and-or-rel");
                 selectAndOr.attr('data-label', label);
                 selectAndOr.attr('data-parentid', idFields);
+                selectAndOr.attr("title", gettext("Add another property"));
                 selectAndOr.append("<option class='option-and-or' value='not' selected='selected' disabled>" + gettext("choose one") + "</option>");
                 selectAndOr.append("<option class='option-and-or' value='and'>" + gettext("And") + "</option>");
                 selectAndOr.append("<option class='option-and-or' value='or'>" + gettext("Or") + "</option>");
@@ -3562,6 +3577,7 @@ diagram.aggregates = [
             }
             var inputLookup = $("<SELECT>");
             inputLookup.addClass("lookup-value");
+            inputLookup.attr("title", gettext("Introduce a value"));
             inputLookup.css({
                 "width": "60px",
                 "margin-left": "8px",
@@ -3584,6 +3600,7 @@ diagram.aggregates = [
             }
             var inputLookup = $("<SELECT>");
             inputLookup.addClass("lookup-value");
+            inputLookup.attr("title", gettext("Introduce a value"));
             inputLookup.css({
                 "width": "60px",
                 "margin-left": "8px",
@@ -3608,6 +3625,7 @@ diagram.aggregates = [
             var inputLookup = $("<INPUT>");
             inputLookup.addClass("lookup-value");
             inputLookup.attr("type", "text");
+            inputLookup.attr("title", gettext("Introduce a value"));
             inputLookup.css({
                 "width": "60px",
                 "margin-left": "8px",
@@ -3632,6 +3650,7 @@ diagram.aggregates = [
             var inputLookup = $("<INPUT>");
             inputLookup.addClass("lookup-value time");
             inputLookup.attr("type", "text");
+            inputLookup.attr("title", gettext("Introduce a value"));
             inputLookup.css({
                 "width": "60px",
                 "margin-left": "8px",
@@ -3656,6 +3675,7 @@ diagram.aggregates = [
             var inputLookup = $("<INPUT>");
             inputLookup.addClass("lookup-value time");
             inputLookup.attr("type", "text");
+            inputLookup.attr("title", gettext("Introduce a value"));
             inputLookup.css({
                 "width": "60px",
                 "margin-left": "8px",
@@ -3684,6 +3704,7 @@ diagram.aggregates = [
             var inputLookup = $("<INPUT>");
             inputLookup.addClass("lookup-value time");
             inputLookup.attr("type", "text");
+            inputLookup.attr("title", gettext("Introduce a value"));
             inputLookup.css({
                 "width": "60px",
                 "margin-left": "8px",
@@ -3708,6 +3729,7 @@ diagram.aggregates = [
             var inputLookup = $("<INPUT>");
             inputLookup.addClass("lookup-value autocomplete");
             inputLookup.attr("type", "text");
+            inputLookup.attr("title", gettext("Introduce a value"));
             inputLookup.css({
                 "width": "60px",
                 "margin-left": "8px",
@@ -3728,6 +3750,7 @@ diagram.aggregates = [
             var inputLookup = $("<INPUT>");
             inputLookup.addClass("lookup-value");
             inputLookup.attr("type", "text");
+            inputLookup.attr("title", gettext("Introduce a value"));
             inputLookup.css({
                 "width": "60px",
                 "margin-left": "8px",
@@ -3771,6 +3794,7 @@ diagram.aggregates = [
             // We create the select field to show after the input
             var selectBoxesProperties = $('<SELECT>');
             selectBoxesProperties.addClass('select-other-boxes-properties');
+            selectBoxesProperties.attr("title", gettext("Select a property from another box"));
             selectBoxesProperties.css({
                 "width": "20px",
                 "display": "none",
@@ -3798,9 +3822,10 @@ diagram.aggregates = [
             // The default option for the selects
             var optionDefaultProperty = $("<OPTION>");
             optionDefaultProperty.addClass('option-other-boxes-properties');
-            optionDefaultProperty.attr('value', gettext("clear input"));
+            optionDefaultProperty.attr('value', gettext("choose one"));
             optionDefaultProperty.attr('selected', 'selected');
-            optionDefaultProperty.html(gettext("clear input"));
+            optionDefaultProperty.prop('disabled', 'disabled');
+            optionDefaultProperty.html(gettext("choose one"));
 
             // We append the default option
             $(selectBoxesProperties).prepend(optionDefaultProperty);
@@ -3830,8 +3855,8 @@ diagram.aggregates = [
         // of the select.
         $('option', selectBoxesProperties).filter(
             function(index, oldOption) {
-                // First, we need to let the "clear type"
-                if($(oldOption).val() !== gettext("clear input"))
+                // First, we need to let the "choose one"
+                if($(oldOption).val() !== gettext("choose one"))
                     if($(oldOption).data('datatype') !== actualDatatype)
                         $(oldOption).remove();
             }

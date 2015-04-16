@@ -402,6 +402,8 @@
           modalAction = that.schemaRelationshipDelete;
         } else if (response.action == 'reports_main') {
           modalAction = that.reportsMainView;
+        } else if (response.action == 'reports_pdf') {
+          modalAction = that.reportsPdf;
         }
         that.showModal(response.html, modalAction);
 
@@ -1730,6 +1732,17 @@
         });
       }
     },
+
+    reportsPdf: {
+
+      start: function(url, showOverlay) {
+        that.prepareModal(url, showOverlay, this);
+      },
+
+      preProcessHTML: function() {},
+
+      onShow: function() {}
+    }
 
   };
 
