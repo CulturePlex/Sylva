@@ -370,7 +370,7 @@ directives.directive('sylvaPvCellRepeat', ['$sanitize', function ($sanitize) {
 
 
 directives.directive('syEditableTable',[
-    '$compile', 'tableArray', 'DJANGO_URLS', 'breadService', function ($compile, tableArray, DJANGO_URLS, breadService) {
+    '$compile', 'tableArray', 'breadService', function ($compile, tableArray, breadService) {
     return {
         transclude: true,
         scope: {
@@ -880,7 +880,7 @@ directives.directive('sylvaEtCellRepeat', [function () {
 }]);
 
 // THIS DIRECTIVE HAS SOME REPITITION AND WILL REQUIRE CLEANUP
-directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', 'STATIC_PREFIX', '$anchorScroll', '$location', function ($sanitize, $compile, DJANGO_URLS, STATIC_PREFIX, $anchorScroll, $location) {
+directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'STATIC_PREFIX', '$anchorScroll', '$location', function ($sanitize, $compile, STATIC_PREFIX, $anchorScroll, $location) {
     return {
         require: '^syEditableTable',
         scope: {
@@ -1351,12 +1351,12 @@ directives.directive('sylvaBreadcrumbs', [
     '$location',
     'parser',
     'GRAPH',
-    'DJANGO_URLS',
     'breadService',
-    function ($location, parser, GRAPH, DJANGO_URLS, breadService) {
+    'GRAPH_NAME',
+    function ($location, parser, GRAPH, breadService, GRAPH_NAME) {
     return {
         template: '<h2>' +
-                    '<a href="/graphs/{{ graphSlug }}/">{{graph}}</a> ' +
+                    '<a href="/graphs/{{ graphSlug }}/">{{ graphName }}</a> ' +
                     '<span> &raquo; </span>' +
                     '<a ng-href="#/">{{ breadText.reports }}</a>' +
                     '<span ng-if="reportName"> &raquo; </span>' +
@@ -1366,6 +1366,7 @@ directives.directive('sylvaBreadcrumbs', [
         controller: function ($scope) {
 
             $scope.graph = GRAPH;
+            $scope.graphName = GRAPH_NAME;
             $scope.graphSlug = parser.parse();
             $scope.crumbs = [];
             $scope.reportName = null;
@@ -1382,7 +1383,6 @@ directives.directive('sylvaBreadcrumbs', [
             }
         },
         link: function (scope, elem, attrs) {
-
             scope.breadText = {
                 reports: gettext('Reports')
             };

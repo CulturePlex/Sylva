@@ -129,7 +129,6 @@ controllers.controller('BaseReportCtrl', [
                     var redirect = '/';
                     $location.path(redirect);
                 } else {
-                    console.log(data.errors)
                     $scope.errors = data.errors
                 }
             }); // What if post fails
@@ -209,7 +208,6 @@ controllers.controller('NewReportCtrl', [
                         "series": "", "xAxis":"", "yAxis": []}]]
 
         api.templates.blank({}, function (data) {
-            console.log("data1", data)
             data.layout = layout;
             $scope.resp = {table: {layout: layout, pagebreaks: {0: false, 1: false}}, queries: data.queries}
             $scope.prev = {table: {layout: exampleTable, pagebreaks: {0: false, 1: false}}, queries: data.queries}
@@ -241,7 +239,6 @@ controllers.controller('EditReportCtrl', [
             template: $scope.slugs.template
 
         }, function (data) {
-            console.log("scope.slugs", data)
             var date = JSON.parse(data.template.start_date)
             ,   datetime = new Date(date)
             ,   m = datetime.getUTCMonth() + 1

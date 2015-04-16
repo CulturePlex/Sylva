@@ -129,6 +129,7 @@
                 collabs: "{% url 'collaborators_lookup' graph.slug %}"
               }
               angular.module('reports').constant("GRAPH", "{{ graph.slug }}");
+              angular.module('reports').constant("GRAPH_NAME", "{{ graph.name }}");
               angular.module('reports').constant("DJANGO_URLS", djangoUrls);
               angular.module('reports').constant("STATIC_PREFIX", "{{STATIC_PREFIX}}");
             </script>
