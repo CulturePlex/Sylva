@@ -284,15 +284,19 @@ class ReportTemplateTest(TestCase):
                                   description="Some", graph=self.graph)
         template.save()
         template_id = template.id
-        t = ReportTemplate.objects.get(pk=template_id)
-        self.assertIsNotNone(t)
+        try:
+            t = ReportTemplate.objects.get(pk=template_id)
+            exists = True
+        except ReportTemplate.DoesNotExist:
+            exists = False
+        self.assertTrue(exists)
         t.delete()
         try:
             ReportTemplate.objects.get(pk=template_id)
             exists = True
         except ReportTemplate.DoesNotExist:
             exists = False
-        self.assertEqual(exists, False)
+        self.assertFalse(exists)
 
 
 class ReportTest(TestCase):
@@ -321,12 +325,16 @@ class ReportTest(TestCase):
                         template=self.template)
         report.save()
         rid = report.id
-        r = Report.objects.get(pk=rid)
-        self.assertIsNotNone(r)
+        try:
+            r = Report.objects.get(pk=rid)
+            exists = True
+        except ReportTemplate.DoesNotExist:
+            exists = False
+        self.assertTrue(exists)
         r.delete()
         try:
             Report.objects.get(pk=rid)
             exists = True
         except Report.DoesNotExist:
             exists = False
-        self.assertEqual(exists, False)
+        self.assertFalse(exists)
