@@ -318,7 +318,7 @@ def _get_bucket(date, buckets):
 def builder_endpoint(request, graph_slug):
     graph = get_object_or_404(Graph, slug=graph_slug)
     template = {}
-    if request.POST:
+    if request.method == "POST":
         template = json.loads(request.body)['template']
         date_dict = template['start_date']
         start_date = datetime.datetime(
@@ -328,7 +328,6 @@ def builder_endpoint(request, graph_slug):
             int(date_dict['hour']),
             int(date_dict['minute'])
         )
-        # Maybe change this to template instead of slug.
         if template.get('slug', ''):
             template_inst = get_object_or_404(
                 ReportTemplate, slug=template['slug']

@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 import json
 from datetime import datetime
-
 from django.test import TestCase
 
 from userena.models import UserenaSignup
@@ -168,17 +167,87 @@ class EndpointTest(TestCase):
         body = json.loads(resp.content)
         self.assertEqual(resp.status_code, 200)
 
-    # def test_builder_endpoint_new(self):
-    #     url = reverse('builder', kwargs={"graph_slug": "dh2014"})
-    #     resp = self.client.post(url)
-    #     body = json.loads(resp.content)
-    #     self.assertEqual(resp.status_code, 200)
-    #
-    # def test_builder_endpoint_edit(self):
-    #     url = reverse('builder', kwargs={"graph_slug": "dh2014"})
-    #     resp = self.client.post(url, {"slug": "name_of_template"})
-    #     body = json.loads(resp.content)
-    #     self.assertEqual(resp.status_code, 200)
+    def test_builder_endpoint_new_edit(self):
+        url = reverse('builder', kwargs={"graph_slug": "dh2014"})
+        # Create!
+        post_body = {"template": {
+            "name": "TestTemplate",
+            "frequency": "d",
+            "description": "This is a test.",
+            "collabs": [],
+            "layout": {"layout": [[{"displayQuery": 1}], [{"displayQuery": 2}]]},
+            "start_date": {"year": "2015", "month": "8", "day": "10",
+                           "hour": "8" ,"minute": "15"}
+        }}
+        resp = self.client.post(url, json.dumps(post_body),
+            content_type="application/json")
+        self.assertEqual(resp.status_code, 200)
+        try:
+            new_template = ReportTemplate.objects.get(pk=3)
+            exists = True
+        except ReportTemplate.DoesNotExist:
+            exists = False
+        self.assertTrue(exists)
+        # Now edit!
+        post_body["template"]["name"] = "edited"
+        post_body["template"]["slug"] = new_template.slug
+        resp2 = self.client.post(url, json.dumps(post_body),
+            content_type="application/json")
+        self.assertEqual(resp2.status_code, 200)
+        new_template = ReportTemplate.objects.get(pk=3)
+        self.assertEqual(new_template.name, "edited")
+
+    def test_builder_endpoint_new_error(self):
+        url = reverse('builder', kwargs={"graph_slug": "dh2014"})
+        post_body = {"template": {
+            "name": '',
+            "frequency": "d",
+            "description": "This is a test.",
+            "collabs": [],
+            "layout": {"layout": [[{"displayQuery": 1}], [{"displayQuery": 2}]]},
+            "start_date": {"year": "2015", "month": "8", "day": "10",
+                           "hour": "8" ,"minute": "15"}
+        }}
+        resp = self.client.post(url, json.dumps(post_body),
+            content_type="application/json")
+        self.assertEqual(resp.status_code, 200)
+        body = json.loads(resp.content)
+        self.assertTrue(body.get("errors", False))
+
+    def test_builder_endpoint_edit_error(self):
+        url = reverse('builder', kwargs={"graph_slug": "dh2014"})
+        post_body = {"template": {
+            "name": '',
+            "frequency": "d",
+            "description": "This is a test.",
+            "collabs": [],
+            "layout": {"layout": [[{"displayQuery": 1}], [{"displayQuery": 2}]]},
+            "start_date": {"year": "2015", "month": "8", "day": "10",
+                           "hour": "8" ,"minute": "15"},
+            "slug": "template1"
+        }}
+        resp = self.client.post(url, json.dumps(post_body),
+            content_type="application/json")
+        self.assertEqual(resp.status_code, 200)
+        body = json.loads(resp.content)
+        self.assertTrue(body.get("errors", False))
+
+    def test_builder_endpoint_edit404(self):
+        url = reverse('builder', kwargs={"graph_slug": "dh2014"})
+        post_body = {"template": {
+            "name": '',
+            "frequency": "d",
+            "description": "This is a test.",
+            "collabs": [],
+            "layout": {"layout": [[{"displayQuery": 1}], [{"displayQuery": 2}]]},
+            "start_date": {"year": "2015", "month": "8", "day": "10",
+                           "hour": "8" ,"minute": "15"},
+            "slug": "doesnotexist"
+        }}
+        resp = self.client.post(url, json.dumps(post_body),
+            content_type="application/json")
+        self.assertEqual(resp.status_code, 404)
+
 
 
 class ReportTemplateTest(TestCase):
