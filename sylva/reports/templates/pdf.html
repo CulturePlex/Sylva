@@ -1,17 +1,13 @@
 {% extends "reports_base.html" %}
 {% load i18n graphs static compress %}
 {# get_static_prefix as STATIC_PREFIX #}
-<!--  THIS FILE IS CURRENTLY UNDER CONSTRUCTION -->
-<!-- {% block title %}
+{% block title %}
   {{ graph.slug }}
 {% endblock %}
 
 {% block extra_links %}
-  {% compress css %}
-
-    <link rel="stylesheet" type="text/css" href="{{ STATIC_PREFIX }}app/css/reports.css" />
-  {% endcompress %}
-{% endblock %} -->
+    {{ block.super }}
+{% endblock %}
 
 {% block body %}
   <div ng-app="reports" id="main">
@@ -19,26 +15,7 @@
     <header class="global">
 
       {% block menu_navigation %}
-        <nav class="menu">
-          <ul>
-            <!--<li><a href="{% url "userena.views.profile_detail" request.user %}" class="text">{{ request.user }}</a></li>-->
-            {% block menu_buttons %}
-              <!--<li><a href="{% url "dashboard" %}" class="link"><span>{% trans "Dashboard" %}</span></a></li>-->
-            {% endblock %}
-            <!--<li><a href="{{ LOGOUT_URL }}" class="link"><span>{% trans "Sign out" %}</span></a></li>-->
-          </ul>
-        </nav>
       {% endblock %}
-
-      <!-- user messages -->
-      {% if messages %}
-        <ul class="messages">
-          {% for message in messages %}
-              <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
-          {% endfor %}
-        </ul>
-      {% endif %}
-      <!-- end user messages -->
 
       {% block content_title %}
       {% endblock %}
@@ -47,9 +24,7 @@
         <div class="inside clearfix">
           {% block contact_navigation %}{% endblock %}
           {% block main_navigation %}
-
-              <a href="{% url "dashboard" %}" id="link-logo" title="{% trans "Go to the Dashboard" %}">dashboard</a>
-
+              <div id="link-logo"></div>
           {% endblock %}
         </div><!-- end .inside -->
       </div><!-- end .nav-wrapper -->
@@ -61,7 +36,7 @@
 
         {% block content %}
         <div class="pdf-cont">
-          <h2>{{ graph }}: {{ template.slug }} -  {{ template.date }}</h2>
+          <h2>{{ graph }}: {{ template.slug }} {% if template.date %}-  {{ template.date }}{% endif %}</h2>
           <div sylva-pv-row-repeat class="row" resp="{{resp}}" width="1025">
             <div sylva-pv-cell-repeat class="col" row="row">
               <div ng-if="chartConfig" ng-hide='markdown' highchart config="chartConfig" ng-style="cellStyle" class="preview-cell"></div>
@@ -71,50 +46,11 @@
         </div>
 
           {% block scripts %}
-            {% compress js %}
-              <script src="{{ STATIC_PREFIX }}js/jquery.1.8.3.js"></script>
-              <script src="{{ STATIC_PREFIX }}js/base.js"></script>
-            {% endcompress %}
+            {{ block.super }}
           {% endblock %}
 
           {% block extra_scripts %}
-          {% compress js %}
-          <script type="text/javascript" src="{{ STATIC_PREFIX }}js/jquery.tokeninput.js"></script>
-            <script type="text/javascript" src="{{ STATIC_PREFIX }}js/jquery-ui-1.9.1.js"></script>
-
-            <script src="{{ STATIC_PREFIX }}app/js/third_party/angular/angular.min.js"></script>
-            <script src="{{ STATIC_PREFIX }}app/js/third_party/angular/angular-cookies.min.js"></script>
-            <script src="{{ STATIC_PREFIX }}app/js/third_party/angular/angular-resource.min.js"></script>
-            <script src="{{ STATIC_PREFIX }}app/js/third_party/angular/angular-route.min.js"></script>
-            <script src="{{ STATIC_PREFIX }}app/js/third_party/angular/angular-sanitize.min.js"></script>
-            <script src="{{ STATIC_PREFIX }}app/js/third_party/colors.js"></script>
-            <script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/highcharts/highcharts.js"></script>
-            <script type="text/javascript" src="{{ STATIC_PREFIX }}app/js/app.js" ></script>
-            <script type="text/javascript" src="{{ STATIC_PREFIX }}app/js/controllers.js" ></script>
-            <script type="text/javascript" src="{{ STATIC_PREFIX }}app/js/services.js" ></script>
-            <script type="text/javascript" src="{{ STATIC_PREFIX }}app/js/directives.js" ></script>
-            <script type="text/javascript" src="{{ STATIC_PREFIX }}app/js/third_party/highcharts-ng.js" ></script>
-            <script type="text/javascript" src="{{ STATIC_PREFIX }}app/js/third_party/showdown.min.js" ></script>
-            <script type="text/javascript" src="{{ STATIC_PREFIX }}app/js/third_party/jquery.ui.timepicker.js" ></script>
-            <script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/colpick/colpick.js"></script>
-          {% endcompress %}
-
-          <script type="text/javascript">
-            var djangoUrls = {
-              list: "{% url 'list' graph_slug=graph.slug %}",
-              templates: "{% url 'templates' graph_slug=graph.slug %}",
-              history: "{% url 'history' graph_slug=graph.slug %}",
-              builder: "{% url 'builder' graph_slug=graph.slug %}",
-              preview: "{% url 'preview' graph_slug=graph.slug %}",
-              del: "{% url 'delete' graph_slug=graph.slug %}",
-              partials: "{% url 'partials' graph_slug=graph.slug %}",
-              collabs: "{% url 'collaborators_lookup' graph.slug %}"
-            }
-            angular.module('reports').constant("GRAPH", "{{ graph.slug }}");
-            angular.module('reports').constant("DJANGO_URLS", djangoUrls);
-            angular.module('reports').constant("STATIC_PREFIX", "{{STATIC_PREFIX}}");
-          </script>
-
+            {{ block.super }}
           {% endblock %}
 
         {% endblock %}
@@ -127,12 +63,8 @@
         <div class="copyright">
           {% block footer %}
               <p>&copy; {{ CURRENT_DATE|date:"Y" }} <a href="{{ site.domain }}">{{ PROJECT_NAME }}</a>. {% trans "All rights reserved" %}.</p>
-
           {% endblock %}
         </div><!-- end .copyright -->
-        <div class="top">
-          <a href="">Top ↑</a><!--this is broken-->
-        </div><!-- end .top -->
       </div><!-- end .inside -->
     </div>
 
