@@ -183,7 +183,7 @@ def templates_endpoint(request, graph_slug):
                      (Schema, "graph__slug", "graph_slug"), return_403=True)
 def delete_endpoint(request, graph_slug):
     response = {}
-    if request.POST:
+    if request.method == "POST":
         template_slug = json.loads(request.body)['template']
         template = get_object_or_404(
             ReportTemplate, slug=template_slug
@@ -245,8 +245,8 @@ def history_endpoint(request, graph_slug):
             while bucket < now:
                 buckets.append(bucket)
                 bucket += interval
-            page = request.GET.get('page', "")
-            # BROKEN!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            page = request.GET.get('page', 1)
+            # Will test carefully when I test paginator.
             # buckets.reverse()  # Generate these in reverse when I have time.
             pgntr, output, next_page_num, prev_page_num = paginate(
                 buckets, 5, page

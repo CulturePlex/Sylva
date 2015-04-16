@@ -1,13 +1,12 @@
 {% load i18n %}
 
 <div class="prev-cont">
-  {% verbatim %}  
-  <a ng-if="pdf == false" class="button prev-button" ng-href="/reports/{{slugs.graph}}/pdf/preview?template={{template.slug}}">
+  {% verbatim %}
+  <a class="button prev-button" ng-href="/reports/{{slugs.graph}}/pdf/preview?template={{template.slug}}">
   {% endverbatim %}
     {% trans "Preview PDF" %}
   </a>
   {% verbatim %}
-  <h2 ng-if="pdf == true">{{ graph }}: {{ template.slug }} -  {{ template.date }}</h2>
   <p>{{ template.description }}</p>
   {% endverbatim %}
   <div sylva-pv-row-repeat class="row" resp="resp" width="1025">

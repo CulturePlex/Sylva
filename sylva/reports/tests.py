@@ -3,17 +3,21 @@ import json
 from datetime import datetime
 
 from django.test import TestCase
-from django.contrib.auth.models import User
 
 from userena.models import UserenaSignup
-from guardian.shortcuts import assign_perm
 
 from reports.models import ReportTemplate, Report
 from queries.models import Query
 from graphs.models import Graph
-from schemas.models import Schema
 from django.core.urlresolvers import reverse
 
+"""
+TODO:
+paginator
+pdf preview
+pdf generation/celery
+careful history endpoint test for bucket generation
+"""
 
 class EndpointTest(TestCase):
 
@@ -26,36 +30,51 @@ class EndpointTest(TestCase):
             test_user.userena_signup.activation_key)
         response = self.client.login(username="admin", password='admin')
         self.assertTrue(response)
-        graph = Graph.objects.get(pk=1)
-        graph.owner = test_user
-        graph.save()
+        self.graph = Graph.objects.get(pk=1)
+        self.graph.owner = test_user
+        self.graph.save()
 
     def test_list_endpoint(self):
         url = reverse('list', kwargs={"graph_slug": "dh2014"})
         resp = self.client.get(url)
         body = json.loads(resp.content)
         self.assertEqual(resp.status_code, 200)
+        self.assertEqual(len(body["templates"]), 2)
+
+    def test_list_endpoint404(self):
+        url = reverse('list', kwargs={"graph_slug": "dh201"})
+        resp = self.client.get(url)
+        self.assertEqual(resp.status_code, 404)
 
     def test_templates_endpoint(self):
         url = reverse('templates', kwargs={"graph_slug": "dh2014"})
         resp = self.client.get(url)
         body = json.loads(resp.content)
-        self.assertIsNone(body["template"])
-        self.assertIsNone(body["queries"])
         self.assertEqual(resp.status_code, 200)
+        self.assertFalse(body["template"])
+        self.assertFalse(body["queries"])
 
     def test_templates_endpoint_new(self):
         url = reverse('templates', kwargs={"graph_slug": "dh2014"})
         resp = self.client.get(url, {'queries': 'true'})
         body = json.loads(resp.content)
         self.assertEqual(resp.status_code, 200)
+        self.assertEqual(len(body["queries"]), 2)
 
-    # def test_templates_endpoint_edit(self):
-    #     url = reverse('templates', kwargs={"graph_slug": "dh2014"})
-    #     resp = self.client.get(url, {'queries': 'true', 'template': 'name_of_template'})
-    #     body = json.loads(resp.content)
-    #     self.assertEqual(resp.status_code, 200)
-    #
+    def test_templates_endpoint_edit(self):
+        url = reverse('templates', kwargs={"graph_slug": "dh2014"})
+        resp = self.client.get(url, {'queries': 'true', 'template': 'template1'})
+        body = json.loads(resp.content)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(body["template"]["name"], "Template1")
+        self.assertTrue(body["template"]["layout"])
+        self.assertEqual(len(body["queries"]), 2)
+
+    def test_templates_endpoint_edit404(self):
+        url = reverse('templates', kwargs={"graph_slug": "dh2014"})
+        resp = self.client.get(url, {'queries': 'true', 'template': 'doesnotexist'})
+        self.assertEqual(resp.status_code, 404)
+
     # This test requires an actual graph backend.
     # def test_templates_endpoint_preview(self):
     #     url = reverse('templates', kwargs={"graph_slug": "dh2014"})
@@ -68,36 +87,81 @@ class EndpointTest(TestCase):
         resp = self.client.get(url)
         body = json.loads(resp.content)
         self.assertEqual(resp.status_code, 200)
+        self.assertFalse(body)
 
-    # def test_delete_endpoint_del(self):
-    #     url = reverse('delete', kwargs={"graph_slug": "dh2014"})
-    #     resp = self.client.post(url)
-    #     body = json.loads(resp.content)
-    #     self.assertEqual(resp.status_code, 200)
+    def test_delete_endpoint_del(self):
+        template = ReportTemplate(name="endpointdelete",
+            start_date=datetime.now(), frequency="h", last_run=datetime.now(),
+            layout={"hello": "johndoe"}, description="Some", graph=self.graph)
+        template.save()
+        template_id = template.id
+        t = ReportTemplate.objects.get(pk=template_id)
+        self.assertIsNotNone(t)
+        url = reverse('delete', kwargs={"graph_slug": "dh2014"})
+        resp = self.client.post(url, json.dumps({"template": template.slug}),
+            content_type="application/json")
+        self.assertEqual(resp.status_code, 200)
+        try:
+            ReportTemplate.objects.get(pk=template_id)
+            exists = True
+        except ReportTemplate.DoesNotExist:
+            exists = False
+        self.assertEqual(exists, False)
 
-    # def test_delete_endpoint_check(self):
-    #     url = reverse('delete', kwargs={"graph_slug": "dh2014"})
-    #     resp = self.client.get(url, {'template': 'name_of_template'})
-    #     body = json.loads(resp.content)
-    #     self.assertEqual(resp.status_code, 200)
+    def test_delete_endpoint_del404(self):
+        url = reverse('delete', kwargs={"graph_slug": "dh2014"})
+        resp = self.client.post(url, json.dumps({"template": "doesnotexist"}),
+            content_type="application/json")
+        self.assertEqual(resp.status_code, 404)
 
+    def test_delete_endpoint_check(self):
+        url = reverse('delete', kwargs={"graph_slug": "dh2014"})
+        resp = self.client.get(url, {'template': 'template2'})
+        body = json.loads(resp.content)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(body["num_reports"], 2)
+
+    # History probably deserves its own test case , TODO
     def test_history_endpoint(self):
         url = reverse('history', kwargs={"graph_slug": "dh2014"})
         resp = self.client.get(url)
         body = json.loads(resp.content)
         self.assertEqual(resp.status_code, 200)
+        self.assertFalse(body["reports"])
 
-    # def test_history_endpoint_hist(self):
-    #     url = reverse('history', kwargs={"graph_slug": "dh2014"})
-    #     resp = self.client.get(url, {"template": "name_of_template"})
-    #     body = json.loads(resp.content)
-    #     self.assertEqual(resp.status_code, 200)
-    #
-    # def test_history_endpoint_inst(self):
-    #     url = reverse('history', kwargs={"graph_slug": "dh2014"})
-    #     resp = self.client.get(url, {"report": "name_of_report"})
-    #     body = json.loads(resp.content)
-    #     self.assertEqual(resp.status_code, 200)
+    def test_history_endpoint_hist(self):
+        url = reverse('history', kwargs={"graph_slug": "dh2014"})
+        resp = self.client.get(url, {"template": "template2"})
+        body = json.loads(resp.content)
+        self.assertEqual(resp.status_code, 200)
+        # This could be probelematic.
+        self.assertEqual(len(body["reports"][0]["reports"]), 2)  # 2 reports.
+        self.assertEqual(body["name"], "Template2")
+
+    def test_history_endpoint_hist404(self):
+        url = reverse('history', kwargs={"graph_slug": "dh2014"})
+        resp = self.client.get(url, {"template": "doesnotexist"})
+        self.assertEqual(resp.status_code, 404)
+
+    def test_history_endpoint_no_history(self):
+        url = reverse('history', kwargs={"graph_slug": "dh2014"})
+        resp = self.client.get(url, {"template": "template1"})
+        body = json.loads(resp.content)
+        self.assertEqual(resp.status_code, 200)
+        self.assertFalse(body["reports"])
+
+    def test_history_endpoint_inst(self):
+        url = reverse('history', kwargs={"graph_slug": "dh2014"})
+        resp = self.client.get(url, {"report": 1})
+        body = json.loads(resp.content)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(len(body["table"]), 2)
+
+    def test_history_endpoint_inst404(self):
+        url = reverse('history', kwargs={"graph_slug": "dh2014"})
+        resp = self.client.get(url, {"report": 100000})
+        body = json.loads(resp.content)
+        self.assertEqual(resp.status_code, 200)
 
     def test_builder_endpoint(self):
         url = reverse('builder', kwargs={"graph_slug": "dh2014"})
@@ -173,8 +237,6 @@ class ReportTest(TestCase):
                                        frequency="h", last_run=datetime.now(),
                                        layout={"hello": "world"},
                                        description="Some", graph=self.graph)
-        self.template.save()
-        self.template_id = self.template.id
         self.template.save()
         self.template_id = self.template.id
         self.datetime = datetime.now()
