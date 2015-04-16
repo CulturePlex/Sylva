@@ -161,7 +161,7 @@ class EndpointTest(TestCase):
         url = reverse('history', kwargs={"graph_slug": "dh2014"})
         resp = self.client.get(url, {"report": 100000})
         body = json.loads(resp.content)
-        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.status_code, 404)
 
     def test_builder_endpoint(self):
         url = reverse('builder', kwargs={"graph_slug": "dh2014"})
