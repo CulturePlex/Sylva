@@ -30,7 +30,7 @@
       </tr>
     </tbody>
   </table>
-  <a class="button table-button" href="#/new">New Report</a>
+  <a id="new-report-button" class="button table-button" href="#/new">New Report</a>
   <span class='pagination-info'>
 
       {% trans "Showing" %}
@@ -47,5 +47,4 @@
       {% verbatim %} {{data.num_pages}} {% endverbatim %}
       <span ng-if="data.next_page_number"><a ng-click="getPage(data.next_page_number)"><span class="symbol-medium">→</span></a>
   </span>
-
 </div>

@@ -1716,7 +1716,7 @@
 
       preProcessHTML: function() {
         // Binding cancel button
-        $('#modal-cancel').on('click', function() {
+        $('.modal-cancel').live('click', function() {
           that.closeModalLib();
           
           // We need to remove angular to avoid injection problems

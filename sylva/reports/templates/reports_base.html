@@ -57,6 +57,9 @@
               </div>
             </header>
           </div>
+          {% if as_modal %}
+          <span id="modal-back-button" class="buttonLinkOption" style="display: none; margin-top: -1px;"><a class="modal-back" >{% trans "or Back" %}</a></span>
+          {% endif %}
       {% endblock %}
 
       {% if not as_modal %}
@@ -79,11 +82,9 @@
           <div id="App2">
             <div ng-view></div>
           </div>
-
+          
           {% if as_modal %}
-          <span id="modal-cancel-button" class="buttonLinkOption">
-            <a id="modal-cancel" >{% trans "Cancel" %}</a>
-          </span>
+          <span id="modal-cancel-button" class="buttonLinkOption" style="display: none; margin-top: -2px;"><a class="modal-cancel" >{% trans "or Cancel" %}</a></span>
           {% endif %}
 
           {% block scripts %}
