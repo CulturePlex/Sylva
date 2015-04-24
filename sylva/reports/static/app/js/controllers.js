@@ -103,21 +103,6 @@ controllers.controller('BaseReportCtrl', [
                     'max-height': maxHeight,
                     'overflow-y': 'auto'
                 });
-
-                // We clone the link to put it in the right position.
-                var backLinkClon = $('#modal-back-button').clone(true);
-                backLinkClon.attr('id', 'modal-back-button-clon');
-                // We set the correct link
-                var linkIndex = $('#App1 a').length - 1;
-                var linkToBack = $('#App1 a')[linkIndex].href;
-                $('a', backLinkClon).attr('href', linkToBack);
-                setTimeout(function() {
-                  backLinkClon.css({
-                    "display": "inline-block",
-                    "margin-left": "10px"
-                  });
-                  $('.button.ng-binding').after(backLinkClon);
-                }, 10);
             }
         };
 
@@ -250,6 +235,7 @@ controllers.controller('NewReportCtrl', [
             // We clone the link to put it in the right position.
             var backLinkClon = $('#modal-back-button').clone(true);
             backLinkClon.attr('id', 'modal-back-button-clon');
+            backLinkClon.addClass('modal-back-button-clon');
             // We set the correct link
             var linkIndex = $('#App1 a').length - 2;
             var linkToBack = $('#App1 a')[linkIndex].href;
@@ -305,6 +291,7 @@ controllers.controller('EditReportCtrl', [
             // We clone the link to put it in the right position.
             var backLinkClon = $('#modal-back-button').clone(true);
             backLinkClon.attr('id', 'modal-back-button-clon');
+            backLinkClon.addClass('modal-back-button-clon');
             // We set the correct link
             var linkIndex = $('#App1 a').length - 2;
             var linkToBack = $('#App1 a')[linkIndex].href;
@@ -343,6 +330,21 @@ controllers.controller('ReportPreviewCtrl', [
                 'top': '8%',
                 'left': '2.5%'
             });
+            // We clone the link to put it in the right position.
+            var backLinkClon = $('#modal-back-button').clone(true);
+            backLinkClon.attr('id', 'modal-back-button-clon');
+            backLinkClon.addClass('modal-back-button-clon');
+            // We set the correct link
+            var linkIndex = $('#App1 a').length - 2;
+            var linkToBack = $('#App1 a')[linkIndex].href;
+            $('a', backLinkClon).attr('href', linkToBack);
+            setTimeout(function() {
+              backLinkClon.css({
+                "display": "inline-block",
+                'margin-left': '10px'
+              });
+              $('.button.prev-button').after(backLinkClon);
+            }, 10);
         }
 }]);
 
@@ -413,6 +415,7 @@ controllers.controller('ReportHistoryCtrl', [
             // We clone the link to put it in the right position.
             var backLinkClon = $('#modal-back-button').clone(true);
             backLinkClon.attr('id', 'modal-back-button-clon');
+            backLinkClon.addClass('modal-back-button-clon');
             // We set the correct link
             var linkIndex = $('#App1 a').length - 2;
             var linkToBack = $('#App1 a')[linkIndex].href;
