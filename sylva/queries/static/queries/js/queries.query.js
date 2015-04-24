@@ -207,7 +207,7 @@ diagram.aggregates = [
             divBox.css({
                 "left": (parseInt(Math.random() * 55 + 1) * 10) + "px",
                 "top": (parseInt(Math.random() * 25 + 1) * 10) + "px",
-                "width": "390px"
+                "width": "391px"
             });
             divBox.addClass("body");
             // Allowed relationships
@@ -686,6 +686,9 @@ diagram.aggregates = [
                         var aliasIndex = diagram.reltypesList[name].indexOf(boxAlias);
                         diagram.reltypesList[name].splice(aliasIndex, 1);
                     }
+                    // We restore the select for the relationships
+                    var sourceId = connectionToDelete.sourceId;
+                    $('#' + sourceId + ' .select-rel').val('choose relationship');
 
                     // We remove the connection
                     jsPlumb.detach(connectionToDelete);
@@ -955,12 +958,28 @@ diagram.aggregates = [
                 var selectorBox = '#' + idBox;
                 var selectorAggregate = '#' + idBox + " .select-aggregate";
                 var selectorRemoveRelation = '#' + idBox + " #remove-relation-icon";
+                // We need to check if we have some lookup with in between 
+                // option
+                var boxLookups = $('#' + idBox + ' .select-lookup');
+                var isThereInBetween = false;
+                $.each(boxLookups, function(index, elem) {
+                    if($(elem).val() === 'between') {
+                        isThereInBetween = true;
+                    }
+                });
                 window.idBox = idBox;
                 if(display == "none") {
-                    // We change the width of the box div
-                    $(selectorBox).css({
-                        'width': '465px'
-                    });
+                    // We change the width of the box div. Depends if we have
+                    // some in between lookups
+                    if(isThereInBetween) {
+                        $(selectorBox).css({
+                            'width': '500px'
+                        });
+                    } else {
+                        $(selectorBox).css({
+                            'width': '470px'
+                        });
+                    }
                     // We show the advanced options
                     $(selectorAggregate).css({
                         "display": "inline"
@@ -973,10 +992,17 @@ diagram.aggregates = [
                     // We need the aggregate value in case that we need to
                     // change the option in the order by select
                     var aggregate = $(selectorAggregate).val();
-                    // We change the width of the box div
-                    $(selectorBox).css({
-                        'width': '390px'
-                    });
+                    // We change the width of the box div. Depends if we have
+                    // some in between lookups
+                    if(isThereInBetween) {
+                        $(selectorBox).css({
+                            'width': '422px'
+                        });
+                    } else {
+                        $(selectorBox).css({
+                            'width': '391px'
+                        });
+                    }
                     // We show the advanced options
                     $(selectorAggregate).css({
                         "display": "none"
@@ -2084,7 +2110,14 @@ diagram.aggregates = [
             var propertyField = $(property).next().next();
             // We need to avoid the cache value for this attribute
             var propertyFromAnotherBox = propertyField.attr('data-boxproperty');
+            // We need to take into account that te 'in between' lookup can 
+            // have two properties
+            var propertyFromAnotherBox2 = propertyField.next().next().next().attr('data-boxproperty');
             var propertyValue = propertyField.val();
+
+            // We store the datatype
+            var fieldId = $(property).parent().attr('id');
+            var datatype = $('#' + fieldId + ' .select-property option:selected').data('datatype');
 
             // Treatment for the lookup 'has some value & has no value'
             if(lookup === 'isnull') {
@@ -2097,13 +2130,10 @@ diagram.aggregates = [
             // Treatment for the lookup 'is between'
             if(lookup === 'between') {
                 propertyValue1 = propertyValue;
-                propertyValue2 = $(property).next().next().next().val();
+                propertyValue2 = $(property).next().next().next().next().next().val();
                 propertyValue = new Array(propertyValue1, propertyValue2);
+                datatype = new Array(datatype, datatype);
             }
-
-            // We store the datatype
-            var fieldId = $(property).parent().attr('id');
-            var datatype = $('#' + fieldId + ' .select-property option:selected').data('datatype');
 
             // If exists, we store the aggregate and the value for distinct
             var aggregate = $(property).prev().find(":selected");
@@ -2157,13 +2187,53 @@ diagram.aggregates = [
                 if(propertyFromAnotherBox !== undefined) {
                     // Let's treat the property to check that there's no
                     // problem with it
-                    datatype = 'property_box';
-                    propertyValue = propertyFromAnotherBox;
+                    // We need to check if we have an 'in between' lookup
+                    if(propertyValue instanceof Array) {
+                        propertyValue[0] = propertyFromAnotherBox;
+                        datatype[0] = 'property_box';
+                    } else {
+                        propertyValue = propertyFromAnotherBox;
+                        datatype = 'property_box';
+                    }
                     // We need to check if we have aggregates in the
                     // conditions. In that case, our query has a different
                     // cypher so we need to store that useful fields.
                     // Let's check if we have an aggregate
                     var propSplit = propertyFromAnotherBox.split("(");
+                    var existsAgg = diagram.aggregates.indexOf(propSplit[0]);
+                    if(existsAgg !== -1) {
+                        // We have an aggregate and need to change the query,
+                        // but we need the slug.property_name, not the
+                        // property_id
+                        var propertyWithValue = propertyField.data('withvalue');
+                        meta_dict["with_statement"][propertyWithValue] = '`' + propertyWithValue + '`';
+                    }
+                    // Also, we are going to include in the meta dict the 
+                    // fieldId of the property, to get it back in case that
+                    // the property is not selected or with conditions.
+                    var selectOtherBoxes = $(property).next().next().next();
+                    var optionFieldId = $('option:selected', selectOtherBoxes).attr('data-fieldid');
+                    var isChecked = $('#' + optionFieldId + ' .checkbox-property').attr('checked');
+                    if(isChecked === undefined) {
+                        var propName = $('option:selected', selectOtherBoxes).attr('data-propname');
+                        meta_dict["boxes_properties"][optionFieldId] = propName;
+                    }
+                } if(propertyFromAnotherBox2 !== undefined) {
+                    // Let's treat the property to check that there's no
+                    // problem with it
+                    // We need to check if we have an 'in between' lookup
+                    if(propertyValue instanceof Array) {
+                        propertyValue[1] = propertyFromAnotherBox2;
+                        datatype[1] = 'property_box';
+                    } else {
+                        propertyValue = propertyFromAnotherBox2;
+                        datatype = 'property_box';
+                    }
+                    // We need to check if we have aggregates in the
+                    // conditions. In that case, our query has a different
+                    // cypher so we need to store that useful fields.
+                    // Let's check if we have an aggregate
+                    var propSplit = propertyFromAnotherBox2.split("(");
                     var existsAgg = diagram.aggregates.indexOf(propSplit[0]);
                     if(existsAgg !== -1) {
                         // We have an aggregate and need to change the query,
@@ -2482,6 +2552,13 @@ diagram.aggregates = [
                             } else {
                                 value = conditions[2];
                             }
+                            // We check if the lookup is 'isnull' or
+                            // 'notnull'
+                            if(lookup === 'isnull') {
+                                if(value === false) {
+                                    lookup = 'isnotnull';
+                                }
+                            }
                             // We have to check the and-or value
                             andOr = conditions[3];
                             // We set the values in the correct position
@@ -2491,8 +2568,8 @@ diagram.aggregates = [
                             $('#' + id + " #field" + fieldIndex + " .select-lookup").change();
                             // If the lookup is "is between", we have two inputs
                             if(lookup == "between") {
-                                $($('#' + id + " #field" + fieldIndex + " .lookup-value")[0]).val(value);
-                                $($('#' + id + " #field" + fieldIndex + " .lookup-value")[1]).val(value);
+                                $($('#' + id + " #field" + fieldIndex + " .lookup-value")[0]).val(value1);
+                                $($('#' + id + " #field" + fieldIndex + " .lookup-value")[1]).val(value2);
                             } else {
                                 $('#' + id + " #field" + fieldIndex + " .lookup-value").val(value);
                             }
@@ -2680,8 +2757,8 @@ diagram.aggregates = [
                                 $('#' + id + " #" + newFieldIndex + " .select-lookup").change();
                                 // If the lookup is "is between", we have two inputs
                                 if(lookup == "between") {
-                                    $($('#' + id + " #" + newFieldIndex + " .lookup-value")[0]).val(value);
-                                    $($('#' + id + " #" + newFieldIndex + " .lookup-value")[1]).val(value);
+                                    $($('#' + id + " #" + newFieldIndex + " .lookup-value")[0]).val(value1);
+                                    $($('#' + id + " #" + newFieldIndex + " .lookup-value")[1]).val(value2);
                                 } else {
                                     $('#' + id + " #" + newFieldIndex + " .lookup-value").val(value);
                                 }
@@ -2822,6 +2899,28 @@ diagram.aggregates = [
                         if(lookup == "between") {
                             value1 = condition[2][0];
                             value2 = condition[2][1];
+                            var isOtherBoxProp1 = $('option[value="' + value1 + '"]', $('.select-other-boxes-properties')).length;
+                            if(isOtherBoxProp1 > 0) {
+                                // We set the lookup value correctly
+                                var lookupInput = $('.lookup-value').filter(
+                                        function(index, elem) {
+                                            if($(elem).val() === value1)
+                                                return elem;
+                                        }
+                                    );
+                                $(lookupInput).next().val(value1).change();
+                            }
+                            var isOtherBoxProp2 = $('option[value="' + value2 + '"]', $('.select-other-boxes-properties')).length;
+                            if(isOtherBoxProp2 > 0) {
+                                // We set the lookup value correctly
+                                var lookupInput = $('.lookup-value').filter(
+                                        function(index, elem) {
+                                            if($(elem).val() === value2)
+                                                return elem;
+                                        }
+                                    );
+                                $(lookupInput).next().val(value2).change();
+                            }
                         } else {
                             value = condition[2];
                             var isOtherBoxProp = $('option[value="' + value + '"]', $('.select-other-boxes-properties')).length;
@@ -2948,8 +3047,7 @@ diagram.aggregates = [
         // We get the fields that are conditions to construct the box properly
         $.each(checkboxes, function(index, checkbox) {
             var lookup = $(checkbox).next().next().next().val();
-            var inputLookup = $(checkbox).next().next().next().next().val();
-            if(lookup && inputLookup) {
+            if(lookup) {
                 fieldsConditionsDict[index] = true;
             } else {
                 fieldsConditionsDict[index] = false;
@@ -4047,6 +4145,100 @@ diagram.aggregates = [
                         }
                         
                     });
+
+                    // We need to take into account that we can have in between
+                    // lookups, so we could haver another select for other 
+                    // boxes properties
+                    var isThereAnotherSelect = $(elem).next().next().next().next().next().next().attr('class') === 'select-other-boxes-properties';
+                    if(isThereAnotherSelect) {
+                        // We remove the options of the allSelectsProperties that
+                        var otherSelectBoxesProperties = $(elem).next().next().next().next().next().next();
+                        // belong to this box. This is done to avoid duplicates and
+                        // datatypes conflicts.
+                        $('option', otherSelectBoxesProperties).filter(
+                            function(index, option) {
+                                if($(option).data('slugvalue') === slugValue)
+                                    $(option).remove();
+                            }
+                        );
+                        // We need to iterate over all the properties, because
+                        // we need to take into account repeated properties, etc.
+                        // Now, we check if the datatypes are equals
+                        var propDatatype = $('option:selected', elem).data('datatype');
+                        $.each(boxProperties, function(index, propSelected) {
+                            var datatype = $('option:selected', propSelected).data('datatype');
+                            if(propDatatype === datatype) {
+                                var propertyValue = slugPropValue;
+                                // Let's check if we have aggregate
+                                var aggregate = $(elem).prev().val();
+                                if(aggregate !== "") {
+                                    var distinctValue = "";
+                                    var distinctHTML = "";
+                                    var distinct = $('option:selected', $(elem).prev()).data('distinct');
+                                    if(distinct) {
+                                        distinctValue = "DISTINCT ";
+                                        distinctHTML = " Distinct";
+                                    }
+
+                                    propertyValue = aggregate + '(' + distinctValue + propertyValue + ')';
+                                }
+                                // And now, we check that the select does not
+                                // contains the element
+                                $('option', otherSelectBoxesProperties).filter(
+                                    function(index, oldOption) {
+                                        if($(oldOption).val() === propertyValue)
+                                            containsElem = true;
+                                    }
+                                );
+
+                                if(!containsElem) {
+                                    var idBox = $(propSelected).parent().parent().parent().parent().parent().attr('id');
+                                    var $titleElem = $('#' + idBox + ' .title');
+                                    var showAlias = $titleElem.children().filter('input, select').val();
+                                    var slugAlias = $titleElem.data('slug');
+                                    var propertyId = $('option:selected', propSelected).data('propertyid');
+                                    var propertyValue = $('option:selected', propSelected).val();
+                                    var fieldId = $(propSelected).data('fieldid');
+
+                                    var value = slugAlias + '.' + propertyId;
+                                    var label = showAlias + '.' + propertyValue;
+                                    var withValue = slugAlias + '.' + propertyValue;
+
+                                    // Let's check if we have aggregate
+                                    var aggregate = $(propSelected).prev().val();
+                                    if(aggregate !== "") {
+                                        var distinctValue = "";
+                                        var distinctHTML = "";
+                                        var distinct = $('option:selected', $(propSelected).prev()).data('distinct');
+                                        if(distinct) {
+                                            distinctValue = "DISTINCT ";
+                                            distinctHTML = " Distinct";
+                                        }
+
+                                        value = aggregate + '(' + distinctValue + value + ')';
+                                        label = aggregate + distinctHTML + '(' + label + ')';
+                                        withValue = aggregate + '(' + distinctValue + withValue + ')';
+                                    }
+
+                                    // The new option for the selects
+                                    var optionBoxesProperty = $("<OPTION>");
+                                    optionBoxesProperty.addClass('option-other-boxes-properties');
+                                    optionBoxesProperty.attr('id', value);
+                                    // We add the slug value to manage the option using this field
+                                    optionBoxesProperty.attr('data-slugvalue', slugAlias);
+                                    optionBoxesProperty.attr('data-propname', propertyValue);
+                                    optionBoxesProperty.attr('data-withvalue', withValue);
+                                    optionBoxesProperty.attr('data-datatype', datatype);
+                                    optionBoxesProperty.attr('data-fieldid', fieldId);
+                                    optionBoxesProperty.attr('value', value);
+                                    optionBoxesProperty.html(label);
+
+                                    $(otherSelectBoxesProperties).append(optionBoxesProperty.clone(true));
+                                }
+                            }
+                            
+                        }); 
+                    }
                 }
             }
         });
@@ -4063,6 +4255,7 @@ diagram.aggregates = [
         // dates, etc.
         var tagName = $this.next().prop("tagName");
         var fieldId = $this.data("fieldid");
+        var idBox = $this.parent().parent().parent().parent().parent().attr('id');
 
         // We show the input for the lookup value
         $('#' + fieldId + " .lookup-value").css({
@@ -4097,11 +4290,67 @@ diagram.aggregates = [
                         && datatype != 'auto_now_add'
                         && datatype != 'auto_user';
         if(condition) {
+            // We reset the width of the box. We need to take
+            // into account if we have some aggregates selected.
+            var boxLookups = $('#' + idBox + ' .select-lookup');
+            var isThereInBetween = false;
+            $.each(boxLookups, function(index, elem) {
+                if($(elem).val() === 'between') {
+                    isThereInBetween = true;
+                }
+            });
+            var isThereAgg = $('#' + idBox + ' .select-aggregate').css('display') !== 'none';
+            if(isThereAgg) {
+                if(isThereInBetween) {
+                    $('#' + idBox).css({
+                        'width': '500px'
+                    });
+                } else {
+                    $('#' + idBox).css({
+                        'width': '470px'
+                    });
+                }
+            } else {
+                if(isThereInBetween) {
+                    $('#' + idBox).css({
+                        'width': '422px'
+                    });
+                } else {
+                    $('#' + idBox).css({
+                        'width': '391px'
+                    });
+                }
+            }
+            /*var selectOtherBoxes = $('#' + fieldId + ' .select-other-boxes-properties');
+            var linkOtherBoxes = $('#' + fieldId + ' .link-other-boxes-properties');
+            if(linkOtherBoxes.css('display') === 'none') {
+                selectOtherBoxes.css('display', 'inline-block');
+            } else {
+                linkOtherBoxes.css('display', 'inline-block');
+            }*/
+            // We check if we had two select for properties from other boxes
+            // to remove it
+            $('#' + fieldId + ' #select-other-box-properties-cloned').remove();
+            $('#' + fieldId + ' #link-other-boxes-properties-cloned').remove();
             if(value == "between") {
+                // We need to change the width of the box. We need to take
+                // into account if we have some aggregates selected.
+                var isThereAgg = $('#' + idBox + ' .select-aggregate').css('display') !== 'none';
+                if(isThereAgg) {
+                    $('#' + idBox).css({
+                        'width': '500px'
+                    });
+                } else {
+                    $('#' + idBox).css({
+                        'width': '422px'
+                    });
+                }
                 // two inputs - we check if we have introduced an input field
                 var inputValueFirst = $this.next().val();
-                var inputValueSecond = $this.next().next().val();
-                if(tagName == "INPUT" || tagName == "SELECT") {
+                var inputValueSecond = $this.next().next().next().val();
+                var isSelectOtherBoxes = $this.next().attr('class') === 'select-other-boxes-properties';
+                var isLinkOtherBoxes = $this.next().attr('class') === 'link-other-boxes-properties';
+                if((tagName == "INPUT" || tagName == "SELECT") && !isSelectOtherBoxes && !isLinkOtherBoxes) {
                     $this.next().remove();
                     tagName = $this.next().prop("tagName");
                     if(tagName == "INPUT") {
@@ -4109,6 +4358,15 @@ diagram.aggregates = [
                     }
                 }
                 $this.after("<input class='lookup-value' type='text' style=\"width: 25px; margin-left: 2%; padding: 2px 2px 1px 2px; margin-top: -4px; display: inline;\" />");
+
+                var selectOtherBoxes = $this.next().next().clone(true);
+                var linkOtherBoxes = $this.next().next().next().clone(true);
+                // We clone the select for other boxes
+                selectOtherBoxes.attr('id', 'select-other-box-properties-cloned');
+                $this.after(selectOtherBoxes);
+                // And the link to remove the select
+                linkOtherBoxes.attr('id', 'link-other-boxes-properties-cloned');
+                selectOtherBoxes.after(linkOtherBoxes);
                 $this.after("<input class='lookup-value' type='text' style=\"width: 25px; margin-left: 2%; padding: 2px 2px 1px 2px; margin-top: -4px; display: inline;\" />");
                 // We keep the value of the inputs
                 if(inputValueFirst) {
@@ -4118,7 +4376,15 @@ diagram.aggregates = [
                 }
             } else if((value == "isnotnull") || (value == "isnull")) {
                 // no inputs
-                if(tagName == "INPUT" || tagName == "SELECT") {
+                $('#' + fieldId + ' .select-other-boxes-properties').css({
+                    'display': 'none'
+                });
+                $('#' + fieldId + ' .link-other-boxes-properties').css({
+                    'display': 'none'
+                });
+                var isSelectOtherBoxes = $this.next().attr('class') === 'select-other-boxes-properties';
+                var isLinkOtherBoxes = $this.next().attr('class') === 'link-other-boxes-properties';
+                if((tagName == "INPUT" || tagName == "SELECT") && !isSelectOtherBoxes && !isLinkOtherBoxes) {
                     $this.next().remove();
                     tagName = $this.next().prop("tagName");
                     if(tagName == "INPUT") {
@@ -4128,7 +4394,9 @@ diagram.aggregates = [
             } else {
                 // one input - we check if we have introduced an input field
                 var inputValue = $this.next().val();
-                if(tagName == "INPUT" || tagName == "SELECT") {
+                var isSelectOtherBoxes = $this.next().attr('class') === 'select-other-boxes-properties';
+                var isLinkOtherBoxes = $this.next().attr('class') === 'link-other-boxes-properties';
+                if((tagName == "INPUT" || tagName == "SELECT") && !isSelectOtherBoxes && !isLinkOtherBoxes) {
                     $this.next().remove();
                     tagName = $this.next().prop("tagName");
                     if(tagName == "INPUT") {
@@ -4158,7 +4426,7 @@ diagram.aggregates = [
         $selectField.css('display', 'inline');
         // We restore the select field for a correct behaviour with the change 
         // event
-        $selectField.val("");
+        $selectField.val("choose one");
 
         // We restore the lookup input
         $lookupInput.removeAttr('data-boxproperty');

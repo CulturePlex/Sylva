@@ -461,55 +461,80 @@ class GraphDatabase(BlueprintsGraphDatabase):
                     # slug.property_id
                     # aggregate (slug.property_id)
                     # aggregate (DISTINCT slug.property_id)
-
-                    # Let's check what definition we have...
-                    match_splitted = re.split('\)|\(|\\.| ', match)
-                    match_first_element = match_splitted[0]
-                    # We check if aggregate belongs to the aggregate set
-                    if match_first_element not in AGGREGATES:
-                        slug = match_first_element
-                        prop = match_splitted[1]
-                        match_var, match_property = (
-                            self._get_slug_and_prop(slug, prop))
-                        # Finally, we assign the correct values to the dict
-                        match_dict['var'] = match_var
-                        match_dict['property'] = match_property
-                        match = match_dict
+                    # And also, we could have two match values for
+                    # 'in between' lookups...
+                    match_results = list()
+                    match_elements = list()
+                    datatypes = list()
+                    if type(match) is not list:
+                        match_elements.append(match)
+                        datatypes.append(datatype)
                     else:
-                        # We have aggregate
-                        aggregate = match_first_element
-                        match_second_element = match_splitted[1]
-                        # We check if we already have the distinct clause
-                        if match_second_element != 'DISTINCT':
-                            # We get the slug and the property
-                            slug = match_second_element
-                            prop = match_splitted[2]
-                            match_var, match_property = (
-                                self._get_slug_and_prop(slug, prop))
-                            # Once we have the slug and the prop, we build the
-                            # aggregate again
-                            agg_field = u"{0}({1}.{2})".format(aggregate,
-                                                               match_var,
-                                                               match_property)
-                            match_dict['aggregate'] = agg_field
-                            match = match_dict
+                        match_elements = match
+                        datatypes = datatype
+                    index = 0
+                    while index < len(match_elements):
+                        match_element = match_elements[index]
+                        if datatypes[index] == 'property_box':
+                            # Let's check what definition we have...
+                            match_splitted = re.split('\)|\(|\\.| ',
+                                                      match_element)
+                            match_first_element = match_splitted[0]
+                            # We check if aggregate belongs to the aggregate
+                            # set
+                            if match_first_element not in AGGREGATES:
+                                slug = match_first_element
+                                prop = match_splitted[1]
+                                match_var, match_property = (
+                                    self._get_slug_and_prop(slug, prop))
+                                # Finally, we assign the correct values to the
+                                # dict
+                                match_dict['var'] = match_var
+                                match_dict['property'] = match_property
+                                match = match_dict
+                            else:
+                                # We have aggregate
+                                aggregate = match_first_element
+                                match_second_element = match_splitted[1]
+                                # We check if we already have the distinct
+                                # clause
+                                if match_second_element != 'DISTINCT':
+                                    # We get the slug and the property
+                                    slug = match_second_element
+                                    prop = match_splitted[2]
+                                    match_var, match_property = (
+                                        self._get_slug_and_prop(slug, prop))
+                                    # Once we have the slug and the prop, we
+                                    # build the
+                                    # aggregate again
+                                    agg_field = u"{0}({1}.{2})".format(
+                                        aggregate, match_var, match_property)
+                                    match_dict['aggregate'] = agg_field
+                                    match = match_dict
+                                else:
+                                    # We have distinct, slug and the property
+                                    distinct = match_second_element
+                                    # We get the slug and the property
+                                    slug = match_splitted[2]
+                                    prop = match_splitted[3]
+                                    match_var, match_property = (
+                                        self._get_slug_and_prop(slug, prop))
+                                    # Once we have the slug and the prop, we
+                                    # build the aggregate again
+                                    agg_field = (
+                                        u"{0}({1} {2}.{3})".format(
+                                            aggregate, distinct, match_var,
+                                            match_property))
+                                    match_dict['aggregate'] = agg_field
+                                    match = match_dict
                         else:
-                            # We have distinct, slug and the property
-                            distinct = match_second_element
-                            # We get the slug and the property
-                            slug = match_splitted[2]
-                            prop = match_splitted[3]
-                            match_var, match_property = (
-                                self._get_slug_and_prop(slug, prop))
-                            # Once we have the slug and the prop, we build the
-                            # aggregate again
-                            agg_field = (
-                                u"{0}({1} {2}.{3})".format(aggregate,
-                                                           distinct,
-                                                           match_var,
-                                                           match_property))
-                            match_dict['aggregate'] = agg_field
-                            match = match_dict
+                            match = match_element
+                        index = index + 1
+                        match_results.append(match)
+                    if len(match_results) == 1:
+                        match = match_results[0]
+                    else:
+                        match = match_results
                 except IndexError:
                     match_dict['var'] = ""
                     match_dict['property'] = ""
@@ -520,12 +545,12 @@ class GraphDatabase(BlueprintsGraphDatabase):
                                        lookup="gte",
                                        match=match[0],
                                        var=property_tuple[1],
-                                       datatype=datatype)
+                                       datatype=datatype[0])
                 lte = q_lookup_builder(property=property_tuple[2],
                                        lookup="lte",
                                        match=match[1],
                                        var=property_tuple[1],
-                                       datatype=datatype)
+                                       datatype=datatype[1])
                 gte_query_objects = gte.get_query_objects(params=query_params)
                 lte_query_objects = lte.get_query_objects(params=query_params)
                 gte_condition = gte_query_objects[0]
