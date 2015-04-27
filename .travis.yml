@@ -16,11 +16,12 @@ before_script:
   - npm install karma-jasmine
   - npm install jasmine-core
   - npm install karma-firefox-launcher
+  - npm install karma-phantomjs-launcher
 script:
   - python sylva/manage.py collectstatic --noinput --settings=sylva.test_settings
   - python sylva/manage.py compress --settings=sylva.test_settings
   - coverage run --source=sylva sylva/manage.py test accounts sylva.tests data engines graphs schemas reports --settings=sylva.test_settings
-  - node_modules/karma/bin/karma start sylva/reports/static/app/js/karma.conf.js --single-run --browsers Firefox
+  - node_modules/karma/bin/karma start sylva/reports/static/app/js/karma.conf.js --single-run --browsers PhantomJS
 after_success:
   - coveralls
 after_script:
