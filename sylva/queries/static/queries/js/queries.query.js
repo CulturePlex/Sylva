@@ -143,6 +143,25 @@ diagram.lookupsValuesType = {
     'auto_user': diagram.lookupsSpecificValues
 };
 
+diagram.lookupsFtypes = {
+    'default': 'all',
+    'string': 'text',
+    'boolean': 'boolean',
+    'number': 'number',
+    'text': 'text',
+    'date': 'date',
+    'time': 'time',
+    'choices': 'text',
+    'float': 'number',
+    'collaborator': 'text',
+    'auto_now': 'auto_now',
+    'auto_now_add': 'auto_now',
+    'auto_increment': 'number',
+    'auto_increment_update': 'number',
+    'auto_user': 'text',
+    'aggregate': 'number'
+};
+
 diagram.aggregates = [
     "Count",
     "Max",
@@ -1042,6 +1061,10 @@ diagram.aggregates = [
                             $('#id_select_order_by').append(selectNewOption);
                         });
                     }
+                    // We change the datatype of the selector for other boxes
+                    // properties
+                    var propertyDatatype = $('option:selected', selectorBox + ' .select-property').attr('data-datatype');
+                    $(selectorBox + ' .select-other-boxes-properties').attr('data-datatype', propertyDatatype);
                     // We change the aggregate in the select for 
                     // properties of other boxes
                     var aggregates = $(selectorAggregate);
@@ -1053,6 +1076,7 @@ diagram.aggregates = [
                         var boxAlias = $('select', titleDiv).val();
 
                         // We use the slug for the value and alias for the html
+                        var actualDatatype = $('#' + fieldId + ' .select-other-boxes-properties').data('datatype');
                         var newValue = boxSlug + '.' + propertyValue;
                         var newHTML = boxAlias + '.' + propertyValue;
 
@@ -1061,10 +1085,12 @@ diagram.aggregates = [
                         window.fieldId = fieldId;
                         window.newValue = newValue;
                         window.newHTML = newHTML;
+                        window.actualDatatype = actualDatatype;
 
                         $.each(selectOtherBoxesProps, function(index, elem) {
                             var anotherIdBox = $(elem).parent().parent().parent().parent().parent().attr('id');
                             if(idBox !== anotherIdBox) {
+                                var datatype = $(elem).attr('data-datatype');
                                 var $option = $('option[data-fieldid="' + fieldId + '"]', $(elem));
                                 // We get the value of the lookup input to 
                                 // check if we need to change it too.
@@ -1074,18 +1100,49 @@ diagram.aggregates = [
                                 // select
                                 var existsValue = $('option[value="' + newValue + '"]', $(elem)).length;
 
-                                // If exists, we remove it.
-                                if(existsValue > 0) {
-                                    $option.remove();
-                                } else {
-                                    $option.attr('value', newValue);
-                                    $option.html(newHTML);
-                                }
+                                // We check the datatype
+                                var notDistinctDatatype = diagram.lookupsFtypes[datatype] === diagram.lookupsFtypes[actualDatatype];
+                                var defaultType = datatype === 'default';
+                                // We need to take into account the "choose one"
+                                var notChooseOne = datatype !== undefined;
+                                defaultType = defaultType && notChooseOne;
+                                if(notDistinctDatatype || defaultType) {
+                                    // If exists, we remove it.
+                                    if(existsValue > 0) {
+                                        $option.remove();
+                                    } else {
+                                        $option.attr('data-datatype', datatype);
+                                        $option.attr('value', newValue);
+                                        $option.html(newHTML);
+                                        // The new option for the selects
+                                        // var optionBoxesProperty = $("<OPTION>");
+                                        // optionBoxesProperty.addClass('option-other-boxes-properties');
+                                        // optionBoxesProperty.attr('id', newValue);
+                                        // // We add the slug value to manage the option using this field
+                                        // optionBoxesProperty.attr('data-slugvalue', slugAlias);
+                                        // optionBoxesProperty.attr('data-propname', propertyValue);
+                                        // optionBoxesProperty.attr('data-withvalue', newWithValue);
+                                        // optionBoxesProperty.attr('data-datatype', datatype);
+                                        // optionBoxesProperty.attr('data-fieldid', fieldId);
 
-                                if(sameValue) {
-                                    $('option[value="' + newValue + '"]', elem).change();
-                                    $lookupInput.attr('data-withvalue', newValue);
-                                    $lookupInput.val(newHTML);
+                                        // optionBoxesProperty.attr('value', newValue);
+                                        // optionBoxesProperty.html(newHTML);
+
+                                        // $(elem).append(optionBoxesProperty);
+                                        // $(elem).attr('data-datatype', datatype);
+
+                                        // We check if we need to change the value 
+                                        // of the lookup  input
+                                        if(sameValue) {
+                                            $('option[value="' + newValue + '"]', elem).change();
+                                            $lookupInput.attr('data-withvalue', newValue);
+                                            $lookupInput.val(newHTML);
+                                        }
+                                    }
+                                } else {
+                                    // If the types are distinct but we have 
+                                    // the option, we remove it
+                                    $option.remove();
                                 }
                             }
                         });
@@ -3491,6 +3548,9 @@ diagram.aggregates = [
         if(aggregate == '') {
             orderByFieldVal = boxSlug + '.' + propertyValue;
             orderByFieldHTML = boxAlias + '.' + propertyValue;
+        } else {
+            // We change the datatype of the select
+            $('#' + fieldId + ' .select-other-boxes-properties').attr('data-datatype', 'number');   
         }
 
         if(checkboxClicked) {
@@ -3521,6 +3581,7 @@ diagram.aggregates = [
             var lookupInputVal = $(elem).prev().val();
             var sameValue = false;
             var fieldToChange = "";
+            var actualDatatype = $(elem).attr('data-datatype');
             // We remove the options that belong to this slug to avoid
             // conflicts
             $('option', $(elem)).filter(
@@ -3556,6 +3617,7 @@ diagram.aggregates = [
                     // Let's check if an aggregate exists
                     var aggregate = $(prop).prev().val();
                     if(aggregate !== "") {
+                        datatype = 'number'
                         var distinctValue = "";
                         var distinctHTML = "";
                         var distinct = $('option:selected', $(prop).prev()).data('distinct');
@@ -3575,29 +3637,35 @@ diagram.aggregates = [
                         var newWithValue = withValue;
                     }
 
-                    // The new option for the selects
-                    var optionBoxesProperty = $("<OPTION>");
-                    optionBoxesProperty.addClass('option-other-boxes-properties');
-                    optionBoxesProperty.attr('id', newValue);
-                    // We add the slug value to manage the option using this field
-                    optionBoxesProperty.attr('data-slugvalue', slugAlias);
-                    optionBoxesProperty.attr('data-propname', propertyValue);
-                    optionBoxesProperty.attr('data-withvalue', newWithValue);
-                    optionBoxesProperty.attr('data-datatype', datatype);
-                    optionBoxesProperty.attr('data-fieldid', fieldId);
+                    var notDistinctDatatype = diagram.lookupsFtypes[datatype] === diagram.lookupsFtypes[actualDatatype];
+                    var defaultType = actualDatatype === 'default';
+                    // We need to take into account the "choose one"
+                    var notChooseOne = datatype !== undefined;
+                    defaultType = defaultType && notChooseOne;
+                    if(notDistinctDatatype || defaultType) {
+                        // The new option for the selects
+                        var optionBoxesProperty = $("<OPTION>");
+                        optionBoxesProperty.addClass('option-other-boxes-properties');
+                        optionBoxesProperty.attr('id', newValue);
+                        // We add the slug value to manage the option using this field
+                        optionBoxesProperty.attr('data-slugvalue', slugAlias);
+                        optionBoxesProperty.attr('data-propname', propertyValue);
+                        optionBoxesProperty.attr('data-withvalue', newWithValue);
+                        optionBoxesProperty.attr('data-datatype', datatype);
+                        optionBoxesProperty.attr('data-fieldid', fieldId);
 
-                    optionBoxesProperty.attr('value', newValue);
-                    optionBoxesProperty.html(newHTML);
+                        optionBoxesProperty.attr('value', newValue);
+                        optionBoxesProperty.html(newHTML);
 
-                    $(elem).append(optionBoxesProperty);
-
-                    // We check if we need to change the value of the lookup 
-                    // input
-                    if(sameValue) {
-                        if(fieldId === fieldToChange) {
-                            $(elem).val(newValue).change();
-                            $(elem).prev().attr('data-withvalue', newValue);
-                            $(elem).prev().val(newHTML);
+                        $(elem).append(optionBoxesProperty);
+                        // We check if we need to change the value of the lookup 
+                        // input
+                        if(sameValue) {
+                            if(fieldId === fieldToChange) {
+                                $(elem).val(newValue).change();
+                                $(elem).prev().attr('data-withvalue', newValue);
+                                $(elem).prev().val(newHTML);
+                            }
                         }
                     }
                 });
@@ -3892,6 +3960,7 @@ diagram.aggregates = [
             // We create the select field to show after the input
             var selectBoxesProperties = $('<SELECT>');
             selectBoxesProperties.addClass('select-other-boxes-properties');
+            selectBoxesProperties.attr('data-datatype', datatype);
             selectBoxesProperties.attr("title", gettext("Select a property from another box"));
             selectBoxesProperties.css({
                 "width": "20px",
@@ -3954,9 +4023,13 @@ diagram.aggregates = [
         $('option', selectBoxesProperties).filter(
             function(index, oldOption) {
                 // First, we need to let the "choose one"
-                if($(oldOption).val() !== gettext("choose one"))
-                    if($(oldOption).data('datatype') !== actualDatatype)
+                if($(oldOption).val() !== gettext("choose one")) {
+                    var oldOptionDatatype = $(oldOption).data('datatype');
+                    var distinctDatatype = diagram.lookupsFtypes[actualDatatype] !== diagram.lookupsFtypes[oldOptionDatatype];
+                    if(distinctDatatype) {
                         $(oldOption).remove();
+                    }
+                }
             }
         );
 
@@ -3972,7 +4045,12 @@ diagram.aggregates = [
                 if(selectOtherBoxesProperties[0] !== selectBoxesProperties[0]) {
                     var datatype = $('option:selected', elem).data('datatype');
                     // Now, we check if the datatype is equal
-                    if(datatype === actualDatatype) {
+                    var notDistinctDatatype = diagram.lookupsFtypes[datatype] === diagram.lookupsFtypes[actualDatatype];
+                    var defaultType = actualDatatype === 'default';
+                    // We need to take into account the "choose one"
+                    var notChooseOne = datatype !== undefined;
+                    defaultType = defaultType && notChooseOne;
+                    if(notDistinctDatatype || defaultType) {
                         var boxAlias = $(elem).data('boxalias');
                         var propertyId = $('option:selected', elem).data('propertyid');    
                         var propertyValue = boxAlias + '.' + propertyId;
@@ -4071,62 +4149,70 @@ diagram.aggregates = [
                     // We need to iterate over all the properties, because
                     // we need to take into account repeated properties, etc.
                     // Now, we check if the datatypes are equals
+                    // Now, we check if the datatype is equal
                     var propDatatype = $('option:selected', elem).data('datatype');
                     $.each(boxProperties, function(index, propSelected) {
                         var datatype = $('option:selected', propSelected).data('datatype');
-                        if(propDatatype === datatype) {
-                            var propertyValue = slugPropValue;
+                        
+                        var propertyValue = slugPropValue;
+                        // Let's check if we have aggregate
+                        var aggregate = $(elem).prev().val();
+                        if(aggregate !== "") {
+                            var distinctValue = "";
+                            var distinctHTML = "";
+                            var distinct = $('option:selected', $(elem).prev()).data('distinct');
+                            if(distinct) {
+                                distinctValue = "DISTINCT ";
+                                distinctHTML = " Distinct";
+                            }
+
+                            propertyValue = aggregate + '(' + distinctValue + propertyValue + ')';
+                        }
+                        // And now, we check that the select does not
+                        // contains the element
+                        $('option', selectOtherBoxesProperties).filter(
+                            function(index, oldOption) {
+                                if($(oldOption).val() === propertyValue)
+                                    containsElem = true;
+                            }
+                        );
+
+                        if(!containsElem) {
+                            var idBox = $(propSelected).parent().parent().parent().parent().parent().attr('id');
+                            var $titleElem = $('#' + idBox + ' .title');
+                            var showAlias = $titleElem.children().filter('input, select').val();
+                            var slugAlias = $titleElem.data('slug');
+                            var propertyId = $('option:selected', propSelected).data('propertyid');
+                            var propertyValue = $('option:selected', propSelected).val();
+                            var fieldId = $(propSelected).data('fieldid');
+
+                            var value = slugAlias + '.' + propertyId;
+                            var label = showAlias + '.' + propertyValue;
+                            var withValue = slugAlias + '.' + propertyValue;
+
                             // Let's check if we have aggregate
-                            var aggregate = $(elem).prev().val();
+                            var aggregate = $(propSelected).prev().val();
                             if(aggregate !== "") {
+                                datatype = 'number';
                                 var distinctValue = "";
                                 var distinctHTML = "";
-                                var distinct = $('option:selected', $(elem).prev()).data('distinct');
+                                var distinct = $('option:selected', $(propSelected).prev()).data('distinct');
                                 if(distinct) {
                                     distinctValue = "DISTINCT ";
                                     distinctHTML = " Distinct";
                                 }
 
-                                propertyValue = aggregate + '(' + distinctValue + propertyValue + ')';
+                                value = aggregate + '(' + distinctValue + value + ')';
+                                label = aggregate + distinctHTML + '(' + label + ')';
+                                withValue = aggregate + '(' + distinctValue + withValue + ')';
                             }
-                            // And now, we check that the select does not
-                            // contains the element
-                            $('option', selectOtherBoxesProperties).filter(
-                                function(index, oldOption) {
-                                    if($(oldOption).val() === propertyValue)
-                                        containsElem = true;
-                                }
-                            );
 
-                            if(!containsElem) {
-                                var idBox = $(propSelected).parent().parent().parent().parent().parent().attr('id');
-                                var $titleElem = $('#' + idBox + ' .title');
-                                var showAlias = $titleElem.children().filter('input, select').val();
-                                var slugAlias = $titleElem.data('slug');
-                                var propertyId = $('option:selected', propSelected).data('propertyid');
-                                var propertyValue = $('option:selected', propSelected).val();
-                                var fieldId = $(propSelected).data('fieldid');
-
-                                var value = slugAlias + '.' + propertyId;
-                                var label = showAlias + '.' + propertyValue;
-                                var withValue = slugAlias + '.' + propertyValue;
-
-                                // Let's check if we have aggregate
-                                var aggregate = $(propSelected).prev().val();
-                                if(aggregate !== "") {
-                                    var distinctValue = "";
-                                    var distinctHTML = "";
-                                    var distinct = $('option:selected', $(propSelected).prev()).data('distinct');
-                                    if(distinct) {
-                                        distinctValue = "DISTINCT ";
-                                        distinctHTML = " Distinct";
-                                    }
-
-                                    value = aggregate + '(' + distinctValue + value + ')';
-                                    label = aggregate + distinctHTML + '(' + label + ')';
-                                    withValue = aggregate + '(' + distinctValue + withValue + ')';
-                                }
-
+                            var notDistinctDatatype = diagram.lookupsFtypes[datatype] === diagram.lookupsFtypes[propDatatype];
+                            var defaultType = propDatatype === 'default';
+                            // We need to take into account the "choose one"
+                            var notChooseOne = datatype !== undefined;
+                            defaultType = defaultType && notChooseOne;
+                            if(notDistinctDatatype || defaultType) {
                                 // The new option for the selects
                                 var optionBoxesProperty = $("<OPTION>");
                                 optionBoxesProperty.addClass('option-other-boxes-properties');
@@ -4143,7 +4229,6 @@ diagram.aggregates = [
                                 $(selectOtherBoxesProperties).append(optionBoxesProperty.clone(true));
                             }
                         }
-                        
                     });
 
                     // We need to take into account that we can have in between
