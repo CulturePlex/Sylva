@@ -25,7 +25,7 @@ script:
   - coverage run --source=sylva sylva/manage.py test accounts sylva.tests data engines graphs schemas reports --settings=sylva.test_settings
   - node_modules/karma/bin/karma start sylva/reports/static/app/js/karma.conf.js --single-run --browsers PhantomJS
 after_success:
-  - converalls-lcov -v -n sylva/reports/static/app/js/coverage/*/lcov.info > coverage.json
+  - coveralls-lcov -v -n sylva/reports/static/app/js/coverage/*/lcov.info > coverage.json
   - coveralls --merge=coverage.json
   - coveralls
 after_script:
