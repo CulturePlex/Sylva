@@ -1797,7 +1797,7 @@ class QueryTestCase(LiveServerTestCase):
 
     # Testing all the datatypes in node and relationship boxes
 
-    def test_query_builder_complex_test(self):
+    def test_query_builder_datatypes_string_number(self):
         create_graph(self)
         create_schema(self)
         box_name1 = "Bob type"
@@ -1843,7 +1843,7 @@ class QueryTestCase(LiveServerTestCase):
 
     # F fields template
 
-    def test_query_builder_f_fields_test(self):
+    def test_query_builder_f_fields_equals(self):
         create_graph(self)
         create_schema(self)
         box_name1 = "Bob type"
