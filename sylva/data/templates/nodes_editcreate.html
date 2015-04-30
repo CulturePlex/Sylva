@@ -257,6 +257,10 @@
   <script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/sigma-visualization.js"></script>
   <script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/modals.js"></script>
   <script type="text/javascript" src="{{ STATIC_PREFIX }}js/jquery.simplemodal-1.4.4.js"></script>
+  {% if as_modal %}
+  <script type="text/javascript" src="{{ STATIC_PREFIX }}js/jquery.formsets.1.2.min.js"></script>
+  <script type="text/javascript" src="{{ STATIC_PREFIX }}js/jquery.tokeninput.js"></script>
+  {% endif %}
 
   <!-- We are adding here jQueryUI manually because maybe it is already in the template. -->
   {% if not as_modal %}

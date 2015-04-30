@@ -1722,6 +1722,11 @@
           // We need to remove angular to avoid injection problems
           delete angular;
 
+          // Also, we need to remove two elements that reports leave
+          // in the HTML code
+          $('#ui-datepicker-div').remove();
+          $('#ui-timepicker-div').remove();
+
           return false;
         });
       },

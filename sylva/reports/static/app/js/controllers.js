@@ -46,6 +46,11 @@ controllers.controller('ReportListCtrl', [
                 'top': '25%',
                 'left': '7%'
             });
+            // Hide the graph from the breadcrumbs
+            var graphBreadcrumb = $($('a.ng-binding')[0]);
+            graphBreadcrumb.css('display', 'none');
+            graphBreadcrumb.next().css('display', 'none');
+
             $('#modal-back').css("display", "none");
             // We clone the link to put it in the right position.
             // The cloning is neccesary because Angular destroys the
@@ -232,6 +237,10 @@ controllers.controller('NewReportCtrl', [
                 'top': '8%',
                 'left': '2.5%'
             });
+            // Hide the graph from the breadcrumbs
+            var graphBreadcrumb = $($('a.ng-binding')[0]);
+            graphBreadcrumb.css('display', 'none');
+            graphBreadcrumb.next().css('display', 'none');
             // We clone the link to put it in the right position.
             var backLinkClon = $('#modal-back-button').clone(true);
             backLinkClon.attr('id', 'modal-back-button-clon');
@@ -242,7 +251,7 @@ controllers.controller('NewReportCtrl', [
             $('a', backLinkClon).attr('href', linkToBack);
             setTimeout(function() {
               backLinkClon.css("display", "inline-block");
-              $('.buttonLinkOption.buttonLinkLeft input').after(backLinkClon);
+              $('.buttonLinkLeft').after(backLinkClon);
             }, 10);
         }
 }]);
@@ -288,6 +297,10 @@ controllers.controller('EditReportCtrl', [
                 'top': '8%',
                 'left': '2.5%'
             });
+            // Hide the graph from the breadcrumbs
+            var graphBreadcrumb = $($('a.ng-binding')[0]);
+            graphBreadcrumb.css('display', 'none');
+            graphBreadcrumb.next().css('display', 'none');
             // We clone the link to put it in the right position.
             var backLinkClon = $('#modal-back-button').clone(true);
             backLinkClon.attr('id', 'modal-back-button-clon');
@@ -298,7 +311,7 @@ controllers.controller('EditReportCtrl', [
             $('a', backLinkClon).attr('href', linkToBack);
             setTimeout(function() {
               backLinkClon.css("display", "inline-block");
-              $('.buttonLinkOption.buttonLinkLeft input').after(backLinkClon);
+              $('.buttonLinkLeft').after(backLinkClon);
             }, 10);
         }
 }]);
@@ -330,6 +343,10 @@ controllers.controller('ReportPreviewCtrl', [
                 'top': '8%',
                 'left': '2.5%'
             });
+            // Hide the graph from the breadcrumbs
+            var graphBreadcrumb = $($('a.ng-binding')[0]);
+            graphBreadcrumb.css('display', 'none');
+            graphBreadcrumb.next().css('display', 'none');
             // We clone the link to put it in the right position.
             var backLinkClon = $('#modal-back-button').clone(true);
             backLinkClon.attr('id', 'modal-back-button-clon');
@@ -341,7 +358,8 @@ controllers.controller('ReportPreviewCtrl', [
             setTimeout(function() {
               backLinkClon.css({
                 "display": "inline-block",
-                'margin-left': '10px'
+                'margin-left': '10px',
+                'margin-top': '-1px'
               });
               $('.button.prev-button').after(backLinkClon);
             }, 10);
@@ -412,6 +430,10 @@ controllers.controller('ReportHistoryCtrl', [
                 'top': '8%',
                 'left': '2.5%'
             });
+            // Hide the graph from the breadcrumbs
+            var graphBreadcrumb = $($('a.ng-binding')[0]);
+            graphBreadcrumb.css('display', 'none');
+            graphBreadcrumb.next().css('display', 'none');
             // We clone the link to put it in the right position.
             var backLinkClon = $('#modal-back-button').clone(true);
             backLinkClon.attr('id', 'modal-back-button-clon');
@@ -422,7 +444,7 @@ controllers.controller('ReportHistoryCtrl', [
             $('a', backLinkClon).attr('href', linkToBack);
             setTimeout(function() {
               backLinkClon.css("display", "inline-block");
-              $('.buttonLinkOption.buttonLinkLeft input').after(backLinkClon);
+              $('.buttonLinkLeft').after(backLinkClon);
             }, 10);
         }
 }]);
@@ -464,6 +486,11 @@ controllers.controller("DeleteReportCtrl", [
 
         // Set styles if we are in modals
         var modal = $('#simplemodal-container');
-        if(modal.length > 0) {}
+        if(modal.length > 0) {
+            // Hide the graph from the breadcrumbs
+            var graphBreadcrumb = $($('a.ng-binding')[0]);
+            graphBreadcrumb.css('display', 'none');
+            graphBreadcrumb.next().css('display', 'none');
+        }
 
 }]);
