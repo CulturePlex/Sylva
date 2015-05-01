@@ -320,16 +320,15 @@ def builder_endpoint(request, graph_slug):
     template = {}
     if request.method == "POST":
         template = json.loads(request.body)['template']
-        date_dict = template['start_date']
+        date = template['date'].split("/")
+        time = template['time'].split(":")
         try:
-            start_date = datetime.datetime(
-                int(date_dict['year']),
-                int(date_dict['month']),
-                int(date_dict['day']),
-                int(date_dict['hour']),
-                int(date_dict['minute'])
-            )
-        except (ValueError, KeyError):
+            start_date = datetime.datetime(int(date[2]),
+                                           int(date[0]),
+                                           int(date[1]),
+                                           int(time[0]),
+                                           int(time[1]))
+        except (ValueError, IndexError):
             start_date = ""
         if template.get('slug', ''):
             template_inst = get_object_or_404(
