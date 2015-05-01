@@ -176,8 +176,8 @@ class EndpointTest(TestCase):
             "description": "This is a test.",
             "collabs": [],
             "layout": {"layout": [[{"displayQuery": 1}], [{"displayQuery": ""}]]},
-            "start_date": {"year": "2015", "month": "8", "day": "10",
-                           "hour": "8" ,"minute": "15"}
+            "date": "10/10/2015",
+            "time": "12:30"
         }}
         resp = self.client.post(url, json.dumps(post_body),
             content_type="application/json")
@@ -205,8 +205,8 @@ class EndpointTest(TestCase):
             "description": "This is a test.",
             "collabs": [],
             "layout": {"layout": [[{"displayQuery": 1}], [{"displayQuery": 2}]]},
-            "start_date": {"year": "2015", "month": "8", "day": "10",
-                           "hour": "8" ,"minute": "15"}
+            "date": "10/10/2015",
+            "time": "12:30"
         }}
         resp = self.client.post(url, json.dumps(post_body),
             content_type="application/json")
@@ -222,8 +222,8 @@ class EndpointTest(TestCase):
             "description": "This is a test.",
             "collabs": [],
             "layout": {"layout": [[{"displayQuery": 1}], [{"displayQuery": 2}]]},
-            "start_date": {"year": "2015", "month": "8", "day": "10",
-                           "hour": "8" ,"minute": "15"},
+            "date": "10/10/2015",
+            "time": "12:30",
             "slug": "template1"
         }}
         resp = self.client.post(url, json.dumps(post_body),
@@ -240,8 +240,8 @@ class EndpointTest(TestCase):
             "description": "This is a test.",
             "collabs": [],
             "layout": {"layout": [[{"displayQuery": 1}], [{"displayQuery": 2}]]},
-            "start_date": {"year": "2015", "month": "8", "day": "10",
-                           "hour": "8" ,"minute": "15"},
+            "date": "10/10/2015",
+            "time": "12:30",
             "slug": "doesnotexist"
         }}
         resp = self.client.post(url, json.dumps(post_body),
@@ -256,8 +256,8 @@ class EndpointTest(TestCase):
             "description": "This is a test.",
             "collabs": [],
             "layout": {"layout": [[{"displayQuery": 1}], [{"displayQuery": 10}]]},
-            "start_date": {"year": "2015", "month": "8", "day": "10",
-                           "hour": "8" ,"minute": "15"}
+            "date": "10/10/2015",
+            "time": "12:30"
         }}
         resp = self.client.post(url, json.dumps(post_body),
             content_type="application/json")
