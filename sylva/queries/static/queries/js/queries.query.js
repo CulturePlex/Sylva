@@ -1181,6 +1181,109 @@ diagram.aggregates = [
                             }
                         });
                     });
+
+                    var selectBoxesProperties = $('#' + idBox + ' .select-other-boxes-properties');
+                    var boxesProperties = $('.select-property');
+                    window.selectBoxesProperties = selectBoxesProperties;
+
+                    // We remove the options that belong to this slug to avoid conflicts
+                    $('option', selectBoxesProperties).filter(
+                        function(index, option) {
+                            if($(option).val() !== 'choose one') {
+                                $(option).remove();
+                            }
+                        }
+                    );
+
+                    // We add all the properties of the other selects
+                    $.each(boxesProperties, function(index, elem) {
+                        var containsElem = false;
+                        // We need to avoid to add the properties of the same box
+                        var idElemBox = $(elem).parent().parent().parent().parent().parent().attr('id');
+
+                        if(window.idBox !== idElemBox) {
+                            var datatype = $('option:selected', elem).data('datatype');
+                            // Now, we check if the datatype is equal
+                            var notDistinctDatatype = diagram.lookupsFtypes[datatype] === diagram.lookupsFtypes[actualDatatype];
+                            var defaultType = actualDatatype === 'default';
+                            // We need to take into account the "choose one"
+                            var notChooseOne = datatype !== undefined;
+                            defaultType = defaultType && notChooseOne;
+
+                            if(notDistinctDatatype || defaultType) {
+                                var boxAlias = $(elem).data('boxalias');
+                                var propertyId = $('option:selected', elem).data('propertyid');    
+                                var propertyValue = boxAlias + '.' + propertyId;
+                                var aggregate = $(elem).prev().val();
+
+                                // Let's check if we have aggregate
+                                if(aggregate !== "") {
+                                    var distinctValue = "";
+                                    var distinctHTML = "";
+                                    var distinct = $('option:selected', $(elem).prev()).data('distinct');
+                                    if(distinct) {
+                                        distinctValue = "DISTINCT ";
+                                        distinctHTML = " Distinct";
+                                    }
+
+                                    propertyValue = aggregate + '(' + distinctValue + propertyValue + ')';
+                                }
+
+                                // And now, we check that the select does not contains
+                                // the element
+                                $('option', selectBoxesProperties).filter(
+                                    function(index, oldOption) {
+                                        if($(oldOption).val() === propertyValue)
+                                            containsElem = true;
+                                    }
+                                );
+
+                                if(!containsElem) {
+                                    var idBox = $(elem).parent().parent().parent().parent().parent().attr('id');
+                                    var $titleElem = $('#' + idBox + ' .title');
+                                    var showAlias = $titleElem.children().filter('input, select').val();
+                                    var slugAlias = $titleElem.data('slug');
+                                    var propertyId = $('option:selected', elem).data('propertyid');
+                                    var propertyValue = $('option:selected', elem).val();
+                                    var fieldId = $(elem).data('fieldid');
+                                    var value = slugAlias + '.' + propertyId;
+                                    var label = showAlias + '.' + propertyValue;
+                                    var withValue = slugAlias + '.' + propertyValue;
+
+                                    // Let's check if we have aggregate
+                                    if(aggregate !== "") {
+                                        var distinctValue = "";
+                                        var distinctHTML = "";
+                                        var distinct = $('option:selected', $(elem).prev()).data('distinct');
+                                        if(distinct) {
+                                            distinctValue = "DISTINCT ";
+                                            distinctHTML = " Distinct";
+                                        }
+
+                                        value = aggregate + '(' + distinctValue + value + ')';
+                                        label = aggregate + distinctHTML + '(' + label + ')';
+                                        withValue = aggregate + '(' + distinctValue + withValue + ')';
+                                    }
+
+                                    // The new option for the selects
+                                    var optionBoxesProperty = $("<OPTION>");
+                                    optionBoxesProperty.addClass('option-other-boxes-properties');
+                                    optionBoxesProperty.attr('id', value);
+                                    // We add the slug value to manage the option using this field
+                                    optionBoxesProperty.attr('data-slugvalue', slugAlias);
+                                    optionBoxesProperty.attr('data-propname', propertyValue);
+                                    optionBoxesProperty.attr('data-withvalue', withValue);
+                                    optionBoxesProperty.attr('data-datatype', datatype);
+                                    optionBoxesProperty.attr('data-fieldid', fieldId);
+                                    optionBoxesProperty.attr('value', value);
+                                    optionBoxesProperty.html(label);
+
+                                    $(selectBoxesProperties).append(optionBoxesProperty);
+                                }
+                            }
+                        }
+                    });
+
                 }
 
                 jsPlumb.repaintEverything();
@@ -3701,9 +3804,12 @@ diagram.aggregates = [
         if(aggregate == '') {
             orderByFieldVal = boxSlug + '.' + propertyValue;
             orderByFieldHTML = boxAlias + '.' + propertyValue;
+            // We reset the datatype of the select
+            var resetDatatype = $('option:selected', $('#' + fieldId + ' .select-property')).attr('data-datatype');
+            $('#' + fieldId + ' .select-other-boxes-properties').attr('data-datatype', resetDatatype);
         } else {
             // We change the datatype of the select
-            $('#' + fieldId + ' .select-other-boxes-properties').attr('data-datatype', 'number');   
+            $('#' + fieldId + ' .select-other-boxes-properties').attr('data-datatype', 'number');
         }
 
         if(checkboxClicked) {
@@ -3824,6 +3930,109 @@ diagram.aggregates = [
                 });
             }
         });
+
+        var selectBoxesProperties = $('#' + idBox + ' .select-other-boxes-properties');
+        var boxesProperties = $('.select-property');
+        var actualDatatype = $('#' + fieldId + ' .select-other-boxes-properties').attr('data-datatype');
+        window.selectBoxesProperties = selectBoxesProperties;
+
+        // We remove the options that belong to this slug to avoid conflicts
+        $('option', selectBoxesProperties).filter(
+            function(index, option) {
+                if($(option).val() !== 'choose one') {
+                    $(option).remove();
+                }
+            }
+        );
+
+        // We add all the properties of the other selects
+        $.each(boxesProperties, function(index, elem) {
+            var containsElem = false;
+            // We need to avoid to add the properties of the same box
+            var idElemBox = $(elem).parent().parent().parent().parent().parent().attr('id');
+
+            if(window.idBox !== idElemBox) {
+                var datatype = $('option:selected', elem).data('datatype');
+                // Now, we check if the datatype is equal
+                var notDistinctDatatype = diagram.lookupsFtypes[datatype] === diagram.lookupsFtypes[actualDatatype];
+                var defaultType = actualDatatype === 'default';
+                // We need to take into account the "choose one"
+                var notChooseOne = datatype !== undefined;
+                defaultType = defaultType && notChooseOne;
+
+                if(notDistinctDatatype || defaultType) {
+                    var boxAlias = $(elem).data('boxalias');
+                    var propertyId = $('option:selected', elem).data('propertyid');    
+                    var propertyValue = boxAlias + '.' + propertyId;
+                    var aggregate = $(elem).prev().val();
+
+                    // Let's check if we have aggregate
+                    if(aggregate !== "") {
+                        var distinctValue = "";
+                        var distinctHTML = "";
+                        var distinct = $('option:selected', $(elem).prev()).data('distinct');
+                        if(distinct) {
+                            distinctValue = "DISTINCT ";
+                            distinctHTML = " Distinct";
+                        }
+
+                        propertyValue = aggregate + '(' + distinctValue + propertyValue + ')';
+                    }
+
+                    // And now, we check that the select does not contains
+                    // the element
+                    $('option', selectBoxesProperties).filter(
+                        function(index, oldOption) {
+                            if($(oldOption).val() === propertyValue)
+                                containsElem = true;
+                        }
+                    );
+
+                    if(!containsElem) {
+                        var idBox = $(elem).parent().parent().parent().parent().parent().attr('id');
+                        var $titleElem = $('#' + idBox + ' .title');
+                        var showAlias = $titleElem.children().filter('input, select').val();
+                        var slugAlias = $titleElem.data('slug');
+                        var propertyId = $('option:selected', elem).data('propertyid');
+                        var propertyValue = $('option:selected', elem).val();
+                        var fieldId = $(elem).data('fieldid');
+                        var value = slugAlias + '.' + propertyId;
+                        var label = showAlias + '.' + propertyValue;
+                        var withValue = slugAlias + '.' + propertyValue;
+
+                        // Let's check if we have aggregate
+                        if(aggregate !== "") {
+                            var distinctValue = "";
+                            var distinctHTML = "";
+                            var distinct = $('option:selected', $(elem).prev()).data('distinct');
+                            if(distinct) {
+                                distinctValue = "DISTINCT ";
+                                distinctHTML = " Distinct";
+                            }
+
+                            value = aggregate + '(' + distinctValue + value + ')';
+                            label = aggregate + distinctHTML + '(' + label + ')';
+                            withValue = aggregate + '(' + distinctValue + withValue + ')';
+                        }
+
+                        // The new option for the selects
+                        var optionBoxesProperty = $("<OPTION>");
+                        optionBoxesProperty.addClass('option-other-boxes-properties');
+                        optionBoxesProperty.attr('id', value);
+                        // We add the slug value to manage the option using this field
+                        optionBoxesProperty.attr('data-slugvalue', slugAlias);
+                        optionBoxesProperty.attr('data-propname', propertyValue);
+                        optionBoxesProperty.attr('data-withvalue', withValue);
+                        optionBoxesProperty.attr('data-datatype', datatype);
+                        optionBoxesProperty.attr('data-fieldid', fieldId);
+                        optionBoxesProperty.attr('value', value);
+                        optionBoxesProperty.html(label);
+
+                        $(selectBoxesProperties).append(optionBoxesProperty);
+                    }
+                }
+            }
+        });
     });
 
     /**
@@ -3883,6 +4092,10 @@ diagram.aggregates = [
             }
         }
 
+        // We remove the selects for other boxes properties
+        $('#' + fieldId + ' .select-other-boxes-properties').remove();
+        $('#' + fieldId + ' .link-other-boxes-properties').remove();
+
         // Here we ask if the datatype needs a special input
         var tagName = $this.next().next().prop("tagName");
         if(datatype == 'boolean') {
@@ -3935,7 +4148,6 @@ diagram.aggregates = [
             }
             $(inputLookup).insertAfter($('#' + idBox + ' #' + fieldId + ' .select-lookup'))
         } else if(datatype == 'auto_now') {
-            // Datepicker input
             if(tagName == "INPUT" || tagName == "SELECT") {
                 $this.next().next().remove();
                 var tagName = $this.next().next().prop("tagName");
@@ -3961,7 +4173,6 @@ diagram.aggregates = [
             });
             $(inputLookup).insertAfter($('#' + idBox + ' #' + fieldId + ' .select-lookup'))
         } else if(datatype == 'auto_now_add') {
-            // Datepicker input
             if(tagName == "INPUT" || tagName == "SELECT") {
                 $this.next().next().remove();
                 var tagName = $this.next().next().prop("tagName");
@@ -4112,54 +4323,45 @@ diagram.aggregates = [
         // We check if we have already the select field or the undo icon
         var selectClass = $this.next().next().next().attr('class');
 
-        if(selectClass === "select-other-boxes-properties") {
-            var selectBoxesProperties = $this.next().next().next();
-            selectBoxesProperties.css("display", "none");
-        } else if(selectClass === "fa fa-undo") {
-            $this.next().next().next().click();
-            var selectBoxesProperties = $this.next().next().next();
-            selectBoxesProperties.css("display", "none");
-        } else {
-            // We create the select field to show after the input
-            var selectBoxesProperties = $('<SELECT>');
-            selectBoxesProperties.addClass('select-other-boxes-properties');
-            selectBoxesProperties.attr('data-datatype', datatype);
-            selectBoxesProperties.attr("title", gettext("Select a property from another box"));
-            selectBoxesProperties.css({
-                "width": "20px",
-                "display": "none",
-                "margin-left": "8px",
-                "height": "18px",
-                "margin-top": "-4px"
-            });
-            selectBoxesProperties.attr("data-propselected", false);
-            $(selectBoxesProperties).insertAfter($('#' + idBox + ' #' + fieldId + ' .lookup-value'));
+        // We create the select field to show after the input
+        var selectBoxesProperties = $('<SELECT>');
+        selectBoxesProperties.addClass('select-other-boxes-properties');
+        selectBoxesProperties.attr('data-datatype', datatype);
+        selectBoxesProperties.attr("title", gettext("Select a property from another box"));
+        selectBoxesProperties.css({
+            "width": "20px",
+            "display": "none",
+            "margin-left": "8px",
+            "height": "18px",
+            "margin-top": "-4px"
+        });
+        selectBoxesProperties.attr("data-propselected", false);
+        $(selectBoxesProperties).insertAfter($('#' + idBox + ' #' + fieldId + ' .lookup-value'));
 
-            // We create the link to remove the input value again
-            var removeLookupValue = $("<A>");
-            removeLookupValue.addClass('link-other-boxes-properties');
-            removeLookupValue.css({
-                "display": "none"
-            });
-            var removeLookupValueIcon = $("<I>");
-            removeLookupValueIcon.addClass("fa fa-undo");
-            removeLookupValueIcon.css({
-                "margin-left": "8px"
-            });
-            removeLookupValue.append(removeLookupValueIcon);
-            $(removeLookupValue).insertAfter(selectBoxesProperties);
+        // We create the link to remove the input value again
+        var removeLookupValue = $("<A>");
+        removeLookupValue.addClass('link-other-boxes-properties');
+        removeLookupValue.css({
+            "display": "none"
+        });
+        var removeLookupValueIcon = $("<I>");
+        removeLookupValueIcon.addClass("fa fa-undo");
+        removeLookupValueIcon.css({
+            "margin-left": "8px"
+        });
+        removeLookupValue.append(removeLookupValueIcon);
+        $(removeLookupValue).insertAfter(selectBoxesProperties);
 
-            // The default option for the selects
-            var optionDefaultProperty = $("<OPTION>");
-            optionDefaultProperty.addClass('option-other-boxes-properties');
-            optionDefaultProperty.attr('value', gettext("choose one"));
-            optionDefaultProperty.attr('selected', 'selected');
-            optionDefaultProperty.prop('disabled', 'disabled');
-            optionDefaultProperty.html(gettext("choose one"));
+        // The default option for the selects
+        var optionDefaultProperty = $("<OPTION>");
+        optionDefaultProperty.addClass('option-other-boxes-properties');
+        optionDefaultProperty.attr('value', gettext("choose one"));
+        optionDefaultProperty.attr('selected', 'selected');
+        optionDefaultProperty.prop('disabled', 'disabled');
+        optionDefaultProperty.html(gettext("choose one"));
 
-            // We append the default option
-            $(selectBoxesProperties).prepend(optionDefaultProperty);
-        }
+        // We append the default option
+        $(selectBoxesProperties).prepend(optionDefaultProperty);
 
         // We add the new property to the select options and we update
         // all the select that we already have
@@ -4750,6 +4952,8 @@ diagram.aggregates = [
         $lookupInput.attr('data-withvalue', propWithValue);
         $lookupInput.val(propHtml);
         $lookupInput.prop('disabled', 'disabled');
+        // We restore the value of the select
+        $this.val('choose one');
     });
 
     /**
