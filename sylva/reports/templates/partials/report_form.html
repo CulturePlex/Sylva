@@ -10,29 +10,33 @@
       <div id="formContainer">
         <form id="reportForm">
           <div id="innerForm">
+            <ul class="errorlist">
+              {% verbatim %}
+                <li ng-repeat="error in errors.name">{{ error }}</li>
+              {% endverbatim %}
+            </ul>
             <p>
               <label>{% trans "Name" %}
                 <input sylva-update-text type="text" ng-model="template.name" placeholder="Report Name">
               </label>
             </p>
-            <ul>
+            <ul class="errorlist">
                 {% verbatim %}
-                <li style="color: red;"ng-repeat="error in errors.name">{{ error }}</li>
+                <li ng-repeat="error in errors.date">{{ error }}</li>
                 {% endverbatim %}
             </ul>
+
             <p>
               <label> {% trans "Start date" %}
 
                 <input type="text" sylva-datepicker readonly="true" ng-model="template.date" required="true" view="hours">
               </label>
             </p>
-
-            <ul>
+            <ul class="errorlist">
                 {% verbatim %}
-                <li style="color: red;"ng-repeat="error in errors.start_date">{{ error }}</li>
+                <li ng-repeat="error in errors.time">{{ error }}</li>
                 {% endverbatim %}
             </ul>
-
             <p>
               <label>{% trans "Time" %}
 
@@ -40,6 +44,11 @@
 
               </label>
             </p>
+            <ul class="errorlist">
+                {% verbatim %}
+                <li ng-repeat="error in errors.frequency">{{ error }}</li>
+                {% endverbatim %}
+            </ul>
 
             <p>
               <label>{% trans "Frequency" %}
@@ -52,11 +61,6 @@
                 </select>
               </label>
             </p>
-            <ul>
-                {% verbatim %}
-                <li style="color: red;"ng-repeat="error in errors.frequency">{{ error }}</li>
-                {% endverbatim %}
-            </ul>
             <p ng-show="advanced">
               <label>{% trans "Email to" %}
                   <input sylva-auto-complete precollabs="precollabs" collabs="collabs" ng-model="collab" type="text" placeholder="Enter Email" ng-maxlength="25">

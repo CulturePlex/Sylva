@@ -321,13 +321,16 @@ def builder_endpoint(request, graph_slug):
     if request.method == "POST":
         template = json.loads(request.body)['template']
         date_dict = template['start_date']
-        start_date = datetime.datetime(
-            int(date_dict['year']),
-            int(date_dict['month']),
-            int(date_dict['day']),
-            int(date_dict['hour']),
-            int(date_dict['minute'])
-        )
+        try:
+            start_date = datetime.datetime(
+                int(date_dict['year']),
+                int(date_dict['month']),
+                int(date_dict['day']),
+                int(date_dict['hour']),
+                int(date_dict['minute'])
+            )
+        except (ValueError, KeyError):
+            start_date = ""
         if template.get('slug', ''):
             template_inst = get_object_or_404(
                 ReportTemplate, slug=template['slug']

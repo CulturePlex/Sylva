@@ -126,13 +126,16 @@ controllers.controller('BaseReportCtrl', [
         $scope.saveReport = function (template) {
             // Used in report form - both edit and new ctrls
             // Gonna have to validate here
-            var date = template.date.split('/')
-            ,   time = template.time.split(':')
-            ,   datetime = new Date(date[2], date[1], date[0], time[0], time[1])
-            ,   post = new api.builder();
+            var post = new api.builder();
 
-            template.start_date = {year: date[2], month: date[0],
-                                   day: date[1], hour: time[0], minute: time[1]};
+            try {
+                var date = template.date.split('/')
+                ,   time = template.time.split(':');
+                template.start_date = {year: date[2], month: date[0],
+                                       day: date[1], hour: time[0], minute: time[1]};
+            } catch (err) {
+                template.start_date = {};
+            }
             template.collabs = $scope.collabs;
             post.template = template;
             post.$save({
@@ -143,9 +146,13 @@ controllers.controller('BaseReportCtrl', [
                     var redirect = '/';
                     $location.path(redirect);
                 } else {
+                    if (data.errors.start_date) {
+                        if (!template.time) data.errors.time = data.errors.start_date;
+                        if (!template.date) data.errors.date = data.errors.start_date;
+                    }
                     $scope.errors = data.errors
                 }
-            }); // What if post fails
+            });
         };
 }]);
 
