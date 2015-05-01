@@ -124,18 +124,7 @@ controllers.controller('BaseReportCtrl', [
         }
 
         $scope.saveReport = function (template) {
-            // Used in report form - both edit and new ctrls
-            // Gonna have to validate here
             var post = new api.builder();
-
-            try {
-                var date = template.date.split('/')
-                ,   time = template.time.split(':');
-                template.start_date = {year: date[2], month: date[0],
-                                       day: date[1], hour: time[0], minute: time[1]};
-            } catch (err) {
-                template.start_date = {};
-            }
             template.collabs = $scope.collabs;
             post.template = template;
             post.$save({
@@ -168,8 +157,8 @@ controllers.controller('NewReportCtrl', [
         $scope.template = {
             name: 'New Report',
             periodicity: 'weekly',
-            start_time: '',
-            start_date: '',
+            time: '',
+            date: '',
             description: '',
             nameHtml: '<h2>New Report</h2>'
         };
