@@ -1849,7 +1849,11 @@ class QueryTestCase(LiveServerTestCase):
         # Relationship between them
         rel_name = "Rel"
         target_name = "Bob"
-        create_allowed_relationship(self, box_name2, target_name, rel_name)
+        datatype = "s"
+        type_name = "Name3"
+        type_value = "Bob"
+        create_allowed_relationship(self, box_name2, target_name, rel_name,
+                                    datatype, type_name, type_value)
         # We navigate to the queries menu
         queries_menu(self)
         # We create two boxes

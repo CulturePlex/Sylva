@@ -42,8 +42,7 @@ controllers.controller('ReportListCtrl', [
         // if (AS_MODAL === 'True') {...}
 
         // Set styles if we are in modals
-        var modal = $('#simplemodal-container');
-        if(modal.length > 0) {
+        if(AS_MODAL) {
             $('#simplemodal-container').css({
                 'height': '47%',
                 'width': '1100px',
@@ -100,8 +99,7 @@ controllers.controller('BaseReportCtrl', [
             breadService.design()
 
             // Set styles if we are in modals
-            var modal = $('#simplemodal-container');
-            if(modal.length > 0) {
+            if(AS_MODAL) {
                 $('#simplemodal-container').css({
                     'width': '1220px'
                 });
@@ -230,8 +228,7 @@ controllers.controller('NewReportCtrl', [
         });
 
         // Set styles if we are in modals
-        var modal = $('#simplemodal-container');
-        if(modal.length > 0) {
+        if(AS_MODAL) {
             $('#simplemodal-container').css({
                 'height': '82%',
                 'width': '1220px',
@@ -291,8 +288,7 @@ controllers.controller('EditReportCtrl', [
         });
 
         // Set styles if we are in modals
-        var modal = $('#simplemodal-container');
-        if(modal.length > 0) {
+        if(AS_MODAL) {
             $('#simplemodal-container').css({
                 'height': '82%',
                 'width': '1220px',
@@ -338,8 +334,7 @@ controllers.controller('ReportPreviewCtrl', [
         });
 
         // Set styles if we are in modals
-        var modal = $('#simplemodal-container');
-        if(modal.length > 0) {
+        if(AS_MODAL) {
             $('#simplemodal-container').css({
                 'height': '82%',
                 'width': '1220px',
@@ -426,8 +421,7 @@ controllers.controller('ReportHistoryCtrl', [
         }
 
         // Set styles if we are in modals
-        var modal = $('#simplemodal-container');
-        if(modal.length > 0) {
+        if(AS_MODAL) {
             $('#simplemodal-container').css({
                 'height': '82%',
                 'width': '1220px',
@@ -490,8 +484,7 @@ controllers.controller("DeleteReportCtrl", [
         $scope.getTemplate();
 
         // Set styles if we are in modals
-        var modal = $('#simplemodal-container');
-        if(modal.length > 0) {
+        if(AS_MODAL) {
             // Hide the graph from the breadcrumbs
             var graphBreadcrumb = $($('a.ng-binding')[0]);
             graphBreadcrumb.css('display', 'none');
