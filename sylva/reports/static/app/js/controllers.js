@@ -9,7 +9,8 @@ controllers.controller('ReportListCtrl', [
     '$location',
     'api',
     'parser',
-    function ($scope, $location, api, parser) {
+    'AS_MODAL',
+    function ($scope, $location, api, parser, AS_MODAL) {
         $scope.graph = parser.parse();
         var periods = {h: 'Hourly', d: 'Daily', w: 'Weekly' , m: 'Monthly'}
         $scope.getPage = function (pageNum) {
@@ -36,6 +37,9 @@ controllers.controller('ReportListCtrl', [
         }
 
         $scope.getPage(1)
+
+        // So, somthing like:
+        // if (AS_MODAL === 'True') {...}
 
         // Set styles if we are in modals
         var modal = $('#simplemodal-container');
@@ -72,8 +76,8 @@ controllers.controller('BaseReportCtrl', [
     'GRAPH',
     'api',
     'breadService',
-    'DJANGO_URLS',
-    function ($scope, $location, $routeParams, GRAPH, api, breadService, DJANGO_URLS) {
+    'AS_MODAL',
+    function ($scope, $location, $routeParams, GRAPH, api, breadService, AS_MODAL) {
 
         $scope.slugs = {
             graph: GRAPH,
@@ -150,7 +154,8 @@ controllers.controller('NewReportCtrl', [
     '$scope',
     '$controller',
     'api',
-    function ($scope, $controller, api) {
+    'AS_MODAL',
+    function ($scope, $controller, api, AS_MODAL) {
         // Done except post
         $controller('BaseReportCtrl', {$scope: $scope});
         $scope.precollabs = null;
@@ -257,7 +262,8 @@ controllers.controller('EditReportCtrl', [
     '$scope',
     '$controller',
     'api',
-    function ($scope, $controller, api) {
+    'AS_MODAL',
+    function ($scope, $controller, api, AS_MODAL) {
         // Done except post
         $controller('BaseReportCtrl', {$scope: $scope});
         api.templates.edit({
@@ -319,7 +325,8 @@ controllers.controller('ReportPreviewCtrl', [
     'api',
     'parser',
     'breadService',
-    function ($scope, $controller, api, parser, breadService) {
+    'AS_MODAL',
+    function ($scope, $controller, api, parser, breadService, AS_MODAL) {
         $controller('BaseReportCtrl', {$scope: $scope});
         $scope.pdf = parser.pdf();
         api.templates.preview({
@@ -368,7 +375,8 @@ controllers.controller('ReportHistoryCtrl', [
     '$controller',
     'api',
     'breadService',
-    function ($scope, $controller, api, breadService) {
+    'AS_MODAL',
+    function ($scope, $controller, api, breadService, AS_MODAL) {
         $controller('BaseReportCtrl', {$scope: $scope});
         $scope.getPage = function (pageNum) {
             api.history.history({
@@ -452,7 +460,8 @@ controllers.controller("DeleteReportCtrl", [
     '$location',
     'api',
     "breadService",
-    function ($scope, $controller, $location, api, breadService) {
+    'AS_MODAL',
+    function ($scope, $controller, $location, api, breadService, AS_MODAL) {
         $controller('BaseReportCtrl', {$scope: $scope});
         $scope.getTemplate = function () {
             api.del.get({

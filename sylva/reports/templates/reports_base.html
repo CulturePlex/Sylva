@@ -58,7 +58,7 @@
             </header>
           </div>
           {% if as_modal %}
-          <span id="modal-back-button" class="buttonLinkOption" style="display: none; margin-top: 11px;"> {% trans "or" %} <a class="modal-back" >{% trans "Back" %}</a></span>
+          <span id="modal-back-button" class="buttonLinkOption" style="display: none; margin-top: -1px;"><a class="modal-back" >{% trans "or Back" %}</a></span>
           {% endif %}
       {% endblock %}
 
@@ -82,9 +82,9 @@
           <div id="App2">
             <div ng-view></div>
           </div>
-          
+
           {% if as_modal %}
-          <span id="modal-cancel-button" class="buttonLinkOption" style="display: none; margin-top: -2px;">{% trans "or" %} <a class="modal-cancel" >{% trans "Cancel" %}</a></span>
+          <span id="modal-cancel-button" class="buttonLinkOption" style="display: none; margin-top: -2px;"><a class="modal-cancel" >{% trans "or Cancel" %}</a></span>
           {% endif %}
 
           {% block scripts %}
@@ -133,6 +133,7 @@
               angular.module('reports').constant("GRAPH_NAME", "{{ graph.name }}");
               angular.module('reports').constant("DJANGO_URLS", djangoUrls);
               angular.module('reports').constant("STATIC_PREFIX", "{{STATIC_PREFIX}}");
+              angular.module('reports').constant("AS_MODAL", "{{ as_modal }}");
             </script>
           {% endblock %}
 
