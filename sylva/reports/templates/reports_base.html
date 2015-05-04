@@ -58,7 +58,9 @@
             </header>
           </div>
           {% if as_modal %}
-            <span id="modal-back-button" class="buttonLinkOption" style="display: none; margin-top: 11px;"> {% trans "or" %} <a class="modal-back" >{% trans "Back" %}</a></span>          {% endif %}
+
+            <span id="modal-back-button" class="buttonLinkOption" style="display: none; margin-top: 11px;"> {% trans "or" %} <a class="modal-back" >{% trans "Back" %}</a></span>
+
           {% endif %}
       {% endblock %}
 
@@ -84,8 +86,9 @@
           </div>
 
           {% if as_modal %}
-            <span id="modal-cancel-button" class="buttonLinkOption" style="display: none; margin-top: -2px;">{% trans "or" %} <a class="modal-cancel" >{% trans "Cancel" %}</a></span>          {% endif %}
+            <span id="modal-cancel-button" class="buttonLinkOption" style="display: none; margin-top: -2px;">{% trans "or" %} <a class="modal-cancel" >{% trans "Cancel" %}</a></span>
           {% endif %}
+
           {% block scripts %}
             {% compress js %}
               <script src="{{ STATIC_PREFIX }}js/jquery.1.8.3.js"></script>
