@@ -2444,10 +2444,10 @@ diagram.aggregates = [
                     // fieldId of the property, to get it back in case that
                     // the property is not selected or with conditions.
                     var selectOtherBoxes = $(property).next().next().next();
-                    var optionFieldId = $('option:selected', selectOtherBoxes).attr('data-fieldid');
+                    var optionFieldId = $('option[value="' + propertyValue + '"]', selectOtherBoxes).attr('data-fieldid');
                     var isChecked = $('#' + optionFieldId + ' .checkbox-property').attr('checked');
                     if(isChecked === undefined) {
-                        var propName = $('option:selected', selectOtherBoxes).attr('data-propname');
+                        var propName = $('option[value="' + propertyValue + '"]', selectOtherBoxes).attr('data-propname');
                         meta_dict["boxes_properties"][optionFieldId] = propName;
                     }
                 } if(propertyFromAnotherBox2 !== undefined) {
@@ -2478,10 +2478,10 @@ diagram.aggregates = [
                     // fieldId of the property, to get it back in case that
                     // the property is not selected or with conditions.
                     var selectOtherBoxes = $(property).next().next().next();
-                    var optionFieldId = $('option:selected', selectOtherBoxes).attr('data-fieldid');
+                    var optionFieldId = $('option[value="' + propertyValue + '"]', selectOtherBoxes).attr('data-fieldid');
                     var isChecked = $('#' + optionFieldId + ' .checkbox-property').attr('checked');
                     if(isChecked === undefined) {
-                        var propName = $('option:selected', selectOtherBoxes).attr('data-propname');
+                        var propName = $('option[value="' + propertyValue + '"]', selectOtherBoxes).attr('data-propname');
                         meta_dict["boxes_properties"][optionFieldId] = propName;
                     }
                 }
@@ -3643,7 +3643,7 @@ diagram.aggregates = [
         // between the two types
         diagram.checkTargetType(scopeSource, relationId, idBox, label, name, idrel);
 
-        // We restore the "choose one" value
+        // We restore the "choose relationship" value
         $this.val("choose relationship");
     });
 
@@ -4952,6 +4952,7 @@ diagram.aggregates = [
         $lookupInput.attr('data-withvalue', propWithValue);
         $lookupInput.val(propHtml);
         $lookupInput.prop('disabled', 'disabled');
+
         // We restore the value of the select
         $this.val('choose one');
     });

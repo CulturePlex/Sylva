@@ -1975,9 +1975,41 @@ class QueryTestCase(LiveServerTestCase):
         select_property3 = self.browser.find_by_xpath(
             "//option[@class='option-property' and text()='Name3']").first
         select_property3.click()
+        # We check the property to return the property value
+        checkbox1 = self.browser.find_by_xpath(
+            "//input[@class='checkbox-property']")[0]
+        checkbox1.click()
+        checkbox2 = self.browser.find_by_xpath(
+            "//input[@class='checkbox-property']")[1]
+        checkbox2.click()
+        checkbox3 = self.browser.find_by_xpath(
+            "//input[@class='checkbox-property']")[2]
+        checkbox3.click()
+        # We select the lookup equals
+        lookup_option = self.browser.find_by_xpath(
+            "//option[@class='lookup-option' and text()='equals']")[2]
+        lookup_option.click()
+        # We fill the input for the lookup value
+        lookup_input_value = self.browser.find_by_xpath(
+            "//input[@class='lookup-value']")[2].fill(
+            u"Rel")
+        # We need to click outside for a correct behaviour of the input field
+        self.browser.find_by_xpath("//div[@id='diagram']").first.click()
+        # We run the query
+        run_query(self)
+        # Right now, we are in the results view. Let's check it
+        test_no_results(self)
+        # We navigate to the query builder view
+        breadcrumb_new = self.browser.find_by_xpath(
+            "//header[@class='global']/h2/a")[2]
+        breadcrumb_new.click()
+        # We check if the values are loaded right
+        lookup_input_value = self.browser.find_by_xpath(
+            "//input[@class='lookup-value']")[2].value
+        spin_assert(lambda: self.assertEqual(lookup_input_value, u"Rel"))
         Graph.objects.get(name="Bob's graph").destroy()
 
-    # F fields template
+    # F fields
 
     def test_query_builder_f_fields_equals(self):
         create_graph(self)
@@ -2027,6 +2059,9 @@ class QueryTestCase(LiveServerTestCase):
         select_property2 = self.browser.find_by_xpath(
             "//option[@class='option-property' and text()='Name2']").first
         select_property2.click()
+        checkbox1 = self.browser.find_by_xpath(
+            "//input[@class='checkbox-property']")[0]
+        checkbox1.click()
         # We select the lookup equals
         lookup_option = self.browser.find_by_xpath(
             "//option[@class='lookup-option' and text()='equals']").first
@@ -2036,6 +2071,19 @@ class QueryTestCase(LiveServerTestCase):
             "//option[@class='option-other-boxes-properties' and "
             "@value='bob-type_1.1']").first
         f_field.click()
+        # We run the query
+        run_query(self)
+        # Right now, we are in the results view. Let's check it
+        test_no_results(self)
+        # We navigate to the query builder view
+        breadcrumb_new = self.browser.find_by_xpath(
+            "//header[@class='global']/h2/a")[2]
+        breadcrumb_new.click()
+        # We check if the values are loaded right
+        lookup_input_value = self.browser.find_by_xpath(
+            "//input[@class='lookup-value']")[0].value
+        spin_assert(lambda: self.assertEqual(lookup_input_value,
+                                             u"Bob type 1.Name1"))
         Graph.objects.get(name="Bob's graph").destroy()
 
     def test_query_builder_f_fields_equals_and_aggregate(self):
@@ -2082,10 +2130,16 @@ class QueryTestCase(LiveServerTestCase):
         select_property1 = self.browser.find_by_xpath(
             "//option[@class='option-property' and text()='Name1']").first
         select_property1.click()
+        checkbox1 = self.browser.find_by_xpath(
+            "//input[@class='checkbox-property']")[0]
+        checkbox1.click()
         # We select another property
         select_property2 = self.browser.find_by_xpath(
             "//option[@class='option-property' and text()='Name2']").first
         select_property2.click()
+        checkbox2 = self.browser.find_by_xpath(
+            "//input[@class='checkbox-property']")[1]
+        checkbox2.click()
         # We click in the advanced mode
         aggregate = self.browser.find_by_xpath(
             "//div[@id='diagramBox-2-bob-type']"
@@ -2108,4 +2162,17 @@ class QueryTestCase(LiveServerTestCase):
             "//option[@class='option-other-boxes-properties' and "
             "@value='Count(bob-type_1.1)']").first
         f_field.click()
+        # We run the query
+        run_query(self)
+        # Right now, we are in the results view. Let's check it
+        test_no_results(self)
+        # We navigate to the query builder view
+        breadcrumb_new = self.browser.find_by_xpath(
+            "//header[@class='global']/h2/a")[2]
+        breadcrumb_new.click()
+        # We check if the values are loaded right
+        lookup_input_value = self.browser.find_by_xpath(
+            "//input[@class='lookup-value']")[0].value
+        spin_assert(lambda: self.assertEqual(lookup_input_value,
+                                             u"Count(Bob type 1.Name1)"))
         Graph.objects.get(name="Bob's graph").destroy()
