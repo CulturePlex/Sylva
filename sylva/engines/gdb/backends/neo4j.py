@@ -615,11 +615,12 @@ class GraphDatabase(BlueprintsGraphDatabase):
                     # conditions_set.add(connector)
                     conditions_set.append(connector)
         # We check if we have only one condition and one operator
-        conditions_last_index = len(conditions_set) - 1
-        conditions_last_element = conditions_set[conditions_last_index]
-        if (conditions_last_element == ' AND ' or
-                conditions_last_element == ' OR '):
-            conditions_set.pop()
+        if len(conditions_set) > 0:
+            conditions_last_index = len(conditions_set) - 1
+            conditions_last_element = conditions_set[conditions_last_index]
+            if (conditions_last_element == ' AND ' or
+                    conditions_last_element == ' OR '):
+                conditions_set.pop()
         conditions = u" ".join(conditions_set)
         return (conditions, query_params, conditions_alias)
 
