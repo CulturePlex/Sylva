@@ -10,4 +10,5 @@ var djangoUrls = {
             }
 
 angular.module('reports').constant("DJANGO_URLS", djangoUrls);
-angular.module('reports').constant("GRAPH", "dh")
+angular.module('reports').constant("GRAPH", "dh");
+angular.module('reports').constant("AS_MODAL", "");
