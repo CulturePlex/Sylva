@@ -256,28 +256,30 @@ def history_endpoint(request, graph_slug):
                 )
                 interval = relativedelta.relativedelta(years=1)
             bucket = start + interval
-            buckets = [start, bucket]
+            buckets = [start]
             while bucket < now:
                 buckets.append(bucket)
                 bucket += interval
+            buckets.append(bucket)
             page = request.GET.get('page', 1)
             # Will test carefully when I test paginator.
-            # buckets.reverse()  # Generate these in reverse when I have time.
+            buckets.reverse()  # Generate these in reverse when I have time.
             pgntr, output, next_page_num, prev_page_num = paginate(
                 buckets, 5, page
             )
-            oldest = output.object_list[0]
-            newest = output.object_list[-1]
+            oldest = output.object_list[-1]
+            newest = output.object_list[0]
             reports = template.reports.filter(
                 Q(date_run__gte=oldest) & Q(date_run__lt=newest)
             ).order_by('-date_run')
+
             if len(output.object_list) == 1:
                 report_buckets = {output.object_list[0].isoformat(): []}
             else:
                 report_buckets = {k.isoformat(): [] for k in
-                                  output.object_list[:-1]}
+                                  output.object_list[1:]}
             for report in reports:
-                bucket = _get_bucket(report.date_run, output.object_list)
+                bucket = _get_bucket(report.date_run, output.object_list[1:])
                 report_buckets[bucket].append(report.dictify())
             report_buckets = [
                 {"bucket": b, "reports": r} for (b, r) in report_buckets.items()
@@ -301,14 +303,9 @@ def history_endpoint(request, graph_slug):
 
 
 def _get_bucket(date, buckets):
-    # Little search algo.
-    while len(buckets) > 1:
-        ndx = len(buckets) / 2
-        if date >= buckets[ndx]:
-            buckets = buckets[ndx:]
-        else:
-            buckets = buckets[:ndx]
-    return buckets[0].isoformat()
+    for bucket in buckets:
+        if bucket < date:
+            return bucket.isoformat()
 
 
 @login_required
@@ -442,7 +439,7 @@ def pdf_view(request, graph_slug, report_id):
 
 
 def paginate(itrbl, per_page, page):
-    paginator = Paginator(itrbl, per_page, page)
+    paginator = Paginator(itrbl, per_page)
     try:
         output = paginator.page(page)
     except PageNotAnInteger:
