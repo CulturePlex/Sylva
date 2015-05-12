@@ -128,15 +128,6 @@ class EndpointTest(TestCase):
         self.assertEqual(resp.status_code, 200)
         self.assertFalse(body["reports"])
 
-    def test_history_endpoint_hist(self):
-        url = reverse('history', kwargs={"graph_slug": "dh2014"})
-        resp = self.client.get(url, {"template": "template2"})
-        body = json.loads(resp.content)
-        self.assertEqual(resp.status_code, 200)
-        # This could be probelematic.
-        self.assertEqual(len(body["reports"][0]["reports"]), 2)  # 2 reports.
-        self.assertEqual(body["name"], "Template2")
-
     def test_history_endpoint_hist404(self):
         url = reverse('history', kwargs={"graph_slug": "dh2014"})
         resp = self.client.get(url, {"template": "doesnotexist"})
