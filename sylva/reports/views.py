@@ -256,19 +256,17 @@ def history_endpoint(request, graph_slug):
                 )
                 interval = relativedelta.relativedelta(years=1)
             bucket = start + interval
-            buckets = [start]
+            buckets = [start, bucket]
             while bucket < now:
                 buckets.append(bucket)
                 bucket += interval
-            buckets.append(bucket)
             page = request.GET.get('page', 1)
-            # Will test carefully when I test paginator.
-            buckets.reverse()  # Generate these in reverse when I have time.
+            buckets.reverse()
             pgntr, output, next_page_num, prev_page_num = paginate(
                 buckets, 5, page
             )
             oldest = output.object_list[-1]
-            newest = output.object_list[0]
+            newest = output.object_list[0] + interval
             reports = template.reports.filter(
                 Q(date_run__gte=oldest) & Q(date_run__lt=newest)
             ).order_by('-date_run')
@@ -277,9 +275,9 @@ def history_endpoint(request, graph_slug):
                 report_buckets = {output.object_list[0].isoformat(): []}
             else:
                 report_buckets = {k.isoformat(): [] for k in
-                                  output.object_list[1:]}
+                                  output.object_list}
             for report in reports:
-                bucket = _get_bucket(report.date_run, output.object_list[1:])
+                bucket = _get_bucket(report.date_run, output.object_list)
                 report_buckets[bucket].append(report.dictify())
             report_buckets = [
                 {"bucket": b, "reports": r} for (b, r) in report_buckets.items()

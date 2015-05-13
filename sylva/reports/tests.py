@@ -6,6 +6,7 @@ from django.test import TestCase
 from userena.models import UserenaSignup
 
 from reports.models import ReportTemplate, Report
+from reports.views import _get_bucket, paginate
 from queries.models import Query
 from graphs.models import Graph
 from django.core.urlresolvers import reverse
@@ -120,13 +121,23 @@ class EndpointTest(TestCase):
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(body["num_reports"], 2)
 
-    # History probably deserves its own test case , TODO
     def test_history_endpoint(self):
         url = reverse('history', kwargs={"graph_slug": "dh2014"})
         resp = self.client.get(url)
         body = json.loads(resp.content)
         self.assertEqual(resp.status_code, 200)
         self.assertFalse(body["reports"])
+
+    def test_history_endpoint_hist(self):
+        url = reverse('history', kwargs={"graph_slug": "dh2014"})
+        resp = self.client.get(url, {"template": "template2"})
+        body = json.loads(resp.content)
+        self.assertEqual(resp.status_code, 200)
+        start_date = datetime(2015, 4, 15, 0, 0, 0)
+        delta = datetime.now() - start_date
+        num_days = delta.days + 2  # Include the starting date and interval
+        import math
+        self.assertTrue(body["num_pages"], math.ceil(float(num_days) / 5))
 
     def test_history_endpoint_hist404(self):
         url = reverse('history', kwargs={"graph_slug": "dh2014"})
@@ -253,6 +264,67 @@ class EndpointTest(TestCase):
         resp = self.client.post(url, json.dumps(post_body),
             content_type="application/json")
         self.assertEqual(resp.status_code, 404)
+
+
+class HistoryUtilsTest(TestCase):
+
+    def test_get_bucket(self):
+        buckets = [datetime(2015, 5, 13, 0, 0),
+                   datetime(2015, 5, 12, 0, 0),
+                   datetime(2015, 5, 11, 0, 0),
+                   datetime(2015, 5, 10, 0, 0)]
+        date1 = datetime(2015, 5, 11, 12, 0, 0, 862562)
+        date2 = datetime(2015, 5, 10, 16, 0, 0, 862562)
+        date3 = datetime(2015, 5, 12, 13, 0, 0, 862562)
+        date4 = datetime(2015, 5, 13, 11, 0, 0, 862562)
+        b1 = _get_bucket(date1, buckets)
+        b2 = _get_bucket(date2, buckets)
+        b3 = _get_bucket(date3, buckets)
+        b4 = _get_bucket(date4, buckets)
+        self.assertEqual(b1, "2015-05-11T00:00:00")
+        self.assertEqual(b2, "2015-05-10T00:00:00")
+        self.assertEqual(b3, "2015-05-12T00:00:00")
+        self.assertEqual(b4, "2015-05-13T00:00:00")
+
+    def test_paginator(self):
+        buckets = [datetime(2015, 5, 14, 0, 0), datetime(2015, 5, 13, 0, 0),
+                   datetime(2015, 5, 12, 0, 0), datetime(2015, 5, 11, 0, 0),
+                   datetime(2015, 5, 10, 0, 0), datetime(2015, 5, 9, 0, 0),
+                   datetime(2015, 5, 8, 0, 0), datetime(2015, 5, 7, 0, 0),
+                   datetime(2015, 5, 6, 0, 0), datetime(2015, 5, 5, 0, 0),
+                   datetime(2015, 5, 4, 0, 0), datetime(2015, 5, 3, 0, 0),
+                   datetime(2015, 5, 2, 0, 0), datetime(2015, 5, 1, 0, 0),
+                   datetime(2015, 4, 30, 0, 0), datetime(2015, 4, 29, 0, 0),
+                   datetime(2015, 4, 28, 0, 0), datetime(2015, 4, 27, 0, 0),
+                   datetime(2015, 4, 26, 0, 0), datetime(2015, 4, 25, 0, 0),
+                   datetime(2015, 4, 24, 0, 0), datetime(2015, 4, 23, 0, 0),
+                   datetime(2015, 4, 22, 0, 0), datetime(2015, 4, 21, 0, 0),
+                   datetime(2015, 4, 20, 0, 0), datetime(2015, 4, 19, 0, 0),
+                   datetime(2015, 4, 18, 0, 0), datetime(2015, 4, 17, 0, 0),
+                   datetime(2015, 4, 16, 0, 0), datetime(2015, 4, 15, 0, 0)]
+        pgntr, output, next_page_num, prev_page_num = paginate(
+            buckets, 5, 1
+        )
+        self.assertEqual(len(output.object_list), 5)
+        self.assertEqual(next_page_num, 2)
+        self.assertIsNone(prev_page_num)
+        pgntr, output, next_page_num, prev_page_num = paginate(
+            buckets, 3, 2
+        )
+        self.assertEqual(len(output.object_list), 3)
+        self.assertEqual(output.object_list[0], datetime(2015, 5, 11, 0, 0))
+        self.assertEqual(output.object_list[1], datetime(2015, 5, 10, 0, 0))
+        self.assertEqual(output.object_list[2], datetime(2015, 5, 9, 0, 0))
+        self.assertEqual(next_page_num, 3)
+        self.assertEqual(prev_page_num, 1)
+        pgntr, output, next_page_num, prev_page_num = paginate(
+            buckets, 5, 6
+        )
+        self.assertEqual(len(output.object_list), 5)
+        self.assertIsNone(next_page_num)
+        self.assertEqual(prev_page_num, 5)
+
+
 
 
 class ReportTemplateTest(TestCase):
