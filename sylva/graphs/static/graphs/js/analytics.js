@@ -121,28 +121,14 @@ var initAnalytics = function($) {
             point: {
               events: {
                 mouseOver: function() {
-                  var id = this.x;
-                  if(id == 0) {
-                    // We add the decimal 0
-                    id = parseFloat(id).toFixed(1);
-                  }
-                  // We check if index is in the array
-                  var keys = Object.keys(sylva.analyticAffectedNodes);
-                  var index = keys.indexOf(id.toString());
-                  if(index > -1) {
-                    var sylvaList = sylva.analyticAffectedNodes[id].map(String);
+                  var id = this.x, sylvaList;
+                  if(id in sylva.analyticAffectedNodes) {
+                    sylvaList = sylva.analyticAffectedNodes[id].map(String);
+                    sylva.Sigma.changeSigmaTypes("aura", sylvaList);
                   } else {
-                    // Maybe we need to get the exponential value of the id
-                    id = id.toExponential();
-                    var index = keys.indexOf(id);
-                    if(index > -1) {
-                      var sylvaList = sylva.analyticAffectedNodes[id].map(String);
-                    } else {
-                      // We have an error and do nothing
-                      console.log("There's an error highlighting the nodes");
-                    }
+                    // We have an error and do nothing
+                    console.log("There's an error highlighting the nodes");
                   }
-                  sylva.Sigma.changeSigmaTypes("aura", sylvaList);
                 },
                 mouseOut: function() {
                   var point = this;
@@ -158,9 +144,14 @@ var initAnalytics = function($) {
                   var point = this;
                   sylva.Sigma.cleanSigmaTypes();
                   if(!point.selected) {
-                    var id = this.x;
-                    var sylvaList = sylva.analyticAffectedNodes[id].map(String);
-                    sylva.Sigma.changeSigmaTypes("aura", sylvaList);
+                    var id = this.x, sylvaList;
+                    if(id in sylva.analyticAffectedNodes) {
+                      sylvaList = sylva.analyticAffectedNodes[id].map(String);
+                      sylva.Sigma.changeSigmaTypes("aura", sylvaList);
+                    } else {
+                      sylva.listClickNodes = [];
+                      console.log("There's an error highlighting nodes on click");
+                    }
                     // We store the list of nodes
                     sylva.listClickNodes = sylvaList;
                   } else {
@@ -211,16 +202,14 @@ var initAnalytics = function($) {
             point: {
               events: {
                 mouseOver: function() {
-                  var id = this.x;
-                  try {
-                    var sylvaList = sylva.analyticAffectedNodes[id].map(String);
-                  } catch(e) {
-                    // If there's an error, we need to add the decimal value
-                    // to id
-                    id = id.toFixed(1);
-                    var sylvaList = sylva.analyticAffectedNodes[id].map(String);
+                  var id = this.x, sylvaList;
+                  if(id in sylva.analyticAffectedNodes) {
+                    sylvaList = sylva.analyticAffectedNodes[id].map(String);
+                    sylva.Sigma.changeSigmaTypes("aura", sylvaList);
+                  } else {
+                    // We have an error and do nothing
+                    console.log("There's an error highlighting the nodes on point over");
                   }
-                  sylva.Sigma.changeSigmaTypes("aura", sylvaList);
                 },
                 mouseOut: function() {
                   var point = this;
@@ -235,9 +224,14 @@ var initAnalytics = function($) {
                 click: function() {
                   var point = this;
                   if(!point.selected) {
-                    var id = this.x.toFixed(1);
-                    var sylvaList = sylva.analyticAffectedNodes[id].map(String);
-                    sylva.Sigma.changeSigmaTypes("aura", sylvaList);
+                    var id = this.x, sylvaList;
+                    if(id in sylva.analyticAffectedNodes) {
+                      sylvaList = sylva.analyticAffectedNodes[id].map(String);
+                      sylva.Sigma.changeSigmaTypes("aura", sylvaList);
+                    } else {
+                      sylvaList = [];
+                      console.log("There's an error highlighting the nodes on point click");
+                    }
                     // We store the list of nodes
                     sylva.listClickNodes = sylvaList;
                   } else {
@@ -333,7 +327,14 @@ var initAnalytics = function($) {
             dataType: 'json',
             url: valuesUrl,
             success: function(data) {
-              sylva.analyticAffectedNodes = data;
+              var sylvaKey;
+              sylva.analyticAffectedNodes = {}
+              for(var key in data) {
+                if(data.hasOwnProperty(key)) {
+                  sylvaKey = parseFloat(key);
+                  sylva.analyticAffectedNodes[sylvaKey] = data[key];
+                }
+              }
             },
             error: function(e) {
               alert("Error: " + e);
