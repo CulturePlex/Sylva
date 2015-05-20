@@ -133,7 +133,7 @@ directives.directive('sylvaTimepicker', function () {
 });
 
 
-directives.directive('sylvaPvRowRepeat', ['tableArray', '$compile', function (tableArray, $compile) {
+directives.directive('sylvaPvRowRepeat', ['tableArray', '$compile', '$sanitize', function (tableArray, $compile, $sanitize) {
     return {
         scope: {
             resp: '='
