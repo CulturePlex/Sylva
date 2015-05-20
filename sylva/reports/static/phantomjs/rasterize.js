@@ -18,7 +18,7 @@ phantom.addCookie({'domain': domain, 'name':'sessionid', 'value': sessionId});
 // Set the page size and orientation
 page.paperSize = {
     format: 'A4',
-    orientation: 'landscape'};
+    orientation: 'portrait'};
 
 var body = "secret=" + secret;
 page.open(url, 'POST', body, function (status) {

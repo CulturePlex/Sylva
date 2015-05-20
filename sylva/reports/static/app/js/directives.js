@@ -138,42 +138,23 @@ directives.directive('sylvaPvRowRepeat', ['tableArray', '$compile', function (ta
         scope: {
             resp: '='
         },
-        controller: function ($scope) {
+        link: function (scope, elem, attrs) {
 
-            this.getQueries = function() {
-                return $scope.queries;
-            };
-
-            this.getTableWidth = function() {
-                return $scope.tableWidth;
-            };
-
-            this.getTableArray = function() {
-                return $scope.tableArray;
-            }
-
-            this.getRowHeight = function () {
-                return $scope.rowHeight;
-            }
-        },
-        link: function (scope, elem, attrs, ctrl, transclude) {
-            var childScopes = []
-            ,   parent = elem.parent()
-            ,   aspectRatio = 1.295;
-
-            scope.tableWidth = parseInt(attrs.width)
-            scope.canvasWidth = parseInt(angular.element(elem.parents()[0]).css('width'));
+            var aspectRatio = 1.0
+            ,   tableWidth = parseInt(attrs.width)
+            ,   canvasWidth = parseInt(angular.element(elem.parents()[0]).css('width'))
+            ,   tArray;
 
             var rowHeight = function (pagebreaks) {
                 var heights = {}
                 ,   rows = [];
                 angular.forEach(pagebreaks, function (v, k) {
                     rows.push(k)
-                    if (v === true || parseInt(k) === scope.tableArray.numRows - 1) {
+                    if (v === true || parseInt(k) === tArray.numRows - 1) {
                         var numRows = rows.length;
                         for (var i=0; i<numRows; i++) {
                             var row = rows[i]
-                            ,   pageHeight = scope.canvasWidth * aspectRatio
+                            ,   pageHeight = canvasWidth * aspectRatio
                             ,   height = pageHeight / numRows;
                             heights[row] = height;
                         }
@@ -185,86 +166,94 @@ directives.directive('sylvaPvRowRepeat', ['tableArray', '$compile', function (ta
 
             scope.$watch('resp', function (newVal, oldVal) {
                 if (!(newVal) && newVal == oldVal) return;
-                scope.tableArray = tableArray(scope.resp.table.layout);
-                scope.queries = scope.resp.queries;
-                var rowH = rowHeight(scope.resp.table.pagebreaks)
-                // var numScopes = childScopes.length;
-                // if (numScopes > 0) {
-                //     for (var i=0; i<numScopes; i++) {
-                //         childScopes[i].element.remove();
-                //
-                //         childScopes[i].scope.$destroy();
-                //     }
-                //     childScopes = [];
-                // }
-                var previous = elem
-                ,   len = scope.tableArray.table.length;
+                // This executes on server response
+
+                tArray = tableArray(scope.resp.table.layout);
+
+                var queries = scope.resp.queries
+                ,   rowH = rowHeight(scope.resp.table.pagebreaks)
+                ,   len = tArray.table.length;
+
                 for (var i=0; i<len; i++) {
-                    var childScope = scope.$new();
-                    var row = scope.tableArray.table[i]
-                    var rowDiv = $('<div class="row" width="1025"></div>');
-                    var rowLen = row.length;
+
+                    var row = tArray.table[i]
+                    ,   rowDiv = $('<div class="row" width="1025"></div>')
+                    ,   rowLen = row.length;
+
                     for (var j=0; j<rowLen; j++) {
                         var cell = row[j]
                         ,   query = cell.displayQuery
                         ,   name = cell.name
                         ,   colspan = parseInt(cell.colspan)
-                        ,   cellWidth = (scope.tableWidth / scope.tableArray.numCols - ((scope.tableArray.numCols + 1) * 2 / scope.tableArray.numCols)) * colspan + (2 * (colspan - 1)) + 'px'
-                        ,   demo = cell.demo || false;
+                        ,   cellWidth = (tableWidth / tArray.numCols - ((tArray.numCols + 1) * 2 / tArray.numCols)) * colspan + (2 * (colspan - 1)) + 'px'
+                        ,   demo = cell.demo || false
+                        ,   colDiv = $("<div class='col'></div>");
+
                         if (query === "" && !(cell.displayMarkdown)) demo = true;
-                        scope.cellStyle = {width: cellWidth, height: rowH[cell.row]};
-                        var colDiv = $("<div class='col'></div>");
+
                         if (cell.displayMarkdown) {
                             var showdown = new Showdown.converter({})
-                            ,   html = $sanitize(showdown.makeHtml(cell.displayMarkdown))
-                            // IN THIS CASE, will simply append/insert markdown with jquery
+                            ,   html = $sanitize(showdown.makeHtml(cell.displayMarkdown));
+
                         } else {
                             // This is for all cases except new report
                             if (query && demo === false) {
+
                                 // This is preview, we need to run query
+                                var series;
                                 if (!cell.series) {
-                                    query = ctrl.getQueries().filter(function (el) {
+                                    query = queries.filter(function (el) {
                                         return el.id === query;
                                     })[0];
-                                    var series = query.series;
+                                    series = query.series;
+
                                 // THis is either builder mode, or history
                                 } else {
-                                    var series = cell.series
+                                    series = cell.series
                                 }
+
                                 name = query.name;
+
                                 var header = series[0]
                                 // xSeries is often catagorical, can only be one
                                 ,   xSeriesNdx = header.indexOf(cell.xAxis.alias)
-                                scope.chartSeries = [];
+                                ,   chartSeries = [];
                                 if (xSeriesNdx === -1) xSeriesNdx = 0
+
                                 // Can be multiple y series composed of numeric var
                                 // with the xSeries vars, here we build a object for
-                                // Each series
+                                // each series
                                 var yLen = cell.yAxis.length;
                                 if (cell.chartType === "pie") yLen = 1;
                                 for (var k=0; k<yLen; k++) {
                                     var ser = []
+
                                     // this is the alias of the ySeries
                                     ,   ySeries = cell.yAxis[k].alias
                                     ,   display_alias = cell.yAxis[k].display_alias
-                                    // this is the position of the ySeries in the series arr
-                                    ,   ndx = header.indexOf(ySeries);
-                                    if (cell.colors) {
 
-                                        var color = cell.colors[ySeries];
+                                    // this is the position of the ySeries in the series arr
+
+                                    ,   ndx = header.indexOf(ySeries)
+                                    ,   color;
+                                    if (cell.colors) {
+                                        color = cell.colors[ySeries];
                                     } else {
-                                        var color = ""
+                                        color = ""
                                     }
+
                                     if (ndx === -1) ndx = k + 1
+
                                     for (var m=1; m<series.length; m++) {
-                                        var serRow = series[m];
-                                        var x = serRow[xSeriesNdx];
-                                        var point = [x, serRow[ndx]];
+                                        var serRow = series[m]
+                                        ,   x = serRow[xSeriesNdx]
+                                        ,   point = [x, serRow[ndx]];
                                         ser.push(point);
                                     }
-                                    scope.chartSeries.push({name: display_alias, data: ser, color: color});
+                                    chartSeries.push({name: display_alias, data: ser, color: color});
                                 }
                             var chartType = cell.chartType
+
                             } else {
                                 //This is the new chart demo (demo="true")
                                 if (!cell.series) {
@@ -277,21 +266,21 @@ directives.directive('sylvaPvRowRepeat', ['tableArray', '$compile', function (ta
                                        ['Javier de la Rosa',24]
                                    ];
                                 }
+
                                 var chartTypes = ["pie", "line", "column"]
+                                // Random chart type
                                 ,   ndx = Number(Math.floor(Math.random() * chartTypes.length))
                                 ,   chartType = chartTypes[ndx]
                                 ,   query = "demo";
-                                scope.chartSeries = [{name: "ySeries", data: cell.series}]
+                                chartSeries = [{name: "ySeries", data: cell.series}]
                                 name = "Demo Chart";
 
                             }
-                            console.log(scope.cellStyle, cellWidth, rowH[cell.row])
-                            scope.query = query;
                             var childScope = scope.$new();
                             childScope.chartConfig = {
                                 options: {chart: {type: chartType}},
                                 xAxis: {catagories: []},
-                                series: scope.chartSeries,
+                                series: chartSeries,
                                 title: {text: name},
                                 loading: false,
                                 size: {
@@ -299,9 +288,8 @@ directives.directive('sylvaPvRowRepeat', ['tableArray', '$compile', function (ta
                                     width: parseInt(cellWidth)
                                 }
                             }
-                            console.log("")
-                            var chartHtml = '<div highchart config="chartConfig"></div>';
-                            var html = $compile(chartHtml)(childScope);
+                            var chartHtml = '<div highchart config="chartConfig"></div>'
+                            ,   html = $compile(chartHtml)(childScope);
                         }
 
                         colDiv.width(cellWidth)
@@ -310,177 +298,11 @@ directives.directive('sylvaPvRowRepeat', ['tableArray', '$compile', function (ta
                         rowDiv.append(colDiv)
 
                     }
-                    previous.append(rowDiv)
-
-
-
-
-                    // var childScope = scope.$new();
-                    // childScope.$index = i;
-                    // var marginTop;
-                    // if (i === 0) {
-                    //     childScope.rowStyle = {'margin-top': '100px'};
-                    // } else {
-                    //     childScope.rowStyle = {'margin-top': '50px'};
-                    // }
-
-                    // transclude(childScope, function (clone) {
-                    //     childScope.row = scope.tableArray.table[i];
-                    //     previous.after(clone);
-                    //     block = {};
-                    //     block.element = clone;
-                    //     block.scope = childScope;
-                    //     childScopes.push(block);
-                    //     previous = clone;
-                    // });
+                    elem.append(rowDiv);
                 }
             }, true);
         }
     };
-}]);
-
-
-directives.directive('sylvaPvCellRepeat', ['$sanitize', function ($sanitize) {
-    return {
-        transclude: 'element',
-        require: '^sylvaPvRowRepeat',
-        scope: {
-            row: '='
-        },
-        template:'<div sylva-pv-cell-repeat class="col" row="row">' +
-                '<div ng-if="chartConfig" ng-hide="markdown" highchart config="chartConfig" ng-style="cellStyle" class="preview-cell"></div>' +
-             '<div ng-show="markdown" ng-bind-html="markdown" ng-style="cellStyle" class="preview-cell display-cell"></div>' +
-            '</div>',
-        replace: true,
-        link: function(scope, elem, attrs, ctrl, transclude) {
-
-            var childScopes = []
-            ,   previous = elem
-            // ,   len = elem.row.length
-            // ,   tableWidth = ctrl.getTableWidth()
-            // ,   tableArray = ctrl.getTableArray()
-            // ,   numCols = tableArray.numCols
-            // ,   ang = angular.element;
-
-            scope.rowHeight = ctrl.getRowHeight()
-            if (childScopes.length > 0) {
-
-                for (var i=0; i<len; i++) {
-
-                    childScopes[i].element.remove();
-                    childScopes[i].scope.$destroy();
-                }
-                childScopes = [];
-            }
-            // This should be refactored
-            for (var i=0; i<len; i++) {
-                var cell = scope.row[i]
-                ,   query = cell.displayQuery
-                ,   name = cell.name
-                ,   colspan = parseInt(cell.colspan)
-                ,   cellWidth = (tableWidth / numCols - ((numCols + 1) * 2 / numCols)) * colspan + (2 * (colspan - 1)) + 'px'
-                ,   block
-                ,   demo = cell.demo || false;
-                if (query === "" && !(cell.displayMarkdown)) demo = true;
-                var childScope = scope.$new();
-                childScope.$index = i;
-                childScope.cellStyle = {width: cellWidth, height: scope.rowHeight[cell.row]};
-
-                // This should be refactored
-                if (cell.displayMarkdown) {
-                    var showdown = new Showdown.converter({})
-                    ,   html = $sanitize(showdown.makeHtml(cell.displayMarkdown))
-                    childScope.markdown = html;
-                } else {
-                    // This is for all cases except new report
-                    if (query && demo === false) {
-                        // This is preview, we need to run query
-                        if (!cell.series) {
-                            query = ctrl.getQueries().filter(function (el) {
-                                return el.id === query;
-                            })[0];
-                            var series = query.series;
-                        // THis is either builder mode, or history
-                        } else {
-                            var series = cell.series
-                        }
-                        name = query.name;
-                        var header = series[0]
-                        // xSeries is often catagorical, can only be one
-                        ,   xSeriesNdx = header.indexOf(cell.xAxis.alias)
-                        ,   chartSeries = [];
-                        if (xSeriesNdx === -1) xSeriesNdx = 0
-                        // Can be multiple y series composed of numeric var
-                        // with the xSeries vars, here we build a object for
-                        // Each series
-                        var yLen = cell.yAxis.length;
-                        if (cell.chartType === "pie") yLen = 1;
-                        for (var j=0; j<yLen; j++) {
-                            var ser = []
-                            // this is the alias of the ySeries
-                            ,   ySeries = cell.yAxis[j].alias
-                            ,   display_alias = cell.yAxis[j].display_alias
-                            // this is the position of the ySeries in the series arr
-                            ,   ndx = header.indexOf(ySeries);
-                            if (cell.colors) {
-
-                                var color = cell.colors[ySeries];
-                            } else {
-                                var color = ""
-                            }
-                            if (ndx === -1) ndx = j + 1
-                            for (var k=1; k<series.length; k++) {
-                                var row = series[k];
-                                var x = row[xSeriesNdx];
-                                var point = [x, row[ndx]];
-                                ser.push(point);
-                            }
-                            chartSeries.push({name: display_alias, data: ser, color: color});
-                        }
-                    var chartType = cell.chartType
-                    } else {
-                        //This is the new chart demo (demo="true")
-                        if (!cell.series) {
-                            cell.series = [
-                               ['Keanu Reeves',36],
-                               ['Linus Torvalds',24],
-                               ['Tyrion Lannister',20],
-                               ['Morpheus',1],
-                               ['Félix Lope de Vega Carpio',156],
-                               ['Javier de la Rosa',24]
-                           ];
-                        }
-                        var chartTypes = ["pie", "line", "column"]
-                        ,   ndx = Number(Math.floor(Math.random() * chartTypes.length))
-                        ,   chartType = chartTypes[ndx]
-                        ,   query = "demo";
-                        chartSeries = [{name: "ySeries", data: cell.series}]
-                        name = "Demo Chart";
-
-                    }
-                    // Here must config chart.
-
-                    childScope.query = query;
-                    childScope.chartConfig = {
-                        options: {chart: {type: chartType}},
-                        xAxis: {catagories: []},
-                        series: chartSeries,
-                        title: {text: name},
-                        loading: false
-                    }
-                }
-
-                transclude(childScope, function (clone) {
-                    previous.after(clone);
-                    block = {};
-                    block.element = clone;
-                    block.scope = childScope;
-                    childScopes.push(block);
-                    previous = clone;
-                });
-            }
-        }
-    }
 }]);
 
 
