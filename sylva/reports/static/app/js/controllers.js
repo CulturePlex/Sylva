@@ -100,7 +100,7 @@ controllers.controller('BaseReportCtrl', [
 
             // Set styles if we are in modals
             if(AS_MODAL) {
-                $('#simplemodal-container').css({
+                var modal = $('#simplemodal-container').css({
                     'width': '1220px'
                 });
                 // We set a max height for the editable table
@@ -229,6 +229,7 @@ controllers.controller('NewReportCtrl', [
 
         // Set styles if we are in modals
         if(AS_MODAL) {
+            console.log("entered")
             $('#simplemodal-container').css({
                 'height': '82%',
                 'width': '1220px',
