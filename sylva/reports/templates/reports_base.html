@@ -129,12 +129,13 @@
                 del: "{% url 'delete' graph_slug=graph.slug %}",
                 partials: "{% url 'partials' graph_slug=graph.slug %}",
                 collabs: "{% url 'collaborators_lookup' graph.slug %}"
-              }
+              };
+              var asModal = {{ as_modal|yesno:"true,false" }};
               angular.module('reports').constant("GRAPH", "{{ graph.slug }}");
               angular.module('reports').constant("GRAPH_NAME", "{{ graph.name }}");
               angular.module('reports').constant("DJANGO_URLS", djangoUrls);
               angular.module('reports').constant("STATIC_PREFIX", "{{STATIC_PREFIX}}");
-              angular.module('reports').constant("AS_MODAL", "{{ as_modal }}");
+              angular.module('reports').constant("AS_MODAL", asModal);
             </script>
           {% endblock %}
 
