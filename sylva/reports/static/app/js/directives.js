@@ -136,11 +136,12 @@ directives.directive('sylvaTimepicker', function () {
 directives.directive('sylvaPvRowRepeat', ['tableArray', '$compile', '$sanitize', function (tableArray, $compile, $sanitize) {
     return {
         scope: {
-            resp: '='
+            resp: '=',
+            prev: '='
         },
         link: function (scope, elem, attrs) {
-
-            var aspectRatio = 1.0
+            console.log("prev", scope.prev)
+            var aspectRatio = 1.25
             ,   tableWidth = parseInt(attrs.width)
             ,   canvasWidth = parseInt(angular.element(elem.parents()[0]).css('width'))
             ,   tArray;
@@ -154,7 +155,7 @@ directives.directive('sylvaPvRowRepeat', ['tableArray', '$compile', '$sanitize',
                         var numRows = rows.length;
                         for (var i=0; i<numRows; i++) {
                             var row = rows[i]
-                            ,   pageHeight = canvasWidth * aspectRatio
+                            ,   pageHeight = tableWidth * aspectRatio
                             ,   height = pageHeight / numRows;
                             heights[row] = height;
                         }
@@ -163,16 +164,19 @@ directives.directive('sylvaPvRowRepeat', ['tableArray', '$compile', '$sanitize',
                 });
                 return heights;
             }
-
             scope.$watch('resp', function (newVal, oldVal) {
+                console.log("resp???????????")
                 if (!(newVal) && newVal == oldVal) return;
                 // This executes on server response
-
-                tArray = tableArray(scope.resp.table.layout);
-
-                var queries = scope.resp.queries
-                ,   rowH = rowHeight(scope.resp.table.pagebreaks)
+                elem.empty()
+                console.log("fired", newVal, newVal == oldVal)
+                var resp = angular.copy(scope.resp)
+                tArray = tableArray(resp.table.layout);
+                var contDiv = $("<div class='unbreakable' style='page-break-after:always;'></div>");
+                var queries = resp.queries
+                ,   rowH = rowHeight(resp.table.pagebreaks)
                 ,   len = tArray.table.length;
+                console.log("pbreaks", resp.table.pagebreaks)
 
                 for (var i=0; i<len; i++) {
 
@@ -194,7 +198,7 @@ directives.directive('sylvaPvRowRepeat', ['tableArray', '$compile', '$sanitize',
                         if (cell.displayMarkdown) {
                             var showdown = new Showdown.converter({})
                             ,   html = $sanitize(showdown.makeHtml(cell.displayMarkdown));
-
+                            colDiv.addClass("display-cell")
                         } else {
                             // This is for all cases except new report
                             if (query && demo === false) {
@@ -277,19 +281,27 @@ directives.directive('sylvaPvRowRepeat', ['tableArray', '$compile', '$sanitize',
 
                             }
                             var childScope = scope.$new();
+                            var size;
+                            if (scope.prev) {
+                                size = {}
+                            } else {
+                                size = {
+                                    height: parseInt(angular.copy(rowH[cell.row])),
+                                    width: parseInt(cellWidth)
+                                }
+                            }
                             childScope.chartConfig = {
                                 options: {chart: {type: chartType}},
                                 xAxis: {catagories: []},
                                 series: chartSeries,
                                 title: {text: name},
                                 loading: false,
-                                size: {
-                                    height: parseInt(angular.copy(rowH[cell.row])),
-                                    width: parseInt(cellWidth)
-                                }
+                                size: size
                             }
-                            var chartHtml = '<div highchart config="chartConfig"></div>'
+                            var chartHtml = '<div highchart class="hchartDiv" config="chartConfig"></div>'
+
                             ,   html = $compile(chartHtml)(childScope);
+                            html.height(rowH[cell.row])
                         }
 
                         colDiv.width(cellWidth)
@@ -298,8 +310,15 @@ directives.directive('sylvaPvRowRepeat', ['tableArray', '$compile', '$sanitize',
                         rowDiv.append(colDiv)
 
                     }
-                    elem.append(rowDiv);
+                    contDiv.append(rowDiv);
+                    if (resp.table.pagebreaks[i]) {
+                        elem.append(contDiv);
+                        var contDiv = $("<div class='unbreakable' style='page-break-after:always;'></div>");
+                    }
                 }
+                contDiv.css('page-break-after', '')
+                elem.append(contDiv);
+                var contDiv = $("<div class='unbreakable' style='page-break-after:always;></div>");
             }, true);
         }
     };
@@ -421,6 +440,7 @@ directives.directive('syEditableTable',[
 
             scope.$watch('resp', function (newVal, oldVal) {
                 if (newVal === oldVal) return;
+                console.log("fired")
                 scope.tableArray = tableArray(scope.resp.table.layout);
                 scope.tableWidth = 1100;
 

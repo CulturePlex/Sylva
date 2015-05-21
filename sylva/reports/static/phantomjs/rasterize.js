@@ -3,7 +3,7 @@ var page, system, url, filename, domain, csrfToken, sessionId, secret;
 
 page = require('webpage').create();
 system = require('system');
-
+var fs = require('fs');
 url = system.args[1];
 filename = system.args[2];
 domain = system.args[3];
@@ -18,7 +18,10 @@ phantom.addCookie({'domain': domain, 'name':'sessionid', 'value': sessionId});
 // Set the page size and orientation
 page.paperSize = {
     format: 'A4',
-    orientation: 'portrait'};
+    orientation: 'potrait'};
+// page.viewportSize = {width: 480,
+//   height: 600 };
+
 
 var body = "secret=" + secret;
 page.open(url, 'POST', body, function (status) {
@@ -27,6 +30,9 @@ page.open(url, 'POST', body, function (status) {
         console.log('Unable to load the address!', url);
         phantom.exit();
     } else {
+        // fs.write("page_content.html", page.content, 'w')
+        // $(".hchartDiv")
+        // page.includeJs('jquery.1.8.3.js');
         // If we are here, it means we rendered page successfully
         // Use "evaluate" method of page object to manipulate the web page
         // Notice I am passing the data into the function, so I can use
@@ -38,6 +44,6 @@ page.open(url, 'POST', body, function (status) {
         window.setTimeout(function () {
         	page.render(filename);
         	phantom.exit();
-        }, 1000);
+        }, 10000);
     }
 });

@@ -229,7 +229,6 @@ controllers.controller('NewReportCtrl', [
 
         // Set styles if we are in modals
         if(AS_MODAL) {
-            console.log("entered")
             $('#simplemodal-container').css({
                 'height': '82%',
                 'width': '1220px',

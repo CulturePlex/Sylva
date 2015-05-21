@@ -349,3 +349,14 @@ img {
 .preview-cell {
   height: 400px;
 }
+
+.unbreakable
+{
+    display:inline-block;
+}
+.unbreakable:after
+ {
+    display:block;
+    height:0px;
+    visibility: hidden;
+}

@@ -83,6 +83,7 @@ def pdf_gen_view(request, graph_slug, template_slug):
         broader_context = {"graph": graph,
                            "template": template_dict,
                            "resp": json.dumps(resp),
+                           "prev": True,
                            "as_modal": as_modal}
         response = render('pdf.html',
                           context_instance=RequestContext(request,
