@@ -1,11 +1,13 @@
 {% load i18n %}
 
 <div class="prev-cont">
-  {% verbatim %}
-  <a class="button prev-button" ng-href="/reports/{{slugs.graph}}/pdf/preview?template={{template.slug}}">
-  {% endverbatim %}
-    {% trans "Preview PDF" %}
-  </a>
+  {% if OPTIONS.ENABLE_REPORTS_PDF_PREVIEW %}
+    {% verbatim %}
+    <a class="button prev-button" ng-href="/reports/{{slugs.graph}}/pdf/preview?template={{template.slug}}">
+    {% endverbatim %}
+      {% trans "Preview PDF" %}
+    </a>
+  {% endif %}
   {% verbatim %}
   <p>{{ template.description }}</p>
 

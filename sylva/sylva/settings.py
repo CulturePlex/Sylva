@@ -56,8 +56,7 @@ GRAPHDATABASES = {
 # system time zone.
 TIME_ZONE = 'America/Toronto'
 
-# Uncomment this to use reports
-#USE_TZ = True
+# USE_TZ = True
 
 # Language code for this installation. All choices can be found here:
 # http://www.i18nguy.com/unicode/language-identifiers.html
@@ -323,6 +322,7 @@ ENABLE_TYPE_VALIDATION_FORMS = False
 ENABLE_PAYMENTS = False
 ENABLE_QUERIES = False
 ENABLE_REPORTS = False
+ENABLE_REPORTS_PDF_PREVIEW = False
 ENABLE_ANALYTICS = False
 ACTIVATION_EMAIL_BETA_MESSAGE = True
 MAINTENANCE_MODE = False
@@ -347,6 +347,7 @@ OPTIONS = {
     "ENABLE_TYPE_VALIDATION_FORMS": ENABLE_TYPE_VALIDATION_FORMS,
     "ENABLE_QUERIES": ENABLE_QUERIES,
     "ENABLE_REPORTS": ENABLE_REPORTS,
+    "ENABLE_REPORTS_PDF_PREVIEW": ENABLE_REPORTS_PDF_PREVIEW,
     "ENABLE_ANALYTICS": ENABLE_ANALYTICS,
     "MAINTENANCE_MODE": MAINTENANCE_MODE,
     "PREVIEW_NODES": PREVIEW_NODES,

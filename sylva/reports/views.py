@@ -97,11 +97,11 @@ def pdf_gen_view(request, graph_slug, template_slug):
         else:
             return response
 
-
     @login_required
     @is_enabled(settings.ENABLE_REPORTS)
     @permission_required("schemas.view_schema",
-                         (Schema, "graph__slug", "graph_slug"), return_403=True)
+                         (Schema, "graph__slug", "graph_slug"),
+                         return_403=True)
     def protected(request, **kwargs):
         return render(request, graph_slug, template_slug)
 
@@ -115,7 +115,6 @@ def pdf_gen_view(request, graph_slug, template_slug):
     else:
         return protected(request, graph_slug=graph_slug,
                          template_slug=template_slug)
-
 
 
 @login_required
@@ -281,7 +280,8 @@ def history_endpoint(request, graph_slug):
                 bucket = _get_bucket(report.date_run, output.object_list)
                 report_buckets[bucket].append(report.dictify())
             report_buckets = [
-                {"bucket": b, "reports": r} for (b, r) in report_buckets.items()
+                {"bucket": b,
+                 "reports": r} for (b, r) in report_buckets.items()
             ]
             response = {
                 'name': template.name,
@@ -330,14 +330,13 @@ def builder_endpoint(request, graph_slug):
             template_inst = get_object_or_404(
                 ReportTemplate, slug=template['slug']
             )
-            f = ReportTemplateForm({
-                    "name": template['name'],
-                    "start_date": start_date,
-                    "frequency": template['frequency'],
-                    "layout": template['layout'],
-                    "description": template['description'],
-                    "graph": graph.id
-            }, instance=template_inst)
+            last_run = template_inst.last_run
+            f = ReportTemplateForm({"name": template['name'],
+                                    "start_date": start_date,
+                                    "frequency": template['frequency'],
+                                    "layout": template['layout'],
+                                    "description": template['description'],
+                                    "graph": graph.id}, instance=template_inst)
             if not f.is_valid():
                 template["errors"] = f.errors
             else:
@@ -345,15 +344,15 @@ def builder_endpoint(request, graph_slug):
                 for old in new_template.email_to.all():
                     if old.username not in template["collabs"]:
                         new_template.email_to.remove(old)
+                new_template.last_run = last_run
+                new_template.save()
         else:
-            f = ReportTemplateForm({
-                    "name": template['name'],
-                    "start_date": start_date,
-                    "frequency": template['frequency'],
-                    "layout": template['layout'],
-                    "description": template['description'],
-                    "graph": graph.id
-            })
+            f = ReportTemplateForm({"name": template['name'],
+                                    "start_date": start_date,
+                                    "frequency": template['frequency'],
+                                    "layout": template['layout'],
+                                    "description": template['description'],
+                                    "graph": graph.id})
             if not f.is_valid():
                 template["errors"] = f.errors
             else:
@@ -406,15 +405,17 @@ def preview_report_pdf(request, graph_slug):
     )
     try:
         with open(filename) as pdf:
-            response = HttpResponse(pdf.read(), content_type='application/pdf')
+            response = HttpResponse(pdf.read(), content_type='text/html')
             response['Content-Disposition'] = 'inline;filename={0}'.format(
-                download_name
+                filename
             )
             pdf.close()
     except IOError, e:
         response = HttpResponse('Sorry there has been a IOError:' + e.strerror)
-    # Try except IOError
-    os.unlink(filename)
+    try:
+        os.unlink(filename)
+    except IOError, e:
+        response = HttpResponse('Sorry there has been a IOError:' + e.strerror)
     return response
 
 
