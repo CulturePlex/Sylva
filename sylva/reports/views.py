@@ -405,7 +405,7 @@ def preview_report_pdf(request, graph_slug):
     )
     try:
         with open(filename) as pdf:
-            response = HttpResponse(pdf.read(), content_type='text/html')
+            response = HttpResponse(pdf.read(), content_type='application/pdf')
             response['Content-Disposition'] = 'inline;filename={0}'.format(
                 filename
             )
