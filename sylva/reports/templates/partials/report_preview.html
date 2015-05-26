@@ -1,7 +1,7 @@
 {% load i18n %}
 
 <div class="prev-cont">
-  {% if OPTIONS.ENABLE_REPORTS_PDF_PREVIEW %}
+  {% if OPTIONS.ENABLE_REPORTS_PDF %}
     {% verbatim %}
     <a class="button prev-button" ng-href="/reports/{{slugs.graph}}/pdf/preview?template={{template.slug}}">
     {% endverbatim %}
