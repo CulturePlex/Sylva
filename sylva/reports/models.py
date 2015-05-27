@@ -74,6 +74,7 @@ class ReportTemplate(models.Model):
                     cell['name'] = attrs[1]
                 new_row.append(cell)
             table.append(new_row)
+        table = {"pagebreaks": self.layout["pagebreaks"], "layout": table}
         report = Report(
             date_run=datetime.datetime.now(),
             table=table,
@@ -141,8 +142,11 @@ def post_report_save(sender, raw, **kwargs):
         email_to = inst.template.email_to.exists()
         if email_to:
             inst_id = inst.id
-            from tasks import generate_pdf, send_email
-            res = (generate_pdf.si(inst_id) | send_email.si(inst_id))()
+            # This is until we get the pdf generation fixed.
+            # from tasks import generate_pdf, send_email
+            # res = (generate_pdf.si(inst_id) | send_email.si(inst_id))()
+            from tasks import send_email
+            send_email.delay(inst_id)
 
 
 def _dthandler(obj):

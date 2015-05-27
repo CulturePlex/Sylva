@@ -416,7 +416,8 @@ controllers.controller('ReportHistoryCtrl', [
                 report: id
             }, function (data) {
                 $scope.report = data;
-                $scope.resp = {table: {layout: data.table}}
+                $scope.resp = {table: {layout: data.table.layout,
+                               pagebreaks: data.table.pagebreaks}}
             });
         }
 

@@ -140,7 +140,6 @@ directives.directive('sylvaPvRowRepeat', ['tableArray', '$compile', '$sanitize',
             prev: '='
         },
         link: function (scope, elem, attrs) {
-            console.log("prev", scope.prev)
             var aspectRatio = 1.25
             ,   tableWidth = parseInt(attrs.width)
             ,   canvasWidth = parseInt(angular.element(elem.parents()[0]).css('width'))
@@ -165,18 +164,15 @@ directives.directive('sylvaPvRowRepeat', ['tableArray', '$compile', '$sanitize',
                 return heights;
             }
             scope.$watch('resp', function (newVal, oldVal) {
-                console.log("resp???????????")
                 if (!(newVal) && newVal == oldVal) return;
                 // This executes on server response
                 elem.empty()
-                console.log("fired", newVal, newVal == oldVal)
                 var resp = angular.copy(scope.resp)
                 tArray = tableArray(resp.table.layout);
                 var contDiv = $("<div class='unbreakable' style='page-break-after:always;'></div>");
                 var queries = resp.queries
                 ,   rowH = rowHeight(resp.table.pagebreaks)
                 ,   len = tArray.table.length;
-                console.log("pbreaks", resp.table.pagebreaks)
 
                 for (var i=0; i<len; i++) {
 
@@ -192,7 +188,6 @@ directives.directive('sylvaPvRowRepeat', ['tableArray', '$compile', '$sanitize',
                         ,   cellWidth = (tableWidth / tArray.numCols - ((tArray.numCols + 1) * 2 / tArray.numCols)) * colspan + (2 * (colspan - 1)) + 'px'
                         ,   demo = cell.demo || false
                         ,   colDiv = $("<div class='col'></div>");
-
                         if (query === "" && !(cell.displayMarkdown)) demo = true;
 
                         if (cell.displayMarkdown) {
@@ -440,7 +435,6 @@ directives.directive('syEditableTable',[
 
             scope.$watch('resp', function (newVal, oldVal) {
                 if (newVal === oldVal) return;
-                console.log("fired")
                 scope.tableArray = tableArray(scope.resp.table.layout);
                 scope.tableWidth = 1100;
 

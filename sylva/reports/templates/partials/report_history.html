@@ -56,17 +56,8 @@
 
     <div class="row">
       <div class="prev-cont">
-        <div sylva-pv-row-repeat class="row" resp="resp" width="600">
-          <div sylva-pv-cell-repeat class="col" row="row">
-            <div ng-hide="markdown">
-              <div ng-if="query != '' && query != 'undefined' && query != null" highchart config="chartConfig" ng-style="cellStyle" class="display-cell"></div>
-              <div ng-if="query == '' || query == 'undefined' || query == null" ng-style="cellStyle" class="display-cell"></div>
+          <div sylva-pv-row-repeat class="row" resp="resp" width="600">
             </div>
-            <div ng-show="markdown">
-              <div ng-style="cellStyle" class="display-cell" ng-bind-html="markdown"></div>
-            </div>
-          </div>
-        </div>
       </div>
     </div> <!--row-->
 

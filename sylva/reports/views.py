@@ -255,8 +255,8 @@ def history_endpoint(request, graph_slug):
                     month=1, day=1, hour=0, minute=0, second=0, microsecond=0
                 )
                 interval = relativedelta.relativedelta(years=1)
-            bucket = start + interval
-            buckets = [start, bucket]
+            bucket = start
+            buckets = [bucket]
             while bucket < now:
                 buckets.append(bucket)
                 bucket += interval
@@ -270,7 +270,6 @@ def history_endpoint(request, graph_slug):
             reports = template.reports.filter(
                 Q(date_run__gte=oldest) & Q(date_run__lt=newest)
             ).order_by('-date_run')
-
             if len(output.object_list) == 1:
                 report_buckets = {output.object_list[0].isoformat(): []}
             else:

@@ -325,8 +325,6 @@ class HistoryUtilsTest(TestCase):
         self.assertEqual(prev_page_num, 5)
 
 
-
-
 class ReportTemplateTest(TestCase):
 
     fixtures = ["schemas.json", "graphs.json", "queries.json", "reports.json"]
