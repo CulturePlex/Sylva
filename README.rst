@@ -4,6 +4,9 @@
 .. image:: https://coveralls.io/repos/CulturePlex/Sylva/badge.png?branch=develop
   :target: https://coveralls.io/r/CulturePlex/Sylva?branch=develop
 
+.. image:: https://landscape.io/github/CulturePlex/Sylva/develop/landscape.svg?style=flat
+  :target: https://landscape.io/github/CulturePlex/Sylva/develop
+  :alt: Code Health
 
 Sylva
 ==========
