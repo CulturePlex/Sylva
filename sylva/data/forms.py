@@ -42,9 +42,10 @@ class ItemForm(forms.Form):
             "js/datatypes.js",
             "js/jquery.formsets.1.2.min.js",
             "js/jquery.tokeninput.js",
+            "js/chosen.jquery.min.js",
         )
         css = {
-            "all": ("css/jqueryui.1.8.18.css", )
+            "all": ("css/jqueryui.1.8.18.css", "css/chosen.css")
         }
 
     def __init__(self, graph, itemtype, instance=None, *args, **kwargs):
@@ -85,6 +86,7 @@ class ItemForm(forms.Form):
                 "label": label,
                 "help_text": item_property.description,
             }
+            auto_increment_update = datatype_dict["auto_increment_update"]
             if item_property.datatype == datatype_dict["date"]:
                 widget = forms.TextInput(attrs={"class": "date"})
                 field_attrs["widget"] = widget
@@ -138,7 +140,7 @@ class ItemForm(forms.Form):
                 widget = forms.TextInput(attrs={"readonly": "readonly"})
                 field_attrs["widget"] = widget
                 field = forms.CharField(**field_attrs)
-            elif item_property.datatype == datatype_dict["auto_increment_update"]:
+            elif (item_property.datatype == auto_increment_update):
                 if not item_property.default:
                     field_attrs["initial"] = '0'
                 widget = forms.TextInput(attrs={"readonly": "readonly"})
@@ -239,18 +241,25 @@ class ItemForm(forms.Form):
         for choice_property in choices_properties:
             choice_dict = dict(choice_property.get_choices())
             key = choice_property.key
-            value = choice_dict[cleaned_data[key]].strip()
-            if value == NULL_OPTION:
-                # cleaned_data[key] = None
-                cleaned_data.pop(key)
+            if key in cleaned_data:
+                value = choice_dict[cleaned_data[key]].strip()
+                if value == NULL_OPTION:
+                    # cleaned_data[key] = None
+                    cleaned_data.pop(key)
+                else:
+                    cleaned_data[key] = value
+            elif choice_property.required:
+                msg = _("This field is required and "
+                        "must have some value selected")
+                self._errors[key] = self.error_class([msg])
             else:
-                cleaned_data[key] = value
+                cleaned_data[key] = u""
         return cleaned_data
 
     def save(self, commit=True, as_new=False, *args, **kwargs):
         properties = self.cleaned_data
-        if (properties and any([bool(unicode(v).strip()) for v
-                in properties.values()])):
+        if (properties and any([bool(unicode(v).strip())
+                                for v in properties.values()])):
             if self.graph.relaxed:
                 properties_items = properties.items()
                 for field_key, field_value in properties_items:
@@ -327,7 +336,7 @@ class RelationshipForm(ItemForm):
             direction = self.direction
             if direction == TARGET:
                 label = u"→ %s (%s)" % (itemtype.name,
-                                        getattr(itemtype, direction).name)
+                        getattr(itemtype, direction).name)
                 if not settings.ENABLE_AUTOCOMPLETE_NODES:
                     choices = [(n.id, n.display)
                                for n in itemtype.target.all()]
@@ -336,7 +345,7 @@ class RelationshipForm(ItemForm):
                 #                            itemtype.target.id])
             else:
                 label = u"← (%s) %s" % (getattr(itemtype, direction).name,
-                                        itemtype.inverse or itemtype.name)
+                        itemtype.inverse or itemtype.name)
                 if not settings.ENABLE_AUTOCOMPLETE_NODES:
                     choices = [(n.id, n.display)
                                for n in itemtype.source.all()]
@@ -411,6 +420,14 @@ class RelationshipForm(ItemForm):
                     "help_text": help_text,
                     "choices": [(u"", NULL_OPTION)] + choices,
                 }
+                if settings.ENABLE_AUTOCOMPLETE_NODES_COMBO:
+                    input_attrs = {
+                        "class": "combobox",
+                        "data-placeholder": NULL_OPTION,
+                    }
+                    field_attrs.update({
+                        "widget": forms.Select(attrs=input_attrs)
+                    })
                 field = forms.ChoiceField(**field_attrs)
             self.fields[itemtype.id] = field
 
@@ -425,12 +442,14 @@ class RelationshipForm(ItemForm):
             itemtype_id = unicode(getattr(self.itemtype, direction).id)
             if getattr(self, node_attr).label != itemtype_id:
                 itemtype_attr = getattr(self.itemtype, direction)
-                msg = _("The {0} must be {1}").format(direction, itemtype_attr.name)
+                msg = _("The {0} must be {1}").format(direction,
+                                                      itemtype_attr.name)
                 self._errors[self.itemtype.id] = self.error_class([msg])
                 del cleaned_data[self.itemtype.id]
         else:
             itemtype_attr = getattr(self.itemtype, direction)
-            msg = _("The {0} must be {1}").format(direction, itemtype_attr.name)
+            msg = _("The {0} must be {1}").format(direction,
+                                                  itemtype_attr.name)
             self._errors[self.itemtype.id] = self.error_class([msg])
         # If there is no data, there is no relationship to add
         if (self.itemtype.id in self._errors

@@ -1,5 +1,6 @@
-{% extends "base.html" %}
-{% load i18n graphs compress %}
+{% extends base_template %}
+{% load i18n graphs static compress %}
+{% get_static_prefix as STATIC_PREFIX %}
 
 {% block navigation_buttons %}
 {{ block.super }}
@@ -20,6 +21,11 @@
 {% endblock %}
 
 {% block content %}
+{% if as_modal %}
+    {% trans "New" as label %}
+    {% breadcrumb graph.schema item_type_label %}
+    <div id="save-schema-url" data-url="{{ add_url }}" style="display: none;"></div>
+{% endif %}
 <div id="content2">
 <form action="." method="POST" id="itemType">
 {% csrf_token %}
@@ -37,8 +43,11 @@
             {% endif %}
             </p>
         {% endfor %}
+        {% if as_modal %}
+        <div id="modal-content-controls" class="modal-content-controls">
+        {% endif %}
         <span class="buttonLinkOption buttonLinkLeft">
-            <input type="submit" value="{% trans "Save Type" %}"/>
+            <input type="submit" id="save-schema-type" value="{% trans "Save Type" %}"/>
         </span>
         <span class="buttonLinkOption buttonLinkRight">
             {% if item_type_id %}
@@ -49,12 +58,23 @@
                 <a class="delete" href="{% url "schema_nodetype_delete" graph.slug item_type_id %}">{% trans "Remove" %}</a>
                 {% endif %}
             {% endif %}
-            {% trans "or" %} <a href="{% url "schema_edit" graph.slug %}">{% trans "Cancel" %}</a>.
+            {% trans "or" %}
+            {% if as_modal %}
+                <a id="modal-cancel" data-url="{{ schema_main_url }}" href="javascript:void()">{% trans "Cancel" %}</a>.
+            {% else %}
+                <a href="{% url "schema_edit" graph.slug %}">{% trans "Cancel" %}</a>.
+            {% endif %}
         </span>
-
+        {% if as_modal %}
+        </div>
+        {% endif %}
     </div>
     <div class="content-divider"></div>
+    {% if as_modal %}
+    <div class="content2-second" style="overflow: auto; max-height: 370px;">
+    {% else %}
     <div class="content2-second">
+    {% endif %}
         <h2 id="propertiesTitle">{% trans "Properties" %}</h2>
         <table cellspacing="0" class="itemtype-properties-table" width="100%">
             <tbody class="dynamic">
@@ -96,7 +116,7 @@
                                 {{ form.datatype.help_text }}
                                 </span>
                             </td>
-                            <td {% if not form.instance.default %}class="hidden"{% endif %}>
+                            <td {% if form.instance.datatype == "c"  %}class="choices"{% elif not form.instance.default %}class="hidden"{% endif %}>
                                 {{ form.default.errors }}
                                 {{ form.default.label_tag }}
                                 {{ form.default }}
@@ -200,5 +220,9 @@
     {% compress js %}
         <script type="text/javascript" src="{{ STATIC_PREFIX }}js/jquery.formsets.1.2.min.js"></script>
         <script type="text/javascript" src="{{ STATIC_PREFIX }}js/schemas.item_edit.js"></script>
+        <script type="text/javascript" src="{{ STATIC_PREFIX }}js/jquery.tagsinput.min.js"></script>
     {% endcompress %}
+{% endblock %}
+{% block extra_links %}
+        <link rel="stylesheet" type="text/css" href="{{ STATIC_PREFIX }}css/jquery.tagsinput.css" />
 {% endblock %}

@@ -9,7 +9,7 @@
       <th class="report">{% trans "Last Run" %}</th>
       <th class="report">{% trans "Periodicity" %}</th>
     </thead>
-  
+
     <tbody>
       {% verbatim %}
       <tr ng-repeat="template in data.templates" ng-class-odd="'row-even'" ng-class-even="'row-odd'">
@@ -17,8 +17,9 @@
           <a href="#/edit/{{ template.slug }}" class="edit" title="Edit Report"><!-- 1182 -->&nbsp;</a>
           <a href="#/history/{{ template.slug }}" class="icon" title="Report History"><i class="fa fa-history"></i></a>
           <a href="#/preview/{{ template.slug }}" class="icon" title="View Report"><i class="fa fa-eye"></i></a>
+          <a href="#/delete/{{ template.slug }}" class="icon" title="Delete Report"><i class="fa fa-times-circle"></i></a>
         </td>
-        <td>{{ template.name }}</td>
+        <td>{{ template.name | cut:true:20:' ...' }}</td>
         <td>{{ template.start_date }}</td>
         <td ng-if="template.last_run">{{ template.last_run }}</td>
       {% endverbatim %}
@@ -29,23 +30,21 @@
       </tr>
     </tbody>
   </table>
-  <a class="button table-button" href="#/new">New Report</a>
+  <a id="new-report-button" class="button table-button" href="#/new">New Report</a>
   <span class='pagination-info'>
-    
+
       {% trans "Showing" %}
-      {% verbatim %} {{ data.num_objects }} {% endverbatim %} 
+      {% verbatim %} {{ data.num_objects }} {% endverbatim %}
       {% trans "of" %}
-      {% verbatim %} {{ data.total_count }} {% endverbatim %} 
+      {% verbatim %} {{ data.total_count }} {% endverbatim %}
       {% trans "Report Templates." %}
-    
+
       <span ng-if="data.previous_page_number"><a ng-click="getPage(data.previous_page_number)"><span class="symbol-medium">←</span></a></span>
       <span>
-      {% trans "Page" %} 
+      {% trans "Page" %}
       {% verbatim %} {{data.page_number}} {% endverbatim %}
       {% trans "of" %}
       {% verbatim %} {{data.num_pages}} {% endverbatim %}
       <span ng-if="data.next_page_number"><a ng-click="getPage(data.next_page_number)"><span class="symbol-medium">→</span></a>
   </span>
-
 </div>
-

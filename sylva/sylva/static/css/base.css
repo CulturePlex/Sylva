@@ -116,6 +116,7 @@ button {
     overflow: visible;
 }
 
+.tagsinput,
 .button,
 button,
 input[type="text"],
@@ -174,6 +175,20 @@ button[type="submit"] {
     cursor: pointer;
 }
 
+.input-like-link {
+    margin-top: -3px !important;
+    background-color: white !important;
+    font-size: 100% !important;
+    display: inline !important;
+    box-shadow: none !important;
+    border-top: none !important;
+    padding: 0 !important;
+}
+
+.input-like-link:hover {
+    text-decoration: underline !important;
+}
+
 .button:hover,
 input[type="button"]:hover,
 input[type="submit"]:hover,
@@ -185,6 +200,13 @@ select:active {
     -webkit-box-shadow: 0 1px 5px rgba(52,142,130,0.75);
     -moz-box-shadow: 0 1px 5px rgba(52,142,130,0.75);
     text-decoration: none;
+}
+
+.ui-state-default .ui-icon.custom-select-icon {
+    background: url('../img/ui-icons_348e82_256x240.png') no-repeat -196px -116px;
+    width: 10px;
+    height: 10px;
+    display: inline-block;
 }
 
 .button:active,
@@ -224,7 +246,7 @@ a.disabled:hover {
     text-decoration: none;
 }
 
-progress {
+.progress {
     display: block;
     position: relative;
     height: 18px;
@@ -1263,6 +1285,12 @@ div.initial p:nth-child(3) {
 .graph-description {
     font-style: italic;
     font-family: Georgia;
+    display: block;
+}
+
+#graph-support {
+    z-index: -1;
+    position: relative;
 }
 
 .dashboard-graphs .button,.dashboard-graphs .disabled {
@@ -2891,6 +2919,10 @@ body :hover > a.headerlink {
     width: 25px !important;
 }
 
+.distinct_result {
+    vertical-align: text-bottom;
+}
+
 .show_mode {
     display: inline !important;
     width: 100px !important;
@@ -2899,6 +2931,11 @@ body :hover > a.headerlink {
 .select_order {
     display: inline !important;
     width: 100px !important;
+}
+
+.select_dir {
+    display: inline !important;
+    width: 110px !important;
 }
 
 /* END Queries */

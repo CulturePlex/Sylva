@@ -5,8 +5,12 @@ var services = angular.module('reports.services', ['ngResource']);
 
 services.factory('api', ['$resource',  'DJANGO_URLS', function ($resource, DJANGO_URLS) {
 
+
+    var list = $resource(DJANGO_URLS.list, {}, {
+        list: {method:'GET'}
+    });
+
     var templates = $resource(DJANGO_URLS.templates, {}, {
-        list: {method:'GET'},
         blank: {method:'GET', params: {queries: true}},
         edit: {method:'GET', params: {queries: true}},
         preview: {method:'GET'}
@@ -17,12 +21,18 @@ services.factory('api', ['$resource',  'DJANGO_URLS', function ($resource, DJANG
         report: {method: 'GET'}
     });
 
-    var builder= $resource(DJANGO_URLS.builder, {}, {});
+    var del = $resource(DJANGO_URLS.del, {}, {
+        get: {method: 'GET'}
+    });
+
+    var builder = $resource(DJANGO_URLS.builder, {}, {});
 
     return {
         templates: templates,
         history: history,
-        builder: builder
+        builder: builder,
+        list: list,
+        del: del
     };
 }]);
 
@@ -80,30 +90,7 @@ services.factory('tableArray', function () {
         return adjs;
     };
 
-    //TableArray.prototype.rowMerge = function(row, col, dir) {
-    //    var merge = false
-    //    ,   thisRow = this.table[row]
-    //    ,   cellPos = 0
-    //    ,   mergePos = 0
-    //    ,   direction = {up: row - 1, down: row + 1}
-    //    for (var i=0; i<col; i++) {
-    //        cellPos += parseInt(thisRow[i].colspan)
-    //    }
-    //    if (this.table[direction[dir]]) {
-    //        var mergeRow = this.table[direction[dir]]
-    //        ,   j = 0;
-    //        while (mergePos<cellPos) {
-    //            mergePos += parseInt(mergeRow[j].colspan)
-    //            j++;
-    //        }
-    //        console.log('pos', mergePos, cellPos, j)
-    //        if (mergePos === cellPos && thisRow[col].colspan === mergeRow[j].colspan) merge = true;
-    //    }
-        
-    //    return merge
-    //}
-
-    TableArray.prototype.addRow = function() { 
+    TableArray.prototype.addRow = function() {
         var row = []
         ,   cellId = this.getId();
         for (var i=0; i<this.numCols; i++) {
@@ -117,9 +104,9 @@ services.factory('tableArray', function () {
             };
             row.push(cell);
             cellId++;
-        }   
-        this.table.push(row); 
-        this.numRows++;     
+        }
+        this.table.push(row);
+        this.numRows++;
     };
 
     TableArray.prototype.addCol = function() {
@@ -140,7 +127,7 @@ services.factory('tableArray', function () {
             for (var j=0; j<newRlen; j++) {
                 row[j].id = 'cell' + cellId;
                 cellId++;
-            }     
+            }
         }
         this.numCols++;
     };
@@ -162,7 +149,7 @@ services.factory('tableArray', function () {
                 el.splice(el.length - 1, 1);
             }
         });
-        this.numCols -= 1;     
+        this.numCols -= 1;
     }
 
     TableArray.prototype.addQuery = function(coords, query) {
@@ -173,16 +160,7 @@ services.factory('tableArray', function () {
         if (axis === 'x') {
             this.table[coords[0]][coords[1]].xAxis = alias;
         } else {
-            console.log('coords', coords)
-            if (!('yAxis' in this.table[coords[0]][coords[1]])) {
-                this.table[coords[0]][coords[1]]['yAxis'] = []
-                console.log('post undefined', this.table[coords[0]][coords[1]].yAxis)
-            } 
-            if (this.table[coords[0]][coords[1]].yAxis.indexOf(alias) == -1) {
-                this.table[coords[0]][coords[1]].yAxis.push(alias);
-                console.log('pushed', this.table[coords[0]][coords[1]].yAxis)
-            }
-            
+            this.table[coords[0]][coords[1]].yAxis.push(alias);
         }
     }
 
@@ -190,11 +168,13 @@ services.factory('tableArray', function () {
         if (axis === 'y') {
             if (!('yAxis' in this.table[coords[0]][coords[1]])) {
                 this.table[coords[0]][coords[1]]['yAxis'] = []
-                console.log('post undefined', this.table[coords[0]][coords[1]].yAxis)
-            } 
+            }
             var i = this.table[coords[0]][coords[1]].yAxis.indexOf(alias)
             this.table[coords[0]][coords[1]].yAxis.splice(i, 1);
-            
+            this.table[coords[0]][coords[1]].yAxis = this.table[coords[0]][coords[1]].yAxis.filter(function (el) {
+                return el.alias !== alias;
+            });
+
         } else {
             this.table[coords[0]][coords[1]].xAxis = null;
         }
@@ -214,7 +194,7 @@ services.factory('tableArray', function () {
 
     TableArray.prototype.collapseCol = function (coords, dir) {
         var colspan = this.table[coords[0]][coords[1]].colspan
-        this.table[coords[0]][coords[1]].colspan = parseInt(colspan) - 1; 
+        this.table[coords[0]][coords[1]].colspan = parseInt(colspan) - 1;
         var cell = {
                 colspan: '1',
                 id: '',
@@ -227,9 +207,9 @@ services.factory('tableArray', function () {
             this.table[coords[0]].splice(coords[1] + 1, 0, cell)
         } else {
             cell.col = coords[1]
-            this.table[coords[0]].splice(coords[1], 0, cell) 
+            this.table[coords[0]].splice(coords[1], 0, cell)
         }
-    }   
+    }
 
     TableArray.prototype.mergeCol = function(coords) {
         var cds = coords[0]
@@ -243,20 +223,6 @@ services.factory('tableArray', function () {
         this.table[cds[0]] = mrgRow;
     };
 
-    // MABE JUST MERGE THIS WITH PREVIOUS METHOD
-    //TableArray.prototype.mergeRow = function(coords) {
-    //    var cds = coords[0]
-    //    ,   mrgCds = coords[1]
-    //    ,   mrgRow = this.table[mrgCds[0]]
-    //    ,   cell = this.table[cds[0]][cds[1]]
-    //    ,   mrgCell = this.table[mrgCds[0]][mrgCds[1]];
-    //    console.log('MERGER',  mrgRow,  mrgCds)
-        //mrgRow.splice(mrgCds[1], 1);
-    //    cell.rowspan = parseInt(cell.rowspan);
-    //    cell.rowspan += parseInt(mrgCell.rowspan);
-    //    mrgCell.rowspan = 0;
-    //};
-
     TableArray.prototype.getId = function() {
         var id = 0
         ,   tlen = this.table.length;
@@ -265,10 +231,6 @@ services.factory('tableArray', function () {
         }
         return id;
     };
-
-    //TableArray.prototype.jsonify = function() {
-    //    console.log('jsonify')
-    //};
 
     return function (table) {
         return new TableArray(table);
@@ -286,6 +248,9 @@ services.factory('breadService', ['$rootScope', function ($rootScope) {
         },
         updateName: function(newVal) {
             $rootScope.$broadcast('name', newVal);
+        },
+        editing: function (newVal) {
+            $rootScope.$broadcast('editing', newVal);
         }
 
     }

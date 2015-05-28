@@ -242,20 +242,22 @@ def create_schema_graph(*args, **kwargs):
 @receiver(post_save, sender=Graph)
 def assign_permissions_to_owner(*args, **kwargs):
     graph = kwargs.get("instance", None)
-    if graph:
-        owner = graph.owner
-        aux = {'graph': graph,
-               'schema': graph.schema,
-               'data': graph.data}
-        for permission_type in aux:
-            for permission in PERMISSIONS[permission_type].keys():
-                assign_perm(permission, owner, aux[permission_type])
-    anonymous = User.objects.get(id=settings.ANONYMOUS_USER_ID)
-    if graph.public:
-        for permission, obj in aux.items():
-            assign_perm("view_%s" % permission, anonymous, obj)
-    else:
-        for permission, obj in aux.items():
-            perm = "view_%s" % permission
-            if anonymous.has_perm(perm, obj):
-                remove_perm(perm, anonymous, obj)
+    raw = kwargs.get("raw", False)
+    if not raw:
+        if graph:
+            owner = graph.owner
+            aux = {'graph': graph,
+                   'schema': graph.schema,
+                   'data': graph.data}
+            for permission_type in aux:
+                for permission in PERMISSIONS[permission_type].keys():
+                    assign_perm(permission, owner, aux[permission_type])
+        anonymous = User.objects.get(id=settings.ANONYMOUS_USER_ID)
+        if graph.public:
+            for permission, obj in aux.items():
+                assign_perm("view_%s" % permission, anonymous, obj)
+        else:
+            for permission, obj in aux.items():
+                perm = "view_%s" % permission
+                if anonymous.has_perm(perm, obj):
+                    remove_perm(perm, anonymous, obj)

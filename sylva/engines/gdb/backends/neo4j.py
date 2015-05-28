@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+import re
+
+from django.template.defaultfilters import slugify
 from lucenequerybuilder import Q
 from neo4jrestclient.exceptions import NotFoundError
 from pyblueprints.neo4j import Neo4jIndexableGraph as Neo4jGraphDatabase
@@ -384,6 +387,7 @@ class GraphDatabase(BlueprintsGraphDatabase):
         return results_list
 
     def _query_generator(self, query_dict, only_ids):
+        distinct = ""
         conditions_dict = query_dict["conditions"]
         conditions_result = self._query_generator_conditions(conditions_dict)
         # _query_generator_conditions returns a list
@@ -407,11 +411,31 @@ class GraphDatabase(BlueprintsGraphDatabase):
         else:
             match = u""
         if conditions:
-            where = u"WHERE {0} ".format(conditions)
+            # Let's check if the 'with_statement' exists
+            with_statement = query_dict["meta"]["with_statement"]
+            if with_statement:
+                with_header = "WITH "
+                with_list = []
+                for key, val in with_statement.iteritems():
+                    with_list.append(key + " AS " + val)
+                with_params = ','.join(with_list)
+                _with = with_header + with_params
+                where = u"{0} WHERE {1} ".format(_with, conditions)
+            else:
+                where = u"WHERE {0} ".format(conditions)
         else:
             where = u""
-        q = u"START {0} {1}{2}RETURN{3}".format(origins, match, where, results)
-        print q
+        # We treat the meta dictionary to know if we need to include the global
+        # distinct
+        try:
+            has_distinct = query_dict["meta"]["has_distinct"]
+        except KeyError:
+            has_distinct = False
+        if has_distinct:
+            distinct = u" DISTINCT"
+        q = u"START {0} {1}{2}RETURN{3}{4}".format(origins, match, where,
+                                                   distinct, results)
+
         return q, query_params
 
     def _query_generator_conditions(self, conditions_dict):
@@ -419,31 +443,127 @@ class GraphDatabase(BlueprintsGraphDatabase):
         # This list is used to control when use the index for the relationship,
         # in the origins or in the patterns
         conditions_alias = set()
-        conditions_set = set()
+        # conditions_set = set()
+        # We are going to use a list because when the set add elements,
+        # it include them in order and breaks our pattern with AND, OR
+        conditions_set = list()
         conditions_indexes = enumerate(conditions_dict)
         conditions_length = len(conditions_dict) - 1
         for lookup, property_tuple, match, connector, datatype \
                 in conditions_dict:
+            # This is the option to have properties of another boxes
+            if datatype == "property_box":
+                match_dict = dict()
+                # We catch exception of type IndexError, in case that we
+                # doesn't receive an appropiate array.
+                try:
+                    # The match can be defined in three different ways:
+                    # slug.property_id
+                    # aggregate (slug.property_id)
+                    # aggregate (DISTINCT slug.property_id)
+                    # And also, we could have two match values for
+                    # 'in between' lookups...
+                    match_results = list()
+                    match_elements = list()
+                    datatypes = list()
+                    if type(match) is not list:
+                        match_elements.append(match)
+                        datatypes.append(datatype)
+                    else:
+                        match_elements = match
+                        datatypes = datatype
+                    index = 0
+                    while index < len(match_elements):
+                        match_element = match_elements[index]
+                        if datatypes[index] == 'property_box':
+                            # Let's check what definition we have...
+                            match_splitted = re.split('\)|\(|\\.| ',
+                                                      match_element)
+                            match_first_element = match_splitted[0]
+                            # We check if aggregate belongs to the aggregate
+                            # set
+                            if match_first_element not in AGGREGATES:
+                                slug = match_first_element
+                                prop = match_splitted[1]
+                                match_var, match_property = (
+                                    self._get_slug_and_prop(slug, prop))
+                                # Finally, we assign the correct values to the
+                                # dict
+                                match_dict['var'] = match_var
+                                match_dict['property'] = match_property
+                                match = match_dict
+                            else:
+                                # We have aggregate
+                                aggregate = match_first_element
+                                match_second_element = match_splitted[1]
+                                # We check if we already have the distinct
+                                # clause
+                                if match_second_element != 'DISTINCT':
+                                    # We get the slug and the property
+                                    slug = match_second_element
+                                    prop = match_splitted[2]
+                                    match_var, match_property = (
+                                        self._get_slug_and_prop(slug, prop))
+                                    # Once we have the slug and the prop, we
+                                    # build the
+                                    # aggregate again
+                                    agg_field = u"{0}({1}.{2})".format(
+                                        aggregate, match_var, match_property)
+                                    match_dict['aggregate'] = agg_field
+                                    match = match_dict
+                                else:
+                                    # We have distinct, slug and the property
+                                    distinct = match_second_element
+                                    # We get the slug and the property
+                                    slug = match_splitted[2]
+                                    prop = match_splitted[3]
+                                    match_var, match_property = (
+                                        self._get_slug_and_prop(slug, prop))
+                                    # Once we have the slug and the prop, we
+                                    # build the aggregate again
+                                    agg_field = (
+                                        u"{0}({1} {2}.{3})".format(
+                                            aggregate, distinct, match_var,
+                                            match_property))
+                                    match_dict['aggregate'] = agg_field
+                                    match = match_dict
+                        else:
+                            match = match_element
+                        index = index + 1
+                        match_results.append(match)
+                    if len(match_results) == 1:
+                        match = match_results[0]
+                    else:
+                        match = match_results
+                except IndexError:
+                    match_dict['var'] = ""
+                    match_dict['property'] = ""
+                    match = match_dict
+
             if lookup == "between":
                 gte = q_lookup_builder(property=property_tuple[2],
                                        lookup="gte",
                                        match=match[0],
                                        var=property_tuple[1],
-                                       datatype=datatype)
+                                       datatype=datatype[0])
                 lte = q_lookup_builder(property=property_tuple[2],
                                        lookup="lte",
                                        match=match[1],
                                        var=property_tuple[1],
-                                       datatype=datatype)
+                                       datatype=datatype[1])
                 gte_query_objects = gte.get_query_objects(params=query_params)
                 lte_query_objects = lte.get_query_objects(params=query_params)
                 gte_condition = gte_query_objects[0]
                 gte_params = gte_query_objects[1]
                 lte_condition = lte_query_objects[0]
                 lte_params = lte_query_objects[1]
-                conditions_set.add(unicode(gte_condition))
+                # conditions_set.add(unicode(gte_condition))
+                if gte_condition not in conditions_set:
+                    conditions_set.append(unicode(gte_condition))
                 query_params.update(gte_params)
-                conditions_set.add(unicode(lte_condition))
+                # conditions_set.add(unicode(lte_condition))
+                if lte_condition not in conditions_set:
+                    conditions_set.append(unicode(lte_condition))
                 query_params.update(lte_params)
                 # We append the two property in the list
                 conditions_alias.add(property_tuple[1])
@@ -457,7 +577,9 @@ class GraphDatabase(BlueprintsGraphDatabase):
                     params=query_params)
                 condition = query_objects[0]
                 params = query_objects[1]
-                conditions_set.add(unicode(condition))
+                # conditions_set.add(unicode(condition))
+                if condition not in conditions_set:
+                    conditions_set.append(unicode(condition))
                 query_params.update(params)
                 # We append the two property in the list
                 conditions_alias.add(property_tuple[1])
@@ -471,7 +593,12 @@ class GraphDatabase(BlueprintsGraphDatabase):
                     params=query_params)
                 condition = query_objects[0]
                 params = query_objects[1]
-                conditions_set.add(unicode(condition))
+                # conditions_set.add(unicode(condition))
+                if condition not in conditions_set:
+                    conditions_set.append(unicode(condition))
+                # Uncomment this line to see the difference between use
+                # query params or use the q_element
+                # conditions_set.add(unicode(q_element))
                 query_params.update(params)
                 # We append the two property in the list
                 conditions_alias.add(property_tuple[1])
@@ -479,18 +606,32 @@ class GraphDatabase(BlueprintsGraphDatabase):
                 # We have to get the next element to keep the concordance
                 elem = conditions_indexes.next()
                 connector = u' {} '.format(connector.upper())
-                conditions_set.add(connector)
+                # conditions_set.add(connector)
+                conditions_set.append(connector)
             elif connector == 'not':
                 elem = conditions_indexes.next()
                 if elem[0] < conditions_length:
                     connector = u' AND '
-                    conditions_set.add(connector)
+                    # conditions_set.add(connector)
+                    conditions_set.append(connector)
+        # We check if we have only one condition and one operator
+        if len(conditions_set) > 0:
+            conditions_last_index = len(conditions_set) - 1
+            conditions_last_element = conditions_set[conditions_last_index]
+            if (conditions_last_element == ' AND ' or
+                    conditions_last_element == ' OR '):
+                conditions_set.pop()
         conditions = u" ".join(conditions_set)
         return (conditions, query_params, conditions_alias)
 
     def _query_generator_origins(self, origins_dict, conditions_alias):
         origins_set = set()
         for origin_dict in origins_dict:
+            # This is to maintain the logic for the older queries
+            try:
+                alias = origin_dict['slug']
+            except KeyError:
+                alias = origin_dict['alias']
             if origin_dict["type"] == "node":
                 node_type = origin_dict["type_id"]
                 # wildcard type
@@ -498,7 +639,7 @@ class GraphDatabase(BlueprintsGraphDatabase):
                     node_type = '*'
                 origin = u"""`{alias}`=node:`{nidx}`('label:{type}')""".format(
                     nidx=unicode(self.nidx.name).replace(u"`", u"\\`"),
-                    alias=unicode(origin_dict["alias"]).replace(u"`", u"\\`"),
+                    alias=unicode(alias).replace(u"`", u"\\`"),
                     type=node_type,
                 )
                 origins_set.add(origin)
@@ -508,13 +649,11 @@ class GraphDatabase(BlueprintsGraphDatabase):
                 if relation_type == WILDCARD_TYPE:
                     origin = u"""`{alias}`=rel:`{ridx}`('graph:{graph_id}')""".format(
                         ridx=unicode(self.ridx.name).replace(u"`", u"\\`"),
-                        alias=unicode(origin_dict["alias"]).replace(u"`",
-                                                                    u"\\`"),
+                        alias=unicode(alias).replace(u"`", u"\\`"),
                         graph_id=self.graph_id,
                     )
                 # TODO: Why with not rel indices in START the query is faster?
                 else:
-                    alias = origin_dict["alias"]
                     if alias in conditions_alias:
                         origin = u"""`{alias}`=rel:`{ridx}`('label:{type}')""".format(
                             ridx=unicode(self.ridx.name).replace(u"`",
@@ -528,7 +667,7 @@ class GraphDatabase(BlueprintsGraphDatabase):
 
     def _query_generator_results(self, results_dict, only_ids):
         results_set = set()
-        distinct_clause = ""
+
         for result_dict in results_dict:
             alias = result_dict["alias"]
             if result_dict["properties"] is None:
@@ -548,9 +687,13 @@ class GraphDatabase(BlueprintsGraphDatabase):
                             )
                             results_set.add(result)
                         elif property_aggregate and not only_ids:
+                            distinct_clause = ""
+                            if property_distinct:
+                                distinct_clause = u"DISTINCT "
                             if property_aggregate in AGGREGATES:
-                                result = u"{0}(`{1}`.`{2}`) as `{0}({1}.{2})`".format(
+                                result = u"{0}({1}`{2}`.`{3}`)".format(
                                     unicode(property_aggregate),
+                                    unicode(distinct_clause),
                                     unicode(alias).replace(u"`", u"\\`"),
                                     unicode(property_value).replace(u"`",
                                                                     u"\\`")
@@ -558,13 +701,12 @@ class GraphDatabase(BlueprintsGraphDatabase):
                                 results_set.add(result)
                         else:
                             result = u"ID(`{0}`)".format(
-                                unicode(alias).replace(u"`", u"\\`"),
+                                unicode(alias).replace(u"`", u"\\`")
                             )
                             results_set.add(result)
-                        if property_distinct:
-                            distinct_clause = u" DISTINCT"
         properties_results = u", ".join(results_set)
-        results = u"{0} {1}".format(distinct_clause, properties_results)
+
+        results = u" {0}".format(properties_results)
         return results
 
     def _query_generator_patterns(self, patterns_dict, conditions_alias):
@@ -572,7 +714,10 @@ class GraphDatabase(BlueprintsGraphDatabase):
         for pattern_dict in patterns_dict:
                 source = pattern_dict["source"]["alias"]
                 target = pattern_dict["target"]["alias"]
-                relation = pattern_dict["relation"]["alias"]
+                try:
+                    relation = pattern_dict["relation"]["slug"]
+                except KeyError:
+                    relation = pattern_dict["relation"]["alias"]
                 relation_type = pattern_dict["relation"]["type_id"]
                 # wildcard type
                 if relation_type == -1:
@@ -620,3 +765,23 @@ class GraphDatabase(BlueprintsGraphDatabase):
             return Analysis()
         else:
             return None
+
+    def _get_slug_and_prop(self, elem_slug, prop):
+        # We treat the elem_slug param
+        raw_slug = slugify(elem_slug)
+        raw_slug_splitted = raw_slug.split("_")
+        final_pos = len(raw_slug_splitted)
+        match_slug = raw_slug_splitted[0: final_pos - 1]
+        slug = "_".join(match_slug)
+        # Let's treat the property
+        property_id = prop
+        property_id = int(property_id)
+        # We filter for slug and then for property
+        schema = self.graph.schema
+        nodetype = (schema.nodetype_set.all()
+                                       .filter(slug=slug)[0])
+        prop_value = nodetype.properties.all().filter(
+            id=property_id)
+        match_property = prop_value[0].key
+        # Finally, we return the values
+        return elem_slug, match_property

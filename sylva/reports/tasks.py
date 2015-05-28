@@ -1,13 +1,64 @@
 # -*- coding: utf-8 -*-
 import datetime
 import operator
+import os
+from django.conf import settings
+from django.core.files import File
+from django.core.mail import send_mail
 from django.db.models import Q
-from models import ReportTemplate
-from sylva.celery import app
+from django.contrib.sites.models import Site
 from celery.utils.log import get_task_logger
+from models import ReportTemplate, Report
+from utils import phantom_process
+from views import pdf_gen_view
+from sylva.celery import app
+
+
+SECRET = getattr(settings, "REPORTS_SECRET", "")
 
 
 logger = get_task_logger(__name__)
+
+
+@app.task(name='reports.email')
+def send_email(inst_id):
+    inst = Report.objects.get(pk=inst_id)
+    graph_slug = inst.template.graph.slug
+    emails = [u.email for u in inst.template.email_to.all()]
+    site = Site.objects.get_current()
+    url = "{0}://{1}/reports/{2}/pdfgen/{3}".format("http", site.domain,
+                                                    graph_slug,
+                                                    inst.template.slug)
+    send_mail("Sylva Reports", "Please view this report: {0}".format(url),
+              settings.DEFAULT_FROM_EMAIL, emails, fail_silently=False)
+
+
+@app.task(name="reports.pdf")
+def generate_pdf(inst_id):
+    inst = Report.objects.get(pk=inst_id)
+    graph_slug = inst.template.graph.slug
+    template_slug = inst.template.slug
+    site = Site.objects.get_current()
+    sessionid = "nosessionid"
+    csrftoken = "nocsrftoken"
+    filename = phantom_process(
+        'http',
+        site.domain,
+        pdf_gen_view,
+        graph_slug,
+        template_slug,
+        'localhost',
+        csrftoken,
+        sessionid,
+        SECRET
+    )
+    try:
+        with open(filename) as pdf:
+            f = File(pdf)
+            inst.report_file.save(filename.split("/")[-1], f)
+    except IOError:
+        pass
+    os.unlink(filename)
 
 
 @app.task(name='reports.generate')

@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends base_template %}
 {% load i18n graphs static compress %}
 {% get_static_prefix as STATIC_PREFIX %}
 
@@ -19,6 +19,9 @@
 {% endblock %}
 
 {% block content %}
+  {% if as_modal %}
+    {% breadcrumb graph.schema %}
+  {% endif %}
   {% if node_types %}
     <div class="schema-wrapper">
       <div id="schemaOverview" class="content2-first max600">
@@ -145,6 +148,9 @@
       </div>
     </div> <!-- schema-wrapper -->
 
+    {% if as_modal %}
+    <div id="modal-content-controls" class="modal-content-controls">
+    {% endif %}
     <div class="schema-bottom">
       <span class="buttonLinkOption">
         <a id="schemaNewType" class="button" href="{% url "schema_nodetype_create" graph.slug %}">
@@ -156,7 +162,17 @@
           {% trans "New allowed Relationship" %}
         </a>
       </span>
+      {% if as_modal %}
+        <span class="buttonLinkOption">
+          <a id="modal-cancel" href="javascript:void()">
+            {% trans "Cancel" %}
+          </a>
+        </span>
+      {% endif %}
     </div>
+    {% if as_modal %}
+    </div>
+    {% endif %}
 
   {% else %}
     <p style="margin-bottom: 10px;">{% trans "There are no types defined yet." %}</p>
@@ -199,6 +215,15 @@
       </li>
     {% endif %}
   </ol>
+  {% if as_modal %}
+  <script type="text/javascript">
+    var asModal = true;
+  </script>
+  {% else %}
+  <script type="text/javascript">
+    var asModal = false;
+  </script>
+  {% endif %}
 {% endblock content %}
 
 {% block extra_links %}

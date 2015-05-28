@@ -27,7 +27,16 @@ var analyticsPieSubtitle = {
 // Variable to store the analytics that actually are executing
 var analyticsExecuting = new Array();
 
-var analyticsId = {};
+// Varieble to store the ids to render the charts
+var analyticsId = {
+  "connected_components": "connected_components-results",
+  "triangle_counting": "triangle_counting-results",
+  "graph_coloring": "graph_coloring-results",
+  "betweenness_centrality": "betweenness_centrality-results",
+  "pagerank": "pagerank-results",
+  "kcore": "kcore-results"
+};
+
 var taskTime = 0;
 
 var initAnalytics = function($) {
@@ -111,8 +120,44 @@ var initAnalytics = function($) {
             },
             point: {
               events: {
-                click: function () {
-                  var elements = sylva.analyticAffectedNodes[this.x];
+                mouseOver: function() {
+                  var id = this.x, sylvaList;
+                  if(id in sylva.analyticAffectedNodes) {
+                    sylvaList = sylva.analyticAffectedNodes[id].map(String);
+                    sylva.Sigma.changeSigmaTypes("aura", sylvaList);
+                  } else {
+                    // We have an error and do nothing
+                    console.log("There's an error highlighting the nodes");
+                  }
+                },
+                mouseOut: function() {
+                  var point = this;
+                  if(!point.selected) {
+                    sylva.Sigma.cleanSigmaTypes();
+                    // If we had selected nodes, we keep the aura
+                    if(sylva.listClickNodes.length > 0) {
+                      sylva.Sigma.changeSigmaTypes("aura", sylva.listClickNodes);
+                    }
+                  }
+                },
+                click: function() {
+                  var point = this;
+                  sylva.Sigma.cleanSigmaTypes();
+                  if(!point.selected) {
+                    var id = this.x, sylvaList;
+                    if(id in sylva.analyticAffectedNodes) {
+                      sylvaList = sylva.analyticAffectedNodes[id].map(String);
+                      sylva.Sigma.changeSigmaTypes("aura", sylvaList);
+                    } else {
+                      sylva.listClickNodes = [];
+                      console.log("There's an error highlighting nodes on click");
+                    }
+                    // We store the list of nodes
+                    sylva.listClickNodes = sylvaList;
+                  } else {
+                    // We reset the list of nodes
+                    sylva.listClickNodes = [];
+                  }
                 }
               }
             }
@@ -157,9 +202,14 @@ var initAnalytics = function($) {
             point: {
               events: {
                 mouseOver: function() {
-                  var id = this.x.toFixed(1);
-                  var sylvaList = sylva.analyticAffectedNodes[id].map(String);
-                  sylva.Sigma.changeSigmaTypes("aura", sylvaList);
+                  var id = this.x, sylvaList;
+                  if(id in sylva.analyticAffectedNodes) {
+                    sylvaList = sylva.analyticAffectedNodes[id].map(String);
+                    sylva.Sigma.changeSigmaTypes("aura", sylvaList);
+                  } else {
+                    // We have an error and do nothing
+                    console.log("There's an error highlighting the nodes on point over");
+                  }
                 },
                 mouseOut: function() {
                   var point = this;
@@ -174,9 +224,14 @@ var initAnalytics = function($) {
                 click: function() {
                   var point = this;
                   if(!point.selected) {
-                    var id = this.x.toFixed(1);
-                    var sylvaList = sylva.analyticAffectedNodes[id].map(String);
-                    sylva.Sigma.changeSigmaTypes("aura", sylvaList);
+                    var id = this.x, sylvaList;
+                    if(id in sylva.analyticAffectedNodes) {
+                      sylvaList = sylva.analyticAffectedNodes[id].map(String);
+                      sylva.Sigma.changeSigmaTypes("aura", sylvaList);
+                    } else {
+                      sylvaList = [];
+                      console.log("There's an error highlighting the nodes on point click");
+                    }
                     // We store the list of nodes
                     sylva.listClickNodes = sylvaList;
                   } else {
@@ -230,39 +285,67 @@ var initAnalytics = function($) {
           }
         }
 
-        // Create the chart
         optionsScatter = getHighchartsOptions(chartType, algorithm, parentArray);
-        var chart = new Highcharts.Chart(optionsScatter);
 
-        // We hide the estimated time and the progress bar
-        etaId = '#' + algorithm +"-eta";
-        progressBarId = '#progress-bar-' + algorithm;
-        $(etaId).html("");
-        $(progressBarId).css({
-          "display": "none"
-        });
-        $(progressBarId).attr('value', 0);
+        // Here, we need to catch the exception if the analytic is running
+        // right now or it was running before. In that case, we save the
+        // attributes in localStorage to load them when we enter in
+        // fullscreen mode
+        // Create the chart
+        try {
+          // This is the regular case
+          var chart = new Highcharts.Chart(optionsScatter);
 
-        if(analyticId != "") {
-          selectAnalyticsId = '#last-analytics-' + algorithm;
-          $(selectAnalyticsId).prepend("<option value=" + analyticId + " selected>" + gettext(moment.duration(-1, "seconds").humanize(true)) + "</option>");
-          $(selectAnalyticsId).css({
-            'display': 'inline-block'
+          // We hide the estimated time and the progress bar
+          etaId = '#' + algorithm +"-eta";
+          progressBarId = '#progress-bar-' + algorithm;
+          $(etaId).html("");
+          $(progressBarId).css({
+            "display": "none"
           });
-        }
+          $(progressBarId).attr('value', 0);
 
-        // We get the values data
-        $.ajax({
-          type: "GET",
-          dataType: 'json',
-          url: valuesUrl,
-          success: function(data) {
-            sylva.analyticAffectedNodes = data;
-          },
-          error: function(e) {
-            alert("Error: " + e);
+          if(analyticId != "") {
+            selectAnalyticsId = '#last-analytics-' + algorithm;
+            // We remove the running option or the choose one
+            $('option[value="running"]', selectAnalyticsId).remove();
+            $('option[value="default"]', selectAnalyticsId).remove();
+            // We add the new analytic
+            $(selectAnalyticsId).prepend("<option value=" + analyticId + " selected>" + gettext(moment.duration(-1, "seconds").humanize(true)) + "</option>");
+            // We add the default option
+            $(selectAnalyticsId).prepend("<option value='default' disabled>" + gettext('Choose one') + "</option>");
+            // We remove the disabled attribute of the select
+            $(selectAnalyticsId).prop('disabled', false);
+            $(selectAnalyticsId).css({
+              'display': 'inline-block'
+            });
           }
-        });
+
+          // We get the values data
+          $.ajax({
+            type: "GET",
+            dataType: 'json',
+            url: valuesUrl,
+            success: function(data) {
+              var sylvaKey;
+              sylva.analyticAffectedNodes = {}
+              for(var key in data) {
+                if(data.hasOwnProperty(key)) {
+                  sylvaKey = parseFloat(key);
+                  sylva.analyticAffectedNodes[sylvaKey] = data[key];
+                }
+              }
+            },
+            error: function(e) {
+              alert("Error: " + e);
+            }
+          });
+
+          // We remove the values in localStorage
+          localStorage.clear()
+        } catch(e) {
+
+        }
       },
       error: function (e) {
         alert("Error: " + e);
@@ -272,6 +355,9 @@ var initAnalytics = function($) {
 
   // pole state of the current task
   var getTaskState = function(analyticsExecuting, progressBarId) {
+    // We store the analyticsExecuting in case that
+    // we navigate to another view or refresh the page
+    localStorage.setItem("analyticsExecuting", analyticsExecuting);
     progressBarMax = $(progressBarId).attr('max');
     analyticsRequest = JSON.stringify(analyticsExecuting);
     $.ajax({
@@ -282,12 +368,24 @@ var initAnalytics = function($) {
       // If we have finished analytics, we show them
       for(key in analyticsResults) {
         if(analyticsResults.hasOwnProperty(key)) {
-          resultsUrl = analyticsResults[key][0];
-          analyticId = analyticsResults[key][1];
-          analyticTaskStart = analyticsResults[key][2];
-          algorithm = analyticsResults[key][3];
-          valuesUrl = analyticsResults[key][4];
-          getResults(resultsUrl, algorithm, analyticId, analyticTaskStart, valuesUrl);
+          // We get the status: OK or REVOKED
+          analyticStatus = analyticsResults[key][0]
+          if(analyticStatus == 'OK') {
+            resultsUrl = analyticsResults[key][1];
+            analyticId = analyticsResults[key][2];
+            analyticTaskStart = analyticsResults[key][3];
+            algorithm = analyticsResults[key][4];
+            valuesUrl = analyticsResults[key][5];
+
+            // We show the play button
+            $('#' + algorithm + ' .play-algorithm').css('visibility', 'visible');
+
+            // We hide the stop button
+            $('#stop-analytic-' + algorithm).css('visibility', 'hidden');
+
+            getResults(resultsUrl, algorithm, analyticId, analyticTaskStart, valuesUrl);
+          }
+
           $(progressBarId).attr('value', 100);
           // We remove the element of the list of analytics executing
           var index = analyticsExecuting.indexOf(key);
@@ -296,6 +394,17 @@ var initAnalytics = function($) {
           // If we dont have more analytics executing, we reset the time for the progress bars
           if(analyticsExecuting.length == 0)
             taskTime = 0;
+
+          // We remove the analytic of the localStorage array
+          analyticsExecutingStored = localStorage.getItem('analyticsExecuting');
+          analyticsExecutingSplitted = analyticsExecutingStored.split(',');
+          var index = analyticsExecutingSplitted.indexOf(key);
+          if(index > -1) {
+            analyticsExecutingSplitted.splice(index, 1);
+            localStorage.removeItem(key);
+            // We update the local storage analytics array
+            localStorage.setItem('analyticsExecuting', JSON.stringify(analyticsExecutingSplitted));
+          }
         }
       }
       if(analyticsExecuting.length > 0) {
@@ -308,8 +417,6 @@ var initAnalytics = function($) {
           $(progressBarId).attr('value', taskTime);
         }
       }
-      // create the infinite loop of Ajax calls to check the state
-      // of the current task
     });
   }
 
@@ -319,6 +426,7 @@ var initAnalytics = function($) {
     var plotId = $this.data('plot');
     var etaId = $this.data('eta');
     var progressBarId = "#progress-bar-" + measure;
+    var stopAnalyticId = "#stop-analytic-" + measure;
 
     // We check if we have to apply the algorithm over a subgraph
     var inputSelected = $this.next().children()[0];
@@ -329,7 +437,7 @@ var initAnalytics = function($) {
       var subgraph = JSON.stringify(sylva.selectedNodes);
     }
 
-    analyticsId[measure] = plotId;
+    //analyticsId[measure] = plotId;
     $('#' + etaId).html(gettext("Estimating time"));
 
     jQuery.ajax({
@@ -339,11 +447,18 @@ var initAnalytics = function($) {
     }).done(function(data){
       var algorithm = data[0];
       var etaTime = data[1];
-      if(etaTime < 10) {
-        $(progressBarId).attr('max', 100);
-      } else {
-        $(progressBarId).attr('max', 300);
-      }
+
+      // We remove the value attribute of the progress bar to simulate
+      // the infinite bar
+      $(progressBarId).removeAttr("value");
+      $(progressBarId).removeClass("progress");
+      $(progressBarId).css({
+        'display': 'inline-block',
+        'height': '18px',
+        'width': '198px'
+      });
+      $(progressBarId).attr('max', 300);
+
       $('#' + etaId).html(gettext("Estimated time ") + etaTime.toFixed(2) + gettext(" seconds"));
       jQuery.ajax({
         type: "POST",
@@ -355,13 +470,87 @@ var initAnalytics = function($) {
       }).done(function(data) {
         var taskId = data[0];
         var algorithm = data[1];
+        var graph = data[2];
+
+        $(stopAnalyticId).attr('data-taskid', taskId);
+
+        // We hide the play button
+        $('#' + measure + ' .play-algorithm').css('visibility', 'hidden');
+        // We show the stop analytic button
+        $(stopAnalyticId).css('visibility', 'visible');
+
+        // We add the info of the analytic running to the select
+        selectAnalyticsId = '#last-analytics-' + algorithm;
+        // We get the choose one option
+        var defaultOption = $('option[value="default"]', selectAnalyticsId);
+        // We remove the default option
+        $('option[value="default"]', selectAnalyticsId).remove();
+        // We add the new analytic
+        $(selectAnalyticsId).prepend("<option value='running' selected>(" + gettext("running") + ")</option>");
+        // We set the select to disable
+        $(selectAnalyticsId).prop('disabled', 'disabled');
+
         analyticsExecuting.push(taskId);
+
+        // We store the algorithm of the taskId in case that we need to
+        // navigate to another view or refresh the page
+         // We also store the graph, because we need to take care if we
+        // navaigate to another graph
+        var algorithmAndGraph = Array(algorithm, graph);
+        localStorage.setItem(taskId, JSON.stringify(algorithmAndGraph));
+        $(progressBarId).addClass("progress");
         getTaskState(analyticsExecuting, progressBarId);
-        $(progressBarId).css({
-          'display': 'inline-block'
-        });
       });
     });
+  });
+
+  $('.stop-analytic').on('click', function() {
+    $this = $(this);
+    var analyticTaskId = $this.attr('data-taskid');
+
+    if(analyticTaskId != '') {
+      $.ajax({
+        type: "POST",
+        url: sylva.urls.analyticsStop,
+        data: {"task_id": analyticTaskId}
+      }).done(function(data){
+        // Data contains the analytic id and the algorithm
+        analyticId = data[0];
+        algorithm = data[1];
+
+        // We need to add the analytic to the select, info for the user
+        selectAnalyticsId = '#last-analytics-' + algorithm;
+        // We enable the select field
+        $(selectAnalyticsId).prop('disabled', false);
+        // We remove the running option
+        $('option[value="running"]', selectAnalyticsId).remove();
+        // We add the new analytic
+        $(selectAnalyticsId).prepend("<option value='" + analyticId +"' selected disabled>" + gettext("Stopped analytic") + "</option>");
+        // We add again the default option
+        $(selectAnalyticsId).prepend("<option value='default' disabled>" + gettext("Choose one") + "</option>");
+
+        // We show the play button
+        $('#' + algorithm + ' .play-algorithm').css('visibility', 'visible');
+        // We hide the stop button
+        stopAnalyticId = '#stop-analytic-' + algorithm;
+        $(stopAnalyticId).css('visibility', 'hidden');
+
+        // We hide the progress bar
+        progressBarId = '#progress-bar-' + algorithm;
+        $(progressBarId).css('display', 'none');
+
+        // We remove the analytic of the localStorage array
+        analyticsExecutingStored = localStorage.getItem('analyticsExecuting');
+        analyticsExecutingSplitted = analyticsExecutingStored.split(',');
+        var index = analyticsExecutingSplitted.indexOf(analyticTaskId);
+        if(index > -1) {
+          analyticsExecutingSplitted.splice(index, 1);
+          localStorage.removeItem(analyticTaskId);
+          // We update the local storage analytics array
+          localStorage.setItem('analyticsExecuting', JSON.stringify(analyticsExecutingSplitted));
+        }
+      });
+    }
   });
 
   $('.analytics-measure').accordion({
@@ -493,5 +682,66 @@ var initAnalytics = function($) {
     $('.div-selected-nodes').css(
       {'display':'none'}
     );
+  });
+
+  // When the document is loaded, we check if we have some analytic running
+  $(document).ready(function() {
+    // Let's get the graph to check if the analytics belong to it
+    var graphName = sylva.urls.viewGraphAjax;
+    graphName = graphName.split('/')[2];
+
+    analyticsExecutingStored = localStorage.getItem('analyticsExecuting');
+
+    if(analyticsExecutingStored != null &&
+       analyticsExecutingStored != '') {
+      // We need to split the string stored
+      analyticsExecutingSplitted = analyticsExecutingStored.split(',');
+
+      // We iterate over the analytics that are running to format the selects
+      // and all the analytics side
+      index = 0;
+      var analyticsLength = analyticsExecutingSplitted.length;
+      while(index < analyticsLength) {
+        // We get the task id
+        var taskId = analyticsExecutingSplitted[index];
+        // We get the algorithm and the graph
+        var algorithmAndGraph = localStorage.getItem(taskId);
+        var algorithm = JSON.parse(algorithmAndGraph)[0];
+        var graph = JSON.parse(algorithmAndGraph)[1];
+
+        if(graph == graphName) {
+          var stopAnalyticId = "#stop-analytic-" + algorithm;
+          $(stopAnalyticId).attr('data-taskid', taskId);
+
+          // We show the stop analytic button
+          $(stopAnalyticId).css('visibility', 'visible');
+          // We add the info of the analytic running to the select
+          selectAnalyticsId = '#last-analytics-' + algorithm;
+          // We get the choose one option
+          var defaultOption = $('option[value="default"]', selectAnalyticsId);
+          // We remove the default option
+          $('option[value="default"]', selectAnalyticsId).remove();
+          // We add the new analytic
+          $(selectAnalyticsId).prepend("<option value='running' selected>(" + gettext("running") + ")</option>");
+          // We set the select to disable
+          $(selectAnalyticsId).prop('disabled', 'disabled');
+
+
+          var progressBarId = '#progress-bar-' + algorithm;
+          $(progressBarId).attr('max', 300);
+
+          // We remove the value attribute of the progress bar to simulate
+          // the infinite bar
+          $(progressBarId).removeAttr("value");
+          $(progressBarId).css({
+            'display': 'inline-block'
+          });
+
+          getTaskState(analyticsExecutingSplitted, progressBarId);
+        }
+
+        index = index + 1;
+      }
+    }
   });
 };

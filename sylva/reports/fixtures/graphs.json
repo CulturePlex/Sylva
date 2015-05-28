@@ -1,0 +1,19 @@
+[
+{
+    "pk": 1, 
+    "model": "graphs.graph", 
+    "fields": {
+        "slug": "dh2014", 
+        "description": "", 
+        "relaxed": false, 
+        "order": null, 
+        "options": null, 
+        "last_modified": "2015-04-15T11:55:26.846", 
+        "owner": 0, 
+        "schema": 1, 
+        "data": 1, 
+        "public": false, 
+        "name": "DH2014"
+    }
+}
+]

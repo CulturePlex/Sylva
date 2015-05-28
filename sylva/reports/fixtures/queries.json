@@ -1,0 +1,32 @@
+[
+{
+    "pk": 1, 
+    "model": "queries.query", 
+    "fields": {
+        "name": "simple_query", 
+        "graph": 1, 
+        "results_count": 0, 
+        "query_aliases": "{\"types\":{\"institution_1\":{\"typename\":\"institution\",\"alias\":\"Institution 1\",\"top\":\"300px\",\"id\":\"diagramBox-2-institution\",\"left\":\"470px\"},\"located_in_1\":{\"typename\":\"located_in\",\"alias\":\"located in 1\",\"top\":\"321.75px\",\"id\":\"diagramBoxRel-0-located_in\",\"left\":\"207.5px\"},\"country_1\":{\"typename\":\"country\",\"alias\":\"Country 1\",\"top\":\"40px\",\"id\":\"diagramBox-1-country\",\"left\":\"110px\"}}}", 
+        "query_dict": "{\"patterns\":[{\"source\":{\"alias\":\"country_1\",\"type\":\"node\",\"type_id\":5},\"relation\":{\"alias\":\"located in 1\",\"type\":\"relationship\",\"slug\":\"located_in_1\",\"type_id\":2},\"target\":{\"alias\":\"institution_1\",\"type\":\"node\",\"type_id\":10}}],\"meta\":{\"boxes_properties\":{},\"has_distinct\":true,\"with_statement\":{}},\"conditions\":[],\"results\":[{\"alias\":\"country_1\",\"properties\":[{\"display_alias\":\"Country 1.Name\",\"datatype\":\"default\",\"distinct\":\"\",\"alias\":\"country_1.Name\",\"aggregate\":false,\"property\":\"Name\"}]},{\"alias\":\"institution_1\",\"properties\":[{\"display_alias\":\"Count(Institution 1.Name)\",\"datatype\":\"string\",\"distinct\":false,\"alias\":\"Count(institution_1.Name)\",\"aggregate\":\"Count\",\"property\":\"Name\"}]},{\"alias\":\"located_in_1\",\"properties\":[]}],\"origins\":[{\"alias\":\"Country 1\",\"type\":\"node\",\"slug\":\"country_1\",\"type_id\":5},{\"alias\":\"Institution 1\",\"type\":\"node\",\"slug\":\"institution_1\",\"type_id\":10},{\"alias\":\"located in 1\",\"type\":\"relationship\",\"slug\":\"located_in_1\",\"type_id\":2}]}", 
+        "last_run": "2015-04-15T11:58:19.488", 
+        "has_numeric_results": true, 
+        "query_fields": "{\"fieldsRels\":{\"located_in_1\":[]},\"aggregatesRels\":{},\"sortingParams\":{\"select_order_by\":\"default\",\"dir_order_by\":\"asc\",\"rows_number\":\"100\",\"distinct_result\":true,\"show_mode\":\"per_page\"},\"fields\":{\"institution_1\":[\"field2\"],\"country_1\":[\"field1\"]},\"aggregates\":{\"2\":[\"Count\",false]},\"fieldRelsCounter\":0,\"checkboxes\":{\"field2\":\"Name\",\"field1\":\"Name\"},\"fieldsConditions\":{\"1\":false,\"0\":false}}", 
+        "description": ""
+    }
+},
+{
+    "pk": 2, 
+    "model": "queries.query", 
+    "fields": {
+        "name": "two_series", 
+        "graph": 1, 
+        "results_count": 28, 
+        "query_aliases": "{\"types\":{\"institution_1\":{\"typename\":\"institution\",\"top\":\"40px\",\"left\":\"60px\",\"id\":\"diagramBox-2-institution\",\"alias\":\"Institution 1\"},\"located_in_1\":{\"typename\":\"located_in\",\"top\":\"227.5px\",\"left\":\"190.25px\",\"id\":\"diagramBoxRel-0-located_in\",\"alias\":\"located in 1\"},\"produced_by_1\":{\"typename\":\"produced_by\",\"top\":\"111.5px\",\"left\":\"470px\",\"id\":\"diagramBoxRel-1-produced_by\",\"alias\":\"produced by 2\"},\"project_1\":{\"typename\":\"project\",\"top\":\"100px\",\"left\":\"610px\",\"id\":\"diagramBox-3-project\",\"alias\":\"Project 1\"},\"country_1\":{\"typename\":\"country\",\"top\":\"330px\",\"left\":\"90px\",\"id\":\"diagramBox-1-country\",\"alias\":\"Country 1\"}}}", 
+        "query_dict": "{\"patterns\":[{\"source\":{\"alias\":\"country_1\",\"type\":\"node\",\"type_id\":5},\"relation\":{\"alias\":\"located in 1\",\"type\":\"relationship\",\"slug\":\"located_in_1\",\"type_id\":2},\"target\":{\"alias\":\"institution_1\",\"type\":\"node\",\"type_id\":10}},{\"source\":{\"alias\":\"institution_1\",\"type\":\"node\",\"type_id\":10},\"relation\":{\"alias\":\"produced by 2\",\"type\":\"relationship\",\"slug\":\"produced_by_1\",\"type_id\":9},\"target\":{\"alias\":\"project_1\",\"type\":\"node\",\"type_id\":1}}],\"meta\":{\"boxes_properties\":{},\"has_distinct\":true,\"with_statement\":{}},\"conditions\":[],\"results\":[{\"alias\":\"country_1\",\"properties\":[{\"display_alias\":\"Country 1.Name\",\"alias\":\"country_1.Name\",\"datatype\":\"default\",\"distinct\":\"\",\"aggregate\":false,\"property\":\"Name\"}]},{\"alias\":\"institution_1\",\"properties\":[{\"display_alias\":\"Count(Institution 1.Name)\",\"alias\":\"Count(institution_1.Name)\",\"datatype\":\"string\",\"distinct\":false,\"aggregate\":\"Count\",\"property\":\"Name\"}]},{\"alias\":\"project_1\",\"properties\":[{\"display_alias\":\"Count(Project 1.Name)\",\"alias\":\"Count(project_1.Name)\",\"datatype\":\"string\",\"distinct\":false,\"aggregate\":\"Count\",\"property\":\"Name\"}]},{\"alias\":\"located_in_1\",\"properties\":[]},{\"alias\":\"produced_by_1\",\"properties\":[]}],\"origins\":[{\"alias\":\"Country 1\",\"type\":\"node\",\"slug\":\"country_1\",\"type_id\":5},{\"alias\":\"Institution 1\",\"type\":\"node\",\"slug\":\"institution_1\",\"type_id\":10},{\"alias\":\"Project 1\",\"type\":\"node\",\"slug\":\"project_1\",\"type_id\":1},{\"alias\":\"located in 1\",\"type\":\"relationship\",\"slug\":\"located_in_1\",\"type_id\":2},{\"alias\":\"produced by 2\",\"type\":\"relationship\",\"slug\":\"produced_by_1\",\"type_id\":9}]}", 
+        "last_run": "2015-04-15T12:00:36.772", 
+        "has_numeric_results": true, 
+        "query_fields": "{\"aggregatesRels\":{},\"sortingParams\":{\"select_order_by\":\"default\",\"dir_order_by\":\"asc\",\"rows_number\":\"100\",\"distinct_result\":true,\"show_mode\":\"per_page\"},\"fields\":{\"institution_1\":[\"field2\"],\"project_1\":[\"field3\"],\"country_1\":[\"field1\"]},\"aggregates\":{\"3\":[\"Count\",false],\"2\":[\"Count\",false]},\"fieldRelsCounter\":0,\"fieldsConditions\":{\"1\":false,\"0\":false,\"2\":false},\"fieldsRels\":{\"located_in_1\":[],\"produced_by_1\":[],\"produced_by_2\":[]},\"checkboxes\":{\"field2\":\"Name\",\"field3\":\"Name\",\"field1\":\"Name\"}}", 
+        "description": ""
+    }
+}
+]

@@ -1,0 +1,70 @@
+{% extends "reports_base.html" %}
+{% load i18n %}
+{# get_static_prefix as STATIC_PREFIX #}
+{% block title %}
+  {{ graph.slug }}
+{% endblock %}
+
+{% block extra_links %}
+    {{ block.super }}
+{% endblock %}
+
+{% block body %}
+  <div ng-app="reports" id="main">
+
+    <header class="global">
+
+      {% block menu_navigation %}
+      {% endblock %}
+
+      {% block content_title %}
+      {% endblock %}
+
+      <div class="nav-wrapper">
+        <div class="inside clearfix">
+          {% block contact_navigation %}{% endblock %}
+          {% block main_navigation %}
+              <div id="link-logo"></div>
+          {% endblock %}
+        </div><!-- end .inside -->
+      </div><!-- end .nav-wrapper -->
+
+    </header>
+
+    <div id="body">
+      <div class="body-inside">
+
+        {% block content %}
+        <div class="pdf-cont">
+          <h2>{{ graph }}: {{ template.slug }} {% if template.date %}-  {{ template.date }}{% endif %}</h2>
+
+          <div sylva-pv-row-repeat class="row" resp="{{resp}}" prev={{ prev|yesno:"true,false" }} width="1025">
+          </div>
+
+        </div>
+
+          {% block scripts %}
+            {{ block.super }}
+          {% endblock %}
+
+          {% block extra_scripts %}
+            {{ block.super }}
+          {% endblock %}
+
+        {% endblock %}
+
+      </div><!-- end .body-inside -->
+    </div><!-- end #body -->
+
+    <div id="footer" class="global">
+      <div class="inside">
+        <div class="copyright">
+          {% block footer %}
+              <p>&copy; {{ CURRENT_DATE|date:"Y" }} <a href="{{ site.domain }}">{{ PROJECT_NAME }}</a>. {% trans "All rights reserved" %}.</p>
+          {% endblock %}
+        </div><!-- end .copyright -->
+      </div><!-- end .inside -->
+    </div>
+
+  </div><!-- end #main -->
+{% endblock %}

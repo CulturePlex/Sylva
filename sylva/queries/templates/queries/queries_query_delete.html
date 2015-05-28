@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends base_template %}
 {% load i18n graphs static compress %}
 {% get_static_prefix as STATIC_PREFIX %}
 
@@ -21,13 +21,23 @@
 
 {% block content %}
 
+{% if as_modal %}
+    {% trans "Delete" as label %}
+    {% breadcrumb queries_link query_name label %}
+    <div id="delete-url" data-url="{{ delete_url }}" style="display: none;"></div>
+{% endif %}
 <form method="post" action="." id="queryDelete" name="query_delete">
     {% csrf_token %}
     {{ form.as_p }}
     <br/>
-    <input type="submit" value="{% trans "Delete" %}" />
+    <input id='submit-delete-query' type="submit" value="{% trans "Delete" %}" />
     <span class="buttonLinkOption">
-        {% trans "or" %} <a href="{% url "queries_list" graph.slug %}">{% trans "Cancel" %}</a>.</span>
+    {% if as_modal %}
+        {% trans "or" %} <a id="modal-cancel" data-url="{{ queries_list_url }}" href="javascript:void()">{% trans "Cancel" %}</a>
+    {% else %}
+        {% trans "or" %} <a href="{% url "queries_list" graph.slug %}">{% trans "Cancel" %}</a>
+    {% endif %}
+    </span>
 </form>
 
 {% endblock %}

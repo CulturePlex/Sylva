@@ -104,6 +104,7 @@
       ];
 
       sigInst = new sigma();
+
       sigInst.addRenderer({
         type: 'canvas',
         container: $('#sigma-container')[0]
@@ -438,10 +439,18 @@
       var properties = '';
 
       for (var key in node.properties) {
-        var length = key.length + node.properties[key].length;
+        // We need to take care of the time type
+        var emptyTime = false;
+        try {
+          var propertyLength = node.properties[key].length;
+        } catch(e) {
+          var propertyLength = "";
+          emptyTime = true;
+        }
+        var length = key.length + propertyLength;
         var cut = propertyMax - key.length;
-        if (cut > 0) {
-          var property = (length < propertyMax) ? node.properties[key] : node.properties[key].substring(0, cut) + "...";
+        if (cut > 0 && !emptyTime) {
+          var property = (length < propertyMax) ? node.properties[key] : node.properties[key].toString().substring(0, cut) + "...";
         } else {
           var property = '';
           var key = key.substring(0, propertyMax - 3);
@@ -514,6 +523,27 @@
     callImportDataModal: function(event) {
       var target = $(event.target);
       sylva.modals.importData.start(target.attr('href'), true);
+
+      return false;
+    },
+
+    callQueriesModal: function(event) {
+      var link = $('#queriesMenu');
+      sylva.modals.queriesList.start(link.attr('href'), true);
+
+      return false;
+    },
+
+    callSchemaModal: function(event) {
+      var link = $('#schema-link');
+      sylva.modals.schemaMainView.start(link.attr('href'), true);
+
+      return false;
+    },
+
+    callReportsModal: function(event) {
+      var link = $('#reportsMenu');
+      sylva.modals.reportsMainView.start(link.attr('href'), true);
 
       return false;
     },
@@ -1587,6 +1617,9 @@
       $('#collaborators-button').on('click', that.callCollaboratorsModal);
       $('a[data-modal="import-schema"]').on('click', that.callImportSchemaModal);
       $('a[data-modal="import-data"]').on('click', that.callImportDataModal);
+      $('#queriesMenu').on('click', that.callQueriesModal);
+      $('#schema-link').on('click', that.callSchemaModal);
+      $('#reportsMenu').on('click', that.callReportsModal);
     },
 
     /* Perform the cancelation of the analytics mode. Also perform the
@@ -1645,6 +1678,9 @@
       $('#collaborators-button').off('click', that.callCollaboratorsModal);
       $('a[data-modal="import-schema"]').off('click', that.callImportSchemaModal);
       $('a[data-modal="import-data"]').off('click', that.callImportDataModal);
+      $('#queriesMenu').off('click', that.callQueriesModal);
+      $('#schema-link').off('click', that.callSchemaModal);
+      $('#reportsMenu').off('click', that.callReportsModal);
     },
 
 
@@ -1755,6 +1791,9 @@
     },
 
     redrawLayout: function(type, degreeOrder, order, drawHidden) {
+      sigInst = sigma.instances(0);
+      that = this;
+
       var xPos = '';
       var yPos = '';
 
@@ -2843,6 +2882,9 @@
 
     // Function used by the modals.
     deleteNode: function(deleteForEditing, node, relationshipIds) {
+      sigInst = sigma.instances(0);
+      that = this;
+
       // 'Obtaining' the node.
       if (deleteForEditing) {
         /* The cooridantes will be saved in the existing node object from
@@ -2934,6 +2976,9 @@
 
     // Function used by the modals.
     addNode: function(addFromEditing, node, relationships) {
+      sigInst = sigma.instances(0);
+      that = this;
+
       // Adding the node to the 'selectedNodes' array.
       var selectedAsEdit = addFromEditing && wasDeletedNodeSelected;
       var selectedAsNew = (!addFromEditing) &&
@@ -3005,6 +3050,8 @@
     },
 
     changeSigmaTypes: function(type, nodeList) {
+      sigInst = sigma.instances(0);
+
       if (!nodeList) {
         nodeList = [];
       }
@@ -3017,6 +3064,8 @@
     },
 
     cleanSigmaTypes: function() {
+      sigInst = sigma.instances(0);
+
       sigInst.graph.nodes().forEach(function(n) {
         delete n['type']
       });

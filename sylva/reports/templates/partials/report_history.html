@@ -1,23 +1,53 @@
 {% load i18n %}
 
-{% verbatim %}
+
 <div class="cont">
-<div ng-if="template.history.length > 0">
+<div ng-if="template.reports">
   <!--Meta Form/Queries-->
   <div class="content2-first" ng-hide="editable">
-    
+
     <div id="history">
-      <ul>
-        <li ng-repeat="report in template.history">
-          <h2><a href="" ng-click="getReport(report.id)">{{ report.date_run }}</h2>
+      <ul style="min-height: 250px">
+        {% verbatim %}
+        <li ng-repeat="bucket in template.reports | orderBy:'-bucket'">
+          <h2 ng-click="expand(bucket)"><a href="">
+            <span ng-hide="bucket.expanded">&#8680;</span>
+            <span ng-show="bucket.expanded">&#8681;</span>
+            Period of {{ bucket.display }}</h2>
+            </a>
+          <ul ng-show="bucket.expanded">
+            <li ng-repeat="report in bucket.reports">
+              <h3><a href="" ng-click="getReport(report.id)">{{ report.date_run }}</a>
+                  <a ng-href="/reports/{{slugs.graph}}/pdf/{{report.id}}">pdf</a>
+              </h3>
+            </li>
+          </ul>
         </li>
+        {% endverbatim %}
       </ul>
-    </div><!--history-->  
+        <span class='pagination-info'>
+
+            {% trans "Showing" %}
+            {% verbatim %} {{ template.num_objects }} {% endverbatim %}
+            {% trans "of" %}
+            {% verbatim %} {{ template.total_count }} {% endverbatim %}
+            {% trans "Report Periods." %}
+
+            <span ng-if="template.previous_page_number"><a ng-click="getPage(template.previous_page_number)"><span class="symbol-medium">←</span></a></span>
+            <span>
+            {% trans "Page" %}
+            {% verbatim %} {{template.page_number}} {% endverbatim %}
+            {% trans "of" %}
+            {% verbatim %} {{template.num_pages}} {% endverbatim %}
+            <span ng-if="template.next_page_number"><a ng-click="getPage(template.next_page_number)"><span class="symbol-medium">→</span></a>
+        </span>
+    </div><!--history-->
   </div><!--content2-first-->
 
   <!--Report Info/Designer-->
   <div class="content-divider" ng-hide="editable"></div>
 
+  {% verbatim %}
   <div class="content2-cont" ng-hide="editable">
 
     <div class="row">
@@ -26,26 +56,17 @@
 
     <div class="row">
       <div class="prev-cont">
-        <div sylva-pv-row-repeat class="row" resp="resp" width="600">
-          <div sylva-pv-cell-repeat class="col" row="row">
-            <div ng-hide="markdown">
-              <div ng-if="query != '' && query != 'undefined' && query != null" highchart config="chartConfig" ng-style="cellStyle" class="display-cell"></div>
-              <div ng-if="query == '' || query == 'undefined' || query == null" ng-style="cellStyle" class="display-cell"></div>
+          <div sylva-pv-row-repeat class="row" resp="resp" width="600">
             </div>
-            <div ng-show="markdown">
-              <div ng-style="cellStyle" class="display-cell" ng-bind-html="markdown"></div>
-            </div>
-          </div>
-        </div>
       </div>
-    </div> <!--row--> 
-    
+    </div> <!--row-->
+
 
   </div> <!--content2-->
-
+  {% endverbatim %}
 </div><!--if-->
-<div ng-if="template.history.length === 0">
-{% endverbatim %}
+<div ng-if="template.reports.length == 0">
+
 
   <h2>{% trans "This report hasn't been run." %}</h2>
 </div>

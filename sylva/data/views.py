@@ -32,6 +32,13 @@ from graphs.models import Graph
 from schemas.models import NodeType, RelationshipType
 
 
+def serialize_datetime(node):
+    for key, val in node.properties.iteritems():
+        if hasattr(val, 'isoformat'):
+            node[key] = val.isoformat()
+    return node
+
+
 def create_data(properties, data_list, add_edge_extras=False):
     data = []
     #TODO In the preview we must cutthe number of nodes better
@@ -202,6 +209,8 @@ def nodes_list_full(request, graph_slug, node_type_id):
 def nodes_create(request, graph_slug, node_type_id):
     graph = get_object_or_404(Graph, slug=graph_slug)
     nodetype = get_object_or_404(NodeType, id=node_type_id)
+    # Variable to control if we want to stay in the saving page
+    add_another = "add-another"
     if not nodetype.schema.graph == graph:
         raise Http404(_("Mismatch in requested graph and node type's graph."))
     if request.POST:
@@ -316,14 +325,21 @@ def nodes_create(request, graph_slug, node_type_id):
                         'properties': rel.properties
                     }
                     relationships.append(rel_json)
-
+            # We need to serialize the date and time types manually
+            # because ujson doesn't do this.
+            node = serialize_datetime(node)
             response = {'type': 'data',
                         'action': 'create',
                         'nodeId': str(node.id),
+                        'nodeLabel': node.display,
                         'node': node.to_json(),
                         'relationships': relationships}
             return HttpResponse(json.dumps(response), status=200,
                                 content_type='application/json')
+        elif add_another in request.POST:
+            redirect_url = reverse("nodes_create",
+                                   args=[graph.slug, node_type_id])
+            return redirect(redirect_url)
         else:
             redirect_url = reverse("nodes_list_full",
                                    args=[graph.slug, node_type_id])
@@ -649,10 +665,13 @@ def nodes_edit(request, graph_slug, node_id):
                         'properties': rel.properties
                     }
                     relationships.append(rel_json)
-
+            # We need to serialize the date and time types manually
+            # because ujson doesn't do this.
+            node = serialize_datetime(node)
             response = {'type': 'data',
                         'action': action,
                         'nodeId': str(node.id),
+                        'nodeLabel': node.display,
                         'node': node.to_json(),
                         'relationships': relationships}
             if not as_new:
@@ -789,6 +808,7 @@ def nodes_delete(request, graph_slug, node_id):
                     response = {'type': 'data',
                                 'action': 'delete',
                                 'nodeId': node_id,
+                                'nodeLabel': node.display,
                                 'oldRelationshipIds': old_relationship_ids}
                     return HttpResponse(json.dumps(response), status=200,
                                         content_type='application/json')

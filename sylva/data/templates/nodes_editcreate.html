@@ -37,7 +37,7 @@
       {% csrf_token %}
       <div id="modal-content-scrollable-wrapper">
         <div id="modal-content-scrollable">
-          <div class="content3-block">
+          <div id="properties-content" class="content3-block">
             <h2 id="propertiesTitle">{% trans "Properties" %}</h2>
             {% for field in node_form %}
               <p {% if field.name in fields_to_hide and not field.value %}class="hidden"{% endif %}>
@@ -57,9 +57,12 @@
                 {% if as_new %}
                 {% trans "or" %}
                 <input type="submit" name="as-new" value="{% trans "Save as new" %} {{ nodetype.name|capfirst }}"/>
+                {% else %}
+                {% trans "or" %}
+                <input type="submit" class="input-like-link" name="add-another" id="add-another" value="{% trans "Save and Add Another" %} {{ nodetype.name|capfirst }}" />
                 {% endif %}
               </span>
-              <span class="buttonLinkOption buttonLinkRight">
+              <span class="buttonLinkOption buttonLinkRight" style="padding-top: 5px;">
                 {% if delete %}
                 {% trans "or" %}
                 <a href="{% url "nodes_delete" graph.slug node.id %}">{% trans "Remove" %}</a>
@@ -251,6 +254,14 @@
     {{ css }}
   {% endfor %}
 
+  <script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/sigma-visualization.js"></script>
+  <script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/modals.js"></script>
+  <script type="text/javascript" src="{{ STATIC_PREFIX }}js/jquery.simplemodal-1.4.4.js"></script>
+  {% if as_modal %}
+  <script type="text/javascript" src="{{ STATIC_PREFIX }}js/jquery.formsets.1.2.min.js"></script>
+  <script type="text/javascript" src="{{ STATIC_PREFIX }}js/jquery.tokeninput.js"></script>
+  {% endif %}
+
   <!-- We are adding here jQueryUI manually because maybe it is already in the template. -->
   {% if not as_modal %}
     <script src="{{ STATIC_PREFIX }}js/jquery-ui-1.10.4.js"></script>
@@ -276,7 +287,13 @@
               addCssClass: "addButton inFormsets",
               addText: "{% trans "Add" %} {{ outgoing_formset.itemtype.name }} ({{ outgoing_formset.itemtype.target.name }})",
               extraClasses: ["row1", "row2"],
-              added: function(row) {$("#{{prefix}} p:last label").hide(); nodeAutocomplete(row.find("input.node_autocomplete"));},
+              added: function(row) {
+                $("#{{prefix}} p:last label").hide();
+                nodeAutocomplete(row.find("input.node_autocomplete"));
+                {% if OPTIONS.ENABLE_AUTOCOMPLETE_NODES_COMBO %}
+                $(".combobox").chosen();
+                {% endif %}
+              },
               deleteCssClass: "delete-rowup{% if outgoing_formset.itemtype.properties.count %}Props{% endif %}",
               deleteText: ""
             });
@@ -295,7 +312,13 @@
               addCssClass: "addButton inFormsets",
               addText: "{% trans "Add" %} "+ label,  // +" ({{ incoming_formset.itemtype.source.name }})",
               extraClasses: ["row1", "row2"],
-              added: function(row) {$("#{{prefix}} p:last label").hide(); nodeAutocomplete(row.find("input.node_autocomplete"));},
+              added: function(row) {
+                $("#{{prefix}} p:last label").hide();
+                nodeAutocomplete(row.find("input.node_autocomplete"));
+                {% if OPTIONS.ENABLE_AUTOCOMPLETE_NODES_COMBO %}
+                $(".combobox").chosen();
+                {% endif %}
+              },
               deleteCssClass: "delete-rowup{% if incoming_formset.itemtype.properties.count %}Props{% endif %}",
               deleteText: ""
             });
@@ -442,6 +465,36 @@
         $('label[for$="-media_file"]').siblings('a').each(function() {
           var $link = $(this);
           $link.attr('download', $link.text().split('/').pop());
+        });
+
+        {% if OPTIONS.ENABLE_AUTOCOMPLETE_NODES_COMBO %}
+        $('.combobox').chosen();
+        {% endif %}
+
+        // We start the modals
+        $(document).ready(function() {
+          sylva.modals.init();
+        });
+
+        // We show the modal for create the new element
+        $('.add-node').on('click', function() {
+          {% if OPTIONS.ENABLE_AUTOCOMPLETE_NODES_COMBO %}
+          // This is the field where we need to set the value
+          var relatedField = $(this).parent().next().children().find('select');
+          {% else %}
+          // This is the field where we need to set the value
+          var relatedField = $(this).parent().next().children().find('input[type="text"]')[1];
+          {% endif %}
+          // We set the field global
+          window.relatedField = relatedField;
+
+          // We clone the form
+          var nodeForm = $('#edit-node-form').clone();
+
+          var url = $(event.target).attr('href');
+          sylva.modals.createNodeOwnView.start(url, true);
+
+          return false;
         });
 
       });

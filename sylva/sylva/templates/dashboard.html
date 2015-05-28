@@ -3,8 +3,11 @@
 
 {% block extra_scripts %}
   {% compress js %}
+    <script type="text/javascript" src="{{ STATIC_PREFIX }}js/jquery.1.8.3.js"></script>
     <script type="text/javascript" src="{{ STATIC_PREFIX }}js/flotr2.js"></script>
     <script type="text/javascript" src="{{ STATIC_PREFIX }}js/dashboard.stats.js"></script>
+    <script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/highcharts/highcharts.js"></script>
+    <script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/highcharts/highcharts-more.js"></script>
   {% endcompress %}
 {% endblock %}
 

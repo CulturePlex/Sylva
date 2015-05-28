@@ -1,6 +1,7 @@
 import datetime
 import csv
 import os
+import unicodecsv
 import zipfile
 try:
     from cStringIO import StringIO
@@ -24,11 +25,14 @@ class BaseConverter(object):
     )
 
     def __init__(self, graph, csv_results=None, query_name=None,
-                 node_type_id=None):
+                 node_type_id=None, headers_formatted=None,
+                 headers_raw=None):
         self.graph = graph
         self.csv_results = csv_results
         self.query_name = query_name
         self.node_type_id = node_type_id
+        self.headers_formatted = headers_formatted
+        self.headers_raw = headers_raw
 
     def encode_html(self, value):
         return escape(value)
@@ -38,201 +42,388 @@ class GEXFConverter(BaseConverter):
     """
     Converts a Sylva neo4j graph to GEXF 1.2
     """
-
-    header = u"""<?xml version="1.0" encoding="UTF-8"?>
-<gexf xmlns="http://www.gexf.net/1.2draft" xmlns:viz="http://www.gexf.net/1.2draft/viz" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.gexf.net/1.2draft http://www.gexf.net/1.2draft/gexf.xsd" version="1.2">
-    <meta lastmodifieddate="%s">
-        <creator>Sylva</creator>
-        <description>A Sylva exported file</description>
-    </meta>
-    <graph mode="static" defaultedgetype="directed">"""
-
     def export(self):
+        schema = self.graph.schema
         today = datetime.datetime.now()
         date = u"%s-%s-%s" % (today.year, today.month, today.day)
-        attribute_counter = 0
-        node_attributes = {}
-        edge_attributes = {}
-        nodes = ''
-        for node in self.graph.nodes.all():
-            nodes += u"""
-                <node id="%s" label="%s" type="%s">
-                <attvalues>""" % (node.id, node.display, node.label)
-            for key, value in node.properties.iteritems():
-                if key not in node_attributes:
-                    node_attributes[key] = attribute_counter
-                    attribute_counter += 1
-                nodes += u"""
-                    <attvalue for="%s" value="%s"/>""" % (node_attributes[key],
-                            self.encode_html(value))
-            nodes += u"""
-                </attvalues>
-                </node>"""
-        attribute_counter = 0
-        edges = ''
-        for edge in self.graph.relationships.all():
-            edges += u"""
-                <edge id="%s" source="%s" target="%s" type="%s">
-                <attvalues>""" % (edge.id,
-                        edge.source.id,
-                        edge.target.id,
-                        edge.label)
-            for key, value in edge.properties.iteritems():
-                if key not in edge_attributes:
-                    edge_attributes[key] = attribute_counter
-                    attribute_counter += 1
-                edges += u"""
-                    <attvalue for="%s" value="%s"/>""" % (edge_attributes[key],
-                            self.encode_html(value))
-            edges += u"""
-                </attvalues>
-                </edge>"""
-        node_attributes_xml = ''
-        for key, value in node_attributes.iteritems():
-            node_attributes_xml += u"""
-                <attribute id="%s" title="%s" type="string"/>""" % (value,
-                        key)
-        edge_attributes_xml = ''
-        for key, value in edge_attributes.iteritems():
-            edge_attributes_xml += u"""
-                <attribute id="%s" title="%s" type="string"/>""" % (value,
-                        key)
-        gephi_format = u"""%s
-        <attributes class="node">
-            %s
-        </attributes>
-        <attributes class="edge">
-            %s
-        </attributes>
-        <nodes>%s
-        </nodes>
-        <edges>%s
-        </edges>
-    </graph>
-</gexf>""" % (self.header, date, node_attributes_xml,
-                edge_attributes_xml, nodes, edges)
-        return gephi_format
+        graph_name = self.graph.name
+        graph_description = self.graph.description
+        graph_owner = self.graph.owner.username
 
-    def stream_export(self):
-        schema = self.graph.schema
-        yield self.header
+        # Header
+        header = (
+            u'<?xml version="1.0" encoding="UTF-8"?>\n'
+            u'<gexf xmlns="http://www.gexf.net/1.2draft" '
+            u'xmlns:viz="http://www.gexf.net/1.2draft/viz" '
+            u'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
+            u'xsi:schemaLocation="http://www.gexf.net/1.2draft'
+            u'http://www.gexf.net/1.2draft/gexf.xsd" '
+            u'version="1.2">\n')
+
+        # Meta
+        name = u''
+        if graph_name:
+            name = u'\t\t<name>{0}</name>\n'.format(graph_name)
+        description = u''
+        if graph_description:
+            description = (
+                u'\t\t<description>{0}</description>\n'.format(
+                    graph_description))
+        owner = u''
+        if graph_owner:
+            owner = u'\t\t<creator>{0}</creator>\n'.format(graph_owner)
+        meta = (
+            u'\t<meta lastmodifieddate="{0}">\n'
+            u'{1}{2}{3}'
+            u'\t</meta>\n'.format(date, owner, name, description))
+
+        # Graph header
+        graph_header = u'\t<graph mode="static" defaultedgetype="directed">\n'
+
         # Node attributes
-        node_attributes_xml = u"""
-            <attribute id="NodeType" title="[Schema] Type" type="string"/>"
-            <attribute id="NodeTypeId" title="[Schema] Type Id" type="string"/>"""
-        for node_type in self.graph.schema.nodetype_set.all():
-                for property_name in node_type.properties.all():
-                    namespace_name = u"(%s) %s" % (self.encode_html(node_type.name),
-                                            self.encode_html(property_name.key))
+        node_attributes = (
+            u'\t\t<attributes class="node">\n'
+            u'\t\t\t<attribute id="NodeType" '
+            u'title="[Schema] Type" type="string"/>\n'
+            u'\t\t\t<attribute id="NodeTypeId" '
+            u'title="[Schema] Type Id" type="string"/>\n')
 
-                    node_attributes_xml += u"""
-                    <attribute id="n%s" title="%s" type="string"/>""" % \
-                                    (property_name.id, namespace_name)
-        yield u"""
-        <attributes class="node">
-            %s
-        </attributes>
-        """ % (node_attributes_xml)
+        for node_type in self.graph.schema.nodetype_set.all():
+            for property_name in node_type.properties.all():
+                namespace_name = u"(%s) %s" % (
+                    self.encode_html(node_type.name),
+                    self.encode_html(property_name.key))
+                node_attributes += (
+                    u'\t\t\t<attribute '
+                    u'id="n{0}" title="{1}" '
+                    u'type="string"/>\n'.format(property_name.id,
+                                                namespace_name))
+        node_attributes += u'\t\t</attributes>\n'
 
         # Edge attributes
-        edge_attributes_xml = u"""
-            <attribute id="RelationshipType" title="[Schema] Allowed Relationship" type="string"/>"
-            <attribute id="RelationshipTypeId" title="[Schema] Allowed Relationship Id" type="string"/>"""
+        edge_attributes = (
+            u'\t\t<attributes class="edge">\n'
+            u'\t\t\t<attribute id="RelationshipType" '
+            u'title="[Schema] Allowed Relationship" type="string"/>\n'
+            u'\t\t\t<attribute id="RelationshipTypeId" '
+            u'title="[Schema] Allowed Relationship Id" type="string"/>\n')
+
         for relationship_type in self.graph.schema.relationshiptype_set.all():
-                for property_name in relationship_type.properties.all():
-                    namespace_name = u"(%s) %s" % (self.encode_html(relationship_type.name),
-                                            self.encode_html(property_name.key))
-                    edge_attributes_xml += u"""
-                    <attribute id="r%s" title="%s" type="string"/>""" % \
-                                    (property_name.id, namespace_name)
-        yield u"""
-        <attributes class="edge">
-            %s
-        </attributes>
-        """ % (edge_attributes_xml)
+            for property_name in relationship_type.properties.all():
+                namespace_name = u"(%s) %s" % (
+                    self.encode_html(relationship_type.name),
+                    self.encode_html(property_name.key))
+                edge_attributes += (
+                    u'\t\t\t<attribute '
+                    u'id="r{0}" title="{1}" '
+                    u'type="string"/>\n'.format(property_name.id,
+                                                namespace_name))
+        edge_attributes += u'\t\t</attributes>\n'
 
         # Nodes
-        yield '<nodes>'
+        nodes = u'\t\t<nodes>\n'
+
         for node in self.graph.nodes.iterator():
-            node_text = u"""
-                <node id="%s" label="%s" type="%s">
-                <attvalues>""" % (node.id,
-                                self.encode_html(node.display),
-                                self.encode_html(node.label_display))
+            # Node metadata
+            node_meta = (
+                u'\t\t\t<node id="{0}" label="{1}" type="{2}">\n'
+                u'\t\t\t<attvalues>\n'.format(node.id,
+                                              self.encode_html(node.display),
+                                              self.encode_html(
+                                                  node.label_display)))
+            nodes += node_meta
+            # Node properties
             node_properties = {
                 'NodeType': self.encode_html(node.label_display),
                 'NodeTypeId': node.label
             }
             for key, value in node_properties.iteritems():
-                node_text += u"""
-                    <attvalue for="%s" value="%s"/>""" % \
-                            (self.encode_html(key),
-                            self.encode_html(value))
+                node_properties_text = (
+                    u'\t\t\t\t<attvalue for="{0}" value="{1}"/>\n'.format(
+                        self.encode_html(key),
+                        self.encode_html(value)))
+                nodes += node_properties_text
+            # Node properties values
             try:
                 nodetype = schema.nodetype_set.get(id=node.label)
                 nodetype_dict = nodetype.properties.all().values("id", "key")
-                nodetype_properties = dict([(d["key"], d["id"])
-                                            for d in nodetype_dict])
+                nodetype_properties = dict([
+                    (d["key"], d["id"]) for d in nodetype_dict])
             except:
                 nodetype_properties = {}
             for key, value in node.properties.iteritems():
                 if key in nodetype_properties:
-                    att_for = u"n%s" % self.encode_html(nodetype_properties[key])
+                    att_for = (
+                        u"n%s" % self.encode_html(nodetype_properties[key]))
                 else:
                     att_for = self.encode_html(key)
-                node_text += u"""
-                    <attvalue for="%s" value="%s"/>""" % \
-                            (att_for,
-                             self.encode_html(value))
-            node_text += u"""
-                </attvalues>
-                </node>"""
-            yield node_text
-        yield '</nodes><edges>'
+                node_properties_values = (
+                    u'\t\t\t\t<attvalue for="{0}" value="{1}"/>\n'.format(
+                        att_for,
+                        self.encode_html(value)))
+                nodes += node_properties_values
+            node_finish = (
+                u'\t\t\t</attvalues>\n'
+                u'\t\t\t</node>\n')
+            nodes += node_finish
+        nodes += u'\t\t</nodes>\n'
 
         # Edges
+        edges = u'\t\t<edges>\n'
+
         for edge in self.graph.relationships.iterator():
-            edge_text = u"""
-                <edge id="%s" source="%s" target="%s" label="%s">
-                <attvalues>""" % (edge.id,
-                        edge.source.id,
-                        edge.target.id,
-                        self.encode_html(edge.label_display))
+            # Edge metadata
+            edge_meta = (
+                u'\t\t\t<edge id="{0}" source="{1}" '
+                u'target="{2}" label="{3}">\n'
+                u'\t\t\t<attvalues>\n'.format(edge.id,
+                                              edge.source.id,
+                                              edge.target.id,
+                                              self.encode_html(
+                                                  edge.label_display)))
+            edges += edge_meta
+            # Edge properties
             edge_properties = {
                 'RelationshipType': self.encode_html(edge.label_display),
                 'RelationshipTypeId': edge.label
             }
             for key, value in edge_properties.iteritems():
-                edge_text += u"""
-                    <attvalue for="%s" value="%s"/>""" % \
-                            (self.encode_html(key),
-                            self.encode_html(value))
+                edge_properties_text = (
+                    u'\t\t\t\t<attvalue for="{0}" value="{1}"/>\n'.format(
+                        self.encode_html(key),
+                        self.encode_html(value)))
+                edges += edge_properties_text
+            # Edge properties values
             try:
                 reltype = schema.relationshiptype_set.get(id=edge.label)
                 reltype_dict = reltype.properties.all().values("id", "key")
-                reltype_properties = dict([(d["key"], d["id"])
-                                            for d in reltype_dict])
+                reltype_properties = dict([
+                    (d["key"], d["id"]) for d in reltype_dict])
             except:
                 reltype_properties = {}
             for key, value in edge.properties.iteritems():
                 if key in reltype_properties:
-                    att_for = u"r%s" % self.encode_html(reltype_properties[key])
+                    att_for = (
+                        u"r%s" % self.encode_html(reltype_properties[key]))
                 else:
                     att_for = self.encode_html(key)
-                edge_text += u"""
-                    <attvalue for="%s" value="%s"/>""" % \
-                            (att_for, self.encode_html(value))
-            edge_text += u"""
-                </attvalues>
-                </edge>"""
-            yield edge_text
-        yield u"""
-        </edges>
-        """
+                edge_properties_values = (
+                    u'\t\t\t\t<attvalue for="{0}" value="{1}"/>\n'.format(
+                        att_for,
+                        self.encode_html(value)))
+                edges += edge_properties_values
+            edge_finish = (
+                u'\t\t\t</attvalues>\n'
+                u'\t\t\t</edge>\n')
+            edges += edge_finish
+        edges += u'\t\t</edges>\n'
 
-        yield u"""
-    </graph>
-</gexf>"""
+        # Finish gexf file
+        finish_gexf = (
+            u'\t</graph>\n'
+            u'</gexf>')
+
+        gephi_format = u"{0}{1}{2}{3}{4}{5}{6}{7}".format(header,
+                                                          meta,
+                                                          graph_header,
+                                                          node_attributes,
+                                                          edge_attributes,
+                                                          nodes,
+                                                          edges,
+                                                          finish_gexf)
+        return gephi_format
+
+    def stream_export(self):
+        schema = self.graph.schema
+        today = datetime.datetime.now()
+        date = u"%s-%s-%s" % (today.year, today.month, today.day)
+        graph_name = self.graph.name
+        graph_description = self.graph.description
+        graph_owner = self.graph.owner.username
+
+        # Header
+        header = (
+            u'<?xml version="1.0" encoding="UTF-8"?>\n'
+            u'<gexf xmlns="http://www.gexf.net/1.2draft" '
+            u'xmlns:viz="http://www.gexf.net/1.2draft/viz" '
+            u'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
+            u'xsi:schemaLocation="http://www.gexf.net/1.2draft'
+            u'http://www.gexf.net/1.2draft/gexf.xsd" '
+            u'version="1.2">\n')
+        yield header
+
+        # Meta
+        name = u''
+        if graph_name:
+            name = u'\t\t<name>{0}</name>\n'.format(graph_name)
+        description = u''
+        if graph_description:
+            description = (
+                u'\t\t<description>{0}</description>\n'.format(
+                    graph_description))
+        owner = u''
+        if graph_owner:
+            owner = u'\t\t<creator>{0}</creator>\n'.format(graph_owner)
+        meta = (
+            u'\t<meta lastmodifieddate="{0}">\n'
+            u'{1}{2}{3}'
+            u'\t</meta>\n'.format(date, owner, name, description))
+        yield meta
+
+        # Graph header
+        graph_header = u'\t<graph mode="static" defaultedgetype="directed">\n'
+        yield graph_header
+
+        # Node attributes
+        node_attributes = (
+            u'\t\t<attributes class="node">\n'
+            u'\t\t\t<attribute id="NodeType" '
+            u'title="[Schema] Type" type="string"/>\n'
+            u'\t\t\t<attribute id="NodeTypeId" '
+            u'title="[Schema] Type Id" type="string"/>\n')
+        yield node_attributes
+
+        for node_type in self.graph.schema.nodetype_set.all():
+            for property_name in node_type.properties.all():
+                namespace_name = u"(%s) %s" % (
+                    self.encode_html(node_type.name),
+                    self.encode_html(property_name.key))
+                node_attributes = (
+                    u'\t\t\t<attribute '
+                    u'id="n{0}" title="{1}" '
+                    u'type="string"/>\n'.format(property_name.id,
+                                                namespace_name))
+                yield node_attributes
+        yield u'\t\t</attributes>\n'
+
+        # Edge attributes
+        edge_attributes = (
+            u'\t\t<attributes class="edge">\n'
+            u'\t\t\t<attribute id="RelationshipType" '
+            u'title="[Schema] Allowed Relationship" type="string"/>\n'
+            u'\t\t\t<attribute id="RelationshipTypeId" '
+            u'title="[Schema] Allowed Relationship Id" type="string"/>\n')
+        yield edge_attributes
+
+        for relationship_type in self.graph.schema.relationshiptype_set.all():
+            for property_name in relationship_type.properties.all():
+                namespace_name = u"(%s) %s" % (
+                    self.encode_html(relationship_type.name),
+                    self.encode_html(property_name.key))
+                edge_attributes = (
+                    u'\t\t\t<attribute '
+                    u'id="r{0}" title="{1}" '
+                    u'type="string"/>\n'.format(property_name.id,
+                                                namespace_name))
+                yield edge_attributes
+        yield u'\t\t</attributes>\n'
+
+        # Nodes
+        yield u'\t\t<nodes>\n'
+
+        for node in self.graph.nodes.iterator():
+            # Node metadata
+            node_meta = (
+                u'\t\t\t<node id="{0}" label="{1}" type="{2}">\n'
+                u'\t\t\t<attvalues>\n'.format(node.id,
+                                              self.encode_html(node.display),
+                                              self.encode_html(
+                                                  node.label_display)))
+            yield node_meta
+
+            # Node properties
+            node_properties = {
+                'NodeType': self.encode_html(node.label_display),
+                'NodeTypeId': node.label
+            }
+            for key, value in node_properties.iteritems():
+                node_properties_text = (
+                    u'\t\t\t\t<attvalue for="{0}" value="{1}"/>\n'.format(
+                        self.encode_html(key),
+                        self.encode_html(value)))
+            yield node_properties_text
+
+            # Node properties values
+            try:
+                nodetype = schema.nodetype_set.get(id=node.label)
+                nodetype_dict = nodetype.properties.all().values("id", "key")
+                nodetype_properties = dict([
+                    (d["key"], d["id"]) for d in nodetype_dict])
+            except:
+                nodetype_properties = {}
+            for key, value in node.properties.iteritems():
+                if key in nodetype_properties:
+                    att_for = (
+                        u"n%s" % self.encode_html(nodetype_properties[key]))
+                else:
+                    att_for = self.encode_html(key)
+                node_properties_values = (
+                    u'\t\t\t\t<attvalue for="{0}" value="{1}"/>\n'.format(
+                        att_for,
+                        self.encode_html(value)))
+                yield node_properties_values
+            node_finish = (
+                u'\t\t\t</attvalues>\n'
+                u'\t\t\t</node>\n')
+            yield node_finish
+        yield u'\t\t</nodes>\n'
+
+        # Edges
+        yield u'\t\t<edges>\n'
+
+        for edge in self.graph.relationships.iterator():
+            # Edge metadata
+            edge_meta = (
+                u'\t\t\t<edge id="{0}" source="{1}" '
+                u'target="{2}" label="{3}">\n'
+                u'\t\t\t<attvalues>\n'.format(edge.id,
+                                              edge.source.id,
+                                              edge.target.id,
+                                              self.encode_html(
+                                                  edge.label_display)))
+            yield edge_meta
+
+            # Edge properties
+            edge_properties = {
+                'RelationshipType': self.encode_html(edge.label_display),
+                'RelationshipTypeId': edge.label
+            }
+            for key, value in edge_properties.iteritems():
+                edge_properties_text = (
+                    u'\t\t\t\t<attvalue for="{0}" value="{1}"/>\n'.format(
+                        self.encode_html(key),
+                        self.encode_html(value)))
+            yield edge_properties_text
+
+            # Edge properties values
+            try:
+                reltype = schema.relationshiptype_set.get(id=edge.label)
+                reltype_dict = reltype.properties.all().values("id", "key")
+                reltype_properties = dict([
+                    (d["key"], d["id"]) for d in reltype_dict])
+            except:
+                reltype_properties = {}
+            for key, value in edge.properties.iteritems():
+                if key in reltype_properties:
+                    att_for = (
+                        u"r%s" % self.encode_html(reltype_properties[key]))
+                else:
+                    att_for = self.encode_html(key)
+                edge_properties_values = (
+                    u'\t\t\t\t<attvalue for="{0}" value="{1}"/>\n'.format(
+                        att_for,
+                        self.encode_html(value)))
+                yield edge_properties_values
+            edge_finish = (
+                u'\t\t\t</attvalues>\n'
+                u'\t\t\t</edge>\n')
+            yield edge_finish
+        yield u'\t\t</edges>\n'
+
+        # Finish gexf file
+        yield (
+            u'\t</graph>\n'
+            u'</gexf>')
 
 
 class CSVConverter(BaseConverter):
@@ -275,7 +466,8 @@ class CSVConverter(BaseConverter):
                 csv_buffer.close()
 
             for rel_type in rel_types:
-                csv_name = os.path.join('relationships', rel_type.slug + '.csv')
+                csv_name = os.path.join(
+                    'relationships', rel_type.slug + '.csv')
                 csv_buffer = StringIO()
                 csv_writer = csv.writer(csv_buffer, delimiter=',',
                                         quotechar='"', quoting=csv.QUOTE_ALL)
@@ -313,43 +505,36 @@ class CSVTableConverter(BaseConverter):
     Converts a Sylva neo4j data table into CSV files.
     """
 
-    def export(self):
-        graph = self.graph
+    def stream_export(self):
         node_type_id = self.node_type_id
         node_type = get_object_or_404(NodeType, id=node_type_id)
-        node_type_name = node_type.name.encode('utf-8')
         nodes = node_type.all()
         properties = node_type.properties.all()
+        csv_header = []
 
-        zip_buffer = StringIO()
+        csv_file = StringIO()
+        csv_writer = unicodecsv.writer(csv_file, encoding='utf-8')
 
-        with zipfile.ZipFile(zip_buffer, 'w', zipfile.ZIP_DEFLATED) as \
-                zip_file:
-            csv_name = os.path.join('data table', node_type_name + '.csv')
-            csv_buffer = StringIO()
-            csv_writer = csv.writer(csv_buffer, delimiter=',',
-                                    quotechar='"', quoting=csv.QUOTE_ALL)
-            csv_header = []
-            csv_header_encoded = []
-            for prop in properties:
-                csv_header.append(prop.key)
-                csv_header_encoded.append(prop.key.encode('utf-8'))
-            csv_writer.writerow(csv_header_encoded)
-            for node in nodes:
-                csv_node_values = []
-                node_properties = node.properties
-                for header_prop in csv_header:
-                    prop_value = node_properties[header_prop]
-                    csv_node_values.append(prop_value.encode('utf-8'))
-                csv_writer.writerow(csv_node_values)
-            zip_file.writestr(csv_name, csv_buffer.getvalue())
-            csv_buffer.close()
+        for prop in properties:
+            header = prop.key
+            csv_header.append(header)
+        csv_writer.writerow(csv_header)
+        yield csv_file.getvalue()
+        # We remove the last element to avoid overlap of values
+        csv_file.seek(0)
+        csv_file.truncate()
 
-        zip_data = zip_buffer.getvalue()
-        zip_buffer.close()
-        zip_name = graph.slug + '.zip'
-
-        return zip_data, zip_name
+        for node in nodes:
+            csv_node_values = []
+            node_properties = node.properties
+            for header_prop in csv_header:
+                prop_value = node_properties.get(header_prop, 0)
+                csv_node_values.append(prop_value)
+            csv_writer.writerow(csv_node_values)
+            yield csv_file.getvalue()
+            # We remove the last element to avoid overlap of values
+            csv_file.seek(0)
+            csv_file.truncate()
 
 
 class CSVQueryConverter(BaseConverter):
@@ -357,30 +542,31 @@ class CSVQueryConverter(BaseConverter):
     Converts a Sylva neo4j graph query into CSV files.
     """
 
-    def export(self):
-        graph = self.graph
+    def stream_export(self):
+        headers_formatted = self.headers_formatted
+        headers_raw = self.headers_raw
         csv_results = self.csv_results
-        query_name = self.query_name
-        headers = csv_results[0]
         results = csv_results[1:]
 
-        zip_buffer = StringIO()
+        csv_file = StringIO()
+        csv_writer = unicodecsv.writer(csv_file, encoding='utf-8')
 
-        with zipfile.ZipFile(zip_buffer, 'w', zipfile.ZIP_DEFLATED) as \
-                zip_file:
-            csv_name = os.path.join('query', query_name + '.csv')
-            csv_buffer = StringIO()
-            csv_writer = csv.writer(csv_buffer, delimiter=',',
-                                    quotechar='"', quoting=csv.QUOTE_ALL)
-            csv_header = headers
-            csv_writer.writerow(csv_header)
-            for result in results:
-                csv_writer.writerow(result)
-            zip_file.writestr(csv_name, csv_buffer.getvalue())
-            csv_buffer.close()
+        csv_header = []
+        for header in headers_raw:
+            header_formatted = headers_formatted[header]
+            csv_header.append(header_formatted)
+        csv_writer.writerow(csv_header)
+        yield csv_file.getvalue()
+        # We remove the last element to avoid overlap of values
+        csv_file.seek(0)
+        csv_file.truncate()
 
-        zip_data = zip_buffer.getvalue()
-        zip_buffer.close()
-        zip_name = graph.slug + '.zip'
-
-        return zip_data, zip_name
+        for result in results:
+            results_encoded = []
+            for individual_result in result:
+                results_encoded.append(individual_result)
+            csv_writer.writerow(results_encoded)
+            yield csv_file.getvalue()
+            # We remove the last element to avoid overlap of values
+            csv_file.seek(0)
+            csv_file.truncate()

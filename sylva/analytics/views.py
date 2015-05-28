@@ -6,6 +6,7 @@ except ImportError:
 
 import csv
 from celery.result import AsyncResult
+from sylva.celery import app
 
 from django.conf import settings
 from django.shortcuts import get_object_or_404, HttpResponse
@@ -16,6 +17,10 @@ from guardian.decorators import permission_required
 from analytics.models import Analytic
 from sylva.decorators import is_enabled
 from graphs.models import Graph, Data
+
+
+REVOKED = 'REVOKED'
+STATUS_OK = 'OK'
 
 
 @is_enabled(settings.ENABLE_ANALYTICS)
@@ -34,7 +39,7 @@ def analytics_run(request, graph_slug):
     if request.is_ajax() and algorithm in available_algorithms:
         analytic = graph.analysis.run(algorithm, subgraph)
         task = AsyncResult(analytic.task_id)
-        data = [task.id, analytic.algorithm]
+        data = [task.id, analytic.algorithm, graph_slug]
     json_data = json.dumps(data)
     return HttpResponse(json_data, content_type='application/json')
 
@@ -64,15 +69,24 @@ def analytics_status(request, graph_slug):
     if request.is_ajax() and analytics_executing is not None:
         for task_id in analytics_executing:
             task = AsyncResult(task_id)
-            if task.ready():
-                analytic = Analytic.objects.filter(
-                    dump__graph__slug=graph_slug,
-                    task_id=task_id).latest()
-                analytics_results[task_id] = [analytic.results.url,
-                                              analytic.id,
-                                              analytic.task_start,
-                                              analytic.algorithm,
-                                              analytic.values.url]
+            # We need to take into account if the task has been revoked
+            if task.ready() and task.status != REVOKED:
+                # Sometimes, the execution is faster than the revoked flag. So
+                # we need to control that (ValueError exception)
+                try:
+                    analytic = Analytic.objects.filter(
+                        dump__graph__slug=graph_slug,
+                        task_id=task_id).latest()
+                    analytics_results[task_id] = [STATUS_OK,
+                                                  analytic.results.url,
+                                                  analytic.id,
+                                                  analytic.task_start,
+                                                  analytic.algorithm,
+                                                  analytic.values.url]
+                except ValueError:
+                    analytics_results[task_id] = [REVOKED]
+            elif task.status == REVOKED:
+                analytics_results[task_id] = [REVOKED]
     data = analytics_results
     json_data = json.dumps(data)
     return HttpResponse(json_data, content_type='application/json')
@@ -132,3 +146,18 @@ def analytics_dump(request, graph_slug):
             data_file, rels), content_type='text/event-stream')
     else:
         return StreamingHttpResponse([], content_type='text/event-stream')
+
+
+@is_enabled(settings.ENABLE_ANALYTICS)
+@permission_required("data.view_data",
+                     (Data, "graph__slug", "graph_slug"), return_403=True)
+def analytics_stop(request, graph_slug):
+    task_id = request.POST.get('task_id')
+    # We stop the algorith
+    app.control.revoke(task_id, terminate=True)
+    # We get the analytic to give the info to the user
+    analytic = Analytic.objects.filter(dump__graph__slug=graph_slug,
+                                       task_id=task_id).latest()
+    data = [analytic.id, analytic.algorithm]
+    json_data = json.dumps(data)
+    return HttpResponse(json_data, content_type='application/json')

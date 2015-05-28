@@ -35,11 +35,32 @@ def schema_edit(request, graph_slug):
     graph = get_object_or_404(Graph, slug=graph_slug)
     nodetypes = NodeType.objects.filter(schema__graph__slug=graph_slug)
     reltypes = None
-    return render_to_response('schemas_edit.html',
-                              {"graph": graph,
-                               "node_types": nodetypes,
-                               "relationship_types": reltypes},
-                              context_instance=RequestContext(request))
+    # We get the modal variable
+    as_modal = bool(request.GET.get("asModal", False))
+
+    if as_modal:
+        base_template = 'empty.html'
+        render = render_to_string
+    else:
+        base_template = 'base.html'
+        render = render_to_response
+    add_url = reverse("schema_edit", args=[graph_slug])
+    broader_context = {"graph": graph,
+                       "node_types": nodetypes,
+                       "relationship_types": reltypes,
+                       "base_template": base_template,
+                       "as_modal": as_modal,
+                       "add_url": add_url}
+    response = render('schemas_edit.html', broader_context,
+                      context_instance=RequestContext(request))
+    if as_modal:
+        response = {'type': 'html',
+                    'action': 'schema_main',
+                    'html': response}
+        return HttpResponse(json.dumps(response), status=200,
+                            content_type='application/json')
+    else:
+        return response
 
 
 @permission_required("schemas.change_schema",
@@ -47,40 +68,75 @@ def schema_edit(request, graph_slug):
 def schema_nodetype_delete(request, graph_slug, nodetype_id):
     graph = get_object_or_404(Graph, slug=graph_slug)
     nodetype = get_object_or_404(NodeType, id=nodetype_id)
+    # We get the modal variable
+    as_modal = bool(request.GET.get("asModal", False))
     count = graph.nodes.count(label=nodetype.id)
     redirect_url = reverse("schema_edit", args=[graph.slug])
     if count == 0:
         form = TypeDeleteConfirmForm()
         if request.POST:
             data = request.POST.copy()
+            as_modal = bool(data.get("asModal", False))
             form = TypeDeleteConfirmForm(data=data)
             if form.is_valid():
                 confirm = bool(int(form.cleaned_data["confirm"]))
                 if confirm:
                     nodetype.delete()
-                    return redirect(redirect_url)
+                    if as_modal:
+                        response = {'type': 'data',
+                                    'action': 'schema_main'}
+                        return HttpResponse(json.dumps(response), status=200,
+                                            content_type='application/json')
+                    else:
+                        return redirect(redirect_url)
     else:
         form = TypeDeleteForm(count=count)
         if request.POST:
             data = request.POST.copy()
+            as_modal = bool(data.get("asModal", False))
             form = TypeDeleteForm(data=data, count=count)
             if form.is_valid():
                 option = form.cleaned_data["option"]
                 if option == ON_DELETE_CASCADE:
                     graph.nodes.delete(label=nodetype.id)
                 nodetype.delete()
-                return redirect(redirect_url)
-    return render_to_response('schemas_item_delete.html',
-                              {"graph": graph,
-                               "item_type_label": _("Type"),
-                               "item_type": "node",
-                               "item_type_id": nodetype_id,
-                               "item_type_name": nodetype.name,
-                               "item_type_count": count,
-                               "item_type_object": nodetype,
-                               "form": form,
-                               "type_id": nodetype_id},
-                              context_instance=RequestContext(request))
+                if as_modal:
+                    response = {'type': 'data',
+                                'action': 'schema_main'}
+                    return HttpResponse(json.dumps(response), status=200,
+                                        content_type='application/json')
+                else:
+                    return redirect(redirect_url)
+    if as_modal:
+        base_template = 'empty.html'
+        render = render_to_string
+    else:
+        base_template = 'base.html'
+        render = render_to_response
+    add_url = reverse("schema_nodetype_delete", args=[graph_slug, nodetype_id])
+    broader_context = {"graph": graph,
+                       "item_type_label": _("Type"),
+                       "item_type": "node",
+                       "item_type_id": nodetype_id,
+                       "item_type_name": nodetype.name,
+                       "item_type_count": count,
+                       "item_type_object": nodetype,
+                       "form": form,
+                       "type_id": nodetype_id,
+                       "base_template": base_template,
+                       "add_url": add_url,
+                       "schema_main_url": redirect_url,
+                       "as_modal": as_modal}
+    response = render('schemas_item_delete.html', broader_context,
+                      context_instance=RequestContext(request))
+    if as_modal:
+        response = {'type': 'html',
+                    'action': 'schema_nodetype_delete',
+                    'html': response}
+        return HttpResponse(json.dumps(response), status=200,
+                            content_type='application/json')
+    else:
+        return response
 
 
 @permission_required("schemas.change_schema",
@@ -97,10 +153,17 @@ def schema_nodetype_edit(request, graph_slug, nodetype_id):
 
 def schema_nodetype_editcreate(request, graph_slug, nodetype_id=None):
     graph = get_object_or_404(Graph, slug=graph_slug)
+    # We get the modal variable
+    as_modal = bool(request.GET.get("asModal", False))
+    # We get the schema main view breadcrumb
+    schema_main_url = reverse("schema_edit", args=[graph.slug])
     if nodetype_id:
         empty_nodetype = get_object_or_404(NodeType, id=nodetype_id)
+        add_url = reverse("schema_nodetype_edit", args=[graph_slug,
+                                                        nodetype_id])
     else:
         empty_nodetype = NodeType()
+        add_url = reverse("schema_nodetype_create", args=[graph_slug])
     form = NodeTypeForm(instance=empty_nodetype)
     formset = NodePropertyFormSet(instance=empty_nodetype)
     changed_props = request.session.get('schema_changed_props', None)
@@ -111,6 +174,7 @@ def schema_nodetype_editcreate(request, graph_slug, nodetype_id=None):
         del request.session['schema_deleted_props']
     if request.POST:
         data = request.POST.copy()
+        as_modal = bool(data.get("asModal", False))
         form = NodeTypeForm(data=data, instance=empty_nodetype)
         formset = NodePropertyFormSet(data=data, instance=empty_nodetype)
         if form.is_valid() and formset.is_valid():
@@ -148,24 +212,50 @@ def schema_nodetype_editcreate(request, graph_slug, nodetype_id=None):
                     messages.success(request, _("Your changes were saved"))
                     redirect_url = reverse("schema_nodetype_properties_mend",
                                            args=[graph.slug, node_type.id])
+                    action = "schema_nodetype_editcreate"
                 else:
                     redirect_url = reverse("schema_edit", args=[graph.slug])
-            return redirect(redirect_url)
-    return render_to_response('schemas_item_edit.html',
-                              {"graph": graph,
-                               "item_type_label": _("Type"),
-                               "item_type": "node",
-                               "item_type_id": nodetype_id,
-                               "form": form,
-                               "fields_to_hide": ["plural_name",
-                                                  "inverse", "plural_inverse",
-                                                  "arity_source",
-                                                  "arity_target",
-                                                  "validation",
-                                                  "inheritance"],
-                               "item_type_object": empty_nodetype,
-                               "formset": formset},
-                              context_instance=RequestContext(request))
+                    action = "schema_main"
+            if as_modal:
+                response = {'type': 'data',
+                            'action': action}
+                return HttpResponse(json.dumps(response), status=200,
+                                    content_type='application/json')
+            else:
+                return redirect(redirect_url)
+    if as_modal:
+        base_template = 'empty.html'
+        render = render_to_string
+    else:
+        base_template = 'base.html'
+        render = render_to_response
+    broader_context = {"graph": graph,
+                       "item_type_label": _("Type"),
+                       "item_type": "node",
+                       "item_type_id": nodetype_id,
+                       "form": form,
+                       "fields_to_hide": ["plural_name",
+                                          "inverse", "plural_inverse",
+                                          "arity_source",
+                                          "arity_target",
+                                          "validation",
+                                          "inheritance"],
+                       "item_type_object": empty_nodetype,
+                       "formset": formset,
+                       "base_template": base_template,
+                       "add_url": add_url,
+                       "schema_main_url": schema_main_url,
+                       "as_modal": as_modal}
+    response = render('schemas_item_edit.html', broader_context,
+                      context_instance=RequestContext(request))
+    if as_modal:
+        response = {'type': 'html',
+                    'action': 'schema_nodetype_editcreate',
+                    'html': response}
+        return HttpResponse(json.dumps(response), status=200,
+                            content_type='application/json')
+    else:
+        return response
 
 
 @permission_required("data.change_data", (Data, "graph__slug", "graph_slug"),
@@ -191,11 +281,18 @@ def schema_relationshiptype_edit(request, graph_slug, relationshiptype_id):
 def schema_relationshiptype_editcreate(request, graph_slug,
                                        relationshiptype_id=None):
     graph = get_object_or_404(Graph, slug=graph_slug)
+    # We get the modal variable
+    as_modal = bool(request.GET.get("asModal", False))
+    # We get the schema main view url
+    schema_main_url = reverse("schema_edit", args=[graph.slug])
     if relationshiptype_id:
         empty_relationshiptype = get_object_or_404(RelationshipType,
                                                    id=relationshiptype_id)
+        add_url = reverse("schema_relationshiptype_edit",
+                          args=[graph_slug, relationshiptype_id])
     else:
         empty_relationshiptype = RelationshipType()
+        add_url = reverse("schema_relationshiptype_create", args=[graph_slug])
     initial = {"arity_source": None, "arity_target": None}
     for field_name in ["source", "name", "target", "inverse"]:
         if field_name in request.GET:
@@ -211,6 +308,7 @@ def schema_relationshiptype_editcreate(request, graph_slug,
         del request.session['schema_deleted_props']
     if request.POST:
         data = request.POST.copy()
+        as_modal = bool(data.get("asModal", False))
         form = RelationshipTypeForm(data=data, schema=graph.schema,
                                     instance=empty_relationshiptype)
         formset = RelationshipTypeFormSet(data=data,
@@ -251,23 +349,49 @@ def schema_relationshiptype_editcreate(request, graph_slug,
                     redirect_url = \
                         reverse("schema_relationshiptype_properties_mend",
                                 args=[graph.slug, relationshiptype.id])
+                    action = "schema_relationship_editcreate"
                 else:
                     redirect_url = reverse("schema_edit", args=[graph.slug])
-            return redirect(redirect_url)
-    return render_to_response('schemas_item_edit.html',
-                              {"graph": graph,
-                               "item_type_label": _("Allowed Relationship"),
-                               "item_type": "relationship",
-                               "item_type_id": relationshiptype_id,
-                               "form": form,
-                               "fields_to_hide": ["plural_name",
-                                                  "inverse", "plural_inverse",
-                                                  "arity_source",
-                                                  "arity_target",
-                                                  "validation",
-                                                  "inheritance"],
-                               "formset": formset},
-                              context_instance=RequestContext(request))
+                    action = "schema_main"
+            if as_modal:
+                response = {'type': 'data',
+                            'action': action}
+                return HttpResponse(json.dumps(response), status=200,
+                                    content_type='application/json')
+            else:
+                return redirect(redirect_url)
+    if as_modal:
+        base_template = 'empty.html'
+        render = render_to_string
+    else:
+        base_template = 'base.html'
+        render = render_to_response
+    broader_context = {"graph": graph,
+                       "item_type_label": _("Allowed Relationship"),
+                       "item_type": "relationship",
+                       "item_type_id": relationshiptype_id,
+                       "form": form,
+                       "fields_to_hide": ["plural_name",
+                                          "inverse", "plural_inverse",
+                                          "arity_source",
+                                          "arity_target",
+                                          "validation",
+                                          "inheritance"],
+                       "formset": formset,
+                       "base_template": base_template,
+                       "add_url": add_url,
+                       "schema_main_url": schema_main_url,
+                       "as_modal": as_modal}
+    response = render('schemas_item_edit.html', broader_context,
+                      context_instance=RequestContext(request))
+    if as_modal:
+        response = {'type': 'html',
+                    'action': 'schema_relationship_editcreate',
+                    'html': response}
+        return HttpResponse(json.dumps(response), status=200,
+                            content_type='application/json')
+    else:
+        return response
 
 
 @permission_required("schemas.change_schema",
@@ -277,40 +401,76 @@ def schema_relationshiptype_delete(request, graph_slug,
     graph = get_object_or_404(Graph, slug=graph_slug)
     relationshiptype = get_object_or_404(RelationshipType,
                                          id=relationshiptype_id)
+    # We get the modal variable
+    as_modal = bool(request.GET.get("asModal", False))
     count = graph.relationships.count(label=relationshiptype.id)
     redirect_url = reverse("schema_edit", args=[graph.slug])
     if count == 0:
         form = TypeDeleteConfirmForm()
         if request.POST:
             data = request.POST.copy()
+            as_modal = bool(data.get("asModal", False))
             form = TypeDeleteConfirmForm(data=data)
             if form.is_valid():
                 confirm = bool(int(form.cleaned_data["confirm"]))
                 if confirm:
                     relationshiptype.delete()
-                    return redirect(redirect_url)
+                    if as_modal:
+                        response = {'type': 'data',
+                                    'action': 'schema_main'}
+                        return HttpResponse(json.dumps(response), status=200,
+                                            content_type='application/json')
+                    else:
+                        return redirect(redirect_url)
     else:
         form = TypeDeleteForm(count=count)
         if request.POST:
             data = request.POST.copy()
+            as_modal = bool(data.get("asModal", False))
             form = TypeDeleteForm(data=data, count=count)
             if form.is_valid():
                 option = form.cleaned_data["option"]
                 if option == ON_DELETE_CASCADE:
                     graph.relationships.delete(label=relationshiptype.id)
                 relationshiptype.delete()
-                return redirect(redirect_url)
-    return render_to_response('schemas_item_delete.html',
-                              {"graph": graph,
-                               "item_type_label": _("Allowed Relationship"),
-                               "item_type": "relationship",
-                               "item_type_id": relationshiptype_id,
-                               "item_type_name": relationshiptype.name,
-                               "item_type_count": count,
-                               "item_type_object": relationshiptype,
-                               "form": form,
-                               "type_id": relationshiptype_id},
-                              context_instance=RequestContext(request))
+                if as_modal:
+                    response = {'type': 'data',
+                                'action': 'schema_main'}
+                    return HttpResponse(json.dumps(response), status=200,
+                                        content_type='application/json')
+                else:
+                    return redirect(redirect_url)
+    if as_modal:
+        base_template = 'empty.html'
+        render = render_to_string
+    else:
+        base_template = 'base.html'
+        render = render_to_response
+    add_url = reverse("schema_relationshiptype_delete",
+                      args=[graph_slug, relationshiptype_id])
+    broader_context = {"graph": graph,
+                       "item_type_label": _("Allowed Relationship"),
+                       "item_type": "relationship",
+                       "item_type_id": relationshiptype_id,
+                       "item_type_name": relationshiptype.name,
+                       "item_type_count": count,
+                       "item_type_object": relationshiptype,
+                       "form": form,
+                       "type_id": relationshiptype_id,
+                       "base_template": base_template,
+                       "add_url": add_url,
+                       "schema_main_url": redirect_url,
+                       "as_modal": as_modal}
+    response = render('schemas_item_delete.html', broader_context,
+                      context_instance=RequestContext(request))
+    if as_modal:
+        response = {'type': 'html',
+                    'action': 'schema_relationship_delete',
+                    'html': response}
+        return HttpResponse(json.dumps(response), status=200,
+                            content_type='application/json')
+    else:
+        return response
 
 
 @permission_required("data.change_data", (Data, "graph__slug", "graph_slug"),

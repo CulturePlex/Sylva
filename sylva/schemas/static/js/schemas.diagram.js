@@ -122,24 +122,71 @@ diagram.CurrentRelations = {};
             divTitle = $("<DIV>");
             divTitle.addClass("title");
             diagram.setLabel(divTitle, model.name, false);
-            anchorDelete = $("<A>");
-            anchorDelete.html("x");
-            anchorDelete.attr("href", "javascript:void(0);");
-            anchorDelete.attr("id", "inlineDeleteLink_"+ modelName);
-            anchorDelete.addClass("inline-deletelink");
-            anchorDelete.click(function () {
+
+            // Show/hide button in the corner of the box and its associated event
+            var anchorShowHide = $("<A>");
+            anchorShowHide.attr("href", "javascript:void(0);");
+            anchorShowHide.attr("id", "inlineShowHideLink_"+ modelName);
+            anchorShowHide.addClass("inline-showHidelink");
+
+            var iconShowHide = $("<I>");
+            iconShowHide.addClass("fa fa-minus-circle");
+            iconShowHide.css({
+                "color": "white",
+                "float": "right",
+                "margin-right": "8px",
+                "margin-top": "3px"
+            });
+
+            anchorShowHide.append(iconShowHide);
+            anchorShowHide.click(function () {
                 $("#diagramModelAnchor_"+ graphName +"\\."+ modelName).click();
                 divFields.toggleClass("hidden");
-                anchorDelete.toggleClass("inline-morelink");
-                anchorDelete.toggleClass("inline-deletelink");
+
+                if (iconShowHide.attr('class') == 'fa fa-plus-circle') {
+                    iconShowHide.removeClass('fa fa-plus-circle');
+                    iconShowHide.addClass('fa fa-minus-circle');
+                } else {
+                    iconShowHide.removeClass('fa fa-minus-circle');
+                    iconShowHide.addClass('fa fa-plus-circle');
+                }
+
                 diagram.saveBoxPositions();
                 jsPlumb.repaintEverything();
             });
+
+            // Link to delete type
+            var anchorDelete = $("<A>");
+            anchorDelete.attr("href", "javascript:void(0);");
+            anchorDelete.attr("id", "inlineDeleteLink_"+ modelName);
+            anchorDelete.addClass("inlineDelete");
+            var deleteUrl = "/schemas/" +
+                            graphName +
+                            "/types/" +
+                            model.id +
+                            "/delete/";
+            anchorDelete.attr('data-deleteurl', deleteUrl);
+
+            var iconDelete = $("<I>");
+            iconDelete.addClass("fa fa-times-circle icon-style icon-delete");
+            iconDelete.css({
+                "color": "white",
+                "float": "right",
+                "margin-right": "8px",
+                "margin-top": "3px"
+            });
+
+            anchorDelete.append(iconDelete);
+
             divTitle.append(anchorDelete);
+            lengthFields = model.fields.length;
+            // We check if we have fields to show the show-hide icon
+            if(lengthFields > 0) {
+                divTitle.append(anchorShowHide);
+            }
             divFields = $("<DIV>");
             divFields.attr("id", "diagramFields_"+ modelName);
             countFields = 0;
-            lengthFields = model.fields.length;
 //            for(fieldName in model.fields) {
             for(var fieldIndex = 0; fieldIndex < lengthFields; fieldIndex++) {
                 field = model.fields[fieldIndex];
@@ -281,7 +328,7 @@ diagram.CurrentRelations = {};
                     sourceId = "diagramBox_"+ relation.source;
                     if (relation.source === relation.target) {
                         // Reflexive relationships
-                        targetId = "inlineDeleteLink_"+ relation.target;
+                        targetId = "inlineShowHideLink_"+ relation.target;
                     } else {
                         targetId = "diagramBox_"+ relation.target;
                     }
@@ -329,6 +376,8 @@ diagram.CurrentRelations = {};
                 currentLabel = connection.getLabel();
                 connection.setLabel(currentLabel + "<br/>"+ label);
             }
+
+            jsPlumb.repaintEverything();
         };
 
        /**
@@ -350,7 +399,7 @@ diagram.CurrentRelations = {};
                 modelName = splits[1];
                 left = $("#diagramBox_"+ modelName).css("left");
                 top = $("#diagramBox_"+ modelName).css("top");
-                status = $("#diagramBox_"+ modelName +" > div > a").hasClass("inline-deletelink");
+                status = $("#diagramBox_"+ modelName +" > div > a").hasClass("inline-deleteLink");
                 positions.push({
                     modelName: modelName,
                     left: left,
@@ -398,14 +447,28 @@ diagram.CurrentRelations = {};
                 });
                 if (!JSON.parse(position.status)) {
                     titleAnchor = $("#diagramBox_"+ position.modelName +" > div > a");
-                    titleAnchor.removeClass("inline-deletelink");
-                    titleAnchor.addClass("inline-morelink");
-                    $("#diagramFields_"+ position.modelName).toggleClass("hidden");
+                    $('#iconToggle', titleAnchor).addClass('fa fa-plus-circle');
+                    //$("#diagramFields_"+ position.modelName).toggleClass("hidden");
                 }
             }
             jsPlumb.repaintEverything();
+            // We need to invoke this method again, because when we set the
+            // positions of the boxes, sometimes the relationships are not
+            // positioned fine.
+            jsPlumb.repaintEverything();
         };
-        diagram.loadModels();
+
+        if(!asModal) {
+            diagram.loadModels();
+
+            $('.inlineDelete').on('click', function () {
+                // Navigate to the delete view
+                url = $(this).data('deleteurl');
+
+                window.location.href = url;
+            });
+        }
     };
+
     $(document).ready(init);
 })(jQuery);

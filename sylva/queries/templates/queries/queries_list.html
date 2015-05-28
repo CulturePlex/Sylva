@@ -1,14 +1,16 @@
-{% extends "base.html" %}
+{% extends base_template %}
 {% load i18n graphs static %}
 {% get_static_prefix as STATIC_PREFIX %}
 
-{% block navigation_buttons %}
-{{ block.super }}
-{% endblock %}
+{% if not as_modal %}
+    {% block navigation_buttons %}
+    {{ block.super }}
+    {% endblock %}
 
-{% block title %}
-{{ graph.name }}
-{% endblock %}
+    {% block title %}
+    {{ graph.name }}
+    {% endblock %}
+{% endif %}
 
 {% block menu_buttons %}
 {% toolbar on="queries" %}
@@ -42,6 +44,11 @@
 
 {% if queries %}
 <div id="content2">
+    {% if as_modal %}
+        {% trans "Queries" as label %}
+        {% breadcrumb label %}
+        <div id="queries-url" data-url="{{ add_url }}" style="display: none;"></div>
+    {% endif %}
     <div id="query-list" style="margin-top: 20px;">
         <table class="content-table">
             <th>{% trans "#" %}</th>
@@ -50,12 +57,14 @@
                     <div class="shorten-text">
                     {% trans "Name" %}
                     </div>
-                    <a class='remove-sorting'
-                       href="?page={{ queries.number }}&order_by=id" title="{% trans "Remove from sorting" %}"></a>
-                {% if dir == '-' %}
-                    <a class='sorting-asc' href="?page={{ queries.number }}&order_by=name&dir={{ dir }}" title="{% trans "Sorting ascending by " %} {{ order_by }}"></a>
-                {% else %}
-                    <a class='sorting-desc' href="?page={{ queries.number }}&order_by=name&dir={{ dir }}" title="{% trans "Sorting descending by " %} {{ order_by }} "></a>
+                {% if order_by == 'name' %}
+                        <a class='remove-sorting'
+                           href="?page={{ queries.number }}&order_by=id" title="{% trans "Remove from sorting" %}"></a>
+                    {% if dir == '-' %}
+                        <a class='sorting-asc' href="?page={{ queries.number }}&order_by=name&dir={{ dir }}" title="{% trans "Sorting ascending by " %} {{ order_by }}"></a>
+                    {% else %}
+                        <a class='sorting-desc' href="?page={{ queries.number }}&order_by=name&dir={{ dir }}" title="{% trans "Sorting descending by " %} {{ order_by }} "></a>
+                    {% endif %}
                 {% endif %}
                 </a>
             </th>
@@ -64,11 +73,13 @@
                     <div class="shorten-text">
                     {% trans "Description" %}
                     </div>
-                    <a class='remove-sorting' href="?page={{ queries.number }}&order_by=id" title="{% trans "Remove from sorting" %}"></a>
-                {% if dir == '-' %}
-                    <a class='sorting-asc' href="?page={{ queries.number }}&order_by=description&dir={{ dir }}" title="{% trans "Sorting ascending by " %} {{ order_by }}"></a>
-                {% else %}
-                    <a class='sorting-desc' href="?page={{ queries.number }}&order_by=description&dir={{ dir }}" title="{% trans "Sorting descending by " %} {{ order_by }}"></a>
+                {% if order_by == 'description' %}
+                        <a class='remove-sorting' href="?page={{ queries.number }}&order_by=id" title="{% trans "Remove from sorting" %}"></a>
+                    {% if dir == '-' %}
+                        <a class='sorting-asc' href="?page={{ queries.number }}&order_by=description&dir={{ dir }}" title="{% trans "Sorting ascending by " %} {{ order_by }}"></a>
+                    {% else %}
+                        <a class='sorting-desc' href="?page={{ queries.number }}&order_by=description&dir={{ dir }}" title="{% trans "Sorting descending by " %} {{ order_by }}"></a>
+                    {% endif %}
                 {% endif %}
                 </a>
             </th>
@@ -77,11 +88,13 @@
                     <div class="shorten-text">
                     {% trans "Results count" %}
                     </div>
-                    <a class='remove-sorting' href="?page={{ queries.number }}&order_by=id" title="{% trans "Remove from sorting" %}"></a>
-                {% if dir == '-' %}
-                    <a class='sorting-asc' href="?page={{ queries.number }}&order_by=results_count&dir={{ dir }}" title="{% trans "Sorting ascending by " %} {{ order_by }}"></a>
-                {% else %}
-                    <a class='sorting-desc' href="?page={{ queries.number }}&order_by=results_count&dir={{ dir }}" title="{% trans "Sorting descending by " %} {{ order_by }}"></a>
+                {% if order_by == 'results_count' %}
+                        <a class='remove-sorting' href="?page={{ queries.number }}&order_by=id" title="{% trans "Remove from sorting" %}"></a>
+                    {% if dir == '-' %}
+                        <a class='sorting-asc' href="?page={{ queries.number }}&order_by=results_count&dir={{ dir }}" title="{% trans "Sorting ascending by " %} {{ order_by }}"></a>
+                    {% else %}
+                        <a class='sorting-desc' href="?page={{ queries.number }}&order_by=results_count&dir={{ dir }}" title="{% trans "Sorting descending by " %} {{ order_by }}"></a>
+                    {% endif %}
                 {% endif %}
                 </a>
             </th>
@@ -90,20 +103,22 @@
                     <div class="shorten-text">
                     {% trans "Last run" %}
                     </div>
-                    <a class='remove-sorting' href="?page={{ queries.number }}&order_by=id" title="{% trans "Remove from sorting" %}"></a>
-                {% if dir == '-' %}
-                    <a class='sorting-asc' href="?page={{ queries.number }}&order_by=last_run&dir={{ dir }}" title="{% trans "Sorting ascending by " %} {{ order_by }}"></a>
-                {% else %}
-                    <a class='sorting-desc' href="?page={{ queries.number }}&order_by=last_run&dir={{ dir }}" title="{% trans "Sorting descending by " %} {{ order_by }}"></a>
+                {% if order_by == 'last_run' %}
+                        <a class='remove-sorting' href="?page={{ queries.number }}&order_by=id" title="{% trans "Remove from sorting" %}"></a>
+                    {% if dir == '-' %}
+                        <a class='sorting-asc' href="?page={{ queries.number }}&order_by=last_run&dir={{ dir }}" title="{% trans "Sorting ascending by " %} {{ order_by }}"></a>
+                    {% else %}
+                        <a class='sorting-desc' href="?page={{ queries.number }}&order_by=last_run&dir={{ dir }}" title="{% trans "Sorting descending by " %} {{ order_by }}"></a>
+                    {% endif %}
                 {% endif %}
                 </a>
             </th>
         {% for query in queries %}
             <tr class="{% cycle 'row-even' 'row-odd' %}">
                 <td id="button-edit" class="dataList">
-                    <a href="{% url "queries_query_results" graph.slug query.id %}" alt='{% trans "Run query" %}' title='{% trans "Run query" %}'><i class="fa fa-play-circle"></i></a>
+                    <a class="run" href="{% url "queries_query_results" graph.slug query.id %}" alt='{% trans "Run query" %}' title='{% trans "Run query" %}'><i class="fa fa-play-circle"></i></a>
                     <a class="edit" href="{% url "queries_query_edit" graph.slug query.id %}" alt='{% trans "Edit query" %}' title='{% trans "Edit query" %}'>&nbsp;</a>
-                    <a href="{% url "queries_query_delete" graph.slug query.id %}" alt='{% trans "Delete query" %}' title='{% trans "Delete query" %}'><i class="fa fa-times-circle"></i></a>
+                    <a class="delete" href="{% url "queries_query_delete" graph.slug query.id %}" alt='{% trans "Delete query" %}' title='{% trans "Delete query" %}'><i class="fa fa-times-circle"></i></a>
                 </td>
                 <td id="query-name" class=""><div class="shorten-text">{{ query.name }}</div></td>
                 <td id="query-description"><div class="shorten-text">{{ query.description }}</div></td>
@@ -154,7 +169,20 @@
     </div>
 </div>
 {% endif %}
+{% if as_modal %}
+<div id="modal-content-controls" class="modal-content-controls">
+{% endif %}
 <div id="query-builder" style="margin-top: 20px;">
-    <a class="button" id="create-query" href="{% url "queries_new" graph.slug %}">{% trans "New Query" %}</a>
+    {% if not as_modal %}
+        <a class="button" id="create-query" href="{% url "queries_new" graph.slug %}">{% trans "New Query" %}</a>
+    {% else %}
+        <a class="button" id="create-query" href="{% url "queries_new" graph.slug %}">{% trans "New Query" %}</a>
+        <span class="buttonLinkOption">
+            <a id="modal-cancel">{% trans "Cancel" %}</a>
+        </span>
+    {% endif %}
 </div>
+{% if as_modal %}
+</div>
+{% endif %}
 {% endblock %}

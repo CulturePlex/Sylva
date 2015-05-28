@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends base_template %}
 {% load i18n graphs compress %}
 
 {% block extra_scripts %}
@@ -26,6 +26,11 @@
 {% endblock %}
 
 {% block content %}
+{% if as_modal %}
+  {% trans "Delete" as label %}
+  {% breadcrumb graph.schema item_type_object label %}
+  <div id="delete-schema-url" data-url="{{ add_url }}" style="display: none;"></div>
+{% endif %}
 <div id="content2">
   <form action="." method="POST" id="itemType">
   {% csrf_token %}
@@ -33,10 +38,15 @@
       <h2>{{ item_type_label }}: {{ item_type_name }}</h2>
       {{ form.as_p }}
       <span class="buttonLinkOption buttonLinkLeft">
-        <input type="submit" value="{% trans "Continue" %}"/>
+        <input type="submit" id="delete-schema-type" value="{% trans "Continue" %}"/>
       </span>
       <span class="buttonLinkOption buttonLinkRight">
-        {% trans "or" %} <a href="{% url "schema_edit" graph.slug %}">{% trans "Cancel" %}</a>.
+        {% trans "or" %}
+        {% if as_modal %}
+          <a id="modal-cancel" data-url="{{ schema_main_url }}" href="javascript:void()">{% trans "Cancel" %}</a>.
+        {% else %}
+          <a href="{% url "schema_edit" graph.slug %}">{% trans "Cancel" %}</a>.
+        {% endif %}
       </span>
     </div>
   </form>

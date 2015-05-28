@@ -2,9 +2,11 @@
 import datetime
 import json
 from django.db import models
+from django.dispatch import receiver
+from django.db.models.signals import post_save
+from django.contrib.auth.models import User
 from django.utils.translation import gettext as _
 from jsonfield import JSONField
-
 from graphs.models import Graph
 from queries.models import Query
 from sylva.fields import AutoSlugField
@@ -46,17 +48,22 @@ class ReportTemplate(models.Model):
         blank='true',
         null='true'
     )
+    email_to = models.ManyToManyField(
+        User,
+        verbose_name=_("email_to"),
+        related_name="report_templates",
+        blank=True,
+        null=True)
 
     def __unicode__(self):
         return self.name
 
     def execute(self):
         queries = self.queries.all()
-        # EXECUTE QUERIES HERE
-        query_dicts = {query.id: (query.execute(), query.name)
+        query_dicts = {query.id: (query.execute(headers=True), query.name)
                        for query in queries}
         table = []
-        for row in self.layout:
+        for row in self.layout["layout"]:
             new_row = []
             for cell in row:
                 query = cell.get('displayQuery', '')
@@ -67,6 +74,7 @@ class ReportTemplate(models.Model):
                     cell['name'] = attrs[1]
                 new_row.append(cell)
             table.append(new_row)
+        table = {"pagebreaks": self.layout["pagebreaks"], "layout": table}
         report = Report(
             date_run=datetime.datetime.now(),
             table=table,
@@ -76,13 +84,6 @@ class ReportTemplate(models.Model):
         self.save(update_fields=["last_run"])
         report.save()
 
-    def historify(self):
-        report_dict = self.dictify()
-        reports = self.reports.order_by('-date_run')
-        report_dict['history'] = [{k: v for (k, v) in report.dictify().items()
-                                   if k != 'table'} for report in reports]
-        return report_dict
-
     def dictify(self):
         template = {
             'name': self.name,
@@ -91,9 +92,16 @@ class ReportTemplate(models.Model):
             'frequency': self.frequency,
             'last_run': json.dumps(self.last_run, default=_dthandler),
             'layout': self.layout,
-            'description': self.description
+            'description': self.description,
+            'collabs': [{"id": u.username, "display": u.username} for u in
+                        self.email_to.all()]
         }
         return template
+
+
+def get_upload(self, filename):
+    return u"%s/reports/%s/%s" % (self.template.graph.slug, self.template.slug,
+                                  filename)
 
 
 class Report(models.Model):
@@ -110,6 +118,8 @@ class Report(models.Model):
         verbose_name=_('template'),
         related_name='reports'
     )
+    report_file = models.FileField(_('report_file'), upload_to=get_upload,
+                                   blank=True, null=True, max_length=255)
 
     def __unicode__(self):
         return self.date_run.isoformat()
@@ -121,6 +131,22 @@ class Report(models.Model):
             'date_run': json.dumps(self.date_run, default=_dthandler)
         }
         return report
+
+
+@receiver(post_save, sender=Report)
+def post_report_save(sender, raw, **kwargs):
+    created = kwargs.get("created", False)
+    raw = kwargs.get("raw", False)
+    if created and not raw:
+        inst = kwargs["instance"]
+        email_to = inst.template.email_to.exists()
+        if email_to:
+            inst_id = inst.id
+            # This is until we get the pdf generation fixed.
+            # from tasks import generate_pdf, send_email
+            # res = (generate_pdf.si(inst_id) | send_email.si(inst_id))()
+            from tasks import send_email
+            send_email.delay(inst_id)
 
 
 def _dthandler(obj):

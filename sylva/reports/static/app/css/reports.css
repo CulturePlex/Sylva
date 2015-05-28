@@ -30,42 +30,55 @@ th.report {
   min-width: 66px
 }
 
+.designbutt {
+    margin-top: 10px;
+}
+
 .chart-select {
     float: left;
     width: 10em;
     margin-right: 1em;
-    margin-top: 
+    margin-top:
 }
 
 .highchart-cont {
   overflow: hidden;
-  height: 100px ;
+  height: 100px;
+  max-width: 200px;
 }
 
 .highchart-cont:hover {
   overflow-y: scroll;
 }
 
+.hoverdiv {
+  height: 75px;
+  overflow: hidden;
+}
+
+.hoverdiv:hover {
+  overflow-y:scroll;
+}
 .background-text {
   color: #99999D;
   font-style: italic;
 }
 
 .cont {
-    max-height: 600px;
-    min-height: 450px   
+    /*max-height: 600px;*/
+    min-height: 500px
 }
 
 .content2-first {
     width: 347px;
     float: left;
-    padding-left: 2px;    
+    padding-left: 2px;
 }
 
 .content2-cont {
     width: 710px;
     float: left;
-    padding-left: 30px;    
+    padding-left: 30px;
 }
 
 .col {
@@ -78,12 +91,15 @@ th.report {
   width: 50%;
  }
 
+.checklist {
+    text-align: left;
+}
  .chartcol {
   width: 40%;
  }
 
 .row {
-  float: left;
+  /*float: left;*/
   width: 100%;
 }
 
@@ -95,18 +111,18 @@ th.report {
 }
 
 .table-button {
-  margin: 1px;
+  margin: 2px;
 }
 
 .editable-table {
   width: 100%;
-  height: 400px;
-  overflow: hidden;
+  /*height: 450px;*/
+  /*overflow: hidden;*/
   margin-bottom: 5px;
 }
 
 .editable-table:hover {
-  overflow-y: scroll;
+  /*overflow-y: scroll;*/
 }
 
 .rows {
@@ -114,28 +130,66 @@ th.report {
 }
 
 .edit-rows {
-  width: 1100px;
-  height: 90%;
-}
-
-.trow {
+  /*width: 1120px;*/
   width: 100%;
 }
 
-.bottom .tcell {
-  border-bottom: 2px solid #348E82;
+.trow {
+  margin-left: 15px;
+  /*width: 1100px;*/
+}
+
+.prev-pages {
+  border: 1px solid black;
+}
+
+.pages {
+  height: 402px;
+  /*border: 1px solid black;*/
+  /*width: 1120px;*/
+  box-shadow: 0 0 0 0.75pt #d1d1d1,0 0 3pt 0.75pt #ccc;
+}
+
+.pagebreak {
+    position: relative;
+    background-color: white;
+    /*width: 1122px;*/
+    /*right: 1px;*/
+    height: 50px;
+/*    border-bottom: 1px solid black;
+    border-top: 1px solid black;*/
+    text-align: center;
+    /* new */
+    width: 1110px;
+    left: -5px;
+    padding: 0 25px 0px 25px;
+}
+
+.breakline {
+    border-top: dotted 1px red;
+    width: 1100px;
+    margin-top: 24.5px;
+    float: left;
+}
+
+.tcell.top {
+  border-top: 0px;
+}
+
+.colorbox {
+    display: inline-block; width: 16px; height: 16px; margin-right: 5px; vertical-align: middle; cursor: pointer;;
 }
 
 .tcell {
-  border-top: 2px solid #348E82;
+  border-top: 2px dotted #D6E7DF;
   height: 100%;
   float: left;
   position: relative;
-  border-left: 2px solid #348E82;
+  border-left: 2px dotted #D6E7DF;
 }
 
-.tcell.final {
-  border-right: 2px solid #348E82;
+.tcell.first {
+  border-left: 0px;
 }
 
 .chart-canvas {
@@ -153,6 +207,12 @@ th.report {
   padding-bottom: 10px;
   height: 400px;
   overflow: hidden;
+}
+
+.pdf-cont {
+    padding-bottom: 10px;
+    height: auto;
+    overflow: hidden;
 }
 
 .prev-cont:hover {
@@ -206,25 +266,33 @@ th.report {
 
 textarea.markdown {
   width: 100%;
-  height: 170px;
+  height: 160px;
   padding: 0px;
   margin: 0px;
   position: absolute;
   bottom:0;
   text-align: left;
-  outline: 0px solid transparent;
+  border: none;
+
+  outline: none;
+
+   -webkit-box-shadow: none;
+   -moz-box-shadow: none;
+   box-shadow: none;
 }
 
 .arrow.down {
-  bottom: 0;  
+  bottom: 0;
   left: 50%;
 }
 
 .query {
-  text-align: center;
-  width: 70%;
-  margin: 0 auto;
-  height: 175px
+  /*text-align: center;*/
+  /*width: 70%;*/
+  /*margin-top: 10px ;*/
+  height: 175px;
+  /* new */
+  padding: 5px;
 }
 
 .query select {
@@ -254,8 +322,14 @@ textarea.markdown {
 
 .display-cell {
   height: 175px;
+  overflow: hidden;
 }
 
+img {
+  height: 150px;
+  width: 150px;
+  float: left;
+}
 
 
 .display-cell h1              { margin: .67em 0; font: normal 22px Georgia;}
@@ -274,4 +348,15 @@ textarea.markdown {
 
 .preview-cell {
   height: 400px;
+}
+
+.unbreakable
+{
+    display:inline-block;
+}
+.unbreakable:after
+ {
+    display:block;
+    height:0px;
+    visibility: hidden;
 }

@@ -1,0 +1,64 @@
+[
+{
+    "pk": 1, 
+    "model": "reports.reporttemplate", 
+    "fields": {
+        "layout": "{\"layout\":[[{\"ySeries\":[],\"rowspan\":\"1\",\"displayMarkdown\":\"\",\"yAxis\":[{\"alias\":\"Count(institution_1.Name)\",\"display_alias\":\"Count(Institution 1.Name)\"}],\"colspan\":\"1\",\"col\":0,\"colors\":{\"Count(institution_1.Name)\":\"#EDA9BC\",\"country_1.Name\":\"#FFFFFF\"},\"xAxis\":{\"alias\":\"country_1.Name\",\"display_alias\":\"Country 1.Name\"},\"series\":\"\",\"chartType\":\"line\",\"displayQuery\":1,\"id\":\"cell1\",\"row\":0},{\"ySeries\":[],\"rowspan\":\"1\",\"displayMarkdown\":\"\",\"yAxis\":[{\"alias\":\"Count(institution_1.Name)\",\"display_alias\":\"Count(Institution 1.Name)\"},{\"alias\":\"Count(project_1.Name)\",\"display_alias\":\"Count(Project 1.Name)\"}],\"colspan\":\"1\",\"col\":1,\"colors\":{\"Count(institution_1.Name)\":\"#C6C6FF\",\"country_1.Name\":\"#E994AB\",\"Count(project_1.Name)\":\"#38ADD1\"},\"xAxis\":{\"alias\":\"country_1.Name\",\"display_alias\":\"Country 1.Name\"},\"series\":\"\",\"chartType\":\"column\",\"displayQuery\":2,\"id\":\"cell2\",\"row\":0}]],\"pagebreaks\":{\"0\":false}}", 
+        "name": "Template1", 
+        "graph": 1, 
+        "last_run": null, 
+        "slug": "template1", 
+        "frequency": "w", 
+        "email_to": [], 
+        "queries": [
+            1, 
+            2
+        ], 
+        "start_date": "2015-04-15T09:00:00", 
+        "description": ""
+    }
+},
+{
+    "pk": 2, 
+    "model": "reports.reporttemplate", 
+    "fields": {
+        "layout": "{\"layout\":[[{\"ySeries\":[],\"rowspan\":\"1\",\"displayMarkdown\":\"\",\"yAxis\":[{\"alias\":\"Count(institution_1.Name)\",\"display_alias\":\"Count(Institution 1.Name)\"}],\"colspan\":\"1\",\"col\":0,\"colors\":{\"Count(institution_1.Name)\":\"#A41CC6\",\"country_1.Name\":\"#C0E0DA\"},\"xAxis\":{\"alias\":\"country_1.Name\",\"display_alias\":\"Country 1.Name\"},\"series\":\"\",\"chartType\":\"line\",\"displayQuery\":1,\"id\":\"cell1\",\"row\":0}],[{\"ySeries\":[],\"rowspan\":\"1\",\"displayMarkdown\":\"\",\"yAxis\":[{\"alias\":\"Count(institution_1.Name)\",\"display_alias\":\"Count(Institution 1.Name)\"},{\"alias\":\"Count(project_1.Name)\",\"display_alias\":\"Count(Project 1.Name)\"}],\"colspan\":\"1\",\"col\":0,\"colors\":{\"Count(institution_1.Name)\":\"#990099\",\"country_1.Name\":\"#CFE7E2\",\"Count(project_1.Name)\":\"#13EDC2\"},\"xAxis\":{\"alias\":\"country_1.Name\",\"display_alias\":\"Country 1.Name\"},\"series\":\"\",\"chartType\":\"column\",\"displayQuery\":2,\"id\":\"cell3\",\"row\":1}]],\"pagebreaks\":{\"1\":false,\"0\":false}}", 
+        "name": "Template2", 
+        "graph": 1, 
+        "last_run": "2015-04-15T13:15:00.425", 
+        "slug": "template2", 
+        "frequency": "h", 
+        "email_to": [
+            1
+        ], 
+        "queries": [
+            1, 
+            2
+        ], 
+        "start_date": "2015-04-15T08:15:00", 
+        "description": ""
+    }
+},
+{
+    "pk": 1, 
+    "model": "reports.report", 
+    "fields": {
+        "report_file": "dh2014/reports/template2/1429114500544.pdf", 
+        "table": "[[{\"ySeries\":[],\"rowspan\":\"1\",\"name\":\"simple_query\",\"displayMarkdown\":\"\",\"yAxis\":[{\"alias\":\"Count(institution_1.Name)\",\"display_alias\":\"Count(Institution 1.Name)\"}],\"colspan\":\"1\",\"col\":0,\"colors\":{\"Count(institution_1.Name)\":\"#A41CC6\",\"country_1.Name\":\"#C0E0DA\"},\"xAxis\":{\"alias\":\"country_1.Name\",\"display_alias\":\"Country 1.Name\"},\"series\":[[\"country_1.Name\",\"Count(institution_1.Name)\"],[\"Austria\",3],[\"Canada\",7],[\"Taiwan\",3],[\"Australia\",2],[\"Switzerland\",3],[\"Hungry\",1],[\"Belgium\",2],[\"Norway\",2],[\"Germany\",28],[\"Ireland\",1],[\"Italy\",6],[\"France\",3],[\"Poland\",1],[\"Denmark\",1],[\"China\",3],[\"Russia\",1],[\"Sweden\",2],[\"Netherlands\",6],[\"United States\",35],[\"Turkey\",1],[\"Latvia\",1],[\"Spain\",3],[\"New Zealand\",1],[\"Serbia\",1],[\"Israel\",1],[\"United Kingdom\",13],[\"Japan\",3],[\"Finland\",3]],\"chartType\":\"line\",\"displayQuery\":1,\"id\":\"cell1\",\"row\":0}],[{\"ySeries\":[],\"rowspan\":\"1\",\"name\":\"two_series\",\"displayMarkdown\":\"\",\"yAxis\":[{\"alias\":\"Count(institution_1.Name)\",\"display_alias\":\"Count(Institution 1.Name)\"},{\"alias\":\"Count(project_1.Name)\",\"display_alias\":\"Count(Project 1.Name)\"}],\"colspan\":\"1\",\"col\":0,\"colors\":{\"Count(institution_1.Name)\":\"#990099\",\"country_1.Name\":\"#CFE7E2\",\"Count(project_1.Name)\":\"#13EDC2\"},\"xAxis\":{\"alias\":\"country_1.Name\",\"display_alias\":\"Country 1.Name\"},\"series\":[[\"country_1.Name\",\"Count(institution_1.Name)\",\"Count(project_1.Name)\"],[\"Austria\",5,5],[\"Canada\",13,13],[\"Taiwan\",4,4],[\"Australia\",1,1],[\"Switzerland\",3,3],[\"Hungry\",1,1],[\"Belgium\",3,3],[\"Norway\",3,3],[\"Germany\",27,27],[\"Ireland\",1,1],[\"Italy\",6,6],[\"France\",3,3],[\"Poland\",1,1],[\"Denmark\",1,1],[\"China\",3,3],[\"Russia\",1,1],[\"Sweden\",2,2],[\"Netherlands\",8,8],[\"United States\",44,44],[\"Turkey\",1,1],[\"Latvia\",1,1],[\"Spain\",4,4],[\"New Zealand\",1,1],[\"Serbia\",1,1],[\"Israel\",1,1],[\"United Kingdom\",25,25],[\"Japan\",3,3],[\"Finland\",3,3]],\"chartType\":\"column\",\"displayQuery\":2,\"id\":\"cell3\",\"row\":1}]]", 
+        "date_run": "2015-04-15T12:15:00.428", 
+        "slug": "2015-04-15-121500428291", 
+        "template": 2
+    }
+},
+{
+    "pk": 2, 
+    "model": "reports.report", 
+    "fields": {
+        "report_file": "dh2014/reports/template2/1429118100562.pdf", 
+        "table": "[[{\"ySeries\":[],\"rowspan\":\"1\",\"name\":\"simple_query\",\"displayMarkdown\":\"\",\"yAxis\":[{\"alias\":\"Count(institution_1.Name)\",\"display_alias\":\"Count(Institution 1.Name)\"}],\"colspan\":\"1\",\"col\":0,\"colors\":{\"Count(institution_1.Name)\":\"#A41CC6\",\"country_1.Name\":\"#C0E0DA\"},\"xAxis\":{\"alias\":\"country_1.Name\",\"display_alias\":\"Country 1.Name\"},\"series\":[[\"country_1.Name\",\"Count(institution_1.Name)\"],[\"Austria\",3],[\"Canada\",7],[\"Taiwan\",3],[\"Australia\",2],[\"Switzerland\",3],[\"Hungry\",1],[\"Belgium\",2],[\"Norway\",2],[\"Germany\",28],[\"Ireland\",1],[\"Italy\",6],[\"France\",3],[\"Poland\",1],[\"Denmark\",1],[\"China\",3],[\"Russia\",1],[\"Sweden\",2],[\"Netherlands\",6],[\"United States\",35],[\"Turkey\",1],[\"Latvia\",1],[\"Spain\",3],[\"New Zealand\",1],[\"Serbia\",1],[\"Israel\",1],[\"United Kingdom\",13],[\"Japan\",3],[\"Finland\",3]],\"chartType\":\"line\",\"displayQuery\":1,\"id\":\"cell1\",\"row\":0}],[{\"ySeries\":[],\"rowspan\":\"1\",\"name\":\"two_series\",\"displayMarkdown\":\"\",\"yAxis\":[{\"alias\":\"Count(institution_1.Name)\",\"display_alias\":\"Count(Institution 1.Name)\"},{\"alias\":\"Count(project_1.Name)\",\"display_alias\":\"Count(Project 1.Name)\"}],\"colspan\":\"1\",\"col\":0,\"colors\":{\"Count(institution_1.Name)\":\"#990099\",\"country_1.Name\":\"#CFE7E2\",\"Count(project_1.Name)\":\"#13EDC2\"},\"xAxis\":{\"alias\":\"country_1.Name\",\"display_alias\":\"Country 1.Name\"},\"series\":[[\"country_1.Name\",\"Count(institution_1.Name)\",\"Count(project_1.Name)\"],[\"Austria\",5,5],[\"Canada\",13,13],[\"Taiwan\",4,4],[\"Australia\",1,1],[\"Switzerland\",3,3],[\"Hungry\",1,1],[\"Belgium\",3,3],[\"Norway\",3,3],[\"Germany\",27,27],[\"Ireland\",1,1],[\"Italy\",6,6],[\"France\",3,3],[\"Poland\",1,1],[\"Denmark\",1,1],[\"China\",3,3],[\"Russia\",1,1],[\"Sweden\",2,2],[\"Netherlands\",8,8],[\"United States\",44,44],[\"Turkey\",1,1],[\"Latvia\",1,1],[\"Spain\",4,4],[\"New Zealand\",1,1],[\"Serbia\",1,1],[\"Israel\",1,1],[\"United Kingdom\",25,25],[\"Japan\",3,3],[\"Finland\",3,3]],\"chartType\":\"column\",\"displayQuery\":2,\"id\":\"cell3\",\"row\":1}]]", 
+        "date_run": "2015-04-15T13:15:00.425", 
+        "slug": "2015-04-15-131500425023", 
+        "template": 2
+    }
+}
+]

@@ -11,28 +11,33 @@
     <link href="{{ STATIC_PREFIX }}css/jqueryui.1.8.18.css" type="text/css" rel="stylesheet" />
     <link rel="stylesheet" type="text/css" href="{{ STATIC_PREFIX }}app/css/reports.css" />
     <link rel="stylesheet" type="text/css" href="{{ STATIC_PREFIX }}app/css/jquery.ui.timepicker.css" />
+    <link rel="stylesheet" type="text/css" href="{{ STATIC_PREFIX }}graphs/css/colpick/colpick.css" />
+    <link rel="stylesheet" type="text/css" href="{{ STATIC_PREFIX }}graphs/css/colpick/colpick.css" />
+    <link href="{{ STATIC_PREFIX }}css/token.input.css" type="text/css" rel="stylesheet" />
   {% endcompress %}
 {% endblock %}
 
 {% block body %}
-  <div id="main" ng-app="reports">
+  <div id="main" ng-app="reports" {% if as_modal %} style="padding-top: 0px;" {% endif %}>
 
-    <header class="global">
+    <header class="global" {% if as_modal %} style="width: inherit !important;" {% endif %}>
 
+      {% if not as_modal %}
       {% block menu_navigation %}
         <nav class="menu">
           <ul>
             <!--<li><a href="{% url "userena.views.profile_detail" request.user %}" class="text">{{ request.user }}</a></li>-->
             {% block menu_buttons %}
               <!--<li><a href="{% url "dashboard" %}" class="link"><span>{% trans "Dashboard" %}</span></a></li>-->
-              {% if pdf == False %}
-                {% toolbar on="reports" %}
-              {% endif %}
+
+            {% toolbar on="reports" %}
+
             {% endblock %}
             <!--<li><a href="{{ LOGOUT_URL }}" class="link"><span>{% trans "Sign out" %}</span></a></li>-->
           </ul>
         </nav>
       {% endblock %}
+      {% endif %}
 
       <!-- user messages -->
       {% if messages %}
@@ -45,7 +50,6 @@
       <!-- end user messages -->
 
       {% block content_title %}
-        {% if pdf == False %}
           <div>
             <header class="reports-header">
               <div id="App1">
@@ -53,31 +57,37 @@
               </div>
             </header>
           </div>
-        {% endif %}
+          {% if as_modal %}
+
+            <span id="modal-back-button" class="buttonLinkOption" style="display: none; margin-top: 11px;"> {% trans "or" %} <a class="modal-back" >{% trans "Back" %}</a></span>
+
+          {% endif %}
       {% endblock %}
 
+      {% if not as_modal %}
       <div class="nav-wrapper">
         <div class="inside clearfix">
           {% block contact_navigation %}{% endblock %}
           {% block main_navigation %}
-            {% if pdf == True %}
-              <a href="{% url "dashboard" %}" id="link-logo" title="{% trans "Go to the Dashboard" %}">dashboard</a>
-            {% else %}
               {{ block.super }}
-            {% endif %}
           {% endblock %}
         </div><!-- end .inside -->
       </div><!-- end .nav-wrapper -->
+      {% endif %}
 
     </header>
 
-    <div id="body">
+    <div id="body" {% if as_modal %} style="width: inherit;" {% endif %}>
       <div class="body-inside">
 
         {% block content %}
           <div id="App2">
             <div ng-view></div>
           </div>
+
+          {% if as_modal %}
+            <span id="modal-cancel-button" class="buttonLinkOption" style="display: none; margin-top: -2px;">{% trans "or" %} <a class="modal-cancel" >{% trans "Cancel" %}</a></span>
+          {% endif %}
 
           {% block scripts %}
             {% compress js %}
@@ -87,33 +97,45 @@
           {% endblock %}
 
           {% block extra_scripts %}
-            {% compress js %}
+              {% if not as_modal %}
+                <script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/highcharts/highcharts.js"></script>
+              {% endif %}
+              <script type="text/javascript" src="{{ STATIC_PREFIX }}app/js/third_party/angular/angular.min.js"></script>
+              <script type="text/javascript" src="{{ STATIC_PREFIX }}js/jquery.tokeninput.js"></script>
               <script type="text/javascript" src="{{ STATIC_PREFIX }}js/jquery-ui-1.9.1.js"></script>
-              <script src="{{ STATIC_PREFIX }}app/js/third_party/angular/angular.min.js"></script>
-              <script src="{{ STATIC_PREFIX }}app/js/third_party/angular/angular-cookies.min.js"></script>
-              <script src="{{ STATIC_PREFIX }}app/js/third_party/angular/angular-resource.min.js"></script>
-              <script src="{{ STATIC_PREFIX }}app/js/third_party/angular/angular-route.min.js"></script>
-              <script src="{{ STATIC_PREFIX }}app/js/third_party/angular/angular-sanitize.min.js"></script>
-              <script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/highcharts/highcharts.js"></script>
-              <script type="text/javascript" src="{{ STATIC_PREFIX }}app/js/app.js" ></script>
-              <script type="text/javascript" src="{{ STATIC_PREFIX }}app/js/controllers.js" ></script>
-              <script type="text/javascript" src="{{ STATIC_PREFIX }}app/js/services.js" ></script>
-              <script type="text/javascript" src="{{ STATIC_PREFIX }}app/js/directives.js" ></script>
-              <script type="text/javascript" src="{{ STATIC_PREFIX }}app/js/third_party/highcharts-ng.js" ></script>
-              <script type="text/javascript" src="{{ STATIC_PREFIX }}app/js/third_party/showdown.min.js" ></script>
-              <script type="text/javascript" src="{{ STATIC_PREFIX }}app/js/third_party/jquery.ui.timepicker.js" ></script>
+              <script type="text/javascript" src="{{ STATIC_PREFIX }}app/js/third_party/angular/angular-cookies.min.js"></script>
+              <script type="text/javascript" src="{{ STATIC_PREFIX }}app/js/third_party/angular/angular-resource.min.js"></script>
+              <script type="text/javascript" src="{{ STATIC_PREFIX }}app/js/third_party/angular/angular-route.min.js"></script>
+              <script type="text/javascript" src="{{ STATIC_PREFIX }}app/js/third_party/angular/angular-sanitize.min.js"></script>
+              <script type="text/javascript" src="{{ STATIC_PREFIX }}app/js/third_party/colors.js"></script>
+             {% compress js %}
+              <script type="text/javascript" src="{{ STATIC_PREFIX }}app/js/app.js"></script>
+              <script type="text/javascript" src="{{ STATIC_PREFIX }}app/js/controllers.js"></script>
+              <script type="text/javascript" src="{{ STATIC_PREFIX }}app/js/services.js"></script>
+              <script type="text/javascript" src="{{ STATIC_PREFIX }}app/js/directives.js"></script>
+              <script type="text/javascript" src="{{ STATIC_PREFIX }}app/js/filters.js"></script>
             {% endcompress %}
-
+              <script type="text/javascript" src="{{ STATIC_PREFIX }}app/js/third_party/highcharts-ng.js"></script>
+              <script type="text/javascript" src="{{ STATIC_PREFIX }}app/js/third_party/showdown.min.js"></script>
+              <script type="text/javascript" src="{{ STATIC_PREFIX }}app/js/third_party/jquery.ui.timepicker.js" ></script>
+              <script t`ype="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/colpick/colpick.js"></script>
             <script type="text/javascript">
               var djangoUrls = {
+                list: "{% url 'list' graph_slug=graph.slug %}",
                 templates: "{% url 'templates' graph_slug=graph.slug %}",
                 history: "{% url 'history' graph_slug=graph.slug %}",
                 builder: "{% url 'builder' graph_slug=graph.slug %}",
                 preview: "{% url 'preview' graph_slug=graph.slug %}",
-                partials: "{% url 'partials' graph_slug=graph.slug %}"
-              }
+                del: "{% url 'delete' graph_slug=graph.slug %}",
+                partials: "{% url 'partials' graph_slug=graph.slug %}",
+                collabs: "{% url 'collaborators_lookup' graph.slug %}"
+              };
+              var asModal = {{ as_modal|yesno:"true,false" }};
               angular.module('reports').constant("GRAPH", "{{ graph.slug }}");
+              angular.module('reports').constant("GRAPH_NAME", "{{ graph.name }}");
               angular.module('reports').constant("DJANGO_URLS", djangoUrls);
+              angular.module('reports').constant("STATIC_PREFIX", "{{STATIC_PREFIX}}");
+              angular.module('reports').constant("AS_MODAL", asModal);
             </script>
           {% endblock %}
 
@@ -122,15 +144,12 @@
       </div><!-- end .body-inside -->
     </div><!-- end #body -->
 
+    {% if not as_modal %}
     <div id="footer" class="global">
       <div class="inside">
         <div class="copyright">
           {% block footer %}
-            {% if pdf == True %}
-              <p>&copy; {{ CURRENT_DATE|date:"Y" }} <a href="{{ site.domain }}">{{ PROJECT_NAME }}</a>. {% trans "All rights reserved" %}.</p>
-            {% else %}
               {{ block.super }}
-            {% endif %}
           {% endblock %}
         </div><!-- end .copyright -->
         <div class="top">
@@ -138,6 +157,7 @@
         </div><!-- end .top -->
       </div><!-- end .inside -->
     </div>
+    {% endif %}
 
   </div><!-- end #main -->
 {% endblock %}

@@ -46,6 +46,12 @@
               }
           }
       });
+      $runQuery = $('#run-query');
+      $runQuery.prop('disabled', true);
+      $runQuery.css({
+        'color': '#9b9b9b',
+        'background-color': '#f2f2f2'
+      });
     });
 
     $('#save-button').on('click', function() {

@@ -9,7 +9,7 @@ from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from django.http import Http404
+from django.http import Http404, StreamingHttpResponse
 from django.shortcuts import (get_object_or_404, render_to_response,
                               HttpResponse, redirect)
 from django.template import RequestContext
@@ -22,6 +22,7 @@ from guardian.decorators import permission_required
 from data.models import Data
 from graphs.models import Graph
 from graphs.utils import graph_last_modified
+from schemas.models import NodeType
 from tools.converters import (GEXFConverter, CSVConverter, CSVQueryConverter,
                               CSVTableConverter)
 
@@ -114,8 +115,8 @@ def graph_export_gexf(request, graph_slug):
                                   "empty graph"))
         return redirect(reverse('dashboard'))
     converter = GEXFConverter(graph=graph)
-    response = HttpResponse(converter.stream_export(),
-                            content_type='application/xml')
+    response = StreamingHttpResponse(converter.stream_export(),
+                                     content_type='application/xml')
     attachment = ('attachment; filename=%s_data.gexf' % graph_slug)
     response['Content-Disposition'] = attachment
     return response
@@ -139,10 +140,14 @@ def graph_export_csv(request, graph_slug):
 def graph_export_table_csv(request, graph_slug):
     graph = get_object_or_404(Graph, slug=graph_slug)
     node_type_id = request.session.get('node_type_id', None)
+    node_type = get_object_or_404(NodeType, id=node_type_id)
+
     converter = CSVTableConverter(graph=graph, node_type_id=node_type_id)
-    zip_data, zip_name = converter.export()
-    response = HttpResponse(zip_data, content_type='application/zip')
-    response['Content-Disposition'] = 'attachment; filename="%s"' % zip_name
+    export_name = graph_slug + '_' + node_type.name + '.csv'
+
+    response = StreamingHttpResponse(converter.stream_export(),
+                                     content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="%s"' % export_name
     return response
 
 
@@ -153,9 +158,18 @@ def graph_export_queries_csv(request, graph_slug):
     graph = get_object_or_404(Graph, slug=graph_slug)
     csv_results = request.session.get('csv_results', None)
     query_name = request.session.get('query_name', None)
+    headers_formatted = request.session.get('headers_formatted', None)
+    headers_raw = request.session.get('headers_raw', None)
+
     converter = CSVQueryConverter(graph=graph, csv_results=csv_results,
-                                  query_name=query_name)
-    zip_data, zip_name = converter.export()
-    response = HttpResponse(zip_data, content_type='application/zip')
-    response['Content-Disposition'] = 'attachment; filename="%s"' % zip_name
+                                  query_name=query_name,
+                                  headers_formatted=headers_formatted,
+                                  headers_raw=headers_raw)
+    query_name = query_name.decode('utf-8')
+    csv_name = query_name + '.csv'
+    export_name = graph_slug + '_' + csv_name
+
+    response = StreamingHttpResponse(converter.stream_export(),
+                                     content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="%s"' % export_name
     return response

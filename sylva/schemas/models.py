@@ -81,7 +81,7 @@ class Schema(models.Model, SchemaMixin):
                 field = {
                     "label": node_property.key,
                     "type": node_property.get_datatype_value(),
-                    #"type": node_property.datatype,
+                    "id": node_property.id,
                     "name": node_property.slug,
                     "primary": False,
                     "blank": False,
@@ -94,7 +94,7 @@ class Schema(models.Model, SchemaMixin):
                     field = {
                         "label": rel_property.key,
                         "type": rel_property.get_datatype_value(),
-                        #"type": rel_property.datatype,
+                        "id": rel_property.id,
                         "name": rel_property.slug,
                     }
                     rel_fields.append(field)
@@ -527,11 +527,10 @@ class BaseProperty(models.Model):
         return value
 
     def get_choices(self):
-        choices = []
+        choices = [(u"", u"---------")]
         if self.default:
             if not "," in self.default:
                 self.default = u"%s," % self.default
-            choices = [(u"", u"---------")]
             for choice in self.default.split(","):
                 choice_strip = choice.strip()
                 key = u"%s" % slugify(choice_strip)

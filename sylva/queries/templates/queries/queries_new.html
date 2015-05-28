@@ -1,18 +1,20 @@
-{% extends "base.html" %}
+{% extends base_template %}
 {% load i18n graphs static compress %}
 {% get_static_prefix as STATIC_PREFIX %}
 
-{% block navigation_buttons %}
-{{ block.super }}
-{% endblock %}
+{% if not as_modal %}
+    {% block navigation_buttons %}
+    {{ block.super }}
+    {% endblock %}
 
-{% block title %}
-{{ graph.name }}
-{% endblock %}
+    {% block title %}
+    {{ graph.name }}
+    {% endblock %}
 
-{% block menu_buttons %}
-{% toolbar on="queries" %}
-{% endblock %}
+    {% block menu_buttons %}
+    {% toolbar on="queries" %}
+    {% endblock %}
+{% endif %}
 
 {% block content_title %}
 {% if query %}
@@ -54,6 +56,15 @@
 </ol>-->
 
 {% if node_types %}
+{% if as_modal %}
+    {% if query %}
+        {% breadcrumb queries_link query.name %}
+    {% else %}
+        {% trans "New" as label %}
+        {% breadcrumb queries_link label %}
+    {% endif %}
+    <div id="save-url" data-url="{{ add_url }}" style="display: none;"></div>
+{% endif %}
 <div id="query-new-wrapper" style="display: inline-block;">
     <div id="div-save-query" style="float: left; display: none;">
         <h2>{% trans "Query" %}</h2>
@@ -111,11 +122,16 @@
              <div id="diagram"></div>
         </div>
     </div>
+    {% if as_modal %}
+    <div id="modal-content-controls" class="modal-content-controls">
+    {% endif %}
     <div id="run-query-div">
       {% if query %}
         <form method="post" action="{% url "queries_query_results" graph.slug query.id %}" id="form-run-query">
+        <div id="execute-url" data-url="{% url "queries_query_results" graph.slug query.id %}" style="display: none;"></div>
       {% else %}
         <form method="post" action="{% url "queries_new_results" graph.slug %}" id="form-run-query">
+        <div id="execute-url" data-url="{% url "queries_new_results" graph.slug %}" style="display: none;"></div>
       {% endif %}
             {% csrf_token %}
             <div id="select-rows-per-page" style="display: inline; float: left; margin-right: 10px;">
@@ -138,6 +154,7 @@
             <input type="hidden" id="query" name="query" />
             <input type="hidden" id="query_aliases" name="query_aliases" />
             <input type="hidden" id="query_fields" name="query_fields" />
+            {% if not as_modal %}
             <span class="buttonLinkOption buttonLinkLeft">
                 <input type="submit" id="run-query" name="run-query" value="{% trans "Run" %}" />
             </span>
@@ -145,6 +162,21 @@
                 <a id="save-button" href="javascript:void(0)">{% trans "Save" %}</a>
                 {% trans "or" %} <a id="clear-button" href="javascript:void(0)">{% trans "Clear" %}</a>
             </span>
+            {% endif %}
+            {% if as_modal %}
+            <span class="buttonLinkOption buttonLinkLeft">
+              <input type="submit" id="run-query" name="run-query" value="{% trans "Run" %}" />
+            </span>
+            <span class="buttonLinkOption buttonLinkRight">
+              <a id="save-button" href="javascript:void(0)">{% trans "Save" %}</a>
+              {% trans "or" %} <a id="clear-button" href="javascript:void(0)">{% trans "Clear" %}</a>
+              {% trans "or" %}
+              <a id="modal-cancel" data-url="{{ queries_list_url }}" href="javascript:void(0)">{% trans "Cancel" %}</a>
+            </span>
+            {% endif %}
+        {% if as_modal %}
+        </div>
+        {% endif %}
         </form>
     </div>
 </div>
@@ -195,7 +227,7 @@
 {% if query_dict %}
 <script type="text/javascript">
     var query = {};
-    var query_dict = '{{ query_dict|safe }}';
+    var query_dict = JSON.stringify({{ query_dict|safe }});
     query_dict = JSON.parse(query_dict);
     query["query"] = query_dict;
 </script>
@@ -203,7 +235,7 @@
 
 {% if query_aliases %}
 <script type="text/javascript">
-    var query_aliases = '{{ query_aliases|safe }}';
+    var query_aliases = JSON.stringify({{ query_aliases|safe }});
     query_aliases = JSON.parse(query_aliases);
     query["aliases"] = query_aliases;
 </script>
@@ -211,19 +243,29 @@
 
 {% if query_fields %}
 <script type="text/javascript">
-    var query_fields = '{{ query_fields|safe }}';
+    var query_fields = JSON.stringify({{ query_fields|safe }});
     query_fields = JSON.parse(query_fields);
     query["fields"] = query_fields["fields"];
+    query["fieldsRels"] = query_fields["fieldsRels"];
     query["fieldRelsCounter"] = query_fields["fieldRelsCounter"];
     query["checkboxes"] = query_fields["checkboxes"];
     query["aggregates"] = query_fields["aggregates"];
     query["aggregatesRels"] = query_fields["aggregatesRels"];
     query["fieldsConditions"] = query_fields["fieldsConditions"];
+    query["sortingParams"] = query_fields["sortingParams"];
 
     (function($) {
         $(document).on('ready', function() {
             diagram.loadQuery(JSON.stringify(query));
         });
+    })(jQuery);
+</script>
+{% endif %}
+
+{% if save_as_new %}
+<script type="text/javascript">
+    (function($) {
+        $('#save-button').click();
     })(jQuery);
 </script>
 {% endif %}

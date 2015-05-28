@@ -7,9 +7,51 @@ var directives = angular.module('reports.directives', []);
 var gettext = window.gettext || String;
 
 
+directives.directive('sylvaAutoComplete', ['DJANGO_URLS', function (DJANGO_URLS) {
+    return {
+        require: 'ngModel',
+        scope: {collabs: "=", precollabs: "="},
+        link: function(scope, elem, attrs, ngModelCtrl) {
+
+            var params = {
+                minChars: 2,
+                prePopulate: [],
+                propertyToSearch: "display",
+                tokenLimit: 10,
+                preventDuplicates: true,
+                tokenValue: "id",
+                onAdd: function (el) {
+                    scope.$apply(function () {
+                         scope.collabs.push(el);
+                    });
+                },
+                onDelete: function (el) {
+                    scope.$apply(function () {
+                        scope.collabs = scope.collabs.filter(function (elem) {
+                            return elem.id != el.id;
+                        });
+                    });
+                }
+            };
+
+            scope.$watchCollection("precollabs", function (newVal, oldVal) {
+                if (newVal === null) {
+                    elem.tokenInput(DJANGO_URLS.collabs, params);
+                    return;
+                };
+                if (newVal == oldVal) return;
+                scope.collabs = angular.copy(scope.precollabs);
+                params.prePopulate = newVal;
+                elem.tokenInput(DJANGO_URLS.collabs, params)
+            });
+        }
+    }
+}]);
+
+
 directives.directive('sylvaUpdateText', ['breadService', function (breadService) {
     return {
-        link:function(scope) {
+        link: function(scope) {
             scope.$watch('template.name', function (newVal, oldVal) {
                 breadService.updateName(newVal);
                 scope.template.name = newVal
@@ -19,11 +61,42 @@ directives.directive('sylvaUpdateText', ['breadService', function (breadService)
 }]);
 
 
+directives.directive('sylvaColpick', function () {
+    return {
+        restrict: 'A',
+        require : 'ngModel',
+        link: function(scope, element, attrs, ngModelCtrl) {
+            if (attrs.color) element.css('background-color', attrs.color)
+            $(function(){
+                element.colpick({
+                    colorScheme: 'light',
+                    layout: 'hex',
+                    submitText: 'Ok',
+                    color: attrs.color.substr(1),
+                    onChange: function(hsb, hex, rgb, el, bySetColor) {
+                        $(el).css('background-color','#' + hex.toUpperCase());
+                        // Fill the text box just if the color was set using the picker, and not the colpickSetColor function.
+                        if(!bySetColor) $(el).val(hex.toUpperCase());
+                        scope.$apply(function () {
+                            ngModelCtrl.$setViewValue('#' + hex.toUpperCase());
+                        });
+                    },
+                    onSubmit: function(hsb, hex, rgb, el) {
+                        element.colpickHide();
+                    }
+                })
+            });
+        }
+    };
+});
+
+
+
 directives.directive('sylvaDatepicker', function () {
     return {
         restrict: 'A',
         require : 'ngModel',
-        link : function(scope, element, attrs, ngModelCtrl) {
+        link: function(scope, element, attrs, ngModelCtrl) {
             $(function(){
                 element.datepicker({
                     dateFormat:'mm/dd/yy',
@@ -60,159 +133,195 @@ directives.directive('sylvaTimepicker', function () {
 });
 
 
-directives.directive('sylvaPvRowRepeat', ['tableArray', function (tableArray) {
+directives.directive('sylvaPvRowRepeat', ['tableArray', '$compile', '$sanitize', function (tableArray, $compile, $sanitize) {
     return {
-        transclude: 'element',
         scope: {
-            resp: '='
+            resp: '=',
+            prev: '='
         },
-        controller: function ($scope) {
+        link: function (scope, elem, attrs) {
+            var aspectRatio = 1.25
+            ,   tableWidth = parseInt(attrs.width)
+            ,   canvasWidth = parseInt(angular.element(elem.parents()[0]).css('width'))
+            ,   tArray;
 
-            this.getQueries = function() {
-                return $scope.queries;
-            };
-
-            this.getTableWidth = function() {
-                return $scope.tableWidth;
-            };
-
-            this.getTableArray = function() {
-                return $scope.tableArray;
+            var rowHeight = function (pagebreaks) {
+                var heights = {}
+                ,   rows = [];
+                angular.forEach(pagebreaks, function (v, k) {
+                    rows.push(k)
+                    if (v === true || parseInt(k) === tArray.numRows - 1) {
+                        var numRows = rows.length;
+                        for (var i=0; i<numRows; i++) {
+                            var row = rows[i]
+                            ,   pageHeight = tableWidth * aspectRatio
+                            ,   height = pageHeight / numRows;
+                            heights[row] = height;
+                        }
+                        rows = [];
+                    }
+                });
+                return heights;
             }
-        },
-        link: function (scope, elem, attrs, ctrl, transclude) {
-
-            var childScopes = []
-            ,   parent = elem.parent();
-
-            scope.tableWidth = parseInt(attrs.width)
-            //scope.tableWidth = parseInt(angular.element(elem.parents()[0]).css('width'));
-
             scope.$watch('resp', function (newVal, oldVal) {
+                if (!(newVal) && newVal == oldVal) return;
+                // This executes on server response
+                elem.empty()
+                var resp = angular.copy(scope.resp)
+                tArray = tableArray(resp.table.layout);
+                var contDiv = $("<div class='unbreakable' style='page-break-after:always;'></div>");
+                var queries = resp.queries
+                ,   rowH = rowHeight(resp.table.pagebreaks)
+                ,   len = tArray.table.length;
 
-                if (newVal == oldVal) return;
-                scope.queries = scope.resp.queries;
-                scope.tableArray = tableArray(scope.resp.table);
-                
-                var numScopes = childScopes.length;
-                if (numScopes > 0) {
-                    for (var i=0; i<numScopes; i++) {
-                        childScopes[i].element.remove();
-
-                        childScopes[i].scope.$destroy();
-                    }
-                    childScopes = [];
-                }
-                
-                var previous = elem
-                ,   childScope
-                ,   block
-                ,   len = scope.tableArray.table.length;
                 for (var i=0; i<len; i++) {
-                    childScope = scope.$new();
-                    childScope.$index = i;
-                    if (i === 0) {
-                        childScope.rowStyle = {'margin-top': '100px'};
-                    } else {
-                        childScope.rowStyle = {'margin-top': '50px'};
-                    }
 
-                    transclude(childScope, function (clone) {
-                        childScope.row = scope.tableArray.table[i];
-                        previous.after(clone);
-                        block = {};
-                        block.element = clone;
-                        block.scope = childScope;
-                        childScopes.push(block);
-                        previous = clone;
-                    });
-                }  
+                    var row = tArray.table[i]
+                    ,   rowDiv = $('<div class="row" width="1025"></div>')
+                    ,   rowLen = row.length;
+
+                    for (var j=0; j<rowLen; j++) {
+                        var cell = row[j]
+                        ,   query = cell.displayQuery
+                        ,   name = cell.name
+                        ,   colspan = parseInt(cell.colspan)
+                        ,   cellWidth = (tableWidth / tArray.numCols - ((tArray.numCols + 1) * 2 / tArray.numCols)) * colspan + (2 * (colspan - 1)) + 'px'
+                        ,   demo = cell.demo || false
+                        ,   colDiv = $("<div class='col'></div>");
+                        if (query === "" && !(cell.displayMarkdown)) demo = true;
+
+                        if (cell.displayMarkdown) {
+                            var showdown = new Showdown.converter({})
+                            ,   html = $sanitize(showdown.makeHtml(cell.displayMarkdown));
+                            colDiv.addClass("display-cell")
+                        } else {
+                            // This is for all cases except new report
+                            if (query && demo === false) {
+
+                                // This is preview, we need to run query
+                                var series;
+                                if (!cell.series) {
+                                    query = queries.filter(function (el) {
+                                        return el.id === query;
+                                    })[0];
+                                    series = query.series;
+
+                                // THis is either builder mode, or history
+                                } else {
+                                    series = cell.series
+                                }
+
+                                name = query.name;
+
+                                var header = series[0]
+                                // xSeries is often catagorical, can only be one
+                                ,   xSeriesNdx = header.indexOf(cell.xAxis.alias)
+                                ,   chartSeries = [];
+                                if (xSeriesNdx === -1) xSeriesNdx = 0
+
+                                // Can be multiple y series composed of numeric var
+                                // with the xSeries vars, here we build a object for
+                                // each series
+                                var yLen = cell.yAxis.length;
+                                if (cell.chartType === "pie") yLen = 1;
+                                for (var k=0; k<yLen; k++) {
+                                    var ser = []
+
+                                    // this is the alias of the ySeries
+                                    ,   ySeries = cell.yAxis[k].alias
+                                    ,   display_alias = cell.yAxis[k].display_alias
+
+                                    // this is the position of the ySeries in the series arr
+
+                                    ,   ndx = header.indexOf(ySeries)
+                                    ,   color;
+                                    if (cell.colors) {
+                                        color = cell.colors[ySeries];
+                                    } else {
+                                        color = ""
+                                    }
+
+                                    if (ndx === -1) ndx = k + 1
+
+                                    for (var m=1; m<series.length; m++) {
+                                        var serRow = series[m]
+                                        ,   x = serRow[xSeriesNdx]
+                                        ,   point = [x, serRow[ndx]];
+                                        ser.push(point);
+                                    }
+                                    chartSeries.push({name: display_alias, data: ser, color: color});
+                                }
+                            var chartType = cell.chartType
+
+                            } else {
+                                //This is the new chart demo (demo="true")
+                                if (!cell.series) {
+                                    cell["series"] = [
+                                       ['Keanu Reeves',36],
+                                       ['Linus Torvalds',24],
+                                       ['Tyrion Lannister',20],
+                                       ['Morpheus',1],
+                                       ['Félix Lope de Vega Carpio',156],
+                                       ['Javier de la Rosa',24]
+                                   ];
+                                }
+
+                                var chartTypes = ["pie", "line", "column"]
+                                // Random chart type
+                                ,   ndx = Number(Math.floor(Math.random() * chartTypes.length))
+                                ,   chartType = chartTypes[ndx]
+                                ,   query = "demo";
+                                chartSeries = [{name: "ySeries", data: cell.series}]
+                                name = "Demo Chart";
+
+                            }
+                            var childScope = scope.$new();
+                            var size;
+                            if (scope.prev) {
+                                size = {}
+                            } else {
+                                size = {
+                                    height: parseInt(angular.copy(rowH[cell.row])),
+                                    width: parseInt(cellWidth)
+                                }
+                            }
+                            childScope.chartConfig = {
+                                options: {chart: {type: chartType}},
+                                xAxis: {catagories: []},
+                                series: chartSeries,
+                                title: {text: name},
+                                loading: false,
+                                size: size
+                            }
+                            var chartHtml = '<div highchart class="hchartDiv" config="chartConfig"></div>'
+
+                            ,   html = $compile(chartHtml)(childScope);
+                            html.height(rowH[cell.row])
+                        }
+
+                        colDiv.width(cellWidth)
+                        colDiv.height(rowH[cell.row])
+                        colDiv.append(html)
+                        rowDiv.append(colDiv)
+
+                    }
+                    contDiv.append(rowDiv);
+                    if (resp.table.pagebreaks[i]) {
+                        elem.append(contDiv);
+                        var contDiv = $("<div class='unbreakable' style='page-break-after:always;'></div>");
+                    }
+                }
+                contDiv.css('page-break-after', '')
+                elem.append(contDiv);
+                var contDiv = $("<div class='unbreakable' style='page-break-after:always;></div>");
             }, true);
         }
     };
 }]);
 
 
-directives.directive('sylvaPvCellRepeat', [function () {
-    return {
-        transclude: 'element',
-        require: '^sylvaPvRowRepeat',
-        scope: {
-            row: '='
-        },
-        link: function(scope, elem, attrs, ctrl, transclude) {
-
-            var childScopes = []
-            ,   previous = elem
-            ,   childScope
-            ,   len = scope.row.length
-            ,   tableWidth = ctrl.getTableWidth()
-            ,   tableArray = ctrl.getTableArray()
-            ,   numCols = tableArray.numCols
-            ,   ang = angular.element;
-
-            if (childScopes.length > 0) {
-
-                for (var i=0; i<len; i++) {
-
-                    childScopes[i].element.remove();
-                    childScopes[i].scope.$destroy();
-                }
-                childScopes = [];
-            }
-
-            for (var i=0; i<len; i++) {
-                var cell = scope.row[i]
-                ,   query = cell.displayQuery
-                ,   series = cell.series
-                ,   name = cell.name
-                ,   colspan = parseInt(cell.colspan)
-                ,   cellWidth = (tableWidth / numCols - ((numCols + 1) * 2 / numCols)) * colspan + (2 * (colspan - 1)) + 'px'
-                ,   block;      
-                    
-                childScope = scope.$new();
-                childScope.$index = i;
-                childScope.cellStyle = {width: cellWidth};
-
-                if (query) {
-                    if (!series) {
-                        query = ctrl.getQueries().filter(function (el) {
-                                return el.id === query;
-                            })[0];
-                        series = query.series;
-                        name = query.name;
-                    }
-                    // Here must config chart. 
-                    console.log('series', series)
-                    childScope.query = query;
-                    childScope.chartConfig = {
-                        options: {chart: {type: cell.chartType}},
-                        xAxis: {catagories: []},
-                        series: [{data: series}],
-                        title: {text: name},     
-                        loading: false
-                    };
-                } else if (cell.displayMarkdown) {
-                    childScope.markdown = cell.displayMarkdown;
-                }
-
-                transclude(childScope, function (clone) {
-                    previous.after(clone);
-                    block = {}
-                    block.element = clone
-                    block.scope = childScope
-                    childScopes.push(block)
-                    previous = clone
-                });
-            } 
-        }
-    };
-}]);
-
-
-directives.directive('syEditableTable',['tableArray', 'DJANGO_URLS', 
-                                        'breadService', 
-                                        function (tableArray, DJANGO_URLS, breadService) {
+directives.directive('syEditableTable',[
+    '$compile', 'tableArray', 'breadService', function ($compile, tableArray, breadService) {
     return {
         transclude: true,
         scope: {
@@ -221,27 +330,30 @@ directives.directive('syEditableTable',['tableArray', 'DJANGO_URLS',
             editable: '='
         },
         template:   '<div class="editable-table">' +
-                        '<div class="edit-rows">' + 
-                          '<div sy-et-row-repeat class="editable-row" queries="queries">' + 
-                            '<div sylva-et-cell-repeat class="tcell" row="row" rownum="rownum">' + 
-                              '<div sylva-et-cell config="config" class="query" ng-style="cellStyle">' + 
-                              '</div>' + 
-                            '</div>' + 
-                          '</div>' + 
-                        '</div>' + 
+                      '<div class="pages">' +
+                        '<div class="edit-rows">' +
+                          '<div sy-et-row-repeat class="editable-row" queries="queries">' +
+                            '<div sylva-et-cell-repeat class="tcell" row="row" rownum="rownum">' +
+                              '<div sylva-et-cell config="config" class="query" ng-style="cellStyle">' +
+                              '</div>' +
+                            '</div>' +
+                          '</div>' +
+                        '</div>' +
+                      '</div>' +
                     '</div>' +
-                    '<div>' + 
-                      '<a class="button" href="">{{ buttonText.done }}</a> ' +  
-                      '<a class="table-button" href="">{{ buttonText.plusrow }}</a>' + 
-                      '<a class="table-button" href="">{{ buttonText.pluscol }}</a>' + 
-                      '<a class="table-button" href="">{{ buttonText.minusrow }}</a>' + 
-                      '<a class="table-button" href="">{{ buttonText.minuscol }}</a>' + 
+                    '<div>' +
+                      '<a class="button" href="">{{ buttonText.done }}</a> ' +
+                      '<a class="table-button" href="">{{ buttonText.plusrow }}</a>' +
+                      '<a class="table-button" href="">{{ buttonText.pluscol }}</a>' +
+                      '<a class="table-button" href="">{{ buttonText.minusrow }}</a>' +
+                      '<a class="table-button" href="">{{ buttonText.minuscol }}</a>' +
+                      '<a class="table-button" href="">{{ buttonText.pagebreak }}</a>' +
                     '</div>',
         controller: function($scope) {
 
             this.getTableArray = function() {
                 return $scope.tableArray;
-            }
+            };
 
             this.getQueries = function() {
                 return $scope.queries;
@@ -254,26 +366,66 @@ directives.directive('syEditableTable',['tableArray', 'DJANGO_URLS',
             this.editing = function () {
                 $scope.prev = $scope.resp;
             };
+
+            this.editable = function () {
+                return $scope.editable;
+            };
+
+            this.getRowHeight = function () {
+                return $scope.resp.rowHeight
+            }
+
+            // Helper functions for sorting query result data types
+            this.parseResults = function (results) {
+                var catagorical = []
+                ,   numeric = [];
+                for (var i=0; i<results.length; i++) {
+                    var result = results[i]
+                    ,   alias = result.alias
+                    ,   props = result.properties;
+                    for (var j=0; j<props.length; j++) {
+                        var prop = props[j]
+                        ,   datatype = prop.datatype
+                        ,   element = {alias: prop.alias, display_alias: prop.display_alias, datatype: datatype,
+                                       property: prop.property, aggregate: prop.aggregate};
+                        if (datatype !== 'number' && datatype !== 'float' &&
+                                datatype !== 'auto_increment' &&
+                                datatype !== 'auto_increment_update' &&
+                                prop.aggregate === false) {
+                            element["catagorical"] = true;
+                            element["numeric"] = false;
+                            catagorical.push(element);
+                        } else {
+                            element["catagorical"] = false;
+                            element["numeric"] = true;
+                            numeric.push(element);
+                        }
+                    }
+                }
+                return {cat: catagorical, num: numeric}
+            }
+
         },
         link: function(scope, elem, attrs) {
 
             var ang = angular.element
-            //,   rows = ang(elem.children()[0])
-            //,   rowWidth = parseInt(rows.css('width'))
-            ,   rows = ang(ang(elem.children()[0]).children()[0])
+            ,   pages = ang(ang(elem.children()[0]).children()[0])
+            ,   rows = ang(pages.children()[0])
             ,   buttons = ang(elem.children()[1])
             ,   editMeta = ang(buttons.children()[0])
             ,   addRow = ang(buttons.children()[1])
             ,   addCol = ang(buttons.children()[2])
             ,   delRow = ang(buttons.children()[3])
-            ,   delCol = ang(buttons.children()[4]);
+            ,   delCol = ang(buttons.children()[4])
+            ,   pagebreak = ang(buttons.children()[5]);
 
             scope.buttonText = {
                 done: gettext('Done'),
                 plusrow: gettext('+ row'),
                 minusrow: gettext('- row'),
                 pluscol: gettext('+ col'),
-                minuscol: gettext('- col')
+                minuscol: gettext('- col'),
+                pagebreak: gettext("+ pagebreak")
             }
 
             scope.done = gettext('Done');
@@ -281,10 +433,10 @@ directives.directive('syEditableTable',['tableArray', 'DJANGO_URLS',
             scope.plusrow = gettext('+ row')
             scope.plusrow = gettext('+ row')
 
-            scope.$watch('resp', function (newVal, oldVal) {  
+            scope.$watch('resp', function (newVal, oldVal) {
                 if (newVal === oldVal) return;
-                scope.tableArray = tableArray(scope.resp.table);
-                scope.tableWidth = parseInt(rows.css('width'));
+                scope.tableArray = tableArray(scope.resp.table.layout);
+                scope.tableWidth = 1100;
 
                 scope.queries = [{name: 'markdown', id: 'markdown', group: 'text'}];
 
@@ -292,24 +444,59 @@ directives.directive('syEditableTable',['tableArray', 'DJANGO_URLS',
                     query['group'] = 'queries';
                     scope.queries.push(query);
                 });
+
+                var numBreaks = 0;
+                angular.forEach(scope.resp.table.pagebreaks, function (v, k) {
+                        if (v === true) numBreaks++
+                });
+
+
+                setTimeout(function () {
+                    angular.forEach(scope.resp.table.pagebreaks, function (val, key) {
+                        if (val === true) {
+                            buildBreakrow(parseInt(key) + 1);
+                        }
+                    });
+                    var height = (numBreaks * 50) + (scope.tableArray.numRows * 202);
+                    pages.css("height", height);
+
+                }, 500)
+
+                // scope.resp.rowHeight = rowHeight(scope.resp.table.pagebreaks)
+            });
+
+            scope.$watch("resp.table.pagebreaks", function (newVal, oldVal) {
+                if (newVal === oldVal) return;
+                // scope.resp.rowHeight = rowHeight(scope.resp.table.pagebreaks)
+            }, true);
+
+            scope.$on('editing', function (e, newVal) {
+                if (newVal != scope.editable && scope.editable != undefined) {
+                    scope.editable = newVal;
+                    breadService.meta();
+                }
+
             });
 
             editMeta.bind('click', function () {
                 scope.$apply(function () {
                     scope.editable = false;
                     breadService.meta();
-
                 });
             });
 
             addRow.bind('click', function () {
                 scope.$apply(function () {
                     scope.tableArray.addRow();
+                    var height = parseInt(pages.css("height"));
+                    var newHeight = (height + 202).toString() + "px";
+                    pages.css("height", newHeight)
+                    scope.resp.table.pagebreaks[scope.tableArray.numRows - 1] = false;
                 });
             });
 
             addCol.bind('click', function () {
-                if (scope.tableArray.numCols < 4) {
+                if (scope.tableArray.numCols < 3) {
                     scope.$apply(function () {
                         scope.tableArray.addCol();
                     });
@@ -320,6 +507,11 @@ directives.directive('syEditableTable',['tableArray', 'DJANGO_URLS',
                 if (scope.tableArray.numRows > 1)  {
                     scope.$apply(function () {
                         scope.tableArray.delRow();
+                        removeBreaks();
+                        var height = parseInt(pages.css("height"));
+                        var newHeight = (height - 202).toString() + "px";
+                        pages.css("height", newHeight)
+                        delete scope.resp.table.pagebreaks[scope.tableArray.numRows]
                     });
                 }
             });
@@ -331,6 +523,121 @@ directives.directive('syEditableTable',['tableArray', 'DJANGO_URLS',
                     });
                 }
             });
+
+            function canMoveUp(ndx) {
+                var brNdx = findBreakrowNdx(1, ndx + 1);
+                if (ndx > 0 && brNdx[0]) return true;
+                return false;
+            }
+
+            function canMoveDown(ndx) {
+                var brNdx = findBreakrowNdx(ndx + 1, scope.tableArray.numRows);
+                if (ndx + 2 < scope.tableArray.numRows && brNdx[0]) return true;
+                return false;
+            }
+
+            scope.moveUp = function (ndx) {
+                var brArr = findBreakrowNdx(1, ndx + 1)
+                ,   brNdx = brArr[brArr.length - 1];
+                scope.removeBreak(ndx)
+                buildBreakrow(brNdx)
+            }
+
+            scope.moveDown = function (ndx) {
+                var brNdx = findBreakrowNdx(ndx + 1, scope.tableArray.numRows)[0];
+                scope.removeBreak(ndx)
+                buildBreakrow(brNdx)
+            }
+
+            scope.removeBreak = function (ndx) {
+                $("#pagebreak" + ndx.toString()).remove()
+                scope.resp.table.pagebreaks[ndx] = false;
+                var breakrow = $("#row" + ndx.toString())
+                ,   nextrow = $("#row" + (ndx + 1).toString());
+                angular.forEach(nextrow.children(), function (elem) {
+                    ang(elem).removeClass("top")
+                })
+                var height = parseInt(pages.css("height"));
+                var newHeight = (height - 50).toString() + "px";
+                pages.css("height", newHeight)
+                // scope.$apply(function () {
+                //     // scope.resp.rowHeight = rowHeight(scope.resp.table.pagebreaks)
+                // });
+            }
+
+            pagebreak.bind("click", function () {
+                var breakrowNdx = findBreakrowNdx(1, scope.tableArray.numRows)[0]
+                if (breakrowNdx) {
+                    buildBreakrow(breakrowNdx)
+                }
+            });
+
+            function buildBreakrow (breakrowNdx) {
+                var ndx = breakrowNdx - 1
+                ,   pagebreakHtml = $compile("<div class='pagebreak'" +
+                                             "id='pagebreak" + ndx.toString() +  "'>" +
+                                             "<hr class='breakline' /> " +
+                                             "</div>")(scope)
+                ,   breakrow = $("#row" + ndx.toString())
+                ,   nextrow = $("#row" + (ndx + 1).toString())
+                ,   moveUp = "<a href='' ng-click='moveUp(" + ndx + ")'style='font-size: 200%; z-index:10px; position:absolute; right:45%; margin-top:10px;'>&#8593;</a>"
+                ,   moveDown = "<a href='' ng-click='moveDown(" + ndx + ")' style='font-size: 200%; z-index:10px; position:absolute; right:55%; margin-top:10px;'>&#8595;</a>"
+                ,   del = "<a href='' ng-click='removeBreak(" + ndx + ")' style='font-size: 200%; z-index:10px; position:absolute; right:50%; margin-top:10px;'>X</a>";
+                var controlsOn;
+                pagebreakHtml.on("click", function () {
+                    if (controlsOn) {
+                        $("#controls").remove()
+                        controlsOn = false;
+                    } else {
+                        controlsOn = true;
+                        var controls = "<span id='controls'>";
+                        if (canMoveUp(ndx)) {
+                            controls = controls + moveUp
+                        }
+                        if (canMoveDown(ndx)) {
+                            controls = controls + moveDown
+                        }
+                        controls = controls + del + "</span>"
+                        controls = $compile(controls)(scope)
+                        ang(this).append(controls)
+                    }
+                });
+                var height = parseInt(pages.css("height"))
+                ,   newHeight = (height + 50).toString() + "px";
+                pages.css("height", newHeight)
+                angular.forEach(nextrow.children(), function (elem) {
+                    ang(elem).addClass("top")
+                })
+                breakrow.after(pagebreakHtml);
+                //scope.$apply(function () {
+                scope.resp.table.pagebreaks[ndx] = true;
+                    // scope.resp.rowHeight = rowHeight(scope.resp.table.pagebreaks)
+                //});
+            }
+
+            var removeBreaks = function () {
+                angular.forEach(scope.resp.table.pagebreaks, function (v, k) {
+                    if (v === true && parseInt(k) + 1 == scope.tableArray.numRows) {
+                        $("#pagebreak" + k.toString()).remove();
+                        scope.resp.table.pagebreaks[k] = false;
+                        var height = parseInt(pages.css("height"));
+                        var newHeight = (height - 50).toString() + "px";
+                        pages.css("height", newHeight)
+                        // scope.resp.rowHeight = rowHeight(scope.resp.table.pagebreaks)
+                        return;
+                    }
+                });
+            }
+
+            var findBreakrowNdx = function (start, stop) {
+                var arr = [];
+                for (var i=start; i<stop; i++) {
+                    if (!(scope.resp.table.pagebreaks[i - 1])) {
+                        arr.push(i)
+                    }
+                }
+                return arr;
+            };
         }
     };
 }]);
@@ -350,15 +657,15 @@ directives.directive('syEtRowRepeat', [function () {
             ,   tableArray
             ,   numScopes
             ,   len;
-            
+
             scope.$watchCollection(ctrl.getTableArray, function (newVal, oldVal) {
 
                 if (newVal == oldVal) return;
                 tableArray = ctrl.getTableArray();
                 numScopes = childScopes.length;
 
-                if (!previous) {   
-                    previous = elem
+                if (!previous) {
+                    previous = elem;
                     len = tableArray.table.length;
 
                     for (var i=0; i<len; i++) {
@@ -368,16 +675,15 @@ directives.directive('syEtRowRepeat', [function () {
                         childScope.row = tableArray.table[i];
                         childScope.rownum = i;
                         transclude(childScope, function (clone) {
-                            if (i === len - 1) clone.addClass('bottom')
-                            
+                            //if (i === 0) clone.addClass('top')
                             clone.attr('id', rowId);
                             clone.addClass('trow');
                             previous.after(clone);
-                            block = {}
-                            block.element = clone
-                            block.scope = childScope
-                            childScopes.push(block)
-                            previous = clone
+                            block = {};
+                            block.element = clone;
+                            block.scope = childScope;
+                            childScopes.push(block);
+                            previous = clone;
                         });
                     }
                 } else if (newVal.numRows > oldVal.numRows) {
@@ -385,28 +691,25 @@ directives.directive('syEtRowRepeat', [function () {
                     childScope.$index = numScopes;
                     childScope.row = tableArray.table[numScopes];
                     childScope.rownum = newVal.numRows - 1;
-                    childScopes[numScopes - 1].element.removeClass('bottom')
 
                     transclude(childScope, function (clone) {
-                        clone.addClass('bottom')
                         clone.attr('id', 'row' + numScopes);
                         clone.addClass('trow');
                         previous.after(clone);
-                        block = {}
-                        block.element = clone
-                        block.scope = childScope
-                        childScopes.push(block)
-                        previous = clone
+                        block = {};
+                        block.element = clone;
+                        block.scope = childScope;
+                        childScopes.push(block);
+                        previous = clone;
                     });
 
                 } else if (newVal.numRows < oldVal.numRows) {
-                    var scopeToRemove = childScopes[numScopes - 1]
+                    var scopeToRemove = childScopes[numScopes - 1];
                     scopeToRemove.element.remove();
                     scopeToRemove.scope.$destroy();
-                    childScopes.splice(numScopes - 1, 1)
-                    childScopes[numScopes - 2].element.addClass('bottom');
-                    previous = childScopes[numScopes - 2].element
-                }         
+                    childScopes.splice(numScopes - 1, 1);
+                    previous = childScopes[numScopes - 2].element;
+                }
             });
         }
     };
@@ -426,7 +729,6 @@ directives.directive('sylvaEtCellRepeat', [function () {
         link: function(scope, elem, attrs, ctrl, transclude) {
 
             var previous
-            ,   childScope
             ,   len = scope.row.length
             ,   tableWidth
             ,   tableArray
@@ -442,20 +744,20 @@ directives.directive('sylvaEtCellRepeat', [function () {
             function destroyRow() {
                 for (var i=0; i<numScopes; i++) {
                     childScopes[i].element.remove();
-                    childScopes[i].scope.$destroy(); 
-                    console.log('Scope destroyed:', childScopes[i].scope.$$destroyed)
+                    childScopes[i].scope.$destroy();
+                    console.log('Scope destroyed:', childScopes[i].scope.$$destroyed);
                 }
                 childScopes = [];
             }
-            
+
             scope.$watch('row.length', function (newVal, oldVal) {
                 previous = elem;
                 tableWidth = ctrl.getTableWidth();
                 tableArray = ctrl.getTableArray();
-                numCols = tableArray.numCols;  
+                numCols = tableArray.numCols;
                 numScopes = childScopes.length;
                 len = scope.row.length;
-                
+
                 destroyRow();
                 for (var i=0; i<len; i++) {
                     var cell = scope.row[i]
@@ -467,18 +769,23 @@ directives.directive('sylvaEtCellRepeat', [function () {
                     ,   activeQuery = ctrl.getQueries().filter(function (el) {
                         return el.id === query;
                     })[0];
+
                     if (activeQuery) {
-                        var activeX = activeQuery.results.filter(function (el) {
-                            return el.alias === xAxis;
+                        var resultsDict = ctrl.parseResults(activeQuery.results)
+                        ,   results = resultsDict.num.concat(resultsDict.cat)
+                        ,   activeX = results.filter(function (el) {
+                            return el.alias === xAxis.alias;
                         })[0];
+
                         // Find all of the active y Series
-                        var activeYs = []
+                        var activeYs = [];
+
                         for (var j=0; j<yAxis.length; j++) {
-                            
                             var y = yAxis[j]
-                            ,   activeY = activeQuery.results.filter(function (el) {
-                                return el.alias === y;
+                            ,   activeY = results.filter(function (el) {
+                                return el.alias === y.alias;
                             })[0];
+
                             if (activeY) {
                                 activeY.selected = true;
                                 activeYs.push(activeY);
@@ -486,25 +793,29 @@ directives.directive('sylvaEtCellRepeat', [function () {
                         }
                     }
 
-
-                    childScope = scope.$new();
+                    var childScope = scope.$new();
                     childScope.$index = i;
                     childScope.config = {
                         row: scope.rownum,
                         col: i,
                         colspan: cell.colspan,
+                        colors: cell.colors,
                         activeX: activeX,
                         activeYs: activeYs,
                         queries: ctrl.getQueries(),
                         activeQuery: activeQuery,
+                        results: results,
+                        resultsDict: resultsDict,
                         chartTypes: ['column', 'scatter', 'pie', 'line'],
                         chartType: cell.chartType,
+                        markdown: cell.displayMarkdown
                     };
-                    
+
                     childScope.cellStyle = {width: cellWidth};
                     transclude(childScope, function (clone) {
 
-                        if (i === len - 1) {clone.addClass('final')}
+                        if (i === 0) {clone.addClass('first')}
+                        if (scope.rownum == 0) {clone.addClass("top")}
                         clone.attr('id', cell.id)
                         previous.after(clone);
                         block = {};
@@ -515,70 +826,86 @@ directives.directive('sylvaEtCellRepeat', [function () {
                     });
                 }
             });
-        }            
+        }
     };
 }]);
 
 // THIS DIRECTIVE HAS SOME REPITITION AND WILL REQUIRE CLEANUP
-directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', function ($sanitize, $compile, DJANGO_URLS) {
+directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'STATIC_PREFIX', '$anchorScroll', '$location', function ($sanitize, $compile, STATIC_PREFIX, $anchorScroll, $location) {
     return {
         require: '^syEditableTable',
         scope: {
             config: '='
         },
-        template:   
+        template:
 '<div class="row">' +
-    '<label class="chart-select">' + 
-        '{{ selectText.content }}' + 
-    '</label>' + 
-    '<select ng-model="activeQuery" value="query.id" ng-options="query.name group by query.group for query in queries">' + 
-        '<option value="">-----</option>' + 
-    '</select> ' + 
-'</div>' + 
-'<hr>' +
+    '<label class="chart-select">' +
+        '{{ selectText.content }}' +
+    '</label>' +
+    '<select ng-model="activeQuery" value="query.id" ng-options="query.name group by query.group for query in queries">' +
+        '<option ng-attr-id="{{\'empty\' + row + col}}" value="">-----</option>' +
+    '</select> ' +
+'</div>' +
+//'<hr>' +
 '<div ng-hide="md" class="edit-cell-inside">' +
     '<div class="row">' +
         '<div class="col chartcol">' +
-            '<label>' + 
-                '{{ selectText.chartType }}' + 
-            '</label>' + 
-            '<div class="highchart-cont">' +
-                '<div ng-repeat="(chartType, options) in selectConfig">' + 
-                    '<div highchart config=options></div>' +
-                '</div>' + 
+            '<label>' +
+                '{{ selectText.chartType }}' +
+            '</label>' +
+            '<div ng-attr-id="{{\'highscroll\' + row + col}}" style="position: relative;"class="highchart-cont">' +
+                '<a href="" id="column" ng-click="setChartType(\'column\')"><img ng-src="{{ static_prefix }}app/svg/bar.svg" /></a>' +
+                '<a href="" id="line" ng-click="setChartType(\'line\')"><img ng-src="{{ static_prefix }}app/svg/line.svg" /></a>' +
+                '<a href="" id="pie" ng-click="setChartType(\'pie\')"><img ng-src="{{ static_prefix }}app/svg/pie.svg" /></a>' +
             '</div>' +
         '</div>' +
         '<div class="col cellcol">' +
-            '<label>{{ selectText.xSeries }}</label>' +
-            '<select ng-model="activeX" ng-value="result" ' +
-                'ng-options="result as (result.alias + \', \'+ + result.properties[0].property + \'. Aggr: \' + result.properties[0].aggregate) for result in xSeries' +
-            '">' + 
-            '</select>' +
-            '<label>{{ selectText.ySeries }}</label><br>' + 
-            '<label ng-repeat="result in ySeries">' + 
-                '<input type="checkbox" ng-model="result.selected" value="{{result}}" />' + 
-                '{{ result.alias }}' + ', ' + '{{result.properties[0].property}}' + '. Aggr: ' + '{{result.properties[0].aggregate}}' + 
-            '</label>' +
-            '<br>' +   
+            '<div style="margin:2px;">' +
+                '<label>{{ selectText.xSeries }}</label>' +
+                '<select ng-model="activeX" ng-value="result" ' +
+                    'ng-options="result as (result.display_alias) for result in xSeries' +
+                '">' +
+                '</select>' +
+            '</div>' +
+            '<div style="margin:2px;">' +
+                '<label>{{ selectText.ySeries }}</label><br>' +
+                '<div class="hoverdiv">' +
+                    '<div style="margin:5px;">' +
+                        '<form>' +
+                        '<ul>' +
+                        '<li class="checklist" ng-repeat="result in ySeries">' +
+                            '<span ng-hide="pie" >' +
+                            '<i class="fa fa-eye-slash" id="eye{{$index}}{{row}}{{col}}" ng-click="select(result, $index, row, col)" value="{{result}}" style="margin-right: 3px; width: 1em; height: 1em; cursor: pointer; vertical-align: -2px;" />' +
+                            '</span>' +
+                            '<div ng-hide="pie" sylva-colpick color="{{colors[result.alias]}}" ng-model="colors[result.alias]" id="colpick{{$index}}" class="colorbox"></div>' +
+                            '<input ng-show="pie" name="ysergroup" type="radio" ng-model="$parent.yser.alias" ng-value="result.alias" />' +
+                            '{{ result.display_alias }}' +
+                        '</li>' +
+                        '</ul>' +
+                        '</form>' +
+                    '</div>' +
+                '</div>' +
+            '</div>' +
         '</div>' +
     '</div>' +
-'</div>' + 
-'<div ng-show="md">' +  
-    '<textarea ng-model="mdarea" class="markdown">' + 
-    '</textarea>' + 
+'</div>' +
+'<div ng-show="md">' +
+    '<textarea ng-model="mdarea" class="markdown">' +
+    '</textarea>' +
 '</div>',
         link: function(scope, elem, attrs, ctrl) {
             var ang = angular.element
-            ,   mdDiv = ang(elem.children()[3])
-            ,   md = ang(ang(ang(mdDiv[0])[0]).children()[0])
-            ,   stepChild = ang(ang(ang(elem.children()[2]).children()[0])[0]).children()
+            ,   mdDiv = ang(elem.children()[2])
+            ,   md = ang(ang(ang(ang(mdDiv[0])[0])[0]).children()[0])
+            ,   stepChild = ang(ang(ang(elem.children()[1]).children()[0])[0]).children()
             ,   chartCol = ang(stepChild[0])
             ,   cellCol = ang(stepChild[1])
-            ,   results
+            ,   chartDiv = ang(chartCol.children()[1])
+            ,   chartCont = ang(chartDiv.children()[0])
             ,   coords
             ,   arrows = false
             ,   cellWidth
-            ,   result_dict
+            ,   previousSelected
             // Used for binding arrows to click action merge.
             ,   arrowHtml = {
                     left: '<a class="arrow left" title="merge left" ng-href="" ng-click="merge(0)">&#8592</a>',
@@ -586,28 +913,8 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', fun
                     rightIn: '<a class="arrow right-in" title="collapse right" ng-href="" ng-click="collapse(0)">&#8594</a>',
                     leftIn: '<a class="arrow left-in" title="collapse left" ng-href="" ng-click="collapse(1)">&#8592</a>'
             };
+            scope.static_prefix = STATIC_PREFIX;
 
-            console.log('mdel', md)
-            // Chart type select
-            scope.selectConfig = {
-                bar: {options: {chart: {type: 'bar'}},
-                      series: [{data: [[1, 6], [2, 6.5], [3, 7], [4, 7.5]]}],
-                      size: {width: 200, height: 200},
-                      title: {text: 'bar'}},
-                scatter: {options: {chart: {type: 'scatter'}},
-                          series: [{data: [[1, 6], [2, 6.5], [3, 7], [4, 7.5]]}],
-                          size: {width: 200, height: 200},
-                          title: {text: 'scatter'}},
-                line: {options: {chart: {type: 'line'} },
-                       series: [{data: [[1, 6], [2, 6.5], [3, 7], [4, 7.5]]}],
-                       size: {width: 200, height: 200},
-                       title: {text: 'line'}},
-                pie: {options: {chart: {type: 'pie'}},
-                      series: [{data: [['a', 6], ['b', 6.5], ['c', 7], ['d', 7.5]]}],
-                      size: {width: 200, height: 200},
-                      title: {text: 'pie'}}
-            }
-                
             // Translation
             scope.selectText = {
                 content: gettext('Content'),
@@ -616,14 +923,336 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', fun
                 ySeries: gettext('Y-Series')
             }
 
+            // This fires on load or with edits. Sets up the cell params.
+            scope.$watch('config', function (newVal, oldVal) {
+                scope.row = scope.config.row;
+                scope.col = scope.config.col;
+                scope.colspan = scope.config.colspan;
+                coords = [scope.row, scope.col]
+                scope.queries = scope.config.queries;
+                scope.chartTypes = scope.config.chartTypes;
+                if (!scope.activeQuery) {
+                    scope.activeQuery = scope.config.activeQuery;
+                    scope.activeX = scope.config.activeX;
+                    scope.chartType = scope.config.chartType;
+                    scope.results = scope.config.results;
+                    scope.resultsDict = scope.config.resultsDict
+                    scope.activeYs = scope.config.activeYs || [];
+                }
+                scope.colors = scope.config.colors;
+                scope.tableArray = ctrl.getTableArray();
+                cellWidth = elem.width();
+                chartCol.width(cellWidth * 0.4);
+                cellCol.width(cellWidth * 0.45);
+
+                // Here is the active query/ xy series code that executes
+                // on init for edit report.
+                if (scope.activeQuery) {
+                    var resultsDict = scope.resultsDict;
+
+                    // Set up xSeries options and activeX
+                    if (resultsDict.num.length > 1) {
+                        scope.xSeries = resultsDict.cat.concat(resultsDict.num);
+                    } else {
+                        scope.xSeries = resultsDict.cat;
+                    }
+
+                    // This either uses the assigned activeX or the first x
+                    // in the series.
+                    if (scope.xSeries) {
+                        scope.activeX = scope.xSeries.filter(function (el) {
+                            return el.alias === scope.activeX.alias;
+                        })[0];
+                    }
+                    if (!scope.activeX) scope.activeX = scope.xSeries[0];
+
+                    // Case of only one option
+                    if (scope.xSeries.length == 1) scope.activeX = scope.xSeries[0];
+
+                    // Deal with multiple activeYs
+                    if (scope.activeYs.length > 0) {
+
+                        // These nested loops compare activeY aliases with
+                        // results aliases
+                        for (var j=0; j<scope.activeYs.length; j++) {
+                            var activeYAlias = scope.activeYs[j].alias;
+
+                            // Get any activeYs out of the possible xSeries
+                            scope.xSeries = scope.xSeries.filter(function (el) {
+                                return el.alias !== activeYAlias;
+                            });
+
+                            for (var i=0; i<resultsDict.num.length; i++) {
+                                var numAlias = resultsDict.num[i].alias;
+                                // Select the activeY series
+                                if (numAlias === activeYAlias) {
+                                    resultsDict.num[i].selected = true;
+                                    previousSelected = i;
+                                }
+                            } // Inside for
+                        } // Outside for
+                    } // if
+
+                    // Remove active x from ySeries options
+                    scope.ySeries = resultsDict.num.filter(function (el) {
+                        return el.alias !== scope.activeX.alias;
+                    });
+
+                    // Autoselect series, remove slash, add eyball
+                    if (scope.ySeries.length == 1) {
+                        setTimeout(function () {
+                            scope.ySeries[0].selected = true;
+                            var eye = $("#eye0" + scope.row.toString() + scope.col.toString());
+                            eye.removeClass("fa-eye-slash");
+                            eye.addClass("fa-eye");
+                        }, 250)
+                    } else {
+                        // Remove eye slashes and add eyeballs
+                        setTimeout(function () {
+                            for (var i=0; i<scope.ySeries.length; i++) {
+                                if (scope.ySeries[i].selected === true) {
+                                    var eye = $("#eye" + i.toString() + scope.row.toString() + scope.col.toString());
+                                    eye.removeClass("fa-eye-slash");
+                                    eye.addClass("fa-eye");
+                                }
+                            }
+                        }, 250)
+                    }
+                    // Pies are annoying.
+                    if (scope.chartType === "pie") {
+                        scope.pie = true;
+                        scope.yser = scope.activeYs[0];
+                    }
+                // Prep for markdown. This does show/hide with primative
+                // true on scope, and also is watched below.
+                } else if (scope.config.markdown) {
+                    scope.md = true;
+                    scope.mdarea = scope.config.markdown;
+                    scope.activeQuery = scope.queries[0];
+                }
+            });
+
+            // Active query watch - 1st entry on new report.
+            // Full query object group, id, name, fake series etc.
+            scope.$watch('activeQuery', function (newVal, oldVal) {
+                if (newVal == oldVal) return;
+                // Use jQuery to get rid of empty select val.
+                var id = "#empty" + scope.row.toString() + scope.col.toString();
+                $(id).remove();
+                // Turns ctrl.editing() turns off preview mode with Demo
+                ctrl.editing()
+                // Reset table params.
+                scope.tableArray.table[scope.row][scope.col].ySeries = [];
+                scope.tableArray.table[scope.row][scope.col].xAxis = "";
+                scope.tableArray.table[scope.row][scope.col].yAxis = [];
+                scope.tableArray.table[scope.row][scope.col].series = "";
+                var name;
+                // Set to no query by user.
+                if (newVal != null) {
+                    // Find newVal by id
+                    name = newVal.id || '';
+                    if (name === 'markdown') {
+                        // Set active query to empty, turn on md mode
+                        // Trace here.
+                        scope.md = true;
+                        name = '';
+                    } else {
+                        // Is necessary to set to ""
+                        scope.tableArray.table[scope.row][scope.col].displayMarkdown = "";
+                        scope.md = false;
+
+                        // Make sure the results all can be processed.
+                        var results = newVal.results.filter(function (el) {
+                            return el.properties.length > 0;
+                        });
+
+                        // Sort query results by type.
+                        var resultsDict = ctrl.parseResults(results)
+
+                        if (scope.colors == undefined) {
+                            // Randomly assign colors to the results.
+                            scope.colors = {};
+                            var results = resultsDict.cat.concat(resultsDict.num);
+                            angular.forEach(results, function (elem) {
+                                var col = simpleColors[Math.floor(Math.random() * simpleColors.length)];
+                                if(!(elem.alias in scope.colors)) scope.colors[elem.alias] = col;
+                            });
+                        }
+                        var xSeries;
+                        if (resultsDict.num.length > 1) {
+                            xSeries = resultsDict.cat.concat(resultsDict.num);
+                        } else {
+                            xSeries = resultsDict.cat;
+                        }
+                        // Set select to "", then select first y
+                        scope.ySeries = resultsDict.num.map(function  (el) {el.selected = ''; return el}) // ySeries must be numerical
+                        scope.ySeries[0].selected = true;
+                        setTimeout(function () {
+                            var eye = $("#eye0" + scope.row.toString() + scope.col.toString());
+                            eye.removeClass("fa-eye-slash");
+                            eye.addClass("fa-eye");
+                        }, 100)
+
+                        // Remove activeY out of the xSeries
+                        scope.xSeries = xSeries.filter(function (el) {
+                            return el.alias !== scope.ySeries[0].alias;
+                        });
+                        scope.activeX = scope.xSeries[0]
+                    }
+                } else {
+                    name = '';
+                    scope.xSeries = [];
+                    scope.ySeries = [];
+                    scope.activeX = "";
+                    scope.activeYs = [];
+                }
+                scope.tableArray.addQuery([scope.row, scope.col], name);
+            });
+
+            scope.$watch('ySeries', function (newVal, oldVal) {
+                if (!newVal || newVal == oldVal) return;
+
+                // Always have a selected y
+                if (newVal.length === 1) {
+                    newVal[0].selected = true;
+                }
+
+                // Keep track if there is a selected y.
+                var selected = false;
+                scope.tableArray.table[scope.row][scope.col]['yAxis'] = [];
+
+                for (var i=0; i<newVal.length; i++) {
+                    var val = newVal[i];
+
+                    if (val.selected === true) {
+                        selected = true;
+                        previousSelected = i;
+                        scope.tableArray.addAxis([scope.row, scope.col], 'y', {"alias": val.alias, "display_alias": val.display_alias});
+                        var eye = $("#eye" + i.toString() + scope.row.toString() + scope.col.toString());
+                        eye.removeClass("fa-eye-slash");
+                        eye.addClass("fa-eye");
+                        scope.xSeries = scope.xSeries.filter(function (el) {
+                            return el.alias !== val.alias;
+                        });
+
+                    } else if (val.selected === false) {
+                        // This is a hack
+                        scope.xSeries = scope.xSeries.filter(function (elem) {
+                            return elem.alias != val.alias;
+                        })
+                        scope.xSeries.push(val);
+                        var eye = $("#eye" + i.toString() + scope.row.toString() + scope.col.toString());
+                        eye.removeClass("fa-eye");
+                        eye.addClass("fa-eye-slash");
+                    }
+                }
+                // Well, this makes sure one of the yseries items is selected.
+                // It always favors the previous element in the series though
+                // it's the safest way I suppose.
+                if (selected === false) {
+                    if (previousSelected === 0) {
+                        newVal[1].selected = true;
+                    } else {
+                        newVal[previousSelected - 1].selected = true;
+                    }
+                }
+            }, true)
+
+            scope.$watch('activeX', function (newVal, oldVal) {
+                if (!newVal || newVal == oldVal) return;
+                scope.tableArray.addAxis([scope.row, scope.col], 'x', {"alias": newVal.alias, "display_alias": newVal.display_alias});
+                if (newVal.numeric === true) {
+                    scope.ySeries = scope.ySeries.filter(function (elem) {
+                        return elem.alias != newVal.alias;
+                    });
+                }
+                if (oldVal && oldVal.numeric === true) scope.ySeries.push(oldVal);
+            });
+
+            scope.$watch('yser', function (newVal, oldVal) {
+                if (newVal == oldVal) return;
+                scope.tableArray.table[scope.row][scope.col]['yAxis'] = [];
+                scope.tableArray.addAxis([scope.row, scope.col], 'y', {"alias": newVal.alias, "display_alias": newVal.display_alias});
+            });
+
+            scope.$watch('chartType', function (newVal, oldVal) {
+                if (newVal === oldVal) return;
+                if (newVal === "pie") {
+                    scope.pie = true;
+                    if (scope.yser == undefined) {
+                        scope.yser = scope.ySeries[0];
+                    }
+                } else {
+                    scope.pie = false;
+                }
+                // Idk if i need this...
+                ctrl.editing();
+                scope.tableArray.addChart([scope.row, scope.col], newVal);
+            });
+
+            scope.$watch("colors", function (newVal, oldVal) {
+                // Just maintain a map of {alias: color} on the table object.
+                if (newVal == oldVal) return;
+                scope.tableArray.table[scope.row][scope.col]["colors"] = scope.colors;
+            }, true);
+
+            md.on('blur change', function () {
+                scope.$apply(function () {
+                    scope.tableArray.addMarkdown([scope.row, scope.col], scope.mdarea);
+                });
+            });
+
+            scope.mdarea = '#Heading 1\n' + '##Heading 2\n' + '###Heading 3\n' +
+                            '* A list of items\n' + ' - sub item\n' + '* Unordered list of items\n' + ' - Unordered list of subitems\n';
+
+            scope.mdarea = gettext(scope.mdarea);
+
+            scope.select = function (result, ndx, row, col) {
+                if (result.selected) {
+                    result.selected = false;
+                } else {
+                    result.selected = true;
+                }
+            }
+
+            scope.setChartType = function (type) {
+                scope.chartType = type;
+            };
+
+            // All sorts of UI code.
             // Methods for resizing columns
             scope.merge = function(ndx) {
-                var merges = [[scope.row, scope.col - 1], [scope.row - 1, scope.col], [scope.row, scope.col + 1], [scope.row + 1, scope.col]];
+                var merges = [[scope.row, scope.col - 1], [scope.row - 1, scope.col],
+                              [scope.row, scope.col + 1], [scope.row + 1, scope.col]];
                 scope.tableArray.mergeCol([coords, merges[ndx]]);
             }
 
             scope.collapse = function (dir) {
-                scope.tableArray.collapseCol(coords, dir)
+                scope.tableArray.collapseCol(coords, dir);
+            }
+
+            chartDiv.hover(function () {
+            }, function () {
+                if (scope.chartType) {
+                    chartScroll();
+                }
+            });
+
+            var chartScroll = function () {
+                var chart = $("#highscroll" + scope.row + scope.col);
+                if (scope.chartType === 'line') {
+                    chart.animate({
+                        scrollTop: 150
+                    });
+                } else if (scope.chartType == 'column'){
+                    chart.animate({
+                        scrollTop: 0
+                    });
+                } else if (scope.chartType == 'pie') {
+                    chart.animate({
+                        scrollTop: 300
+                    });
+                }
             }
 
             // Bind cell to click showing/hiding arrows for merge actions
@@ -632,7 +1261,7 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', fun
                     ang('.arrow').remove();
                     var adjs = scope.tableArray.getAdjCells(scope.row, scope.col);
                     angular.forEach(adjs, function (el) {
-                        var arrow = $compile(arrowHtml[el])(scope)
+                        var arrow = $compile(arrowHtml[el])(scope);
                         elem.append(arrow);
                     });
 
@@ -642,8 +1271,7 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', fun
                         ,   rightIn = $compile(arrowHtml['rightIn'])(scope);
                         elem.append(leftIn);
                         elem.append(rightIn);
-                    } 
-
+                    }
                     arrows = true;
                 } else {
                     ang('.arrow').remove();
@@ -653,179 +1281,17 @@ directives.directive('sylvaEtCell', ['$sanitize', '$compile', 'DJANGO_URLS', fun
 
             // Hmmm idk
             elem.bind("mouseout", function (event) {
-                arrows = false
+                arrows = false;
             });
 
-            scope.$watch('config', function (newVal, oldVal) {
-                scope.row = scope.config.row;
-                scope.col = scope.config.col;
-                scope.colspan = scope.config.colspan;
-                coords = [scope.row, scope.col]
-                scope.queries = scope.config.queries;
-                if (!scope.activeQuery) {
-                    scope.activeQuery = scope.config.activeQuery;
-                    scope.activeX = scope.config.activeX;
-                    
-                    scope.chartTypes = scope.config.chartTypes;
-                    scope.chartType = scope.config.chartType;
-                }
-                scope.activeYs = scope.config.activeYs;
-                scope.tableArray = ctrl.getTableArray();
-                cellWidth = elem.width()
-                chartCol.width(cellWidth * 0.4)
-                cellCol.width(cellWidth * 0.4)
-                // Here is the active query/ xy series code that executes
-                // on init for edit report.
-                if (scope.activeQuery) {
-                    results = scope.activeQuery.results.filter(function (el) {
-                        return el.properties.length > 0;
-                    });
-                    result_dict = findCatagorical(results)
-                    if (result_dict.num.length > 1) {
-                        scope.xSeries = result_dict.cat.concat(result_dict.num)
-                    } else {
-                        scope.xSeries = result_dict.cat
-                    }
-                        if (!scope.activeX) scope.activeX = scope.xSeries[0]
-                        if (scope.xSeries.length == 1) scope.activeX = scope.xSeries[0]
-
-                    // Deal with multiple activeYs
-                    if (scope.activeYs) {
-                        console.log('activeYs', scope.activeYs)
-                        for (var i=0; i<result_dict.num.length; i++) {
-                            var num_alias = result_dict.num[i].alias;
-                            for (var j=0; j<scope.activeYs.length; j++) {
-                                var activeY_alias = scope.activeYs[j].alias
-                                scope.xSeries = scope.xSeries.filter(function (el) {
-                                    return el.alias !== activeY_alias
-                                });
-                                if (num_alias === activeY_alias) {
-                                    result_dict.num[i].selected = true;
-                                }
-                            }
-                        }
-                    } 
-                    scope.ySeries = result_dict.num;
-                    scope.ySeries = scope.ySeries.filter(function (el) {
-                        return el.alias !== scope.activeX.alias
-                    });
-
-                    if (scope.ySeries.length == 1) scope.ySeries[0].selected = true;
-                }
-            });
-
-            // Helper functions for sorting query result data types
-            var findCatagorical = function (results) {
-                var catagorical = []
-                ,   numeric = [];
-                for (var i=0; i<results.length; i++) {
-                    var result = results[i]
-                    ,   props = result.properties[0]
-                    ,   datatype = props.datatype;
-                    if (datatype !== 'number' && datatype !== 'float' && 
-                            datatype !== 'auto_increment' &&
-                            datatype !== 'auto_increment_update' && 
-                            props.aggregate === false) {
-                        catagorical.push(result)
-                    } else {
-                        numeric.push(result)
-                    }
-                }
-                return {cat: catagorical, num: numeric}
-            }
-    
-            // Markdown - broken
-            md.on('blur keyup change', function () {
-                var showdown = new Showdown.converter({})
-                ,   html = $sanitize(showdown.makeHtml(scope.mdarea))
-                ,   markdown = html;
-                //,   markdown = html);
-                console.log('markdown', markdown)
-                scope.$apply(function () {
-                    scope.tableArray.addMarkdown([scope.row, scope.col], markdown);    
-                });
-            });
-
-            scope.mdarea = '#Heading 1\n' + 'Heading 1\n========\n'+ '##Heading 2\n' + 'Heading 2\n--------------\n' + '###Heading 3\n' +
-                            '1. First item\n' + '2. Second item\n\n' + '+ Unordered items\n' + '- Unordered items\n' + '* Unordered items\n';
-
-            scope.mdarea = gettext(scope.mdarea);
-
-            // Active query watch - 1st entry on new report.
-            // Full query object group, id, name, fake series etc.
-            scope.$watch('activeQuery', function (newVal, oldVal) {
+            // This was in config watch?
+            scope.$watch(ctrl.editable, function (newVal, oldVal) {
+                // This scrolls to proper chart when user switches
+                // to design mode. Can't be done on load due to hidden
+                // elements.
                 if (newVal == oldVal) return;
-                // Turns off preview mode with Matrix Graph
-                ctrl.editing()
-                var name;
-                // Set to no query by user.
-                if (newVal != null) {
-                    // Find newVal by id
-                    name = newVal.id || '';
-                    if (name === 'markdown') {
-                        // Set active query to empty, turn on md mode
-                        // Trace here. 
-                        scope.md = true;
-                        name = '';
-                    } else {
-                        scope.md = false;
-                        scope.activeQuery
-                        results = newVal.results.filter(function (el) {
-                            return el.properties.length > 0;
-                        });
-
-                        // Sort query results by type.
-                        result_dict = findCatagorical(results)
-                        
-                        if (result_dict.num.length > 1) {
-                            scope.xSeries = result_dict.cat.concat(result_dict.num)
-                        } else {
-                            scope.xSeries = result_dict.cat
-                        }
-                        // Autoselect catagorical value or first numerical.
-                        //if (!scope.activeX) scope.activeX = scope.xSeries[0]
-                        //if (scope.xSeries.length == 1) scope.activeX = scope.xSeries[0]
-                        scope.ySeries = result_dict.num.map(function  (el) {el.selected = ''; return el}) // ySeries must be numerical
-                        //if (scope.ySeries.length == 1) scope.ySeries[0].selected = true;
-                        //if (!scope.activeYs) scope.ySeries[0].selected = true;
-                        console.log('result_d', result_dict.num)
-                        scope.ySeries[0].selected = true;
-                        scope.activeX = scope.xSeries[0]
-                    }
-                } else {
-                    name = '';
-                }
-                scope.tableArray.addQuery([scope.row, scope.col], name);
-            }); 
-
-            scope.$watch('activeX', function (newVal, oldVal) {
-                if (!newVal || newVal == oldVal) return; 
-                scope.tableArray.addAxis([scope.row, scope.col], 'x', newVal.alias)
-                scope.ySeries = result_dict.num
-                scope.ySeries = scope.ySeries.filter(function (el) {
-                    return el.alias !== newVal.alias
-                });
-            })
-
-            scope.$watch('ySeries', function (newVal, oldVal) {
-                if (!newVal || newVal === oldVal) return;
-                for (var i=0; i<newVal.length; i++) {
-                    if (newVal[i].selected === true) {
-                        scope.tableArray.addAxis([scope.row, scope.col], 'y', newVal[i].alias)
-                        scope.xSeries = scope.xSeries.filter(function (el) {
-                            return el.alias !== newVal[i].alias
-                        });
-                    } else if (newVal[i].selected === false) {
-                        scope.tableArray.removeAxis([scope.row, scope.col], 'y', newVal[i].alias)
-                        scope.xSeries.push(newVal[i])
-                    }
-                }
-            }, true)
-
-            scope.$watch('chartType', function (newVal, oldVal) {
-                if (newVal === oldVal) return;
-                ctrl.editing()
-                scope.tableArray.addChart([scope.row, scope.col], newVal)
+                if (!scope.chartType) return;
+                chartScroll();
             });
         }
     };
@@ -836,29 +1302,38 @@ directives.directive('sylvaBreadcrumbs', [
     '$location',
     'parser',
     'GRAPH',
-    'DJANGO_URLS',
-    function ($location, parser, GRAPH, DJANGO_URLS) {
+    'breadService',
+    'GRAPH_NAME',
+    function ($location, parser, GRAPH, breadService, GRAPH_NAME) {
     return {
         template: '<h2>' +
-                    '<a href="/graphs/{{ graphSlug }}/">{{graph}}</a> ' + 
+                    '<a href="/graphs/{{ graphSlug }}/">{{ graphName }}</a> ' +
                     '<span> &raquo; </span>' +
                     '<a ng-href="#/">{{ breadText.reports }}</a>' +
                     '<span ng-if="reportName"> &raquo; </span>' +
-                    '<a  ng-href="#/edit/{{ reportSlug }}">{{ reportName }}</a>' +
+                    '<a ng-href="#/edit/{{ reportSlug }}" ng-click="done()">{{ reportName | cut:true:20:" ..." }}</a>' +
                     '<span ng-repeat="crumb in crumbs"> &raquo; {{crumb}} </span>' +
                   '</h2>',
         controller: function ($scope) {
 
             $scope.graph = GRAPH;
+            $scope.graphName = GRAPH_NAME;
             $scope.graphSlug = parser.parse();
             $scope.crumbs = [];
             $scope.reportName = null;
             $scope.getLocation = function () {
                 return $location.path()
             }
+
+            $scope.done = function () {
+                breadService.editing(false);
+                if ($scope.crumbs[$scope.crumbs.length - 1] != "Edit") {
+                    $scope.crumbs.pop()
+                    $scope.crumbs.push("Edit")
+                }
+            }
         },
         link: function (scope, elem, attrs) {
-            
             scope.breadText = {
                 reports: gettext('Reports')
             };
@@ -874,20 +1349,23 @@ directives.directive('sylvaBreadcrumbs', [
                 } else {
                     scope.reportName = null;
                     scope.crumbs = [];
-                } 
+                }
 
             });
 
+
             scope.$on('design', function () {
+                scope.crumbs.pop();
                 scope.crumbs.push('Design');
             });
 
             scope.$on('meta', function () {
                 scope.crumbs.pop();
+                scope.crumbs.push("Edit");
             });
 
             scope.$on('name', function (e, name) {
-                scope.reportName = name; 
+                scope.reportName = name;
             });
         }
     };

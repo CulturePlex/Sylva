@@ -3,64 +3,82 @@
 
   <!--Meta Form/Queries-->
   <div class="content2-first" ng-hide="editable">
-    
+
     <div class="input-container">
       <!--Design Report View-->
       <!--Metadata Form-->
       <div id="formContainer">
         <form id="reportForm">
           <div id="innerForm">
+            <ul class="errorlist">
+              {% verbatim %}
+                <li ng-repeat="error in errors.name">{{ error }}</li>
+              {% endverbatim %}
+            </ul>
             <p>
               <label>{% trans "Name" %}
-                <input sylva-update-text type="text" ng-model="template.name" placeholder="Report Name" ng-maxlength="25">
+                <input sylva-update-text type="text" ng-model="template.name" placeholder="Report Name">
               </label>
             </p>
+            <ul class="errorlist">
+                {% verbatim %}
+                <li ng-repeat="error in errors.date">{{ error }}</li>
+                {% endverbatim %}
+            </ul>
 
             <p>
               <label> {% trans "Start date" %}
-                
-                <input type="text" sylva-datepicker readonly="true" ng-model="template.date" required="true" view="hours"> 
-     
-              </label> 
-            </p>
 
-            <p>
-              <label>{% trans "Time" %}
-                
-                <input sylva-timepicker readonly="true" type="text"  ng-model="template.time" placeholder="hh:mm">
-     
+                <input type="text" sylva-datepicker readonly="true" ng-model="template.date" required="true" view="hours">
               </label>
             </p>
+            <ul class="errorlist">
+                {% verbatim %}
+                <li ng-repeat="error in errors.time">{{ error }}</li>
+                {% endverbatim %}
+            </ul>
+            <p>
+              <label>{% trans "Time" %}
+
+                <input sylva-timepicker readonly="true" type="text"  ng-model="template.time" placeholder="hh:mm">
+
+              </label>
+            </p>
+            <ul class="errorlist">
+                {% verbatim %}
+                <li ng-repeat="error in errors.frequency">{{ error }}</li>
+                {% endverbatim %}
+            </ul>
 
             <p>
               <label>{% trans "Frequency" %}
-                
+
                 <select ng-init="template.frequency = 'w'" ng-model="template.frequency">
-     
                   <option value="h">{% trans "Hourly" %}</option>
                   <option value="d">{% trans "Daily" %}</option>
                   <option value="w">{% trans "Weekly" %}</option>
                   <option value="m">{% trans "Monthly" %}</option>
-                </select>  
+                </select>
               </label>
             </p>
-            <p>
+            <p ng-show="advanced">
+              <label>{% trans "Email to" %}
+                  <input sylva-auto-complete precollabs="precollabs" collabs="collabs" ng-model="collab" type="text" placeholder="Enter Email" ng-maxlength="25">
+             </label>
             </p>
           </div> <!--innerForm-->
+
           <span class="buttonLinkOption buttonLinkLeft">
-            
+
             <input type="submit" value="Save Report" ng-click="saveReport(template)">
-            <a class="button" href="" ng-click="designReport()">
- 
-              {% trans "Design Report" %}
-            </a>
-            <a class="alink" href="">{% trans "Advanced" %}</a>
+            <a class="alink" ng-hide="advanced" ng-click="showAdvanced()" href="">{% trans "Advanced" %}</a>
+            <a class="alink" ng-show="advanced" ng-click="hideAdvanced()" href="">{% trans "Hide advanced" %}</a>
           </span>
         </form>
       </div><!--formContainer-->
     </div> <!--input-container div -->
   </div><!--content2-first-->
-  
+
   <!--Report Info/Designer-->
   <div class="content-divider" ng-hide="editable"></div>
 
@@ -69,20 +87,12 @@
     <div class="row">
       <div class="prev-cont">
         <div sylva-pv-row-repeat class="row" resp="prev" width="600">
-          <div sylva-pv-cell-repeat class="col" row="row">
-            <div ng-hide="markdown">
-              <div ng-if="query != '' && query != 'undefined' && query != null" highchart config="chartConfig" ng-style="cellStyle" class="display-cell"></div>
-              <div ng-if="query == '' || query == 'undefined' || query == null" ng-style="cellStyle" class="display-cell"></div>
-            </div>
-            <div ng-show="markdown">
-              <div ng-style="cellStyle" class="display-cell" ng-bind-html="markdown"></div>
-            </div>
-          </div>
         </div>
       </div>
-    </div> <!--row--> 
-    
-
+    </div> <!--row-->
+    <a class="button designbutt" href="" ng-click="designReport()">
+      {% trans "Design Report" %}
+    </a>
   </div> <!--content2-->
 
   <div class="table-edit" ng-show="editable">
@@ -90,4 +100,4 @@
       <div sy-editable-table resp="resp" prev="prev" editable="editable">
       </div>
     </div><!--row-->
-  </div> 
+  </div>
