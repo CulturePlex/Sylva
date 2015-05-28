@@ -137,7 +137,7 @@ You can also run it in daemon mode by passing the argument `multi`::
   
 Reports
 -------
-Sylva now supports generation of reports based on queries plot into charts. To enable, just add 
+Sylva now supports generation of reports based on queries plot into charts. To enable, just add::
 
   ENABLE_REPORTS = True
 
