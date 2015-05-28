@@ -491,5 +491,28 @@ controllers.controller("DeleteReportCtrl", [
             graphBreadcrumb.css('display', 'none');
             graphBreadcrumb.next().css('display', 'none');
         }
+}]);
+
+
+controllers.controller("FullscreenCtrl", [
+    "$scope",
+    "$routeParams",
+    "api",
+    "breadService",
+    function ($scope, $routeParams, api, breadService) {
+
+        var reportId = $routeParams.reportId;
+
+        getReport(reportId);
+
+        function getReport(id) {
+            api.history.report({
+                report: id
+            }, function (data) {
+                $scope.report = data;
+                $scope.resp = {table: {layout: data.table.layout,
+                               pagebreaks: data.table.pagebreaks}}
+            });
+        }
 
 }]);

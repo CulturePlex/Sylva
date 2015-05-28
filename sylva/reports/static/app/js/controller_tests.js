@@ -29,8 +29,8 @@ describe("TestCtrls", function () {
         // The $controller service is used to create instances of controllers
         var $controller = $injector.get('$controller');
 
-        createController = function($scope, ctrl) {
-            return $controller(ctrl, {'$scope' : $scope });
+        createController = function($scope, ctrl, routeParams) {
+            return $controller(ctrl, {'$scope' : $scope, '$routeParams': routeParams});
         };
     }));
 
@@ -43,7 +43,7 @@ describe("TestCtrls", function () {
     it('Should fetch two templates', function() {
       $httpBackend.expectGET('/reports/dh/list?page=1');
       var $scope = {};
-      var controller = createController($scope, 'ReportListCtrl');
+      var controller = createController($scope, 'ReportListCtrl', {});
       $httpBackend.flush();
       expect($scope.data.templates.length).toBe(2)
     });
@@ -51,7 +51,7 @@ describe("TestCtrls", function () {
     it('Should fetch a blank template', function () {
         $httpBackend.expectGET('/reports/dh/templates?queries=true');
         var $scope = {};
-        var controller = createController($scope, 'NewReportCtrl');
+        var controller = createController($scope, 'NewReportCtrl', {});
         $httpBackend.flush();
         expect($scope.resp.queries.length).toBe(2)
     });
@@ -59,7 +59,7 @@ describe("TestCtrls", function () {
     it('Should fetch a preview', function () {
         $httpBackend.expectGET('/reports/dh/templates');
         var $scope = {};
-        var controller = createController($scope, 'ReportPreviewCtrl');
+        var controller = createController($scope, 'ReportPreviewCtrl', {});
         $httpBackend.flush();
         expect($scope.resp.queries.length).toBe(2)
     });
@@ -68,7 +68,15 @@ describe("TestCtrls", function () {
         $httpBackend.expectGET('/reports/dh/history?page=1');
         $httpBackend.expectGET('/reports/dh/history?report=2');
         var $scope = {};
-        var controller = createController($scope, 'ReportHistoryCtrl');
+        var controller = createController($scope, 'ReportHistoryCtrl', {});
+        $httpBackend.flush();
+        expect($scope.template.reports.length).toBe(2)
+    });
+
+    it('Should fetch report a report inst', function () {
+        $httpBackend.expectGET('/reports/dh/history?report=2');
+        var $scope = {};
+        var controller = createController($scope, 'ReportHistoryCtrl', {"reportId": 2});
         $httpBackend.flush();
         expect($scope.template.reports.length).toBe(2)
     });

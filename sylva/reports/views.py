@@ -284,6 +284,7 @@ def history_endpoint(request, graph_slug):
             ]
             response = {
                 'name': template.name,
+                'slug': template.slug,
                 'reports': report_buckets,
                 'num_pages': pgntr.num_pages,
                 'total_count': pgntr.count,

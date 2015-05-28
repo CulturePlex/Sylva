@@ -26,9 +26,12 @@ def send_email(inst_id):
     graph_slug = inst.template.graph.slug
     emails = [u.email for u in inst.template.email_to.all()]
     site = Site.objects.get_current()
-    url = "{0}://{1}/reports/{2}/pdfgen/{3}".format("http", site.domain,
-                                                    graph_slug,
-                                                    inst.template.slug)
+    url = "{0}://{1}/reports/{2}/#/fullscreen/{3}/{4}".format(
+        "http",
+        site.domain,
+        graph_slug,
+        inst.template.slug,
+        inst.id)
     send_mail("Sylva Reports", "Please view this report: {0}".format(url),
               settings.DEFAULT_FROM_EMAIL, emails, fail_silently=False)
 

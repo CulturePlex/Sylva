@@ -17,19 +17,26 @@
             </a>
           <ul ng-show="bucket.expanded">
             <li ng-repeat="report in bucket.reports">
-              <h3><a href="" ng-click="getReport(report.id)">{{ report.date_run }}</a>
+              <h3>
+                <a href="" ng-click="getReport(report.id)">{{ report.date_run }}</a>
+                <!-- To enable fullscreen from history, modal must be implemented!!! -->
+                <!-- <a ng-href="#/fullscreen/{{template.slug}}/{{report.id}}"> -->
         {% endverbatim %}
-                {% if OPTIONS.ENABLE_REPORTS_PDF %}
-                  {% verbatim %}
-                  <a ng-href="/reports/{{slugs.graph}}/pdf/{{report.id}}">pdf</a>
-                  {% endverbatim %}
-                {% endif %}
+                  <!-- {% trans "fullscreen" %}
+                </a> -->
+              {% if OPTIONS.ENABLE_REPORTS_PDF %}
+                {% verbatim %}
+                <a ng-href="/reports/{{slugs.graph}}/pdf/{{report.id}}">
+                {% endverbatim %}
+                  {% trans "pdf" %}
+                </a>
+              {% endif %}
               </h3>
             </li>
           </ul>
         </li>
       </ul>
-        <span class='pagination-info'>
+      <span class='pagination-info'>
 
             {% trans "Showing" %}
             {% verbatim %} {{ template.num_objects }} {% endverbatim %}
