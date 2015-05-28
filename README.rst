@@ -134,6 +134,23 @@ And finally run Celery::
 You can also run it in daemon mode by passing the argument `multi`::
 
   $ celery multi start w1 w2 -A sylva.celery -l info
+  
+Reports
+-------
+Sylva now supports generation of reports based on queries plot into charts. To enable, just add 
+
+  ENABLE_REPORTS = True
+
+And remember to add the celery beat::
+
+  $ celery --beat -A sylva.celery worker -l info
+
+When in daemon mode, be sure to only run the beat once, otherwise you'll have duplicated tasks::
+
+  $ celery multi start w1 --beat -A sylva.celery -l info
+  $ celery multi start w2 -A sylva.celery -l info
+  
+
 
 
 .. _Sylva: http://www.sylvadb.com
