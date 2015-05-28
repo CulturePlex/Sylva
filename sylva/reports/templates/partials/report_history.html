@@ -18,12 +18,16 @@
           <ul ng-show="bucket.expanded">
             <li ng-repeat="report in bucket.reports">
               <h3><a href="" ng-click="getReport(report.id)">{{ report.date_run }}</a>
+        {% endverbatim %}
+                {% if OPTIONS.ENABLE_REPORTS_PDF %}
+                  {% verbatim %}
                   <a ng-href="/reports/{{slugs.graph}}/pdf/{{report.id}}">pdf</a>
+                  {% endverbatim %}
+                {% endif %}
               </h3>
             </li>
           </ul>
         </li>
-        {% endverbatim %}
       </ul>
         <span class='pagination-info'>
 
