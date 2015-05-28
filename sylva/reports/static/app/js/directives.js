@@ -140,7 +140,7 @@ directives.directive('sylvaPvRowRepeat', ['tableArray', '$compile', '$sanitize',
             prev: '='
         },
         link: function (scope, elem, attrs) {
-            var aspectRatio = 1.25
+            var aspectRatio = 0.75
             ,   tableWidth = parseInt(attrs.width)
             ,   canvasWidth = parseInt(angular.element(elem.parents()[0]).css('width'))
             ,   tArray;
