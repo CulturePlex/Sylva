@@ -251,11 +251,7 @@ services.factory('breadService', ['$rootScope', function ($rootScope) {
         },
         editing: function (newVal) {
             $rootScope.$broadcast('editing', newVal);
-        },
-        fullscreen: function () {
-            $rootScope.$broadcast('fullscreen');
         }
-
     }
     return breadcrumbs
 }]);
