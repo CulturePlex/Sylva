@@ -72,14 +72,6 @@ describe("TestCtrls", function () {
         $httpBackend.flush();
         expect($scope.template.reports.length).toBe(2)
     });
-
-    it('Should fetch report a report inst', function () {
-        $httpBackend.expectGET('/reports/dh/history?report=2');
-        var $scope = {};
-        var controller = createController($scope, 'ReportHistoryCtrl', {"reportId": 2});
-        $httpBackend.flush();
-        expect($scope.template.reports.length).toBe(2)
-    });
 });
 
 

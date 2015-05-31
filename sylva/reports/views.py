@@ -298,6 +298,7 @@ def history_endpoint(request, graph_slug):
     elif request.GET.get('report', ''):
         report = get_object_or_404(Report, id=request.GET['report'])
         response = report.dictify()
+    print(response)
     return HttpResponse(json.dumps(response), content_type='application/json')
 
 
@@ -305,6 +306,24 @@ def _get_bucket(date, buckets):
     for bucket in buckets:
         if bucket < date:
             return bucket.isoformat()
+
+
+@login_required
+@is_enabled(settings.ENABLE_REPORTS)
+@permission_required("schemas.view_schema",
+                     (Schema, "graph__slug", "graph_slug"), return_403=True)
+def fullscreen_view(request, graph_slug, template_slug, report_id):
+    graph = get_object_or_404(Graph, slug=graph_slug)
+    report = get_object_or_404(Report, id=report_id)
+    template = get_object_or_404(ReportTemplate, slug=template_slug)
+    template = template.dictify()
+    template.update({"date": report.date_run})
+    response = report.dictify()
+    return render_to_response("pdf.html", RequestContext(request, {
+        "graph": graph,
+        "template": template,
+        "resp": json.dumps(response)
+    }))
 
 
 @login_required
@@ -344,6 +363,7 @@ def builder_endpoint(request, graph_slug):
                 for old in new_template.email_to.all():
                     if old.username not in template["collabs"]:
                         new_template.email_to.remove(old)
+                # import ipdb; ipdb.set_trace()
                 new_template.last_run = last_run
                 new_template.save()
         else:

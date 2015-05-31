@@ -19,11 +19,10 @@
             <li ng-repeat="report in bucket.reports">
               <h3>
                 <a href="" ng-click="getReport(report.id)">{{ report.date_run }}</a>
-                <!-- To enable fullscreen from history, modal must be implemented!!! -->
-                <!-- <a ng-href="#/fullscreen/{{template.slug}}/{{report.id}}"> -->
+                <a target="_blank" ng-href="/reports/{{slugs.graph}}/{{template.slug}}/{{report.id}}">
         {% endverbatim %}
-                  <!-- {% trans "fullscreen" %}
-                </a> -->
+                  {% trans "fullscreen" %}
+                </a>
               {% if OPTIONS.ENABLE_REPORTS_PDF %}
                 {% verbatim %}
                 <a ng-href="/reports/{{slugs.graph}}/pdf/{{report.id}}">

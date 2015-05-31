@@ -54,10 +54,6 @@ reports.config([
                 templateUrl: DJANGO_URLS.partials + '?name=delete_report',
                 controller: 'DeleteReportCtrl'
             }).
-            when('/fullscreen/:reportSlug/:reportId', {
-                templateUrl: DJANGO_URLS.partials + '?name=fullscreen',
-                controller: 'FullscreenCtrl'
-            }).
             otherwise({
                 redirectTo: '/'
             });

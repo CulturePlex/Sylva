@@ -26,7 +26,7 @@ def send_email(inst_id):
     graph_slug = inst.template.graph.slug
     emails = [u.email for u in inst.template.email_to.all()]
     site = Site.objects.get_current()
-    url = "{0}://{1}/reports/{2}/#/fullscreen/{3}/{4}".format(
+    url = "{0}://{1}/reports/{2}/{3}/{4}".format(
         "http",
         site.domain,
         graph_slug,

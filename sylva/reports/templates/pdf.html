@@ -36,7 +36,7 @@
 
         {% block content %}
         <div class="pdf-cont">
-          <h2>{{ graph }}: {{ template.slug }} {% if template.date %}-  {{ template.date }}{% endif %}</h2>
+          <h2>{{ graph }}: {{ template.name }} {% if template.date %}-  {{ template.date }}{% endif %}</h2>
 
           <div sylva-pv-row-repeat class="row" resp="{{resp}}" prev={{ prev|yesno:"true,false" }} width="1025">
           </div>
