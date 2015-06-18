@@ -223,7 +223,6 @@ class EndpointTest(TestCase):
             exists = True
         except ReportTemplate.DoesNotExist:
             exists = False
-        import ipdb; ipdb.set_trace()
         self.assertTrue(exists)
         self.assertTrue(new_template.active)
         # Now edit!
