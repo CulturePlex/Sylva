@@ -54,6 +54,7 @@ class ReportTemplate(models.Model):
         related_name="report_templates",
         blank=True,
         null=True)
+    active = models.BooleanField(default=True)
 
     def __unicode__(self):
         return self.name

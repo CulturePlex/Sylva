@@ -110,7 +110,7 @@ def ready_to_execute():
          Q(start_date__minute=now.minute))
     ]
 
-    queryset = ReportTemplate.objects.filter(
+    queryset = ReportTemplate.objects.filter(active=True).filter(
         reduce(operator.or_, q_list)
     )
     return queryset
