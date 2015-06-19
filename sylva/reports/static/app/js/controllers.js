@@ -126,9 +126,7 @@ controllers.controller('BaseReportCtrl', [
         }
 
         $scope.pauseReport = function () {
-
             $scope.template.active = false;
-            console.log("active", $scope.template.active)
         }
 
         $scope.resumeReport = function () {
