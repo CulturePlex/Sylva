@@ -125,6 +125,14 @@ controllers.controller('BaseReportCtrl', [
             $scope.advanced = false;
         }
 
+        $scope.pauseReport = function () {
+            $scope.template.active = false;
+        }
+
+        $scope.resumeReport = function () {
+            $scope.template.active = true;
+        }
+
         $scope.saveReport = function (template) {
             var post = new api.builder();
             template.collabs = $scope.collabs;
@@ -163,7 +171,8 @@ controllers.controller('NewReportCtrl', [
             time: '',
             date: '',
             description: '',
-            nameHtml: '<h2>New Report</h2>'
+            nameHtml: '<h2>New Report</h2>',
+            active: true
         };
 
         var exampleTable = [[{"col": 0, "colspan": "1", "id": "cell1", "row": 0,

@@ -298,7 +298,6 @@ def history_endpoint(request, graph_slug):
     elif request.GET.get('report', ''):
         report = get_object_or_404(Report, id=request.GET['report'])
         response = report.dictify()
-    print(response)
     return HttpResponse(json.dumps(response), content_type='application/json')
 
 
@@ -350,12 +349,14 @@ def builder_endpoint(request, graph_slug):
                 ReportTemplate, slug=template['slug']
             )
             last_run = template_inst.last_run
-            f = ReportTemplateForm({"name": template['name'],
-                                    "start_date": start_date,
-                                    "frequency": template['frequency'],
-                                    "layout": template['layout'],
-                                    "description": template['description'],
-                                    "graph": graph.id}, instance=template_inst)
+            f = ReportTemplateForm({
+                "name": template['name'],
+                "start_date": start_date,
+                "frequency": template['frequency'],
+                "layout": template['layout'],
+                "description": template['description'],
+                "graph": graph.id,
+                "active": template['active']}, instance=template_inst)
             if not f.is_valid():
                 template["errors"] = f.errors
             else:
@@ -363,7 +364,6 @@ def builder_endpoint(request, graph_slug):
                 for old in new_template.email_to.all():
                     if old.username not in template["collabs"]:
                         new_template.email_to.remove(old)
-                # import ipdb; ipdb.set_trace()
                 new_template.last_run = last_run
                 new_template.save()
         else:
@@ -372,6 +372,7 @@ def builder_endpoint(request, graph_slug):
                                     "frequency": template['frequency'],
                                     "layout": template['layout'],
                                     "description": template['description'],
+                                    "active": template["active"],
                                     "graph": graph.id})
             if not f.is_valid():
                 template["errors"] = f.errors

@@ -63,7 +63,8 @@ class EndpointTest(TestCase):
 
     def test_templates_endpoint_edit(self):
         url = reverse('templates', kwargs={"graph_slug": "dh2014"})
-        resp = self.client.get(url, {'queries': 'true', 'template': 'template1'})
+        resp = self.client.get(
+            url, {'queries': 'true', 'template': 'template1'})
         body = json.loads(resp.content)
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(body["template"]["name"], "Template1")
@@ -72,7 +73,8 @@ class EndpointTest(TestCase):
 
     def test_templates_endpoint_edit404(self):
         url = reverse('templates', kwargs={"graph_slug": "dh2014"})
-        resp = self.client.get(url, {'queries': 'true', 'template': 'doesnotexist'})
+        resp = self.client.get(
+            url, {'queries': 'true', 'template': 'doesnotexist'})
         self.assertEqual(resp.status_code, 404)
 
     # This test requires an actual graph backend.
@@ -179,7 +181,8 @@ class EndpointTest(TestCase):
             "collabs": [],
             "layout": {"layout": [[{"displayQuery": 1}], [{"displayQuery": ""}]]},
             "date": "10/10/2015",
-            "time": "12:30"
+            "time": "12:30",
+            "active": True
         }}
         resp = self.client.post(url, json.dumps(post_body),
             content_type="application/json")
@@ -199,6 +202,41 @@ class EndpointTest(TestCase):
         new_template = ReportTemplate.objects.get(pk=3)
         self.assertEqual(new_template.name, "edited")
 
+    def test_builder_endpoint_pause(self):
+        url = reverse('builder', kwargs={"graph_slug": "dh2014"})
+        # Create!
+        post_body = {"template": {
+            "name": "PauseTestTemplate",
+            "frequency": "d",
+            "description": "This is a test.",
+            "collabs": [],
+            "layout": {"layout": [[{"displayQuery": 1}], [{"displayQuery": ""}]]},
+            "date": "10/10/2015",
+            "time": "12:30",
+            "active": True
+        }}
+        resp = self.client.post(url, json.dumps(post_body),
+            content_type="application/json")
+        self.assertEqual(resp.status_code, 200)
+        try:
+            new_template = ReportTemplate.objects.get(pk=3)
+            exists = True
+        except ReportTemplate.DoesNotExist:
+            exists = False
+        self.assertTrue(exists)
+        self.assertTrue(new_template.active)
+        # Now edit!
+        post_body["template"]["name"] = "paused"
+        post_body["template"]["slug"] = new_template.slug
+        post_body["template"]["active"] = False
+        resp2 = self.client.post(url, json.dumps(post_body),
+            content_type="application/json")
+        self.assertEqual(resp2.status_code, 200)
+        new_template = ReportTemplate.objects.get(pk=3)
+        self.assertEqual(new_template.name, "paused")
+        self.assertFalse(new_template.active)
+
+
     def test_builder_endpoint_new_error(self):
         url = reverse('builder', kwargs={"graph_slug": "dh2014"})
         post_body = {"template": {
@@ -206,9 +244,11 @@ class EndpointTest(TestCase):
             "frequency": "d",
             "description": "This is a test.",
             "collabs": [],
-            "layout": {"layout": [[{"displayQuery": 1}], [{"displayQuery": 2}]]},
+            "layout": {
+                "layout": [[{"displayQuery": 1}], [{"displayQuery": 2}]]},
             "date": "10/10/2015",
-            "time": "12:30"
+            "time": "12:30",
+            "active": True
         }}
         resp = self.client.post(url, json.dumps(post_body),
             content_type="application/json")
@@ -226,7 +266,8 @@ class EndpointTest(TestCase):
             "layout": {"layout": [[{"displayQuery": 1}], [{"displayQuery": 2}]]},
             "date": "10/10/2015",
             "time": "12:30",
-            "slug": "template1"
+            "slug": "template1",
+            "active": True
         }}
         resp = self.client.post(url, json.dumps(post_body),
             content_type="application/json")
@@ -244,7 +285,8 @@ class EndpointTest(TestCase):
             "layout": {"layout": [[{"displayQuery": 1}], [{"displayQuery": 2}]]},
             "date": "10/10/2015",
             "time": "12:30",
-            "slug": "doesnotexist"
+            "slug": "doesnotexist",
+            "active": True
         }}
         resp = self.client.post(url, json.dumps(post_body),
             content_type="application/json")
@@ -259,7 +301,8 @@ class EndpointTest(TestCase):
             "collabs": [],
             "layout": {"layout": [[{"displayQuery": 1}], [{"displayQuery": 10}]]},
             "date": "10/10/2015",
-            "time": "12:30"
+            "time": "12:30",
+            "active": True
         }}
         resp = self.client.post(url, json.dumps(post_body),
             content_type="application/json")
@@ -352,7 +395,7 @@ class ReportTemplateTest(TestCase):
         template.save()
         self.assertEqual(template.name, "test this yo!")
 
-    def test_report_delete(self):
+    def test_template_delete(self):
         template = ReportTemplate(name="test2", start_date=datetime.now(),
                                   frequency="h", last_run=datetime.now(),
                                   layout={"hello": "johndoe"},
@@ -372,6 +415,18 @@ class ReportTemplateTest(TestCase):
         except ReportTemplate.DoesNotExist:
             exists = False
         self.assertFalse(exists)
+
+    # Test migrated field
+    def test_template_active(self):
+        template = ReportTemplate.objects.get(pk=self.template_id)
+        self.assertTrue(template.active)
+
+    def test_template_deactivate(self):
+        template = ReportTemplate.objects.get(pk=self.template_id)
+        template.active = False
+        template.save()
+        template = ReportTemplate.objects.get(pk=self.template_id)
+        self.assertFalse(template.active)
 
 
 class ReportTest(TestCase):
