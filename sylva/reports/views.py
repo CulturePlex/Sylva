@@ -356,7 +356,8 @@ def builder_endpoint(request, graph_slug):
                 "layout": template['layout'],
                 "description": template['description'],
                 "graph": graph.id,
-                "active": template['active']}, instance=template_inst)
+                "is_disabled": template['is_disabled']},
+                instance=template_inst)
             if not f.is_valid():
                 template["errors"] = f.errors
             else:
@@ -372,7 +373,7 @@ def builder_endpoint(request, graph_slug):
                                     "frequency": template['frequency'],
                                     "layout": template['layout'],
                                     "description": template['description'],
-                                    "active": template["active"],
+                                    "is_disabled": template["is_disabled"],
                                     "graph": graph.id})
             if not f.is_valid():
                 template["errors"] = f.errors

@@ -126,11 +126,11 @@ controllers.controller('BaseReportCtrl', [
         }
 
         $scope.pauseReport = function () {
-            $scope.template.active = false;
+            $scope.template.is_disabled = true;
         }
 
         $scope.resumeReport = function () {
-            $scope.template.active = true;
+            $scope.template.is_disabled = false;
         }
 
         $scope.saveReport = function (template) {
@@ -172,7 +172,7 @@ controllers.controller('NewReportCtrl', [
             date: '',
             description: '',
             nameHtml: '<h2>New Report</h2>',
-            active: true
+            is_disabled: false
         };
 
         var exampleTable = [[{"col": 0, "colspan": "1", "id": "cell1", "row": 0,
@@ -291,6 +291,7 @@ controllers.controller('EditReportCtrl', [
             data.template.time = hour + ':' + minute;
             data.template.date = month + '/' + day + '/' + year;
             $scope.template = data.template;
+            console.log("scope.template", data)
             $scope.precollabs = data.template.collabs;
             $scope.resp = {table: data.template.layout, queries: data.queries};
             $scope.prev = $scope.resp;

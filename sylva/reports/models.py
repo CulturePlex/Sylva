@@ -54,7 +54,7 @@ class ReportTemplate(models.Model):
         related_name="report_templates",
         blank=True,
         null=True)
-    active = models.BooleanField(default=True)
+    is_disabled = models.BooleanField(default=False)
 
     def __unicode__(self):
         return self.name
@@ -95,7 +95,8 @@ class ReportTemplate(models.Model):
             'layout': self.layout,
             'description': self.description,
             'collabs': [{"id": u.username, "display": u.username} for u in
-                        self.email_to.all()]
+                        self.email_to.all()],
+            'is_disabled': self.is_disabled
         }
         return template
 

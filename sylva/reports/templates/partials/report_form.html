@@ -69,11 +69,10 @@
           </div> <!--innerForm-->
 
           <span class="buttonLinkOption buttonLinkLeft">
-            <input ng-hide="template.active" type="submit" value="Resume" ng-click="resumeReport()">
-            <input ng-show="template.active" type="submit" value="Pause" ng-click="pauseReport()">
             <input type="submit" value="Save Report" ng-click="saveReport(template)">
             <a class="alink" ng-hide="advanced" ng-click="showAdvanced()" href="">{% trans "Advanced" %}</a>
             <a class="alink" ng-show="advanced" ng-click="hideAdvanced()" href="">{% trans "Hide advanced" %}</a>
+            <input type="checkbox" ng-model="template.is_disabled">{% trans "Disable Report Generation" %}</input>
           </span>
         </form>
       </div><!--formContainer-->

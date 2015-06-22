@@ -19,13 +19,14 @@ pdf generation/celery
 careful history endpoint test for bucket generation
 """
 
+
 class EndpointTest(TestCase):
 
     fixtures = ["schemas.json", "graphs.json", "queries.json", "reports.json"]
 
     def setUp(self):
-        test_user = UserenaSignup.objects.create_user(username="admin",
-            email="admin@admin.com", password="admin")
+        test_user = UserenaSignup.objects.create_user(
+            username="admin", email="admin@admin.com", password="admin")
         test_user = UserenaSignup.objects.activate_user(
             test_user.userena_signup.activation_key)
         response = self.client.login(username="admin", password='admin')
@@ -92,15 +93,17 @@ class EndpointTest(TestCase):
         self.assertFalse(body)
 
     def test_delete_endpoint_del(self):
-        template = ReportTemplate(name="endpointdelete",
-            start_date=datetime.now(), frequency="h", last_run=datetime.now(),
-            layout={"hello": "johndoe"}, description="Some", graph=self.graph)
+        template = ReportTemplate(
+            name="endpointdelete", start_date=datetime.now(), frequency="h",
+            last_run=datetime.now(), layout={"hello": "johndoe"},
+            description="Some", graph=self.graph)
         template.save()
         template_id = template.id
         t = ReportTemplate.objects.get(pk=template_id)
         self.assertIsNotNone(t)
         url = reverse('delete', kwargs={"graph_slug": "dh2014"})
-        resp = self.client.post(url, json.dumps({"template": template.slug}),
+        resp = self.client.post(
+            url, json.dumps({"template": template.slug}),
             content_type="application/json")
         self.assertEqual(resp.status_code, 200)
         try:
@@ -112,7 +115,8 @@ class EndpointTest(TestCase):
 
     def test_delete_endpoint_del404(self):
         url = reverse('delete', kwargs={"graph_slug": "dh2014"})
-        resp = self.client.post(url, json.dumps({"template": "doesnotexist"}),
+        resp = self.client.post(
+            url, json.dumps({"template": "doesnotexist"}),
             content_type="application/json")
         self.assertEqual(resp.status_code, 404)
 
@@ -179,13 +183,14 @@ class EndpointTest(TestCase):
             "frequency": "d",
             "description": "This is a test.",
             "collabs": [],
-            "layout": {"layout": [[{"displayQuery": 1}], [{"displayQuery": ""}]]},
+            "layout": {"layout":
+                       [[{"displayQuery": 1}], [{"displayQuery": ""}]]},
             "date": "10/10/2015",
             "time": "12:30",
-            "active": True
+            "is_disabled": False
         }}
-        resp = self.client.post(url, json.dumps(post_body),
-            content_type="application/json")
+        resp = self.client.post(
+            url, json.dumps(post_body), content_type="application/json")
         self.assertEqual(resp.status_code, 200)
         try:
             new_template = ReportTemplate.objects.get(pk=3)
@@ -196,7 +201,8 @@ class EndpointTest(TestCase):
         # Now edit!
         post_body["template"]["name"] = "edited"
         post_body["template"]["slug"] = new_template.slug
-        resp2 = self.client.post(url, json.dumps(post_body),
+        resp2 = self.client.post(
+            url, json.dumps(post_body),
             content_type="application/json")
         self.assertEqual(resp2.status_code, 200)
         new_template = ReportTemplate.objects.get(pk=3)
@@ -210,13 +216,14 @@ class EndpointTest(TestCase):
             "frequency": "d",
             "description": "This is a test.",
             "collabs": [],
-            "layout": {"layout": [[{"displayQuery": 1}], [{"displayQuery": ""}]]},
+            "layout": {"layout":
+                       [[{"displayQuery": 1}], [{"displayQuery": ""}]]},
             "date": "10/10/2015",
             "time": "12:30",
-            "active": True
+            "is_disabled": False
         }}
-        resp = self.client.post(url, json.dumps(post_body),
-            content_type="application/json")
+        resp = self.client.post(
+            url, json.dumps(post_body), content_type="application/json")
         self.assertEqual(resp.status_code, 200)
         try:
             new_template = ReportTemplate.objects.get(pk=3)
@@ -224,18 +231,17 @@ class EndpointTest(TestCase):
         except ReportTemplate.DoesNotExist:
             exists = False
         self.assertTrue(exists)
-        self.assertTrue(new_template.active)
+        self.assertFalse(new_template.is_disabled)
         # Now edit!
         post_body["template"]["name"] = "paused"
         post_body["template"]["slug"] = new_template.slug
-        post_body["template"]["active"] = False
-        resp2 = self.client.post(url, json.dumps(post_body),
-            content_type="application/json")
+        post_body["template"]["is_disabled"] = True
+        resp2 = self.client.post(
+            url, json.dumps(post_body), content_type="application/json")
         self.assertEqual(resp2.status_code, 200)
         new_template = ReportTemplate.objects.get(pk=3)
         self.assertEqual(new_template.name, "paused")
-        self.assertFalse(new_template.active)
-
+        self.assertTrue(new_template.is_disabled)
 
     def test_builder_endpoint_new_error(self):
         url = reverse('builder', kwargs={"graph_slug": "dh2014"})
@@ -248,10 +254,10 @@ class EndpointTest(TestCase):
                 "layout": [[{"displayQuery": 1}], [{"displayQuery": 2}]]},
             "date": "10/10/2015",
             "time": "12:30",
-            "active": True
+            "is_disabled": False
         }}
-        resp = self.client.post(url, json.dumps(post_body),
-            content_type="application/json")
+        resp = self.client.post(
+            url, json.dumps(post_body), content_type="application/json")
         self.assertEqual(resp.status_code, 200)
         body = json.loads(resp.content)
         self.assertTrue(body.get("errors", False))
@@ -263,14 +269,15 @@ class EndpointTest(TestCase):
             "frequency": "d",
             "description": "This is a test.",
             "collabs": [],
-            "layout": {"layout": [[{"displayQuery": 1}], [{"displayQuery": 2}]]},
+            "layout": {"layout":
+                       [[{"displayQuery": 1}], [{"displayQuery": 2}]]},
             "date": "10/10/2015",
             "time": "12:30",
             "slug": "template1",
-            "active": True
+            "is_disabled": False
         }}
-        resp = self.client.post(url, json.dumps(post_body),
-            content_type="application/json")
+        resp = self.client.post(
+            url, json.dumps(post_body), content_type="application/json")
         self.assertEqual(resp.status_code, 200)
         body = json.loads(resp.content)
         self.assertTrue(body.get("errors", False))
@@ -282,14 +289,15 @@ class EndpointTest(TestCase):
             "frequency": "d",
             "description": "This is a test.",
             "collabs": [],
-            "layout": {"layout": [[{"displayQuery": 1}], [{"displayQuery": 2}]]},
+            "layout": {"layout":
+                       [[{"displayQuery": 1}], [{"displayQuery": 2}]]},
             "date": "10/10/2015",
             "time": "12:30",
             "slug": "doesnotexist",
-            "active": True
+            "is_disabled": False
         }}
-        resp = self.client.post(url, json.dumps(post_body),
-            content_type="application/json")
+        resp = self.client.post(
+            url, json.dumps(post_body), content_type="application/json")
         self.assertEqual(resp.status_code, 404)
 
     def test_builder_endpoint_badquery404(self):
@@ -299,13 +307,14 @@ class EndpointTest(TestCase):
             "frequency": "d",
             "description": "This is a test.",
             "collabs": [],
-            "layout": {"layout": [[{"displayQuery": 1}], [{"displayQuery": 10}]]},
+            "layout": {"layout":
+                       [[{"displayQuery": 1}], [{"displayQuery": 10}]]},
             "date": "10/10/2015",
             "time": "12:30",
-            "active": True
+            "is_disabled": False
         }}
-        resp = self.client.post(url, json.dumps(post_body),
-            content_type="application/json")
+        resp = self.client.post(
+            url, json.dumps(post_body), content_type="application/json")
         self.assertEqual(resp.status_code, 404)
 
 
@@ -419,14 +428,14 @@ class ReportTemplateTest(TestCase):
     # Test migrated field
     def test_template_active(self):
         template = ReportTemplate.objects.get(pk=self.template_id)
-        self.assertTrue(template.active)
+        self.assertFalse(template.is_disabled)
 
     def test_template_deactivate(self):
         template = ReportTemplate.objects.get(pk=self.template_id)
-        template.active = False
+        template.is_disabled = True
         template.save()
         template = ReportTemplate.objects.get(pk=self.template_id)
-        self.assertFalse(template.active)
+        self.assertTrue(template.is_disabled)
 
 
 class ReportTest(TestCase):
