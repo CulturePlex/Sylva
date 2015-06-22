@@ -125,14 +125,6 @@ controllers.controller('BaseReportCtrl', [
             $scope.advanced = false;
         }
 
-        $scope.pauseReport = function () {
-            $scope.template.is_disabled = true;
-        }
-
-        $scope.resumeReport = function () {
-            $scope.template.is_disabled = false;
-        }
-
         $scope.saveReport = function (template) {
             var post = new api.builder();
             template.collabs = $scope.collabs;
