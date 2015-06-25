@@ -50,8 +50,8 @@ ORDER_DIR_DESC = '-'
 
 @is_enabled(settings.ENABLE_QUERIES)
 @login_required
-@permission_required("data.view_data", (Data, "graph__slug", "graph_slug"),
-                     return_403=True)
+@permission_required("graphs.view_graph_queries",
+                     (Graph, "slug", "graph_slug"), return_403=True)
 def queries_list(request, graph_slug):
     graph = get_object_or_404(Graph, slug=graph_slug)
 
@@ -128,8 +128,8 @@ def queries_list(request, graph_slug):
 
 @is_enabled(settings.ENABLE_QUERIES)
 @login_required
-@permission_required("data.view_data", (Data, "graph__slug", "graph_slug"),
-                     return_403=True)
+@permission_required("graphs.add_graph_queries",
+                     (Graph, "slug", "graph_slug"), return_403=True)
 def queries_new(request, graph_slug):
     graph = get_object_or_404(Graph, slug=graph_slug)
     nodetypes = NodeType.objects.filter(schema__graph__slug=graph_slug)
@@ -250,8 +250,8 @@ def queries_new(request, graph_slug):
 
 @is_enabled(settings.ENABLE_QUERIES)
 @login_required
-@permission_required("data.view_data", (Data, "graph__slug", "graph_slug"),
-                     return_403=True)
+@permission_required("graphs.view_graph_queries",
+                     (Graph, "slug", "graph_slug"), return_403=True)
 def queries_new_results(request, graph_slug):
     graph = get_object_or_404(Graph, slug=graph_slug)
 
@@ -521,8 +521,8 @@ def queries_new_results(request, graph_slug):
 
 @is_enabled(settings.ENABLE_QUERIES)
 @login_required
-@permission_required("data.view_data", (Data, "graph__slug", "graph_slug"),
-                     return_403=True)
+@permission_required("graphs.change_graph_queries",
+                     (Graph, "slug", "graph_slug"), return_403=True)
 def queries_query_edit(request, graph_slug, query_id):
     graph = get_object_or_404(Graph, slug=graph_slug)
     nodetypes = NodeType.objects.filter(schema__graph__slug=graph_slug)
@@ -639,8 +639,8 @@ def queries_query_edit(request, graph_slug, query_id):
 
 @is_enabled(settings.ENABLE_QUERIES)
 @login_required
-@permission_required("data.view_data", (Data, "graph__slug", "graph_slug"),
-                     return_403=True)
+@permission_required("graphs.view_graph_queries",
+                     (Graph, "slug", "graph_slug"), return_403=True)
 def queries_query_results(request, graph_slug, query_id):
     graph = get_object_or_404(Graph, slug=graph_slug)
     query = graph.queries.get(pk=query_id)
@@ -1024,8 +1024,8 @@ def queries_query_results(request, graph_slug, query_id):
 
 @is_enabled(settings.ENABLE_QUERIES)
 @login_required
-@permission_required("data.view_data", (Data, "graph__slug", "graph_slug"),
-                     return_403=True)
+@permission_required("graphs.delete_graph_queries",
+                     (Graph, "slug", "graph_slug"), return_403=True)
 def queries_query_delete(request, graph_slug, query_id):
     graph = get_object_or_404(Graph, slug=graph_slug)
     query = graph.queries.get(id=query_id)
@@ -1083,8 +1083,8 @@ def queries_query_delete(request, graph_slug, query_id):
 
 @is_enabled(settings.ENABLE_QUERIES)
 @login_required
-@permission_required("data.view_data", (Data, "graph__slug", "graph_slug"),
-                     return_403=True)
+@permission_required("graphs.view_graph_queries",
+                     (Graph, "slug", "graph_slug"), return_403=True)
 def queries_query_modify(request, graph_slug, query_id):
     graph = get_object_or_404(Graph, slug=graph_slug)
     query = graph.queries.get(id=query_id)
@@ -1142,8 +1142,8 @@ def queries_query_modify(request, graph_slug, query_id):
 
 @is_enabled(settings.ENABLE_QUERIES)
 @login_required
-@permission_required("data.view_data", (Data, "graph__slug", "graph_slug"),
-                     return_403=True)
+@permission_required("graphs.view_graph_queries",
+                     (Graph, "slug", "graph_slug"), return_403=True)
 def queries_query(request, graph_slug):
     graph = get_object_or_404(Graph, slug=graph_slug)
     return render_to_response('queries/queries_query.html',
@@ -1153,8 +1153,8 @@ def queries_query(request, graph_slug):
 
 @is_enabled(settings.ENABLE_QUERIES)
 @login_required
-@permission_required("data.view_data", (Data, "graph__slug", "graph_slug"),
-                     return_403=True)
+@permission_required("graphs.view_graph_queries",
+                     (Graph, "slug", "graph_slug"), return_403=True)
 def parse_query_results(request, graph_slug):
     query = request.POST.get("query", "").strip()
     if request.is_ajax() and query:
@@ -1176,8 +1176,8 @@ def parse_query_results(request, graph_slug):
 
 @is_enabled(settings.ENABLE_QUERIES)
 @login_required
-@permission_required("data.view_data", (Data, "graph__slug", "graph_slug"),
-                     return_403=True)
+@permission_required("graphs.view_graph_queries",
+                     (Graph, "slug", "graph_slug"), return_403=True)
 def graph_query_collaborators(request, graph_slug):
     if request.is_ajax() and "term" in request.GET:
         graph = get_object_or_404(Graph, slug=graph_slug)

@@ -24,8 +24,8 @@ STATUS_OK = 'OK'
 
 
 @is_enabled(settings.ENABLE_ANALYTICS)
-@permission_required("data.view_data",
-                     (Data, "graph__slug", "graph_slug"), return_403=True)
+@permission_required("graphs.add_graph_analytics",
+                     (Graph, "slug", "graph_slug"), return_403=True)
 def analytics_run(request, graph_slug):
     data = []
     graph = get_object_or_404(Graph, slug=graph_slug)
@@ -45,8 +45,8 @@ def analytics_run(request, graph_slug):
 
 
 @is_enabled(settings.ENABLE_ANALYTICS)
-@permission_required("data.view_data",
-                     (Data, "graph__slug", "graph_slug"), return_403=True)
+@permission_required("graphs.view_graph_analytics",
+                     (Graph, "slug", "graph_slug"), return_403=True)
 def analytics_estimate(request, graph_slug):
     data = []
     graph = get_object_or_404(Graph, slug=graph_slug)
@@ -60,8 +60,8 @@ def analytics_estimate(request, graph_slug):
 
 
 @is_enabled(settings.ENABLE_ANALYTICS)
-@permission_required("data.view_data",
-                     (Data, "graph__slug", "graph_slug"), return_403=True)
+@permission_required("graphs.view_graph_analytics",
+                     (Graph, "slug", "graph_slug"), return_403=True)
 def analytics_status(request, graph_slug):
     analytics_results = dict()
     analytics_request = request.GET.get('analytics_request')
@@ -93,8 +93,8 @@ def analytics_status(request, graph_slug):
 
 
 @is_enabled(settings.ENABLE_ANALYTICS)
-@permission_required("data.view_data",
-                     (Data, "graph__slug", "graph_slug"), return_403=True)
+@permission_required("graphs.add_graph_analytics",
+                     (Graph, "slug", "graph_slug"), return_403=True)
 def analytics_analytic(request, graph_slug):
     data = []
     analytic_id = request.GET.get('id')
@@ -107,8 +107,8 @@ def analytics_analytic(request, graph_slug):
 
 # @condition(etag_func=None)
 @is_enabled(settings.ENABLE_ANALYTICS)
-@permission_required("data.view_data",
-                     (Data, "graph__slug", "graph_slug"), return_403=True)
+@permission_required("graphs.add_graph_analytics",
+                     (Graph, "slug", "graph_slug"), return_403=True)
 def analytics_dump(request, graph_slug):
 
     def stream_response_generator(data_file, rels=False, duplicated=False,
@@ -149,8 +149,8 @@ def analytics_dump(request, graph_slug):
 
 
 @is_enabled(settings.ENABLE_ANALYTICS)
-@permission_required("data.view_data",
-                     (Data, "graph__slug", "graph_slug"), return_403=True)
+@permission_required("graphs.add_graph_analytics",
+                     (Graph, "slug", "graph_slug"), return_403=True)
 def analytics_stop(request, graph_slug):
     task_id = request.POST.get('task_id')
     # We stop the algorith

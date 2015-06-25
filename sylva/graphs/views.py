@@ -264,7 +264,8 @@ def graph_collaborators(request, graph_slug):
     # graph_permissions = guardian.get_perms_for_model(graph)
     permissions_list = []
     permissions_table = []
-    aux = (('graph', graph), ('schema', graph.schema), ('data', graph.data))
+    aux = (('graph', graph), ('schema', graph.schema), ('data', graph.data),
+           ('reports', graph), ('queries', graph), ('analytics', graph))
     for item in aux:
         for p in PERMISSIONS[item[0]].values():
             permissions_list.append(p)
@@ -281,7 +282,7 @@ def graph_collaborators(request, graph_slug):
                 else:
                     permission_row['perms'].append((item_str, p, False))
         permissions_table.append(permission_row)
-    #users = [u for u in users if u != graph.owner and u not in collaborators]
+    # users = [u for u in users if u != graph.owner and u not in collaborators]
     '''
     For the modal mini-framework, this view always returns an HTML, because
     after click in 'Add collaborator' it goes again the same page.
@@ -326,7 +327,10 @@ def change_permission(request, graph_slug):
             return HttpResponse("owner", status=500)
         aux = {'graph': graph,
                'schema': graph.schema,
-               'data': graph.data}
+               'data': graph.data,
+               'reports': graph,
+               'queries': graph,
+               'analytics': graph}
         if permission_str in PERMISSIONS[object_str]:
             if permission_str in guardian.get_perms(user, aux[object_str]):
                 guardian.remove_perm(permission_str, user, aux[object_str])

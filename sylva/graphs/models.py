@@ -22,19 +22,36 @@ from graphs.mixins import GraphMixin
 
 PERMISSIONS = {
     'graph': {
-        'change_graph': _("Change"),
         'view_graph': _("View"),
-        'change_collaborators': _("Collaborators"),
+        'change_graph': _("Change"),
+        'change_collaborators': _("Collabs"),
     },
     'schema': {
-        'change_schema': _("Change"),
         'view_schema': _("View"),
+        'change_schema': _("Change"),
     },
     'data': {
-        'add_data': _("Add"),
         'view_data': _("View"),
+        'add_data': _("Add"),
         'change_data': _("Change"),
         'delete_data': _("Delete"),
+    },
+    'reports': {
+        'view_graph_reports': _("View"),
+        'add_graph_reports': _("Add"),
+        'change_graph_reports': _("Change"),
+        'delete_graph_reports': _("Delete"),
+    },
+    'queries': {
+        'view_graph_queries': _("View"),
+        'add_graph_queries': _("Add"),
+        'change_graph_queries': _("Change"),
+        'delete_graph_queries': _("Delete"),
+    },
+    'analytics': {
+        'view_graph_analytics': _("View"),
+        'add_graph_analytics': _("Add"),
+        'delete_graph_analytics': _("Delete"),
     },
 }
 
@@ -65,6 +82,17 @@ class Graph(models.Model, GraphMixin):
         permissions = (
             ('view_graph', _('View graph')),
             ('change_collaborators', _("Change collaborators")),
+            ('view_graph_reports', _("View graph reports")),
+            ('add_graph_reports', _("Add graph reports")),
+            ('change_graph_reports', _("Change graph reports")),
+            ('delete_graph_reports', _("Delete graph reports")),
+            ('view_graph_queries', _("View graph gueries")),
+            ('add_graph_queries', _("Add graph gueries")),
+            ('change_graph_queries', _("Change graph gueries")),
+            ('delete_graph_queries', _("Delete graph gueries")),
+            ('view_graph_analytics', _("View graph analytics")),
+            ('add_graph_analytics', _("Add graph analytics")),
+            ('delete_graph_analytics', _("Delete graph analytics")),
         )
 
     def __unicode__(self):
@@ -163,7 +191,8 @@ class Graph(models.Model, GraphMixin):
         for r in relations:
             rel_label = int(r.label)
             if rel_label in relationtypes_map:
-                rt = RelationshipType.objects.get(pk=relationtypes_map[rel_label])
+                rt = RelationshipType.objects.get(
+                    pk=relationtypes_map[rel_label])
                 new_graph.relationships.create(nodes_map[r.source.id],
                                                nodes_map[r.target.id],
                                                label=unicode(rt.id),
@@ -248,16 +277,20 @@ def assign_permissions_to_owner(*args, **kwargs):
             owner = graph.owner
             aux = {'graph': graph,
                    'schema': graph.schema,
-                   'data': graph.data}
+                   'data': graph.data,
+                   'reports': graph,
+                   'queries': graph,
+                   'analytics': graph}
             for permission_type in aux:
                 for permission in PERMISSIONS[permission_type].keys():
                     assign_perm(permission, owner, aux[permission_type])
         anonymous = User.objects.get(id=settings.ANONYMOUS_USER_ID)
-        if graph.public:
-            for permission, obj in aux.items():
-                assign_perm("view_%s" % permission, anonymous, obj)
-        else:
-            for permission, obj in aux.items():
-                perm = "view_%s" % permission
-                if anonymous.has_perm(perm, obj):
-                    remove_perm(perm, anonymous, obj)
+        for permission, obj in aux.items():
+            if permission in ['graph', 'schema', 'data']:
+                permission = "view_{0}".format(permission)
+            else:
+                permission = "view_graph_{0}".format(permission)
+            if graph.public:
+                assign_perm(permission, anonymous, obj)
+            elif anonymous.has_perm(permission, obj):
+                remove_perm(permission, anonymous, obj)

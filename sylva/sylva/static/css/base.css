@@ -317,6 +317,10 @@ progress::-webkit-progress-value { background: #348E82; }
     max-height: 600px;
 }
 
+.smaller {
+    font-size: smaller;
+}
+
 .medium-width {
     width: 700px;
 }

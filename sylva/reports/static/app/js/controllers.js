@@ -143,6 +143,12 @@ controllers.controller('BaseReportCtrl', [
                     }
                     $scope.errors = data.errors
                 }
+            }, function (err) {
+                console.log("errror: ", err.status)
+                // if (err.status === 403) {
+                //     $location.path('/403')
+                // }
+
             });
         };
 }]);
@@ -461,6 +467,7 @@ controllers.controller("DeleteReportCtrl", [
     function ($scope, $controller, $location, api, breadService, AS_MODAL) {
         $controller('BaseReportCtrl', {$scope: $scope});
         $scope.getTemplate = function () {
+            console.log("hello")
             api.del.get({
                 template: $scope.slugs.template
             }, function (data) {
@@ -477,6 +484,10 @@ controllers.controller("DeleteReportCtrl", [
                 post.$save({}, function (data) {
                     var redirect = '/';
                     $location.path(redirect);
+                }, function (err) {
+                    // if (err.status === 403) {
+                    //     $location.path("/403")
+                    // }
                 });
             } else {
                 var redirect = '/';

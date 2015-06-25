@@ -8,12 +8,13 @@ from time import time
 
 from dateutil import relativedelta
 from django.conf import settings
+from django.http.response import HttpResponse
 from django.shortcuts import (render_to_response, get_object_or_404,
                               HttpResponse)
 from django.template import RequestContext
 from django.template.loader import render_to_string
 from django.db.models import Q
-from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.views.decorators.csrf import csrf_exempt, csrf_protect
 from django.contrib.auth.models import User
@@ -32,13 +33,10 @@ from sylva.decorators import is_enabled
 SECRET = getattr(settings, "REPORTS_SECRET", "")
 
 
-settings.ENABLE_REPORTS = True
-
-
 @login_required
 @is_enabled(settings.ENABLE_REPORTS)
-@permission_required("schemas.view_schema",
-                     (Schema, "graph__slug", "graph_slug"), return_403=True)
+@permission_required("graphs.view_graph_reports",
+                     (Graph, "slug", "graph_slug"), return_403=True)
 def reports_index_view(request, graph_slug):
     graph = get_object_or_404(Graph, slug=graph_slug)
     # We get the modal variable
@@ -99,9 +97,8 @@ def pdf_gen_view(request, graph_slug, template_slug):
 
     @login_required
     @is_enabled(settings.ENABLE_REPORTS)
-    @permission_required("schemas.view_schema",
-                         (Schema, "graph__slug", "graph_slug"),
-                         return_403=True)
+    @permission_required("graphs.add_graph_reports",
+                         (Graph, "slug", "graph_slug"), return_403=True)
     def protected(request, **kwargs):
         return render(request, graph_slug, template_slug)
 
@@ -119,20 +116,71 @@ def pdf_gen_view(request, graph_slug, template_slug):
 
 @login_required
 @is_enabled(settings.ENABLE_REPORTS)
-@permission_required("schemas.view_schema",
-                     (Schema, "graph__slug", "graph_slug"), return_403=True)
+@permission_required("graphs.view_graph_reports",
+                     (Graph, "slug", "graph_slug"), return_403=True)
 def partial_view(request, graph_slug):
     name = request.GET.get('name', '')
     pattern = 'partials/{0}.html'.format(name)
 
-    return render_to_response(pattern, RequestContext(request, {}))
+    protected = {}
+
+    def protected_wrapper(name):
+        def wrapper(fn):
+            protected[name] = fn
+        return wrapper
+
+    def init_protected():
+
+        @protected_wrapper("reports")
+        @permission_required("graphs.view_graph_reports",
+                             (Graph, "slug", "graph_slug"), return_403=True)
+        def reports(request, pattern, **kwargs):
+            return render_to_response(pattern, RequestContext(request, {}))
+
+        @protected_wrapper("report_preview")
+        @permission_required("graphs.view_graph_reports",
+                             (Graph, "slug", "graph_slug"), return_403=True)
+        def report_preview(request, pattern, **kwargs):
+            return render_to_response(pattern, RequestContext(request, {}))
+
+        @protected_wrapper("report_history")
+        @permission_required("graphs.view_graph_reports",
+                             (Graph, "slug", "graph_slug"), return_403=True)
+        def report_history(request, pattern, **kwargs):
+            return render_to_response(pattern, RequestContext(request, {}))
+
+        @protected_wrapper("report_form")
+        @permission_required("graphs.view_graph_reports",
+                             (Graph, "slug", "graph_slug"), return_403=True)
+        def report_form(request, pattern, **kwargs):
+            return render_to_response(pattern, RequestContext(request, {}))
+
+        @protected_wrapper("delete_report")
+        @permission_required("graphs.view_graph_reports",
+                             (Graph, "slug", "graph_slug"), return_403=True)
+        def delete_report(request, pattern, **kwargs):
+            return render_to_response(pattern, RequestContext(request, {}))
+
+        @protected_wrapper("403")
+        def get403(request, pattern, **kwargs):
+            return render_to_response(pattern, RequestContext(request, {}))
+
+    init_protected()
+
+    fn = protected[name]
+
+    return fn(request, pattern, graph_slug=graph_slug)
+
+
+def my403view(request):
+    return HttpResponseForbidden()
 
 
 # Reports "API"
 @login_required
 @is_enabled(settings.ENABLE_REPORTS)
-@permission_required("schemas.view_schema",
-                     (Schema, "graph__slug", "graph_slug"), return_403=True)
+@permission_required("graphs.view_graph_reports",
+                     (Graph, "slug", "graph_slug"), return_403=True)
 def list_endpoint(request, graph_slug):
     graph = get_object_or_404(Graph, slug=graph_slug)
     templates = graph.report_templates.order_by(
@@ -158,8 +206,8 @@ def list_endpoint(request, graph_slug):
 
 @login_required
 @is_enabled(settings.ENABLE_REPORTS)
-@permission_required("schemas.view_schema",
-                     (Schema, "graph__slug", "graph_slug"), return_403=True)
+@permission_required("graphs.view_graph_reports",
+                     (Graph, "slug", "graph_slug"), return_403=True)
 def templates_endpoint(request, graph_slug):
     graph = get_object_or_404(Graph, slug=graph_slug)
     response = {'template': None, 'queries': None}
@@ -194,8 +242,8 @@ def templates_endpoint(request, graph_slug):
 
 @login_required
 @is_enabled(settings.ENABLE_REPORTS)
-@permission_required("schemas.view_schema",
-                     (Schema, "graph__slug", "graph_slug"), return_403=True)
+@permission_required("graphs.delete_graph_reports",
+                     (Graph, "slug", "graph_slug"), return_403=True)
 def delete_endpoint(request, graph_slug):
     response = {}
     if request.method == "POST":
@@ -215,8 +263,8 @@ def delete_endpoint(request, graph_slug):
 
 @login_required
 @is_enabled(settings.ENABLE_REPORTS)
-@permission_required("schemas.view_schema",
-                     (Schema, "graph__slug", "graph_slug"), return_403=True)
+@permission_required("graphs.view_graph_reports",
+                     (Graph, "slug", "graph_slug"), return_403=True)
 def history_endpoint(request, graph_slug):
     response = {"reports": []}
     if request.GET.get('template', ''):
@@ -309,8 +357,8 @@ def _get_bucket(date, buckets):
 
 @login_required
 @is_enabled(settings.ENABLE_REPORTS)
-@permission_required("schemas.view_schema",
-                     (Schema, "graph__slug", "graph_slug"), return_403=True)
+@permission_required("graphs.view_graph_reports",
+                     (Graph, "slug", "graph_slug"), return_403=True)
 def fullscreen_view(request, graph_slug, template_slug, report_id):
     graph = get_object_or_404(Graph, slug=graph_slug)
     report = get_object_or_404(Report, id=report_id)
@@ -327,8 +375,8 @@ def fullscreen_view(request, graph_slug, template_slug, report_id):
 
 @login_required
 @is_enabled(settings.ENABLE_REPORTS)
-@permission_required("schemas.view_schema",
-                     (Schema, "graph__slug", "graph_slug"), return_403=True)
+@permission_required("graphs.add_graph_reports",
+                     (Graph, "slug", "graph_slug"), return_403=True)
 def builder_endpoint(request, graph_slug):
     graph = get_object_or_404(Graph, slug=graph_slug)
     template = {}
@@ -345,28 +393,41 @@ def builder_endpoint(request, graph_slug):
         except (ValueError, IndexError):
             start_date = ""
         if template.get('slug', ''):
-            template_inst = get_object_or_404(
-                ReportTemplate, slug=template['slug']
-            )
-            last_run = template_inst.last_run
-            f = ReportTemplateForm({
-                "name": template['name'],
-                "start_date": start_date,
-                "frequency": template['frequency'],
-                "layout": template['layout'],
-                "description": template['description'],
-                "graph": graph.id,
-                "is_disabled": template['is_disabled']},
-                instance=template_inst)
-            if not f.is_valid():
-                template["errors"] = f.errors
-            else:
-                new_template = f.save()
-                for old in new_template.email_to.all():
-                    if old.username not in template["collabs"]:
-                        new_template.email_to.remove(old)
-                new_template.last_run = last_run
-                new_template.save()
+
+            @permission_required("graphs.change_graph_reports",
+                                 (Graph, "slug", "graph_slug"),
+                                 return_403=True)
+            def do_edit(request, template, **kwargs):
+                template_inst = get_object_or_404(
+                    ReportTemplate, slug=template['slug']
+                )
+                last_run = template_inst.last_run
+                f = ReportTemplateForm({
+                    "name": template['name'],
+                    "start_date": start_date,
+                    "frequency": template['frequency'],
+                    "layout": template['layout'],
+                    "description": template['description'],
+                    "graph": graph.id,
+                    "is_disabled": template['is_disabled']},
+                    instance=template_inst)
+                if not f.is_valid():
+                    template["errors"] = f.errors
+                    new_template = None
+                else:
+                    new_template = f.save()
+                    for old in new_template.email_to.all():
+                        if old.username not in template["collabs"]:
+                            new_template.email_to.remove(old)
+                    new_template.last_run = last_run
+                    new_template.save()
+
+                return new_template
+
+            new_template = do_edit(request, template, graph_slug=graph_slug)
+            if isinstance(new_template, HttpResponse):
+                return new_template
+
         else:
             f = ReportTemplateForm({"name": template['name'],
                                     "start_date": start_date,
@@ -402,8 +463,8 @@ def builder_endpoint(request, graph_slug):
 
 @login_required
 @is_enabled(settings.ENABLE_REPORTS)
-@permission_required("schemas.view_schema",
-                     (Schema, "graph__slug", "graph_slug"), return_403=True)
+@permission_required("graphs.view_graph_reports",
+                     (Graph, "slug", "graph_slug"), return_403=True)
 def preview_report_pdf(request, graph_slug):
     parsed_url = urlparse.urlparse(
         request.build_absolute_uri()
@@ -443,8 +504,8 @@ def preview_report_pdf(request, graph_slug):
 
 @login_required
 @is_enabled(settings.ENABLE_REPORTS)
-@permission_required("schemas.view_schema",
-                     (Schema, "graph__slug", "graph_slug"), return_403=True)
+@permission_required("graphs.view_graph_reports",
+                     (Graph, "slug", "graph_slug"), return_403=True)
 def pdf_view(request, graph_slug, report_id):
     report = Report.objects.get(pk=int(report_id))
     filename = os.path.join(settings.MEDIA_ROOT, report.report_file.name)
