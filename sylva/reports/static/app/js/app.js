@@ -54,6 +54,10 @@ reports.config([
                 templateUrl: DJANGO_URLS.partials + '?name=delete_report',
                 controller: 'DeleteReportCtrl'
             }).
+            when('/403', {
+                templateUrl: DJANGO_URLS.partials + '?name=403',
+                controller: 'BaseReportCtrl'
+            }).
             otherwise({
                 redirectTo: '/'
             });

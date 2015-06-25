@@ -38,9 +38,6 @@ controllers.controller('ReportListCtrl', [
 
         $scope.getPage(1)
 
-        // So, somthing like:
-        // if (AS_MODAL === 'True') {...}
-
         // Set styles if we are in modals
         if(AS_MODAL) {
             $('#simplemodal-container').css({
@@ -144,10 +141,9 @@ controllers.controller('BaseReportCtrl', [
                     $scope.errors = data.errors
                 }
             }, function (err) {
-                console.log("errror: ", err.status)
-                // if (err.status === 403) {
-                //     $location.path('/403')
-                // }
+                if (err.status === 403) {
+                    $location.path('/403')
+                }
 
             });
         };
@@ -485,9 +481,9 @@ controllers.controller("DeleteReportCtrl", [
                     var redirect = '/';
                     $location.path(redirect);
                 }, function (err) {
-                    // if (err.status === 403) {
-                    //     $location.path("/403")
-                    // }
+                    if (err.status === 403) {
+                        $location.path("/403")
+                    }
                 });
             } else {
                 var redirect = '/';
