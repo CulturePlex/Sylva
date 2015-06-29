@@ -263,6 +263,7 @@ var initAnalytics = function($) {
       dataType: 'json',
       url: resultsUrl,
       success: function (data) {
+        console.log("getResults", data);
         var chartType = "";
         var parentArray = new Array();
         var highchartPieOption = algorithm == "connected_components" ||
@@ -327,6 +328,7 @@ var initAnalytics = function($) {
             dataType: 'json',
             url: valuesUrl,
             success: function(data) {
+              console.log("getValues", data);
               var sylvaKey;
               sylva.analyticAffectedNodes = {}
               for(var key in data) {
@@ -501,7 +503,11 @@ var initAnalytics = function($) {
         $(progressBarId).addClass("progress");
         getTaskState(analyticsExecuting, progressBarId);
       });
-    });
+   }).fail(function (data) {
+        if (data.status === 403) {
+            alert("403: Forbidden. User does not have permission to perform this operation")
+        } else {alert(data.status)}
+   });
   });
 
   $('.stop-analytic').on('click', function() {
@@ -665,6 +671,10 @@ var initAnalytics = function($) {
         }
       };
 
+    }).fail(function (data) {
+         if (data.status === 403) {
+             alert("403: Forbidden. User does not have permission to perform this operation")
+         } else {alert(data.status)}
     });
   });
 

@@ -45,7 +45,7 @@ def analytics_run(request, graph_slug):
 
 
 @is_enabled(settings.ENABLE_ANALYTICS)
-@permission_required("graphs.view_graph_analytics",
+@permission_required("graphs.add_graph_analytics",
                      (Graph, "slug", "graph_slug"), return_403=True)
 def analytics_estimate(request, graph_slug):
     data = []
@@ -60,7 +60,7 @@ def analytics_estimate(request, graph_slug):
 
 
 @is_enabled(settings.ENABLE_ANALYTICS)
-@permission_required("graphs.view_graph_analytics",
+@permission_required("graphs.add_graph_analytics",
                      (Graph, "slug", "graph_slug"), return_403=True)
 def analytics_status(request, graph_slug):
     analytics_results = dict()
@@ -93,7 +93,7 @@ def analytics_status(request, graph_slug):
 
 
 @is_enabled(settings.ENABLE_ANALYTICS)
-@permission_required("graphs.add_graph_analytics",
+@permission_required("graphs.view_graph_analytics",
                      (Graph, "slug", "graph_slug"), return_403=True)
 def analytics_analytic(request, graph_slug):
     data = []
@@ -107,7 +107,7 @@ def analytics_analytic(request, graph_slug):
 
 # @condition(etag_func=None)
 @is_enabled(settings.ENABLE_ANALYTICS)
-@permission_required("graphs.add_graph_analytics",
+@permission_required("graphs.view_graph_analytics",
                      (Graph, "slug", "graph_slug"), return_403=True)
 def analytics_dump(request, graph_slug):
 
