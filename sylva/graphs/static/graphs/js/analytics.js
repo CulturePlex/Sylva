@@ -263,7 +263,6 @@ var initAnalytics = function($) {
       dataType: 'json',
       url: resultsUrl,
       success: function (data) {
-        console.log("getResults", data);
         var chartType = "";
         var parentArray = new Array();
         var highchartPieOption = algorithm == "connected_components" ||
@@ -328,7 +327,6 @@ var initAnalytics = function($) {
             dataType: 'json',
             url: valuesUrl,
             success: function(data) {
-              console.log("getValues", data);
               var sylvaKey;
               sylva.analyticAffectedNodes = {}
               for(var key in data) {
