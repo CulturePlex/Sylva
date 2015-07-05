@@ -17,7 +17,6 @@ def phantom_process(scheme, netloc, view, graph_slug, template_slug, domain,
         reverse(view, kwargs={"graph_slug": graph_slug,
                 "template_slug": template_slug}),
     )
-    print("url", url)
     Popen([
         "phantomjs",
         raster_path,

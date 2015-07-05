@@ -4,19 +4,16 @@ import json
 import os
 import urlparse
 
-from time import time
-
 from dateutil import relativedelta
 from django.conf import settings
 from django.http.response import HttpResponse
-from django.shortcuts import (render_to_response, get_object_or_404,
-                              HttpResponse)
+from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 from django.template.loader import render_to_string
 from django.db.models import Q
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.views.decorators.csrf import csrf_exempt, csrf_protect
+from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 
@@ -24,7 +21,7 @@ from guardian.decorators import permission_required
 from reports.forms import ReportTemplateForm
 from reports.utils import phantom_process
 from reports.models import ReportTemplate, Report
-from graphs.models import Graph, Schema
+from graphs.models import Graph
 from queries.models import Query
 
 from sylva.decorators import is_enabled
@@ -170,10 +167,6 @@ def partial_view(request, graph_slug):
     fn = protected[name]
 
     return fn(request, pattern, graph_slug=graph_slug)
-
-
-def my403view(request):
-    return HttpResponseForbidden()
 
 
 # Reports "API"
@@ -470,8 +463,6 @@ def preview_report_pdf(request, graph_slug):
         request.build_absolute_uri()
     )
     template_slug = request.GET.get('template', '')
-    if request.GET.get('template', str(int(time() * 1000))):
-        download_name = '{0}.pdf'.format(request.GET['template'])
     domain = parsed_url.hostname
     csrftoken = request.COOKIES.get('csrftoken', 'nocsrftoken')
     sessionid = request.COOKIES.get('sessionid', 'nosessionid')
