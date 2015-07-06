@@ -503,6 +503,7 @@ var initAnalytics = function($) {
       });
    }).fail(function (data) {
         if (data.status === 403) {
+            $('#' + etaId).empty();
             alert("403: Forbidden. User does not have permission to perform this operation")
         } else {alert(data.status)}
    });

@@ -154,8 +154,9 @@ controllers.controller('NewReportCtrl', [
     '$scope',
     '$controller',
     'api',
+    '$location',
     'AS_MODAL',
-    function ($scope, $controller, api, AS_MODAL) {
+    function ($scope, $controller, api, $location, AS_MODAL) {
         // Done except post
         $controller('BaseReportCtrl', {$scope: $scope});
         $scope.precollabs = null;
@@ -228,6 +229,10 @@ controllers.controller('NewReportCtrl', [
             $scope.resp = {table: {layout: layout, pagebreaks: {0: false, 1: false}}, queries: data.queries}
             $scope.prev = {table: {layout: exampleTable, pagebreaks: {0: false, 1: false}}, queries: data.queries}
             $scope.template.layout = $scope.resp.table
+        }, function (err) {
+            if (err.status === 403) {
+                $location.path("/403")
+            }
         });
 
         // Set styles if we are in modals
@@ -262,8 +267,9 @@ controllers.controller('EditReportCtrl', [
     '$scope',
     '$controller',
     'api',
+    '$location',
     'AS_MODAL',
-    function ($scope, $controller, api, AS_MODAL) {
+    function ($scope, $controller, api, $location, AS_MODAL) {
         // Done except post
         $controller('BaseReportCtrl', {$scope: $scope});
         api.templates.edit({
@@ -285,10 +291,13 @@ controllers.controller('EditReportCtrl', [
             data.template.time = hour + ':' + minute;
             data.template.date = month + '/' + day + '/' + year;
             $scope.template = data.template;
-            console.log("scope.template", data)
             $scope.precollabs = data.template.collabs;
             $scope.resp = {table: data.template.layout, queries: data.queries};
             $scope.prev = $scope.resp;
+        }, function (err) {
+            if (err.status === 403) {
+                $location.path("/403")
+            }
         });
 
         // Set styles if we are in modals
@@ -463,12 +472,15 @@ controllers.controller("DeleteReportCtrl", [
     function ($scope, $controller, $location, api, breadService, AS_MODAL) {
         $controller('BaseReportCtrl', {$scope: $scope});
         $scope.getTemplate = function () {
-            console.log("hello")
             api.del.get({
                 template: $scope.slugs.template
             }, function (data) {
                 breadService.updateName(data.name);
                 $scope.template = data;
+            }, function (err) {
+                if (err.status === 403) {
+                    $location.path("/403")
+                }
             });
         }
 

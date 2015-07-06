@@ -153,8 +153,6 @@ def partial_view(request, graph_slug):
             return render_to_response(pattern, RequestContext(request, {}))
 
         @protected_wrapper("delete_report")
-        @permission_required("graphs.view_graph_reports",
-                             (Graph, "slug", "graph_slug"), return_403=True)
         def delete_report(request, pattern, **kwargs):
             return render_to_response(pattern, RequestContext(request, {}))
 
@@ -199,38 +197,63 @@ def list_endpoint(request, graph_slug):
 
 @login_required
 @is_enabled(settings.ENABLE_REPORTS)
-@permission_required("graphs.view_graph_reports",
-                     (Graph, "slug", "graph_slug"), return_403=True)
 def templates_endpoint(request, graph_slug):
     graph = get_object_or_404(Graph, slug=graph_slug)
     response = {'template': None, 'queries': None}
     # Get queries either for new template or for edit.
-    if request.GET.get('queries', ''):
-        queries = graph.queries.plottable()
-        dummy_series = [
-            ["color", "count1", "count2", "count3", "count4", "count5"],
-            ["yellow", 6, 7, 8, 9, 10],
-            ["blue", 6.5, 5.5, 8, 7, 11],
-            ["purple", 4.5, 5.5, 6, 9, 9.5],
-            ["red", 5, 5.5, 4.5, 3, 6],
-            ["green", 5, 6, 7.5, 9, 10]
-        ]
-        response['queries'] = [{'series': dummy_series,
-                                'name': query.name, 'id': query.id,
-                                'results': query.query_dict['results']}
-                               for query in queries]
-    if request.GET.get('template', ''):  # Get template for edit or preview
-        template = get_object_or_404(
-            ReportTemplate, slug=request.GET['template']
-        )
-        response['template'] = template.dictify()
-        if not response['queries']:  # Get template queries for preview.
-            queries = template.queries.all()
-            response['queries'] = [{'series': query.execute(headers=True),
+    queries = request.GET.get('queries', '')
+    template = request.GET.get('template', '')
+
+    def go(request, response, graph, **kwargs):
+        if request.GET.get('queries', ''):
+            queries = graph.queries.plottable()
+            dummy_series = [
+                ["color", "count1", "count2", "count3", "count4", "count5"],
+                ["yellow", 6, 7, 8, 9, 10],
+                ["blue", 6.5, 5.5, 8, 7, 11],
+                ["purple", 4.5, 5.5, 6, 9, 9.5],
+                ["red", 5, 5.5, 4.5, 3, 6],
+                ["green", 5, 6, 7.5, 9, 10]
+            ]
+            response['queries'] = [{'series': dummy_series,
                                     'name': query.name, 'id': query.id,
                                     'results': query.query_dict['results']}
                                    for query in queries]
-    return HttpResponse(json.dumps(response), content_type='application/json')
+        if request.GET.get('template', ''):  # Get template for edit or preview
+            template = get_object_or_404(
+                ReportTemplate, slug=request.GET['template']
+            )
+            response['template'] = template.dictify()
+            if not response['queries']:  # Get template queries for preview.
+                queries = template.queries.all()
+                response['queries'] = [{'series': query.execute(headers=True),
+                                        'name': query.name, 'id': query.id,
+                                        'results': query.query_dict['results']}
+                                       for query in queries]
+        return HttpResponse(json.dumps(response),
+                            content_type='application/json')
+
+    @permission_required("graphs.add_graph_reports",
+                         (Graph, "slug", "graph_slug"), return_403=True)
+    def new(request, response, graph, graph_slug, **kwargs):
+        return go(request, response, graph)
+
+    @permission_required("graphs.view_graph_reports",
+                         (Graph, "slug", "graph_slug"), return_403=True)
+    def preview(request, response, graph, graph_slug, **kwargs):
+        return go(request, response, graph)
+
+    @permission_required("graphs.change_graph_reports",
+                         (Graph, "slug", "graph_slug"), return_403=True)
+    def edit(request, response, graph, **kwargs):
+        return go(request, response, graph)
+
+    if queries and template:
+        return edit(request, response, graph, graph_slug=graph_slug)
+    elif template and not queries :
+        return preview(request, response, graph, graph_slug=graph_slug)
+    else:
+        return new(request, response, graph, graph_slug=graph_slug)
 
 
 @login_required
