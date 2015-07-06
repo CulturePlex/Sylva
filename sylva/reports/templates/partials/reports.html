@@ -14,10 +14,15 @@
       {% verbatim %}
       <tr ng-repeat="template in data.templates" ng-class-odd="'row-even'" ng-class-even="'row-odd'">
         <td class="dataList">
-          <a href="#/edit/{{ template.slug }}" class="edit" title="Edit Report"><!-- 1182 -->&nbsp;</a>
+          <a ng-show="REPORTS_PERMS.edit"
+             href="#/edit/{{ template.slug }}"
+             class="edit" title="Edit Report"><!-- 1182 -->&nbsp;</a>
           <a href="#/history/{{ template.slug }}" class="icon" title="Report History"><i class="fa fa-history"></i></a>
           <a href="#/preview/{{ template.slug }}" class="icon" title="View Report"><i class="fa fa-eye"></i></a>
-          <a href="#/delete/{{ template.slug }}" class="icon" title="Delete Report"><i class="fa fa-times-circle"></i></a>
+          <a ng-show="REPORTS_PERMS.del"
+             href="#/delete/{{ template.slug }}"
+             class="icon"
+             title="Delete Report"><i class="fa fa-times-circle"></i></a>
         </td>
         <td>{{ template.name | cut:true:20:' ...' }}</td>
         <td>{{ template.start_date }}</td>
@@ -26,11 +31,15 @@
         <td ng-if="template.last_run == null" class="background-text">{% trans "(Not yet run)" %}</td>
         {% verbatim %}
         <td>{{ template.frequency }}</td>
+
         {% endverbatim %}
       </tr>
     </tbody>
   </table>
-  <a id="new-report-button" class="button table-button" href="#/new">New Report</a>
+  <a id="new-report-button"
+     ng-show="REPORTS_PERMS.add"
+     class="button table-button"
+     href="#/new">New Report</a>
   <span class='pagination-info'>
 
       {% trans "Showing" %}

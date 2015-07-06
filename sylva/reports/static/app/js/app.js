@@ -66,8 +66,11 @@ reports.config([
 
 // Django settings.
 reports.run([
+    '$rootScope',
     '$http',
     '$cookies',
-    function($http, $cookies) {
+    'REPORTS_PERMS',
+    function($rootScope, $http, $cookies, REPORTS_PERMS) {
         $http.defaults.headers.post['X-CSRFToken'] = $cookies.csrftoken;
+        $rootScope.REPORTS_PERMS = REPORTS_PERMS
 }]);

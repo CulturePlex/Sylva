@@ -18,6 +18,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 
 from guardian.decorators import permission_required
+from guardian.shortcuts import get_perms
 from reports.forms import ReportTemplateForm
 from reports.utils import phantom_process
 from reports.models import ReportTemplate, Report
@@ -38,12 +39,19 @@ def reports_index_view(request, graph_slug):
     graph = get_object_or_404(Graph, slug=graph_slug)
     # We get the modal variable
     as_modal = bool(request.GET.get("asModal", False))
+    user = request.user
     if as_modal:
         render = render_to_string
     else:
         render = render_to_response
-    broader_context = {"graph": graph,
-                       "as_modal": as_modal}
+    perms = get_perms(user, graph)
+    broader_context = {
+        "graph": graph,
+        "view_reports": 'view_graph_reports' in perms,
+        "add_reports": 'add_graph_reports' in perms,
+        "edit_reports": 'change_graph_reports' in perms,
+        "delete_reports": 'delete_graph_reports' in perms,
+        "as_modal": as_modal}
     response = render('reports_base.html',
                       context_instance=RequestContext(request,
                                                       broader_context))
@@ -118,53 +126,7 @@ def pdf_gen_view(request, graph_slug, template_slug):
 def partial_view(request, graph_slug):
     name = request.GET.get('name', '')
     pattern = 'partials/{0}.html'.format(name)
-
-    protected = {}
-
-    def protected_wrapper(name):
-        def wrapper(fn):
-            protected[name] = fn
-        return wrapper
-
-    def init_protected():
-
-        @protected_wrapper("reports")
-        @permission_required("graphs.view_graph_reports",
-                             (Graph, "slug", "graph_slug"), return_403=True)
-        def reports(request, pattern, **kwargs):
-            return render_to_response(pattern, RequestContext(request, {}))
-
-        @protected_wrapper("report_preview")
-        @permission_required("graphs.view_graph_reports",
-                             (Graph, "slug", "graph_slug"), return_403=True)
-        def report_preview(request, pattern, **kwargs):
-            return render_to_response(pattern, RequestContext(request, {}))
-
-        @protected_wrapper("report_history")
-        @permission_required("graphs.view_graph_reports",
-                             (Graph, "slug", "graph_slug"), return_403=True)
-        def report_history(request, pattern, **kwargs):
-            return render_to_response(pattern, RequestContext(request, {}))
-
-        @protected_wrapper("report_form")
-        @permission_required("graphs.view_graph_reports",
-                             (Graph, "slug", "graph_slug"), return_403=True)
-        def report_form(request, pattern, **kwargs):
-            return render_to_response(pattern, RequestContext(request, {}))
-
-        @protected_wrapper("delete_report")
-        def delete_report(request, pattern, **kwargs):
-            return render_to_response(pattern, RequestContext(request, {}))
-
-        @protected_wrapper("403")
-        def get403(request, pattern, **kwargs):
-            return render_to_response(pattern, RequestContext(request, {}))
-
-    init_protected()
-
-    fn = protected[name]
-
-    return fn(request, pattern, graph_slug=graph_slug)
+    return render_to_response(pattern, RequestContext(request, {}))
 
 
 # Reports "API"
@@ -250,7 +212,7 @@ def templates_endpoint(request, graph_slug):
 
     if queries and template:
         return edit(request, response, graph, graph_slug=graph_slug)
-    elif template and not queries :
+    elif template and not queries:
         return preview(request, response, graph, graph_slug=graph_slug)
     else:
         return new(request, response, graph, graph_slug=graph_slug)

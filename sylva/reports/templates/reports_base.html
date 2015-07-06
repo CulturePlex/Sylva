@@ -131,7 +131,13 @@
                 collabs: "{% url 'collaborators_lookup' graph.slug %}"
               };
               var asModal = {{ as_modal|yesno:"true,false" }};
+              var view = {{ view_reports|yesno:"true,false" }};
+              var add = {{ add_reports|yesno:"true,false" }};
+              var edit = {{ edit_reports|yesno:"true,false" }};
+              var del = {{ delete_reports|yesno:"true,false" }};
+              var perms ={view: view, add: add, edit: edit, del: del};
               angular.module('reports').constant("GRAPH", "{{ graph.slug }}");
+              angular.module('reports').constant("REPORTS_PERMS", perms);
               angular.module('reports').constant("GRAPH_NAME", "{{ graph.name }}");
               angular.module('reports').constant("DJANGO_URLS", djangoUrls);
               angular.module('reports').constant("STATIC_PREFIX", "{{STATIC_PREFIX}}");
