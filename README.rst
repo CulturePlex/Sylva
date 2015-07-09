@@ -150,8 +150,8 @@ When in daemon mode, be sure to only run the beat once, otherwise you'll have du
   $ celery multi start w1 --beat -A sylva.celery -l info
   $ celery multi start w2 -A sylva.celery -l info
 
-Support for the Tinkerpop3 Graph (Experimental)
------------------------------------------------
+Support for Tinkerpop3/Gremlin Server (Experimental)
+----------------------------------------------------
 
 The SylvaDB community is in the process of adding support for `Tinkerpop3`_ enabled
 graph databases that use the Gremlin Server for communication.
@@ -219,12 +219,12 @@ GRAPHDATABASES default graph settings to the following::
 
     'default': {
         'ENGINE': 'engines.gdb.backends.tinkergraph',
-        'NAME': '',  # Changed to avoid overwrites from testing
+        'NAME': '',
         'USER': '',
         'PASSWORD': '',
         'SCHEMA': 'http',
         'HOST': 'localhost',
-        'PORT': '8182',  # Changed to avoid overwrites from testing
+        'PORT': '8182',
     }
 
 As Tinkergraph is does not have text search enabled lookups, it does not run
@@ -241,7 +241,7 @@ Please disable these applications in your settings::
 Finally, run SylvaDB's dev server as per usual
 (with whatever settings you configured for TP3) and fire up the Gremlin Server::
 
-    % ./gremlin/bin/gremlin-server.sh conf/sylva.yaml
+    $ ./gremlin/bin/gremlin-server.sh conf/sylva.yaml
 
 
 .. _Sylva: http://www.sylvadb.com
