@@ -1,8 +1,13 @@
 language: python
+sudo: false
 python:
   - "2.7"
+cache:
+  directories:
+    - $HOME/.cache/pip
+    - $HOME/.npm
 env:
-  - NEO4J_VERSION="1.9.2"
+  - NEO4J_VERSION="1.9.9"
 before_install:
   - ./download_and_install_neo4j.sh $NEO4J_VERSION
 install:
