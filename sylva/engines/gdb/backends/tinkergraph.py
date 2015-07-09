@@ -208,7 +208,6 @@ class GraphDatabase(BlueprintsGraphDatabase):
         if label is not None:
             labels = self._prep_labels(label)
             script = "g.V().or(%s).count()" % labels
-            print("SFsadfasdfsdfsad", script)
         else:
             script = """g.V().count()"""
         resp = self.gdb.execute(script)
