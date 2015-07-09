@@ -43,8 +43,10 @@ def get_connection_string(properties):
                                         path)
     elif user:
         uri = "%s://%s@%s:%s/%s/" % (schema, user, host, port, path)
-    else:
+    elif path:
         uri = "%s://%s:%s/%s/" % (schema, host, port, path)
+    else:
+        uri = "%s://%s:%s/" % (schema, host, port)
     query = properties.get("QUERY", None)
     if query:
         uri = "%s?%s" % (uri, query)
