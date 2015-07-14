@@ -353,12 +353,11 @@ def fullscreen_view(request, graph_slug, template_slug, report_id):
 
 @login_required
 @is_enabled(settings.ENABLE_REPORTS)
-@permission_required("graphs.add_graph_reports",
-                     (Graph, "slug", "graph_slug"), return_403=True)
 def builder_endpoint(request, graph_slug):
     graph = get_object_or_404(Graph, slug=graph_slug)
     template = {}
     if request.method == "POST":
+
         template = json.loads(request.body)['template']
         date = template['date'].split("/")
         time = template['time'].split(":")
@@ -370,6 +369,7 @@ def builder_endpoint(request, graph_slug):
                                            int(time[1]))
         except (ValueError, IndexError):
             start_date = ""
+
         if template.get('slug', ''):
 
             @permission_required("graphs.change_graph_reports",
@@ -403,21 +403,32 @@ def builder_endpoint(request, graph_slug):
                 return new_template
 
             new_template = do_edit(request, template, graph_slug=graph_slug)
-            if isinstance(new_template, HttpResponse):
-                return new_template
 
         else:
-            f = ReportTemplateForm({"name": template['name'],
-                                    "start_date": start_date,
-                                    "frequency": template['frequency'],
-                                    "layout": template['layout'],
-                                    "description": template['description'],
-                                    "is_disabled": template["is_disabled"],
-                                    "graph": graph.id})
-            if not f.is_valid():
-                template["errors"] = f.errors
-            else:
-                new_template = f.save()
+
+            @permission_required("graphs.add_graph_reports",
+                                 (Graph, "slug", "graph_slug"),
+                                 return_403=True)
+            def do_new(request, template, **kwargs):
+                f = ReportTemplateForm({"name": template['name'],
+                                        "start_date": start_date,
+                                        "frequency": template['frequency'],
+                                        "layout": template['layout'],
+                                        "description": template['description'],
+                                        "is_disabled": template["is_disabled"],
+                                        "graph": graph.id})
+                if not f.is_valid():
+                    template["errors"] = f.errors
+                    new_template = None
+                else:
+                    new_template = f.save()
+                return new_template
+
+            new_template = do_new(request, template, graph_slug=graph_slug)
+
+        if isinstance(new_template, HttpResponse):
+            return new_template
+
         if not template.get("errors", ""):
             for collab in template["collabs"]:
                 collab = User.objects.get(username=collab["id"])
@@ -428,14 +439,17 @@ def builder_endpoint(request, graph_slug):
 
             queries = set(query for query in new_template.queries.all())
             query_ids = set(query.id for query in queries)
+
             for query in queries:
                 if query.id not in query_set:
                     new_template.queries.remove(query)
+
             for disp_query in query_set:
                 if disp_query and disp_query not in query_ids:
                     query = get_object_or_404(Query, id=disp_query)
                     new_template.queries.add(query)
             new_template.save()
+
     return HttpResponse(json.dumps(template), content_type='application/json')
 
 
