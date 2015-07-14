@@ -265,6 +265,13 @@
         onShow: function(dialog) {
           modalActions.onShow(dialog, onShowOptions);
           $(document).resize();
+
+          $('#overlay').on('click', function(){
+            $.modal.close(); // Closing the loading modal.
+            setTimeout(function() {
+              that.destroyOverlay();
+            }, fast);
+          });
         }
       });
     },
@@ -1097,9 +1104,19 @@
       },
 
       onShow: function() {
-        $('#simplemodal-container').css({
-          width: 1000
-        });
+        // We need to take into account query-list
+        var isThereQueries = $('#query-list').length != 0;
+
+        if(isThereQueries) {
+          $('#simplemodal-container').css({
+            width: 1000
+          });
+        } else {
+          $('#simplemodal-container').css({
+            width: "500px",
+            height: "26px"
+          });
+        }
 
         $('#modal-cancel').css({
           'margin-left': '10px'

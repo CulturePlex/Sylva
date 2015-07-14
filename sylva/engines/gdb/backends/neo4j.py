@@ -728,20 +728,23 @@ class GraphDatabase(BlueprintsGraphDatabase):
                     )
                 else:
                     if relation in conditions_alias:
-                        pattern = u"(`{source}`)-[`{rel}`]-(`{target}`)".format(
-                            source=unicode(source).replace(u"`", u"\\`"),
-                            rel=unicode(relation).replace(u"`", u"\\`"),
-                            rel_type=unicode(relation_type).replace(u"`",
-                                                                    u"\\`"),
-                            target=unicode(target).replace(u"`", u"\\`"),
+                        pattern = (
+                            u"(`{source}`)-[`{rel}`]-(`{target}`)".format(
+                                source=unicode(source).replace(u"`", u"\\`"),
+                                rel=unicode(relation).replace(u"`", u"\\`"),
+                                target=unicode(target).replace(u"`", u"\\`"),
+                            )
                         )
                     else:
-                        pattern = u"(`{source}`)-[`{rel}`:`{rel_type}`]-(`{target}`)".format(
-                            source=unicode(source).replace(u"`", u"\\`"),
-                            rel=unicode(relation).replace(u"`", u"\\`"),
-                            rel_type=unicode(relation_type).replace(u"`",
-                                                                    u"\\`"),
-                            target=unicode(target).replace(u"`", u"\\`"),
+                        pattern = (
+                            u"(`{source}`)-[`{rel}`:`{rel_type}`]-(`{target}`)"
+                            .format(
+                                source=unicode(source).replace(u"`", u"\\`"),
+                                rel=unicode(relation).replace(u"`", u"\\`"),
+                                rel_type=unicode(relation_type).replace(
+                                    u"`", u"\\`"),
+                                target=unicode(target).replace(u"`", u"\\`"),
+                            )
                         )
                 patterns_set.add(pattern)
         return patterns_set
