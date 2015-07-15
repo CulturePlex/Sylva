@@ -292,6 +292,9 @@
       } else {
         $(imgId).attr('class','fa fa-eye');
       }
+
+      // We recalculate the width of the properties columns
+      calculateTextLength();
     });
 
     $('#content-table').ready(function() {
@@ -301,4 +304,9 @@
       $('#search-query').append(showHideDiv);
     });
   });
+
+  $(document).ready(function() {
+    calculateTextLength();
+  });
+
 }(jQuery));

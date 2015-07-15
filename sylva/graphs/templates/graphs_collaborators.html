@@ -61,7 +61,12 @@
                     <div class="content2-bottom">
                         <hr/>
                         <input id="submit-add" type="submit" value="{% trans "Add collaborator" %}">
-                        <input id="submit-cancel" class="to-right" type="submit" value="{% trans "Cancel" %}">
+                        <span class="buttonLinkOption">
+                          {% trans "or" %}
+                          <a id="submit-cancel" href="javascript:void()">
+                            {% trans "Cancel" %}
+                          </a>
+                        </span>
                     </div>
                 </div>
             {% endif %}

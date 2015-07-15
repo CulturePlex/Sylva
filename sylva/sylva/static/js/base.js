@@ -1,5 +1,41 @@
 // Foundation scripts.
 
+// Function to calculate the best width to short the information
+var calculateTextLength = function() {
+  // We get the headers elements, but we remove the first (the element '#')
+  var headers = $('th');
+  // We need the minimun value for the limit of the shorter and the maximun
+  // for the hover option
+  var minimum = 1150; // The width of the table
+  var maximum = 0;
+  $.each(headers, function(index, elem) {
+    // We check if the header is showed to take into account
+    // when we hide some properties
+    var isShowed = $(elem).css('display') != 'none';
+    if(isShowed) {
+      // We avoid the first element
+      if (index != 0) {
+        var elemWidth = $(elem).width();
+        if(elemWidth < minimum) {
+          minimum = elemWidth;
+        }
+
+        if(elemWidth > maximum) {
+          maximum = elemWidth;
+        }
+      }
+    }
+  });
+
+  // We change the values of shorten-text and shorten-text:hover
+  $('.shorten-text').css({
+    'max-width': minimum + 'px'
+  });
+  $('.shorten-text:hover').css({
+    'max-width': maximum + 'px'
+  });
+};
+
 ;(function($) {
 
   // CSRF protection for all AJAX requests.
@@ -193,37 +229,6 @@
       // cookie variable.
     }
   }
-
-  // Function to calculate the best with to short the information
-  var calculateTextLength = function() {
-    // We get the headers elements, but we remove the first (the element '#')
-    var headers = $('th');
-    // We need the minimun value for the limit of the shorter and the maximun
-    // for the hover option
-    var minimum = 1150; // The width of the table
-    var maximum = 0;
-    $.each(headers, function(index, elem) {
-      // We avoid the first element
-      if (index != 0) {
-        var elemWidth = $(elem).width();
-        if(elemWidth < minimum) {
-          minimum = elemWidth;
-        }
-
-        if(elemWidth > maximum) {
-          maximum = elemWidth;
-        }
-      }
-    });
-
-    // We change the values of shorten-text and shorten-text:hover
-    $('.shorten-text').css({
-      'max-width': minimum + 'px'
-    });
-    $('.shorten-text:hover').css({
-      'max-width': maximum + 'px'
-    });
-  };
 
   $(document).ready(function() {
     calculateTextLength();

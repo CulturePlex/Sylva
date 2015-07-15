@@ -16,36 +16,6 @@
   // For some animations we need the same time that the 'fast' jQuery, 200ms.
   var fast = 200;
 
-  // Function that calculates the with of the headers to adapt the cells
-  var calculateTextLength = function() {
-    var headers = $('th');
-    // We need the minimun value for the limit of the shorter and the maximun
-    // for the hover option
-    var minimum = 1150; // The width of the table
-    var maximum = 0;
-    $.each(headers, function(index, elem) {
-      // We avoid the first element
-      if (index != 0) {
-        var elemWidth = $(elem).width();
-        if(elemWidth < minimum) {
-          minimum = elemWidth;
-        }
-
-        if(elemWidth > maximum) {
-          maximum = elemWidth;
-        }
-      }
-    });
-
-    // We change the values of shorten-text and shorten-text:hover
-    $('.shorten-text').css({
-      'max-width': minimum + 'px'
-    });
-    $('.shorten-text:hover').css({
-      'max-width': maximum + 'px'
-    });
-  };
-
   var modals = {
 
     init: function() {
@@ -1104,7 +1074,7 @@
       },
 
       onShow: function() {
-        // We need to take into account query-list
+        // We need to take into account if we have some queries
         var isThereQueries = $('#query-list').length != 0;
 
         if(isThereQueries) {
@@ -1117,10 +1087,6 @@
             height: "26px"
           });
         }
-
-        $('#modal-cancel').css({
-          'margin-left': '10px'
-        });
 
         // Apply shorten text to the cells of the table
         calculateTextLength();
@@ -1290,6 +1256,16 @@
 
           setTimeout(function() {
             that.queriesList.start(url, false);
+          }, fast);
+
+          return false;
+        });
+
+        $('#modal-back').on('click', function() {
+          var url = $(event.target).data('url');
+
+          setTimeout(function() {
+            that.queriesNew.start(url, false);
           }, fast);
 
           return false;

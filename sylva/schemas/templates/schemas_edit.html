@@ -150,6 +150,7 @@
 
     {% if as_modal %}
     <div id="modal-content-controls" class="modal-content-controls">
+    <hr/>
     {% endif %}
     <div class="schema-bottom">
       <span class="buttonLinkOption">
@@ -164,6 +165,7 @@
       </span>
       {% if as_modal %}
         <span class="buttonLinkOption">
+          {% trans "or" %}
           <a id="modal-cancel" href="javascript:void()">
             {% trans "Cancel" %}
           </a>
