@@ -176,6 +176,9 @@
     {% if not as_modal %}
         <a class="button" id="create-query" href="{% url "queries_new" graph.slug %}">{% trans "New Query" %}</a>
     {% else %}
+        {% if queries %}
+        <hr/>
+        {% endif %}
         <a class="button" id="create-query" href="{% url "queries_new" graph.slug %}">{% trans "New Query" %}</a>
         <span class="buttonLinkOption">
             {% trans "or" %}

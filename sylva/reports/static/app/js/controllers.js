@@ -61,6 +61,13 @@ controllers.controller('ReportListCtrl', [
               cancelLinkClon.css("display", "inline-block");
               $('.pagination-info').prepend(cancelLinkClon);
             }, 100);
+
+            // Let's check if we have reports to add an horizontal line
+            setTimeout(function() {
+              if($('#content_table').length != 0) {
+                $('#new-report-button').before("<hr/>");
+              }
+            }, 75);
         }
 }]);
 

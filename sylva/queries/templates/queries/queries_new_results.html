@@ -112,14 +112,24 @@
                   <a href=""><span class="symbol-medium"></span></a>
                 {% endif %}
                 {% if as_modal %}
-                <a id="modal-back" data-url="{% url "queries_new" graph.slug %}" href="javascript:void(0)">{% trans "Back" %}</a>
-                <a id="modal-cancel" data-url="{{ queries_list_url }}" href="javascript:void(0)">{% trans "Cancel" %}</a>
+                  <span class="buttonLinkOption" style="margin-top: -2px;">
+                    <a id="modal-back" data-url="{% url "queries_new" graph.slug %}" href="javascript:void(0)">{% trans "Back" %}</a>
+                    {% trans "or" %}
+                    <a id="modal-cancel" data-url="{{ queries_list_url }}" href="javascript:void(0)">{% trans "Cancel" %}</a>
+                  </span>
                 {% endif %}
             </div>
         </div>
     </div>
 {% else %}
     <p>{% trans "There are not results for this query. Please, check your query or your data." %}</p>
+    {% if as_modal %}
+      <span class="buttonLinkOption" style="margin-top: 5px;">
+        <a id="modal-back" data-url="{% url "queries_new" graph.slug %}" href="javascript:void(0)">{% trans "Back" %}</a>
+        {% trans "or" %}
+        <a id="modal-cancel" data-url="{{ queries_list_url }}" href="javascript:void(0)">{% trans "Cancel" %}</a>
+      </span>
+    {% endif %}
 {% endif %}
 </div>
 {% endblock %}

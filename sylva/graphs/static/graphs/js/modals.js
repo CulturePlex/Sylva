@@ -1179,6 +1179,19 @@
 
           return false;
         });
+
+        // Binding cancel action (when we click save)
+        $('#cancel-button').on('click', function() {
+          var url = $(event.target).attr('href');
+          // We remove the query dictionary from memory
+          query = null;
+
+          setTimeout(function() {
+            that.queriesList.start(url, false);
+          }, fast);
+
+          return false;
+        });
       },
 
       onShow: function() {
