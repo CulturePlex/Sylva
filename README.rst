@@ -210,7 +210,7 @@ Finally, run SylvaDB's dev server as per usual
 (with whatever settings you configured for TP3) and fire up Titan (using the
 Gremlin Server)::
 
-    $ .titan/bin/gremlin-server.sh
+    $ ./titan/bin/gremlin-server.sh
 
 
 .. _Sylva: http://www.sylvadb.com
