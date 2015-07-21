@@ -99,5 +99,4 @@ class Q(BaseQ):
             params[key] = match
             query_format = u"has('{0}', new P({1}, {2}))"
             query = query_format.format(self.property, lookup, key)
-            print("HAAAAS", query, params)
         return query, params
