@@ -599,7 +599,10 @@ class BaseElement(object):
 
     def __init__(self, id, graph, properties=None, initial=None, label=None,
                  source_dict=None, target_dict=None):
-        self._id = int(id)
+        try:
+            self._id = int(id)
+        except ValueError:
+            self._id = id
         self.graph = graph
         self.gdb = graph.gdb
         # self.schema = (not graph.relaxed) and graph.schema
