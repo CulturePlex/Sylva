@@ -198,6 +198,7 @@ INSTALLED_APPS = (
     'analytics',
     'compressor',
     'djcelery',
+    'rest_framework',
 )
 
 AUTHENTICATION_BACKENDS = (
@@ -383,3 +384,11 @@ COMPRESS_ENABLED = True  # By default it's the opposite to 'DEBUG'
 
 # A variable for configure some URLs for the Travis's tests
 TEST = False
+
+# Rest framework configuration
+REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
+    ),
+    'PAGE_SIZE': 10
+}

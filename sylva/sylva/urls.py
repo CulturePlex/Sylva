@@ -6,6 +6,9 @@ from django.views.generic import TemplateView
 
 from accounts.forms import UserProfileEditForm
 
+# API imports
+from graphs import api as graphs_api
+
 # from django.contrib import admin
 # from admin import admin_site
 admin.autodiscover()
@@ -125,3 +128,14 @@ if settings.TEST and not settings.DEBUG:
         url(r'^media/(?P<path>.*)$', 'django.views.static.serve',
             {'document_root': settings.MEDIA_ROOT}),
     )
+
+# API url patterns
+urlpatterns += patterns('',
+    # url to GET and POST over graphs
+    url(r'^api/graphs/$',
+        graphs_api.GraphsView.as_view(), name='api_graphs'),
+
+    # url to GET and POST over a graph
+    url(r'^api/graphs/(?P<graph_slug>[\w-]+)/$',
+        graphs_api.GraphView.as_view(), name='api_graph'),
+)
