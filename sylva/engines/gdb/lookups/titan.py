@@ -4,37 +4,56 @@ from engines.gdb.lookups import BaseQ
 
 class Q(BaseQ):
 
-    STR_LOOKUPS = ("exact", "iexact", "contains", "icontains", "startswith",
-                   "istartswith", "endswith", "iendswith", "regex", "iregex")
-
     def _get_lookup_and_match(self):
-        # Tinkergraph doesn't support text search lookups
-        if self.lookup in self.STR_LOOKUPS:
-            lookup = "eq"
+        if self.lookup in ["exact", "iexact"]:
+            lookup = "EQUAL"
+            match = "{0}".format(self.match)
+        elif self.lookup in ["contains", "icontains"]:
+            lookup = "CONTAINS_PREFIX"
+            match = "{0}".format(self.match)
+        elif self.lookup in ["startswith", "istartswith"]:
+            lookup = "PREFIX"
+            match = "{0}".format(self.match)
+        elif self.lookup in ["endswith", "iendswith"]:
+            lookup = "REGEX"
+            match = ".*{0}".format(self.match)
+        elif self.lookup in ["regex", "iregex"]:
+            lookup = "REGEX"
+            match = "{0}".format(self.match)
         elif self.lookup == "gt":
-            lookup = "gt"
+            lookup = "GREATER_THAN"
+            match = "{0}".format(self.match)
         elif self.lookup == "gte":
-            lookup = "gte"
+            lookup = "GREATER_THAN_EQUAL"
+            match = "{0}".format(self.match)
         elif self.lookup == "lt":
-            lookup = "lt"
+            lookup = "LESS_THAN"
+            match = "{0}".format(self.match)
         elif self.lookup == "lte":
-            lookup = "lte"
+            lookup = "LESS_THAN_EQUAL"
+            match = "{0}".format(self.match)
         elif self.lookup == "in":
-            lookup = "within"
+            lookup = "WITHIN"
+            match = "{0}".format(self.match)
         elif self.lookup == "inrange":
-            lookup = "between"
-        # I don't think tinkergraph stores nulls
+            lookup = "BETWEEN"
+            match = "{0}".format(self.match)
         elif self.lookup == "isnull":
-            lookup = "eq"
-            if not self.match:
-                self.match = ""
+            if self.match:
+                lookup = "EQUAL"
+            else:
+                lookup = "NOT_EQUAL"
+            match = "null"
         elif self.lookup in ["eq", "equals"]:
-            lookup = "eq"
+            lookup = "EQUAL"
+            match = "{0}".format(self.match)
         elif self.lookup in ["neq", "notequals"]:
-            lookup = "neq"
+            lookup = "NOT_EQUAL"
+            match = "{0}".format(self.match)
         else:
             lookup = self.lookup
-        return lookup, self.match
+            match = ""
+        return lookup, match
 
     def get_query_objects(self, prefix=None, params=None):
         if prefix is None:
@@ -78,6 +97,6 @@ class Q(BaseQ):
         if self.property is not None:
             key = "{0}p{1}".format(prefix, len(params))
             params[key] = match
-            query_format = u"has('{0}', {1}({2}))"
+            query_format = u"has('{0}', new P({1}, {2}))"
             query = query_format.format(self.property, lookup, key)
         return query, params

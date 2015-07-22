@@ -30,7 +30,11 @@ class InstanceNeo4jTestSuite(TestCase):
         """
         Tests that a neo4j instance is created.
         """
-        instance = Instance(name=self.instanceName, engine=self.instanceEngine, port=self.instancePort, path=self.instancePath, owner=self.u)
+        instance = Instance(name=self.instanceName,
+                            engine=self.instanceEngine,
+                            port=self.instancePort,
+                            path=self.instancePath,
+                            owner=self.u)
         instance.save()
         self.assertIsNotNone(instance)
 
@@ -38,7 +42,11 @@ class InstanceNeo4jTestSuite(TestCase):
         """
         Tests that a neo4j instance is edited.
         """
-        instance = Instance(name=self.instanceName, engine=self.instanceEngine, port=self.instancePort, path=self.instancePath, owner=self.u)
+        instance = Instance(name=self.instanceName,
+                            engine=self.instanceEngine,
+                            port=self.instancePort,
+                            path=self.instancePath,
+                            owner=self.u)
         instance.save()
         self.assertIsNotNone(instance)
         self.assertEqual(instance.name, self.instanceName)
@@ -49,7 +57,11 @@ class InstanceNeo4jTestSuite(TestCase):
         """
         Tests that a neo4j instance has a graph database.
         """
-        instance = Instance(name=self.instanceName, engine=self.instanceEngine, port="7373", path="db/sylva", owner=self.u)
+        instance = Instance(name=self.instanceName,
+                            engine=self.instanceEngine,
+                            port="7373",
+                            path="db/sylva",
+                            owner=self.u)
         instance.save()
         self.assertIsNotNone(instance)
         self.assertIsNotNone(self.sylva_graph)
@@ -60,7 +72,11 @@ class InstanceNeo4jTestSuite(TestCase):
         """
         Tests that a neo4j instance is deleted.
         """
-        instance = Instance(name=self.instanceName, engine=self.instanceEngine, port=self.instancePort, path=self.instancePath, owner=self.u)
+        instance = Instance(name=self.instanceName,
+                            engine=self.instanceEngine,
+                            port=self.instancePort,
+                            path=self.instancePath,
+                            owner=self.u)
         instance.save()
         self.assertIsNotNone(instance)
         instance_id = instance.id
@@ -90,7 +106,11 @@ class InstanceRexsterTestSuite(TestCase):
         """
         Tests that a rexster instance is created.
         """
-        instance = Instance(name=self.instanceName, engine=self.instanceEngine, port=self.instancePort, path=self.instancePath, owner=self.u)
+        instance = Instance(name=self.instanceName,
+                            engine=self.instanceEngine,
+                            port=self.instancePort,
+                            path=self.instancePath,
+                            owner=self.u)
         instance.save()
         self.assertIsNotNone(instance)
 
@@ -98,7 +118,11 @@ class InstanceRexsterTestSuite(TestCase):
         """
         Tests that a rexster instance is edited.
         """
-        instance = Instance(name=self.instanceName, engine=self.instanceEngine, port=self.instancePort, path=self.instancePath, owner=self.u)
+        instance = Instance(name=self.instanceName,
+                            engine=self.instanceEngine,
+                            port=self.instancePort,
+                            path=self.instancePath,
+                            owner=self.u)
         instance.save()
         self.assertIsNotNone(instance)
         self.assertEqual(instance.name, self.instanceName)
@@ -109,7 +133,11 @@ class InstanceRexsterTestSuite(TestCase):
         """
         Tests that a rexster instance has a graph database (TODO).
         """
-        instance = Instance(name=self.instanceName, engine=self.instanceEngine, port="7373", path="db/sylva", owner=self.u)
+        instance = Instance(name=self.instanceName,
+                            engine=self.instanceEngine,
+                            port="7373",
+                            path="db/sylva",
+                            owner=self.u)
         instance.save()
         self.assertIsNotNone(instance)
         self.assertIsNotNone(self.sylva_graph)
@@ -120,7 +148,11 @@ class InstanceRexsterTestSuite(TestCase):
         """
         Tests that a rexster instance is deleted.
         """
-        instance = Instance(name=self.instanceName, engine=self.instanceEngine, port=self.instancePort, path=self.instancePath, owner=self.u)
+        instance = Instance(name=self.instanceName,
+                            engine=self.instanceEngine,
+                            port=self.instancePort,
+                            path=self.instancePath,
+                            owner=self.u)
         instance.save()
         self.assertIsNotNone(instance)
         instance_id = instance.id
@@ -131,3 +163,80 @@ class InstanceRexsterTestSuite(TestCase):
         except Instance.DoesNotExist:
             exists = False
         self.assertEqual(exists, False)
+
+
+# class InstanceTitanTestSuite(TestCase):
+#
+#     def setUp(self):
+#         self.u = User(username="Me")
+#         self.u.save()
+#         d = Data()
+#         d.save()
+#         self.sylva_graph = Graph(name="mygraph", data=d, owner=self.u)
+#         self.sylva_graph.save()
+#         self.instanceName = "instance_titan"
+#         self.instanceEngine = "engines.gdb.backends.titan"
+#         self.instancePort = "8182"
+#         self.instancePath = ""
+#
+#     def test_instance_creation_titan(self):
+#         """
+#         Tests that a neo4j instance is created.
+#         """
+#         instance = Instance(name=self.instanceName,
+#                             engine=self.instanceEngine,
+#                             port=self.instancePort,
+#                             path=self.instancePath,
+#                             owner=self.u)
+#         instance.save()
+#         self.assertIsNotNone(instance)
+#
+#     def test_instance_edition_titan(self):
+#         """
+#         Tests that a neo4j instance is edited.
+#         """
+#         instance = Instance(name=self.instanceName,
+#                             engine=self.instanceEngine,
+#                             port=self.instancePort,
+#                             path=self.instancePath,
+#                             owner=self.u)
+#         instance.save()
+#         self.assertIsNotNone(instance)
+#         self.assertEqual(instance.name, self.instanceName)
+#         instance.name = "instanceNeo4jSet"
+#         self.assertEqual(instance.name, "instanceNeo4jSet")
+#
+#     def test_instance_gdb_titan(self):
+#         """
+#         Tests that a neo4j instance has a graph database.
+#         """
+#         instance = Instance(name=self.instanceName,
+#                             engine=self.instanceEngine,
+#                             port="7373",
+#                             path="db/sylva",
+#                             owner=self.u)
+#         instance.save()
+#         self.assertIsNotNone(instance)
+#         self.assertIsNotNone(self.sylva_graph)
+#         gdb = instance.get_gdb(self.sylva_graph)
+#         self.assertIsNotNone(gdb)
+#
+#     def test_instance_deletion_titan(self):
+#         """
+#         Tests that a neo4j instance is deleted.
+#         """
+#         instance = Instance(name=self.instanceName,
+#                             engine=self.instanceEngine,
+#                             port=self.instancePort,
+#                             path=self.instancePath,
+#                             owner=self.u)
+#         instance.save()
+#         self.assertIsNotNone(instance)
+#         instance_id = instance.id
+#         Instance.objects.get(pk=instance_id).delete()
+#         try:
+#             Instance.objects.get(pk=instance_id)
+#             exists = True
+#         except Instance.DoesNotExist:
+#             exists = False
+#         self.assertEqual(exists, False)

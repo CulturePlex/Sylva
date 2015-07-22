@@ -156,12 +156,9 @@ Support for Tinkerpop3/Gremlin Server (Experimental)
 The SylvaDB community is in the process of adding support for `Tinkerpop3`_ enabled
 graph databases that use the Gremlin Server for communication.
 
-Currently, SylvaDB includes optional experimental support for the `Tinkergraph`_
-in-memory graph database. This database is not meant to be a production, or even
-local, data store for regular SylvaDB use. Instead it is intended to be a first
-step towards adding support for persistent graph databases such as `Titan`_.
+Currently, SylvaDB includes optional experimental support for `Titan`_ graph database.
 
-If you would like to try out the Tinkergraph implementation, please follow the
+If you would like to try out the Titan implementation, please follow the
 steps provided in this README regarding installing SylvaDB requirements and
 the relational database until you arrive at the section titled "Graph Database".
 Then continue as follows:
@@ -173,52 +170,25 @@ First install gremlinrestclient, the client used to connect to the Gremlin Serve
 Next download and unpack the 3.0.0.M9 Gremlin Server::
 
     $ cd git/Sylva
-    $ wget https://dist.apache.org/repos/dist/release/incubator/tinkerpop/3.0.0.M9-incubating/apache-gremlin-server-3.0.0.M9-incubating-bin.zip
-    $ unzip apache-gremlin-server-3.0.0.M9-incubating-bin.zip
-    $ mv apache-gremlin-server-3.0.0.M9-incubating gremlin
+    $ wget http://s3.thinkaurelius.com/downloads/titan/titan-0.9.0-M2-hadoop1.zip
+    $ unzip titan-0.9.0-M2-hadoop1.zip
+    $ mv titan-0.9.0-M2-hadoop1.zip titan
 
-Then you will have to update the config a bit. Create a file called `sylva.groovy`
-in the directory `gremlin/scripts/` and add the following::
+Then you will have to update the config a bit. In
+`conf/gremlin-server/gremlin-server.yaml` change::
 
-    g = graph.traversal()
+    channelizer: org.apache.tinkerpop.gremlin.server.channel.WebSocketChannelizer
 
-Next create a file `sylva.yaml` in the directory `gremlin/conf/` and add the following::
+to::
 
-    host: localhost
-    port: 8182
-    threadPoolWorker: 1
-    gremlinPool: 8
-    scriptEvaluationTimeout: 30000
-    serializedResponseTimeout: 30000
-    channelizer: org.apache.tinkerpop.gremlin.server.channel.HttpChannelizer
-    graphs: {
-      graph: conf/tinkergraph-empty.properties}
-    plugins:
-      - tinkerpop.tinkergraph
-    scriptEngines: {
-      gremlin-groovy: {
-        imports: [java.lang.Math],
-        staticImports: [java.lang.Math.PI],
-        scripts: [scripts/sylva.groovy]}}
-    serializers:
-      - { className: org.apache.tinkerpop.gremlin.driver.ser.GraphSONMessageSerializerGremlinV1d0 }  # application/vnd.gremlin-v1.0+json
-      - { className: org.apache.tinkerpop.gremlin.driver.ser.GraphSONMessageSerializerV1d0 }         # application/json
-    metrics: {
-      slf4jReporter: {enabled: true, interval: 180000}}
-    threadPoolBoss: 1
-    maxInitialLineLength: 4096
-    maxHeaderSize: 8192
-    maxChunkSize: 8192
-    maxContentLength: 65536
-    maxAccumulationBufferComponents: 1024
-    resultIterationBatchSize: 64
+    channelizer: org.apache.tinkerpop.gremlin.server.channel.HTTPChannelizer
 
 Finally, we need to configure SylvaDB to run the proper backend. In the
 whatever settings file you use to run SylvaDB, you can simply change the
 GRAPHDATABASES default graph settings to the following::
 
     'default': {
-        'ENGINE': 'engines.gdb.backends.tinkergraph',
+        'ENGINE': 'engines.gdb.backends.titan',
         'NAME': '',
         'USER': '',
         'PASSWORD': '',
@@ -227,10 +197,8 @@ GRAPHDATABASES default graph settings to the following::
         'PORT': '8182',
     }
 
-As Tinkergraph is does not have text search enabled lookups, it does not run
-against the SylvaDB test suite, nor does it support the `reports` or `queries`
-applications. Furthermore, it does not support data dumps or OLAP, so there is no
-current analytics functionality. This will all be added with support for Titan.
+Titan currently does not support the `reports`, `queries` or `analytics`
+applications. This support will be added in the near future.
 Please disable these applications in your settings::
 
     ENABLE_QUERIES = False
@@ -239,9 +207,10 @@ Please disable these applications in your settings::
     ENABLE_ANALYTICS = False
 
 Finally, run SylvaDB's dev server as per usual
-(with whatever settings you configured for TP3) and fire up the Gremlin Server::
+(with whatever settings you configured for TP3) and fire up Titan (using the
+Gremlin Server)::
 
-    $ ./gremlin/bin/gremlin-server.sh conf/sylva.yaml
+    $ ./titan/bin/gremlin-server.sh
 
 
 .. _Sylva: http://www.sylvadb.com
@@ -257,4 +226,4 @@ Finally, run SylvaDB's dev server as per usual
 .. _virtualenvwrapper: http://www.doughellmann.com/docs/virtualenvwrapper/
 .. _tinkerpop3: http://tinkerpop.incubator.apache.org/
 .. _tinkergraph: http://tinkerpop.incubator.apache.org/docs/3.0.0.M9-incubating/#tinkergraph-gremlin
-.. _titan: http://s3.thinkaurelius.com/docs/titan/0.9.0-M2/
+.. _Titan: http://s3.thinkaurelius.com/docs/titan/0.9.0-M2/
