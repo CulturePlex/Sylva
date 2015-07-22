@@ -8,6 +8,7 @@ from accounts.forms import UserProfileEditForm
 
 # API imports
 from graphs import api as graphs_api
+from schemas import api as schemas_api
 
 # from django.contrib import admin
 # from admin import admin_site
@@ -135,7 +136,28 @@ urlpatterns += patterns('',
     url(r'^api/graphs/$',
         graphs_api.GraphsView.as_view(), name='api_graphs'),
 
-    # url to GET and POST over a graph
+    # url to GET, POST, PATCH, PUT and DELETE over a graph
     url(r'^api/graphs/(?P<graph_slug>[\w-]+)/$',
         graphs_api.GraphView.as_view(), name='api_graph'),
+
+    # url to GET and POST over node types
+    url(r'^api/graphs/(?P<graph_slug>[\w-]+)/types/nodes/$',
+        schemas_api.NodeTypesView.as_view(), name='api_node_types'),
+
+    # url to GET and POST over relationship types
+    url(r'^api/graphs/(?P<graph_slug>[\w-]+)/types/relationships/$',
+        schemas_api.RelationshipTypesView.as_view(),
+        name='api_relationship_types'),
+
+    # url to GET and POST over a node type
+    url(r'^api/graphs/(?P<graph_slug>[\w-]+)'
+        '/types/nodes/(?P<type_slug>[\w-]+)/$',
+        schemas_api.NodeTypeView.as_view(),
+        name='api_node_type'),
+
+    # url to GET and POST over a relationship type
+    url(r'^api/graphs/(?P<graph_slug>[\w-]+)'
+        '/types/relationships/(?P<type_slug>[\w-]+)/$',
+        schemas_api.RelationshipTypeView.as_view(),
+        name='api_relationship_type'),
 )

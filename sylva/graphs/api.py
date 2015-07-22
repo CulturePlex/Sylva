@@ -17,10 +17,10 @@ class GraphsView(APIView):
         # We use the username to filter the graphs of the user
         username = request.user.username
         user = User.objects.filter(username=username)[0]
-
         graphs = user.graphs.all()
 
         serializer = GraphsSerializer(graphs, many=True)
+
         return Response(serializer.data)
 
     def post(self, request, format=None):
@@ -37,6 +37,7 @@ class GraphsView(APIView):
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
+
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -47,7 +48,9 @@ class GraphView(APIView):
         Returns the information of a graph
         """
         graph = get_object_or_404(Graph, slug=graph_slug)
+
         serializer = GraphSerializer(graph)
+
         return Response(serializer.data)
 
     def patch(self, request, graph_slug, format=None):
@@ -69,6 +72,7 @@ class GraphView(APIView):
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
+
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def put(self, request, graph_slug, format=None):
@@ -90,6 +94,7 @@ class GraphView(APIView):
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
+
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, graph_slug, format=None):
