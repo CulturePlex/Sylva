@@ -7,6 +7,7 @@ from django.views.generic import TemplateView
 from accounts.forms import UserProfileEditForm
 
 # API imports
+from data import api as data_api
 from graphs import api as graphs_api
 from schemas import api as schemas_api
 
@@ -160,4 +161,16 @@ urlpatterns += patterns('',
         '/types/relationships/(?P<type_slug>[\w-]+)/$',
         schemas_api.RelationshipTypeView.as_view(),
         name='api_relationship_type'),
+
+    # url to GET and POST over a node type
+    url(r'^api/graphs/(?P<graph_slug>[\w-]+)'
+        '/types/nodes/(?P<type_slug>[\w-]+)/nodes/$',
+        data_api.GetNodesView.as_view(),
+        name='api_nodes'),
+
+    # url to GET and POST over a node type
+    url(r'^api/graphs/(?P<graph_slug>[\w-]+)'
+        '/types/relationships/(?P<type_slug>[\w-]+)/relationships/$',
+        data_api.GetRelationshipsView.as_view(),
+        name='api_relationships'),
 )

@@ -96,12 +96,9 @@ class NodeTypeView(APIView):
         nodetype = (
             graph.schema.nodetype_set.all().filter(slug=type_slug)[0])
 
-        # We get the parameter to check what to remove
-        remove_nodes = request.data.get('remove_nodes', None)
-        if remove_nodes:
-            # We need to remove all the related nodes and
-            # relationships
-            graph.nodes.delete(label=nodetype.id)
+        # We need to remove all the related nodes and
+        # relationships
+        graph.nodes.delete(label=nodetype.id)
 
         serializer = NodeTypeSerializer(nodetype)
         serializer.instance.delete()
@@ -123,8 +120,19 @@ class RelationshipTypeView(APIView):
 
         return Response(serializer.data)
 
-    def delete(self, request, graph_slug, format=None):
+    def delete(self, request, graph_slug, type_slug, format=None):
         """
         Delete the relationship type from the schema
         """
-        pass
+        graph = get_object_or_404(Graph, slug=graph_slug)
+        relationshiptype = (
+            graph.schema.relationshiptype_set.all().filter(slug=type_slug)[0])
+
+        # We need to remove all the related nodes and
+        # relationships
+        graph.relationships.delete(label=relationshiptype.id)
+
+        serializer = RelationshipTypeSerializer(relationshiptype)
+        serializer.instance.delete()
+
+        return Response(status=status.HTTP_204_NO_CONTENT)
