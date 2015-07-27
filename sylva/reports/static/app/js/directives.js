@@ -343,11 +343,11 @@ directives.directive('syEditableTable',[
                     '</div>' +
                     '<div>' +
                       '<a class="button" href="">{{ buttonText.done }}</a> ' +
-                      '<a class="table-button" href="">{{ buttonText.plusrow }}</a>' +
-                      '<a class="table-button" href="">{{ buttonText.pluscol }}</a>' +
-                      '<a class="table-button" href="">{{ buttonText.minusrow }}</a>' +
-                      '<a class="table-button" href="">{{ buttonText.minuscol }}</a>' +
-                      '<a class="table-button" href="">{{ buttonText.pagebreak }}</a>' +
+                      '<a class="addButton" href="">{{ buttonText.plusrow }}</a>' +
+                      '<a class="addButton" href="">{{ buttonText.pluscol }}</a>' +
+                      '<a class="removeButton" href="">{{ buttonText.minusrow }}</a>' +
+                      '<a class="removeButton" href="">{{ buttonText.minuscol }}</a>' +
+                      '<a class="addButton" href="">{{ buttonText.pagebreak }}</a>' +
                     '</div>',
         controller: function($scope) {
 
@@ -421,11 +421,11 @@ directives.directive('syEditableTable',[
 
             scope.buttonText = {
                 done: gettext('Done'),
-                plusrow: gettext('+ row'),
-                minusrow: gettext('- row'),
-                pluscol: gettext('+ col'),
-                minuscol: gettext('- col'),
-                pagebreak: gettext("+ pagebreak")
+                plusrow: gettext('Row'),
+                minusrow: gettext('Row'),
+                pluscol: gettext('Col'),
+                minuscol: gettext('Col'),
+                pagebreak: gettext("Pagebreak")
             }
 
             scope.done = gettext('Done');

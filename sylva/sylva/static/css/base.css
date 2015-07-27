@@ -355,6 +355,17 @@ progress::-webkit-progress-value { background: #348E82; }
     padding-left: 18px;
 }
 
+.removeButton {
+    font-size: 105%;
+    font-weight: 700;
+    text-decoration: none;
+    width: auto;
+    display: inline-block;
+    cursor: pointer;
+    background: transparent url(../img/remove-item_16.png) no-repeat left center;
+    padding-left: 18px;
+}
+
 p.slogan {
     text-align: center;
     font-size: 15px;
