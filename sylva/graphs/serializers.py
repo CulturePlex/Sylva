@@ -15,6 +15,5 @@ class GraphSerializer(serializers.ModelSerializer):
                   'description',
                   'public',
                   'order',
-                  'options',
                   'last_modified',
                   'owner')

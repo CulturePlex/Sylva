@@ -4,7 +4,11 @@ from graphs.models import Graph
 from schemas.serializers import (NodeTypesSerializer,
                                  RelationshipTypesSerializer,
                                  NodeTypeSerializer,
-                                 RelationshipTypeSerializer)
+                                 RelationshipTypeSerializer,
+                                 NodeTypeSchemaSerializer,
+                                 RelationshipTypeSchemaSerializer,
+                                 NodeTypeSchemaPropertiesSerializer,
+                                 RelationshipTypeSchemaPropertiesSerializer)
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -57,7 +61,7 @@ class RelationshipTypesView(APIView):
 
     def post(self, request, graph_slug, format=None):
         """
-        Create a new node type
+        Create a new relationship type
         """
         graph = get_object_or_404(Graph, slug=graph_slug)
         # We get the data from the request
@@ -134,5 +138,98 @@ class RelationshipTypeView(APIView):
 
         serializer = RelationshipTypeSerializer(relationshiptype)
         serializer.instance.delete()
+
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class NodeTypeSchemaView(APIView):
+
+    def get(self, request, graph_slug, type_slug, format=None):
+        """
+        Returns the schema info of the node type
+        """
+        graph = get_object_or_404(Graph, slug=graph_slug)
+        nodetype = (
+            graph.schema.nodetype_set.all().filter(slug=type_slug)[0])
+
+        serializer = NodeTypeSchemaSerializer(nodetype)
+
+        return Response(serializer.data)
+
+
+class RelationshipTypeSchemaView(APIView):
+
+    def get(self, request, graph_slug, type_slug, format=None):
+        """
+        Returns the schema info of the relationship type
+        """
+        graph = get_object_or_404(Graph, slug=graph_slug)
+        relationshiptype = (
+            graph.schema.relationshiptype_set.all().filter(slug=type_slug)[0])
+
+        serializer = RelationshipTypeSchemaSerializer(relationshiptype)
+
+        return Response(serializer.data)
+
+
+class NodeTypeSchemaPropertiesView(APIView):
+
+    def get(self, request, graph_slug, type_slug, format=None):
+        """
+        Returns the node type properties
+        """
+        graph = get_object_or_404(Graph, slug=graph_slug)
+        nodetype = (
+            graph.schema.nodetype_set.all().filter(slug=type_slug)[0])
+
+        serializer = NodeTypeSchemaPropertiesSerializer(nodetype)
+
+        return Response(serializer.data)
+
+    def delete(self, request, graph_slug, type_slug, format=None):
+        """
+        Delete all the node type properties
+        """
+        graph = get_object_or_404(Graph, slug=graph_slug)
+        nodetype = (
+            graph.schema.nodetype_set.all().filter(slug=type_slug)[0])
+
+        # We need to remove all the related nodes and
+        # relationships
+        nodetype.properties.all().delete()
+
+        # Migrations must be passed in
+        # We can pass an argument to remove all of them or only the properties
+
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class RelationshipTypeSchemaPropertiesView(APIView):
+
+    def get(self, request, graph_slug, type_slug, format=None):
+        """
+        Returns the relationship type properties
+        """
+        graph = get_object_or_404(Graph, slug=graph_slug)
+        relationshiptype = (
+            graph.schema.relationshiptype_set.all().filter(slug=type_slug)[0])
+
+        serializer = RelationshipTypeSchemaPropertiesSerializer(
+            relationshiptype)
+
+        return Response(serializer.data)
+
+    def delete(self, request, graph_slug, type_slug, format=None):
+        """
+        Delete all the relationship type properties
+        """
+        graph = get_object_or_404(Graph, slug=graph_slug)
+        relationshiptype = (
+            graph.schema.relationshiptype_set.all().filter(slug=type_slug)[0])
+
+        relationshiptype.properties.all().delete()
+
+        # Migrations must be passed in
+        # We can pass an argument to remove all of them or only the properties
 
         return Response(status=status.HTTP_204_NO_CONTENT)

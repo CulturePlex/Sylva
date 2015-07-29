@@ -89,7 +89,21 @@ class GraphView(APIView):
         if post_data['name'] is None:
             post_data['name'] = graph.name
 
-        serializer = GraphSerializer(graph, data=post_data)
+        # We get the serializer of the graph to get the fields
+        serializer = GraphSerializer(graph)
+        fields = serializer.fields.keys()
+
+        # We need to omit the fields that are not included
+        # We need to take into account the fields restrictions
+        new_data = dict()
+        for field in fields:
+            if field == 'public':
+                new_data[field] = graph.public
+            else:
+                new_data[field] = post_data.get(field, None)
+
+        # And now we update the instance
+        serializer = GraphSerializer(graph, data=new_data)
 
         if serializer.is_valid():
             serializer.save()

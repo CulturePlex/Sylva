@@ -162,13 +162,37 @@ urlpatterns += patterns('',
         schemas_api.RelationshipTypeView.as_view(),
         name='api_relationship_type'),
 
+    # url to GET, PATCH and PUT over a node type schema
+    url(r'^api/graphs/(?P<graph_slug>[\w-]+)'
+        '/types/nodes/(?P<type_slug>[\w-]+)/schema/$',
+        schemas_api.NodeTypeSchemaView.as_view(),
+        name='api_node_type_schema'),
+
+    # url to GET, PATCH and PUT over a relationship type schema
+    url(r'^api/graphs/(?P<graph_slug>[\w-]+)'
+        '/types/relationships/(?P<type_slug>[\w-]+)/schema/$',
+        schemas_api.RelationshipTypeSchemaView.as_view(),
+        name='api_relationship_type_schema'),
+
+    # url to GET, PATCH and PUT over a node type schema properties
+    url(r'^api/graphs/(?P<graph_slug>[\w-]+)'
+        '/types/nodes/(?P<type_slug>[\w-]+)/schema/properties/$',
+        schemas_api.NodeTypeSchemaPropertiesView.as_view(),
+        name='api_node_type_schema_properties'),
+
+    # url to GET, PATCH and PUT over a relationship type schema properties
+    url(r'^api/graphs/(?P<graph_slug>[\w-]+)'
+        '/types/relationships/(?P<type_slug>[\w-]+)/schema/properties/$',
+        schemas_api.RelationshipTypeSchemaPropertiesView.as_view(),
+        name='api_relationship_type_schema_properties'),
+
     # url to GET and POST over a node type
     url(r'^api/graphs/(?P<graph_slug>[\w-]+)'
         '/types/nodes/(?P<type_slug>[\w-]+)/nodes/$',
         data_api.GetNodesView.as_view(),
         name='api_nodes'),
 
-    # url to GET and POST over a node type
+    # url to GET and POST over a relationship type
     url(r'^api/graphs/(?P<graph_slug>[\w-]+)'
         '/types/relationships/(?P<type_slug>[\w-]+)/relationships/$',
         data_api.GetRelationshipsView.as_view(),
