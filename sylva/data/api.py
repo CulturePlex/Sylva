@@ -81,6 +81,54 @@ class NodeView(APIView):
 
         return Response(serializer.data)
 
+    def patch(self, request, graph_slug, type_slug, node_id, format=None):
+        """
+        Edit properties of a node
+        """
+        post_data = request.data
+        graph = get_object_or_404(Graph, slug=graph_slug)
+
+        node = graph.nodes.get(node_id)
+
+        new_data = dict()
+        new_data['id'] = post_data.get('id', node.id)
+        new_data['label'] = post_data.get('label', node.label)
+        new_data['label_display'] = (
+            post_data.get('label_display', node.label_display))
+        new_data['properties'] = (
+            post_data.get('properties', node.properties))
+
+        serializer = NodeSerializer(node, data=new_data)
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def put(self, request, graph_slug, type_slug, node_id, format=None):
+        """
+        Edit properties of a node. Omitted properties are removed
+        """
+        post_data = request.data
+        graph = get_object_or_404(Graph, slug=graph_slug)
+
+        node = graph.nodes.get(node_id)
+
+        new_data = dict()
+        new_data['id'] = post_data.get('id', node.id)
+        new_data['label'] = post_data.get('label', node.label)
+        new_data['label_display'] = (
+            post_data.get('label_display', node.label_display))
+        new_data['properties'] = (
+            post_data.get('properties', None))
+
+        serializer = NodeSerializer(node, data=new_data)
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
     def delete(self, request, graph_slug, type_slug, node_id, format=None):
         """
         Delete the node with id equals to node_id
@@ -108,6 +156,58 @@ class RelationshipView(APIView):
         serializer = RelationshipSerializer(relationship)
 
         return Response(serializer.data)
+
+    def patch(self, request, graph_slug, type_slug, relationship_id,
+              format=None):
+        """
+        Edit properties of a relationship
+        """
+        post_data = request.data
+        graph = get_object_or_404(Graph, slug=graph_slug)
+
+        relationship = graph.relationships.get(relationship_id)
+
+        new_data = dict()
+        new_data['id'] = post_data.get('id', relationship.id)
+        new_data['label'] = post_data.get('label', relationship.label)
+        new_data['label_display'] = (
+            post_data.get('label_display', relationship.label_display))
+        new_data['properties'] = (
+            post_data.get('properties', relationship.properties))
+
+        serializer = RelationshipSerializer(relationship, data=new_data)
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def put(self, request, graph_slug, type_slug, relationship_id,
+            format=None):
+        """
+        Edit properties of a relationship
+        """
+        post_data = request.data
+        graph = get_object_or_404(Graph, slug=graph_slug)
+
+        relationship = graph.relationships.get(relationship_id)
+
+        new_data = dict()
+        new_data['id'] = post_data.get('id', relationship.id)
+        new_data['label'] = post_data.get('label', relationship.label)
+        new_data['label_display'] = (
+            post_data.get('label_display', relationship.label_display))
+        new_data['properties'] = (
+            post_data.get('properties', None))
+
+        serializer = RelationshipSerializer(relationship, data=new_data)
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, graph_slug, type_slug, relationship_id,
                format=None):

@@ -92,6 +92,14 @@ class NodeSerializer(serializers.Serializer):
     def properties_func(self, node):
         return node.properties
 
+    def update(self, instance, validated_data):
+        properties = (
+            validated_data.get('properties', instance.properties))
+
+        instance.properties = properties
+
+        return instance
+
 
 class RelationshipSerializer(serializers.Serializer):
     id = serializers.CharField()
@@ -101,3 +109,11 @@ class RelationshipSerializer(serializers.Serializer):
 
     def properties_func(self, relationship):
         return relationship.properties
+
+    def update(self, instance, validated_data):
+        properties = (
+            validated_data.get('properties', instance.properties))
+
+        instance.properties = properties
+
+        return instance
