@@ -24,7 +24,12 @@ class GetNodesSerializer(serializers.ModelSerializer):
         nodes = list()
 
         for node in filtered_nodes:
-            nodes.append(node.properties)
+            node_dict = dict()
+
+            node_dict['id'] = node.id
+            node_dict['properties'] = node.properties
+
+            nodes.append(node_dict)
 
         # We are ready to return the result
         return nodes
@@ -59,12 +64,15 @@ class GetRelationshipsSerializer(serializers.ModelSerializer):
 
         for relationship in filtered_relationships:
             relationship_dict = dict()
+
+            relationship_dict['id'] = relationship.id
             relationship_dict['source'] = (
                 relationship.source.properties)
             relationship_dict['target'] = (
                 relationship.target.properties)
             relationship_dict['properties'] = (
                 relationship.properties)
+
             relationships.append(relationship_dict)
 
         # We are ready to return the result
@@ -73,3 +81,23 @@ class GetRelationshipsSerializer(serializers.ModelSerializer):
     class Meta:
         model = RelationshipType
         fields = ('total', 'relationships')
+
+
+class NodeSerializer(serializers.Serializer):
+    id = serializers.CharField()
+    label = serializers.CharField()
+    label_display = serializers.CharField()
+    properties = serializers.SerializerMethodField('properties_func')
+
+    def properties_func(self, node):
+        return node.properties
+
+
+class RelationshipSerializer(serializers.Serializer):
+    id = serializers.CharField()
+    label = serializers.CharField()
+    label_display = serializers.CharField()
+    properties = serializers.SerializerMethodField('properties_func')
+
+    def properties_func(self, relationship):
+        return relationship.properties

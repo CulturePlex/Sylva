@@ -4,7 +4,8 @@ from django.shortcuts import get_object_or_404
 
 from graphs.models import Graph
 from data.forms import NodeForm
-from data.serializers import (GetNodesSerializer, GetRelationshipsSerializer,)
+from data.serializers import (GetNodesSerializer, GetRelationshipsSerializer,
+                              NodeSerializer, RelationshipSerializer)
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -65,3 +66,59 @@ class GetRelationshipsView(APIView):
         Create a new relationship of allowed relationship
         """
         pass
+
+
+class NodeView(APIView):
+
+    def get(self, request, graph_slug, type_slug, node_id, format=None):
+        """
+        Returns information about a node
+        """
+        graph = get_object_or_404(Graph, slug=graph_slug)
+
+        node = graph.nodes.get(node_id)
+        serializer = NodeSerializer(node)
+
+        return Response(serializer.data)
+
+    def delete(self, request, graph_slug, type_slug, node_id, format=None):
+        """
+        Delete the node with id equals to node_id
+        """
+        graph = get_object_or_404(Graph, slug=graph_slug)
+
+        node = graph.nodes.get(node_id)
+        serializer = NodeSerializer(node)
+
+        serializer.instance.delete()
+
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class RelationshipView(APIView):
+
+    def get(self, request, graph_slug, type_slug, relationship_id,
+            format=None):
+        """
+        Returns information about a relationship
+        """
+        graph = get_object_or_404(Graph, slug=graph_slug)
+
+        relationship = graph.relationships.get(relationship_id)
+        serializer = RelationshipSerializer(relationship)
+
+        return Response(serializer.data)
+
+    def delete(self, request, graph_slug, type_slug, relationship_id,
+               format=None):
+        """
+        Delete the relationship with id equals to relationship_id
+        """
+        graph = get_object_or_404(Graph, slug=graph_slug)
+
+        relationship = graph.relationships.get(relationship_id)
+        serializer = RelationshipSerializer(relationship)
+
+        serializer.instance.delete()
+
+        return Response(status=status.HTTP_204_NO_CONTENT)
