@@ -7,10 +7,8 @@ cache:
     - $HOME/.cache/pip
     - $HOME/.npm
 env:
-  - NEO4J_VERSION="1.9.9"
-  - TITAN_VERSION="0.9.0-M2-hadoop1"
-  - DB=neo4j
-  - DB=titan
+  - NEO4J_VERSION="1.9.9" DB=neo4j
+  - TITAN_VERSION="0.9.0-M2-hadoop1" DB=titan
 before_install:
   - if [ $DB = 'neo4j' ]; then ./download_and_install_neo4j.sh $NEO4J_VERSION; fi
   - if [ $DB = 'titan' ]; then ./download_and_install_titan.sh $TITAN_VERSION; fi
