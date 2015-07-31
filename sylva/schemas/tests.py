@@ -1,8 +1,12 @@
 #-*- coding:utf-8 -*-
 from django.test import TestCase
+from django.contrib.auth.models import User
+from rest_framework import status
+from rest_framework.test import APIClient, APITestCase, APIRequestFactory
 
 from datetime import date, time
 
+from graphs.models import Graph
 from schemas.models import (Schema, NodeType, RelationshipType, NodeProperty,
                             RelationshipProperty)
 
@@ -253,3 +257,97 @@ class RelationshipTypesTest(TestCase):
         except RelationshipType.DoesNotExist:
             exists = False
         self.assertEqual(exists, False)
+
+
+class APISchemaTest(APITestCase):
+    def setUp(self):
+        # We register a user
+        self.user = User.objects.create(username='john', password='doe',
+                                        is_active=True, is_staff=True)
+        self.user.save()
+
+        # We create a graph
+        self.graph_name = "graphTest"
+        self.graph = Graph.objects.create(name=self.graph_name,
+                                          owner=self.user)
+        self.graph_slug = self.graph.slug
+
+        # We login with the new user
+        self.client = APIClient()
+        self.client.force_authenticate(user=self.user)
+
+        self.factory = APIRequestFactory()
+
+        # Let's store the basic url, useful for the calls
+        self.schemas_url = '/api/graphs/' + self.graph_slug + '/types/'
+
+        # Let's store some features for node types and relationship types
+        self.nodetype_name = 'nodetypeName'
+        self.nodetype_description = 'nodetypeDescription'
+        self.relationshiptype_name = 'relationshiptypeName'
+        self.relationshiptype_description = 'relationshiptypeDescription'
+
+    def tearDown(self):
+        self.client.logout()
+
+    # /api/graphs/{graph_slug}/types/{nodes, relationships/: GET and POST
+
+    def test_api_nodetypes_get(self):
+        url = self.schemas_url + 'nodes/'
+        response = self.client.get(url)
+
+        # We check that the request is correct
+        self.assertEqual(response.status_code, 200)
+        # We check that the results is an empty list()
+        self.assertEqual(response.data, list())
+
+    def test_api_nodetypes_post(self):
+        data = {'name': self.nodetype_name}
+        url = self.schemas_url + 'nodes/'
+
+        # First, we check the get method
+        response = self.client.get(url)
+
+        # We check that the request is correct
+        self.assertEqual(response.status_code, 200)
+        # We check that the results is an empty list()
+        self.assertEqual(response.data, list())
+
+        # Then, we check the post method
+        response = self.client.post(url, data)
+
+        # We check that the request is correct
+        self.assertEqual(response.status_code, 201)
+        # We check that the results is an empty list()
+        nodetype_name = response.data['name']
+        self.assertEqual(nodetype_name, self.nodetype_name)
+
+    def test_api_relationshiptypes_get(self):
+        url = self.schemas_url + 'relationships/'
+        response = self.client.get(url)
+
+        # We check that the request is correct
+        self.assertEqual(response.status_code, 200)
+        # We check that the results is an empty list()
+        self.assertEqual(response.data, list())
+
+    def test_api_relationshiptypes_post(self):
+        data = {'name': self.relationshiptype_name}
+        url = self.schemas_url + 'relationships/'
+
+        # First, we check the get method
+        response = self.client.get(url)
+
+        # We check that the request is correct
+        self.assertEqual(response.status_code, 200)
+        # We check that the results is an empty list()
+        self.assertEqual(response.data, list())
+
+        # Then, we check the post method
+        response = self.client.post(url, data)
+
+        # We check that the request is correct
+        self.assertEqual(response.status_code, 201)
+        # We check that the results is an empty list()
+        nodetype_name = response.data['name']
+        self.assertEqual(nodetype_name, self.relationshiptype_name)

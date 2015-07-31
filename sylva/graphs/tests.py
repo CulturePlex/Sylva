@@ -1,10 +1,12 @@
-#-*- coding:utf-8 -*-
+# -*- coding:utf-8 -*-
 
 from django.test import TestCase
 
 from django.contrib.auth import authenticate
 from django.test.client import Client, RequestFactory
 from django.contrib.auth.models import User
+from rest_framework import status
+from rest_framework.test import APIClient, APITestCase, APIRequestFactory
 
 from graphs.models import Graph
 from graphs.mixins import RelationshipDoesNotExist
@@ -18,7 +20,8 @@ class GraphTest(TestCase):
     def setUp(self):
         self.factory = RequestFactory()
         self.c = Client()
-        self.u = User.objects.create(username='john', password='doe', is_active=True, is_staff=True)
+        self.u = User.objects.create(username='john', password='doe',
+                                     is_active=True, is_staff=True)
         self.u.set_password('hello')
         self.u.save()
         mySchema = Schema.objects.create()
@@ -31,7 +34,7 @@ class GraphTest(TestCase):
         self.unicode_properties = {u"property": u"value with spaces"}
         self.graphName = "graphTest"
         self.graph = Graph.objects.create(name=self.graphName,
-            schema=mySchema, owner=self.u)
+                                          schema=mySchema, owner=self.u)
 
     def test_graph_creation(self):
         """
@@ -298,3 +301,141 @@ class RelationshipTest(TestCase):
             exist = False
         self.assertEqual(exist, False)
         Graph.objects.get(name="Bob's graph").destroy()
+
+
+class APIGraphTest(APITestCase):
+    def setUp(self):
+        # We register a user
+        self.user = User.objects.create(username='john', password='doe',
+                                        is_active=True, is_staff=True)
+        self.user.save()
+
+        # We login with the new user
+        self.client = APIClient()
+        self.client.force_authenticate(user=self.user)
+
+        self.factory = APIRequestFactory()
+
+        # Let's store some names for our graph for testing purposes
+        self.graph_name = "graphTest"
+        self.graph_name_changed = "graphTestChanged"
+
+        # Let's store the basic url, useful for the calls
+        self.graphs_url = '/api/graphs/'
+
+    def tearDown(self):
+        self.client.logout()
+
+    # /api/graphs/: GET and POST
+
+    def test_api_graphs_get_empty(self):
+        url = self.graphs_url
+        response = self.client.get(url)
+
+        # We check that the request is correct
+        self.assertEqual(response.status_code, 200)
+        # We check that the results is an empty list()
+        self.assertEqual(response.data, list())
+
+    def test_api_graphs_get_graphs(self):
+        Graph.objects.create(name=self.graph_name, owner=self.user)
+
+        url = self.graphs_url
+        response = self.client.get(url)
+
+        # We check that the request is correct
+        self.assertEqual(response.status_code, 200)
+        # We check that the results contains the graph
+        # The response.data contains a list with the graphs
+        response_graph_name = response.data[0]['name']
+        self.assertEqual(response_graph_name, self.graph_name)
+
+    def test_api_graphs_post(self):
+        data = {'name': self.graph_name}
+
+        url = self.graphs_url
+        response = self.client.post(url, data)
+
+        # We check that the request is correct
+        self.assertEqual(response.status_code, 201)
+        # We check that the results contains the graph
+        # The response.data contains a list with the graphs
+        response_graph_name = response.data['name']
+        self.assertEqual(response_graph_name, self.graph_name)
+
+    # /api/graphs/{graph_slug}: GET, DELETE, PATCH, POST and PUT
+
+    def test_api_graph_get(self):
+        graph = Graph.objects.create(name=self.graph_name, owner=self.user)
+        graph_slug = graph.slug
+
+        url = self.graphs_url + graph_slug + '/'
+        response = self.client.get(url)
+
+        # We check that the request is correct
+        self.assertEqual(response.status_code, 200)
+        # We check that the result has the same name
+        response_graph_name = response.data['name']
+        self.assertEqual(response_graph_name, self.graph_name)
+
+    def test_api_graph_delete(self):
+        graph = Graph.objects.create(name=self.graph_name, owner=self.user)
+        graph_slug = graph.slug
+
+        url = self.graphs_url + graph_slug + '/'
+        response = self.client.delete(url)
+
+        # We check that the request is correct
+        self.assertEqual(response.status_code, 204)
+        # We check that the result returns a None object
+        self.assertEqual(response.data, None)
+
+    def test_api_graph_patch(self):
+        data = {'name': self.graph_name_changed}
+        graph = Graph.objects.create(name=self.graph_name, owner=self.user)
+        graph_slug = graph.slug
+
+        url = self.graphs_url + graph_slug + '/'
+
+        # First, we check a get request
+        response = self.client.get(url)
+
+        # We check that the request is correct
+        self.assertEqual(response.status_code, 200)
+        # We check that the result has the same name
+        response_graph_name = response.data['name']
+        self.assertEqual(response_graph_name, self.graph_name)
+
+        # And then, the patch to see the changes
+        response = self.client.patch(url, data)
+
+        # We check that the request is correct
+        self.assertEqual(response.status_code, 201)
+        # We check that the result has the same name
+        response_graph_name = response.data['name']
+        self.assertEqual(response_graph_name, self.graph_name_changed)
+
+    def test_api_graph_put(self):
+        data = {}
+        graph = Graph.objects.create(name=self.graph_name, owner=self.user)
+        graph_slug = graph.slug
+
+        url = self.graphs_url + graph_slug + '/'
+
+        # First, we check a get request
+        response = self.client.get(url)
+
+        # We check that the request is correct
+        self.assertEqual(response.status_code, 200)
+        # We check that the result has the same name
+        response_graph_name = response.data['name']
+        self.assertEqual(response_graph_name, self.graph_name)
+
+        # And then, the patch to see the changes
+        response = self.client.put(url, data)
+
+        # We check that the request is correct
+        self.assertEqual(response.status_code, 201)
+        # We check that the result has the same name
+        response_graph_name = response.data['last_modified']
+        self.assertEqual(response_graph_name, None)
