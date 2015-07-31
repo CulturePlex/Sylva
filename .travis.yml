@@ -12,16 +12,16 @@ env:
   - DB=neo4j
   - DB=titan
 before_install:
-  - if ['$DB' = 'neo4j']; then ./download_and_install_neo4j.sh $NEO4J_VERSION; fi
-  - if ['$DB' = 'titan']; then ./download_and_install_titan.sh $TITAN_VERSION; fi
+  - if [$DB = 'neo4j']; then ./download_and_install_neo4j.sh $NEO4J_VERSION; fi
+  - if [$DB = 'titan']; then ./download_and_install_titan.sh $TITAN_VERSION; fi
 install:
   - pip install -r requirements_test.txt
   - pip install --allow-all-external argparse==1.2.1
   - gem install coveralls-lcov
 before_script:
-  - if ['$DB' = 'neo4j']; then ./neo4j/bin/neo4j start; fi
-  - if ['$DB' = 'titan']; then ./titan/bin/gremlin-server.sh; fi
-  - if ['$DB' = 'titan']; then TEST_SETTINGS="sylva.titan_test_settings"; else TEST_SETTINGS="sylva.test_settings"; fi
+  - if [$DB = 'neo4j']; then ./neo4j/bin/neo4j start; fi
+  - if [$DB = 'titan']; then ./titan/bin/gremlin-server.sh; fi
+  - if [$DB = 'titan']; then TEST_SETTINGS="sylva.titan_test_settings"; else TEST_SETTINGS="sylva.test_settings"; fi
   - "export DISPLAY=:99.0"
   - "sh -e /etc/init.d/xvfb start"
   - npm install node-gyp
@@ -35,13 +35,13 @@ before_script:
 script:
   - python sylva/manage.py collectstatic --noinput --settings=$TEST_SETTINGS
   - python sylva/manage.py compress --settings=$TEST_SETTINGS
-  - if ['$DB' = 'neo4j']; then coverage run --source=sylva sylva/manage.py test accounts sylva.tests data engines graphs schemas reports --settings=$TEST_SETTINGS; fi
-  - if ['$DB' = 'titan']; then coverage run --source=sylva sylva/manage.py test accounts data engines graphs schemas --settings=$TEST_SETTINGS; fi
+  - if [$DB = 'neo4j']; then coverage run --source=sylva sylva/manage.py test accounts sylva.tests data engines graphs schemas reports --settings=$TEST_SETTINGS; fi
+  - if [$DB = 'titan']; then coverage run --source=sylva sylva/manage.py test accounts data engines graphs schemas --settings=$TEST_SETTINGS; fi
   - node_modules/karma/bin/karma start sylva/reports/static/app/js/karma.conf.js --single-run --browsers PhantomJS
 after_success:
   - coveralls-lcov -v -n sylva/reports/static/app/js/coverage/*/lcov.info > coverage.json
   - coveralls --merge=coverage.json
   - coveralls
 after_script:
-  - if ['$DB' = 'neo4j']; then ./neo4j/bin/neo4j stop; fi
+  - if [$DB = 'neo4j']; then ./neo4j/bin/neo4j stop; fi
   - "sh -e /etc/init.d/xvfb stop"
