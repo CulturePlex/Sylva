@@ -1,4 +1,6 @@
 language: python
+jdk:
+  - oraclejdk8
 sudo: false
 python:
   - "2.7"
