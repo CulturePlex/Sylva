@@ -20,8 +20,10 @@ install:
   - gem install coveralls-lcov
 before_script:
   - if [ $DB = 'neo4j' ]; then ./neo4j/bin/neo4j start; fi
-  - if [ $DB = 'titan' ]; then ./start_titan.sh; fi
-  - cd $TRAVIS_BUILD_DIR
+  - if [ $DB = 'titan' ]; then cd $HOME/titan; fi
+  - if [ $DB = 'titan' ]; then ./bin/gremlin-server.sh  > /dev/null 2>&1 &; fi
+  - if [ $DB = 'titan' ]; then cd $TRAVIS_BUILD_DIR; fi
+  - if [ $DB = 'titan' ]; then sleep 60; fi
   - if [ $DB = 'titan' ]; then TEST_SETTINGS="sylva.titan_test_settings"; else TEST_SETTINGS="sylva.test_settings"; fi
   - "export DISPLAY=:99.0"
   - "sh -e /etc/init.d/xvfb start"
