@@ -20,7 +20,7 @@ install:
   - gem install coveralls-lcov
 before_script:
   - if [ $DB = 'neo4j' ]; then ./neo4j/bin/neo4j start; fi
-  - if [ $DB = 'titan' ]; then cd $HOME/titan; fi
+  - if [ $DB = 'titan' ]; then cd titan/; fi
   - if [ $DB = 'titan' ]; then ./bin/gremlin-server.sh  > /dev/null 2>&1 &; fi
   - if [ $DB = 'titan' ]; then cd $TRAVIS_BUILD_DIR; fi
   - if [ $DB = 'titan' ]; then sleep 60; fi
