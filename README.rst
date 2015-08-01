@@ -84,8 +84,8 @@ After downloading, we need to unzip and setup some parameters::
   $ tar -zxvf neo4j-community-1.9.9-unix.tar.gz
   $ mv neo4j-community-1.9.9-unix neo4j
 
-Now, as indicated in `settings.py` in section `GRAPHDATABASES`, you need to edit
-the file `neo4j/conf/neo4j-server.properties` and set the next properies (the
+Now, as indicated in ``settings.py`` in section ``GRAPHDATABASES``, you need to edit
+the file ``neo4j/conf/neo4j-server.properties`` and set the next properies (the
 default configuration is reserved for testing client libraries)::
 
   org.neo4j.server.webserver.port=7373
@@ -100,7 +100,7 @@ Analytics
 
 The analytics feature is only available for Neo4j backend, and only supportyed
 in 64-bits machines due to a limitiation in GraphLab_. To enable them, set the
-next variable to `True` in your local `settings.py`::
+next variable to ``True`` in your local ``settings.py``::
 
   ENABLE_ANALYTICS = True
 
@@ -115,15 +115,15 @@ although a local installation might be better for development::
   $ tar xvf rabbitmq-server-generic-unix-3.3.1.tar.gz
   $ ./rabbitmq_server-3.3.1/sbin/rabbitmq-server start
 
-That should expose the URL amqp://guest@localhost// listening for requests,
-which is the default `BROKER_URL` in the settings. But if you are using a
+That should expose the URL ``amqp://guest@localhost//`` listening for requests,
+which is the default ``BROKER_URL`` in the settings. But if you are using a
 different broker or result backend, don't forget to configure those in your
 local settings::
 
   BROKER_URL = "amqp://user:pass@hostname/app/"
   CELERY_RESULT_BACKEND = "redis://:password@hostname:port/db"
 
-Then export the settings if it's not the regular `settings.py` file::
+Then export the settings if it's not the regular ``settings.py`` file::
 
   $ export DJANGO_SETTINGS_MODULE=sylva.your_settings
 
@@ -131,9 +131,11 @@ And finally run Celery::
 
   $ celery -A sylva.celery worker -l info
 
-You can also run it in daemon mode by passing the argument `multi`::
+You can also run it in daemon mode by passing the argument ``multi``::
 
   $ celery multi start w1 w2 -A sylva.celery -l info
+
+To disable `prefork pool prefetch`_, simply add ``-Ofair`` at the end of the celery command.
   
 Reports
 -------
@@ -164,3 +166,4 @@ When in daemon mode, be sure to only run the beat once, otherwise you'll have du
 .. _pip: http://pypi.python.org/pypi/pip
 .. _virtualenv: http://pypi.python.org/pypi/virtualenv
 .. _virtualenvwrapper: http://www.doughellmann.com/docs/virtualenvwrapper/
+.. _prefork pool prefetch: http://celery.readthedocs.org/en/latest/userguide/optimizing.html#prefork-pool-prefetch-settings
