@@ -211,7 +211,8 @@ urlpatterns += patterns('',
 
     # url to GET, PATCH, PUT and DELETE over a relationship
     url(r'^api/graphs/(?P<graph_slug>[\w-]+)'
-        '/types/nodes/(?P<type_slug>[\w-]+)/nodes/(?P<relationship_id>\d+)/$',
+        '/types/relationships/(?P<type_slug>[\w-]+)/relationships/'
+        '(?P<relationship_id>\d+)/$',
         data_api.RelationshipView.as_view(),
         name='api_relationship'),
 

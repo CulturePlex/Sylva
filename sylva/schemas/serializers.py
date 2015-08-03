@@ -84,7 +84,7 @@ class RelationshipTypeSerializer(serializers.ModelSerializer):
             relationships.append(relationship.properties)
 
         # We are ready to return the result
-        return relationship
+        return relationships
 
     class Meta:
         model = RelationshipType
