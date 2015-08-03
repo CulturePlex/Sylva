@@ -1,0 +1,178 @@
+{% extends "base.html" %}
+{% load i18n compress %}
+
+{% block extra_links %}
+  {% compress css %}
+    <link rel="stylesheet" href="{{ STATIC_PREFIX }}bootstrap/css/bootstrap-custom.css">
+  {% endcompress %}
+{% endblock extra_links %}
+
+{% block title %}
+  {% trans "Getting Started with SylvaDB - API" %}
+{% endblock title %}
+
+{% block content_title %}
+  <h1>{% trans "Getting Started - API" %}</h1>
+{% endblock content_title %}
+
+{% block content %}
+  <div class="doc">
+    <div class="container-fluid">
+      <div class="row-fluid">
+        <div class="span4">
+          <div class="well sidebar-nav fixed-sidebar-nav">
+            <ul class="nav nav-list">
+              <li class="nav-header">
+                <a href="javascript:void(0)" data-toggle="collapse" data-target="#introduction-block">{% trans "Introduction" %}</a>
+                <i class="fa fa-chevron-down fa-lg nav-arrow" style="display: none;"></i>
+                <i class="fa fa-chevron-up fa-lg nav-arrow"></i>
+              </li>
+              <li class="nav-header">
+                <a href="javascript:void(0)" data-toggle="collapse" data-target="#graphs-block">{% trans "Graph endpoints" %}</a>
+                <i class="fa fa-chevron-down fa-lg nav-arrow" style="display: none;"></i>
+                <i class="fa fa-chevron-up fa-lg nav-arrow"></i>
+              </li>
+              <ul id="graphs-block" class="collapse in">
+                <li><a href="#/graphs/">/graphs/</a></li>
+                <li><a href="#/graphs/{graph_slug}/">/graphs/{graph_slug}/</a></li>
+                <li><a href="#/graphs/{graph_slug}/export/{'schema', 'data', 'graph'}">/graphs/{graph_slug}/export/{'schema', 'data', 'graph'}</a></li>
+                <li><a href="#/graphs/{graph_slug}/import/{'schema', 'data', 'graph'}">/graphs/{graph_slug}/import/{'schema', 'data', 'graph'}</a></li>
+              </ul>
+              <li class="nav-header">
+                <a href="javascript:void(0)" data-toggle="collapse" data-target="#schema-block">{% trans "Schema endpoints" %}</a>
+                <i class="fa fa-chevron-down fa-lg nav-arrow" style="display: none;"></i>
+                <i class="fa fa-chevron-up fa-lg nav-arrow"></i>
+              </li>
+              <ul id="schema-block" class="collapse in">
+                <li><a href="#/graphs/{graph_slug}/types/{‘nodes’,’relationships’}/">/graphs/{graph_slug}/types/{‘nodes’,’relationships’}/</a></li>
+                <li><a href="#/graphs/{graph_slug}/types/{‘nodes’,’relationships’}/{type_slug}/">/graphs/{graph_slug}/types/{‘nodes’,’relationships’}/{type_slug}/</a></li>
+                <li><a href="#/graphs/{graph_slug}/types/{‘nodes’,’relationships’}/{type_slug}/schema">/graphs/{graph_slug}/types/{‘nodes’,’relationships’}/{type_slug}/schema</a></li>
+                <li><a href="#/graphs/{graph_slug}/types/{‘nodes’,’relationships’}/{type_slug}/schema/properties">/graphs/{graph_slug}/types/{‘nodes’,’relationships’}/{type_slug}/schema/properties</a></li>
+              </ul>
+              <li class="nav-header">
+                <a href="javascript:void(0)" data-toggle="collapse" data-target="#data-block">{% trans "Data endpoints" %}</a>
+                <i class="fa fa-chevron-down fa-lg nav-arrow" style="display: none;"></i>
+                <i class="fa fa-chevron-up fa-lg nav-arrow"></i>
+              </li>
+              <ul id="data-block" class="collapse in">
+                <li><a href="#/graphs/{graph_slug}/types/{‘nodes’,’relationships’}/{type_slug}/{‘nodes’,’relationships’}">/graphs/{graph_slug}/types/{‘nodes’,’relationships’}/{type_slug}/{‘nodes’,’relationships’}</a></li>
+                <li><a href="#/graphs/{graph_slug}/types/{‘nodes’,’relationships’}/{type_slug}/{‘nodes’,’relationships’}/{id}">/graphs/{graph_slug}/types/{‘nodes’,’relationships’}/{type_slug}/{‘nodes’,’relationships’}/{id}</a></li>
+              </ul>
+            </ul>
+          </div>
+        </div>
+        <div class="span8">
+          <h1>{% trans "Getting started with SylvaDB - API" %}</h1>
+
+          <!-- Introduction section -->
+          <div class="section">
+            <h2>
+              {% trans "Introduction" %}
+              <a class="headerlink" id="introduction" href="#introduction" title="{% trans "Permalink to this headline" %}">¶</a>
+            </h2>
+            <div class="inner-section">
+              <h3>
+                {% trans "The SylvaDB - API" %}
+                <a class="headerlink" id="sylva-db-api" href="#introduction-block" title="{% trans "Permalink to this headline" %}">¶</a>
+              </h3>
+
+              <p>{% trans "Quick introduction to the SylvaDB - API." %}</p>
+            </div>
+          </div>
+
+          <!-- Graphs endpoints section -->
+          <div class="section">
+            <h2>
+              {% trans "Graphs endpoints" %}
+              <a class="headerlink" id="introduction" href="#graphs-block" title="{% trans "Permalink to this headline" %}">¶</a>
+            </h2>
+            <div class="inner-section">
+              <br/>
+              <p>{% trans "Quick introduction to the services for graphs." %}</p>
+
+              <h3>
+                {% trans "/graphs/" %}
+                <a class="headerlink" id="/graphs/" href="#/graphs/" title="{% trans "Permalink to this headline" %}">¶</a>
+              </h3>
+
+              <p>{% trans "Let's see the available methods for this service." %}</p>
+
+              <h3>
+                {% trans "GET" %}
+                <a class="headerlink" id="/graphs/-GET" title="{% trans "Permalink to this headline" %}">¶</a>
+              </h3>
+
+              <p>{% trans "This method lists all the user graphs." %}</p>
+
+              <!-- Code example section -->
+              <span style="font-family: monospace;">
+              <pre style="padding: 8px; background-color: #f7f7f9; border: 1px solid #e1e1e8; font-size: 12px;"><b>GET</b> /graphs/</pre>
+              <br/>
+              <pre style="padding: 8px; background-color: #f7f7f9; border: 1px solid #e1e1e8; font-size: 12px;">
+<b>HTTP 200 OK</b>
+<b>Content-Type:</b> <span style="color: #195f91;">application/json</span>
+<b>Vary:</b> <span style="color: #195f91;">Accept</span>
+<b>Allow:</b> <span style="color: #195f91;">GET, POST, HEAD, OPTIONS</span>
+
+[
+    {
+        <span style="color: #D14;">"name"</span>: <span style="color: #D14;">"dh"</span>,
+        <span style="color: #D14;">"slug"</span>: <span style="color: #D14;">"dh"</span>,
+        <span style="color: #D14;">"description"</span>: <span style="color: #D14;">"graph for digital humanities"</span>,
+        <span style="color: #D14;">"owner"</span>: <span style="color: #D14;">0</span>
+    },
+    {
+        <span style="color: #D14;">"name"</span>: <span style="color: #D14;">"dbshow"</span>,
+        <span style="color: #D14;">"slug"</span>: <span style="color: #D14;">"dbshow"</span>,
+        <span style="color: #D14;">"description"</span>: <span style="color: #D14;">""</span>,
+        <span style="color: #D14;">"owner"</span>: <span style="color: #D14;">0</span>
+    }
+]
+              </pre>
+            </span>
+
+              <h3>
+                {% trans "POST" %}
+                <a class="headerlink" id="/graphs/-POST" title="{% trans "Permalink to this headline" %}">¶</a>
+              </h3>
+
+              <p>{% trans "This method creates a new user graph." %}</p>
+            </div>
+          </div>
+
+          <!-- Schema endpoints section -->
+          <div class="section">
+            <h2>
+              {% trans "Schema endpoints" %}
+              <a class="headerlink" id="schema-endpoints" href="#schema-block" title="{% trans "Permalink to this headline" %}">¶</a>
+            </h2>
+            <div class="inner-section">
+              <br/>
+              <p>{% trans "Quick introduction to the services for schemas." %}</p>
+            </div>
+          </div>
+
+          <!-- Data endpoints section -->
+          <div class="section">
+            <h2>
+              {% trans "Data endpoints" %}
+              <a class="headerlink" id="data-endpoints" href="#data-block" title="{% trans "Permalink to this headline" %}">¶</a>
+            </h2>
+            <div class="inner-section">
+              <br/>
+              <p>{% trans "Quick introduction to the services for data." %}</p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock content %}
+
+{% block extra_scripts %}
+  {% compress js %}
+    <script src="{{ STATIC_PREFIX }}bootstrap/js/bootstrap-custom.js"></script>
+    <script src="{{ STATIC_PREFIX }}js/get_started.js"></script>
+  {% endcompress %}
+{% endblock extra_scripts %}

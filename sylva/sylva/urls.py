@@ -132,12 +132,17 @@ if settings.TEST and not settings.DEBUG:
     )
 
 # API url patterns
+urlpatterns += patterns('sylva.views',
+    # index url for API
+    url(r'^api/$', 'api_index', name='api_index'),
+)
+
 urlpatterns += patterns('',
     # url to GET and POST over graphs
     url(r'^api/graphs/$',
         graphs_api.GraphsView.as_view(), name='api_graphs'),
 
-    # url to GET, POST, PATCH, PUT and DELETE over a graph
+    # url to GET, PATCH, PUT and DELETE over a graph
     url(r'^api/graphs/(?P<graph_slug>[\w-]+)/$',
         graphs_api.GraphView.as_view(), name='api_graph'),
 
@@ -197,4 +202,42 @@ urlpatterns += patterns('',
         '/types/relationships/(?P<type_slug>[\w-]+)/relationships/$',
         data_api.GetRelationshipsView.as_view(),
         name='api_relationships'),
+
+    # url to GET, PATCH, PUT and DELETE over a node
+    url(r'^api/graphs/(?P<graph_slug>[\w-]+)'
+        '/types/nodes/(?P<type_slug>[\w-]+)/nodes/(?P<node_id>\d+)/$',
+        data_api.NodeView.as_view(),
+        name='api_node'),
+
+    # url to GET, PATCH, PUT and DELETE over a relationship
+    url(r'^api/graphs/(?P<graph_slug>[\w-]+)'
+        '/types/nodes/(?P<type_slug>[\w-]+)/nodes/(?P<relationship_id>\d+)/$',
+        data_api.RelationshipView.as_view(),
+        name='api_relationship'),
+
+    # urls for export with the API
+    url(r'^api/graphs/(?P<graph_slug>[\w-]+)/export/graph/$',
+        graphs_api.GraphCompleteExportView.as_view(),
+        name='api_export_graph'),
+
+    url(r'^api/graphs/(?P<graph_slug>[\w-]+)/export/schema/$',
+        graphs_api.GraphSchemaExportView.as_view(),
+        name='api_export_schema'),
+
+    url(r'^api/graphs/(?P<graph_slug>[\w-]+)/export/data/$',
+        graphs_api.GraphDataExportView.as_view(),
+        name='api_export_data'),
+
+    # urls for import with the API
+    url(r'^api/graphs/(?P<graph_slug>[\w-]+)/import/graph/$',
+        graphs_api.GraphCompleteImportView.as_view(),
+        name='api_import_graph'),
+
+    url(r'^api/graphs/(?P<graph_slug>[\w-]+)/import/schema/$',
+        graphs_api.GraphSchemaImportView.as_view(),
+        name='api_import_schema'),
+
+    url(r'^api/graphs/(?P<graph_slug>[\w-]+)/import/data/$',
+        graphs_api.GraphDataImportView.as_view(),
+        name='api_import_data'),
 )

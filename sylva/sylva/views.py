@@ -43,3 +43,9 @@ def dashboard(request):
                                "collaborations": collaborations,
                                "instances": request.user.instances.all()},
                               context_instance=RequestContext(request))
+
+
+@login_required()
+def api_index(request):
+    return render_to_response('api.html',
+                              context_instance=RequestContext(request))
