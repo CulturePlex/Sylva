@@ -1,8 +1,11 @@
 # -*- coding: utf-8 -*-
+import json
+
 from accounts.models import User
 from django.shortcuts import get_object_or_404
 from graphs.models import Graph
 from graphs.serializers import GraphsSerializer, GraphSerializer
+# from tools.converters import JSONConverter
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -121,3 +124,85 @@ class GraphView(APIView):
         serializer.instance.delete()
 
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+# Export classes
+
+class GraphCompleteExportView(APIView):
+
+    def get(self, request, graph_slug, format=None):
+        """
+        Export the schema and the data of the graph
+        """
+        """
+        graph = get_object_or_404(Graph, slug=graph_slug)
+
+        schema = graph.schema.export()
+        data = JSONConverter(graph=graph).export()
+
+        schema.update(data)
+
+        return Response(schema)
+        """
+        pass
+
+
+class GraphSchemaExportView(APIView):
+
+    def get(self, request, graph_slug, format=None):
+        """
+        Export the schema of the graph
+        """
+        graph = get_object_or_404(Graph, slug=graph_slug)
+
+        return Response(graph.schema.export())
+
+
+class GraphDataExportView(APIView):
+
+    def get(self, request, graph_slug, format=None):
+        """
+        Export the data of the graph
+        """
+        """
+        graph = get_object_or_404(Graph, slug=graph_slug)
+        data = JSONConverter(graph=graph)
+
+        return Response(data.export())
+        """
+        pass
+
+
+# Import classes
+
+class GraphCompleteImportView(APIView):
+
+    def put(self, request, graph_slug, format=None):
+        """
+        Import the schema and the data of the graph
+        """
+        pass
+
+
+class GraphSchemaImportView(APIView):
+
+    def put(self, request, graph_slug, format=None):
+        """
+        Import the schema of the graph
+        """
+        graph = get_object_or_404(Graph, slug=graph_slug)
+        data = request.data
+
+        graph.schema._import(data)
+
+        return Response(data,
+                        status=status.HTTP_201_CREATED)
+
+
+class GraphDataImportView(APIView):
+
+    def put(self, request, graph_slug, format=None):
+        """
+        Import the data of the graph
+        """
+        pass
