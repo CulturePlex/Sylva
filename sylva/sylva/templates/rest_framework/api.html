@@ -1,0 +1,40 @@
+{% extends "base.html"%}
+{% load i18n graphs %}
+
+{% block bootstrap_theme %}
+      <link rel="stylesheet" type="text/css" href="{{ STATIC_PREFIX }}css/font-awesome.css" />
+      <link rel=" stylesheet" type="text/css" href="{{ STATIC_PREFIX }}joyride/joyride-2.0.3.css">
+      <link rel="stylesheet" type="text/css" href="{{ STATIC_PREFIX }}css/base.css" />
+{% endblock %}
+
+{% block extra_scripts %}
+	<script type="text/javascript">
+		var result = JSON.stringify({{ content|safe }});
+	</script>
+{% endblock %}
+
+{% block content %}
+	<h2>{{ name }}</h2>
+	<h3>{{ description }}</h3>
+	<h3>{{ request.HEAD }}</h3>
+	<br/>
+	<div style="font-family: monospace;">
+		<pre style="padding: 8px; background-color: #f7f7f9; border: 1px solid #e1e1e8; font-size: 12px; margin-bottom: 0px;">
+			<b>{% trans "Requested method" %}:<span style="color: #348E82;"> {{ request.method }}</span></b>
+		</pre>
+		<br/>
+		<pre style="padding: 8px; background-color: #f7f7f9; border: 1px solid #e1e1e8; font-size: 12px;">
+			<b>{% trans "Status" %}: <span style="color: #348E82;">{{ response.status_code }} {{ response.status_text }}</span></b>
+
+			{% for item1, item2 in response.items %}
+			<b>{{ item1 }}: <span style="color: #348E82;"> {{ item2 }}</span></b>
+			{% endfor %}
+		</pre>
+		<br/>
+		<pre style="padding: 8px; background-color: #f7f7f9; border: 1px solid #e1e1e8; font-size: 12px;">
+			{{ content }}
+		</pre>
+		{{ post_form.as_p }}
+		{{ put_form.as_p }}
+	</div>
+{% endblock %}
