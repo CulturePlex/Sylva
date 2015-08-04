@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from django.shortcuts import get_object_or_404
 from graphs.models import Graph
+from schemas.models import NodeType, RelationshipType
 from schemas.serializers import (NodeTypesSerializer,
                                  RelationshipTypesSerializer,
                                  NodeTypeSerializer,
@@ -84,9 +85,9 @@ class NodeTypeView(APIView):
         """
         Returns info related to the node type
         """
-        graph = get_object_or_404(Graph, slug=graph_slug)
-        nodetype = (
-            graph.schema.nodetype_set.all().filter(slug=type_slug)[0])
+        nodetype = get_object_or_404(NodeType,
+                                     slug=type_slug,
+                                     schema__graph__slug=graph_slug)
 
         serializer = NodeTypeSerializer(nodetype)
 
@@ -97,8 +98,9 @@ class NodeTypeView(APIView):
         Delete the node type from the schema
         """
         graph = get_object_or_404(Graph, slug=graph_slug)
-        nodetype = (
-            graph.schema.nodetype_set.all().filter(slug=type_slug)[0])
+        nodetype = get_object_or_404(NodeType,
+                                     slug=type_slug,
+                                     schema__graph__slug=graph_slug)
 
         # We need to remove all the related nodes and
         # relationships
@@ -116,9 +118,9 @@ class RelationshipTypeView(APIView):
         """
         Returns info related to the relationship type
         """
-        graph = get_object_or_404(Graph, slug=graph_slug)
-        relationshiptype = (
-            graph.schema.relationshiptype_set.all().filter(slug=type_slug)[0])
+        relationshiptype = get_object_or_404(RelationshipType,
+                                             slug=type_slug,
+                                             schema__graph__slug=graph_slug)
 
         serializer = RelationshipTypeSerializer(relationshiptype)
 
@@ -129,8 +131,9 @@ class RelationshipTypeView(APIView):
         Delete the relationship type from the schema
         """
         graph = get_object_or_404(Graph, slug=graph_slug)
-        relationshiptype = (
-            graph.schema.relationshiptype_set.all().filter(slug=type_slug)[0])
+        relationshiptype = get_object_or_404(RelationshipType,
+                                             slug=type_slug,
+                                             schema__graph__slug=graph_slug)
 
         # We need to remove all the related nodes and
         # relationships
@@ -148,9 +151,9 @@ class NodeTypeSchemaView(APIView):
         """
         Returns the schema info of the node type
         """
-        graph = get_object_or_404(Graph, slug=graph_slug)
-        nodetype = (
-            graph.schema.nodetype_set.all().filter(slug=type_slug)[0])
+        nodetype = get_object_or_404(NodeType,
+                                     slug=type_slug,
+                                     schema__graph__slug=graph_slug)
 
         serializer = NodeTypeSchemaSerializer(nodetype)
 
@@ -163,9 +166,9 @@ class RelationshipTypeSchemaView(APIView):
         """
         Returns the schema info of the relationship type
         """
-        graph = get_object_or_404(Graph, slug=graph_slug)
-        relationshiptype = (
-            graph.schema.relationshiptype_set.all().filter(slug=type_slug)[0])
+        relationshiptype = get_object_or_404(RelationshipType,
+                                             slug=type_slug,
+                                             schema__graph__slug=graph_slug)
 
         serializer = RelationshipTypeSchemaSerializer(relationshiptype)
 
@@ -178,9 +181,9 @@ class NodeTypeSchemaPropertiesView(APIView):
         """
         Returns the node type properties
         """
-        graph = get_object_or_404(Graph, slug=graph_slug)
-        nodetype = (
-            graph.schema.nodetype_set.all().filter(slug=type_slug)[0])
+        nodetype = get_object_or_404(NodeType,
+                                     slug=type_slug,
+                                     schema__graph__slug=graph_slug)
 
         serializer = NodeTypeSchemaPropertiesSerializer(nodetype)
 
@@ -190,9 +193,9 @@ class NodeTypeSchemaPropertiesView(APIView):
         """
         Delete all the node type properties
         """
-        graph = get_object_or_404(Graph, slug=graph_slug)
-        nodetype = (
-            graph.schema.nodetype_set.all().filter(slug=type_slug)[0])
+        nodetype = get_object_or_404(NodeType,
+                                     slug=type_slug,
+                                     schema__graph__slug=graph_slug)
 
         # We need to remove all the related nodes and
         # relationships
@@ -210,9 +213,9 @@ class RelationshipTypeSchemaPropertiesView(APIView):
         """
         Returns the relationship type properties
         """
-        graph = get_object_or_404(Graph, slug=graph_slug)
-        relationshiptype = (
-            graph.schema.relationshiptype_set.all().filter(slug=type_slug)[0])
+        relationshiptype = get_object_or_404(RelationshipType,
+                                             slug=type_slug,
+                                             schema__graph__slug=graph_slug)
 
         serializer = RelationshipTypeSchemaPropertiesSerializer(
             relationshiptype)
@@ -223,9 +226,9 @@ class RelationshipTypeSchemaPropertiesView(APIView):
         """
         Delete all the relationship type properties
         """
-        graph = get_object_or_404(Graph, slug=graph_slug)
-        relationshiptype = (
-            graph.schema.relationshiptype_set.all().filter(slug=type_slug)[0])
+        relationshiptype = get_object_or_404(RelationshipType,
+                                             slug=type_slug,
+                                             schema__graph__slug=graph_slug)
 
         relationshiptype.properties.all().delete()
 

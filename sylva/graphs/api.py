@@ -1,11 +1,9 @@
 # -*- coding: utf-8 -*-
-import json
 
 from accounts.models import User
 from django.shortcuts import get_object_or_404
 from graphs.models import Graph
 from graphs.serializers import GraphsSerializer, GraphSerializer
-# from tools.converters import JSONConverter
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -134,17 +132,22 @@ class GraphCompleteExportView(APIView):
         """
         Export the schema and the data of the graph
         """
-        """
         graph = get_object_or_404(Graph, slug=graph_slug)
 
         schema = graph.schema.export()
-        data = JSONConverter(graph=graph).export()
-
+        data = dict(nodes=[{'id': n.id,
+                            'label': n.display,
+                            'type': n.label_display,
+                            'properties': n.properties}
+                           for n in graph.nodes.all()],
+                    edges=[{'id': e.id,
+                            'label': e.display,
+                            'type': e.label_display,
+                            'properties': e.properties}
+                           for e in graph.relationships.all()])
         schema.update(data)
 
         return Response(schema)
-        """
-        pass
 
 
 class GraphSchemaExportView(APIView):
@@ -164,13 +167,20 @@ class GraphDataExportView(APIView):
         """
         Export the data of the graph
         """
-        """
         graph = get_object_or_404(Graph, slug=graph_slug)
-        data = JSONConverter(graph=graph)
 
-        return Response(data.export())
-        """
-        pass
+        data = dict(nodes=[{'id': n.id,
+                            'label': n.display,
+                            'type': n.label_display,
+                            'properties': n.properties}
+                           for n in graph.nodes.all()],
+                    edges=[{'id': e.id,
+                            'label': e.display,
+                            'type': e.label_display,
+                            'properties': e.properties}
+                           for e in graph.relationships.all()])
+
+        return Response(data)
 
 
 # Import classes

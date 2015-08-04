@@ -3,6 +3,7 @@ from django.db import transaction
 from django.shortcuts import get_object_or_404
 
 from graphs.models import Graph
+from schemas.models import NodeType, RelationshipType
 from data.forms import NodeForm
 from data.serializers import (GetNodesSerializer, GetRelationshipsSerializer,
                               NodeSerializer, RelationshipSerializer)
@@ -17,9 +18,9 @@ class GetNodesView(APIView):
         """
         Returns a list of nodes that belongs to type_slug
         """
-        graph = get_object_or_404(Graph, slug=graph_slug)
-        nodetype = (
-            graph.schema.nodetype_set.all().filter(slug=type_slug)[0])
+        nodetype = get_object_or_404(NodeType,
+                                     slug=type_slug,
+                                     schema__graph__slug=graph_slug)
 
         serializer = GetNodesSerializer(nodetype)
 
@@ -30,8 +31,9 @@ class GetNodesView(APIView):
         Create a new node of a type
         """
         graph = get_object_or_404(Graph, slug=graph_slug)
-        nodetype = (
-            graph.schema.nodetype_set.all().filter(slug=type_slug)[0])
+        nodetype = get_object_or_404(NodeType,
+                                     slug=type_slug,
+                                     schema__graph__slug=graph_slug)
 
         # We get the post data
         data = request.data
@@ -53,9 +55,9 @@ class GetRelationshipsView(APIView):
         """
         Returns a list of relationships that belongs to type_slug
         """
-        graph = get_object_or_404(Graph, slug=graph_slug)
-        relationshiptype = (
-            graph.schema.relationshiptype_set.all().filter(slug=type_slug)[0])
+        relationshiptype = get_object_or_404(RelationshipType,
+                                             slug=type_slug,
+                                             schema__graph__slug=graph_slug)
 
         serializer = GetRelationshipsSerializer(relationshiptype)
 
