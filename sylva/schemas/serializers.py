@@ -91,7 +91,7 @@ class RelationshipTypeSerializer(serializers.ModelSerializer):
         fields = ('name', 'slug', 'description', 'schema_info', 'rels_info')
 
 
-class NodeTypeSchemaSerializer(serializers.ModelSerializer):
+class NodeTypeSchemaSerializer(serializers.Serializer):
     schema_info = serializers.SerializerMethodField('schema_func')
 
     def schema_func(self, nodetype):
@@ -126,9 +126,13 @@ class NodeTypeSchemaSerializer(serializers.ModelSerializer):
 
         return schema
 
-    class Meta:
-        model = Schema
-        fields = ['schema_info']
+    def update(self, instance, validated_data):
+        schema_info = (
+            validated_data.get('schema_info', None))
+
+        instance.schema_info = schema_info
+
+        return instance
 
 
 class RelationshipTypeSchemaSerializer(serializers.ModelSerializer):
@@ -168,9 +172,9 @@ class RelationshipTypeSchemaSerializer(serializers.ModelSerializer):
 
 
 class NodeTypeSchemaPropertiesSerializer(serializers.ModelSerializer):
-    schema_info = serializers.SerializerMethodField('schema_func')
+    properties_info = serializers.SerializerMethodField('properties_func')
 
-    def schema_func(self, nodetype):
+    def properties_func(self, nodetype):
         fields = list()
 
         # First, we are going to get the properties
@@ -186,18 +190,18 @@ class NodeTypeSchemaPropertiesSerializer(serializers.ModelSerializer):
                 }
                 fields.append(field)
 
-        # We create our info for the schema
-        schema = {
+        # We create our info for the properties
+        properties = {
             "name": nodetype.name,
             "properties": fields,
             "id": nodetype.id
         }
 
-        return schema
+        return properties
 
     class Meta:
-        model = Schema
-        fields = ['schema_info']
+        model = NodeType
+        fields = ['properties_info']
 
 
 class RelationshipTypeSchemaPropertiesSerializer(serializers.ModelSerializer):
