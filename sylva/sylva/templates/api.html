@@ -86,57 +86,164 @@
               {% trans "Graphs endpoints" %}
               <a class="headerlink" id="introduction" href="#graphs-block" title="{% trans "Permalink to this headline" %}">¶</a>
             </h2>
+
             <div class="inner-section">
               <br/>
               <p>{% trans "Quick introduction to the services for graphs." %}</p>
 
-              <h3>
-                {% trans "/graphs/" %}
-                <a class="headerlink" id="/graphs/" href="#/graphs/" title="{% trans "Permalink to this headline" %}">¶</a>
-              </h3>
+              <div class="api-endpoint">
+                <h3>
+                  {% trans "/graphs/" %}
+                  <a class="headerlink" id="/graphs/" href="#/graphs/" title="{% trans "Permalink to this headline" %}">¶</a>
+                </h3>
 
-              <p>{% trans "Let's see the available methods for this service." %}</p>
+                <p>{% trans "Available methods for this service." %}</p>
 
-              <h3>
-                {% trans "GET" %}
-                <a class="headerlink" id="/graphs/-GET" title="{% trans "Permalink to this headline" %}">¶</a>
-              </h3>
+                <div class="allowed-method">
+                  <h3>
+                    {% trans "GET" %}
+                    <a class="headerlink" id="/graphs/-GET" title="{% trans "Permalink to this headline" %}">¶</a>
+                  </h3>
 
-              <p>{% trans "This method lists all the user graphs." %}</p>
+                  <p>{% trans "This method lists all the user graphs." %}</p>
 
-              <!-- Code example section -->
-              <span style="font-family: monospace;">
-              <pre style="padding: 8px; background-color: #f7f7f9; border: 1px solid #e1e1e8; font-size: 12px;"><b>GET</b> /graphs/</pre>
-              <br/>
-              <pre style="padding: 8px; background-color: #f7f7f9; border: 1px solid #e1e1e8; font-size: 12px;">
-<b>HTTP 200 OK</b>
-<b>Content-Type:</b> <span style="color: #195f91;">application/json</span>
-<b>Vary:</b> <span style="color: #195f91;">Accept</span>
-<b>Allow:</b> <span style="color: #195f91;">GET, POST, HEAD, OPTIONS</span>
+                  <!-- Code example section -->
+                  <div style="font-family: monospace;">
+                    <pre style="padding: 8px; background-color: #f7f7f9; border: 1px solid #e1e1e8; font-size: 12px; margin-bottom: 0px;"><b>Requested method: <span style="color: #348E82;">GET</span></b>
+                    </pre>
+                    <br>
+                    <pre style="padding: 8px; background-color: #f7f7f9; border: 1px solid #e1e1e8; font-size: 12px;"><div style="margin-top: 5px;"><b>Status: <span style="color: #348E82; margin-top">200 OK</span></b></div><div style="margin-top: 5px;"><b>Vary: <span style="color: #348E82;"> Accept</span></b></div><div style="margin-top: 5px;"><b>Content-Type: <span style="color: #348E82;"> text/html; charset=utf-8</span></b></div><div style="margin-top: 5px;"><b>Allow: <span style="color: #348E82;"> GET, POST, HEAD, OPTIONS</span></b></div>
+                    </pre>
+                    <br>
+                    <pre style="padding: 8px; background-color: #f7f7f9; border: 1px solid #e1e1e8; font-size: 12px;">
+                    [
+                      {
+                          "name": "betis",
+                          "slug": "betis",
+                          "description": "",
+                          "owner": 1
+                      }
+                    ]
+                    </pre>
+                  </div>
+                </div>
+                
+                <div class="allowed-method">
+                  <h3>
+                    {% trans "POST" %}
+                    <a class="headerlink" id="/graphs/-POST" title="{% trans "Permalink to this headline" %}">¶</a>
+                  </h3>
 
-[
-    {
-        <span style="color: #D14;">"name"</span>: <span style="color: #D14;">"dh"</span>,
-        <span style="color: #D14;">"slug"</span>: <span style="color: #D14;">"dh"</span>,
-        <span style="color: #D14;">"description"</span>: <span style="color: #D14;">"graph for digital humanities"</span>,
-        <span style="color: #D14;">"owner"</span>: <span style="color: #D14;">0</span>
-    },
-    {
-        <span style="color: #D14;">"name"</span>: <span style="color: #D14;">"dbshow"</span>,
-        <span style="color: #D14;">"slug"</span>: <span style="color: #D14;">"dbshow"</span>,
-        <span style="color: #D14;">"description"</span>: <span style="color: #D14;">""</span>,
-        <span style="color: #D14;">"owner"</span>: <span style="color: #D14;">0</span>
-    }
-]
-              </pre>
-            </span>
+                  <p>{% trans "This method creates a new graph." %}</p>
 
-              <h3>
-                {% trans "POST" %}
-                <a class="headerlink" id="/graphs/-POST" title="{% trans "Permalink to this headline" %}">¶</a>
-              </h3>
+                  <!-- Code example section -->
+                  <div style="font-family: monospace;">
+                    <pre style="padding: 8px; background-color: #f7f7f9; border: 1px solid #e1e1e8; font-size: 12px; margin-bottom: 0px;"><b>Requested method: <span style="color: #348E82;">POST</span></b>
+                    </pre>
+                    <br>
+                    <pre style="padding: 8px; background-color: #f7f7f9; border: 1px solid #e1e1e8; font-size: 12px;"><div style="margin-top: 5px;"><b>Status: <span style="color: #348E82; margin-top">204 OK</span></b></div><div style="margin-top: 5px;"><b>Vary: <span style="color: #348E82;"> Accept</span></b></div><div style="margin-top: 5px;"><b>Content-Type: <span style="color: #348E82;"> text/html; charset=utf-8</span></b></div><div style="margin-top: 5px;"><b>Allow: <span style="color: #348E82;"> GET, POST, HEAD, OPTIONS</span></b></div>
+                    </pre>
+                    <br>
+                    <pre style="padding: 8px; background-color: #f7f7f9; border: 1px solid #e1e1e8; font-size: 12px;">JSON result example
+                    </pre>
+                  </div>
+                </div>
+              </div>
 
-              <p>{% trans "This method creates a new user graph." %}</p>
+              <div class="api-endpoint">
+                <h3>
+                  {% trans "/graphs/{graph_slug}/" %}
+                  <a class="headerlink" id="/graphs/{graph_slug}/" href="#/graphs/graph_slug}/" title="{% trans "Permalink to this headline" %}">¶</a>
+                </h3>
+
+                <p>{% trans "Available methods for this service." %}</p>
+
+                <div class="allowed-method">
+                  <h3>
+                    {% trans "GET" %}
+                    <a class="headerlink" id="/graphs/{graph_slug}/-GET" title="{% trans "Permalink to this headline" %}">¶</a>
+                  </h3>
+
+                  <p>{% trans "Graph properties (name, description) and stats." %}</p>
+
+                  <!-- Code example section -->
+                  <div style="font-family: monospace;">
+                    <pre style="padding: 8px; background-color: #f7f7f9; border: 1px solid #e1e1e8; font-size: 12px; margin-bottom: 0px;"><b>Requested method: <span style="color: #348E82;">GET</span></b>
+                    </pre>
+                    <br>
+                    <pre style="padding: 8px; background-color: #f7f7f9; border: 1px solid #e1e1e8; font-size: 12px;"><div style="margin-top: 5px;"><b>Status: <span style="color: #348E82; margin-top">200 OK</span></b></div><div style="margin-top: 5px;"><b>Vary: <span style="color: #348E82;"> Accept</span></b></div><div style="margin-top: 5px;"><b>Content-Type: <span style="color: #348E82;"> text/html; charset=utf-8</span></b></div><div style="margin-top: 5px;"><b>Allow: <span style="color: #348E82;"> GET, POST, HEAD, OPTIONS</span></b></div>
+                    </pre>
+                    <br>
+                    <pre style="padding: 8px; background-color: #f7f7f9; border: 1px solid #e1e1e8; font-size: 12px;">JSON result example
+                    </pre>
+                  </div>
+                </div>
+                
+                <div class="allowed-method">
+                  <h3>
+                    {% trans "PUT" %}
+                    <a class="headerlink" id="/graphs/{graph_slug}/-PUT" title="{% trans "Permalink to this headline" %}">¶</a>
+                  </h3>
+
+                  <p>{% trans "Change all fields at once (omitted fields are removed)." %}</p>
+
+                  <!-- Code example section -->
+                  <div style="font-family: monospace;">
+                    <pre style="padding: 8px; background-color: #f7f7f9; border: 1px solid #e1e1e8; font-size: 12px; margin-bottom: 0px;"><b>Requested method: <span style="color: #348E82;">PUT</span></b>
+                    </pre>
+                    <br>
+                    <pre style="padding: 8px; background-color: #f7f7f9; border: 1px solid #e1e1e8; font-size: 12px;"><div style="margin-top: 5px;"><b>Status: <span style="color: #348E82; margin-top">200 OK</span></b></div><div style="margin-top: 5px;"><b>Vary: <span style="color: #348E82;"> Accept</span></b></div><div style="margin-top: 5px;"><b>Content-Type: <span style="color: #348E82;"> text/html; charset=utf-8</span></b></div><div style="margin-top: 5px;"><b>Allow: <span style="color: #348E82;"> GET, POST, HEAD, OPTIONS</span></b></div>
+                    </pre>
+                    <br>
+                    <pre style="padding: 8px; background-color: #f7f7f9; border: 1px solid #e1e1e8; font-size: 12px;">JSON result example
+                    </pre>
+                  </div>
+                </div>
+
+                <div class="allowed-method">
+                  <h3>
+                    {% trans "PATCH" %}
+                    <a class="headerlink" id="/graphs/{graph_slug}/-PATCH" title="{% trans "Permalink to this headline" %}">¶</a>
+                  </h3>
+
+                  <p>{% trans "Change fields (delta -- only fields provided will be modified)." %}</p>
+
+                  <!-- Code example section -->
+                  <div style="font-family: monospace;">
+                    <pre style="padding: 8px; background-color: #f7f7f9; border: 1px solid #e1e1e8; font-size: 12px; margin-bottom: 0px;"><b>Requested method: <span style="color: #348E82;">PATCH</span></b>
+                    </pre>
+                    <br>
+                    <pre style="padding: 8px; background-color: #f7f7f9; border: 1px solid #e1e1e8; font-size: 12px;"><div style="margin-top: 5px;"><b>Status: <span style="color: #348E82; margin-top">200 OK</span></b></div><div style="margin-top: 5px;"><b>Vary: <span style="color: #348E82;"> Accept</span></b></div><div style="margin-top: 5px;"><b>Content-Type: <span style="color: #348E82;"> text/html; charset=utf-8</span></b></div><div style="margin-top: 5px;"><b>Allow: <span style="color: #348E82;"> GET, POST, HEAD, OPTIONS</span></b></div>
+                    </pre>
+                    <br>
+                    <pre style="padding: 8px; background-color: #f7f7f9; border: 1px solid #e1e1e8; font-size: 12px;">JSON result example
+                    </pre>
+                  </div>
+                </div>
+                
+                <div class="allowed-method">
+                  <h3>
+                    {% trans "DELETE" %}
+                    <a class="headerlink" id="/graphs/{graph_slug}/-DELETE" title="{% trans "Permalink to this headline" %}">¶</a>
+                  </h3>
+
+                  <p>{% trans "Delete a graph." %}</p>
+
+                  <!-- Code example section -->
+                  <div style="font-family: monospace;">
+                    <pre style="padding: 8px; background-color: #f7f7f9; border: 1px solid #e1e1e8; font-size: 12px; margin-bottom: 0px;"><b>Requested method: <span style="color: #348E82;">DELETE</span></b>
+                    </pre>
+                    <br>
+                    <pre style="padding: 8px; background-color: #f7f7f9; border: 1px solid #e1e1e8; font-size: 12px;"><div style="margin-top: 5px;"><b>Status: <span style="color: #348E82; margin-top">200 OK</span></b></div><div style="margin-top: 5px;"><b>Vary: <span style="color: #348E82;"> Accept</span></b></div><div style="margin-top: 5px;"><b>Content-Type: <span style="color: #348E82;"> text/html; charset=utf-8</span></b></div><div style="margin-top: 5px;"><b>Allow: <span style="color: #348E82;"> GET, POST, HEAD, OPTIONS</span></b></div>
+                    </pre>
+                    <br>
+                    <pre style="padding: 8px; background-color: #f7f7f9; border: 1px solid #e1e1e8; font-size: 12px;">JSON result example
+                    </pre>
+                  </div>
+                </div>
+
+              </div>
+
             </div>
           </div>
 

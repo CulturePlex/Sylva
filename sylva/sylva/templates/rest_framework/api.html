@@ -14,6 +14,7 @@
 {% endblock %}
 
 {% block content %}
+	<!-- Main content for the results -->
 	<h2>{{ name }}</h2>
 	<h3>{{ description }}</h3>
 	<h3>{{ request.HEAD }}</h3>
@@ -34,7 +35,43 @@
 		<pre style="padding: 8px; background-color: #f7f7f9; border: 1px solid #e1e1e8; font-size: 12px;">
 			{{ content }}
 		</pre>
-		{{ post_form.as_p }}
-		{{ put_form.as_p }}
 	</div>
+	<!-- POST form -->
+	{% if display_edit_forms %}
+	<div id="post-generic-content-form">
+		<form action="." method="POST" class="form-horizontal">
+			<fieldset>
+				{% csrf_token %}
+    			<div class="form-group" style="margin-top: 10px;">
+        			<label for="id__content_type" class="col-sm-2 control-label">{% trans "Media type" %}:</label>
+    				<div class="col-sm-10">
+        				<select id="id__content_type" name="_content_type" class="form-control">
+							<option value="application/json" selected="selected">application/json</option>
+						</select>
+        				<span class="help-block"></span>
+    				</div>
+    			</div>
+	    		<div class="form-group" style="margin-top: 10px;">
+	        		<label for="id__content" class="col-sm-2 control-label">{% trans "Content" %}:</label>
+	        			<div class="col-sm-10">
+	            			<textarea cols="40" id="id__content" name="_content" rows="10" class="form-control"></textarea>
+	            			<span class="help-block"></span>
+	        			</div>
+	    		</div>
+				<div class="form-actions" style="margin-top: 10px;">
+					{% for method in allowed_methods %}
+						{% if method == 'POST' %}
+							<button type="submit" name="_method" value="POST" title="{% trans 'Make a POST request' %}">POST</button>
+						{% elif method == 'PUT' %}
+							<button type="submit" name="_method" value="PUT" title="{% trans 'Make a PUT request' %}">PUT</button>
+						{% elif method == 'PATCH' %}
+							<button type="submit" name="_method" value="PATCH" title="{% trans 'Make a PATCH request' %}">PATCH</button>
+						{% endif %}
+					{% endfor %}
+				</div>
+			</fieldset>
+		</form>
+	</div>
+	{% endif %}
+
 {% endblock %}
