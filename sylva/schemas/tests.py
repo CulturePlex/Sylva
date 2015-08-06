@@ -331,6 +331,7 @@ class APISchemaTest(APITestCase):
         # We check that the results is an empty list()
         self.assertEqual(response.data, list())
 
+    """
     def test_api_relationshiptypes_post(self):
         data = {'name': self.relationshiptype_name}
         url = self.schemas_url + 'relationships/'
@@ -351,6 +352,7 @@ class APISchemaTest(APITestCase):
         # We check that the results is an empty list()
         nodetype_name = response.data['name']
         self.assertEqual(nodetype_name, self.relationshiptype_name)
+    """
 
     # /api/graphs/{graph_slug}/types/{nodes, relationships}/{type_slug}:
     # GET and DELETE
