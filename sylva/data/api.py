@@ -63,11 +63,26 @@ class GetRelationshipsView(APIView):
 
         return Response(serializer.data)
 
-    def post(self, request, graph_slug, format=None):
+    def post(self, request, graph_slug, type_slug, format=None):
         """
         Create a new relationship of allowed relationship
         """
-        pass
+        graph = get_object_or_404(Graph, slug=graph_slug)
+        relationshiptype = get_object_or_404(RelationshipType,
+                                             slug=type_slug,
+                                             schema__graph__slug=graph_slug)
+
+        # We get the post data
+        data = request.data
+        source_id = data['source_id']
+        target_id = data['target_id']
+        reltype_id = str(relationshiptype.id)
+
+        # We create the relationship
+        graph.relationships.create(
+            source=source_id, target=target_id, label=reltype_id)
+
+        return Response(status=status.HTTP_201_CREATED)
 
 
 class NodeView(APIView):

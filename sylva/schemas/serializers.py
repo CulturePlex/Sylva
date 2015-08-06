@@ -11,7 +11,7 @@ class NodeTypesSerializer(serializers.ModelSerializer):
 class RelationshipTypesSerializer(serializers.ModelSerializer):
     class Meta:
         model = RelationshipType
-        fields = ('name', 'slug', 'description', 'schema')
+        fields = ('name', 'slug', 'source', 'target', 'description', 'schema')
 
 
 class NodeTypeSerializer(serializers.ModelSerializer):

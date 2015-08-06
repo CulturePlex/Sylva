@@ -66,10 +66,24 @@ class RelationshipTypesView(APIView):
         Create a new relationship type
         """
         graph = get_object_or_404(Graph, slug=graph_slug)
+
         # We get the data from the request
         post_data = request.data
+
+        source_slug = post_data['source']
+        target_slug = post_data['target']
+        # We need the reference of the nodes
+        source = get_object_or_404(NodeType,
+                                   slug=source_slug,
+                                   schema__graph__slug=graph_slug)
+        target = get_object_or_404(NodeType,
+                                   slug=target_slug,
+                                   schema__graph__slug=graph_slug)
+
         # We get the schema id
         post_data['schema'] = graph.schema_id
+        post_data['source'] = source.id
+        post_data['target'] = target.id
 
         serializer = RelationshipTypesSerializer(data=post_data)
 

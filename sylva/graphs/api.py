@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from datetime import datetime
 
 from accounts.models import User
 from django.shortcuts import get_object_or_404
@@ -170,13 +171,15 @@ class GraphDataExportView(APIView):
         graph = get_object_or_404(Graph, slug=graph_slug)
 
         data = dict(nodes=[{'id': n.id,
-                            'label': n.display,
                             'type': n.label_display,
+                            'type_id': n.label,
                             'properties': n.properties}
                            for n in graph.nodes.all()],
                     edges=[{'id': e.id,
-                            'label': e.display,
                             'type': e.label_display,
+                            'type_id': e.label,
+                            'source_id': e.source.id,
+                            'target_id': e.target.id,
                             'properties': e.properties}
                            for e in graph.relationships.all()])
 
@@ -215,4 +218,33 @@ class GraphDataImportView(APIView):
         """
         Import the data of the graph
         """
-        pass
+        data = request.data
+
+        # Nodes
+        graph = get_object_or_404(Graph, slug=graph_slug)
+        nodes = data['nodes']
+        ids_dict = {}
+        for elem in nodes:
+            elem_id = elem['id']
+            label = graph.schema.nodetype_set.get(name=elem['type'])
+            properties = elem.get('properties', '{}')
+            node = graph.nodes.create(str(label.id), properties)
+            ids_dict[elem_id] = node.id
+
+        # Relationships
+        relationships = data['edges']
+        for elem in relationships:
+            source = graph.nodes.get(elem["source_id"])
+            target = graph.nodes.get(elem["target_id"])
+
+            label = elem["type"]
+            label_id = elem["type_id"]
+            properties = elem.get("properties", "{}")
+
+            graph.relationships.create(source, target, label_id,
+                                       properties)
+        graph.last_modified = datetime.now()
+        graph.data.save()
+
+        return Response(data,
+                        status=status.HTTP_201_CREATED)

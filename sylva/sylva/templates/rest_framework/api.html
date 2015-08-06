@@ -66,6 +66,8 @@
 							<button type="submit" name="_method" value="PUT" title="{% trans 'Make a PUT request' %}">PUT</button>
 						{% elif method == 'PATCH' %}
 							<button type="submit" name="_method" value="PATCH" title="{% trans 'Make a PATCH request' %}">PATCH</button>
+						{% elif method == 'DELETE' %}
+							<button type="submit" name="_method" value="DELETE" title="{% trans 'Make a DELETE request' %}">DELETE</button>
 						{% endif %}
 					{% endfor %}
 				</div>
