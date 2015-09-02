@@ -92,94 +92,99 @@ class RelationshipTypeSerializer(serializers.ModelSerializer):
 
 
 class NodeTypeSchemaSerializer(serializers.Serializer):
-    schema_info = serializers.SerializerMethodField('schema_func')
+    id = serializers.IntegerField(read_only=True)
+    name = serializers.CharField(required=False, allow_blank=True,
+                                 max_length=150)
+    description = serializers.CharField(required=False, allow_blank=True)
+    total = serializers.IntegerField(read_only=True)
+    relations = serializers.SerializerMethodField('relations_func')
+    properties = serializers.SerializerMethodField('properties_func')
 
-    def schema_func(self, nodetype):
-        fields = list()
-
-        # If we want it, we can add the relations of the node type also
-        relations = list()
+    def properties_func(self, nodetype):
+        properties = list()
 
         # First, we are going to get the properties
         for node_property in nodetype.properties.all().select_related():
-                field = {
-                    "label": node_property.key,
-                    "type": node_property.get_datatype_value(),
-                    "id": node_property.id,
-                    "name": node_property.slug,
-                    "primary": False,
-                    "blank": False,
-                    "choices": node_property.get_choices(),
-                }
-                fields.append(field)
+            prop = {
+                "label": node_property.key,
+                "type": node_property.get_datatype_value(),
+                "id": node_property.id,
+                "name": node_property.slug,
+                "primary": False,
+                "blank": False,
+                "choices": node_property.get_choices(),
+            }
+            properties.append(prop)
 
-        # We create our info for the schema
-        schema = {
-            "name": nodetype.name,
-            "collapse": False,
-            "primary": None,
-            "is_auto": False,
-            "fields": fields,
-            "relations": relations,
-            "id": nodetype.id
-        }
+        return properties
 
-        return schema
+    def relations_func(self, nodetype):
+        # If we want it, we can add the relations of the node type also
+        relations = list()
+
+        return relations
 
     def update(self, instance, validated_data):
-        schema_info = (
-            validated_data.get('schema_info', None))
+        """
+        Update and return an existing instance, given the validated data.
+        """
+        instance.name = validated_data.get('name', instance.name)
+        instance.description = validated_data.get('description',
+                                                  instance.description)
 
-        instance.schema_info = schema_info
+        instance.save()
 
         return instance
 
 
-class RelationshipTypeSchemaSerializer(serializers.ModelSerializer):
-    schema_info = serializers.SerializerMethodField('schema_func')
+class RelationshipTypeSchemaSerializer(serializers.Serializer):
+    id = serializers.IntegerField(read_only=True)
+    name = serializers.CharField(required=False, allow_blank=True,
+                                 max_length=150)
+    description = serializers.CharField(required=False, allow_blank=True)
+    total = serializers.IntegerField(required=False, default=0)
+    properties = serializers.SerializerMethodField('properties_func')
 
-    def schema_func(self, relationshiptype):
-        fields = list()
+    def properties_func(self, relationshiptype):
+        properties = list()
 
         # First, we are going to get the properties
         for rel_property in relationshiptype.properties.all().select_related():
-                field = {
-                    "label": rel_property.key,
-                    "type": rel_property.get_datatype_value(),
-                    "id": rel_property.id,
-                    "name": rel_property.slug,
-                    "primary": False,
-                    "blank": False,
-                    "choices": rel_property.get_choices(),
-                }
-                fields.append(field)
+            prop = {
+                "label": rel_property.key,
+                "type": rel_property.get_datatype_value(),
+                "id": rel_property.id,
+                "name": rel_property.slug,
+                "primary": False,
+                "blank": False,
+                "choices": rel_property.get_choices(),
+            }
+            properties.append(prop)
 
-        # We create our info for the schema
-        schema = {
-            "name": relationshiptype.name,
-            "collapse": False,
-            "primary": None,
-            "is_auto": False,
-            "fields": fields,
-            "id": relationshiptype.id
-        }
+        return properties
 
-        return schema
+    def update(self, instance, validated_data):
+        """
+        Update and return an existing instance, given the validated data.
+        """
+        instance.name = validated_data.get('name', instance.name)
+        instance.description = validated_data.get('description',
+                                                  instance.description)
 
-    class Meta:
-        model = Schema
-        fields = ['schema_info']
+        instance.save()
+
+        return instance
 
 
 class NodeTypeSchemaPropertiesSerializer(serializers.ModelSerializer):
     properties_info = serializers.SerializerMethodField('properties_func')
 
     def properties_func(self, nodetype):
-        fields = list()
+        properties = list()
 
         # First, we are going to get the properties
         for node_property in nodetype.properties.all().select_related():
-                field = {
+                prop = {
                     "label": node_property.key,
                     "type": node_property.get_datatype_value(),
                     "id": node_property.id,
@@ -188,12 +193,12 @@ class NodeTypeSchemaPropertiesSerializer(serializers.ModelSerializer):
                     "blank": False,
                     "choices": node_property.get_choices(),
                 }
-                fields.append(field)
+                properties.append(prop)
 
         # We create our info for the properties
         properties = {
             "name": nodetype.name,
-            "properties": fields,
+            "properties": properties,
             "id": nodetype.id
         }
 
@@ -208,11 +213,11 @@ class RelationshipTypeSchemaPropertiesSerializer(serializers.ModelSerializer):
     schema_info = serializers.SerializerMethodField('schema_func')
 
     def schema_func(self, relationshiptype):
-        fields = list()
+        properties = list()
 
         # First, we are going to get the properties
         for rel_property in relationshiptype.properties.all().select_related():
-                field = {
+                prop = {
                     "label": rel_property.key,
                     "type": rel_property.get_datatype_value(),
                     "id": rel_property.id,
@@ -221,12 +226,12 @@ class RelationshipTypeSchemaPropertiesSerializer(serializers.ModelSerializer):
                     "blank": False,
                     "choices": rel_property.get_choices(),
                 }
-                fields.append(field)
+                properties.append(prop)
 
         # We create our info for the schema
         schema = {
             "name": relationshiptype.name,
-            "properties": fields,
+            "properties": properties,
             "id": relationshiptype.id
         }
 

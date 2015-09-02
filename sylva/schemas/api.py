@@ -176,8 +176,9 @@ class NodeTypeSchemaView(APIView):
 
     def patch(self, request, graph_slug, type_slug, format=None):
         """
-        Change all fields and properties at once. Omitted ones are removed
+        Change all fields at once. Omitted ones are not modified.
         """
+
         # We get the data from the request
         post_data = request.data
 
@@ -195,35 +196,21 @@ class NodeTypeSchemaView(APIView):
 
     def put(self, request, graph_slug, type_slug, format=None):
         """
-        Change all fields and properties at once. Omitted ones are removed
+        Change all fields at once. Omitted ones are removed
         """
         # We get the data from the request
         post_data = request.data
 
-        """
-        post_data['name'] = request.data.get('name', None)
-        post_data['fields'] = request.data.get('fields', None)
-        post_data['primary'] = request.data.get('primary', None)
-        post_data['relations'] = request.data.get('relations', None)
-        post_data['collapse'] = request.data.get('collapse', None)
-        post_data['id'] = request.data.get('id', None)
-        post_data['is_auto'] = request.data.get('is_auto', None)
-        """
+        post_data['name'] = request.data.get('name', "")
+        post_data['description'] = request.data.get('description', "")
 
         # We get the serializer of the graph to get the fields
         nodetype = get_object_or_404(NodeType,
                                      slug=type_slug,
                                      schema__graph__slug=graph_slug)
         serializer = NodeTypeSchemaSerializer(nodetype)
-        fields = serializer.fields.keys()
 
-        # We need to omit the fields that are not included
-        # We need to take into account the fields restrictions
-        new_data = dict()
-        for field in fields:
-            new_data[field] = post_data.get(field, None)
-
-        serializer = NodeTypeSchemaSerializer(nodetype, data=new_data)
+        serializer = NodeTypeSchemaSerializer(nodetype, data=post_data)
 
         if serializer.is_valid():
             serializer.save()
