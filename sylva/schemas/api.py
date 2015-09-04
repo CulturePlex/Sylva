@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from django.utils.translation import gettext as _
 from django.shortcuts import get_object_or_404
 from graphs.models import Graph
 from schemas.models import (NodeType, RelationshipType,
@@ -252,6 +253,7 @@ class NodeTypeSchemaPropertiesView(APIView):
         """
         Create a new property
         """
+
         post_data = request.data
         # We need to get all the fields to create the property
 
@@ -259,13 +261,148 @@ class NodeTypeSchemaPropertiesView(APIView):
                                      slug=type_slug,
                                      schema__graph__slug=graph_slug)
 
-        post_data['node'] = nodetype
-        nodeproperty = NodeProperty.objects.create(**post_data.dict())
-        nodeproperty.save()
+        try:
+            post_data['node'] = nodetype
+            nodeproperty = NodeProperty.objects.create(**post_data)
+            nodeproperty.save()
 
-        serializer = NodeTypeSchemaPropertiesSerializer(nodetype)
+            serializer = NodeTypeSchemaPropertiesSerializer(nodetype)
 
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        except Exception as e:
+            # We create our json response
+            error = dict()
+            error['detail'] = e.message
+            return Response(error, status=status.HTTP_400_BAD_REQUEST)
+
+    def put(self, request, graph_slug, type_slug, format=None):
+        """
+        Modify an existing property. Omitted ones are removed.
+        We need to check migration options.
+        """
+        post_data = request.data
+
+        nodetype = get_object_or_404(NodeType,
+                                     slug=type_slug,
+                                     schema__graph__slug=graph_slug)
+        # We check the flag for migrations
+        migration_flag = post_data['migration']
+
+        if migration_flag is not None:
+            try:
+                # We iterate over the properties, to modify them
+                properties = post_data['properties']
+                for prop in properties:
+                    prop_id = prop['id']
+                    # We filter to get the property
+                    temp_prop = nodetype.properties.filter(id=int(prop_id))[0]
+                    old_key = temp_prop.key
+                    new_key = prop['key']
+
+                    if temp_prop:
+                        # We change the fields of the property
+                        temp_prop.key = prop['key']
+                        # We need to include the rest of properties
+                        temp_prop.save()
+
+                        # Here, we need to check the flag and treat
+                        # the migrations
+                        if migration_flag is "rename":
+                            elements = nodetype.all()
+                            for element in elements:
+                                try:
+                                    element.set(new_key, element.get(old_key))
+                                    element.delete(old_key)
+                                except KeyError:
+                                    pass
+                        elif migration_flag is "delete":
+                            elements = nodetype.all()
+                            for element in elements:
+                                try:
+                                    element.delete(old_key)
+                                except KeyError:
+                                    pass
+
+                serializer = NodeTypeSchemaPropertiesSerializer(nodetype)
+
+                return Response(serializer.data,
+                                status=status.HTTP_201_CREATED)
+            except Exception as e:
+                # We create our json response
+                error = dict()
+                error['detail'] = e.message
+                return Response(error, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            # We create our json response
+            error = dict()
+            error['detail'] = _("You need to add a migration option."
+                                "See the documentation for more information")
+            return Response(error, status=status.HTTP_400_BAD_REQUEST)
+
+    def patch(self, request, graph_slug, type_slug, format=None):
+        """
+        Modify an existing property. Omitted ones remain.
+        We need to check migration options.
+        """
+
+        post_data = request.data
+
+        nodetype = get_object_or_404(NodeType,
+                                     slug=type_slug,
+                                     schema__graph__slug=graph_slug)
+        # We check the flag for migrations
+        migration_flag = post_data['migration']
+
+        if migration_flag is not None:
+            try:
+                # We iterate over the properties, to modify them
+                properties = post_data['properties']
+                for prop in properties:
+                    prop_id = prop['id']
+                    # We filter to get the property
+                    temp_prop = nodetype.properties.filter(id=int(prop_id))[0]
+                    old_key = temp_prop.key
+                    new_key = prop['key']
+
+                    if temp_prop:
+                        # We change the fields of the property
+                        temp_prop.key = prop['key']
+                        # We need to include the rest of properties
+                        temp_prop.save()
+
+                        # Here, we need to check the flag and treat
+                        # the migrations
+                        if migration_flag is "rename":
+                            elements = nodetype.all()
+                            for element in elements:
+                                try:
+                                    element.set(new_key, element.get(old_key))
+                                    element.delete(old_key)
+                                except KeyError:
+                                    pass
+                        elif migration_flag is "delete":
+                            elements = nodetype.all()
+                            for element in elements:
+                                try:
+                                    element.delete(old_key)
+                                except KeyError:
+                                    pass
+
+                serializer = NodeTypeSchemaPropertiesSerializer(nodetype)
+
+                return Response(serializer.data,
+                                status=status.HTTP_201_CREATED)
+            except Exception as e:
+                # We create our json response
+                error = dict()
+                error['detail'] = e.message
+                return Response(error, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            # We create our json response
+            error = dict()
+            error['detail'] = _("You need to add a migration option."
+                                "See the documentation for more information")
+            return Response(error, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, graph_slug, type_slug, format=None):
         """

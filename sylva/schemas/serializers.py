@@ -177,7 +177,7 @@ class RelationshipTypeSchemaSerializer(serializers.Serializer):
 
 
 class NodeTypeSchemaPropertiesSerializer(serializers.ModelSerializer):
-    properties_info = serializers.SerializerMethodField('properties_func')
+    properties = serializers.SerializerMethodField('properties_func')
 
     def properties_func(self, nodetype):
         properties = list()
@@ -195,18 +195,11 @@ class NodeTypeSchemaPropertiesSerializer(serializers.ModelSerializer):
                 }
                 properties.append(prop)
 
-        # We create our info for the properties
-        properties = {
-            "name": nodetype.name,
-            "properties": properties,
-            "id": nodetype.id
-        }
-
         return properties
 
     class Meta:
         model = NodeType
-        fields = ['properties_info']
+        fields = ['properties']
 
 
 class RelationshipTypeSchemaPropertiesSerializer(serializers.ModelSerializer):
