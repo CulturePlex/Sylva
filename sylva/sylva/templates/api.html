@@ -44,10 +44,10 @@
                 <i class="fa fa-chevron-up fa-lg nav-arrow"></i>
               </li>
               <ul id="schema-block" class="collapse in">
-                <li><a href="#/graphs/{graph_slug}/types/{‘nodes’,’relationships’}/">/graphs/{graph_slug}/types/{‘nodes’,’relationships’}/</a></li>
-                <li><a href="#/graphs/{graph_slug}/types/{‘nodes’,’relationships’}/{type_slug}/">/graphs/{graph_slug}/types/{‘nodes’,’relationships’}/{type_slug}/</a></li>
-                <li><a href="#/graphs/{graph_slug}/types/{‘nodes’,’relationships’}/{type_slug}/schema">/graphs/{graph_slug}/types/{‘nodes’,’relationships’}/{type_slug}/schema</a></li>
-                <li><a href="#/graphs/{graph_slug}/types/{‘nodes’,’relationships’}/{type_slug}/schema/properties">/graphs/{graph_slug}/types/{‘nodes’,’relationships’}/{type_slug}/schema/properties</a></li>
+                <li><a href="#/graphs/{graph_slug}/types/{'nodes', 'relationships'}">/graphs/{graph_slug}/types/{‘nodes’,’relationships’}/</a></li>
+                <li><a href="#/graphs/{graph_slug}/types/{'nodes', 'relationships'}/{type_slug}">/graphs/{graph_slug}/types/{‘nodes’,’relationships’}/{type_slug}/</a></li>
+                <li><a href="#/graphs/{graph_slug}/types/{'nodes', 'relationships'}/{type_slug}/schema">/graphs/{graph_slug}/types/{‘nodes’,’relationships’}/{type_slug}/schema</a></li>
+                <li><a href="#/graphs/{graph_slug}/types/{'nodes', 'relationships'}/{type_slug}/schema/properties">/graphs/{graph_slug}/types/{‘nodes’,’relationships’}/{type_slug}/schema/properties</a></li>
               </ul>
               <li class="nav-header">
                 <a href="javascript:void(0)" data-toggle="collapse" data-target="#data-block">{% trans "Data endpoints" %}</a>
@@ -55,8 +55,8 @@
                 <i class="fa fa-chevron-up fa-lg nav-arrow"></i>
               </li>
               <ul id="data-block" class="collapse in">
-                <li><a href="#/graphs/{graph_slug}/types/{‘nodes’,’relationships’}/{type_slug}/{‘nodes’,’relationships’}">/graphs/{graph_slug}/types/{‘nodes’,’relationships’}/{type_slug}/{‘nodes’,’relationships’}</a></li>
-                <li><a href="#/graphs/{graph_slug}/types/{‘nodes’,’relationships’}/{type_slug}/{‘nodes’,’relationships’}/{id}">/graphs/{graph_slug}/types/{‘nodes’,’relationships’}/{type_slug}/{‘nodes’,’relationships’}/{id}</a></li>
+                <li><a href="#/graphs/{graph_slug}/types/{'nodes', 'relationships'}/{type_slug}/{'nodes','relationships'}">/graphs/{graph_slug}/types/{‘nodes’,’relationships’}/{type_slug}/{‘nodes’,’relationships’}</a></li>
+                <li><a href="#/graphs/{graph_slug}/types/{'nodes', 'relationships'}/{type_slug}/{'nodes','relationships'}/{id}">/graphs/{graph_slug}/types/{‘nodes’,’relationships’}/{type_slug}/{‘nodes’,’relationships’}/{id}</a></li>
               </ul>
             </ul>
           </div>
@@ -307,8 +307,284 @@
               <br/>
               <p>{% trans "Quick introduction to the services for schemas." %}</p>
             </div>
-          </div>
 
+            <div class="api-endpoint">
+              <h3>
+                {% trans "/graphs/{graph_slug}/types/{'nodes', 'relationships'}" %}
+                <a class="headerlink" id="/graphs/{graph_slug}/types/{'nodes', 'relationships'}" href="#/graphs/{graph_slug}/types/{'nodes', 'relationships'}" title="{% trans "Permalink to this headline" %}">¶</a>
+              </h3>
+
+              <p>{% trans "Available methods for this service." %}</p>  
+
+              <div class="allowed-method">
+                <h3>
+                  {% trans "GET" %}
+                  <a class="headerlink" id="/graphs/{graph_slug}/types/{'nodes', 'relationships'}-GET" title="{% trans "Permalink to this headline" %}">¶</a>
+                </h3>
+
+                <p>{% trans "List of node types or allowed relationships." %}</p>
+
+                <!-- Code example section -->
+                <div style="font-family: monospace;">
+                  <pre style="padding: 8px; background-color: #f7f7f9; border: 1px solid #e1e1e8; font-size: 12px; margin-bottom: 0px;"><b>Requested method: <span style="color: #348E82;">GET</span></b>
+                  </pre>
+                  <br>
+                  <pre style="padding: 8px; background-color: #f7f7f9; border: 1px solid #e1e1e8; font-size: 12px;"><div style="margin-top: 5px;"><b>Status: <span style="color: #348E82; margin-top">200 OK</span></b></div><div style="margin-top: 5px;"><b>Vary: <span style="color: #348E82;"> Accept</span></b></div><div style="margin-top: 5px;"><b>Content-Type: <span style="color: #348E82;"> text/html; charset=utf-8</span></b></div><div style="margin-top: 5px;"><b>Allow: <span style="color: #348E82;"> GET, POST, HEAD, OPTIONS</span></b></div>
+                  </pre>
+                  <br>
+                  <pre style="padding: 8px; background-color: #f7f7f9; border: 1px solid #e1e1e8; font-size: 12px;">JSON result example
+                  </pre>
+                </div>
+              </div>
+              <div class="allowed-method">
+                <h3>
+                  {% trans "POST" %}
+                  <a class="headerlink" id="/graphs/{graph_slug}/types/{'nodes', 'relationships'}-POST" title="{% trans "Permalink to this headline" %}">¶</a>
+                </h3>
+
+                <p>{% trans "Create a new node type or a new allowed relationships." %}</p>
+
+                <!-- Code example section -->
+                <div style="font-family: monospace;">
+                  <pre style="padding: 8px; background-color: #f7f7f9; border: 1px solid #e1e1e8; font-size: 12px; margin-bottom: 0px;"><b>Requested method: <span style="color: #348E82;">POST</span></b>
+                  </pre>
+                  <br>
+                  <pre style="padding: 8px; background-color: #f7f7f9; border: 1px solid #e1e1e8; font-size: 12px;"><div style="margin-top: 5px;"><b>Status: <span style="color: #348E82; margin-top">200 OK</span></b></div><div style="margin-top: 5px;"><b>Vary: <span style="color: #348E82;"> Accept</span></b></div><div style="margin-top: 5px;"><b>Content-Type: <span style="color: #348E82;"> text/html; charset=utf-8</span></b></div><div style="margin-top: 5px;"><b>Allow: <span style="color: #348E82;"> GET, POST, HEAD, OPTIONS</span></b></div>
+                  </pre>
+                  <br>
+                  <pre style="padding: 8px; background-color: #f7f7f9; border: 1px solid #e1e1e8; font-size: 12px;">JSON result example
+                  </pre>
+                </div>
+              </div>
+            </div>
+            <div class="api-endpoint">
+              <h3>
+                {% trans "/graphs/{graph_slug}/types/{'nodes', 'relationships'}/{type_slug}" %}
+                <a class="headerlink" id="/graphs/{graph_slug}/types/{'nodes', 'relationships'}/{type_slug}" href="#/graphs/{graph_slug}/types/{'nodes', 'relationships'}/{type_slug}" title="{% trans "Permalink to this headline" %}">¶</a>
+              </h3>
+
+              <p>{% trans "Available methods for this service." %}</p>
+
+              <div class="allowed-method">
+                <h3>
+                  {% trans "GET" %}
+                  <a class="headerlink" id="/graphs/{graph_slug}/types/{'nodes', 'relationships'}/{type_slug}-GET" title="{% trans "Permalink to this headline" %}">¶</a>
+                </h3>
+
+                <p>{% trans "Get related resources: nodes and schema." %}</p>
+
+                <!-- Code example section -->
+                <div style="font-family: monospace;">
+                  <pre style="padding: 8px; background-color: #f7f7f9; border: 1px solid #e1e1e8; font-size: 12px; margin-bottom: 0px;"><b>Requested method: <span style="color: #348E82;">GET</span></b>
+                  </pre>
+                  <br>
+                  <pre style="padding: 8px; background-color: #f7f7f9; border: 1px solid #e1e1e8; font-size: 12px;"><div style="margin-top: 5px;"><b>Status: <span style="color: #348E82; margin-top">200 OK</span></b></div><div style="margin-top: 5px;"><b>Vary: <span style="color: #348E82;"> Accept</span></b></div><div style="margin-top: 5px;"><b>Content-Type: <span style="color: #348E82;"> text/html; charset=utf-8</span></b></div><div style="margin-top: 5px;"><b>Allow: <span style="color: #348E82;"> GET, DELETE, HEAD, OPTIONS</span></b></div>
+                  </pre>
+                  <br>
+                  <pre style="padding: 8px; background-color: #f7f7f9; border: 1px solid #e1e1e8; font-size: 12px;">JSON result example
+                  </pre>
+                </div>
+              </div>
+              <div class="allowed-method">
+                <h3>
+                  {% trans "DELETE" %}
+                  <a class="headerlink" id="/graphs/{graph_slug}/types/{'nodes', 'relationships'}/{type_slug}-DELETE" title="{% trans "Permalink to this headline" %}">¶</a>
+                </h3>
+
+                <p>{% trans "Delete schema of node type and all related nodes and relationships, or all allowed relationships leaving related nodes intact." %}</p>
+
+                <!-- Code example section -->
+                <div style="font-family: monospace;">
+                  <pre style="padding: 8px; background-color: #f7f7f9; border: 1px solid #e1e1e8; font-size: 12px; margin-bottom: 0px;"><b>Requested method: <span style="color: #348E82;">DELETE</span></b>
+                  </pre>
+                  <br>
+                  <pre style="padding: 8px; background-color: #f7f7f9; border: 1px solid #e1e1e8; font-size: 12px;"><div style="margin-top: 5px;"><b>Status: <span style="color: #348E82; margin-top">200 OK</span></b></div><div style="margin-top: 5px;"><b>Vary: <span style="color: #348E82;"> Accept</span></b></div><div style="margin-top: 5px;"><b>Content-Type: <span style="color: #348E82;"> text/html; charset=utf-8</span></b></div><div style="margin-top: 5px;"><b>Allow: <span style="color: #348E82;"> GET, DELETE, HEAD, OPTIONS</span></b></div>
+                  </pre>
+                  <br>
+                  <pre style="padding: 8px; background-color: #f7f7f9; border: 1px solid #e1e1e8; font-size: 12px;">JSON result example
+                  </pre>
+                </div>
+              </div>
+            </div>
+            <div class="api-endpoint">
+              <h3>
+                {% trans "/graphs/{graph_slug}/types/{'nodes', 'relationships'}/{type_slug}/schema" %}
+                <a class="headerlink" id="/graphs/{graph_slug}/types/{'nodes', 'relationships'}/{type_slug}/schema" href="#/graphs/{graph_slug}/types/{'nodes', 'relationships'}/{type_slug}/schema" title="{% trans "Permalink to this headline" %}">¶</a>
+              </h3>
+
+              <p>{% trans "Available methods for this service." %}</p>
+
+              <div class="allowed-method">
+                <h3>
+                  {% trans "GET" %}
+                  <a class="headerlink" id="/graphs/{graph_slug}/types/{'nodes', 'relationships'}/{type_slug}/schema-GET" title="{% trans "Permalink to this headline" %}">¶</a>
+                </h3>
+
+                <p>{% trans "Get schema of node type or allowed relationship, with fields and schema properties." %}</p>
+
+                <!-- Code example section -->
+                <div style="font-family: monospace;">
+                  <pre style="padding: 8px; background-color: #f7f7f9; border: 1px solid #e1e1e8; font-size: 12px; margin-bottom: 0px;"><b>Requested method: <span style="color: #348E82;">GET</span></b>
+                  </pre>
+                  <br>
+                  <pre style="padding: 8px; background-color: #f7f7f9; border: 1px solid #e1e1e8; font-size: 12px;"><div style="margin-top: 5px;"><b>Status: <span style="color: #348E82; margin-top">200 OK</span></b></div><div style="margin-top: 5px;"><b>Vary: <span style="color: #348E82;"> Accept</span></b></div><div style="margin-top: 5px;"><b>Content-Type: <span style="color: #348E82;"> text/html; charset=utf-8</span></b></div><div style="margin-top: 5px;"><b>Allow: <span style="color: #348E82;"> GET, PUT, PATCH, HEAD, OPTIONS</span></b></div>
+                  </pre>
+                  <br>
+                  <pre style="padding: 8px; background-color: #f7f7f9; border: 1px solid #e1e1e8; font-size: 12px;">JSON result example
+                  </pre>
+                </div>
+              </div>
+              <div class="allowed-method">
+                <h3>
+                  {% trans "PUT" %}
+                  <a class="headerlink" id="/graphs/{graph_slug}/types/{'nodes', 'relationships'}/{type_slug}/schema-PUT" title="{% trans "Permalink to this headline" %}">¶</a>
+                </h3>
+
+                <p>{% trans "Change all fields at once (omitted ones are removed). Migration options must be passed in." %}</p>
+
+                <!-- Code example section -->
+                <div style="font-family: monospace;">
+                  <pre style="padding: 8px; background-color: #f7f7f9; border: 1px solid #e1e1e8; font-size: 12px; margin-bottom: 0px;"><b>Requested method: <span style="color: #348E82;">PUT</span></b>
+                  </pre>
+                  <br>
+                  <pre style="padding: 8px; background-color: #f7f7f9; border: 1px solid #e1e1e8; font-size: 12px;"><div style="margin-top: 5px;"><b>Status: <span style="color: #348E82; margin-top">200 OK</span></b></div><div style="margin-top: 5px;"><b>Vary: <span style="color: #348E82;"> Accept</span></b></div><div style="margin-top: 5px;"><b>Content-Type: <span style="color: #348E82;"> text/html; charset=utf-8</span></b></div><div style="margin-top: 5px;"><b>Allow: <span style="color: #348E82;"> GET, PUT, PATCH, HEAD, OPTIONS</span></b></div>
+                  </pre>
+                  <br>
+                  <pre style="padding: 8px; background-color: #f7f7f9; border: 1px solid #e1e1e8; font-size: 12px;">JSON result example
+                  </pre>
+                </div>
+              </div>
+              <div class="allowed-method">
+                <h3>
+                  {% trans "PATCH" %}
+                  <a class="headerlink" id="/graphs/{graph_slug}/types/{'nodes', 'relationships'}/{type_slug}/schema-PATCH" title="{% trans "Permalink to this headline" %}">¶</a>
+                </h3>
+
+                <p>{% trans "Change fields (delta – only those provided will be modified). Migration options must be passed in." %}</p>
+
+                <!-- Code example section -->
+                <div style="font-family: monospace;">
+                  <pre style="padding: 8px; background-color: #f7f7f9; border: 1px solid #e1e1e8; font-size: 12px; margin-bottom: 0px;"><b>Requested method: <span style="color: #348E82;">PATCH</span></b>
+                  </pre>
+                  <br>
+                  <pre style="padding: 8px; background-color: #f7f7f9; border: 1px solid #e1e1e8; font-size: 12px;"><div style="margin-top: 5px;"><b>Status: <span style="color: #348E82; margin-top">200 OK</span></b></div><div style="margin-top: 5px;"><b>Vary: <span style="color: #348E82;"> Accept</span></b></div><div style="margin-top: 5px;"><b>Content-Type: <span style="color: #348E82;"> text/html; charset=utf-8</span></b></div><div style="margin-top: 5px;"><b>Allow: <span style="color: #348E82;"> GET, PUT, PATCH, HEAD, OPTIONS</span></b></div>
+                  </pre>
+                  <br>
+                  <pre style="padding: 8px; background-color: #f7f7f9; border: 1px solid #e1e1e8; font-size: 12px;">JSON result example
+                  </pre>
+                </div>
+              </div>
+            </div>
+            <div class="api-endpoint">
+              <h3>
+                {% trans "/graphs/{graph_slug}/types/{'nodes', 'relationships'}/{type_slug}/schema/properties" %}
+                <a class="headerlink" id="/graphs/{graph_slug}/types/{'nodes', 'relationships'}/{type_slug}/schema/properties" href="#/graphs/{graph_slug}/types/{'nodes', 'relationships'}/{type_slug}/schema/properties" title="{% trans "Permalink to this headline" %}">¶</a>
+              </h3>
+
+              <p>{% trans "Available methods for this service." %}</p>
+
+              <div class="allowed-method">
+                <h3>
+                  {% trans "GET" %}
+                  <a class="headerlink" id="/graphs/{graph_slug}/types/{'nodes', 'relationships'}/{type_slug}/schema/properties-GET" title="{% trans "Permalink to this headline" %}">¶</a>
+                </h3>
+
+                <p>{% trans "Get list of schema properties." %}</p>
+
+                <!-- Code example section -->
+                <div style="font-family: monospace;">
+                  <pre style="padding: 8px; background-color: #f7f7f9; border: 1px solid #e1e1e8; font-size: 12px; margin-bottom: 0px;"><b>Requested method: <span style="color: #348E82;">GET</span></b>
+                  </pre>
+                  <br>
+                  <pre style="padding: 8px; background-color: #f7f7f9; border: 1px solid #e1e1e8; font-size: 12px;"><div style="margin-top: 5px;"><b>Status: <span style="color: #348E82; margin-top">200 OK</span></b></div><div style="margin-top: 5px;"><b>Vary: <span style="color: #348E82;"> Accept</span></b></div><div style="margin-top: 5px;"><b>Content-Type: <span style="color: #348E82;"> text/html; charset=utf-8</span></b></div><div style="margin-top: 5px;"><b>Allow: <span style="color: #348E82;"> GET, POST, PUT, PATCH, DELETE, HEAD, OPTIONS</span></b></div>
+                  </pre>
+                  <br>
+                  <pre style="padding: 8px; background-color: #f7f7f9; border: 1px solid #e1e1e8; font-size: 12px;">JSON result example
+                  </pre>
+                </div>
+              </div>
+              <div class="allowed-method">
+                <h3>
+                  {% trans "POST" %}
+                  <a class="headerlink" id="/graphs/{graph_slug}/types/{'nodes', 'relationships'}/{type_slug}/schema/properties-POST" title="{% trans "Permalink to this headline" %}">¶</a>
+                </h3>
+
+                <p>{% trans "Create a new property." %}</p>
+
+                <!-- Code example section -->
+                <div style="font-family: monospace;">
+                  <pre style="padding: 8px; background-color: #f7f7f9; border: 1px solid #e1e1e8; font-size: 12px; margin-bottom: 0px;"><b>Requested method: <span style="color: #348E82;">POST</span></b>
+                  </pre>
+                  <br>
+                  <pre style="padding: 8px; background-color: #f7f7f9; border: 1px solid #e1e1e8; font-size: 12px;"><div style="margin-top: 5px;"><b>Status: <span style="color: #348E82; margin-top">200 OK</span></b></div><div style="margin-top: 5px;"><b>Vary: <span style="color: #348E82;"> Accept</span></b></div><div style="margin-top: 5px;"><b>Content-Type: <span style="color: #348E82;"> text/html; charset=utf-8</span></b></div><div style="margin-top: 5px;"><b>Allow: <span style="color: #348E82;"> GET, POST, PUT, PATCH, DELETE, HEAD, OPTIONS</span></b></div>
+                  </pre>
+                  <br>
+                  <pre style="padding: 8px; background-color: #f7f7f9; border: 1px solid #e1e1e8; font-size: 12px;">JSON result example
+                  </pre>
+                </div>
+              </div>
+              <div class="allowed-method">
+                <h3>
+                  {% trans "PUT" %}
+                  <a class="headerlink" id="/graphs/{graph_slug}/types/{'nodes', 'relationships'}/{type_slug}/schema/properties-PUT" title="{% trans "Permalink to this headline" %}">¶</a>
+                </h3>
+
+                <p>{% trans "Change all properties at once (omitted ones are removed). Migration options must be passed in." %}</p>
+
+                <!-- Code example section -->
+                <div style="font-family: monospace;">
+                  <pre style="padding: 8px; background-color: #f7f7f9; border: 1px solid #e1e1e8; font-size: 12px; margin-bottom: 0px;"><b>Requested method: <span style="color: #348E82;">PUT</span></b>
+                  </pre>
+                  <br>
+                  <pre style="padding: 8px; background-color: #f7f7f9; border: 1px solid #e1e1e8; font-size: 12px;"><div style="margin-top: 5px;"><b>Status: <span style="color: #348E82; margin-top">200 OK</span></b></div><div style="margin-top: 5px;"><b>Vary: <span style="color: #348E82;"> Accept</span></b></div><div style="margin-top: 5px;"><b>Content-Type: <span style="color: #348E82;"> text/html; charset=utf-8</span></b></div><div style="margin-top: 5px;"><b>Allow: <span style="color: #348E82;"> GET, POST, PUT, PATCH, DELETE, HEAD, OPTIONS</span></b></div>
+                  </pre>
+                  <br>
+                  <pre style="padding: 8px; background-color: #f7f7f9; border: 1px solid #e1e1e8; font-size: 12px;">JSON result example
+                  </pre>
+                </div>
+              </div>
+              <div class="allowed-method">
+                <h3>
+                  {% trans "PATCH" %}
+                  <a class="headerlink" id="/graphs/{graph_slug}/types/{'nodes', 'relationships'}/{type_slug}/schema/properties-PATCH" title="{% trans "Permalink to this headline" %}">¶</a>
+                </h3>
+
+                <p>{% trans "Change properties (delta – only those provided will be modified). Migration options must be passed in." %}</p>
+
+                <!-- Code example section -->
+                <div style="font-family: monospace;">
+                  <pre style="padding: 8px; background-color: #f7f7f9; border: 1px solid #e1e1e8; font-size: 12px; margin-bottom: 0px;"><b>Requested method: <span style="color: #348E82;">PATCH</span></b>
+                  </pre>
+                  <br>
+                  <pre style="padding: 8px; background-color: #f7f7f9; border: 1px solid #e1e1e8; font-size: 12px;"><div style="margin-top: 5px;"><b>Status: <span style="color: #348E82; margin-top">200 OK</span></b></div><div style="margin-top: 5px;"><b>Vary: <span style="color: #348E82;"> Accept</span></b></div><div style="margin-top: 5px;"><b>Content-Type: <span style="color: #348E82;"> text/html; charset=utf-8</span></b></div><div style="margin-top: 5px;"><b>Allow: <span style="color: #348E82;"> GET, POST, PUT, PATCH, DELETE, HEAD, OPTIONS</span></b></div>
+                  </pre>
+                  <br>
+                  <pre style="padding: 8px; background-color: #f7f7f9; border: 1px solid #e1e1e8; font-size: 12px;">JSON result example
+                  </pre>
+                </div>
+              </div>
+              <div class="allowed-method">
+                <h3>
+                  {% trans "DELETE" %}
+                  <a class="headerlink" id="/graphs/{graph_slug}/types/{'nodes', 'relationships'}/{type_slug}/schema/properties-DELETE" title="{% trans "Permalink to this headline" %}">¶</a>
+                </h3>
+
+                <p>{% trans "Delete all properties. Migration options must be passed in." %}</p>
+
+                <!-- Code example section -->
+                <div style="font-family: monospace;">
+                  <pre style="padding: 8px; background-color: #f7f7f9; border: 1px solid #e1e1e8; font-size: 12px; margin-bottom: 0px;"><b>Requested method: <span style="color: #348E82;">DELETE</span></b>
+                  </pre>
+                  <br>
+                  <pre style="padding: 8px; background-color: #f7f7f9; border: 1px solid #e1e1e8; font-size: 12px;"><div style="margin-top: 5px;"><b>Status: <span style="color: #348E82; margin-top">200 OK</span></b></div><div style="margin-top: 5px;"><b>Vary: <span style="color: #348E82;"> Accept</span></b></div><div style="margin-top: 5px;"><b>Content-Type: <span style="color: #348E82;"> text/html; charset=utf-8</span></b></div><div style="margin-top: 5px;"><b>Allow: <span style="color: #348E82;"> GET, POST, PUT, PATCH, DELETE, HEAD, OPTIONS</span></b></div>
+                  </pre>
+                  <br>
+                  <pre style="padding: 8px; background-color: #f7f7f9; border: 1px solid #e1e1e8; font-size: 12px;">JSON result example
+                  </pre>
+                </div>
+              </div>
+            </div>
+          </div>
           <!-- Data endpoints section -->
           <div class="section">
             <h2>
@@ -319,6 +595,145 @@
               <br/>
               <p>{% trans "Quick introduction to the services for data." %}</p>
             </div>
+            <div class="api-endpoint">
+              <h3>
+                {% trans "/graphs/{graph_slug}/types/{'nodes', 'relationships'}/{type_slug}/{'nodes','relationships'}" %}
+                <a class="headerlink" id="/graphs/{graph_slug}/types/{'nodes', 'relationships'}/{type_slug}/{'nodes','relationships'}" href="#/graphs/{graph_slug}/types/{'nodes', 'relationships'}/{type_slug}/{'nodes','relationships'}/" title="{% trans "Permalink to this headline" %}">¶</a>
+              </h3>
+
+              <p>{% trans "Available methods for this service." %}</p>
+
+              <div class="allowed-method">
+                <h3>
+                  {% trans "GET" %}
+                  <a class="headerlink" id="/graphs/{graph_slug}/types/{'nodes', 'relationships'}/{type_slug}/{'nodes','relationships'}-GET" title="{% trans "Permalink to this headline" %}">¶</a>
+                </h3>
+
+                <p>{% trans "Get list of nodes of a type or relationships of a specific allowed relationships type." %}</p>
+
+                <!-- Code example section -->
+                <div style="font-family: monospace;">
+                  <pre style="padding: 8px; background-color: #f7f7f9; border: 1px solid #e1e1e8; font-size: 12px; margin-bottom: 0px;"><b>Requested method: <span style="color: #348E82;">GET</span></b>
+                  </pre>
+                  <br>
+                  <pre style="padding: 8px; background-color: #f7f7f9; border: 1px solid #e1e1e8; font-size: 12px;"><div style="margin-top: 5px;"><b>Status: <span style="color: #348E82; margin-top">200 OK</span></b></div><div style="margin-top: 5px;"><b>Vary: <span style="color: #348E82;"> Accept</span></b></div><div style="margin-top: 5px;"><b>Content-Type: <span style="color: #348E82;"> text/html; charset=utf-8</span></b></div><div style="margin-top: 5px;"><b>Allow: <span style="color: #348E82;"> GET, POST, HEAD, OPTIONS</span></b></div>
+                  </pre>
+                  <br>
+                  <pre style="padding: 8px; background-color: #f7f7f9; border: 1px solid #e1e1e8; font-size: 12px;">JSON result example
+                  </pre>
+                </div>
+              </div>
+              <div class="allowed-method">
+                <h3>
+                  {% trans "POST" %}
+                  <a class="headerlink" id="/graphs/{graph_slug}/types/{'nodes', 'relationships'}/{type_slug}/{'nodes','relationships'}-POST" title="{% trans "Permalink to this headline" %}">¶</a>
+                </h3>
+
+                <p>{% trans "Create new nodes of a type, or a new relationship of allowed relationship." %}</p>
+
+                <!-- Code example section -->
+                <div style="font-family: monospace;">
+                  <pre style="padding: 8px; background-color: #f7f7f9; border: 1px solid #e1e1e8; font-size: 12px; margin-bottom: 0px;"><b>Requested method: <span style="color: #348E82;">POST</span></b>
+                  </pre>
+                  <br>
+                  <pre style="padding: 8px; background-color: #f7f7f9; border: 1px solid #e1e1e8; font-size: 12px;"><div style="margin-top: 5px;"><b>Status: <span style="color: #348E82; margin-top">200 OK</span></b></div><div style="margin-top: 5px;"><b>Vary: <span style="color: #348E82;"> Accept</span></b></div><div style="margin-top: 5px;"><b>Content-Type: <span style="color: #348E82;"> text/html; charset=utf-8</span></b></div><div style="margin-top: 5px;"><b>Allow: <span style="color: #348E82;"> GET, POST, HEAD, OPTIONS</span></b></div>
+                  </pre>
+                  <br>
+                  <pre style="padding: 8px; background-color: #f7f7f9; border: 1px solid #e1e1e8; font-size: 12px;">JSON result example
+                  </pre>
+                </div>
+              </div>
+            </div>
+            <div class="api-endpoint">
+              <h3>
+                {% trans "/graphs/{graph_slug}/types/{'nodes', 'relationships'}/{type_slug}/{'nodes','relationships'}/{id}" %}
+                <a class="headerlink" id="/graphs/{graph_slug}/types/{'nodes', 'relationships'}/{type_slug}/{'nodes','relationships'}/{id}" href="#/graphs/{graph_slug}/types/{'nodes', 'relationships'}/{type_slug}/{'nodes','relationships'}/{id}" title="{% trans "Permalink to this headline" %}">¶</a>
+              </h3>
+
+              <p>{% trans "Available methods for this service." %}</p>
+
+              <div class="allowed-method">
+                <h3>
+                  {% trans "GET" %}
+                  <a class="headerlink" id="/graphs/{graph_slug}/types/{'nodes', 'relationships'}/{type_slug}/{'nodes','relationships'}/{id}-GET" title="{% trans "Permalink to this headline" %}">¶</a>
+                </h3>
+
+                <p>{% trans "Get node data." %}</p>
+
+                <!-- Code example section -->
+                <div style="font-family: monospace;">
+                  <pre style="padding: 8px; background-color: #f7f7f9; border: 1px solid #e1e1e8; font-size: 12px; margin-bottom: 0px;"><b>Requested method: <span style="color: #348E82;">GET</span></b>
+                  </pre>
+                  <br>
+                  <pre style="padding: 8px; background-color: #f7f7f9; border: 1px solid #e1e1e8; font-size: 12px;"><div style="margin-top: 5px;"><b>Status: <span style="color: #348E82; margin-top">200 OK</span></b></div><div style="margin-top: 5px;"><b>Vary: <span style="color: #348E82;"> Accept</span></b></div><div style="margin-top: 5px;"><b>Content-Type: <span style="color: #348E82;"> text/html; charset=utf-8</span></b></div><div style="margin-top: 5px;"><b>Allow: <span style="color: #348E82;"> GET, PUT, PATCH, DELETE, HEAD, OPTIONS</span></b></div>
+                  </pre>
+                  <br>
+                  <pre style="padding: 8px; background-color: #f7f7f9; border: 1px solid #e1e1e8; font-size: 12px;">JSON result example
+                  </pre>
+                </div>
+              </div>
+              <div class="allowed-method">
+                <h3>
+                  {% trans "PUT" %}
+                  <a class="headerlink" id="/graphs/{graph_slug}/types/{'nodes', 'relationships'}/{type_slug}/{'nodes','relationships'}/{id}-PUT" title="{% trans "Permalink to this headline" %}">¶</a>
+                </h3>
+
+                <p>{% trans "Change all node or relationship data at once (omitted properties are removed)." %}</p>
+
+                <!-- Code example section -->
+                <div style="font-family: monospace;">
+                  <pre style="padding: 8px; background-color: #f7f7f9; border: 1px solid #e1e1e8; font-size: 12px; margin-bottom: 0px;"><b>Requested method: <span style="color: #348E82;">PUT</span></b>
+                  </pre>
+                  <br>
+                  <pre style="padding: 8px; background-color: #f7f7f9; border: 1px solid #e1e1e8; font-size: 12px;"><div style="margin-top: 5px;"><b>Status: <span style="color: #348E82; margin-top">200 OK</span></b></div><div style="margin-top: 5px;"><b>Vary: <span style="color: #348E82;"> Accept</span></b></div><div style="margin-top: 5px;"><b>Content-Type: <span style="color: #348E82;"> text/html; charset=utf-8</span></b></div><div style="margin-top: 5px;"><b>Allow: <span style="color: #348E82;"> GET, PUT, PATCH, DELETE, HEAD, OPTIONS</span></b></div>
+                  </pre>
+                  <br>
+                  <pre style="padding: 8px; background-color: #f7f7f9; border: 1px solid #e1e1e8; font-size: 12px;">JSON result example
+                  </pre>
+                </div>
+              </div>
+              <div class="allowed-method">
+                <h3>
+                  {% trans "PATCH" %}
+                  <a class="headerlink" id="/graphs/{graph_slug}/types/{'nodes', 'relationships'}/{type_slug}/{'nodes','relationships'}/{id}-PATCH" title="{% trans "Permalink to this headline" %}">¶</a>
+                </h3>
+
+                <p>{% trans "Change node or relationship properties (delta  – only those provided will be modified)." %}</p>
+
+                <!-- Code example section -->
+                <div style="font-family: monospace;">
+                  <pre style="padding: 8px; background-color: #f7f7f9; border: 1px solid #e1e1e8; font-size: 12px; margin-bottom: 0px;"><b>Requested method: <span style="color: #348E82;">PATCH</span></b>
+                  </pre>
+                  <br>
+                  <pre style="padding: 8px; background-color: #f7f7f9; border: 1px solid #e1e1e8; font-size: 12px;"><div style="margin-top: 5px;"><b>Status: <span style="color: #348E82; margin-top">200 OK</span></b></div><div style="margin-top: 5px;"><b>Vary: <span style="color: #348E82;"> Accept</span></b></div><div style="margin-top: 5px;"><b>Content-Type: <span style="color: #348E82;"> text/html; charset=utf-8</span></b></div><div style="margin-top: 5px;"><b>Allow: <span style="color: #348E82;"> GET, PUT, PATCH, DELETE, HEAD, OPTIONS</span></b></div>
+                  </pre>
+                  <br>
+                  <pre style="padding: 8px; background-color: #f7f7f9; border: 1px solid #e1e1e8; font-size: 12px;">JSON result example
+                  </pre>
+                </div>
+              </div>
+              <div class="allowed-method">
+                <h3>
+                  {% trans "DELETE" %}
+                  <a class="headerlink" id="/graphs/{graph_slug}/types/{'nodes', 'relationships'}/{type_slug}/{'nodes','relationships'}/{id}-DELETE" title="{% trans "Permalink to this headline" %}">¶</a>
+                </h3>
+
+                <p>{% trans "Delete node, properties and related relationships; delete relationship and properties." %}</p>
+
+                <!-- Code example section -->
+                <div style="font-family: monospace;">
+                  <pre style="padding: 8px; background-color: #f7f7f9; border: 1px solid #e1e1e8; font-size: 12px; margin-bottom: 0px;"><b>Requested method: <span style="color: #348E82;">DELETE</span></b>
+                  </pre>
+                  <br>
+                  <pre style="padding: 8px; background-color: #f7f7f9; border: 1px solid #e1e1e8; font-size: 12px;"><div style="margin-top: 5px;"><b>Status: <span style="color: #348E82; margin-top">200 OK</span></b></div><div style="margin-top: 5px;"><b>Vary: <span style="color: #348E82;"> Accept</span></b></div><div style="margin-top: 5px;"><b>Content-Type: <span style="color: #348E82;"> text/html; charset=utf-8</span></b></div><div style="margin-top: 5px;"><b>Allow: <span style="color: #348E82;"> GET, PUT, PATCH, DELETE, HEAD, OPTIONS</span></b></div>
+                  </pre>
+                  <br>
+                  <pre style="padding: 8px; background-color: #f7f7f9; border: 1px solid #e1e1e8; font-size: 12px;">JSON result example
+                  </pre>
+                </div>
+              </div>
+            </div>
+
           </div>
 
         </div>
