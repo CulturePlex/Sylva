@@ -115,7 +115,21 @@
                     <pre style="padding: 8px; background-color: #f7f7f9; border: 1px solid #e1e1e8; font-size: 12px;"><div style="margin-top: 5px;"><b>Status: <span style="color: #348E82; margin-top">200 OK</span></b></div><div style="margin-top: 5px;"><b>Vary: <span style="color: #348E82;"> Accept</span></b></div><div style="margin-top: 5px;"><b>Content-Type: <span style="color: #348E82;"> text/html; charset=utf-8</span></b></div><div style="margin-top: 5px;"><b>Allow: <span style="color: #348E82;"> GET, POST, HEAD, OPTIONS</span></b></div>
                     </pre>
                     <br>
-                    <pre style="padding: 8px; background-color: #f7f7f9; border: 1px solid #e1e1e8; font-size: 12px;">JSON result example
+                    <pre style="padding: 8px; background-color: #f7f7f9; border: 1px solid #e1e1e8; font-size: 12px;">
+[
+  {
+    <span style="color:red">"name":</span> <span style="color:green">"betis"</span>,
+    <span style="color:red">"slug":</span> <span style="color:green">"betis"</span>,
+    <span style="color:red">"description":</span> <span style="color:green">""</span>,
+    <span style="color:red">"owner":</span> <span style="color:darkorange">1</span>
+  },
+  {
+    <span style="color:red">"name":</span> <span style="color:green">"prueba"</span>,
+    <span style="color:red">"slug":</span> <span style="color:green">"prueba"</span>,
+    <span style="color:red">"description":</span> <span style="color:magenta">null</span>,
+    <span style="color:red">"owner":</span> <span style="color:darkorange">1</span>
+  }
+]
                     </pre>
                   </div>
                 </div>
@@ -133,10 +147,16 @@
                     <pre style="padding: 8px; background-color: #f7f7f9; border: 1px solid #e1e1e8; font-size: 12px; margin-bottom: 0px;"><b>Requested method: <span style="color: #348E82;">POST</span></b>
                     </pre>
                     <br>
-                    <pre style="padding: 8px; background-color: #f7f7f9; border: 1px solid #e1e1e8; font-size: 12px;"><div style="margin-top: 5px;"><b>Status: <span style="color: #348E82; margin-top">204 OK</span></b></div><div style="margin-top: 5px;"><b>Vary: <span style="color: #348E82;"> Accept</span></b></div><div style="margin-top: 5px;"><b>Content-Type: <span style="color: #348E82;"> text/html; charset=utf-8</span></b></div><div style="margin-top: 5px;"><b>Allow: <span style="color: #348E82;"> GET, POST, HEAD, OPTIONS</span></b></div>
+                    <pre style="padding: 8px; background-color: #f7f7f9; border: 1px solid #e1e1e8; font-size: 12px;"><div style="margin-top: 5px;"><b>Status: <span style="color: #348E82; margin-top">201 Created</span></b></div><div style="margin-top: 5px;"><b>Vary: <span style="color: #348E82;"> Accept</span></b></div><div style="margin-top: 5px;"><b>Content-Type: <span style="color: #348E82;"> text/html; charset=utf-8</span></b></div><div style="margin-top: 5px;"><b>Allow: <span style="color: #348E82;"> GET, POST, HEAD, OPTIONS</span></b></div>
                     </pre>
                     <br>
-                    <pre style="padding: 8px; background-color: #f7f7f9; border: 1px solid #e1e1e8; font-size: 12px;">JSON result example
+                    <pre style="padding: 8px; background-color: #f7f7f9; border: 1px solid #e1e1e8; font-size: 12px;">
+{
+  <span style="color:red">"name":</span> <span style="color:green">"prueba2"</span>,
+  <span style="color:red">"slug":</span> <span style="color:green">"prueba2"</span>,
+  <span style="color:red">"description":</span> <span style="color:magenta">null</span>,
+  <span style="color:red">"owner":</span> <span style="color:darkorange">1</span>
+}
                     </pre>
                   </div>
                 </div>
@@ -166,7 +186,15 @@
                     <pre style="padding: 8px; background-color: #f7f7f9; border: 1px solid #e1e1e8; font-size: 12px;"><div style="margin-top: 5px;"><b>Status: <span style="color: #348E82; margin-top">200 OK</span></b></div><div style="margin-top: 5px;"><b>Vary: <span style="color: #348E82;"> Accept</span></b></div><div style="margin-top: 5px;"><b>Content-Type: <span style="color: #348E82;"> text/html; charset=utf-8</span></b></div><div style="margin-top: 5px;"><b>Allow: <span style="color: #348E82;"> GET, PUT, PATCH, DELETE, HEAD, OPTIONS</span></b></div>
                     </pre>
                     <br>
-                    <pre style="padding: 8px; background-color: #f7f7f9; border: 1px solid #e1e1e8; font-size: 12px;">JSON result example
+                    <pre style="padding: 8px; background-color: #f7f7f9; border: 1px solid #e1e1e8; font-size: 12px;">
+{
+  <span style="color:red">"name":</span> <span style="color:green">"prueba2"</span>,
+  <span style="color:red">"description":</span> <span style="color:magenta">null</span>,
+  <span style="color:red">"public":</span> <span style="color:blue">true</span>,
+  <span style="color:red">"order":</span> <span style="color:magenta">null</span>,
+  <span style="color:red">"last_modified":</span> <span style="color:green">"2015-08-06T08:22:14.201643"</span>,
+  <span style="color:red">"owner":</span> <span style="color:darkorange">1</span>
+}
                     </pre>
                   </div>
                 </div>
@@ -184,10 +212,18 @@
                     <pre style="padding: 8px; background-color: #f7f7f9; border: 1px solid #e1e1e8; font-size: 12px; margin-bottom: 0px;"><b>Requested method: <span style="color: #348E82;">PUT</span></b>
                     </pre>
                     <br>
-                    <pre style="padding: 8px; background-color: #f7f7f9; border: 1px solid #e1e1e8; font-size: 12px;"><div style="margin-top: 5px;"><b>Status: <span style="color: #348E82; margin-top">200 OK</span></b></div><div style="margin-top: 5px;"><b>Vary: <span style="color: #348E82;"> Accept</span></b></div><div style="margin-top: 5px;"><b>Content-Type: <span style="color: #348E82;"> text/html; charset=utf-8</span></b></div><div style="margin-top: 5px;"><b>Allow: <span style="color: #348E82;"> GET, PUT, PATCH, DELETE, HEAD, OPTIONS</span></b></div>
+                    <pre style="padding: 8px; background-color: #f7f7f9; border: 1px solid #e1e1e8; font-size: 12px;"><div style="margin-top: 5px;"><b>Status: <span style="color: #348E82; margin-top">201 Created</span></b></div><div style="margin-top: 5px;"><b>Vary: <span style="color: #348E82;"> Accept</span></b></div><div style="margin-top: 5px;"><b>Content-Type: <span style="color: #348E82;"> text/html; charset=utf-8</span></b></div><div style="margin-top: 5px;"><b>Allow: <span style="color: #348E82;"> GET, PUT, PATCH, DELETE, HEAD, OPTIONS</span></b></div>
                     </pre>
                     <br>
-                    <pre style="padding: 8px; background-color: #f7f7f9; border: 1px solid #e1e1e8; font-size: 12px;">JSON result example
+                    <pre style="padding: 8px; background-color: #f7f7f9; border: 1px solid #e1e1e8; font-size: 12px;">
+{
+  <span style="color:red">"name":</span> <span style="color:green">"prueba2"</span>,
+  <span style="color:red">"description":</span> <span style="color:magenta">"This is our description right now"</span>,
+  <span style="color:red">"public":</span> <span style="color:blue">true</span>,
+  <span style="color:red">"order":</span> <span style="color:magenta">null</span>,
+  <span style="color:red">"last_modified":</span> <span style="color:green">"2015-08-06T08:22:14.201643"</span>,
+  <span style="color:red">"owner":</span> <span style="color:darkorange">1</span>
+}
                     </pre>
                   </div>
                 </div>
@@ -205,10 +241,18 @@
                     <pre style="padding: 8px; background-color: #f7f7f9; border: 1px solid #e1e1e8; font-size: 12px; margin-bottom: 0px;"><b>Requested method: <span style="color: #348E82;">PATCH</span></b>
                     </pre>
                     <br>
-                    <pre style="padding: 8px; background-color: #f7f7f9; border: 1px solid #e1e1e8; font-size: 12px;"><div style="margin-top: 5px;"><b>Status: <span style="color: #348E82; margin-top">200 OK</span></b></div><div style="margin-top: 5px;"><b>Vary: <span style="color: #348E82;"> Accept</span></b></div><div style="margin-top: 5px;"><b>Content-Type: <span style="color: #348E82;"> text/html; charset=utf-8</span></b></div><div style="margin-top: 5px;"><b>Allow: <span style="color: #348E82;"> GET, PUT, PATCH, DELETE, HEAD, OPTIONS</span></b></div>
+                    <pre style="padding: 8px; background-color: #f7f7f9; border: 1px solid #e1e1e8; font-size: 12px;"><div style="margin-top: 5px;"><b>Status: <span style="color: #348E82; margin-top">201 Created</span></b></div><div style="margin-top: 5px;"><b>Vary: <span style="color: #348E82;"> Accept</span></b></div><div style="margin-top: 5px;"><b>Content-Type: <span style="color: #348E82;"> text/html; charset=utf-8</span></b></div><div style="margin-top: 5px;"><b>Allow: <span style="color: #348E82;"> GET, PUT, PATCH, DELETE, HEAD, OPTIONS</span></b></div>
                     </pre>
                     <br>
-                    <pre style="padding: 8px; background-color: #f7f7f9; border: 1px solid #e1e1e8; font-size: 12px;">JSON result example
+                    <pre style="padding: 8px; background-color: #f7f7f9; border: 1px solid #e1e1e8; font-size: 12px;">
+{
+  <span style="color:red">"name":</span> <span style="color:green">"prueba2"</span>,
+  <span style="color:red">"description":</span> <span style="color:magenta">"This is our description right now"</span>,
+  <span style="color:red">"public":</span> <span style="color:blue">true</span>,
+  <span style="color:red">"order":</span> <span style="color:magenta">null</span>,
+  <span style="color:red">"last_modified":</span> <span style="color:green">"2015-08-06T08:22:14.201643"</span>,
+  <span style="color:red">"owner":</span> <span style="color:darkorange">1</span>
+}
                     </pre>
                   </div>
                 </div>
@@ -226,10 +270,10 @@
                     <pre style="padding: 8px; background-color: #f7f7f9; border: 1px solid #e1e1e8; font-size: 12px; margin-bottom: 0px;"><b>Requested method: <span style="color: #348E82;">DELETE</span></b>
                     </pre>
                     <br>
-                    <pre style="padding: 8px; background-color: #f7f7f9; border: 1px solid #e1e1e8; font-size: 12px;"><div style="margin-top: 5px;"><b>Status: <span style="color: #348E82; margin-top">200 OK</span></b></div><div style="margin-top: 5px;"><b>Vary: <span style="color: #348E82;"> Accept</span></b></div><div style="margin-top: 5px;"><b>Content-Type: <span style="color: #348E82;"> text/html; charset=utf-8</span></b></div><div style="margin-top: 5px;"><b>Allow: <span style="color: #348E82;"> GET, PUT, PATCH, DELETE, HEAD, OPTIONS</span></b></div>
+                    <pre style="padding: 8px; background-color: #f7f7f9; border: 1px solid #e1e1e8; font-size: 12px;"><div style="margin-top: 5px;"><b>Status: <span style="color: #348E82; margin-top">204 No Content</span></b></div><div style="margin-top: 5px;"><b>Vary: <span style="color: #348E82;"> Accept</span></b></div><div style="margin-top: 5px;"><b>Content-Type: <span style="color: #348E82;"> text/html; charset=utf-8</span></b></div><div style="margin-top: 5px;"><b>Allow: <span style="color: #348E82;"> GET, PUT, PATCH, DELETE, HEAD, OPTIONS</span></b></div>
                     </pre>
                     <br>
-                    <pre style="padding: 8px; background-color: #f7f7f9; border: 1px solid #e1e1e8; font-size: 12px;">JSON result example
+                    <pre style="padding: 8px; background-color: #f7f7f9; border: 1px solid #e1e1e8; font-size: 12px;">
                     </pre>
                   </div>
                 </div>
