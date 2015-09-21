@@ -286,7 +286,10 @@ class NodeTypeSchemaPropertiesView(APIView):
                                      slug=type_slug,
                                      schema__graph__slug=graph_slug)
         # We check the flag for migrations
-        migration_flag = post_data['migration']
+        migration_flag = post_data.get('migration', None)
+
+        # We are going to store the ids treated
+        properties_ids = list()
 
         if migration_flag is not None:
             try:
@@ -294,8 +297,11 @@ class NodeTypeSchemaPropertiesView(APIView):
                 properties = post_data['properties']
                 for prop in properties:
                     prop_id = prop['id']
+                    prop_id = int(prop_id)
+                    properties_ids.append(prop_id)
+
                     # We filter to get the property
-                    temp_prop = nodetype.properties.filter(id=int(prop_id))[0]
+                    temp_prop = nodetype.properties.filter(id=prop_id)[0]
                     old_key = temp_prop.key
                     new_key = prop['key']
 
@@ -325,6 +331,10 @@ class NodeTypeSchemaPropertiesView(APIView):
 
                 serializer = NodeTypeSchemaPropertiesSerializer(nodetype)
 
+                # Finally, we need to remove the properties that we have not
+                # treated
+                nodetype.properties.exclude(pk__in=properties_ids).delete()
+
                 return Response(serializer.data,
                                 status=status.HTTP_201_CREATED)
             except Exception as e:
@@ -335,7 +345,7 @@ class NodeTypeSchemaPropertiesView(APIView):
         else:
             # We create our json response
             error = dict()
-            error['detail'] = _("You need to add a migration option."
+            error['detail'] = _("You need to add a migration option. "
                                 "See the documentation for more information")
             return Response(error, status=status.HTTP_400_BAD_REQUEST)
 
@@ -351,12 +361,13 @@ class NodeTypeSchemaPropertiesView(APIView):
                                      slug=type_slug,
                                      schema__graph__slug=graph_slug)
         # We check the flag for migrations
-        migration_flag = post_data['migration']
+        migration_flag = post_data.get('migration', None)
 
         if migration_flag is not None:
             try:
                 # We iterate over the properties, to modify them
                 properties = post_data['properties']
+
                 for prop in properties:
                     prop_id = prop['id']
                     # We filter to get the property
@@ -400,7 +411,7 @@ class NodeTypeSchemaPropertiesView(APIView):
         else:
             # We create our json response
             error = dict()
-            error['detail'] = _("You need to add a migration option."
+            error['detail'] = _("You need to add a migration option. "
                                 "See the documentation for more information")
             return Response(error, status=status.HTTP_400_BAD_REQUEST)
 
