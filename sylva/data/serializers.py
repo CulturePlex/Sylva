@@ -87,7 +87,8 @@ class NodeSerializer(serializers.Serializer):
     id = serializers.CharField()
     label = serializers.CharField()
     label_display = serializers.CharField()
-    properties = serializers.SerializerMethodField('properties_func')
+    properties = serializers.DictField()
+    # properties = serializers.SerializerMethodField('properties_func')
 
     def properties_func(self, node):
         return node.properties
@@ -105,7 +106,8 @@ class RelationshipSerializer(serializers.Serializer):
     id = serializers.CharField()
     label = serializers.CharField()
     label_display = serializers.CharField()
-    properties = serializers.SerializerMethodField('properties_func')
+    properties = serializers.DictField()
+    # properties = serializers.SerializerMethodField('properties_func')
 
     def properties_func(self, relationship):
         return relationship.properties

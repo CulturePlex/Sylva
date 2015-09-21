@@ -131,9 +131,31 @@
   }
 ]
                     </pre>
+                    <!-- Form section -->
+                    <div class="form-group" style="margin-top: 10px; font-size: 87%;">
+                      <label for="id__content_type" class="col-sm-2 control-label" style="font-size: 90%;">{% trans "Media type" %}:</label>
+                      <div class="col-sm-10">
+                          <select id="id__content_type" name="_content_type" class="form-control" disabled>
+                        <option value="application/json" selected="selected" style="font-size: 90%;">application/json</option>
+                      </select>
+                          <span class="help-block"></span>
+                      </div>
+                    </div>
+                    <div class="form-group" style="margin-top: 10px; font-size: 87%;">
+                        <label for="id__content" class="col-sm-2 control-label" style="font-size: 90%;">{% trans "Content" %}:</label>
+                          <div class="col-sm-10">
+                              <textarea cols="40" id="id__content" name="_content" rows="10" class="form-control" disabled></textarea>
+                              <span class="help-block"></span>
+                          </div>
+                    </div>
+                    <div class="form-actions" style="margin-top: 10px;">
+                      <button type="submit" name="_method" value="POST" title="{% trans 'Make a POST request' %}" disabled>POST</button>
+                    </div>
+                  </div>
+                  <!-- End Form Section -->
                   </div>
                 </div>
-                
+
                 <div class="allowed-method">
                   <h3>
                     {% trans "POST" %}
@@ -158,7 +180,32 @@
   <span style="color:red">"owner":</span> <span style="color:darkorange">1</span>
 }
                     </pre>
+                    <!-- Form section -->
+                    <div class="form-group" style="margin-top: 10px; font-size: 87%;">
+                      <label for="id__content_type" class="col-sm-2 control-label" style="font-size: 90%;">{% trans "Media type" %}:</label>
+                      <div class="col-sm-10">
+                          <select id="id__content_type" name="_content_type" class="form-control" disabled>
+                        <option value="application/json" selected="selected" style="font-size: 90%;">application/json</option>
+                      </select>
+                          <span class="help-block"></span>
+                      </div>
+                    </div>
+                    <div class="form-group" style="margin-top: 10px; font-size: 87%;">
+                        <label for="id__content" class="col-sm-2 control-label" style="font-size: 90%;">{% trans "Content" %}:</label>
+                          <div class="col-sm-10">
+                              <textarea cols="40" id="id__content" name="_content" rows="10" class="form-control" disabled>
+{
+  "name": "prueba 2"
+}
+                              </textarea>
+                              <span class="help-block"></span>
+                          </div>
+                    </div>
+                    <div class="form-actions" style="margin-top: 10px;">
+                      <button type="submit" name="_method" value="POST" title="{% trans 'Make a POST request' %}" disabled>POST</button>
+                    </div>
                   </div>
+                  <!-- End Form Section -->
                 </div>
               </div>
 
@@ -198,7 +245,7 @@
                     </pre>
                   </div>
                 </div>
-                
+
                 <div class="allowed-method">
                   <h3>
                     {% trans "PUT" %}
@@ -256,7 +303,7 @@
                     </pre>
                   </div>
                 </div>
-                
+
                 <div class="allowed-method">
                   <h3>
                     {% trans "DELETE" %}
@@ -284,7 +331,7 @@
                   <a class="headerlink" id="/graphs/{graph_slug}/export/{'schema', 'data', 'graph'}" href="#/graphs/{graph_slug}/export/{'schema', 'data', 'graph'}" title="{% trans "Permalink to this headline" %}">¶</a>
                 </h3>
 
-                <p>{% trans "Available methods for this service." %}</p>  
+                <p>{% trans "Available methods for this service." %}</p>
 
                 <div class="allowed-method">
                   <h3>
@@ -313,7 +360,7 @@
                   <a class="headerlink" id="/graphs/{graph_slug}/import/{'schema', 'data', 'graph'}" href="#/graphs/{graph_slug}/import/{'schema', 'data', 'graph'}" title="{% trans "Permalink to this headline" %}">¶</a>
                 </h3>
 
-                <p>{% trans "Available methods for this service." %}</p>  
+                <p>{% trans "Available methods for this service." %}</p>
 
                 <div class="allowed-method">
                   <h3>
@@ -358,7 +405,7 @@
                 <a class="headerlink" id="/graphs/{graph_slug}/types/{'nodes', 'relationships'}" href="#/graphs/{graph_slug}/types/{'nodes', 'relationships'}" title="{% trans "Permalink to this headline" %}">¶</a>
               </h3>
 
-              <p>{% trans "Available methods for this service." %}</p>  
+              <p>{% trans "Available methods for this service." %}</p>
 
               <div class="allowed-method">
                 <h3>
