@@ -3,6 +3,7 @@ from django.db import transaction
 from django.shortcuts import get_object_or_404
 
 from graphs.models import Graph
+from graphs.permissions import IsOwner
 from schemas.models import NodeType, RelationshipType
 from data.forms import NodeForm
 from data.serializers import (GetNodesSerializer, GetRelationshipsSerializer,
@@ -13,11 +14,16 @@ from rest_framework.views import APIView
 
 
 class GetNodesView(APIView):
+    permission_classes = (IsOwner,)
 
     def get(self, request, graph_slug, type_slug, format=None):
         """
         Returns a list of nodes that belongs to type_slug
         """
+
+        graph = get_object_or_404(Graph, slug=graph_slug)
+        self.check_object_permissions(self.request, graph)
+
         nodetype = get_object_or_404(NodeType,
                                      slug=type_slug,
                                      schema__graph__slug=graph_slug)
@@ -31,6 +37,8 @@ class GetNodesView(APIView):
         Create a new node of a type
         """
         graph = get_object_or_404(Graph, slug=graph_slug)
+        self.check_object_permissions(self.request, graph)
+
         nodetype = get_object_or_404(NodeType,
                                      slug=type_slug,
                                      schema__graph__slug=graph_slug)
@@ -50,11 +58,15 @@ class GetNodesView(APIView):
 
 
 class GetRelationshipsView(APIView):
+    permission_classes = (IsOwner,)
 
     def get(self, request, graph_slug, type_slug, format=None):
         """
         Returns a list of relationships that belongs to type_slug
         """
+        graph = get_object_or_404(Graph, slug=graph_slug)
+        self.check_object_permissions(self.request, graph)
+
         relationshiptype = get_object_or_404(RelationshipType,
                                              slug=type_slug,
                                              schema__graph__slug=graph_slug)
@@ -68,6 +80,8 @@ class GetRelationshipsView(APIView):
         Create a new relationship of allowed relationship
         """
         graph = get_object_or_404(Graph, slug=graph_slug)
+        self.check_object_permissions(self.request, graph)
+
         relationshiptype = get_object_or_404(RelationshipType,
                                              slug=type_slug,
                                              schema__graph__slug=graph_slug)
@@ -86,12 +100,14 @@ class GetRelationshipsView(APIView):
 
 
 class NodeView(APIView):
+    permission_classes = (IsOwner,)
 
     def get(self, request, graph_slug, type_slug, node_id, format=None):
         """
         Returns information about a node
         """
         graph = get_object_or_404(Graph, slug=graph_slug)
+        self.check_object_permissions(self.request, graph)
 
         node = graph.nodes.get(node_id)
         serializer = NodeSerializer(node)
@@ -102,8 +118,10 @@ class NodeView(APIView):
         """
         Edit properties of a node
         """
-        post_data = request.data
         graph = get_object_or_404(Graph, slug=graph_slug)
+        self.check_object_permissions(self.request, graph)
+
+        post_data = request.data
 
         node = graph.nodes.get(node_id)
 
@@ -127,8 +145,10 @@ class NodeView(APIView):
         """
         Edit properties of a node. Omitted properties are removed
         """
-        post_data = request.data
         graph = get_object_or_404(Graph, slug=graph_slug)
+        self.check_object_permissions(self.request, graph)
+
+        post_data = request.data
 
         node = graph.nodes.get(node_id)
 
@@ -151,6 +171,7 @@ class NodeView(APIView):
         Delete the node with id equals to node_id
         """
         graph = get_object_or_404(Graph, slug=graph_slug)
+        self.check_object_permissions(self.request, graph)
 
         node = graph.nodes.get(node_id)
         serializer = NodeSerializer(node)
@@ -161,6 +182,7 @@ class NodeView(APIView):
 
 
 class RelationshipView(APIView):
+    permission_classes = (IsOwner,)
 
     def get(self, request, graph_slug, type_slug, relationship_id,
             format=None):
@@ -168,6 +190,7 @@ class RelationshipView(APIView):
         Returns information about a relationship
         """
         graph = get_object_or_404(Graph, slug=graph_slug)
+        self.check_object_permissions(self.request, graph)
 
         relationship = graph.relationships.get(relationship_id)
         serializer = RelationshipSerializer(relationship)
@@ -179,8 +202,10 @@ class RelationshipView(APIView):
         """
         Edit properties of a relationship
         """
-        post_data = request.data
         graph = get_object_or_404(Graph, slug=graph_slug)
+        self.check_object_permissions(self.request, graph)
+
+        post_data = request.data
 
         relationship = graph.relationships.get(relationship_id)
 
@@ -205,8 +230,10 @@ class RelationshipView(APIView):
         """
         Edit properties of a relationship
         """
-        post_data = request.data
         graph = get_object_or_404(Graph, slug=graph_slug)
+        self.check_object_permissions(self.request, graph)
+
+        post_data = request.data
 
         relationship = graph.relationships.get(relationship_id)
 
@@ -232,6 +259,7 @@ class RelationshipView(APIView):
         Delete the relationship with id equals to relationship_id
         """
         graph = get_object_or_404(Graph, slug=graph_slug)
+        self.check_object_permissions(self.request, graph)
 
         relationship = graph.relationships.get(relationship_id)
         serializer = RelationshipSerializer(relationship)

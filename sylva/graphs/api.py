@@ -4,6 +4,7 @@ from datetime import datetime
 from accounts.models import User
 from django.shortcuts import get_object_or_404
 from graphs.models import Graph
+from graphs.permissions import IsOwner
 from graphs.serializers import GraphsSerializer, GraphSerializer
 from rest_framework import status
 from rest_framework.response import Response
@@ -44,12 +45,14 @@ class GraphsView(APIView):
 
 
 class GraphView(APIView):
+    permission_classes = (IsOwner,)
 
     def get(self, request, graph_slug, format=None):
         """
         Returns the information of a graph
         """
         graph = get_object_or_404(Graph, slug=graph_slug)
+        self.check_object_permissions(self.request, graph)
 
         serializer = GraphSerializer(graph)
 
@@ -59,11 +62,13 @@ class GraphView(APIView):
         """
         Edit an existing graph. Only fields provided will be modified
         """
+        graph = get_object_or_404(Graph, slug=graph_slug)
+        self.check_object_permissions(self.request, graph)
+
         # We get the data from the request
         post_data = request.data
         post_data['name'] = request.data.get('name', None)
 
-        graph = get_object_or_404(Graph, slug=graph_slug)
         post_data['owner'] = graph.owner.pk
 
         if post_data['name'] is None:
@@ -81,11 +86,13 @@ class GraphView(APIView):
         """
         Edit an existing graph. Omitted fields are removed.
         """
+        graph = get_object_or_404(Graph, slug=graph_slug)
+        self.check_object_permissions(self.request, graph)
+
         # We get the data from the request
         post_data = request.data
         post_data['name'] = request.data.get('name', None)
 
-        graph = get_object_or_404(Graph, slug=graph_slug)
         post_data['owner'] = graph.owner.pk
 
         if post_data['name'] is None:
@@ -118,6 +125,8 @@ class GraphView(APIView):
         Delete an existing graph.
         """
         graph = get_object_or_404(Graph, slug=graph_slug)
+        self.check_object_permissions(self.request, graph)
+
         serializer = GraphSerializer(graph)
 
         serializer.instance.delete()
@@ -128,12 +137,14 @@ class GraphView(APIView):
 # Export classes
 
 class GraphCompleteExportView(APIView):
+    permission_classes = (IsOwner,)
 
     def get(self, request, graph_slug, format=None):
         """
         Export the schema and the data of the graph
         """
         graph = get_object_or_404(Graph, slug=graph_slug)
+        self.check_object_permissions(self.request, graph)
 
         schema = graph.schema.export()
         data = dict(nodes=[{'id': n.id,
@@ -152,23 +163,27 @@ class GraphCompleteExportView(APIView):
 
 
 class GraphSchemaExportView(APIView):
+    permission_classes = (IsOwner,)
 
     def get(self, request, graph_slug, format=None):
         """
         Export the schema of the graph
         """
         graph = get_object_or_404(Graph, slug=graph_slug)
+        self.check_object_permissions(self.request, graph)
 
         return Response(graph.schema.export())
 
 
 class GraphDataExportView(APIView):
+    permission_classes = (IsOwner,)
 
     def get(self, request, graph_slug, format=None):
         """
         Export the data of the graph
         """
         graph = get_object_or_404(Graph, slug=graph_slug)
+        self.check_object_permissions(self.request, graph)
 
         data = dict(nodes=[{'id': n.id,
                             'type': n.label_display,
@@ -189,6 +204,7 @@ class GraphDataExportView(APIView):
 # Import classes
 
 class GraphCompleteImportView(APIView):
+    permission_classes = (IsOwner,)
 
     def put(self, request, graph_slug, format=None):
         """
@@ -198,12 +214,15 @@ class GraphCompleteImportView(APIView):
 
 
 class GraphSchemaImportView(APIView):
+    permission_classes = (IsOwner,)
 
     def put(self, request, graph_slug, format=None):
         """
         Import the schema of the graph
         """
         graph = get_object_or_404(Graph, slug=graph_slug)
+        self.check_object_permissions(self.request, graph)
+
         data = request.data
 
         graph.schema._import(data)
@@ -213,15 +232,18 @@ class GraphSchemaImportView(APIView):
 
 
 class GraphDataImportView(APIView):
+    permission_classes = (IsOwner,)
 
     def put(self, request, graph_slug, format=None):
         """
         Import the data of the graph
         """
+        graph = get_object_or_404(Graph, slug=graph_slug)
+        self.check_object_permissions(self.request, graph)
+
         data = request.data
 
         # Nodes
-        graph = get_object_or_404(Graph, slug=graph_slug)
         nodes = data['nodes']
         ids_dict = {}
         for elem in nodes:

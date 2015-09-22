@@ -2,6 +2,7 @@
 from django.utils.translation import gettext as _
 from django.shortcuts import get_object_or_404
 from graphs.models import Graph
+from graphs.permissions import IsOwner
 from schemas.models import (NodeType, RelationshipType,
                             NodeProperty, RelationshipProperty)
 from schemas.serializers import (NodeTypesSerializer,
@@ -18,12 +19,15 @@ from rest_framework.views import APIView
 
 
 class NodeTypesView(APIView):
+    permission_classes = (IsOwner,)
 
     def get(self, request, graph_slug, format=None):
         """
         Returns all the nodetypes of a graph
         """
         graph = get_object_or_404(Graph, slug=graph_slug)
+        self.check_object_permissions(self.request, graph)
+
         nodetypes = graph.schema.nodetype_set.all()
 
         serializer = NodeTypesSerializer(nodetypes, many=True)
@@ -35,6 +39,8 @@ class NodeTypesView(APIView):
         Create a new node type
         """
         graph = get_object_or_404(Graph, slug=graph_slug)
+        self.check_object_permissions(self.request, graph)
+
         # We get the data from the request
         post_data = request.data
         # We get the schema id
@@ -50,12 +56,15 @@ class NodeTypesView(APIView):
 
 
 class RelationshipTypesView(APIView):
+    permission_classes = (IsOwner,)
 
     def get(self, request, graph_slug, format=None):
         """
         Returns all the relationship types of a graph
         """
         graph = get_object_or_404(Graph, slug=graph_slug)
+        self.check_object_permissions(self.request, graph)
+
         relationshiptypes = graph.schema.relationshiptype_set.all()
 
         serializer = RelationshipTypesSerializer(relationshiptypes, many=True)
@@ -67,6 +76,7 @@ class RelationshipTypesView(APIView):
         Create a new relationship type
         """
         graph = get_object_or_404(Graph, slug=graph_slug)
+        self.check_object_permissions(self.request, graph)
 
         # We get the data from the request
         post_data = request.data
@@ -96,11 +106,15 @@ class RelationshipTypesView(APIView):
 
 
 class NodeTypeView(APIView):
+    permission_classes = (IsOwner,)
 
     def get(self, request, graph_slug, type_slug, format=None):
         """
         Returns info related to the node type
         """
+        graph = get_object_or_404(Graph, slug=graph_slug)
+        self.check_object_permissions(self.request, graph)
+
         nodetype = get_object_or_404(NodeType,
                                      slug=type_slug,
                                      schema__graph__slug=graph_slug)
@@ -114,6 +128,8 @@ class NodeTypeView(APIView):
         Delete the node type from the schema
         """
         graph = get_object_or_404(Graph, slug=graph_slug)
+        self.check_object_permissions(self.request, graph)
+
         nodetype = get_object_or_404(NodeType,
                                      slug=type_slug,
                                      schema__graph__slug=graph_slug)
@@ -129,11 +145,15 @@ class NodeTypeView(APIView):
 
 
 class RelationshipTypeView(APIView):
+    permission_classes = (IsOwner,)
 
     def get(self, request, graph_slug, type_slug, format=None):
         """
         Returns info related to the relationship type
         """
+        graph = get_object_or_404(Graph, slug=graph_slug)
+        self.check_object_permissions(self.request, graph)
+
         relationshiptype = get_object_or_404(RelationshipType,
                                              slug=type_slug,
                                              schema__graph__slug=graph_slug)
@@ -147,6 +167,8 @@ class RelationshipTypeView(APIView):
         Delete the relationship type from the schema
         """
         graph = get_object_or_404(Graph, slug=graph_slug)
+        self.check_object_permissions(self.request, graph)
+
         relationshiptype = get_object_or_404(RelationshipType,
                                              slug=type_slug,
                                              schema__graph__slug=graph_slug)
@@ -162,11 +184,15 @@ class RelationshipTypeView(APIView):
 
 
 class NodeTypeSchemaView(APIView):
+    permission_classes = (IsOwner,)
 
     def get(self, request, graph_slug, type_slug, format=None):
         """
         Returns the schema info of the node type
         """
+        graph = get_object_or_404(Graph, slug=graph_slug)
+        self.check_object_permissions(self.request, graph)
+
         nodetype = get_object_or_404(NodeType,
                                      slug=type_slug,
                                      schema__graph__slug=graph_slug)
@@ -179,6 +205,8 @@ class NodeTypeSchemaView(APIView):
         """
         Change all fields at once. Omitted ones are not modified.
         """
+        graph = get_object_or_404(Graph, slug=graph_slug)
+        self.check_object_permissions(self.request, graph)
 
         # We get the data from the request
         post_data = request.data
@@ -199,6 +227,9 @@ class NodeTypeSchemaView(APIView):
         """
         Change all fields at once. Omitted ones are removed
         """
+        graph = get_object_or_404(Graph, slug=graph_slug)
+        self.check_object_permissions(self.request, graph)
+
         # We get the data from the request
         post_data = request.data
 
@@ -221,11 +252,15 @@ class NodeTypeSchemaView(APIView):
 
 
 class RelationshipTypeSchemaView(APIView):
+    permission_classes = (IsOwner,)
 
     def get(self, request, graph_slug, type_slug, format=None):
         """
         Returns the schema info of the relationship type
         """
+        graph = get_object_or_404(Graph, slug=graph_slug)
+        self.check_object_permissions(self.request, graph)
+
         relationshiptype = get_object_or_404(RelationshipType,
                                              slug=type_slug,
                                              schema__graph__slug=graph_slug)
@@ -236,11 +271,15 @@ class RelationshipTypeSchemaView(APIView):
 
 
 class NodeTypeSchemaPropertiesView(APIView):
+    permission_classes = (IsOwner,)
 
     def get(self, request, graph_slug, type_slug, format=None):
         """
         Returns the node type properties
         """
+        graph = get_object_or_404(Graph, slug=graph_slug)
+        self.check_object_permissions(self.request, graph)
+
         nodetype = get_object_or_404(NodeType,
                                      slug=type_slug,
                                      schema__graph__slug=graph_slug)
@@ -253,6 +292,8 @@ class NodeTypeSchemaPropertiesView(APIView):
         """
         Create a new property
         """
+        graph = get_object_or_404(Graph, slug=graph_slug)
+        self.check_object_permissions(self.request, graph)
 
         post_data = request.data
         # We need to get all the fields to create the property
@@ -280,6 +321,9 @@ class NodeTypeSchemaPropertiesView(APIView):
         Modify an existing property. Omitted ones are removed.
         We need to check migration options.
         """
+        graph = get_object_or_404(Graph, slug=graph_slug)
+        self.check_object_permissions(self.request, graph)
+
         post_data = request.data
 
         nodetype = get_object_or_404(NodeType,
@@ -354,6 +398,8 @@ class NodeTypeSchemaPropertiesView(APIView):
         Modify an existing property. Omitted ones remain.
         We need to check migration options.
         """
+        graph = get_object_or_404(Graph, slug=graph_slug)
+        self.check_object_permissions(self.request, graph)
 
         post_data = request.data
 
@@ -419,6 +465,9 @@ class NodeTypeSchemaPropertiesView(APIView):
         """
         Delete all the node type properties
         """
+        graph = get_object_or_404(Graph, slug=graph_slug)
+        self.check_object_permissions(self.request, graph)
+
         nodetype = get_object_or_404(NodeType,
                                      slug=type_slug,
                                      schema__graph__slug=graph_slug)
@@ -434,11 +483,15 @@ class NodeTypeSchemaPropertiesView(APIView):
 
 
 class RelationshipTypeSchemaPropertiesView(APIView):
+    permission_classes = (IsOwner,)
 
     def get(self, request, graph_slug, type_slug, format=None):
         """
         Returns the relationship type properties
         """
+        graph = get_object_or_404(Graph, slug=graph_slug)
+        self.check_object_permissions(self.request, graph)
+
         relationshiptype = get_object_or_404(RelationshipType,
                                              slug=type_slug,
                                              schema__graph__slug=graph_slug)
@@ -452,6 +505,9 @@ class RelationshipTypeSchemaPropertiesView(APIView):
         """
         Create a new property
         """
+        graph = get_object_or_404(Graph, slug=graph_slug)
+        self.check_object_permissions(self.request, graph)
+
         post_data = request.data
         # We need to get all the fields to create the property
 
@@ -472,6 +528,9 @@ class RelationshipTypeSchemaPropertiesView(APIView):
         """
         Delete all the relationship type properties
         """
+        graph = get_object_or_404(Graph, slug=graph_slug)
+        self.check_object_permissions(self.request, graph)
+
         relationshiptype = get_object_or_404(RelationshipType,
                                              slug=type_slug,
                                              schema__graph__slug=graph_slug)
