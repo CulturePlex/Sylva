@@ -351,13 +351,19 @@ class NodeTypeSchemaPropertiesView(APIView):
 
                     if temp_prop:
                         # We change the fields of the property
-                        temp_prop.key = prop['key']
-                        # We need to include the rest of properties
+                        temp_prop.key = prop.get('key', temp_prop.key)
+                        prop_type = prop.get('prop_type',
+                                             temp_prop.get_datatype_display())
+                        prop_type_code = (
+                            temp_prop.get_datatype_dict()[prop_type])
+                        temp_prop.datatype = prop_type_code
+                        # temp_prop.choices = prop.get('choices',
+                        #                              temp_prop.choices)
                         temp_prop.save()
 
                         # Here, we need to check the flag and treat
                         # the migrations
-                        if migration_flag is "rename":
+                        if migration_flag == "rename":
                             elements = nodetype.all()
                             for element in elements:
                                 try:
@@ -365,7 +371,7 @@ class NodeTypeSchemaPropertiesView(APIView):
                                     element.delete(old_key)
                                 except KeyError:
                                     pass
-                        elif migration_flag is "delete":
+                        elif migration_flag == "delete":
                             elements = nodetype.all()
                             for element in elements:
                                 try:
@@ -423,13 +429,20 @@ class NodeTypeSchemaPropertiesView(APIView):
 
                     if temp_prop:
                         # We change the fields of the property
-                        temp_prop.key = prop['key']
-                        # We need to include the rest of properties
+                        temp_prop.key = prop.get('key', temp_prop.key)
+                        prop_type = prop.get('prop_type',
+                                             temp_prop.get_datatype_display())
+                        prop_type_code = (
+                            temp_prop.get_datatype_dict()[prop_type])
+                        temp_prop.datatype = prop_type_code
+                        # temp_prop.choices = prop.get('choices',
+                        #                              temp_prop.choices)
+
                         temp_prop.save()
 
                         # Here, we need to check the flag and treat
                         # the migrations
-                        if migration_flag is "rename":
+                        if migration_flag == "rename":
                             elements = nodetype.all()
                             for element in elements:
                                 try:
@@ -437,7 +450,7 @@ class NodeTypeSchemaPropertiesView(APIView):
                                     element.delete(old_key)
                                 except KeyError:
                                     pass
-                        elif migration_flag is "delete":
+                        elif migration_flag == "delete":
                             elements = nodetype.all()
                             for element in elements:
                                 try:
