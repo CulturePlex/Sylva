@@ -1,4 +1,4 @@
-from schemas.models import Schema, NodeType, RelationshipType
+from schemas.models import NodeType, RelationshipType
 from rest_framework import serializers
 
 
@@ -203,9 +203,9 @@ class NodeTypeSchemaPropertiesSerializer(serializers.ModelSerializer):
 
 
 class RelationshipTypeSchemaPropertiesSerializer(serializers.ModelSerializer):
-    schema_info = serializers.SerializerMethodField('schema_func')
+    properties_func = serializers.SerializerMethodField('properties_func')
 
-    def schema_func(self, relationshiptype):
+    def properties_func(self, relationshiptype):
         properties = list()
 
         # First, we are going to get the properties
@@ -221,15 +221,8 @@ class RelationshipTypeSchemaPropertiesSerializer(serializers.ModelSerializer):
                 }
                 properties.append(prop)
 
-        # We create our info for the schema
-        schema = {
-            "name": relationshiptype.name,
-            "properties": properties,
-            "id": relationshiptype.id
-        }
-
-        return schema
+        return properties
 
     class Meta:
-        model = Schema
-        fields = ['schema_info']
+        model = RelationshipType
+        fields = ['properties']

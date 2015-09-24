@@ -537,6 +537,171 @@ class RelationshipTypeSchemaPropertiesView(APIView):
 
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
+    def put(self, request, graph_slug, type_slug, format=None):
+        """
+        Modify an existing property. Omitted ones are removed.
+        We need to check migration options.
+        """
+        graph = get_object_or_404(Graph, slug=graph_slug)
+        self.check_object_permissions(self.request, graph)
+
+        post_data = request.data
+
+        relationshiptype = get_object_or_404(RelationshipType,
+                                             slug=type_slug,
+                                             schema__graph__slug=graph_slug)
+        # We check the flag for migrations
+        migration_flag = post_data.get('migration', None)
+
+        # We are going to store the ids treated
+        properties_ids = list()
+
+        if migration_flag is not None:
+            try:
+                # We iterate over the properties, to modify them
+                properties = post_data['properties']
+                for prop in properties:
+                    prop_id = prop['id']
+                    prop_id = int(prop_id)
+                    properties_ids.append(prop_id)
+
+                    # We filter to get the property
+                    temp_prop = relationshiptype.properties.filter(
+                        id=prop_id)[0]
+                    old_key = temp_prop.key
+                    new_key = prop['key']
+
+                    if temp_prop:
+                        # We change the fields of the property
+                        temp_prop.key = prop.get('key', temp_prop.key)
+                        prop_type = prop.get('prop_type',
+                                             temp_prop.get_datatype_display())
+                        prop_type_code = (
+                            temp_prop.get_datatype_dict()[prop_type])
+                        temp_prop.datatype = prop_type_code
+                        # temp_prop.choices = prop.get('choices',
+                        #                              temp_prop.choices)
+                        temp_prop.save()
+
+                        # Here, we need to check the flag and treat
+                        # the migrations
+                        if migration_flag == "rename":
+                            elements = relationshiptype.all()
+                            for element in elements:
+                                try:
+                                    element.set(new_key, element.get(old_key))
+                                    element.delete(old_key)
+                                except KeyError:
+                                    pass
+                        elif migration_flag == "delete":
+                            elements = relationshiptype.all()
+                            for element in elements:
+                                try:
+                                    element.delete(old_key)
+                                except KeyError:
+                                    pass
+
+                serializer = (
+                    RelationshipTypeSchemaPropertiesSerializer(
+                        relationshiptype))
+
+                # Finally, we need to remove the properties that we have not
+                # treated
+                relationshiptype.properties.exclude(
+                    pk__in=properties_ids).delete()
+
+                return Response(serializer.data,
+                                status=status.HTTP_201_CREATED)
+            except Exception as e:
+                # We create our json response
+                error = dict()
+                error['detail'] = e.message
+                return Response(error, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            # We create our json response
+            error = dict()
+            error['detail'] = _("You need to add a migration option. "
+                                "See the documentation for more information")
+            return Response(error, status=status.HTTP_400_BAD_REQUEST)
+
+    def patch(self, request, graph_slug, type_slug, format=None):
+        """
+        Modify an existing property. Omitted ones remain.
+        We need to check migration options.
+        """
+        graph = get_object_or_404(Graph, slug=graph_slug)
+        self.check_object_permissions(self.request, graph)
+
+        post_data = request.data
+
+        relationshiptype = get_object_or_404(RelationshipType,
+                                             slug=type_slug,
+                                             schema__graph__slug=graph_slug)
+        # We check the flag for migrations
+        migration_flag = post_data.get('migration', None)
+
+        if migration_flag is not None:
+            try:
+                # We iterate over the properties, to modify them
+                properties = post_data['properties']
+
+                for prop in properties:
+                    prop_id = prop['id']
+                    # We filter to get the property
+                    temp_prop = relationshiptype.properties.filter(
+                        id=int(prop_id))[0]
+                    old_key = temp_prop.key
+                    new_key = prop['key']
+
+                    if temp_prop:
+                        # We change the fields of the property
+                        temp_prop.key = prop.get('key', temp_prop.key)
+                        prop_type = prop.get('prop_type',
+                                             temp_prop.get_datatype_display())
+                        prop_type_code = (
+                            temp_prop.get_datatype_dict()[prop_type])
+                        temp_prop.datatype = prop_type_code
+                        # temp_prop.choices = prop.get('choices',
+                        #                              temp_prop.choices)
+
+                        temp_prop.save()
+
+                        # Here, we need to check the flag and treat
+                        # the migrations
+                        if migration_flag == "rename":
+                            elements = relationshiptype.all()
+                            for element in elements:
+                                try:
+                                    element.set(new_key, element.get(old_key))
+                                    element.delete(old_key)
+                                except KeyError:
+                                    pass
+                        elif migration_flag == "delete":
+                            elements = relationshiptype.all()
+                            for element in elements:
+                                try:
+                                    element.delete(old_key)
+                                except KeyError:
+                                    pass
+
+                serializer = (
+                    RelationshipTypeSchemaPropertiesSerializer(
+                        relationshiptype))
+
+                return Response(serializer.data,
+                                status=status.HTTP_201_CREATED)
+            except Exception as e:
+                # We create our json response
+                error = dict()
+                error['detail'] = e.message
+                return Response(error, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            # We create our json response
+            error = dict()
+            error['detail'] = _("You need to add a migration option. "
+                                "See the documentation for more information")
+            return Response(error, status=status.HTTP_400_BAD_REQUEST)
+
     def delete(self, request, graph_slug, type_slug, format=None):
         """
         Delete all the relationship type properties
