@@ -481,18 +481,44 @@ class NodeTypeSchemaPropertiesView(APIView):
         graph = get_object_or_404(Graph, slug=graph_slug)
         self.check_object_permissions(self.request, graph)
 
+        post_data = request.data
+
         nodetype = get_object_or_404(NodeType,
                                      slug=type_slug,
                                      schema__graph__slug=graph_slug)
 
-        # We need to remove all the related nodes and
-        # relationships
-        nodetype.properties.all().delete()
+        # We check the flag for migrations
+        migration_flag = post_data.get('migration', None)
 
-        # Migrations must be passed in
-        # We can pass an argument to remove all of them or only the properties
+        if migration_flag is not None:
+            try:
+                # We need to remove all the relationships
+                properties = nodetype.properties.all()
 
-        return Response(status=status.HTTP_204_NO_CONTENT)
+                # Here, we need to check the flag and treat
+                # the migrations
+                if migration_flag == "delete":
+                    elements = nodetype.all()
+                    for prop in properties:
+                        for element in elements:
+                            try:
+                                element.delete(prop.key)
+                            except KeyError:
+                                pass
+
+                return Response(status=status.HTTP_204_NO_CONTENT)
+
+            except Exception as e:
+                # We create our json response
+                error = dict()
+                error['detail'] = e.message
+                return Response(error, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            # We create our json response
+            error = dict()
+            error['detail'] = _("You need to add a migration option. "
+                                "See the documentation for more information")
+            return Response(error, status=status.HTTP_400_BAD_REQUEST)
 
 
 class RelationshipTypeSchemaPropertiesView(APIView):
@@ -709,13 +735,41 @@ class RelationshipTypeSchemaPropertiesView(APIView):
         graph = get_object_or_404(Graph, slug=graph_slug)
         self.check_object_permissions(self.request, graph)
 
+        post_data = request.data
+
         relationshiptype = get_object_or_404(RelationshipType,
                                              slug=type_slug,
                                              schema__graph__slug=graph_slug)
 
-        relationshiptype.properties.all().delete()
+        # We check the flag for migrations
+        migration_flag = post_data.get('migration', None)
 
-        # Migrations must be passed in
-        # We can pass an argument to remove all of them or only the properties
+        if migration_flag is not None:
+            try:
+                # We need to remove all the relationships
+                properties = relationshiptype.properties.all()
 
-        return Response(status=status.HTTP_204_NO_CONTENT)
+                # Here, we need to check the flag and treat
+                # the migrations
+                if migration_flag == "delete":
+                    elements = relationshiptype.all()
+                    for prop in properties:
+                        for element in elements:
+                            try:
+                                element.delete(prop.key)
+                            except KeyError:
+                                pass
+
+                return Response(status=status.HTTP_204_NO_CONTENT)
+
+            except Exception as e:
+                # We create our json response
+                error = dict()
+                error['detail'] = e.message
+                return Response(error, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            # We create our json response
+            error = dict()
+            error['detail'] = _("You need to add a migration option. "
+                                "See the documentation for more information")
+            return Response(error, status=status.HTTP_400_BAD_REQUEST)
