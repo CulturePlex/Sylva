@@ -1,4 +1,7 @@
 language: python
+services:
+    - elasticsearch
+    - cassandra
 jdk:
   - oraclejdk8
 python:
