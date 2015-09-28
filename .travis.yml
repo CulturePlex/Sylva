@@ -4,6 +4,8 @@ jdk:
   - oraclejdk8
 python:
   - "2.7"
+services:
+  - elasticsearch
 cache:
   directories:
     - $HOME/.cache/pip
