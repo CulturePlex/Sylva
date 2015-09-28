@@ -1,6 +1,6 @@
 #!/bin/bash
 
-DEFAULT_VERSION="0.9.0-M2-hadoop1"
+DEFAULT_VERSION="1.0.0-hadoop1"
 VERSION=${1-$DEFAULT_VERSION}
 OLD_DIR="titan-$VERSION"
 NEW_DIR="titan"
