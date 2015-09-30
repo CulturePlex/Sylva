@@ -6,14 +6,14 @@ from graphs.models import Graph
 from graphs.permissions import IsOwner
 from schemas.models import NodeType, RelationshipType
 from data.forms import NodeForm
-from data.serializers import (GetNodesSerializer, GetRelationshipsSerializer,
+from data.serializers import (NodesSerializer, RelationshipsSerializer,
                               NodeSerializer, RelationshipSerializer)
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 
-class GetNodesView(APIView):
+class NodesView(APIView):
     permission_classes = (IsOwner,)
 
     def get(self, request, graph_slug, type_slug, format=None):
@@ -28,7 +28,7 @@ class GetNodesView(APIView):
                                      slug=type_slug,
                                      schema__graph__slug=graph_slug)
 
-        serializer = GetNodesSerializer(nodetype)
+        serializer = NodesSerializer(nodetype)
 
         return Response(serializer.data)
 
@@ -57,7 +57,7 @@ class GetNodesView(APIView):
         return Response(node_form.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class GetRelationshipsView(APIView):
+class RelationshipsView(APIView):
     permission_classes = (IsOwner,)
 
     def get(self, request, graph_slug, type_slug, format=None):
@@ -71,7 +71,7 @@ class GetRelationshipsView(APIView):
                                              slug=type_slug,
                                              schema__graph__slug=graph_slug)
 
-        serializer = GetRelationshipsSerializer(relationshiptype)
+        serializer = RelationshipsSerializer(relationshiptype)
 
         return Response(serializer.data)
 

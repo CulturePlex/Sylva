@@ -1,8 +1,9 @@
+
 from schemas.models import NodeType, RelationshipType
 from rest_framework import serializers
 
 
-class GetNodesSerializer(serializers.ModelSerializer):
+class NodesSerializer(serializers.ModelSerializer):
     total = serializers.SerializerMethodField('count_func')
     nodes = serializers.SerializerMethodField('nodes_func')
 
@@ -39,7 +40,7 @@ class GetNodesSerializer(serializers.ModelSerializer):
         fields = ('total', 'nodes')
 
 
-class GetRelationshipsSerializer(serializers.ModelSerializer):
+class RelationshipsSerializer(serializers.ModelSerializer):
     total = serializers.SerializerMethodField('count_func')
     relationships = serializers.SerializerMethodField('rels_func')
 

@@ -194,13 +194,13 @@ urlpatterns += patterns('',
     # url to GET and POST over a node type
     url(r'^api/graphs/(?P<graph_slug>[\w-]+)'
         '/types/nodes/(?P<type_slug>[\w-]+)/nodes/$',
-        data_api.GetNodesView.as_view(),
+        data_api.NodesView.as_view(),
         name='api_nodes'),
 
     # url to GET and POST over a relationship type
     url(r'^api/graphs/(?P<graph_slug>[\w-]+)'
         '/types/relationships/(?P<type_slug>[\w-]+)/relationships/$',
-        data_api.GetRelationshipsView.as_view(),
+        data_api.RelationshipsView.as_view(),
         name='api_relationships'),
 
     # url to GET, PATCH, PUT and DELETE over a node
