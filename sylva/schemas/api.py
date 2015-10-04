@@ -2,9 +2,9 @@
 from django.utils.translation import gettext as _
 from django.shortcuts import get_object_or_404
 from graphs.models import Graph
-from graphs.permissions import IsOwner
 from schemas.models import (NodeType, RelationshipType,
                             NodeProperty, RelationshipProperty)
+from schemas.permissions import SchemaChange, SchemaView
 from schemas.serializers import (NodeTypesSerializer,
                                  RelationshipTypesSerializer,
                                  NodeTypeSerializer,
@@ -19,7 +19,7 @@ from rest_framework.views import APIView
 
 
 class NodeTypesView(APIView):
-    permission_classes = (IsOwner,)
+    permission_classes = (SchemaChange, SchemaView,)
 
     def get(self, request, graph_slug, format=None):
         """
@@ -56,7 +56,7 @@ class NodeTypesView(APIView):
 
 
 class RelationshipTypesView(APIView):
-    permission_classes = (IsOwner,)
+    permission_classes = (SchemaChange, SchemaView,)
 
     def get(self, request, graph_slug, format=None):
         """
@@ -106,7 +106,7 @@ class RelationshipTypesView(APIView):
 
 
 class NodeTypeView(APIView):
-    permission_classes = (IsOwner,)
+    permission_classes = (SchemaChange, SchemaView,)
 
     def get(self, request, graph_slug, type_slug, format=None):
         """
@@ -145,7 +145,7 @@ class NodeTypeView(APIView):
 
 
 class RelationshipTypeView(APIView):
-    permission_classes = (IsOwner,)
+    permission_classes = (SchemaChange, SchemaView,)
 
     def get(self, request, graph_slug, type_slug, format=None):
         """
@@ -184,7 +184,7 @@ class RelationshipTypeView(APIView):
 
 
 class NodeTypeSchemaView(APIView):
-    permission_classes = (IsOwner,)
+    permission_classes = (SchemaChange, SchemaView,)
 
     def get(self, request, graph_slug, type_slug, format=None):
         """
@@ -252,7 +252,7 @@ class NodeTypeSchemaView(APIView):
 
 
 class RelationshipTypeSchemaView(APIView):
-    permission_classes = (IsOwner,)
+    permission_classes = (SchemaChange, SchemaView,)
 
     def get(self, request, graph_slug, type_slug, format=None):
         """
@@ -271,7 +271,7 @@ class RelationshipTypeSchemaView(APIView):
 
 
 class NodeTypeSchemaPropertiesView(APIView):
-    permission_classes = (IsOwner,)
+    permission_classes = (SchemaChange, SchemaView,)
 
     def get(self, request, graph_slug, type_slug, format=None):
         """
@@ -522,7 +522,7 @@ class NodeTypeSchemaPropertiesView(APIView):
 
 
 class RelationshipTypeSchemaPropertiesView(APIView):
-    permission_classes = (IsOwner,)
+    permission_classes = (SchemaChange, SchemaView,)
 
     def get(self, request, graph_slug, type_slug, format=None):
         """

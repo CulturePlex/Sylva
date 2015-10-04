@@ -3,16 +3,16 @@ from guardian import shortcuts as guardian
 from rest_framework import permissions
 
 
-CHANGE_PERM = "change_graph"
-VIEW_PERM = "view_graph"
+CHANGE_PERM = "change_schema"
+VIEW_PERM = "view_schema"
 
 CHANGE_METHODS = ['POST', 'PATCH', 'PUT', 'DELETE']
 VIEW_METHODS = ['GET']
 
 
-class GraphChange(permissions.BasePermission):
+class SchemaChange(permissions.BasePermission):
     """
-    Custom permission to modify a graph.
+    Custom permission to modify a schema.
     Only for PATCH, PUT and DELETE.
     """
 
@@ -25,13 +25,17 @@ class GraphChange(permissions.BasePermission):
             graph = obj
             perms = guardian.get_perms(user, graph)
 
-            return CHANGE_PERM in perms
+            # We check if the user has the perms or is the graph owner
+            is_owner = user == graph.owner
+            has_perms = CHANGE_PERM in perms
+
+            return is_owner or has_perms
         return True
 
 
-class GraphView(permissions.BasePermission):
+class SchemaView(permissions.BasePermission):
     """
-    Custom permission to view a graph.
+    Custom permission to view a graph schema.
     Only for GET methods.
     """
 
@@ -44,5 +48,9 @@ class GraphView(permissions.BasePermission):
             graph = obj
             perms = guardian.get_perms(user, graph)
 
-            return VIEW_PERM in perms
+            # We check if the user has the perms or is the graph owner
+            is_owner = user == graph.owner
+            has_perms = VIEW_PERM in perms
+
+            return is_owner or has_perms
         return True

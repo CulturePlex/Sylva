@@ -3,9 +3,9 @@ from django.db import transaction
 from django.shortcuts import get_object_or_404
 
 from graphs.models import Graph
-from graphs.permissions import IsOwner
 from schemas.models import NodeType, RelationshipType
 from data.forms import NodeForm
+from data.permissions import DataAdd, DataChange, DataDelete, DataView
 from data.serializers import (NodesSerializer, RelationshipsSerializer,
                               NodeSerializer, RelationshipSerializer)
 from rest_framework import status
@@ -14,13 +14,12 @@ from rest_framework.views import APIView
 
 
 class NodesView(APIView):
-    permission_classes = (IsOwner,)
+    permission_classes = (DataAdd, DataView,)
 
     def get(self, request, graph_slug, type_slug, format=None):
         """
         Returns a list of nodes that belongs to type_slug
         """
-
         graph = get_object_or_404(Graph, slug=graph_slug)
         self.check_object_permissions(self.request, graph)
 
@@ -58,7 +57,7 @@ class NodesView(APIView):
 
 
 class RelationshipsView(APIView):
-    permission_classes = (IsOwner,)
+    permission_classes = (DataAdd, DataView,)
 
     def get(self, request, graph_slug, type_slug, format=None):
         """
@@ -100,7 +99,7 @@ class RelationshipsView(APIView):
 
 
 class NodeView(APIView):
-    permission_classes = (IsOwner,)
+    permission_classes = (DataChange, DataDelete, DataView,)
 
     def get(self, request, graph_slug, type_slug, node_id, format=None):
         """
@@ -182,7 +181,7 @@ class NodeView(APIView):
 
 
 class RelationshipView(APIView):
-    permission_classes = (IsOwner,)
+    permission_classes = (DataChange, DataDelete, DataView,)
 
     def get(self, request, graph_slug, type_slug, relationship_id,
             format=None):

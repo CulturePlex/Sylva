@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime
 
-from accounts.models import User
 from django.shortcuts import get_object_or_404
 from graphs.models import Graph
-from graphs.permissions import IsOwner
+from graphs.permissions import GraphChange, GraphView
 from graphs.serializers import GraphsSerializer, GraphSerializer
 from rest_framework import status
 from rest_framework.response import Response
@@ -15,14 +14,18 @@ class GraphsView(APIView):
 
     def get(self, request, format=None):
         """
-        Returns all the graph that owns to the user
+        Returns all the graphs which the user owns or collaborates.
         """
-        # We use the username to filter the graphs of the user
-        username = request.user.username
-        user = User.objects.filter(username=username)[0]
-        graphs = user.graphs.all()
+        graphs = Graph.objects.all()
+        filtered_graphs = []
 
-        serializer = GraphsSerializer(graphs, many=True)
+        for graph in graphs:
+            is_collaborator = request.user in graph.get_collaborators()
+            is_owner = request.user == graph.owner
+            if is_collaborator or is_owner:
+                filtered_graphs.append(graph)
+
+        serializer = GraphsSerializer(filtered_graphs, many=True)
 
         return Response(serializer.data)
 
@@ -45,7 +48,7 @@ class GraphsView(APIView):
 
 
 class GraphView(APIView):
-    permission_classes = (IsOwner,)
+    permission_classes = (GraphChange, GraphView,)
 
     def get(self, request, graph_slug, format=None):
         """
@@ -137,7 +140,7 @@ class GraphView(APIView):
 # Export classes
 
 class GraphCompleteExportView(APIView):
-    permission_classes = (IsOwner,)
+    permission_classes = (GraphChange, GraphView,)
 
     def get(self, request, graph_slug, format=None):
         """
@@ -163,7 +166,7 @@ class GraphCompleteExportView(APIView):
 
 
 class GraphSchemaExportView(APIView):
-    permission_classes = (IsOwner,)
+    permission_classes = (GraphChange, GraphView,)
 
     def get(self, request, graph_slug, format=None):
         """
@@ -176,7 +179,7 @@ class GraphSchemaExportView(APIView):
 
 
 class GraphDataExportView(APIView):
-    permission_classes = (IsOwner,)
+    permission_classes = (GraphChange, GraphView,)
 
     def get(self, request, graph_slug, format=None):
         """
@@ -204,7 +207,7 @@ class GraphDataExportView(APIView):
 # Import classes
 
 class GraphCompleteImportView(APIView):
-    permission_classes = (IsOwner,)
+    permission_classes = (GraphChange, GraphView,)
 
     def put(self, request, graph_slug, format=None):
         """
@@ -214,7 +217,7 @@ class GraphCompleteImportView(APIView):
 
 
 class GraphSchemaImportView(APIView):
-    permission_classes = (IsOwner,)
+    permission_classes = (GraphChange, GraphView,)
 
     def put(self, request, graph_slug, format=None):
         """
@@ -232,7 +235,7 @@ class GraphSchemaImportView(APIView):
 
 
 class GraphDataImportView(APIView):
-    permission_classes = (IsOwner,)
+    permission_classes = (GraphChange, GraphView,)
 
     def put(self, request, graph_slug, format=None):
         """
