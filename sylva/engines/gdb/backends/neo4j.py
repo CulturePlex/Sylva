@@ -1,11 +1,13 @@
 # -*- coding: utf-8 -*-
 import re
 
-from django.template.defaultfilters import slugify
 from lucenequerybuilder import Q
-from neo4jrestclient.exceptions import NotFoundError
+from neo4jrestclient.exceptions import NotFoundError, StatusException
 from pyblueprints.neo4j import Neo4jIndexableGraph as Neo4jGraphDatabase
 from pyblueprints.neo4j import Neo4jDatabaseConnectionError
+
+from django.template.defaultfilters import slugify
+from django.conf import settings
 
 from engines.gdb.backends import (GraphDatabaseConnectionError,
                                   GraphDatabaseInitializationError)
@@ -39,6 +41,8 @@ class GraphDatabase(BlueprintsGraphDatabase):
         self._ridx = None
         self._gremlin = None
         self._cypher = None
+        self._spatial = None
+        self.setup_spatial()
 
     def _get_nidx(self):
         if not self._nidx:
@@ -65,6 +69,32 @@ class GraphDatabase(BlueprintsGraphDatabase):
             self._cypher = plugin
         return self._cypher
     cypher = property(_get_cypher)
+
+    def _get_spatial(self):
+        if not self._spatial and settings.ENABLE_SPATIAL:
+            self._spatial = self.gdb.neograph.extensions.SpatialPlugin
+        return self._spatial
+    spatial = property(_get_spatial)
+
+    def setup_spatial(self):
+        if not settings.ENABLE_SPATIAL:
+            return
+        spatial_datatypes = []  # TODO: Fill the list with the info in schemas
+        spatial_properties = self.graph.schema.nodetype_set.filter(
+            properties__datatype__in=spatial_datatypes
+        ).values("slug", "properties__key", "properties__slug")
+        for spatial_property in spatial_properties:
+            # TODO: Check if the slugs change, and if they do, use the ids
+            layer_name = u"{}_{}".format(spatial_property["slug"],
+                                         spatial_property["properties__slug"])
+            try:
+                spatial_layer = self.spatial.getLayer(layer=layer_name).single
+            except StatusException:
+                spatial_layer = self.spatial.addEditableLayer(
+                    layer=layer_name, format="WKT"
+                ).single
+            spatial_property_key = spatial_property["properties__key"]
+            spatial_layer["geomencoder_config"] = spatial_property_key
 
     def _clean_count(self, count):
         try:
