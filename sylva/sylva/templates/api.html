@@ -28,6 +28,11 @@
                 <i class="fa fa-chevron-up fa-lg nav-arrow"></i>
               </li>
               <li class="nav-header">
+                <a href="javascript:void(0)" data-toggle="collapse" data-target="#apikey-block">{% trans "API Key" %}</a>
+                <i class="fa fa-chevron-down fa-lg nav-arrow" style="display: none;"></i>
+                <i class="fa fa-chevron-up fa-lg nav-arrow"></i>
+              </li>
+              <li class="nav-header">
                 <a href="javascript:void(0)" data-toggle="collapse" data-target="#graphs-block">{% trans "Graph endpoints" %}</a>
                 <i class="fa fa-chevron-down fa-lg nav-arrow" style="display: none;"></i>
                 <i class="fa fa-chevron-up fa-lg nav-arrow"></i>
@@ -77,6 +82,33 @@
               </h3>
 
               <p>{% trans "Quick introduction to the SylvaDB - API." %}</p>
+            </div>
+          </div>
+
+          <!-- API Key section -->
+          <div class="section">
+            <h2>
+              {% trans "API Key" %}
+              <a class="headerlink" id="apikey" href="#apikey" title="{% trans "Permalink to this headline" %}">¶</a>
+            </h2>
+            <div class="inner-section">
+              <h3>
+                {% trans "The SylvaDB - API Key" %}
+                <a class="headerlink" id="sylva-db-apikey" href="#introduction-block" title="{% trans "Permalink to this headline" %}">¶</a>
+              </h3>
+
+              <p>{% trans "Get your user's token to use the API is so easy. You only have to click on the button below and your token appeared automatically!" %}</p>
+              <p>{% trans "Anyway you can use the API from the SylvaDB web interface anytime only signing in." %}</p>
+              <p>{% trans "To refresh your token click it again and your token will be renewed. Happy requesting!" %}</p>
+              <form action="{% url "api_token" %}" method="POST" class="form-horizontal">
+                <div id="apiToken" style="margin-top: 15px;">
+                  {% csrf_token %}
+                  <label for="id_token">API Token:</label>
+                  <input id="id_token" name="token" type="text" value="{{ token }}" />
+                  <br/>
+                  <input id="getToken" type="submit" class="button" value="Get API Token" />
+                </div>
+              </form>
             </div>
           </div>
 

@@ -5,6 +5,7 @@ from django.shortcuts import render_to_response, redirect
 from django.template import RequestContext
 
 from guardian.shortcuts import get_objects_for_user
+from rest_framework.authtoken.models import Token
 from userena.views import signin, signup
 
 from graphs.models import Graph
@@ -47,5 +48,35 @@ def dashboard(request):
 
 @login_required()
 def api_index(request):
+    # We filter the tokens by user to show the user's token
+    user = request.user
+    user_tokens = Token.objects.filter(user=user)
+
+    token = ""
+    if len(user_tokens) > 0:
+        token = user_tokens[0]
+        token = token.key
+
     return render_to_response('api.html',
+                              {"token": token},
+                              context_instance=RequestContext(request))
+
+
+@login_required()
+def api_token(request):
+    # We create the token for the user and return it
+    # First, we check if the user already has a token
+    # In that case we generate another one
+    user = request.user
+    user_tokens = Token.objects.filter(user=user)
+
+    if len(user_tokens) > 0:
+        token = user_tokens[0]
+        token.delete()
+
+    token = Token.objects.create(user=user)
+    token = token.key
+
+    return render_to_response('api.html',
+                              {"token": token},
                               context_instance=RequestContext(request))

@@ -135,6 +135,8 @@ if settings.TEST and not settings.DEBUG:
 urlpatterns += patterns('sylva.views',
     # index url for API
     url(r'^api/$', 'api_index', name='api_index'),
+    # url to get API token
+    url(r'^api/token/$', 'api_token', name='api_token'),
 )
 
 urlpatterns += patterns('',
