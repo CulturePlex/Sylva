@@ -63,20 +63,32 @@ def api_index(request):
 
 
 @login_required()
-def api_token(request):
+def api_token(request, username):
     # We create the token for the user and return it
-    # First, we check if the user already has a token
-    # In that case we generate another one
-    user = request.user
-    user_tokens = Token.objects.filter(user=user)
+    # First, we check if we want to refresh or create a token
+    data = request.POST
+    data_form = data.items()
 
+    user = request.user
+    profile = user.profile
+
+    user_tokens = Token.objects.filter(user=user)
     if len(user_tokens) > 0:
         token = user_tokens[0]
-        token.delete()
+    else:
+        token = None
 
-    token = Token.objects.create(user=user)
-    token = token.key
+    if len(data_form) > 0:
+        # We check if the user already has a token
+        # In that case we generate another one
+        if token:
+            token.delete()
 
-    return render_to_response('api.html',
-                              {"token": token},
+        token = Token.objects.create(user=user)
+        token = token.key
+
+    return render_to_response('api_token.html',
+                              {"user": user,
+                               "profile": profile,
+                               "token": token},
                               context_instance=RequestContext(request))
