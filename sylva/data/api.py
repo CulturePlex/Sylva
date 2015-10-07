@@ -33,7 +33,7 @@ class NodesView(APIView):
 
     def post(self, request, graph_slug, type_slug, format=None):
         """
-        Create a new node of a type
+        Create a new node of a type for each element from data
         """
         graph = get_object_or_404(Graph, slug=graph_slug)
         self.check_object_permissions(self.request, graph)
@@ -44,16 +44,27 @@ class NodesView(APIView):
 
         # We get the post data
         data = request.data
+        nodes_ids = []
+        transaction_ok = True
 
-        node_form = NodeForm(graph=graph, itemtype=nodetype, data=data,
-                             user=request.user.username)
+        # We have in data a list of elements to create as new
+        for node_data in data:
+            node_form = NodeForm(graph=graph, itemtype=nodetype,
+                                 data=node_data, user=request.user.username)
 
-        if data and node_form.is_valid():
-            with transaction.atomic():
-                node_form.save()
-                return Response(status=status.HTTP_201_CREATED)
+            if node_data and node_form.is_valid():
+                with transaction.atomic():
+                    new_node = node_form.save()
+                    nodes_ids.append(new_node.id)
+            else:
+                transaction_ok = False
+                break
 
-        return Response(node_form.errors, status=status.HTTP_400_BAD_REQUEST)
+        if transaction_ok:
+            return Response(nodes_ids, status=status.HTTP_201_CREATED)
+        else:
+            return Response(node_form.errors,
+                            status=status.HTTP_400_BAD_REQUEST)
 
 
 class RelationshipsView(APIView):
@@ -87,15 +98,35 @@ class RelationshipsView(APIView):
 
         # We get the post data
         data = request.data
-        source_id = data['source_id']
-        target_id = data['target_id']
-        reltype_id = str(relationshiptype.id)
+        rels_ids = []
+        transaction_ok = True
 
-        # We create the relationship
-        graph.relationships.create(
-            source=source_id, target=target_id, label=reltype_id)
+        # We have in data a list of elements to create as new
+        for rel_data in data:
+            source_id = rel_data['source_id']
+            target_id = rel_data['target_id']
+            reltype_id = str(relationshiptype.id)
 
-        return Response(status=status.HTTP_201_CREATED)
+            try:
+                if source_id and target_id:
+                    # We create the relationship
+                    rel = graph.relationships.create(source=source_id,
+                                                     target=target_id,
+                                                     label=reltype_id)
+                    rels_ids.append(rel.id)
+                else:
+                    transaction_ok = False
+                    break
+            except Exception as e:
+                error = dict()
+                error['detail'] = e.message
+                transaction_ok = False
+                break
+
+        if transaction_ok:
+            return Response(rels_ids, status=status.HTTP_201_CREATED)
+        else:
+            return Response(error, status=status.HTTP_400_BAD_REQUEST)
 
 
 class NodeView(APIView):
