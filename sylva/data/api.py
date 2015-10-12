@@ -66,6 +66,30 @@ class NodesView(APIView):
             return Response(node_form.errors,
                             status=status.HTTP_400_BAD_REQUEST)
 
+    def delete(self, request, graph_slug, type_slug, format=None):
+        """
+        Delete a list of nodes by their ids
+        """
+        graph = get_object_or_404(Graph, slug=graph_slug)
+        self.check_object_permissions(self.request, graph)
+
+        # We get the post data
+        data = request.data
+        nodes_ids = []
+
+        # We have in data a list of elements to create as new
+        for node_id in data:
+            node = graph.nodes.get(node_id)
+            serializer = NodeSerializer(node)
+
+            try:
+                serializer.instance.delete()
+                nodes_ids.append(node_id)
+            except:
+                nodes_ids.append(None)
+
+        return Response(nodes_ids, status=status.HTTP_204_NO_CONTENT)
+
 
 class RelationshipsView(APIView):
     permission_classes = (DataAdd, DataView,)
@@ -127,6 +151,30 @@ class RelationshipsView(APIView):
             return Response(rels_ids, status=status.HTTP_201_CREATED)
         else:
             return Response(error, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, graph_slug, type_slug, format=None):
+        """
+        Delete a list of relationships by their ids
+        """
+        graph = get_object_or_404(Graph, slug=graph_slug)
+        self.check_object_permissions(self.request, graph)
+
+        # We get the post data
+        data = request.data
+        rels_ids = []
+
+        # We have in data a list of elements to create as new
+        for relationship_id in data:
+            relationship = graph.relationships.get(relationship_id)
+            serializer = RelationshipSerializer(relationship)
+
+            try:
+                serializer.instance.delete()
+                rels_ids.append(relationship_id)
+            except:
+                rels_ids.append(None)
+
+        return Response(rels_ids, status=status.HTTP_204_NO_CONTENT)
 
 
 class NodeView(APIView):
