@@ -79,7 +79,7 @@ class GraphDatabase(BlueprintsGraphDatabase):
     def setup_spatial(self):
         if not settings.ENABLE_SPATIAL:
             return
-        spatial_datatypes = []  # TODO: Fill the list with the info in schemas
+        spatial_datatypes = [u'p', u'l', u'm']
         spatial_properties = self.graph.schema.nodetype_set.filter(
             properties__datatype__in=spatial_datatypes
         ).values("slug", "properties__key", "properties__slug")
