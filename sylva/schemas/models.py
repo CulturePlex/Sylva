@@ -464,6 +464,11 @@ class BaseProperty(models.Model):
             (u'o', _(u'Auto increment update')),
             (u'e', _(u'Auto user')),
         )),
+        (_("Spatial"), (
+            (u'p', _(u'Point')),
+            (u'l', _(u'Path')),
+            (u'm', _(u'Area')),
+        )),
     )
     datatype = models.CharField(_('data type'),
                                 max_length=1, choices=DATATYPE_CHOICES,
@@ -515,6 +520,9 @@ class BaseProperty(models.Model):
             "auto_increment": u"i",
             "auto_increment_update": u"o",
             "auto_user": u"e",
+            "point": u"p",
+            "path": u"l",
+            "area": u"m",
         }
 
     def get_datatype(self):
