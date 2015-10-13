@@ -79,7 +79,8 @@ class GraphDatabase(BlueprintsGraphDatabase):
     def setup_spatial(self):
         if not settings.ENABLE_SPATIAL:
             return
-        spatial_datatypes = [u'p', u'l', u'm']
+        spatial_datatypes = []  # TODO: Fix Trello card 749
+        # spatial_datatypes = [u'p', u'l', u'm']
         spatial_properties = self.graph.schema.nodetype_set.filter(
             properties__datatype__in=spatial_datatypes
         ).values("slug", "properties__key", "properties__slug")
