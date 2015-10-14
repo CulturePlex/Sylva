@@ -764,7 +764,7 @@ class GraphDatabase(BlueprintsGraphDatabase):
         self = None
 
     def analysis(self):
-        if Analysis is not None:
+        if settings.ENABLE_ANALYTICS and Analysis is not None:
             return Analysis()
         else:
             return None
