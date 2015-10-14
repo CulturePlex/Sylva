@@ -4,7 +4,8 @@ import re
 from django.template.defaultfilters import slugify
 from lucenequerybuilder import Q
 from neo4jrestclient.exceptions import NotFoundError
-from pyblueprints.neo4j import Neo4jIndexableGraph as Neo4jGraphDatabase
+from pyblueprints.neo4j import (
+    Neo4jTransactionalIndexableGraph as Neo4jGraphDatabase)
 from pyblueprints.neo4j import Neo4jDatabaseConnectionError
 
 from engines.gdb.backends import (GraphDatabaseConnectionError,
@@ -39,6 +40,7 @@ class GraphDatabase(BlueprintsGraphDatabase):
         self._ridx = None
         self._gremlin = None
         self._cypher = None
+        self.transaction = getattr(self.gdb.neograph, "transaction", None)
 
     def _get_nidx(self):
         if not self._nidx:

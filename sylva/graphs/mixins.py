@@ -37,6 +37,7 @@ class GraphMixin(object):
         self._nodes_manager = None
         self._relationships_manager = None
         self._analysis_manager = None
+        self._transaction = None
 
     def _get_gdb(self):
         if not self._gdb:
@@ -62,6 +63,15 @@ class GraphMixin(object):
             self._analysis_manager = AnalysisManager(self)
         return self._analysis_manager
     analysis = property(_get_analysis)
+
+    def _get_transaction(self):
+        if not self._transaction:
+            if self.gdb.transaction is not None:
+                self._transaction = self.gdb.transaction
+            else:
+                raise NotImplementedError("Transactions not implemented")
+        return self._transaction
+    transaction = property(_get_transaction)
 
     def _get_q(self):
         if not self._q:
@@ -94,20 +104,21 @@ class BaseManager(object):
         # self.schema = (not graph.relaxed) and graph.schema
         self.schema = graph.schema
         self.data = graph.data
+        self.transaction = graph.gdb.transaction
 
     def _filter_dict(self, properties, itemtype):
         if properties:
             if self.schema:
                 property_keys = [p.key for p in itemtype.properties.all()]
                 popped = [properties.pop(k) for k in properties.keys()
-                                            if (k not in property_keys
-                                                or unicode(k).startswith("_"))]
+                          if (k not in property_keys
+                              or unicode(k).startswith("_"))]
                 del popped
                 return properties
             else:
                 return dict(filter(lambda (k, v):
-                                       not unicode(k).startswith("_"),
-                                       properties.iteritems()))
+                                   not unicode(k).startswith("_"),
+                                   properties.iteritems()))
         else:
             return {}
 
@@ -131,6 +142,7 @@ class BaseSequence(Sequence):
         self.args = args
         self.kwargs = kwargs
         self.elements = None
+        self.transaction = graph.gdb.transaction
 
     def __len__(self):
         if not self.elements:
@@ -159,7 +171,7 @@ class BaseSequence(Sequence):
     def order_by(self, *orders):
         """
         Allow chaining order by to both NodeSequence and RelationshipSequence
-        :param orders: list of mixed 2-tuples, like ('property_name', ASC|DESC),
+        :param orders: list of mixed 2-tuples like ('property_name', ASC|DESC),
                        and single property names (sorted ascending),
                        like 'property_name'.
         """
@@ -265,7 +277,8 @@ class NodesManager(BaseManager):
     def delete(self, **options):
         if "label" in options:
             label = options.get("label")
-            eltos = self.gdb.get_nodes_by_label(label, include_properties=False)
+            eltos = self.gdb.get_nodes_by_label(label,
+                                                include_properties=False)
             nodes_id = []
             for node_id, n_props, n_label in eltos:
                 for relationship in self.get(node_id).relationships.all():
@@ -357,8 +370,9 @@ class RelationshipsManager(BaseManager):
                 self.data.total_relationships += 1
                 self.data.last_modified_relationships = datetime.now()
                 self.data.save()
-            relationship_id = self.gdb.create_relationship(source_id, target_id,
-                                                           label, properties)
+            relationship_id = self.gdb.create_relationship(
+                source_id, target_id, label, properties
+            )
             relationship = Relationship(relationship_id, self.graph,
                                         initial=properties)
             return relationship
@@ -381,19 +395,25 @@ class RelationshipsManager(BaseManager):
         if "label" in options:
             label = options.get("label")
             if not lookups:
-                eltos = RelationshipSequence(graph=self.graph, label=label,
-                            iterator_func=self.gdb.get_relationships_by_label,
-                            include_properties=True)
+                eltos = RelationshipSequence(
+                    graph=self.graph, label=label,
+                    iterator_func=self.gdb.get_relationships_by_label,
+                    include_properties=True
+                )
             else:
-                eltos = RelationshipSequence(graph=self.graph, label=label,
-                            lookups=lookups,
-                            iterator_func=self.gdb.get_filtered_relationships,
-                            include_properties=True)
+                eltos = RelationshipSequence(
+                    graph=self.graph, label=label,
+                    lookups=lookups,
+                    iterator_func=self.gdb.get_filtered_relationships,
+                    include_properties=True
+                )
         else:
-            eltos = RelationshipSequence(graph=self.graph, label=label,
-                            lookups=lookups,
-                            iterator_func=self.gdb.get_filtered_relationships,
-                            include_properties=True)
+            eltos = RelationshipSequence(
+                graph=self.graph, label=label,
+                lookups=lookups,
+                iterator_func=self.gdb.get_filtered_relationships,
+                include_properties=True
+            )
         return eltos
 
     def iterator(self):
@@ -423,7 +443,7 @@ class RelationshipsManager(BaseManager):
                 include_properties=False
             )
             count = self.gdb.delete_relationships(
-                [relationship_id for relationship_id, r_props, r_label in eltos]
+                [r_id for r_id, r_props, r_label in eltos]
             )
             with transaction.atomic():
                 self.data.total_relationships -= count
@@ -588,8 +608,9 @@ class PropertyDict(dict):
                 self.element.gdb.update_node_properties(self.element.id,
                                                         properties=properties)
             elif isinstance(self.element, Relationship):
-                self.element.gdb.update_relationship_properties(self.element.id,
-                                                        properties=properties)
+                self.element.gdb.update_relationship_properties(
+                    self.element.id, properties=properties
+                )
 
 
 class BaseElement(object):
@@ -684,14 +705,14 @@ class BaseElement(object):
             if self.schema:
                 property_keys = self._get_property_keys()
                 popped = [properties.pop(k) for k in properties.keys()
-                                            if (k not in property_keys
-                                                or unicode(k).startswith("_"))]
+                          if (k not in property_keys
+                              or unicode(k).startswith("_"))]
                 del popped
                 return properties
             else:
                 return dict(filter(lambda (k, v):
-                                        not unicode(k).startswith("_"),
-                                        properties.iteritems()))
+                                   not unicode(k).startswith("_"),
+                                   properties.iteritems()))
         else:
             return {}
 
