@@ -465,17 +465,6 @@ class BaseProperty(models.Model):
             (u'e', _(u'Auto user')),
         )),
     )
-    if settings.ENABLE_SPATIAL:
-        DATATYPE_CHOICES += (
-            (_("Spatial"), (
-                (u'p', _(u'Point')),
-                (u'l', _(u'Path')),
-                (u'm', _(u'Area')),
-            )),
-        )
-    datatype = models.CharField(_('data type'),
-                                max_length=1, choices=DATATYPE_CHOICES,
-                                default=u"u")
     required = models.BooleanField(_('is required?'), default=False)
     display = models.BooleanField(_('use as label'), default=False)
     description = models.TextField(_('description'), blank=True, null=True)
@@ -507,7 +496,7 @@ class BaseProperty(models.Model):
         return "%s: %s" % (self.key, self.value)
 
     def get_datatype_dict(self):
-        datatypes = {
+        return {
             "default": u"u",
             "number": u"n",
             "string": u"s",
@@ -524,14 +513,6 @@ class BaseProperty(models.Model):
             "auto_increment_update": u"o",
             "auto_user": u"e",
         }
-        if settings.ENABLE_SPATIAL:
-            spatial_datatypes = {
-                "point": u"p",
-                "path": u"l",
-                "area": u"m",
-            }
-            datatypes.update(spatial_datatypes)
-        return datatypes
 
     def get_datatype(self):
         datatype_dict = dict(self.DATATYPE_CHOICES)
@@ -556,6 +537,30 @@ class BaseProperty(models.Model):
 
 
 class NodeProperty(BaseProperty):
+    DATATYPE_CHOICES = BaseProperty.DATATYPE_CHOICES
+    if settings.ENABLE_SPATIAL:
+        DATATYPE_CHOICES += (
+            (_("Spatial"), (
+                (u'p', _(u'Point')),
+                (u'l', _(u'Path')),
+                (u'm', _(u'Area')),
+            )),
+        )
+    datatype = models.CharField(_('data type'),
+                                max_length=1, choices=DATATYPE_CHOICES,
+                                default=u"u")
+
+    def get_datatype_dict(self):
+        datatypes = super(NodeProperty, self).get_datatype_dict()
+        if settings.ENABLE_SPATIAL:
+            spatial_datatypes = {
+                "point": u"p",
+                "path": u"l",
+                "area": u"m",
+            }
+            datatypes.update(spatial_datatypes)
+        return datatypes
+
     node = models.ForeignKey(NodeType, verbose_name=_('node'),
                              related_name="properties")
 
@@ -565,6 +570,10 @@ class NodeProperty(BaseProperty):
 
 
 class RelationshipProperty(BaseProperty):
+    datatype = models.CharField(_('data type'),
+                                max_length=1, choices=BaseProperty.DATATYPE_CHOICES,
+                                default=u"u")
+
     relationship = models.ForeignKey(RelationshipType,
                                      verbose_name=_('relationship'),
                                      related_name="properties")
