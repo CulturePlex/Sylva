@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import re
 
+from django.conf import settings
 from django.template.defaultfilters import slugify
 from lucenequerybuilder import Q
 from neo4jrestclient.exceptions import NotFoundError
