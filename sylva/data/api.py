@@ -2,6 +2,7 @@
 from django.db import transaction
 from django.shortcuts import get_object_or_404
 
+# from engines.gdb.lookups.neo4j import Q
 from graphs.models import Graph
 from schemas.models import NodeType, RelationshipType
 from data.forms import NodeForm
@@ -11,6 +12,38 @@ from data.serializers import (NodesSerializer, RelationshipsSerializer,
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework import generics
+
+
+class NodesViewFilter(generics.ListAPIView):
+    permission_classes = (DataAdd, DataView,)
+    serializer_class = NodeSerializer
+
+    def get_queryset(self):
+        queryset = NodeType.objects.all()
+        type_slug = self.request.query_params.get('type_slug', None)
+        property_type = self.request.query_params.get('property', None)
+        property_value = self.request.query_params.get('value', None)
+
+        nodes_queryset = queryset.filter(slug=type_slug)
+        nt = nodes_queryset.first()
+
+        # It would be interesting to filter the nodes by lookups
+        # lookups = []
+        # lookup = Q(property="Name", lookup="equals", match="Prueba1")
+        # lookups.append(str(lookup))
+
+        # nodes = nt.schema.graph.nodes.filter(lookups=lookups)
+        result = []
+        nodes = nt.schema.graph.nodes.all()
+        for node in nodes:
+            try:
+                if node.properties[property_type] == property_value:
+                    result.append(node)
+            except KeyError:
+                pass
+
+        return result
 
 
 class NodesView(APIView):

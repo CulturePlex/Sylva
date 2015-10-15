@@ -1,4 +1,4 @@
-
+# -*- coding: utf-8 -*-
 from schemas.models import NodeType, RelationshipType
 from rest_framework import serializers
 

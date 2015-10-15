@@ -244,4 +244,9 @@ urlpatterns += patterns('',
     url(r'^api/graphs/(?P<graph_slug>[\w-]+)/import/data/$',
         graphs_api.GraphDataImportView.as_view(),
         name='api_import_data'),
+
+    # url to filter a set of nodes
+    url(r'^api/nodes/$',
+        data_api.NodesViewFilter.as_view(),
+        name='api_nodes_filter'),
 )
