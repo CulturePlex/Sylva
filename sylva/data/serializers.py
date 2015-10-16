@@ -8,31 +8,20 @@ class NodesSerializer(serializers.ModelSerializer):
     nodes = serializers.SerializerMethodField('nodes_func')
 
     def count_func(self, nodetype):
-        # We get the nodes of the graph
-        # We need to filter by this nodetype
-        filtered_nodes = (
-            nodetype.schema.graph.nodes.filter(label=nodetype.id))
-
-        # We are ready to return the result
-        return len([node for node in filtered_nodes])
+        # Handling NodeType and NodeSequence
+        try:
+            return nodetype.count()
+        except:
+            return len(nodetype)
 
     def nodes_func(self, nodetype):
-        # We get the nodes of the graph
-        # We need to filter by this nodetype
-        filtered_nodes = (
-            nodetype.schema.graph.nodes.filter(label=nodetype.id))
-
-        nodes = list()
-
-        for node in filtered_nodes:
-            node_dict = dict()
-
-            node_dict['id'] = node.id
-            node_dict['properties'] = node.properties
-
-            nodes.append(node_dict)
-
-        # We are ready to return the result
+        # Handling NodeType and NodeSequence
+        try:
+            filtered_nodes = nodetype.all()
+        except:
+            filtered_nodes = nodetype
+        nodes = [{'id': node.id, 'properties': node.properties}
+                 for node in filtered_nodes]
         return nodes
 
     class Meta:

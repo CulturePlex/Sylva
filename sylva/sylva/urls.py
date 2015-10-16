@@ -15,13 +15,14 @@ from schemas import api as schemas_api
 # from admin import admin_site
 admin.autodiscover()
 
-urlpatterns = patterns('sylva.views',
+urlpatterns = patterns('sylva.views',  # noqa
     # index
     url(r'^$', 'index', name="index"),
     # dashboard
     url(r'^dashboard/$', 'dashboard', name="dashboard"),
     # introductory guide
-    url(r'^get-started/$', TemplateView.as_view(template_name="get_started.html"),
+    url(r'^get-started/$',
+        TemplateView.as_view(template_name="get_started.html"),
         name="get_started"),
     # user guide
     url(r'^guide/$', TemplateView.as_view(template_name="user_guide.html"),
@@ -31,7 +32,7 @@ urlpatterns = patterns('sylva.views',
         name='api_token'),
 )
 
-urlpatterns += patterns('',
+urlpatterns += patterns('',  # noqa
     # accounts
     url(r'^accounts/(?P<username>[\w-]+)/edit/', "userena.views.profile_edit",
         {'edit_profile_form': UserProfileEditForm}),
@@ -78,32 +79,32 @@ urlpatterns += patterns('',
                             app_name='zebra')),
 )
 
-urlpatterns += patterns('django.contrib.flatpages.views',
+urlpatterns += patterns('django.contrib.flatpages.views',  # noqa
     url(r'^about/$', 'flatpage', {'url': '/about/'}, name='about'),
     url(r'^terms/$', 'flatpage', {'url': '/terms/'}, name='terms'),
     url(r'^privacy/$', 'flatpage', {'url': '/privacy/'}, name='privacy'),
 )
 
 if settings.ENABLE_QUERIES:
-    urlpatterns += patterns('',
+    urlpatterns += patterns('',  # noqa
         # queries
         url(r'^queries/', include('queries.urls')),
     )
 
 if settings.ENABLE_REPORTS:
-    urlpatterns += patterns('',
+    urlpatterns += patterns('',  # noqa
         # reports
         url(r'^reports/', include('reports.urls')),
     )
 
 if settings.ENABLE_ANALYTICS:
-    urlpatterns += patterns('',
+    urlpatterns += patterns('',  # noqa
         # analytics
         url(r'^analytics/', include('analytics.urls')),
     )
 
 if settings.DEBUG:
-    urlpatterns += patterns('',
+    urlpatterns += patterns('',  # noqa
         # login as any user
         url(r"^su/", include("django_su.urls")),
 
@@ -117,14 +118,14 @@ if settings.DEBUG:
     )
     try:
         import debug_toolbar
-        urlpatterns += patterns('',
+        urlpatterns += patterns('',  # noqa
             url(r'^__debug__/', include(debug_toolbar.urls)),
         )
     except ImportError:
         pass
 
 if settings.TEST and not settings.DEBUG:
-    urlpatterns += patterns('',
+    urlpatterns += patterns('',  # noqa
         # static server
         url(r'^static/(?P<path>.*)$', 'django.views.static.serve',
             {'document_root': settings.STATIC_ROOT, 'show_indexes': False}),
@@ -135,12 +136,10 @@ if settings.TEST and not settings.DEBUG:
     )
 
 # API url patterns
-urlpatterns += patterns('sylva.views',
+urlpatterns += patterns('sylva.views',  # noqa
     # index url for API
     url(r'^api/$', 'api_index', name='api_index'),
-)
 
-urlpatterns += patterns('',
     # url to GET and POST over graphs
     url(r'^api/graphs/$',
         graphs_api.GraphsView.as_view(), name='api_graphs'),
@@ -246,7 +245,8 @@ urlpatterns += patterns('',
         name='api_import_data'),
 
     # url to filter a set of nodes
-    url(r'^api/nodes/$',
+    url(r'^api/graphs/(?P<graph_slug>[\w-]+)'
+        '/types/nodes/(?P<type_slug>[\w-]+)/filter/$',
         data_api.NodesViewFilter.as_view(),
         name='api_nodes_filter'),
 )

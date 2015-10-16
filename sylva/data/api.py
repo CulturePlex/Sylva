@@ -12,42 +12,29 @@ from data.serializers import (NodesSerializer, RelationshipsSerializer,
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework import generics
 
 
-class NodesViewFilter(generics.ListAPIView):
-    permission_classes = (DataAdd, DataView,)
-    serializer_class = NodeSerializer
+class NodesViewFilter(APIView):
+    permission_classes = (DataView, )
 
-    def get_queryset(self):
-        queryset = NodeType.objects.all()
-        type_slug = self.request.query_params.get('type_slug', None)
-        property_type = self.request.query_params.get('property', None)
-        property_value = self.request.query_params.get('value', None)
-
-        nodes_queryset = queryset.filter(slug=type_slug)
-        nt = nodes_queryset.first()
-
-        # It would be interesting to filter the nodes by lookups
-        # lookups = []
-        # lookup = Q(property="Name", lookup="equals", match="Prueba1")
-        # lookups.append(str(lookup))
-
-        # nodes = nt.schema.graph.nodes.filter(lookups=lookups)
-        result = []
-        nodes = nt.schema.graph.nodes.all()
-        for node in nodes:
-            try:
-                if node.properties[property_type] == property_value:
-                    result.append(node)
-            except KeyError:
-                pass
-
-        return result
+    def get(self, request, graph_slug, type_slug, limit=None, offset=None,
+            format=None):
+        graph = get_object_or_404(Graph, slug=graph_slug)
+        nodetype = get_object_or_404(NodeType,
+                                     slug=type_slug,
+                                     schema__graph__slug=graph_slug)
+        self.check_object_permissions(self.request, graph)
+        lookups = []
+        for (prop, match) in self.request.query_params.items():
+            lookup = graph.Q(property=prop, lookup="equals", match=match)
+            lookups.append(lookup)
+        filtered_nodes = nodetype.filter(*lookups)[offset:limit]
+        serializer = NodesSerializer(filtered_nodes)
+        return Response(serializer.data)
 
 
 class NodesView(APIView):
-    permission_classes = (DataAdd, DataView,)
+    permission_classes = (DataAdd, DataDelete, DataView)
 
     def get(self, request, graph_slug, type_slug, format=None):
         """
@@ -125,7 +112,7 @@ class NodesView(APIView):
 
 
 class RelationshipsView(APIView):
-    permission_classes = (DataAdd, DataView,)
+    permission_classes = (DataAdd, DataView)
 
     def get(self, request, graph_slug, type_slug, format=None):
         """
@@ -211,7 +198,7 @@ class RelationshipsView(APIView):
 
 
 class NodeView(APIView):
-    permission_classes = (DataChange, DataDelete, DataView,)
+    permission_classes = (DataChange, DataDelete, DataView)
 
     def get(self, request, graph_slug, type_slug, node_id, format=None):
         """
@@ -293,7 +280,7 @@ class NodeView(APIView):
 
 
 class RelationshipView(APIView):
-    permission_classes = (DataChange, DataDelete, DataView,)
+    permission_classes = (DataChange, DataDelete, DataView)
 
     def get(self, request, graph_slug, type_slug, relationship_id,
             format=None):
