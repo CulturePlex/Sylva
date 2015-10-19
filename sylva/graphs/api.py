@@ -3,7 +3,8 @@ from datetime import datetime
 
 from django.shortcuts import get_object_or_404
 from graphs.models import Graph
-from graphs.permissions import GraphChange, GraphView
+from graphs.permissions import GraphChange
+from graphs.permissions import GraphView as GraphViewPerm
 from graphs.serializers import GraphsSerializer, GraphSerializer
 from rest_framework import status
 from rest_framework.response import Response
@@ -48,7 +49,7 @@ class GraphsView(APIView):
 
 
 class GraphView(APIView):
-    permission_classes = (GraphChange, GraphView,)
+    permission_classes = (GraphChange, GraphViewPerm,)
 
     def get(self, request, graph_slug, format=None):
         """
@@ -140,7 +141,7 @@ class GraphView(APIView):
 # Export classes
 
 class GraphCompleteExportView(APIView):
-    permission_classes = (GraphChange, GraphView,)
+    permission_classes = (GraphChange, GraphViewPerm,)
 
     def get(self, request, graph_slug, format=None):
         """
@@ -166,7 +167,7 @@ class GraphCompleteExportView(APIView):
 
 
 class GraphSchemaExportView(APIView):
-    permission_classes = (GraphChange, GraphView,)
+    permission_classes = (GraphChange, GraphViewPerm,)
 
     def get(self, request, graph_slug, format=None):
         """
@@ -179,7 +180,7 @@ class GraphSchemaExportView(APIView):
 
 
 class GraphDataExportView(APIView):
-    permission_classes = (GraphChange, GraphView,)
+    permission_classes = (GraphChange, GraphViewPerm,)
 
     def get(self, request, graph_slug, format=None):
         """
@@ -207,7 +208,7 @@ class GraphDataExportView(APIView):
 # Import classes
 
 class GraphCompleteImportView(APIView):
-    permission_classes = (GraphChange, GraphView,)
+    permission_classes = (GraphChange, GraphViewPerm,)
 
     def put(self, request, graph_slug, format=None):
         """
@@ -217,7 +218,7 @@ class GraphCompleteImportView(APIView):
 
 
 class GraphSchemaImportView(APIView):
-    permission_classes = (GraphChange, GraphView,)
+    permission_classes = (GraphChange, GraphViewPerm,)
 
     def put(self, request, graph_slug, format=None):
         """
@@ -235,7 +236,7 @@ class GraphSchemaImportView(APIView):
 
 
 class GraphDataImportView(APIView):
-    permission_classes = (GraphChange, GraphView,)
+    permission_classes = (GraphChange, GraphViewPerm,)
 
     def put(self, request, graph_slug, format=None):
         """
