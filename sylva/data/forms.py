@@ -11,7 +11,13 @@ from django.forms.models import inlineformset_factory
 from django.template.defaultfilters import slugify
 from django.utils.translation import gettext as _
 
+from djgeojson.fields import PointField
+from djgeojson.fields import MultiLineStringField
+from djgeojson.fields import PolygonField
+from leaflet.forms.widgets import LeafletWidget
+
 from data.models import MediaNode, MediaFile, MediaLink
+from schemas.models import NodeType
 from schemas.models import RelationshipType
 
 ITEM_FIELD_NAME = "_ITEM_ID"
@@ -91,7 +97,7 @@ class ItemForm(forms.Form):
                 widget = forms.TextInput(attrs={"class": "date"})
                 field_attrs["widget"] = widget
                 field = forms.DateField(**field_attrs)
-            if item_property.datatype == datatype_dict["time"]:
+            elif item_property.datatype == datatype_dict["time"]:
                 widget = forms.TextInput(attrs={"class": "time"})
                 field_attrs["widget"] = widget
                 field = forms.TimeField(**field_attrs)
@@ -178,6 +184,21 @@ class ItemForm(forms.Form):
                         slug_value = slugify(initial[item_property.key])
                         initial[item_property.key] = slug_value
                     field = forms.ChoiceField(**field_attrs)
+            elif settings.ENABLE_SPATIAL and isinstance(itemtype, NodeType):
+                if item_property.datatype == datatype_dict["point"]:
+                    widget = LeafletPointWidget()
+                    field_attrs["widget"] = widget
+                    field = forms.CharField(**field_attrs)
+                elif item_property.datatype == datatype_dict["path"]:
+                    widget = LeafletPathWidget()
+                    field_attrs["widget"] = widget
+                    field = forms.CharField(**field_attrs)
+                elif item_property.datatype == datatype_dict["area"]:
+                    widget = LeafletAreaWidget()
+                    field_attrs["widget"] = widget
+                    field = forms.CharField(**field_attrs)
+                else:  # TODO: Fix this
+                    field = forms.CharField(**field_attrs)
             else:
                 field = forms.CharField(**field_attrs)
             self.fields[item_property.key] = field
@@ -564,3 +585,15 @@ MediaFileFormSet = inlineformset_factory(MediaNode, MediaFile,
 
 MediaLinkFormSet = inlineformset_factory(MediaNode, MediaLink,
                                          extra=1, can_delete=True)
+
+
+class LeafletPointWidget(LeafletWidget):
+    geometry_field_class = 'PointField'
+
+
+class LeafletPathWidget(LeafletWidget):
+    geometry_field_class = 'PathField'
+
+
+class LeafletAreaWidget(LeafletWidget):
+    geometry_field_class = 'AreaField'

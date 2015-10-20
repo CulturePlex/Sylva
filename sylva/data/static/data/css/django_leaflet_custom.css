@@ -1,0 +1,4 @@
+#properties-content .leaflet-container {
+    height: 315px !important;
+    width: 315px !important;
+}

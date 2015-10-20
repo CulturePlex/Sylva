@@ -1,4 +1,4 @@
-{% load i18n thumbnail static flatpages compress %}
+{% load i18n thumbnail static flatpages compress leaflet_tags %}
 
 {% get_static_prefix as STATIC_PREFIX %}
 
@@ -23,6 +23,9 @@
       <link rel=" stylesheet" type="text/css" href="{{ STATIC_PREFIX }}joyride/joyride-2.0.3.css">
       <link rel="stylesheet" type="text/css" href="{{ STATIC_PREFIX }}css/base.css" />
     {% endcompress %}
+
+    {% leaflet_js plugins="forms" %}
+    {% leaflet_css plugins="forms" %}
 
     <!--[if lt IE 7]>
     <link rel="stylesheet" type="text/css" href="{{ STATIC_PREFIX }}css/iefixes.css" />
