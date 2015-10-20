@@ -186,6 +186,7 @@ class NodeTypeSchemaPropertiesSerializer(serializers.ModelSerializer):
         for node_property in nodetype.properties.all().select_related():
                 prop = {
                     "label": node_property.key,
+                    "description": node_property.description,
                     "type": node_property.get_datatype_value(),
                     "id": node_property.id,
                     "name": node_property.slug,
@@ -212,6 +213,7 @@ class RelationshipTypeSchemaPropertiesSerializer(serializers.ModelSerializer):
         for rel_property in relationshiptype.properties.all().select_related():
                 prop = {
                     "label": rel_property.key,
+                    "description": rel_property.description,
                     "type": rel_property.get_datatype_value(),
                     "id": rel_property.id,
                     "name": rel_property.slug,

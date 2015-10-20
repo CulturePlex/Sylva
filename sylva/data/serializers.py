@@ -1,58 +1,31 @@
 # -*- coding: utf-8 -*-
-from schemas.models import NodeType, RelationshipType
 from rest_framework import serializers
 
 
-class NodesSerializer(serializers.ModelSerializer):
+class NodesSerializer(serializers.Serializer):
     total = serializers.SerializerMethodField('count_func')
     nodes = serializers.SerializerMethodField('nodes_func')
 
-    def count_func(self, nodetype):
-        # Handling NodeType and NodeSequence
-        try:
-            return nodetype.count()
-        except:
-            return len(nodetype)
+    def count_func(self, nodes):
+        # Nodes is a list of NodeSequence
+        return len(nodes)
 
-    def nodes_func(self, nodetype):
-        # Handling NodeType and NodeSequence
-        try:
-            filtered_nodes = nodetype.all()
-        except:
-            filtered_nodes = nodetype
-        nodes = [{'id': node.id, 'properties': node.properties}
-                 for node in filtered_nodes]
-        return nodes
-
-    class Meta:
-        model = NodeType
-        fields = ('total', 'nodes')
+    def nodes_func(self, nodes):
+        result_nodes = [{'id': node.id, 'properties': node.properties}
+                        for node in nodes]
+        return result_nodes
 
 
-class RelationshipsSerializer(serializers.ModelSerializer):
+class RelationshipsSerializer(serializers.Serializer):
     total = serializers.SerializerMethodField('count_func')
     relationships = serializers.SerializerMethodField('rels_func')
 
-    def count_func(self, relationshiptype):
-        # We get the relationships of the graph
-        # We need to filter by this relationshiptype
-        filtered_relationships = (
-            relationshiptype.schema.graph.relationships.filter(
-                label=relationshiptype.id))
+    def count_func(self, relationships):
+        return len(relationships)
 
-        # We are ready to return the result
-        return len([rel for rel in filtered_relationships])
-
-    def rels_func(self, relationshiptype):
-        # We get the relationships of the graph
-        # We need to filter by this relationshiptype
-        filtered_relationships = (
-            relationshiptype.schema.graph.relationships.filter(
-                label=relationshiptype.id))
-
-        relationships = list()
-
-        for relationship in filtered_relationships:
+    def rels_func(self, relationships):
+        result_relationships = []
+        for relationship in relationships:
             relationship_dict = dict()
 
             relationship_dict['id'] = relationship.id
@@ -63,14 +36,10 @@ class RelationshipsSerializer(serializers.ModelSerializer):
             relationship_dict['properties'] = (
                 relationship.properties)
 
-            relationships.append(relationship_dict)
+            result_relationships.append(relationship_dict)
 
         # We are ready to return the result
-        return relationships
-
-    class Meta:
-        model = RelationshipType
-        fields = ('total', 'relationships')
+        return result_relationships
 
 
 class NodeSerializer(serializers.Serializer):

@@ -47,7 +47,7 @@ class NodesView(APIView):
                                      slug=type_slug,
                                      schema__graph__slug=graph_slug)
 
-        serializer = NodesSerializer(nodetype)
+        serializer = NodesSerializer(nodetype.all())
 
         return Response(serializer.data)
 
@@ -111,6 +111,26 @@ class NodesView(APIView):
         return Response(nodes_ids, status=status.HTTP_204_NO_CONTENT)
 
 
+class RelationshipsViewFilter(APIView):
+    permission_classes = (DataView, )
+
+    def get(self, request, graph_slug, type_slug, limit=None, offset=None,
+            format=None):
+        graph = get_object_or_404(Graph, slug=graph_slug)
+        relationshiptype = get_object_or_404(RelationshipType,
+                                             slug=type_slug,
+                                             schema__graph__slug=graph_slug)
+        self.check_object_permissions(self.request, graph)
+        lookups = []
+        # TODO: Check the Q object for relationships
+        for (prop, match) in self.request.query_params.items():
+            lookup = graph.Q(property=prop, lookup="equals", match=match)
+            lookups.append(lookup)
+        filtered_rels = relationshiptype.filter(*lookups)[offset:limit]
+        serializer = RelationshipsSerializer(filtered_rels)
+        return Response(serializer.data)
+
+
 class RelationshipsView(APIView):
     permission_classes = (DataAdd, DataView)
 
@@ -125,7 +145,7 @@ class RelationshipsView(APIView):
                                              slug=type_slug,
                                              schema__graph__slug=graph_slug)
 
-        serializer = RelationshipsSerializer(relationshiptype)
+        serializer = RelationshipsSerializer(relationshiptype.all())
 
         return Response(serializer.data)
 

@@ -301,12 +301,27 @@ class NodeTypeSchemaPropertiesView(APIView):
         nodetype = get_object_or_404(NodeType,
                                      slug=type_slug,
                                      schema__graph__slug=graph_slug)
-
         try:
             post_data['node'] = nodetype
-            nodeproperty = NodeProperty.objects.create(**post_data)
-            nodeproperty.save()
+            nodeproperty = NodeProperty(**post_data)
+            # We need to check if we have the datatype in the properties
+            try:
+                datatype = post_data['datatype']
+                try:
+                    real_datatype = nodeproperty.get_datatype_dict()[datatype]
+                    nodeproperty.datatype = real_datatype
+                except Exception as e:
+                    # We dont save the node property
+                    # We create our json response
+                    error = dict()
+                    error['detail'] = e.message
+                    return Response(error, status=status.HTTP_400_BAD_REQUEST)
+            except KeyError:
+                # We save the node property because we dont have the datatype
+                # field
+                pass
 
+            nodeproperty.save()
             serializer = NodeTypeSchemaPropertiesSerializer(nodetype)
 
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -351,12 +366,21 @@ class NodeTypeSchemaPropertiesView(APIView):
 
                     if temp_prop:
                         # We change the fields of the property
-                        temp_prop.key = prop.get('key', temp_prop.key)
-                        prop_type = prop.get('prop_type',
-                                             temp_prop.get_datatype_display())
-                        prop_type_code = (
-                            temp_prop.get_datatype_dict()[prop_type])
-                        temp_prop.datatype = prop_type_code
+                        temp_prop.key = prop.get('key', None)
+                        temp_prop.description = prop.get('description',
+                                                         None)
+                        prop_type = prop.get('datatype', None)
+                        try:
+                            prop_type_code = (
+                                temp_prop.get_datatype_dict()[prop_type])
+                            temp_prop.datatype = prop_type_code
+                        except Exception as e:
+                            # We dont save the node property
+                            # We create our json response
+                            error = dict()
+                            error['detail'] = e.message
+                            return Response(error,
+                                            status=status.HTTP_400_BAD_REQUEST)
                         # temp_prop.choices = prop.get('choices',
                         #                              temp_prop.choices)
                         temp_prop.save()
@@ -428,16 +452,24 @@ class NodeTypeSchemaPropertiesView(APIView):
                     new_key = prop['key']
 
                     if temp_prop:
-                        # We change the fields of the property
                         temp_prop.key = prop.get('key', temp_prop.key)
-                        prop_type = prop.get('prop_type',
+                        temp_prop.description = prop.get('description',
+                                                         temp_prop.description)
+                        prop_type = prop.get('datatype',
                                              temp_prop.get_datatype_display())
-                        prop_type_code = (
-                            temp_prop.get_datatype_dict()[prop_type])
-                        temp_prop.datatype = prop_type_code
+                        try:
+                            prop_type_code = (
+                                temp_prop.get_datatype_dict()[prop_type])
+                            temp_prop.datatype = prop_type_code
+                        except Exception as e:
+                            # We dont save the node property
+                            # We create our json response
+                            error = dict()
+                            error['detail'] = e.message
+                            return Response(error,
+                                            status=status.HTTP_400_BAD_REQUEST)
                         # temp_prop.choices = prop.get('choices',
                         #                              temp_prop.choices)
-
                         temp_prop.save()
 
                         # Here, we need to check the flag and treat
@@ -553,7 +585,7 @@ class RelationshipTypeSchemaPropertiesView(APIView):
         relationshiptype = get_object_or_404(RelationshipType,
                                              slug=type_slug,
                                              schema__graph__slug=graph_slug)
-        post_data['relationship'] = relationshiptype
+
         relationshipproperty = RelationshipProperty.objects.create(
             **post_data.dict())
         relationshipproperty.save()
@@ -562,6 +594,36 @@ class RelationshipTypeSchemaPropertiesView(APIView):
             relationshiptype)
 
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        try:
+            post_data['relationship'] = relationshiptype
+            rel_property = RelationshipProperty(**post_data.dict())
+            # We need to check if we have the datatype in the properties
+            try:
+                datatype = post_data['datatype']
+                try:
+                    real_datatype = rel_property.get_datatype_dict()[datatype]
+                    rel_property.datatype = real_datatype
+                except Exception as e:
+                    # We dont save the node property
+                    # We create our json response
+                    error = dict()
+                    error['detail'] = e.message
+                    return Response(error, status=status.HTTP_400_BAD_REQUEST)
+            except KeyError:
+                # We save the node property because we dont have the datatype
+                # field
+                pass
+
+            rel_property.save()
+            serializer = NodeTypeSchemaPropertiesSerializer(relationshiptype)
+
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        except Exception as e:
+            # We create our json response
+            error = dict()
+            error['detail'] = e.message
+            return Response(error, status=status.HTTP_400_BAD_REQUEST)
 
     def put(self, request, graph_slug, type_slug, format=None):
         """
@@ -598,13 +660,21 @@ class RelationshipTypeSchemaPropertiesView(APIView):
                     new_key = prop['key']
 
                     if temp_prop:
-                        # We change the fields of the property
-                        temp_prop.key = prop.get('key', temp_prop.key)
-                        prop_type = prop.get('prop_type',
-                                             temp_prop.get_datatype_display())
-                        prop_type_code = (
-                            temp_prop.get_datatype_dict()[prop_type])
-                        temp_prop.datatype = prop_type_code
+                        temp_prop.key = prop.get('key', None)
+                        temp_prop.description = prop.get('description',
+                                                         None)
+                        prop_type = prop.get('datatype', None)
+                        try:
+                            prop_type_code = (
+                                temp_prop.get_datatype_dict()[prop_type])
+                            temp_prop.datatype = prop_type_code
+                        except Exception as e:
+                            # We dont save the node property
+                            # We create our json response
+                            error = dict()
+                            error['detail'] = e.message
+                            return Response(error,
+                                            status=status.HTTP_400_BAD_REQUEST)
                         # temp_prop.choices = prop.get('choices',
                         #                              temp_prop.choices)
                         temp_prop.save()
@@ -680,16 +750,24 @@ class RelationshipTypeSchemaPropertiesView(APIView):
                     new_key = prop['key']
 
                     if temp_prop:
-                        # We change the fields of the property
                         temp_prop.key = prop.get('key', temp_prop.key)
-                        prop_type = prop.get('prop_type',
+                        temp_prop.description = prop.get('description',
+                                                         temp_prop.description)
+                        prop_type = prop.get('datatype',
                                              temp_prop.get_datatype_display())
-                        prop_type_code = (
-                            temp_prop.get_datatype_dict()[prop_type])
-                        temp_prop.datatype = prop_type_code
+                        try:
+                            prop_type_code = (
+                                temp_prop.get_datatype_dict()[prop_type])
+                            temp_prop.datatype = prop_type_code
+                        except Exception as e:
+                            # We dont save the node property
+                            # We create our json response
+                            error = dict()
+                            error['detail'] = e.message
+                            return Response(error,
+                                            status=status.HTTP_400_BAD_REQUEST)
                         # temp_prop.choices = prop.get('choices',
                         #                              temp_prop.choices)
-
                         temp_prop.save()
 
                         # Here, we need to check the flag and treat

@@ -133,7 +133,7 @@ class GraphView(APIView):
 
         serializer = GraphSerializer(graph)
 
-        serializer.instance.delete()
+        serializer.instance.destroy()
 
         return Response(status=status.HTTP_204_NO_CONTENT)
 
