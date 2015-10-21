@@ -502,7 +502,7 @@
     }(jQuery));
 
     // Adding customs maps: https://github.com/makinacorpus/django-leaflet#in-forms
-    function spatialFieldCreator(type) {
+    function spatialFieldCreator(type, zoom) {
       return L.GeometryField.extend({
 
         sylvaLeafletControls: function() {
@@ -579,13 +579,25 @@
 
           map.fire('map:loadfield', {field: this, fieldid: this.options.fieldid});
 
+          // In the case `type === 'point'` the map needs to be zoomed.
+          if (type === 'point') {
+
+            $.each(map._layers, function(ml) {
+              if (map._layers[ml]._latlng) {
+                map.setView(map._layers[ml]._latlng, zoom);
+                return false;
+              }
+            });
+
+          }
+
           return this;
         }
       });
     }
 
     // Declaring map tools
-    PointField = spatialFieldCreator('point');
+    PointField = spatialFieldCreator('point', 11);
     PathField = spatialFieldCreator('path');
     AreaField = spatialFieldCreator('area');
   </script>
