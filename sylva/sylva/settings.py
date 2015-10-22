@@ -186,6 +186,7 @@ INSTALLED_APPS = (
     'sylva',
     'data',
     'graphs',
+    'maps',
     'schemas',
     'engines',
     'tools',
@@ -197,7 +198,8 @@ INSTALLED_APPS = (
     'reports',
     'analytics',
     'compressor',
-    'djcelery',
+    'djgeojson',
+    'leaflet',
 )
 
 AUTHENTICATION_BACKENDS = (
@@ -324,7 +326,7 @@ ENABLE_QUERIES = False
 ENABLE_REPORTS = False
 ENABLE_REPORTS_PDF = False
 ENABLE_ANALYTICS = False
-ENABLE_SPATIAL = False
+ENABLE_SPATIAL = True
 ACTIVATION_EMAIL_BETA_MESSAGE = True
 MAINTENANCE_MODE = False
 
@@ -385,3 +387,8 @@ COMPRESS_ENABLED = True  # By default it's the opposite to 'DEBUG'
 
 # A variable for configure some URLs for the Travis's tests
 TEST = False
+
+# Django-leaflet settings
+LEAFLET_CONFIG = {
+    'TILES': 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
+}
