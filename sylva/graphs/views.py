@@ -4,7 +4,6 @@ try:
 except ImportError:
     import json  # NOQA
 
-
 from django.db import transaction, IntegrityError
 from django.db.models import Q
 from django.conf import settings

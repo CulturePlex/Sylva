@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% load i18n graphs %}
+
+{% block navigation_buttons %}
+{{ block.super }}
+{% endblock %}
+
+{% block title %}
+{{ graph.name }}
+{% endblock %}
+
+{% block menu_buttons %}
+{% toolbar on="map" %}
+{% endblock %}
+
+{% block content_title %}
+  {% if node %}
+    {% breadcrumb graph node.display %}
+  {% else %}
+    {% breadcrumb graph %}
+  {% endif %}
+{% endblock %}
+
+{% block content %}
+  <div id="map"></div>
+
+  <script type="text/javascript">
+    window.onload = function() {
+      nodes = {{ nodes|safe }};
+
+      var map = L.map('map').setView([0, 0], 2);
+      L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+      }).addTo(map);
+      setTimeout(function () {
+        map.invalidateSize();
+      }, 0);
+
+      var features = [];
+
+      $.each(nodes, function(index, node) {
+        $.each(node.properties, function(key, property) {
+          var geoProperty;
+          var isJSON = true;
+          try {
+            geoProperty = JSON.parse(property);
+          } catch (err) {
+            isJSON = false;
+          }
+          if (isJSON && geoProperty.hasOwnProperty('type') && (geoProperty.type === 'Point' || geoProperty.type === 'LineString' || geoProperty.type === 'Polygon')) {
+            var feature = L.geoJson(geoProperty).addTo(map);
+            feature.bindPopup(node.label);
+            features.push(feature);
+          }
+        });
+      });
+
+      var featureGroup = L.featureGroup(features);
+      map.fitBounds(featureGroup.getBounds());
+    };
+  </script>
+
+  <style type="text/css">
+    #map {
+      width: 1200px;
+      height: 700px;
+
+      padding: 0;
+      margin-top: 10px;
+      margin-left: -20px;
+    }
+  </style>
+{% endblock content %}
