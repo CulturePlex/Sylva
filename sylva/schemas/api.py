@@ -296,6 +296,8 @@ class NodeTypeSchemaPropertiesView(APIView):
         self.check_object_permissions(self.request, graph)
 
         post_data = request.data
+        if type(post_data) is not dict:
+            post_data = post_data.dict()
         # We need to get all the fields to create the property
 
         nodetype = get_object_or_404(NodeType,

@@ -1,7 +1,6 @@
-#-*- coding:utf-8 -*-
+# -*- coding:utf-8 -*-
 from django.test import TestCase
 from django.contrib.auth.models import User
-from rest_framework import status
 from rest_framework.test import APIClient, APITestCase, APIRequestFactory
 
 from datetime import date, time
@@ -290,8 +289,6 @@ class APISchemaTest(APITestCase):
     def tearDown(self):
         self.client.logout()
 
-    # /api/graphs/{graph_slug}/types/{nodes, relationships}/: GET and POST
-
     def test_api_nodetypes_get(self):
         url = self.schemas_url + 'nodes/'
         response = self.client.get(url)
@@ -331,9 +328,27 @@ class APISchemaTest(APITestCase):
         # We check that the results is an empty list()
         self.assertEqual(response.data, list())
 
-    """
     def test_api_relationshiptypes_post(self):
-        data = {'name': self.relationshiptype_name}
+        # We create the nodetypes for the source and the target
+        source_name = self.nodetype_name + '_source'
+        target_name = self.nodetype_name + '_target'
+        data_source = {'name': source_name}
+        data_target = {'name': target_name}
+        url = self.schemas_url + 'nodes/'
+
+        response = self.client.post(url, data_source)
+        # We check that the request is correct
+        self.assertEqual(response.status_code, 201)
+        source_slug = response.data['slug']
+
+        response = self.client.post(url, data_target)
+        # We check that the request is correct
+        self.assertEqual(response.status_code, 201)
+        target_slug = response.data['slug']
+
+        data = {'name': self.relationshiptype_name,
+                'source': source_slug,
+                'target': target_slug}
         url = self.schemas_url + 'relationships/'
 
         # First, we check the get method
@@ -352,10 +367,6 @@ class APISchemaTest(APITestCase):
         # We check that the results is an empty list()
         nodetype_name = response.data['name']
         self.assertEqual(nodetype_name, self.relationshiptype_name)
-    """
-
-    # /api/graphs/{graph_slug}/types/{nodes, relationships}/{type_slug}:
-    # GET and DELETE
 
     def test_api_nodetypes_nodetype_get(self):
         data = {'name': self.nodetype_name}
@@ -422,57 +433,35 @@ class APISchemaTest(APITestCase):
         self.assertEqual(response.status_code, 204)
         self.assertEqual(response.data, None)
 
-    """
     def test_api_relationshiptypes_relationshiptype_get(self):
-        data = {'name': self.relationshiptype_name}
-        url = self.schemas_url + 'relationships/'
+        # We create the nodetypes for the source and the target
+        source_name = self.nodetype_name + '_source'
+        target_name = self.nodetype_name + '_target'
+        data_source = {'name': source_name}
+        data_target = {'name': target_name}
+        url = self.schemas_url + 'nodes/'
 
-        # First, we check the get method
-        response = self.client.get(url)
-
+        response = self.client.post(url, data_source)
         # We check that the request is correct
-        self.assertEqual(response.status_code, 200)
-        # We check that the results is an empty list()
-        self.assertEqual(response.data, list())
+        self.assertEqual(response.status_code, 201)
+        source_slug = response.data['slug']
+
+        response = self.client.post(url, data_target)
+        # We check that the request is correct
+        self.assertEqual(response.status_code, 201)
+        target_slug = response.data['slug']
+
+        data = {'name': self.relationshiptype_name,
+                'source': source_slug,
+                'target': target_slug}
+        url = self.schemas_url + 'relationships/'
 
         # Then, we check the post method
         response = self.client.post(url, data)
 
-        # We check that the request is correct
-        self.assertEqual(response.status_code, 201)
-        # We check that the results is an empty list()
-        relationshiptype_name = response.data['name']
-        self.assertEqual(relationshiptype_name, self.relationshiptype_name)
-
-        # Let's get again the relationshiptypes and we select one of them
-        response = self.client.get(url)
-        relationshiptype_slug = response.data[0]['slug']
-
-        url = self.schemas_url + 'nodes/' + relationshiptype_slug + '/'
-
-        response = self.client.get(url)
-
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.data['slug'], relationshiptype_slug)
-        self.assertEqual(response.data['relationships_info'], list())
-
-    def test_api_relationshiptypes_relationshiptype_delete(self):
         data = {'name': self.relationshiptype_name}
         url = self.schemas_url + 'relationships/'
 
-        # First, we check the get method
-        response = self.client.get(url)
-
-        # We check that the request is correct
-        self.assertEqual(response.status_code, 200)
-        # We check that the results is an empty list()
-        self.assertEqual(response.data, list())
-
-        # Then, we check the post method
-        response = self.client.post(url, data)
-
-        # We check that the request is correct
-        self.assertEqual(response.status_code, 201)
         # We check that the results is an empty list()
         relationshiptype_name = response.data['name']
         self.assertEqual(relationshiptype_name, self.relationshiptype_name)
@@ -480,11 +469,259 @@ class APISchemaTest(APITestCase):
         # Let's get again the nodetypes and we select one of them
         response = self.client.get(url)
         relationshiptype_slug = response.data[0]['slug']
-
         url = self.schemas_url + 'relationships/' + relationshiptype_slug + '/'
+        response = self.client.get(url)
 
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data['slug'], relationshiptype_slug)
+        self.assertEqual(response.data['rels_info'], list())
+
+    def test_api_relationshiptypes_relationshiptype_delete(self):
+        # We create the nodetypes for the source and the target
+        source_name = self.nodetype_name + '_source'
+        target_name = self.nodetype_name + '_target'
+        data_source = {'name': source_name}
+        data_target = {'name': target_name}
+        url = self.schemas_url + 'nodes/'
+
+        response = self.client.post(url, data_source)
+        # We check that the request is correct
+        self.assertEqual(response.status_code, 201)
+        source_slug = response.data['slug']
+
+        response = self.client.post(url, data_target)
+        # We check that the request is correct
+        self.assertEqual(response.status_code, 201)
+        target_slug = response.data['slug']
+
+        data = {'name': self.relationshiptype_name,
+                'source': source_slug,
+                'target': target_slug}
+        url = self.schemas_url + 'relationships/'
+
+        # Then, we check the post method
+        response = self.client.post(url, data)
+
+        data = {'name': self.relationshiptype_name}
+        url = self.schemas_url + 'relationships/'
+
+        # We check that the results is an empty list()
+        relationshiptype_name = response.data['name']
+        self.assertEqual(relationshiptype_name, self.relationshiptype_name)
+
+        # Let's get again the nodetypes and we select one of them
+        response = self.client.get(url)
+        relationshiptype_slug = response.data[0]['slug']
+        url = self.schemas_url + 'relationships/' + relationshiptype_slug + '/'
         response = self.client.delete(url)
 
         self.assertEqual(response.status_code, 204)
         self.assertEqual(response.data, None)
-    """
+
+    def test_api_nodetype_schema_get(self):
+        data = {'name': self.nodetype_name}
+        url = self.schemas_url + 'nodes/'
+
+        # Then, we check the post method
+        response = self.client.post(url, data)
+
+        # We check that the request is correct
+        self.assertEqual(response.status_code, 201)
+        # We check that the results is an empty list()
+        nodetype_name = response.data['name']
+        self.assertEqual(nodetype_name, self.nodetype_name)
+
+        # Let's get again the nodetypes and we select one of them
+        response = self.client.get(url)
+        nodetype_slug = response.data[0]['slug']
+
+        url = self.schemas_url + 'nodes/' + nodetype_slug + '/schema/'
+
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data['name'], self.nodetype_name)
+
+    def test_api_nodetype_schema_patch(self):
+        data = {'name': self.nodetype_name}
+        url = self.schemas_url + 'nodes/'
+
+        # Then, we check the post method
+        response = self.client.post(url, data)
+
+        # We check that the request is correct
+        self.assertEqual(response.status_code, 201)
+        # We check that the results is an empty list()
+        nodetype_name = response.data['name']
+        self.assertEqual(nodetype_name, self.nodetype_name)
+
+        # Let's get again the nodetypes and we select one of them
+        response = self.client.get(url)
+        nodetype_slug = response.data[0]['slug']
+
+        url = self.schemas_url + 'nodes/' + nodetype_slug + '/schema/'
+
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data['name'], self.nodetype_name)
+
+        nodetype_new_name = 'nodetypeNameChanged'
+        data = {'name': nodetype_new_name}
+
+        # And then, the patch to see the changes
+        response = self.client.patch(url, data)
+
+        # We check that the request is correct
+        self.assertEqual(response.status_code, 201)
+        # We check that the result has the same name
+        response_nodetype_name = response.data['name']
+        self.assertEqual(response_nodetype_name, nodetype_new_name)
+
+    def test_api_nodetype_schema_put(self):
+        data = {'name': self.nodetype_name}
+        url = self.schemas_url + 'nodes/'
+
+        # Then, we check the post method
+        response = self.client.post(url, data)
+
+        # We check that the request is correct
+        self.assertEqual(response.status_code, 201)
+        # We check that the results is an empty list()
+        nodetype_name = response.data['name']
+        self.assertEqual(nodetype_name, self.nodetype_name)
+
+        # Let's get again the nodetypes and we select one of them
+        response = self.client.get(url)
+        nodetype_slug = response.data[0]['slug']
+
+        url = self.schemas_url + 'nodes/' + nodetype_slug + '/schema/'
+
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data['name'], self.nodetype_name)
+
+        nodetype_new_name = 'nodetypeNameChanged'
+        data = {'name': nodetype_new_name}
+
+        # And then, the patch to see the changes
+        response = self.client.put(url, data)
+
+        # We check that the request is correct
+        self.assertEqual(response.status_code, 201)
+        # We check that the result has the same name
+        response_nodetype_name = response.data['name']
+        self.assertEqual(response_nodetype_name, nodetype_new_name)
+
+    def test_api_relationshiptype_schema_get(self):
+        # We create the nodetypes for the source and the target
+        source_name = self.nodetype_name + '_source'
+        target_name = self.nodetype_name + '_target'
+        data_source = {'name': source_name}
+        data_target = {'name': target_name}
+        url = self.schemas_url + 'nodes/'
+
+        response = self.client.post(url, data_source)
+        # We check that the request is correct
+        self.assertEqual(response.status_code, 201)
+        source_slug = response.data['slug']
+
+        response = self.client.post(url, data_target)
+        # We check that the request is correct
+        self.assertEqual(response.status_code, 201)
+        target_slug = response.data['slug']
+
+        data = {'name': self.relationshiptype_name,
+                'source': source_slug,
+                'target': target_slug}
+        url = self.schemas_url + 'relationships/'
+
+        # Then, we check the post method
+        response = self.client.post(url, data)
+
+        data = {'name': self.relationshiptype_name}
+        url = self.schemas_url + 'relationships/'
+
+        # We check that the results is an empty list()
+        relationshiptype_name = response.data['name']
+        self.assertEqual(relationshiptype_name, self.relationshiptype_name)
+
+        # Let's get again the nodetypes and we select one of them
+        response = self.client.get(url)
+        relationshiptype_slug = response.data[0]['slug']
+        url = (
+            self.schemas_url +
+            'relationships/' +
+            relationshiptype_slug +
+            '/schema/')
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data['name'], self.relationshiptype_name)
+
+    def test_api_nodetype_properties_get(self):
+        data = {'name': self.nodetype_name}
+        url = self.schemas_url + 'nodes/'
+
+        # Then, we check the post method
+        response = self.client.post(url, data)
+
+        # We check that the request is correct
+        self.assertEqual(response.status_code, 201)
+        # We check that the results is an empty list()
+        nodetype_name = response.data['name']
+        self.assertEqual(nodetype_name, self.nodetype_name)
+
+        # Let's get again the nodetypes and we select one of them
+        response = self.client.get(url)
+        nodetype_slug = response.data[0]['slug']
+
+        url = (self.schemas_url +
+               'nodes/' +
+               nodetype_slug +
+               '/schema/properties/')
+
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data['properties'], list())
+
+    def test_api_nodetype_properties_post(self):
+        data = {'name': self.nodetype_name}
+        url = self.schemas_url + 'nodes/'
+
+        # Then, we check the post method
+        response = self.client.post(url, data)
+
+        # We check that the request is correct
+        self.assertEqual(response.status_code, 201)
+        # We check that the results is an empty list()
+        nodetype_name = response.data['name']
+        self.assertEqual(nodetype_name, self.nodetype_name)
+
+        # Let's get again the nodetypes and we select one of them
+        response = self.client.get(url)
+        nodetype_slug = response.data[0]['slug']
+
+        url = (self.schemas_url +
+               'nodes/' +
+               nodetype_slug +
+               '/schema/properties/')
+
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data['properties'], list())
+
+        property_name = 'prop_name'
+        property_datatype = 'default'
+        property_data = {
+            'key': property_name,
+            'datatype': property_datatype
+        }
+
+        response = self.client.post(url, property_data)
+
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.data['properties'][0]['name'], property_name)

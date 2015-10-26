@@ -1,9 +1,11 @@
-#-*- coding:utf-8 -*-
-
+# -*- coding:utf-8 -*-
 from django.test import TestCase
 from django.core.files.storage import default_storage
+from django.contrib.auth.models import User
+from rest_framework.test import APIClient, APITestCase, APIRequestFactory
 
 from data.models import Data, MediaNode, MediaFile, MediaLink
+from graphs.models import Graph
 
 
 class MediaFileTest(TestCase):
@@ -118,3 +120,133 @@ class MediaLinkTest(TestCase):
             exist = False
 
         self.assertEquals(exist, False)
+
+
+class APIDataTest(APITestCase):
+    def setUp(self):
+        # We register a user
+        self.user = User.objects.create(username='john', password='doe',
+                                        is_active=True, is_staff=True)
+        self.user.save()
+
+        # We create a graph
+        self.graph_name = "graphTest"
+        self.graph = Graph.objects.create(name=self.graph_name,
+                                          owner=self.user)
+        self.graph_slug = self.graph.slug
+
+        # We login with the new user
+        self.client = APIClient()
+        self.client.force_authenticate(user=self.user)
+
+        self.factory = APIRequestFactory()
+
+        # Let's store the basic url, useful for the calls
+        self.schemas_url = '/api/graphs/' + self.graph_slug + '/types/'
+
+        # Let's store some features for node types and relationship types
+        self.nodetype_name = 'nodetypeName'
+        self.nodetype_description = 'nodetypeDescription'
+        self.relationshiptype_name = 'relationshiptypeName'
+        self.relationshiptype_description = 'relationshiptypeDescription'
+
+    def tearDown(self):
+        self.client.logout()
+
+    def test_api_nodes_get(self):
+        data = {'name': self.nodetype_name}
+        url = self.schemas_url + 'nodes/'
+
+        # First, we check the get method
+        response = self.client.get(url)
+
+        # We check that the request is correct
+        self.assertEqual(response.status_code, 200)
+        # We check that the results is an empty list()
+        self.assertEqual(response.data, list())
+
+        # Then, we check the post method
+        response = self.client.post(url, data)
+
+        # We check that the request is correct
+        self.assertEqual(response.status_code, 201)
+        # We check that the results is an empty list()
+        nodetype_name = response.data['name']
+        self.assertEqual(nodetype_name, self.nodetype_name)
+
+        # Let's get again the nodetypes and we select one of them
+        response = self.client.get(url)
+        nodetype_slug = response.data[0]['slug']
+
+        url = self.schemas_url + 'nodes/' + nodetype_slug + '/'
+
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data['slug'], nodetype_slug)
+        self.assertEqual(response.data['nodes_info'], list())
+
+    def test_api_nodes_post(self):
+        # # Creating the nodetype
+        data = {'name': self.nodetype_name}
+        url = self.schemas_url + 'nodes/'
+
+        # First, we check the get method
+        response = self.client.get(url)
+
+        # We check that the request is correct
+        self.assertEqual(response.status_code, 200)
+        # We check that the results is an empty list()
+        self.assertEqual(response.data, list())
+        # Then, we check the post method
+        response = self.client.post(url, data)
+        # We check that the request is correct
+        self.assertEqual(response.status_code, 201)
+        # We check that the results is an empty list()
+        nodetype_name = response.data['name']
+        self.assertEqual(nodetype_name, self.nodetype_name)
+        # Let's get again the nodetypes and we select one of them
+        response = self.client.get(url)
+        nodetype_slug = response.data[0]['slug']
+
+        url = self.schemas_url + 'nodes/' + nodetype_slug + '/'
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data['slug'], nodetype_slug)
+
+        # # Creating the property for the nodetype
+        url = (self.schemas_url +
+               'nodes/' +
+               nodetype_slug +
+               '/schema/properties/')
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data['properties'], list())
+
+        property_name = 'prop_name'
+        property_datatype = 'default'
+        property_data = {
+            'key': property_name,
+            'datatype': property_datatype
+        }
+
+        response = self.client.post(url, property_data)
+
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.data['properties'][0]['name'], property_name)
+
+        # # Creating the nodes
+        url = (self.schemas_url +
+               'nodes/' +
+               nodetype_slug +
+               '/nodes/')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data['nodes'], list())
+
+        # node_name = "nodeName"
+        # node_data = {property_name: node_name}
+        # response = self.client.post(url, nodes_list)
+        self.assertEqual(response.status_code, 200)

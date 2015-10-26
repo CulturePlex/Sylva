@@ -326,8 +326,6 @@ class APIGraphTest(APITestCase):
     def tearDown(self):
         self.client.logout()
 
-    # /api/graphs/: GET and POST
-
     def test_api_graphs_get_empty(self):
         url = self.graphs_url
         response = self.client.get(url)
@@ -362,8 +360,6 @@ class APIGraphTest(APITestCase):
         # The response.data contains a list with the graphs
         response_graph_name = response.data['name']
         self.assertEqual(response_graph_name, self.graph_name)
-
-    # /api/graphs/{graph_slug}: GET, DELETE, PATCH, POST and PUT
 
     def test_api_graph_get(self):
         graph = Graph.objects.create(name=self.graph_name, owner=self.user)
