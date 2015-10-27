@@ -1613,6 +1613,7 @@ class QueryTestCase(LiveServerTestCase):
         text = self.browser.find_by_id('propertiesTitle').first.value
         spin_assert(lambda: self.assertEqual(text, 'Properties'))
         self.browser.find_by_name('Date name').first.fill("01/01/2010")
+        self.browser.find_by_id('propertiesTitle').first.click()
         self.browser.find_by_value("Save Bob's type").first.click()
         text = self.browser.find_by_xpath(
             "//div[@class='pagination']"
