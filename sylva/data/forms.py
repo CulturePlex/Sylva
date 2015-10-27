@@ -91,6 +91,7 @@ class ItemForm(forms.Form):
                 "help_text": item_property.description,
             }
             auto_increment_update = datatype_dict["auto_increment_update"]
+            field = None
             if item_property.datatype == datatype_dict["date"]:
                 widget = forms.TextInput(attrs={"class": "date"})
                 field_attrs["widget"] = widget
@@ -144,7 +145,7 @@ class ItemForm(forms.Form):
                 widget = forms.TextInput(attrs={"readonly": "readonly"})
                 field_attrs["widget"] = widget
                 field = forms.CharField(**field_attrs)
-            elif (item_property.datatype == auto_increment_update):
+            elif item_property.datatype == auto_increment_update:
                 if not item_property.default:
                     field_attrs["initial"] = '0'
                 widget = forms.TextInput(attrs={"readonly": "readonly"})
@@ -195,9 +196,7 @@ class ItemForm(forms.Form):
                     widget = LeafletAreaWidget()
                     field_attrs["widget"] = widget
                     field = forms.CharField(**field_attrs)
-                else:  # TODO: Fix this
-                    field = forms.CharField(**field_attrs)
-            else:
+            if not field:
                 field = forms.CharField(**field_attrs)
             self.fields[item_property.key] = field
         if initial and ITEM_FIELD_NAME in initial:
@@ -274,7 +273,8 @@ class ItemForm(forms.Form):
             else:
                 cleaned_data[key] = u""
         # Extra check for spatial fields
-        spatial_properties = self.itemtype.properties.filter(datatype__in=["p", "l", "m"])
+        spatial_properties = self.itemtype.properties.filter(
+            datatype__in=["p", "l", "m"])
         for spatial_property in spatial_properties:
             key = spatial_property.key
             if key in cleaned_data and cleaned_data[key]:
