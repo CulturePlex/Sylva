@@ -198,7 +198,6 @@ INSTALLED_APPS = (
     'reports',
     'analytics',
     'compressor',
-    'djgeojson',
     'leaflet',
 )
 

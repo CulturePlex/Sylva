@@ -296,6 +296,9 @@ class ItemForm(forms.Form):
                     elif is_not_valid and spatial_property.datatype == u'm':
                         msg = _("This field is required to "
                                 "be a valid GeoJSON area.")
+                    elif is_not_valid:
+                        msg = _("This field is required to "
+                                "be a valid GeoJSON.")
                     if is_not_valid:
                         self._errors[key] = self.error_class([msg])
             else:
