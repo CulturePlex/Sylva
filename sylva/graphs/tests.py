@@ -1,11 +1,9 @@
 # -*- coding:utf-8 -*-
-
-from django.test import TestCase
-
-from django.contrib.auth import authenticate
-from django.test.client import Client, RequestFactory
 from django.contrib.auth.models import User
-from rest_framework import status
+from django.core.urlresolvers import reverse
+from django.contrib.auth import authenticate
+from django.test import TestCase
+from django.test.client import Client, RequestFactory
 from rest_framework.test import APIClient, APITestCase, APIRequestFactory
 
 from graphs.models import Graph
@@ -320,25 +318,22 @@ class APIGraphTest(APITestCase):
         self.graph_name = "graphTest"
         self.graph_name_changed = "graphTestChanged"
 
-        # Let's store the basic url, useful for the calls
-        self.graphs_url = '/api/graphs/'
-
     def tearDown(self):
         self.client.logout()
 
     def test_api_graphs_get_empty(self):
-        url = self.graphs_url
+        url = reverse("api_graphs")
         response = self.client.get(url)
 
         # We check that the request is correct
         self.assertEqual(response.status_code, 200)
-        # We check that the results is an empty list()
-        self.assertEqual(response.data, list())
+        # We check that the results is an empty list
+        self.assertEqual(response.data, [])
 
     def test_api_graphs_get_graphs(self):
         Graph.objects.create(name=self.graph_name, owner=self.user)
 
-        url = self.graphs_url
+        url = reverse("api_graphs")
         response = self.client.get(url)
 
         # We check that the request is correct
@@ -351,7 +346,7 @@ class APIGraphTest(APITestCase):
     def test_api_graphs_post(self):
         data = {'name': self.graph_name}
 
-        url = self.graphs_url
+        url = reverse("api_graphs")
         response = self.client.post(url, data)
 
         # We check that the request is correct
@@ -365,7 +360,7 @@ class APIGraphTest(APITestCase):
         graph = Graph.objects.create(name=self.graph_name, owner=self.user)
         graph_slug = graph.slug
 
-        url = self.graphs_url + graph_slug + '/'
+        url = reverse("api_graph", args=[graph_slug])
         response = self.client.get(url)
 
         # We check that the request is correct
@@ -378,7 +373,7 @@ class APIGraphTest(APITestCase):
         graph = Graph.objects.create(name=self.graph_name, owner=self.user)
         graph_slug = graph.slug
 
-        url = self.graphs_url + graph_slug + '/'
+        url = reverse("api_graph", args=[graph_slug])
         response = self.client.delete(url)
 
         # We check that the request is correct
@@ -391,7 +386,7 @@ class APIGraphTest(APITestCase):
         graph = Graph.objects.create(name=self.graph_name, owner=self.user)
         graph_slug = graph.slug
 
-        url = self.graphs_url + graph_slug + '/'
+        url = reverse("api_graph", args=[graph_slug])
 
         # First, we check a get request
         response = self.client.get(url)
@@ -416,7 +411,7 @@ class APIGraphTest(APITestCase):
         graph = Graph.objects.create(name=self.graph_name, owner=self.user)
         graph_slug = graph.slug
 
-        url = self.graphs_url + graph_slug + '/'
+        url = reverse("api_graph", args=[graph_slug])
 
         # First, we check a get request
         response = self.client.get(url)

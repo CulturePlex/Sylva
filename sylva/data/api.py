@@ -1,7 +1,10 @@
 # -*- coding: utf-8 -*-
 from django.db import transaction
 from django.shortcuts import get_object_or_404
-
+try:
+    import ujson as json
+except ImportError:
+    import json  # NOQA
 # from engines.gdb.lookups.neo4j import Q
 from graphs.models import Graph
 from schemas.models import NodeType, RelationshipType
@@ -64,6 +67,9 @@ class NodesView(APIView):
 
         # We get the post data
         data = request.data
+        if isinstance(data, unicode):
+            # We check if we need to deserialize the object
+            data = json.loads(data)
         nodes_ids = []
         transaction_ok = True
 

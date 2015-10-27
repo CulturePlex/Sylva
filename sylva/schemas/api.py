@@ -297,6 +297,7 @@ class NodeTypeSchemaPropertiesView(APIView):
 
         post_data = request.data
         if type(post_data) is not dict:
+            # We check if we need to cast the object
             post_data = post_data.dict()
         # We need to get all the fields to create the property
 

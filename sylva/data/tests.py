@@ -1,9 +1,13 @@
 # -*- coding:utf-8 -*-
-from django.test import TestCase
-from django.core.files.storage import default_storage
 from django.contrib.auth.models import User
+from django.core.files.storage import default_storage
+from django.core.urlresolvers import reverse
+from django.test import TestCase
+try:
+    import ujson as json
+except ImportError:
+    import json  # NOQA
 from rest_framework.test import APIClient, APITestCase, APIRequestFactory
-
 from data.models import Data, MediaNode, MediaFile, MediaLink
 from graphs.models import Graph
 
@@ -141,9 +145,6 @@ class APIDataTest(APITestCase):
 
         self.factory = APIRequestFactory()
 
-        # Let's store the basic url, useful for the calls
-        self.schemas_url = '/api/graphs/' + self.graph_slug + '/types/'
-
         # Let's store some features for node types and relationship types
         self.nodetype_name = 'nodetypeName'
         self.nodetype_description = 'nodetypeDescription'
@@ -151,26 +152,25 @@ class APIDataTest(APITestCase):
         self.relationshiptype_description = 'relationshiptypeDescription'
 
     def tearDown(self):
+        Graph.objects.get(name=self.graph_name).destroy()
         self.client.logout()
 
     def test_api_nodes_get(self):
         data = {'name': self.nodetype_name}
-        url = self.schemas_url + 'nodes/'
+        url = reverse("api_node_types", args=[self.graph_slug])
 
         # First, we check the get method
         response = self.client.get(url)
-
         # We check that the request is correct
         self.assertEqual(response.status_code, 200)
-        # We check that the results is an empty list()
-        self.assertEqual(response.data, list())
+        # We check that the results is an empty list
+        self.assertEqual(response.data, [])
 
         # Then, we check the post method
         response = self.client.post(url, data)
 
         # We check that the request is correct
         self.assertEqual(response.status_code, 201)
-        # We check that the results is an empty list()
         nodetype_name = response.data['name']
         self.assertEqual(nodetype_name, self.nodetype_name)
 
@@ -178,26 +178,25 @@ class APIDataTest(APITestCase):
         response = self.client.get(url)
         nodetype_slug = response.data[0]['slug']
 
-        url = self.schemas_url + 'nodes/' + nodetype_slug + '/'
-
+        url = reverse("api_node_type",
+                      args=[self.graph_slug, nodetype_slug])
         response = self.client.get(url)
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data['slug'], nodetype_slug)
-        self.assertEqual(response.data['nodes_info'], list())
+        self.assertEqual(response.data['nodes_info'], [])
 
     def test_api_nodes_post(self):
         # # Creating the nodetype
         data = {'name': self.nodetype_name}
-        url = self.schemas_url + 'nodes/'
+        url = reverse("api_node_types", args=[self.graph_slug])
 
         # First, we check the get method
         response = self.client.get(url)
-
         # We check that the request is correct
         self.assertEqual(response.status_code, 200)
-        # We check that the results is an empty list()
-        self.assertEqual(response.data, list())
+        # We check that the results is an empty list
+        self.assertEqual(response.data, [])
         # Then, we check the post method
         response = self.client.post(url, data)
         # We check that the request is correct
@@ -209,22 +208,16 @@ class APIDataTest(APITestCase):
         response = self.client.get(url)
         nodetype_slug = response.data[0]['slug']
 
-        url = self.schemas_url + 'nodes/' + nodetype_slug + '/'
+        url = reverse("api_node_type",
+                      args=[self.graph_slug, nodetype_slug])
         response = self.client.get(url)
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data['slug'], nodetype_slug)
 
         # # Creating the property for the nodetype
-        url = (self.schemas_url +
-               'nodes/' +
-               nodetype_slug +
-               '/schema/properties/')
-        response = self.client.get(url)
-
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.data['properties'], list())
-
+        url = reverse("api_node_type_schema_properties",
+                      args=[self.graph_slug, nodetype_slug])
         property_name = 'prop_name'
         property_datatype = 'default'
         property_data = {
@@ -238,15 +231,20 @@ class APIDataTest(APITestCase):
         self.assertEqual(response.data['properties'][0]['name'], property_name)
 
         # # Creating the nodes
-        url = (self.schemas_url +
-               'nodes/' +
-               nodetype_slug +
-               '/nodes/')
+        url = reverse("api_nodes",
+                      args=[self.graph_slug, nodetype_slug])
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.data['nodes'], list())
+        self.assertEqual(response.data['nodes'], [])
 
-        # node_name = "nodeName"
-        # node_data = {property_name: node_name}
-        # response = self.client.post(url, nodes_list)
-        self.assertEqual(response.status_code, 200)
+        node_name1 = "nodeName1"
+        node_data1 = {property_name: node_name1}
+        node_name2 = "nodeName2"
+        node_data2 = {property_name: node_name2}
+        nodes_list = []
+        nodes_list.append(node_data1)
+        nodes_list.append(node_data2)
+        nodes_list_serialized = json.dumps(nodes_list)
+        response = self.client.post(url, nodes_list_serialized, format='json')
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(len(response.data), 2)
