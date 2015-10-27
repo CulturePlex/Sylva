@@ -508,26 +508,32 @@
         sylvaLeafletControls: function() {
           var point, path, area = false;
 
+          var edit = {
+            featureGroup: this.drawnItems
+          };
+
           switch(type) {
             case 'path':
-                path = true;
-                break;
+              path = true;
+              break;
             case 'area':
-                area = true;
-                break;
+              area = true;
+              break;
             case 'point':
             default:
-                point = true;
+              point = true;
+              edit.edit = false;
           }
 
           return {
-              draw: {
-                  marker: point,
-                  polyline: path,
-                  polygon: area,
-                  circle: false,
-                  rectangle: false
-              }
+            edit: edit,
+            draw: {
+              marker: point,
+              polyline: path,
+              polygon: area,
+              circle: false,
+              rectangle: false
+            }
           };
         },
 
