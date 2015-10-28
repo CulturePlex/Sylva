@@ -1612,8 +1612,10 @@ class QueryTestCase(LiveServerTestCase):
             "//a[@class='dataOption new']").first.click()
         text = self.browser.find_by_id('propertiesTitle').first.value
         spin_assert(lambda: self.assertEqual(text, 'Properties'))
-        self.browser.find_by_name('Date name').first.fill("01/01/2010")
+        self.browser.find_by_name('Date name').first.fill("2010-01-01")
+        datepicker = self.browser.find_by_id("ui-datepicker-div").first
         self.browser.find_by_id('propertiesTitle').first.click()
+        spin_assert(lambda: self.assertEqual(datepicker.visible, False))
         self.browser.find_by_value("Save Bob's type").first.click()
         text = self.browser.find_by_xpath(
             "//div[@class='pagination']"
@@ -1646,8 +1648,9 @@ class QueryTestCase(LiveServerTestCase):
         # We need to click outside for a correct behaviour of the rel select
         self.browser.find_by_xpath("//div[@id='diagram']").first.click()
         # We fill the input for the lookup value
-        lookup_input_value = self.browser.find_by_xpath(
-            "//input[@class='lookup-value time hasDatepicker']").first.fill(u"01/01/2010")
+        self.browser.find_by_xpath(
+            "//input[@class='lookup-value time hasDatepicker']").first.fill(
+            u"2010-01-01")
         calendar = self.browser.find_by_xpath("//div[@id='ui-datepicker-div']")
         spin_assert(lambda: self.assertIsNotNone(calendar))
         # We run the query
