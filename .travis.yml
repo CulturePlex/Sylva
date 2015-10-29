@@ -8,8 +8,11 @@ cache:
     - $HOME/.npm
 env:
   - NEO4J_VERSION="1.9.9"
+  - FIREFOX_VERSION="31.0esr"
+  - FIREFOX_PATH="firefox/firefox-bin"
 before_install:
   - ./download_and_install_neo4j.sh $NEO4J_VERSION
+  - ./download_and_install_firefox.sh $FIREFOX_VERSION
 install:
   - pip install -r requirements_test.txt
   - pip install --allow-all-external argparse==1.2.1
