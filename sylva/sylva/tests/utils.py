@@ -42,6 +42,8 @@ def Browser(driver_name='firefox', *args, **kwargs):
     if driver_name == 'firefox' and kwargs.get('firefox_path') is not None:
         return WebDriver(*args, **kwargs)
     else:
+        if 'firefox_path' in kwargs:
+            del kwargs['firefox_path']
         return SplinterBrowser(driver_name, *args, **kwargs)
 
 
