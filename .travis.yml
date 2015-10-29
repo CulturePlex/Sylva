@@ -7,9 +7,7 @@ cache:
     - $HOME/.cache/pip
     - $HOME/.npm
 env:
-  - NEO4J_VERSION="1.9.9"
-  - FIREFOX_VERSION="31.0esr"
-  - FIREFOX_PATH="firefox/firefox-bin"
+  - NEO4J_VERSION="1.9.9" FIREFOX_VERSION="31.0esr" FIREFOX_PATH="firefox/firefox-bin"
 before_install:
   - ./download_and_install_neo4j.sh $NEO4J_VERSION
   - ./download_and_install_firefox.sh $FIREFOX_VERSION
