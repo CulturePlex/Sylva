@@ -101,6 +101,9 @@ class NodesView(APIView):
 
         # We get the post data
         data = request.data
+        if isinstance(data, unicode):
+            # We check if we need to deserialize the object
+            data = json.loads(data)
         nodes_ids = []
 
         # We have in data a list of elements to create as new
@@ -168,6 +171,9 @@ class RelationshipsView(APIView):
 
         # We get the post data
         data = request.data
+        if isinstance(data, unicode):
+            # We check if we need to deserialize the object
+            data = json.loads(data)
         rels_ids = []
         transaction_ok = True
 
@@ -207,6 +213,9 @@ class RelationshipsView(APIView):
 
         # We get the post data
         data = request.data
+        if isinstance(data, unicode):
+            # We check if we need to deserialize the object
+            data = json.loads(data)
         rels_ids = []
 
         # We have in data a list of elements to create as new
@@ -246,7 +255,9 @@ class NodeView(APIView):
         self.check_object_permissions(self.request, graph)
 
         post_data = request.data
-
+        if isinstance(post_data, unicode):
+            # We check if we need to deserialize the object
+            post_data = json.loads(post_data)
         node = graph.nodes.get(node_id)
 
         new_data = dict()
@@ -273,7 +284,9 @@ class NodeView(APIView):
         self.check_object_permissions(self.request, graph)
 
         post_data = request.data
-
+        if isinstance(post_data, unicode):
+            # We check if we need to deserialize the object
+            post_data = json.loads(post_data)
         node = graph.nodes.get(node_id)
 
         new_data = dict()

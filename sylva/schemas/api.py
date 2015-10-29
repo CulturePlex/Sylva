@@ -1,6 +1,10 @@
 # -*- coding: utf-8 -*-
 from django.utils.translation import gettext as _
 from django.shortcuts import get_object_or_404
+try:
+    import ujson as json
+except ImportError:
+    import json  # NOQA
 from graphs.models import Graph
 from schemas.models import (NodeType, RelationshipType,
                             NodeProperty, RelationshipProperty)
@@ -296,9 +300,9 @@ class NodeTypeSchemaPropertiesView(APIView):
         self.check_object_permissions(self.request, graph)
 
         post_data = request.data
-        if type(post_data) is not dict:
-            # We check if we need to cast the object
-            post_data = post_data.dict()
+        if isinstance(post_data, unicode):
+            # We check if we need to deserialize the object
+            post_data = json.loads(post_data)
         # We need to get all the fields to create the property
 
         nodetype = get_object_or_404(NodeType,
@@ -343,6 +347,9 @@ class NodeTypeSchemaPropertiesView(APIView):
         self.check_object_permissions(self.request, graph)
 
         post_data = request.data
+        if isinstance(post_data, unicode):
+            # We check if we need to deserialize the object
+            post_data = json.loads(post_data)
 
         nodetype = get_object_or_404(NodeType,
                                      slug=type_slug,
@@ -435,7 +442,9 @@ class NodeTypeSchemaPropertiesView(APIView):
         self.check_object_permissions(self.request, graph)
 
         post_data = request.data
-
+        if isinstance(post_data, unicode):
+            # We check if we need to deserialize the object
+            post_data = json.loads(post_data)
         nodetype = get_object_or_404(NodeType,
                                      slug=type_slug,
                                      schema__graph__slug=graph_slug)
@@ -517,7 +526,9 @@ class NodeTypeSchemaPropertiesView(APIView):
         self.check_object_permissions(self.request, graph)
 
         post_data = request.data
-
+        if isinstance(post_data, unicode):
+            # We check if we need to deserialize the object
+            post_data = json.loads(post_data)
         nodetype = get_object_or_404(NodeType,
                                      slug=type_slug,
                                      schema__graph__slug=graph_slug)

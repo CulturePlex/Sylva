@@ -158,7 +158,6 @@ class APIDataTest(APITestCase):
     def test_api_nodes_get(self):
         data = {'name': self.nodetype_name}
         url = reverse("api_node_types", args=[self.graph_slug])
-
         # First, we check the get method
         response = self.client.get(url)
         # We check that the request is correct
@@ -190,7 +189,6 @@ class APIDataTest(APITestCase):
         # # Creating the nodetype
         data = {'name': self.nodetype_name}
         url = reverse("api_node_types", args=[self.graph_slug])
-
         # First, we check the get method
         response = self.client.get(url)
         # We check that the request is correct
@@ -248,3 +246,645 @@ class APIDataTest(APITestCase):
         response = self.client.post(url, nodes_list_serialized, format='json')
         self.assertEqual(response.status_code, 201)
         self.assertEqual(len(response.data), 2)
+
+    def test_api_nodes_delete(self):
+        # # Creating the nodetype
+        data = {'name': self.nodetype_name}
+        url = reverse("api_node_types", args=[self.graph_slug])
+        # First, we check the get method
+        response = self.client.get(url)
+        # We check that the request is correct
+        self.assertEqual(response.status_code, 200)
+        # We check that the results is an empty list
+        self.assertEqual(response.data, [])
+        # Then, we check the post method
+        response = self.client.post(url, data)
+        # We check that the request is correct
+        self.assertEqual(response.status_code, 201)
+        # We check that the results is an empty list()
+        nodetype_name = response.data['name']
+        self.assertEqual(nodetype_name, self.nodetype_name)
+        # Let's get again the nodetypes and we select one of them
+        response = self.client.get(url)
+        nodetype_slug = response.data[0]['slug']
+
+        url = reverse("api_node_type",
+                      args=[self.graph_slug, nodetype_slug])
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data['slug'], nodetype_slug)
+
+        # # Creating the property for the nodetype
+        url = reverse("api_node_type_schema_properties",
+                      args=[self.graph_slug, nodetype_slug])
+        property_name = 'prop_name'
+        property_datatype = 'default'
+        property_data = {
+            'key': property_name,
+            'datatype': property_datatype
+        }
+
+        response = self.client.post(url, property_data)
+
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.data['properties'][0]['name'], property_name)
+
+        # # Creating the nodes
+        url = reverse("api_nodes",
+                      args=[self.graph_slug, nodetype_slug])
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data['nodes'], [])
+
+        node_name1 = "nodeName1"
+        node_data1 = {property_name: node_name1}
+        node_name2 = "nodeName2"
+        node_data2 = {property_name: node_name2}
+        nodes_list = []
+        nodes_list.append(node_data1)
+        nodes_list.append(node_data2)
+        nodes_list_serialized = json.dumps(nodes_list)
+        response = self.client.post(url, nodes_list_serialized, format='json')
+        self.assertEqual(response.status_code, 201)
+        nodes_ids = response.data
+        self.assertEqual(len(response.data), 2)
+
+        # # Deleting the nodes
+        nodes_ids_serialized = json.dumps(nodes_ids)
+        response = self.client.delete(url, nodes_ids_serialized, format='json')
+        self.assertEqual(response.status_code, 204)
+        self.assertEqual(len(response.data), 2)
+        self.assertIsNotNone(response.data[0])
+        self.assertIsNotNone(response.data[1])
+
+    def test_api_relationships_get(self):
+        # We create the nodetypes for the source and the target
+        source_name = self.nodetype_name + '_source'
+        target_name = self.nodetype_name + '_target'
+        data_source = {'name': source_name}
+        data_target = {'name': target_name}
+        url = reverse("api_node_types", args=[self.graph_slug])
+
+        response = self.client.post(url, data_source)
+        # We check that the request is correct
+        self.assertEqual(response.status_code, 201)
+        source_slug = response.data['slug']
+
+        response = self.client.post(url, data_target)
+        # We check that the request is correct
+        self.assertEqual(response.status_code, 201)
+        target_slug = response.data['slug']
+
+        data = {'name': self.relationshiptype_name,
+                'source': source_slug,
+                'target': target_slug}
+        url = reverse("api_relationship_types", args=[self.graph_slug])
+
+        # Then, we check the post method
+        response = self.client.post(url, data)
+
+        data = {'name': self.relationshiptype_name}
+        relationshiptype_name = response.data['name']
+        self.assertEqual(relationshiptype_name, self.relationshiptype_name)
+
+        response = self.client.get(url)
+        relationshiptype_slug = response.data[0]['slug']
+        url = reverse("api_relationship_type",
+                      args=[self.graph_slug, relationshiptype_slug])
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data['name'], self.relationshiptype_name)
+        self.assertEqual(response.data['rels_info'], [])
+
+    def test_api_relationships_post(self):
+        # We create the nodetypes for the source and the target
+        source_name = self.nodetype_name + '_source'
+        target_name = self.nodetype_name + '_target'
+        data_source = {'name': source_name}
+        data_target = {'name': target_name}
+        url = reverse("api_node_types", args=[self.graph_slug])
+
+        response = self.client.post(url, data_source)
+        # We check that the request is correct
+        self.assertEqual(response.status_code, 201)
+        source_slug = response.data['slug']
+
+        response = self.client.post(url, data_target)
+        # We check that the request is correct
+        self.assertEqual(response.status_code, 201)
+        target_slug = response.data['slug']
+
+        data = {'name': self.relationshiptype_name,
+                'source': source_slug,
+                'target': target_slug}
+        url = reverse("api_relationship_types", args=[self.graph_slug])
+
+        # Then, we check the post method
+        response = self.client.post(url, data)
+
+        data = {'name': self.relationshiptype_name}
+        relationshiptype_name = response.data['name']
+        self.assertEqual(relationshiptype_name, self.relationshiptype_name)
+
+        response = self.client.get(url)
+        relationshiptype_slug = response.data[0]['slug']
+        url = reverse("api_relationship_type",
+                      args=[self.graph_slug, relationshiptype_slug])
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data['name'], self.relationshiptype_name)
+        self.assertEqual(response.data['rels_info'], [])
+
+        # # Creating the property for the nodetype
+        url = reverse("api_node_type_schema_properties",
+                      args=[self.graph_slug, source_slug])
+        property_name1 = 'prop1_name'
+        property_datatype = 'default'
+        property_data = {
+            'key': property_name1,
+            'datatype': property_datatype
+        }
+        response = self.client.post(url, property_data)
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.data['properties'][0]['name'],
+                         property_name1)
+
+        url = reverse("api_node_type_schema_properties",
+                      args=[self.graph_slug, target_slug])
+        property_name2 = 'prop2_name'
+        property_datatype = 'default'
+        property_data = {
+            'key': property_name2,
+            'datatype': property_datatype
+        }
+        response = self.client.post(url, property_data)
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.data['properties'][0]['name'],
+                         property_name2)
+
+        # # Creating the nodes
+        url = reverse("api_nodes",
+                      args=[self.graph_slug, source_slug])
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data['nodes'], [])
+
+        node_name1 = "nodeName1"
+        node_data1 = {property_name1: node_name1}
+        nodes_list = []
+        nodes_list.append(node_data1)
+        nodes_list_serialized = json.dumps(nodes_list)
+        response = self.client.post(url, nodes_list_serialized, format='json')
+        self.assertEqual(response.status_code, 201)
+        nodes_ids = response.data
+        self.assertEqual(len(response.data), 1)
+        source_id = nodes_ids[0]
+
+        url = reverse("api_nodes",
+                      args=[self.graph_slug, target_slug])
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data['nodes'], [])
+
+        node_name2 = "nodeName2"
+        node_data2 = {property_name2: node_name2}
+        nodes_list = []
+        nodes_list.append(node_data2)
+        nodes_list_serialized = json.dumps(nodes_list)
+        response = self.client.post(url, nodes_list_serialized, format='json')
+        self.assertEqual(response.status_code, 201)
+        nodes_ids = response.data
+        self.assertEqual(len(response.data), 1)
+        target_id = nodes_ids[0]
+
+        # # Creating the relationships
+        url = reverse("api_relationships",
+                      args=[self.graph_slug, relationshiptype_slug])
+        relationship_data = {'source_id': source_id, 'target_id': target_id}
+        rels_list = []
+        rels_list.append(relationship_data)
+        rels_list_serialized = json.dumps(rels_list)
+        response = self.client.post(url, rels_list_serialized, format='json')
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(len(response.data), 1)
+
+    def test_api_relationships_delete(self):
+        # We create the nodetypes for the source and the target
+        source_name = self.nodetype_name + '_source'
+        target_name = self.nodetype_name + '_target'
+        data_source = {'name': source_name}
+        data_target = {'name': target_name}
+        url = reverse("api_node_types", args=[self.graph_slug])
+
+        response = self.client.post(url, data_source)
+        # We check that the request is correct
+        self.assertEqual(response.status_code, 201)
+        source_slug = response.data['slug']
+
+        response = self.client.post(url, data_target)
+        # We check that the request is correct
+        self.assertEqual(response.status_code, 201)
+        target_slug = response.data['slug']
+
+        data = {'name': self.relationshiptype_name,
+                'source': source_slug,
+                'target': target_slug}
+        url = reverse("api_relationship_types", args=[self.graph_slug])
+
+        # Then, we check the post method
+        response = self.client.post(url, data)
+
+        data = {'name': self.relationshiptype_name}
+        relationshiptype_name = response.data['name']
+        self.assertEqual(relationshiptype_name, self.relationshiptype_name)
+
+        response = self.client.get(url)
+        relationshiptype_slug = response.data[0]['slug']
+        url = reverse("api_relationship_type",
+                      args=[self.graph_slug, relationshiptype_slug])
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data['name'], self.relationshiptype_name)
+        self.assertEqual(response.data['rels_info'], [])
+
+        # # Creating the property for the nodetype
+        url = reverse("api_node_type_schema_properties",
+                      args=[self.graph_slug, source_slug])
+        property_name1 = 'prop1_name'
+        property_datatype = 'default'
+        property_data = {
+            'key': property_name1,
+            'datatype': property_datatype
+        }
+        response = self.client.post(url, property_data)
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.data['properties'][0]['name'],
+                         property_name1)
+
+        url = reverse("api_node_type_schema_properties",
+                      args=[self.graph_slug, target_slug])
+        property_name2 = 'prop2_name'
+        property_datatype = 'default'
+        property_data = {
+            'key': property_name2,
+            'datatype': property_datatype
+        }
+        response = self.client.post(url, property_data)
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.data['properties'][0]['name'],
+                         property_name2)
+
+        # # Creating the nodes
+        url = reverse("api_nodes",
+                      args=[self.graph_slug, source_slug])
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data['nodes'], [])
+
+        node_name1 = "nodeName1"
+        node_data1 = {property_name1: node_name1}
+        nodes_list = []
+        nodes_list.append(node_data1)
+        nodes_list_serialized = json.dumps(nodes_list)
+        response = self.client.post(url, nodes_list_serialized, format='json')
+        self.assertEqual(response.status_code, 201)
+        nodes_ids = response.data
+        self.assertEqual(len(response.data), 1)
+        source_id = nodes_ids[0]
+
+        url = reverse("api_nodes",
+                      args=[self.graph_slug, target_slug])
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data['nodes'], [])
+
+        node_name2 = "nodeName2"
+        node_data2 = {property_name2: node_name2}
+        nodes_list = []
+        nodes_list.append(node_data2)
+        nodes_list_serialized = json.dumps(nodes_list)
+        response = self.client.post(url, nodes_list_serialized, format='json')
+        self.assertEqual(response.status_code, 201)
+        nodes_ids = response.data
+        self.assertEqual(len(response.data), 1)
+        target_id = nodes_ids[0]
+
+        # # Creating the relationships
+        url = reverse("api_relationships",
+                      args=[self.graph_slug, relationshiptype_slug])
+        relationship_data = {'source_id': source_id, 'target_id': target_id}
+        rels_list = []
+        rels_list.append(relationship_data)
+        rels_list_serialized = json.dumps(rels_list)
+        response = self.client.post(url, rels_list_serialized, format='json')
+        self.assertEqual(response.status_code, 201)
+        rels_ids = response.data
+        self.assertEqual(len(response.data), 1)
+
+        # # Deleting the relationships
+        url = reverse("api_relationships",
+                      args=[self.graph_slug, relationshiptype_slug])
+        rels_list_serialized = json.dumps(rels_ids)
+        response = self.client.delete(url, rels_list_serialized, format='json')
+        self.assertEqual(response.status_code, 204)
+        self.assertEqual(len(response.data), 1)
+
+    def test_api_node_get(self):
+        # # Creating the nodetype
+        data = {'name': self.nodetype_name}
+        url = reverse("api_node_types", args=[self.graph_slug])
+        # First, we check the get method
+        response = self.client.get(url)
+        # We check that the request is correct
+        self.assertEqual(response.status_code, 200)
+        # We check that the results is an empty list
+        self.assertEqual(response.data, [])
+        # Then, we check the post method
+        response = self.client.post(url, data)
+        # We check that the request is correct
+        self.assertEqual(response.status_code, 201)
+        # We check that the results is an empty list()
+        nodetype_name = response.data['name']
+        self.assertEqual(nodetype_name, self.nodetype_name)
+        # Let's get again the nodetypes and we select one of them
+        response = self.client.get(url)
+        nodetype_slug = response.data[0]['slug']
+
+        url = reverse("api_node_type",
+                      args=[self.graph_slug, nodetype_slug])
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data['slug'], nodetype_slug)
+
+        # # Creating the property for the nodetype
+        url = reverse("api_node_type_schema_properties",
+                      args=[self.graph_slug, nodetype_slug])
+        property_name = 'prop_name'
+        property_datatype = 'default'
+        property_data = {
+            'key': property_name,
+            'datatype': property_datatype
+        }
+
+        response = self.client.post(url, property_data)
+
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.data['properties'][0]['name'], property_name)
+
+        # # Creating the nodes
+        url = reverse("api_nodes",
+                      args=[self.graph_slug, nodetype_slug])
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data['nodes'], [])
+
+        node_name1 = "nodeName1"
+        node_data1 = {property_name: node_name1}
+        node_name2 = "nodeName2"
+        node_data2 = {property_name: node_name2}
+        nodes_list = []
+        nodes_list.append(node_data1)
+        nodes_list.append(node_data2)
+        nodes_list_serialized = json.dumps(nodes_list)
+        response = self.client.post(url, nodes_list_serialized, format='json')
+        self.assertEqual(response.status_code, 201)
+        nodes_ids = response.data
+        self.assertEqual(len(response.data), 2)
+
+        # We get one of the nodes
+        node_id = nodes_ids[0]
+        url = reverse("api_node",
+                      args=[self.graph_slug, nodetype_slug, node_id])
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data['properties'][property_name],
+                         node_name1)
+
+    def test_api_node_patch(self):
+        # # Creating the nodetype
+        data = {'name': self.nodetype_name}
+        url = reverse("api_node_types", args=[self.graph_slug])
+        # First, we check the get method
+        response = self.client.get(url)
+        # We check that the request is correct
+        self.assertEqual(response.status_code, 200)
+        # We check that the results is an empty list
+        self.assertEqual(response.data, [])
+        # Then, we check the post method
+        response = self.client.post(url, data)
+        # We check that the request is correct
+        self.assertEqual(response.status_code, 201)
+        # We check that the results is an empty list()
+        nodetype_name = response.data['name']
+        self.assertEqual(nodetype_name, self.nodetype_name)
+        # Let's get again the nodetypes and we select one of them
+        response = self.client.get(url)
+        nodetype_slug = response.data[0]['slug']
+
+        url = reverse("api_node_type",
+                      args=[self.graph_slug, nodetype_slug])
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data['slug'], nodetype_slug)
+
+        # # Creating the property for the nodetype
+        url = reverse("api_node_type_schema_properties",
+                      args=[self.graph_slug, nodetype_slug])
+        property_name = 'prop_name'
+        property_datatype = 'default'
+        property_data = {
+            'key': property_name,
+            'datatype': property_datatype
+        }
+
+        response = self.client.post(url, property_data)
+
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.data['properties'][0]['name'], property_name)
+
+        # # Creating the nodes
+        url = reverse("api_nodes",
+                      args=[self.graph_slug, nodetype_slug])
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data['nodes'], [])
+
+        node_name1 = "nodeName1"
+        node_data1 = {property_name: node_name1}
+        node_name2 = "nodeName2"
+        node_data2 = {property_name: node_name2}
+        nodes_list = []
+        nodes_list.append(node_data1)
+        nodes_list.append(node_data2)
+        nodes_list_serialized = json.dumps(nodes_list)
+        response = self.client.post(url, nodes_list_serialized, format='json')
+        self.assertEqual(response.status_code, 201)
+        nodes_ids = response.data
+        self.assertEqual(len(response.data), 2)
+
+        # We get one of the nodes
+        node_id = nodes_ids[0]
+        url = reverse("api_node",
+                      args=[self.graph_slug, nodetype_slug, node_id])
+        new_node_name = 'new_node_name'
+        new_data = {}
+        new_data['properties'] = {}
+        new_data['properties'][property_name] = new_node_name
+        new_data_serialized = json.dumps(new_data)
+        response = self.client.patch(url, new_data_serialized, format='json')
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.data['properties'][property_name],
+                         new_node_name)
+
+    def test_api_node_put(self):
+        # # Creating the nodetype
+        data = {'name': self.nodetype_name}
+        url = reverse("api_node_types", args=[self.graph_slug])
+        # First, we check the get method
+        response = self.client.get(url)
+        # We check that the request is correct
+        self.assertEqual(response.status_code, 200)
+        # We check that the results is an empty list
+        self.assertEqual(response.data, [])
+        # Then, we check the post method
+        response = self.client.post(url, data)
+        # We check that the request is correct
+        self.assertEqual(response.status_code, 201)
+        # We check that the results is an empty list()
+        nodetype_name = response.data['name']
+        self.assertEqual(nodetype_name, self.nodetype_name)
+        # Let's get again the nodetypes and we select one of them
+        response = self.client.get(url)
+        nodetype_slug = response.data[0]['slug']
+
+        url = reverse("api_node_type",
+                      args=[self.graph_slug, nodetype_slug])
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data['slug'], nodetype_slug)
+
+        # # Creating the property for the nodetype
+        url = reverse("api_node_type_schema_properties",
+                      args=[self.graph_slug, nodetype_slug])
+        property_name = 'prop_name'
+        property_datatype = 'default'
+        property_data = {
+            'key': property_name,
+            'datatype': property_datatype
+        }
+
+        response = self.client.post(url, property_data)
+
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.data['properties'][0]['name'], property_name)
+
+        # # Creating the nodes
+        url = reverse("api_nodes",
+                      args=[self.graph_slug, nodetype_slug])
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data['nodes'], [])
+
+        node_name1 = "nodeName1"
+        node_data1 = {property_name: node_name1}
+        node_name2 = "nodeName2"
+        node_data2 = {property_name: node_name2}
+        nodes_list = []
+        nodes_list.append(node_data1)
+        nodes_list.append(node_data2)
+        nodes_list_serialized = json.dumps(nodes_list)
+        response = self.client.post(url, nodes_list_serialized, format='json')
+        self.assertEqual(response.status_code, 201)
+        nodes_ids = response.data
+        self.assertEqual(len(response.data), 2)
+
+        # We get one of the nodes
+        node_id = nodes_ids[0]
+        url = reverse("api_node",
+                      args=[self.graph_slug, nodetype_slug, node_id])
+        new_node_name = 'new_node_name'
+        new_data = {}
+        new_data['properties'] = {}
+        new_data['properties'][property_name] = new_node_name
+        new_data_serialized = json.dumps(new_data)
+        response = self.client.put(url, new_data_serialized, format='json')
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.data['properties'][property_name],
+                         new_node_name)
+
+    def test_api_node_delete(self):
+        # # Creating the nodetype
+        data = {'name': self.nodetype_name}
+        url = reverse("api_node_types", args=[self.graph_slug])
+        # First, we check the get method
+        response = self.client.get(url)
+        # We check that the request is correct
+        self.assertEqual(response.status_code, 200)
+        # We check that the results is an empty list
+        self.assertEqual(response.data, [])
+        # Then, we check the post method
+        response = self.client.post(url, data)
+        # We check that the request is correct
+        self.assertEqual(response.status_code, 201)
+        # We check that the results is an empty list()
+        nodetype_name = response.data['name']
+        self.assertEqual(nodetype_name, self.nodetype_name)
+        # Let's get again the nodetypes and we select one of them
+        response = self.client.get(url)
+        nodetype_slug = response.data[0]['slug']
+
+        url = reverse("api_node_type",
+                      args=[self.graph_slug, nodetype_slug])
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data['slug'], nodetype_slug)
+
+        # # Creating the property for the nodetype
+        url = reverse("api_node_type_schema_properties",
+                      args=[self.graph_slug, nodetype_slug])
+        property_name = 'prop_name'
+        property_datatype = 'default'
+        property_data = {
+            'key': property_name,
+            'datatype': property_datatype
+        }
+
+        response = self.client.post(url, property_data)
+
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.data['properties'][0]['name'], property_name)
+
+        # # Creating the nodes
+        url = reverse("api_nodes",
+                      args=[self.graph_slug, nodetype_slug])
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data['nodes'], [])
+
+        node_name1 = "nodeName1"
+        node_data1 = {property_name: node_name1}
+        node_name2 = "nodeName2"
+        node_data2 = {property_name: node_name2}
+        nodes_list = []
+        nodes_list.append(node_data1)
+        nodes_list.append(node_data2)
+        nodes_list_serialized = json.dumps(nodes_list)
+        response = self.client.post(url, nodes_list_serialized, format='json')
+        self.assertEqual(response.status_code, 201)
+        nodes_ids = response.data
+        self.assertEqual(len(response.data), 2)
+
+        # We get one of the nodes
+        node_id = nodes_ids[0]
+        url = reverse("api_node",
+                      args=[self.graph_slug, nodetype_slug, node_id])
+        response = self.client.delete(url)
+        self.assertEqual(response.status_code, 204)

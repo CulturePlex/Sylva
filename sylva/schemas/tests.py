@@ -2,6 +2,10 @@
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.test import TestCase
+try:
+    import ujson as json
+except ImportError:
+    import json  # NOQA
 from rest_framework.test import APIClient, APITestCase, APIRequestFactory
 
 from datetime import date, time
@@ -454,7 +458,6 @@ class APISchemaTest(APITestCase):
         relationshiptype_name = response.data['name']
         self.assertEqual(relationshiptype_name, self.relationshiptype_name)
 
-        # Let's get again the nodetypes and we select one of them
         response = self.client.get(url)
         relationshiptype_slug = response.data[0]['slug']
         url = reverse("api_relationship_type",
@@ -495,7 +498,6 @@ class APISchemaTest(APITestCase):
         relationshiptype_name = response.data['name']
         self.assertEqual(relationshiptype_name, self.relationshiptype_name)
 
-        # Let's get again the nodetypes and we select one of them
         response = self.client.get(url)
         relationshiptype_slug = response.data[0]['slug']
         url = reverse("api_relationship_type",
@@ -624,7 +626,6 @@ class APISchemaTest(APITestCase):
         relationshiptype_name = response.data['name']
         self.assertEqual(relationshiptype_name, self.relationshiptype_name)
 
-        # Let's get again the nodetypes and we select one of them
         response = self.client.get(url)
         relationshiptype_slug = response.data[0]['slug']
         url = reverse("api_relationship_type_schema",
@@ -682,8 +683,171 @@ class APISchemaTest(APITestCase):
             'key': property_name,
             'datatype': property_datatype
         }
-
-        response = self.client.post(url, property_data)
+        property_data_serialized = json.dumps(property_data)
+        response = self.client.post(url, property_data_serialized,
+                                    format='json')
 
         self.assertEqual(response.status_code, 201)
         self.assertEqual(response.data['properties'][0]['name'], property_name)
+
+    def test_api_nodetype_properties_put(self):
+        data = {'name': self.nodetype_name}
+        url = reverse("api_node_types", args=[self.graph_slug])
+        # Then, we check the post method
+        response = self.client.post(url, data)
+
+        # We check that the request is correct
+        self.assertEqual(response.status_code, 201)
+        nodetype_name = response.data['name']
+        self.assertEqual(nodetype_name, self.nodetype_name)
+
+        # Let's get again the nodetypes and we select one of them
+        response = self.client.get(url)
+        nodetype_slug = response.data[0]['slug']
+
+        url = reverse("api_node_type_schema_properties",
+                      args=[self.graph_slug, nodetype_slug])
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data['properties'], [])
+
+        # We create the property
+        property_name = 'prop_name'
+        property_datatype = 'default'
+        property_data = {
+            'key': property_name,
+            'datatype': property_datatype
+        }
+        property_data_serialized = json.dumps(property_data)
+        response = self.client.post(url, property_data_serialized,
+                                    format='json')
+
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.data['properties'][0]['label'],
+                         property_name)
+        property_id = response.data['properties'][0]['id']
+
+        # We modify the property
+        migration_flag = 'rename'
+        properties_data = {}
+        properties_data['properties'] = []
+        property_name = 'new_prop_name'
+        property_datatype = 'default'
+        property_data = {
+            'id': property_id,
+            'key': property_name,
+            'datatype': property_datatype
+        }
+        properties_data['migration'] = migration_flag
+        properties_data['properties'].append(property_data)
+        properties_data_serialized = json.dumps(properties_data)
+        response = self.client.put(url, properties_data_serialized,
+                                   format='json')
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.data['properties'][0]['label'],
+                         property_name)
+
+    def test_api_nodetype_properties_patch(self):
+        data = {'name': self.nodetype_name}
+        url = reverse("api_node_types", args=[self.graph_slug])
+        # Then, we check the post method
+        response = self.client.post(url, data)
+
+        # We check that the request is correct
+        self.assertEqual(response.status_code, 201)
+        nodetype_name = response.data['name']
+        self.assertEqual(nodetype_name, self.nodetype_name)
+
+        # Let's get again the nodetypes and we select one of them
+        response = self.client.get(url)
+        nodetype_slug = response.data[0]['slug']
+
+        url = reverse("api_node_type_schema_properties",
+                      args=[self.graph_slug, nodetype_slug])
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data['properties'], [])
+
+        # We create the property
+        property_name = 'prop_name'
+        property_datatype = 'default'
+        property_data = {
+            'key': property_name,
+            'datatype': property_datatype
+        }
+        property_data_serialized = json.dumps(property_data)
+        response = self.client.post(url, property_data_serialized,
+                                    format='json')
+
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.data['properties'][0]['label'],
+                         property_name)
+        property_id = response.data['properties'][0]['id']
+
+        # We modify the property
+        migration_flag = 'rename'
+        properties_data = {}
+        properties_data['properties'] = []
+        property_name = 'new_prop_name'
+        property_datatype = 'default'
+        property_data = {
+            'id': property_id,
+            'key': property_name,
+            'datatype': property_datatype
+        }
+        properties_data['migration'] = migration_flag
+        properties_data['properties'].append(property_data)
+        properties_data_serialized = json.dumps(properties_data)
+        response = self.client.put(url, properties_data_serialized,
+                                   format='json')
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.data['properties'][0]['label'],
+                         property_name)
+
+    def test_api_nodetype_properties_delete(self):
+        data = {'name': self.nodetype_name}
+        url = reverse("api_node_types", args=[self.graph_slug])
+        # Then, we check the post method
+        response = self.client.post(url, data)
+
+        # We check that the request is correct
+        self.assertEqual(response.status_code, 201)
+        nodetype_name = response.data['name']
+        self.assertEqual(nodetype_name, self.nodetype_name)
+
+        # Let's get again the nodetypes and we select one of them
+        response = self.client.get(url)
+        nodetype_slug = response.data[0]['slug']
+
+        url = reverse("api_node_type_schema_properties",
+                      args=[self.graph_slug, nodetype_slug])
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data['properties'], [])
+
+        # We create the property
+        property_name = 'prop_name'
+        property_datatype = 'default'
+        property_data = {
+            'key': property_name,
+            'datatype': property_datatype
+        }
+        property_data_serialized = json.dumps(property_data)
+        response = self.client.post(url, property_data_serialized,
+                                    format='json')
+
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.data['properties'][0]['label'],
+                         property_name)
+
+        # We modify the property
+        migration_flag = 'rename'
+        properties_data = {}
+        properties_data['migration'] = migration_flag
+        properties_data_serialized = json.dumps(properties_data)
+        response = self.client.delete(url, properties_data_serialized,
+                                      format='json')
+        self.assertEqual(response.status_code, 204)
