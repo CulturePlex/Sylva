@@ -67,7 +67,7 @@ class NodesView(APIView):
 
         # We get the post data
         data = request.data
-        if isinstance(data, unicode):
+        if isinstance(data, (str, unicode)):
             # We check if we need to deserialize the object
             data = json.loads(data)
         nodes_ids = []
@@ -101,7 +101,7 @@ class NodesView(APIView):
 
         # We get the post data
         data = request.data
-        if isinstance(data, unicode):
+        if isinstance(data, (str, unicode)):
             # We check if we need to deserialize the object
             data = json.loads(data)
         nodes_ids = []
@@ -171,7 +171,7 @@ class RelationshipsView(APIView):
 
         # We get the post data
         data = request.data
-        if isinstance(data, unicode):
+        if isinstance(data, (str, unicode)):
             # We check if we need to deserialize the object
             data = json.loads(data)
         rels_ids = []
@@ -194,7 +194,7 @@ class RelationshipsView(APIView):
                     transaction_ok = False
                     break
             except Exception as e:
-                error = dict()
+                error = {}
                 error['detail'] = e.message
                 transaction_ok = False
                 break
@@ -213,7 +213,7 @@ class RelationshipsView(APIView):
 
         # We get the post data
         data = request.data
-        if isinstance(data, unicode):
+        if isinstance(data, (str, unicode)):
             # We check if we need to deserialize the object
             data = json.loads(data)
         rels_ids = []
@@ -255,12 +255,12 @@ class NodeView(APIView):
         self.check_object_permissions(self.request, graph)
 
         post_data = request.data
-        if isinstance(post_data, unicode):
+        if isinstance(post_data, (str, unicode)):
             # We check if we need to deserialize the object
             post_data = json.loads(post_data)
         node = graph.nodes.get(node_id)
 
-        new_data = dict()
+        new_data = {}
         new_data['id'] = post_data.get('id', node.id)
         new_data['label'] = post_data.get('label', node.label)
         new_data['label_display'] = (
@@ -284,12 +284,12 @@ class NodeView(APIView):
         self.check_object_permissions(self.request, graph)
 
         post_data = request.data
-        if isinstance(post_data, unicode):
+        if isinstance(post_data, (str, unicode)):
             # We check if we need to deserialize the object
             post_data = json.loads(post_data)
         node = graph.nodes.get(node_id)
 
-        new_data = dict()
+        new_data = {}
         new_data['id'] = post_data.get('id', node.id)
         new_data['label'] = post_data.get('label', node.label)
         new_data['label_display'] = (
@@ -346,7 +346,7 @@ class RelationshipView(APIView):
 
         relationship = graph.relationships.get(relationship_id)
 
-        new_data = dict()
+        new_data = {}
         new_data['id'] = post_data.get('id', relationship.id)
         new_data['label'] = post_data.get('label', relationship.label)
         new_data['label_display'] = (
@@ -374,7 +374,7 @@ class RelationshipView(APIView):
 
         relationship = graph.relationships.get(relationship_id)
 
-        new_data = dict()
+        new_data = {}
         new_data['id'] = post_data.get('id', relationship.id)
         new_data['label'] = post_data.get('label', relationship.label)
         new_data['label_display'] = (

@@ -300,7 +300,7 @@ class NodeTypeSchemaPropertiesView(APIView):
         self.check_object_permissions(self.request, graph)
 
         post_data = request.data
-        if isinstance(post_data, unicode):
+        if isinstance(post_data, (str, unicode)):
             # We check if we need to deserialize the object
             post_data = json.loads(post_data)
         # We need to get all the fields to create the property
@@ -320,7 +320,7 @@ class NodeTypeSchemaPropertiesView(APIView):
                 except Exception as e:
                     # We dont save the node property
                     # We create our json response
-                    error = dict()
+                    error = {}
                     error['detail'] = e.message
                     return Response(error, status=status.HTTP_400_BAD_REQUEST)
             except KeyError:
@@ -334,7 +334,7 @@ class NodeTypeSchemaPropertiesView(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         except Exception as e:
             # We create our json response
-            error = dict()
+            error = {}
             error['detail'] = e.message
             return Response(error, status=status.HTTP_400_BAD_REQUEST)
 
@@ -347,7 +347,7 @@ class NodeTypeSchemaPropertiesView(APIView):
         self.check_object_permissions(self.request, graph)
 
         post_data = request.data
-        if isinstance(post_data, unicode):
+        if isinstance(post_data, (str, unicode)):
             # We check if we need to deserialize the object
             post_data = json.loads(post_data)
 
@@ -358,7 +358,7 @@ class NodeTypeSchemaPropertiesView(APIView):
         migration_flag = post_data.get('migration', None)
 
         # We are going to store the ids treated
-        properties_ids = list()
+        properties_ids = []
 
         if migration_flag is not None:
             try:
@@ -387,7 +387,7 @@ class NodeTypeSchemaPropertiesView(APIView):
                         except Exception as e:
                             # We dont save the node property
                             # We create our json response
-                            error = dict()
+                            error = {}
                             error['detail'] = e.message
                             return Response(error,
                                             status=status.HTTP_400_BAD_REQUEST)
@@ -423,12 +423,12 @@ class NodeTypeSchemaPropertiesView(APIView):
                                 status=status.HTTP_201_CREATED)
             except Exception as e:
                 # We create our json response
-                error = dict()
+                error = {}
                 error['detail'] = e.message
                 return Response(error, status=status.HTTP_400_BAD_REQUEST)
         else:
             # We create our json response
-            error = dict()
+            error = {}
             error['detail'] = _("You need to add a migration option. "
                                 "See the documentation for more information")
             return Response(error, status=status.HTTP_400_BAD_REQUEST)
@@ -442,7 +442,7 @@ class NodeTypeSchemaPropertiesView(APIView):
         self.check_object_permissions(self.request, graph)
 
         post_data = request.data
-        if isinstance(post_data, unicode):
+        if isinstance(post_data, (str, unicode)):
             # We check if we need to deserialize the object
             post_data = json.loads(post_data)
         nodetype = get_object_or_404(NodeType,
@@ -476,7 +476,7 @@ class NodeTypeSchemaPropertiesView(APIView):
                         except Exception as e:
                             # We dont save the node property
                             # We create our json response
-                            error = dict()
+                            error = {}
                             error['detail'] = e.message
                             return Response(error,
                                             status=status.HTTP_400_BAD_REQUEST)
@@ -508,12 +508,12 @@ class NodeTypeSchemaPropertiesView(APIView):
                                 status=status.HTTP_201_CREATED)
             except Exception as e:
                 # We create our json response
-                error = dict()
+                error = {}
                 error['detail'] = e.message
                 return Response(error, status=status.HTTP_400_BAD_REQUEST)
         else:
             # We create our json response
-            error = dict()
+            error = {}
             error['detail'] = _("You need to add a migration option. "
                                 "See the documentation for more information")
             return Response(error, status=status.HTTP_400_BAD_REQUEST)
@@ -526,7 +526,7 @@ class NodeTypeSchemaPropertiesView(APIView):
         self.check_object_permissions(self.request, graph)
 
         post_data = request.data
-        if isinstance(post_data, unicode):
+        if isinstance(post_data, (str, unicode)):
             # We check if we need to deserialize the object
             post_data = json.loads(post_data)
         nodetype = get_object_or_404(NodeType,
@@ -556,12 +556,12 @@ class NodeTypeSchemaPropertiesView(APIView):
 
             except Exception as e:
                 # We create our json response
-                error = dict()
+                error = {}
                 error['detail'] = e.message
                 return Response(error, status=status.HTTP_400_BAD_REQUEST)
         else:
             # We create our json response
-            error = dict()
+            error = {}
             error['detail'] = _("You need to add a migration option. "
                                 "See the documentation for more information")
             return Response(error, status=status.HTTP_400_BAD_REQUEST)
@@ -621,7 +621,7 @@ class RelationshipTypeSchemaPropertiesView(APIView):
                 except Exception as e:
                     # We dont save the node property
                     # We create our json response
-                    error = dict()
+                    error = {}
                     error['detail'] = e.message
                     return Response(error, status=status.HTTP_400_BAD_REQUEST)
             except KeyError:
@@ -635,7 +635,7 @@ class RelationshipTypeSchemaPropertiesView(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         except Exception as e:
             # We create our json response
-            error = dict()
+            error = {}
             error['detail'] = e.message
             return Response(error, status=status.HTTP_400_BAD_REQUEST)
 
@@ -656,7 +656,7 @@ class RelationshipTypeSchemaPropertiesView(APIView):
         migration_flag = post_data.get('migration', None)
 
         # We are going to store the ids treated
-        properties_ids = list()
+        properties_ids = []
 
         if migration_flag is not None:
             try:
@@ -685,7 +685,7 @@ class RelationshipTypeSchemaPropertiesView(APIView):
                         except Exception as e:
                             # We dont save the node property
                             # We create our json response
-                            error = dict()
+                            error = {}
                             error['detail'] = e.message
                             return Response(error,
                                             status=status.HTTP_400_BAD_REQUEST)
@@ -724,12 +724,12 @@ class RelationshipTypeSchemaPropertiesView(APIView):
                                 status=status.HTTP_201_CREATED)
             except Exception as e:
                 # We create our json response
-                error = dict()
+                error = {}
                 error['detail'] = e.message
                 return Response(error, status=status.HTTP_400_BAD_REQUEST)
         else:
             # We create our json response
-            error = dict()
+            error = {}
             error['detail'] = _("You need to add a migration option. "
                                 "See the documentation for more information")
             return Response(error, status=status.HTTP_400_BAD_REQUEST)
@@ -776,7 +776,7 @@ class RelationshipTypeSchemaPropertiesView(APIView):
                         except Exception as e:
                             # We dont save the node property
                             # We create our json response
-                            error = dict()
+                            error = {}
                             error['detail'] = e.message
                             return Response(error,
                                             status=status.HTTP_400_BAD_REQUEST)
@@ -810,12 +810,12 @@ class RelationshipTypeSchemaPropertiesView(APIView):
                                 status=status.HTTP_201_CREATED)
             except Exception as e:
                 # We create our json response
-                error = dict()
+                error = {}
                 error['detail'] = e.message
                 return Response(error, status=status.HTTP_400_BAD_REQUEST)
         else:
             # We create our json response
-            error = dict()
+            error = {}
             error['detail'] = _("You need to add a migration option. "
                                 "See the documentation for more information")
             return Response(error, status=status.HTTP_400_BAD_REQUEST)
@@ -856,12 +856,12 @@ class RelationshipTypeSchemaPropertiesView(APIView):
 
             except Exception as e:
                 # We create our json response
-                error = dict()
+                error = {}
                 error['detail'] = e.message
                 return Response(error, status=status.HTTP_400_BAD_REQUEST)
         else:
             # We create our json response
-            error = dict()
+            error = {}
             error['detail'] = _("You need to add a migration option. "
                                 "See the documentation for more information")
             return Response(error, status=status.HTTP_400_BAD_REQUEST)

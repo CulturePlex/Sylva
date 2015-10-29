@@ -222,8 +222,9 @@ class APIDataTest(APITestCase):
             'key': property_name,
             'datatype': property_datatype
         }
-
-        response = self.client.post(url, property_data)
+        property_data_serialized = json.dumps(property_data)
+        response = self.client.post(url, property_data_serialized,
+                                    format='json')
 
         self.assertEqual(response.status_code, 201)
         self.assertEqual(response.data['properties'][0]['name'], property_name)
@@ -284,8 +285,9 @@ class APIDataTest(APITestCase):
             'key': property_name,
             'datatype': property_datatype
         }
-
-        response = self.client.post(url, property_data)
+        property_data_serialized = json.dumps(property_data)
+        response = self.client.post(url, property_data_serialized,
+                                    format='json')
 
         self.assertEqual(response.status_code, 201)
         self.assertEqual(response.data['properties'][0]['name'], property_name)
@@ -407,7 +409,9 @@ class APIDataTest(APITestCase):
             'key': property_name1,
             'datatype': property_datatype
         }
-        response = self.client.post(url, property_data)
+        property_data_serialized = json.dumps(property_data)
+        response = self.client.post(url, property_data_serialized,
+                                    format='json')
         self.assertEqual(response.status_code, 201)
         self.assertEqual(response.data['properties'][0]['name'],
                          property_name1)
@@ -420,7 +424,9 @@ class APIDataTest(APITestCase):
             'key': property_name2,
             'datatype': property_datatype
         }
-        response = self.client.post(url, property_data)
+        property_data_serialized = json.dumps(property_data)
+        response = self.client.post(url, property_data_serialized,
+                                    format='json')
         self.assertEqual(response.status_code, 201)
         self.assertEqual(response.data['properties'][0]['name'],
                          property_name2)
@@ -520,7 +526,9 @@ class APIDataTest(APITestCase):
             'key': property_name1,
             'datatype': property_datatype
         }
-        response = self.client.post(url, property_data)
+        property_data_serialized = json.dumps(property_data)
+        response = self.client.post(url, property_data_serialized,
+                                    format='json')
         self.assertEqual(response.status_code, 201)
         self.assertEqual(response.data['properties'][0]['name'],
                          property_name1)
@@ -533,7 +541,9 @@ class APIDataTest(APITestCase):
             'key': property_name2,
             'datatype': property_datatype
         }
-        response = self.client.post(url, property_data)
+        property_data_serialized = json.dumps(property_data)
+        response = self.client.post(url, property_data_serialized,
+                                    format='json')
         self.assertEqual(response.status_code, 201)
         self.assertEqual(response.data['properties'][0]['name'],
                          property_name2)
@@ -630,8 +640,9 @@ class APIDataTest(APITestCase):
             'key': property_name,
             'datatype': property_datatype
         }
-
-        response = self.client.post(url, property_data)
+        property_data_serialized = json.dumps(property_data)
+        response = self.client.post(url, property_data_serialized,
+                                    format='json')
 
         self.assertEqual(response.status_code, 201)
         self.assertEqual(response.data['properties'][0]['name'], property_name)
@@ -702,8 +713,9 @@ class APIDataTest(APITestCase):
             'key': property_name,
             'datatype': property_datatype
         }
-
-        response = self.client.post(url, property_data)
+        property_data_serialized = json.dumps(property_data)
+        response = self.client.post(url, property_data_serialized,
+                                    format='json')
 
         self.assertEqual(response.status_code, 201)
         self.assertEqual(response.data['properties'][0]['name'], property_name)
@@ -779,8 +791,9 @@ class APIDataTest(APITestCase):
             'key': property_name,
             'datatype': property_datatype
         }
-
-        response = self.client.post(url, property_data)
+        property_data_serialized = json.dumps(property_data)
+        response = self.client.post(url, property_data_serialized,
+                                    format='json')
 
         self.assertEqual(response.status_code, 201)
         self.assertEqual(response.data['properties'][0]['name'], property_name)
@@ -856,8 +869,9 @@ class APIDataTest(APITestCase):
             'key': property_name,
             'datatype': property_datatype
         }
-
-        response = self.client.post(url, property_data)
+        property_data_serialized = json.dumps(property_data)
+        response = self.client.post(url, property_data_serialized,
+                                    format='json')
 
         self.assertEqual(response.status_code, 201)
         self.assertEqual(response.data['properties'][0]['name'], property_name)
