@@ -5,13 +5,11 @@ from time import sleep
 
 from django.test import LiveServerTestCase
 
-from splinter import Browser
-
 from user import signup, signin, logout
 from dashboard import create_graph, create_schema, create_type
 from graphs.models import Graph
 
-from utils import spin_assert
+from utils import spin_assert, Browser
 
 
 class SchemaTestCase(LiveServerTestCase):
@@ -21,7 +19,7 @@ class SchemaTestCase(LiveServerTestCase):
     """
 
     def setUp(self):
-        self.browser = Browser()
+        self.browser = Browser(firefox_path=os.getenv('FIREFOX_PATH', None))
         socket.setdefaulttimeout(30)
         signup(self, 'bob', 'bob@cultureplex.ca', 'bob_secret')
         signin(self, 'bob', 'bob_secret')

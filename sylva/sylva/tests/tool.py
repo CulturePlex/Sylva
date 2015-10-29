@@ -5,12 +5,10 @@ from time import sleep
 
 from django.test import LiveServerTestCase
 
-from splinter import Browser
-
 from sylva.tests.user import signup, signin, logout
 from graphs.models import Graph
 
-from utils import spin_assert
+from utils import spin_assert, Browser
 
 
 def create_graph(test, name):
@@ -248,7 +246,7 @@ class ToolsTestCaseGexf(LiveServerTestCase):
     """
 
     def setUp(self):
-        self.browser = Browser()
+        self.browser = Browser(firefox_path=os.getenv('FIREFOX_PATH', None))
         socket.setdefaulttimeout(30)
         signup(self, 'bob', 'bob@cultureplex.ca', 'bob_secret')
         signin(self, 'bob', 'bob_secret')
@@ -403,7 +401,7 @@ class ToolsTestCaseCsv(LiveServerTestCase):
     """
 
     def setUp(self):
-        self.browser = Browser()
+        self.browser = Browser(firefox_path=os.getenv('FIREFOX_PATH', None))
         socket.setdefaulttimeout(30)
         signup(self, 'bob', 'bob@cultureplex.ca', 'bob_secret')
         signin(self, 'bob', 'bob_secret')
