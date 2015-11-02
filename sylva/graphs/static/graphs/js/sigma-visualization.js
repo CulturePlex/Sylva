@@ -10,7 +10,7 @@
 
 ;(function(sylva, sigma, $, window, document, undefined) {
 
-  // The that variable, substituion of this.
+  // The that variable, substitution of this.
   var that = null;
   // The sigma instance and its camera.
   var sigInst = null;
@@ -21,10 +21,10 @@
   var timeout = 0;
   // setTimeout id.
   var timeout_id = 0;
-  // Arrays with the IDs of the visible elments.
+  // Arrays with the IDs of the visible elements.
   var visibleNodeIds = [];
   var visibleRelIds = [];
-  // It's used for check if a ColorPicker for relatinships exists.
+  // It's used for check if a ColorPicker for relationships exists.
   var relColorPicker = null;
   // A variable for containing the Tool object of Paper.js.
   var paperTool = null;
@@ -36,7 +36,7 @@
   var isFullscreenByButton = false;
   // True when the nodes degrees are calculated.
   var degreesCalculated = false;
-  // It's used when the user select a diferent edge shape than the original.
+  // It's used when the user select a different edge shape than the original.
   var defaultEdgeShapeSaved = false;
   // It saves the selected state of a node when is edited in the modal form.
   var wasDeletedNodeSelected = false;
@@ -55,7 +55,7 @@
   var degreeMultiplier = 2;
   var sizeMultiplier = defaultMultiplier;
   /* It saves the change of the 'graph controls and info' box, because there
-   * are some problems in the browsers for mantatin the same after the
+   * are some problems in the browsers for maintain the same after the
    * 'window.resize' event.
    */
   var graphControlsAndInfoWidth = 0;
@@ -1489,10 +1489,10 @@
           $('#' + event.target.id).accordion('disable');
           highestZIndex++;
           $('#' + event.target.id).css({
-            zIndex: highestZIndex,
+            zIndex: highestZIndex
           });
         },
-        drag: function( event, ui ) {
+        drag: function(event, ui) {
           $(document).scrollTop(0);
           $(document).scrollLeft(0);
         },
@@ -1525,7 +1525,7 @@
         activate: function(event, ui) {
           highestZIndex++;
           $('#' + event.target.id).css({
-            zIndex: highestZIndex,
+            zIndex: highestZIndex
           });
 
           // This lines control the arrow icon.
@@ -2547,7 +2547,7 @@
     },
 
     /* It moves the draggable graph controls inside the canvas if they are
-     * outside in any monent.
+     * outside in any moment.
      */
     putBoxesInsideCanvas: function() {
       canSaveBoxes = false;

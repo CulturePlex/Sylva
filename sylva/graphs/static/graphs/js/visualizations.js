@@ -83,7 +83,7 @@ sylva:true, alert:true */
         spinner.stop();
 
         // Full graph
-        sylva.graph = data.graph
+        sylva.graph = data.graph;
 
         // Other data
         sylva.nodetypes = data.nodetypes;

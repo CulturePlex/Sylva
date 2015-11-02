@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load i18n graphs %}
+{% load i18n graphs converter_filters compress %}
 
 {% block navigation_buttons %}
 {{ block.super }}
@@ -22,52 +22,31 @@
 {% endblock %}
 
 {% block content %}
-  <div id="map"></div>
+  <div id="map">
+    <div id="map-types">
+    </div>
+  </div>
+{% endblock content %}
+
+{% block extra_scripts %}
+  {% compress css %}
+    <link type="text/css" rel="stylesheet" href="{{ STATIC_PREFIX }}css/jqueryui.1.8.18.css" />
+    <link type="text/css" rel="stylesheet" href="{{ STATIC_PREFIX }}maps/css/leaflet-visualization.css" />
+  {% endcompress %}
 
   <script type="text/javascript">
-    window.onload = function() {
-      nodes = {{ nodes|safe }};
-
-      var map = L.map('map').setView([0, 0], 2);
-      L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; <a href="https://openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-      }).addTo(map);
-      setTimeout(function () {
-        map.invalidateSize();
-      }, 0);
-
-      var features = [];
-
-      $.each(nodes, function(index, node) {
-        $.each(node.properties, function(key, property) {
-          var geoProperty;
-          var isJSON = true;
-          try {
-            geoProperty = JSON.parse(property);
-          } catch (err) {
-            isJSON = false;
-          }
-          if (isJSON && geoProperty.hasOwnProperty('type') && (geoProperty.type === 'Point' || geoProperty.type === 'LineString' || geoProperty.type === 'Polygon')) {
-            var feature = L.geoJson(geoProperty).addTo(map);
-            feature.bindPopup(node.label);
-            features.push(feature);
-          }
-        });
-      });
-
-      var featureGroup = L.featureGroup(features);
-      map.fitBounds(featureGroup.getBounds());
+    sylva.jsValues = {
+      isSchemaEmpty: JSON.parse('{{ is_schema_empty|escape_js }}'),
+      isGraphEmpty: JSON.parse('{{ is_graph_empty|escape_js }}')
     };
+    $.extend(sylva, {{ graph_json|safe }});
+    $(function() {
+      sylva.Leaflet.init();
+    });
   </script>
 
-  <style type="text/css">
-    #map {
-      width: 1200px;
-      height: 700px;
-
-      padding: 0;
-      margin-top: 10px;
-      margin-left: -20px;
-    }
-  </style>
-{% endblock content %}
+  {% compress js %}
+    <script type="text/javascript" src="{{ STATIC_PREFIX }}js/jquery-ui-1.10.4.js"></script>
+    <script type="text/javascript" src="{{ STATIC_PREFIX }}maps/js/leaflet-visualization.js"></script>
+  {% endcompress %}
+{% endblock %}
