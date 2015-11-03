@@ -1,0 +1,59 @@
+{% extends 'userena/base_userena.html' %}
+{% load i18n compress %}
+
+{% block extra_links %}
+  {% compress css %}
+    <link rel="stylesheet" href="{{ STATIC_PREFIX }}bootstrap/css/bootstrap-custom.css">
+  {% endcompress %}
+{% endblock extra_links %}
+
+{% block title %}
+  {% trans "SylvaDB API Token" %}
+{% endblock title %}
+
+{% block content_title %}
+  <h2>{% trans "SylvaDB Get API Token" %}</h2>
+{% endblock content_title %}
+
+{% block content %}
+  <div class="white-box">
+    {% block profile_navigation %}
+      {% comment %}Dirty hack. Will use django-guardian in the future.{% endcomment %}
+      {% if user.username == profile.user.username %}
+        <ul id="box-nav">
+          {% block profile_navigation_items %}
+            <li><a href="{% url 'userena_profile_detail' user.username %}">{% trans "View profile" %}</a></li>
+            <li><a href="{% url 'userena_profile_edit' user.username %}">{% trans "Edit details" %}</a></li>
+            <li><a href="{% url 'userena_password_change' user.username %}">{% trans "Change password" %}</a></li>
+            <li><a href="{% url 'userena_email_change' user.username %}">{% trans "Change email" %}</a></li>
+            <li><a href="{% url 'api_token' user.username %}">{% trans "Get api token" %}</a></li>
+          {% endblock %}
+        </ul>
+      {% endif %}
+    {% endblock %}
+
+    {% block section %}
+        <!-- API Key section -->
+      <div class="section">
+        <div class="inner-section">
+          <p>{% trans "Get your user's token to use the API is so easy. You only have to click on the button below and your token will appear automatically!" %}</p>
+          <br/>
+          <p>{% trans "Anyway you can use the API from the SylvaDB web interface anytime only signing in." %}</p>
+          <br/>
+          <p>{% trans "To refresh your token click it again and your token will be renewed. Happy requesting!" %}</p>
+          <form action="{% url "api_token" user.username %}" method="POST" class="form-horizontal">
+            <div id="apiToken" style="margin-top: 15px;">
+              {% csrf_token %}
+              <label for="id_token">API Token:</label>
+              <input id="id_token" name="token" type="text" value="{{ token }}" />
+              <input id="id_refresh" type="hidden" value="refresh" />
+              <br/>
+              <input id="getToken" type="submit" class="button" value="Get API Token" />
+            </div>
+          </form>
+        </div>
+      </div>
+
+    {% endblock %}
+  </div>
+{% endblock %}

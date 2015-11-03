@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
 import re
 
+from django.conf import settings
+from django.template.defaultfilters import slugify
+
 from lucenequerybuilder import Q
 from neo4jrestclient.exceptions import NotFoundError, StatusException
-from pyblueprints.neo4j import Neo4jIndexableGraph as Neo4jGraphDatabase
+from pyblueprints.neo4j import (
+    Neo4jTransactionalIndexableGraph as Neo4jGraphDatabase)
 from pyblueprints.neo4j import Neo4jDatabaseConnectionError
-
-from django.template.defaultfilters import slugify
-from django.conf import settings
 
 from engines.gdb.backends import (GraphDatabaseConnectionError,
                                   GraphDatabaseInitializationError)
@@ -43,6 +44,7 @@ class GraphDatabase(BlueprintsGraphDatabase):
         self._cypher = None
         self._spatial = None
         self.setup_spatial()
+        self.transaction = getattr(self.gdb.neograph, "transaction", None)
 
     def _get_nidx(self):
         if not self._nidx:
@@ -795,7 +797,7 @@ class GraphDatabase(BlueprintsGraphDatabase):
         self = None
 
     def analysis(self):
-        if Analysis is not None:
+        if settings.ENABLE_ANALYTICS and Analysis is not None:
             return Analysis()
         else:
             return None

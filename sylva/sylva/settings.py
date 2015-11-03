@@ -199,6 +199,8 @@ INSTALLED_APPS = (
     'analytics',
     'compressor',
     'leaflet',
+    'rest_framework',
+    'rest_framework.authtoken',
 )
 
 AUTHENTICATION_BACKENDS = (
@@ -386,8 +388,3 @@ COMPRESS_ENABLED = True  # By default it's the opposite to 'DEBUG'
 
 # A variable for configure some URLs for the Travis's tests
 TEST = False
-
-# Django-leaflet settings
-LEAFLET_CONFIG = {
-    'TILES': 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
-}
