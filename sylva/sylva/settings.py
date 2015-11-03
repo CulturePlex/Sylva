@@ -209,6 +209,21 @@ AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
 )
 
+# Rest framework configuration
+REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
+    ),
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.TokenAuthentication',
+    ),
+    'DEFAULT_FILTER_BACKENDS': (
+        'rest_framework.filters.BaseFilterBackend',
+    ),
+    'PAGE_SIZE': 10
+}
+
 ANONYMOUS_USER_ID = -1
 AUTH_PROFILE_MODULE = "accounts.UserProfile"
 LOGIN_REDIRECT_URL = '/dashboard/'  # '/accounts/%(username)s/'
