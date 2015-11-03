@@ -197,7 +197,6 @@ INSTALLED_APPS = (
     'reports',
     'analytics',
     'compressor',
-    'djcelery',
     'rest_framework',
     'rest_framework.authtoken',
 )
@@ -385,18 +384,3 @@ COMPRESS_ENABLED = True  # By default it's the opposite to 'DEBUG'
 
 # A variable for configure some URLs for the Travis's tests
 TEST = False
-
-# Rest framework configuration
-REST_FRAMEWORK = {
-    'DEFAULT_PERMISSION_CLASSES': (
-        'rest_framework.permissions.IsAuthenticated',
-    ),
-    'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework.authentication.SessionAuthentication',
-        'rest_framework.authentication.TokenAuthentication',
-    ),
-    'DEFAULT_FILTER_BACKENDS': (
-        'rest_framework.filters.BaseFilterBackend',
-    ),
-    'PAGE_SIZE': 10
-}

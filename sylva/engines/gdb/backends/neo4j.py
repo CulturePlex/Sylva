@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import re
 
+from django.conf import settings
 from django.template.defaultfilters import slugify
 from lucenequerybuilder import Q
 from neo4jrestclient.exceptions import NotFoundError
@@ -766,7 +767,7 @@ class GraphDatabase(BlueprintsGraphDatabase):
         self = None
 
     def analysis(self):
-        if Analysis is not None:
+        if settings.ENABLE_ANALYTICS and Analysis is not None:
             return Analysis()
         else:
             return None

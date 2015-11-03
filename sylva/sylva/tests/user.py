@@ -1,11 +1,10 @@
+import os
 import socket
 from time import sleep
 
 from django.test import LiveServerTestCase
 
-from splinter import Browser
-
-from utils import spin_assert
+from utils import spin_assert, Browser
 
 
 def signup(test, username, email, password):
@@ -37,7 +36,7 @@ class UserTestCase(LiveServerTestCase):
     """
 
     def setUp(self):
-        self.browser = Browser()
+        self.browser = Browser(firefox_path=os.getenv('FIREFOX_PATH', None))
         socket.setdefaulttimeout(30)
 
     def tearDown(self):

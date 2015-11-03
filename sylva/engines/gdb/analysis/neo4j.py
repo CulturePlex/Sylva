@@ -23,7 +23,7 @@ from graphs.models import Graph
 
 INST_TIME = 1e-04
 
-if (hasattr(settings, "AWS_ACCESS_KEY_ID")
+if (settings.ENABLE_ANALYTICS and hasattr(settings, "AWS_ACCESS_KEY_ID")
         and hasattr(settings, "AWS_SECRET_ACCESS_KEY")):
     graphlab.aws.set_credentials(
         settings.AWS_ACCESS_KEY_ID, settings.AWS_SECRET_ACCESS_KEY
