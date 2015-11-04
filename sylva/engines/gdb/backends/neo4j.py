@@ -105,7 +105,7 @@ class GraphDatabase(BlueprintsGraphDatabase):
         except IndexError:
             return 0
 
-    def _escape(val):
+    def _escape(self, val):
         return unicode(val).replace(u"`", u"\\`")
 
     def _prepare_script(self, for_node=True, label=None):
