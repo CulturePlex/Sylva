@@ -1,0 +1,15 @@
+doc-warnings: no
+test-warnings: no
+strictness: high
+max-line-length: 80
+uses:
+    - django
+    - celery
+autodetect: yes
+requirements:
+    - requirements.txt
+    - requirements_test.txt
+ignore-paths:
+    - docs
+ignore-patterns:
+    - ^sylva/*/migrations/*.py$
