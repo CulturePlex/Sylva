@@ -4,8 +4,7 @@ import re
 from django.conf import settings
 from django.template.defaultfilters import slugify
 
-from lucenequerybuilder import Q
-from neo4jrestclient.exceptions import NotFoundError, StatusException
+from neo4jrestclient.exceptions import StatusException
 from pyblueprints.neo4j import (
     Neo4jTransactionalIndexableGraph as Neo4jGraphDatabase)
 from pyblueprints.neo4j import Neo4jDatabaseConnectionError
@@ -40,7 +39,6 @@ class GraphDatabase(BlueprintsGraphDatabase):
         self.setup_indexes()
         self._nidx = None
         self._ridx = None
-        self._gremlin = None
         self._cypher = None
         self._spatial = None
         self.setup_spatial()
@@ -58,17 +56,18 @@ class GraphDatabase(BlueprintsGraphDatabase):
         return self._ridx
     ridx = property(_get_ridx)
 
-    def _get_gremlin(self):
-        if not self._gremlin:
-            plugin = self.gdb.neograph.extensions.GremlinPlugin.execute_script
-            self._gremlin = plugin
-        return self._gremlin
-    gremlin = property(_get_gremlin)
-
     def _get_cypher(self):
         if not self._cypher:
-            plugin = self.gdb.neograph.extensions.CypherPlugin.execute_query
-            self._cypher = plugin
+            # Look for the native Cypher endpoint first
+            try:
+                cypher_func = self.gdb.neograph.query
+            except AttributeError:
+                func = self.gdb.neograph.extensions.CypherPlugin.execute_query
+
+                def cypher_func(q, params=None, **kwargs):
+                    return func(query=q, params=params, **kwargs)
+
+            self._cypher = cypher_func
         return self._cypher
     cypher = property(_get_cypher)
 
@@ -142,7 +141,7 @@ class GraphDatabase(BlueprintsGraphDatabase):
             return 0
         script = self._prepare_script(for_node=True, label=label)
         script = """%s return count(n)""" % script
-        count = self.cypher(query=script)
+        count = self.cypher(q=script)
         return self._clean_count(count)
 
     def get_relationships_count(self, label=None):
@@ -157,7 +156,7 @@ class GraphDatabase(BlueprintsGraphDatabase):
             return 0
         script = self._prepare_script(for_node=False, label=label)
         script = """%s return count(r)""" % script
-        count = self.cypher(query=script)
+        count = self.cypher(q=script)
         return self._clean_count(count)
 
     def get_all_nodes(self, include_properties=False, limit=None, offset=None,
@@ -197,19 +196,22 @@ class GraphDatabase(BlueprintsGraphDatabase):
         If "outgoing" is True, it only counts the ids for outgoing ones.
         If "label" is provided, relationships will be filtered.
         """
-        gremlin = self.gremlin
-        script = """g.idx("%s")[[id:"%s"]]""" % (self.nidx.name, id)
+        # Using Cypher
+        if isinstance(label, (list, tuple)) and not label:
+            return 0
+        if self.ridx not in self.gdb.neograph.relationships.indexes.values():
+            return 0
+        # """start %s=%s:`%s`('%s') """ % (var, type, index, label)
+        script = self._prepare_script(for_node=False, label=label)
         if incoming:
-            script = u"%s.inE" % script
+            script = u"%s match (n)<-[r]-()" % script
         elif outgoing:
-            script = u"%s.outE" % script
+            script = u"%s match (n)-[r]->()" % script
         else:
             # Same effect that incoming=True, outgoing=True
-            script = u"%s.bothE" % script
-        if label:
-            script = u"%s.filter{it.label==""}" % label
-        script = u"%s.count()" % script
-        count = gremlin(script=script)
+            script = u"%s (n)-[r]-()" % script
+        script = """%s return count(r)""" % script
+        count = self.cypher(q=script)
         return self._clean_count(count)
 
     def get_nodes_by_label(self, label, include_properties=False,
@@ -227,7 +229,7 @@ class GraphDatabase(BlueprintsGraphDatabase):
             return
         script = self._prepare_script(for_node=True, label=label)
         where = None
-        params = []
+        params = {}
         if lookups:
             wheres = q_lookup_builder()
             for lookup in lookups:
@@ -253,7 +255,7 @@ class GraphDatabase(BlueprintsGraphDatabase):
         limit = limit or page
         try:
             paged_script = "%s skip %s limit %s" % (script, skip, limit)
-            result = cypher(query=paged_script, params=params)
+            result = cypher(q=paged_script, params=params)
         except:
             result = None
         while result and "data" in result:
@@ -275,7 +277,7 @@ class GraphDatabase(BlueprintsGraphDatabase):
                 try:
                     paged_script = "%s skip %s limit %s" % (script, skip,
                                                             limit)
-                    result = cypher(query=paged_script, params=params)
+                    result = cypher(q=paged_script, params=params)
                 except:
                     result = None
             else:
@@ -297,7 +299,7 @@ class GraphDatabase(BlueprintsGraphDatabase):
         script = self._prepare_script(for_node=False, label=label)
         script = """%s match a-[r]->b """ % script
         where = None
-        params = []
+        params = {}
         if lookups:
             wheres = q_lookup_builder()
             for lookup in lookups:
@@ -325,7 +327,7 @@ class GraphDatabase(BlueprintsGraphDatabase):
         limit = limit or page
         try:
             paged_script = "%s skip %s limit %s" % (script, skip, limit)
-            result = cypher(query=paged_script, params=params)
+            result = cypher(q=paged_script, params=params)
         except:
             result = None
         while result and "data" in result and len(result["data"]) > 0:
@@ -362,7 +364,7 @@ class GraphDatabase(BlueprintsGraphDatabase):
                 try:
                     paged_script = "%s skip %s limit %s" % (script, skip,
                                                             limit)
-                    result = cypher(query=paged_script, params=params)
+                    result = cypher(q=paged_script, params=params)
                 except:
                     result = None
             else:
@@ -393,7 +395,7 @@ class GraphDatabase(BlueprintsGraphDatabase):
                     order_by[2])
         try:
             paged_script = "%s skip %s limit %s" % (script, skip, limit)
-            result = cypher(query=paged_script, params=query_params)
+            result = cypher(q=paged_script, params=query_params)
         except:
             result = None
         if headers is True and result and "columns" in result:
@@ -409,7 +411,7 @@ class GraphDatabase(BlueprintsGraphDatabase):
                 try:
                     paged_script = "%s skip %s limit %s" % (script, skip,
                                                             limit)
-                    result = cypher(query=paged_script, params=query_params)
+                    result = cypher(q=paged_script, params=query_params)
                 except:
                     result = None
             else:
@@ -469,21 +471,21 @@ class GraphDatabase(BlueprintsGraphDatabase):
         return q, query_params
 
     def _query_generator_conditions(self, conditions_dict):
-        query_params = dict()
+        query_params = {}
         # This list is used to control when use the index for the relationship,
         # in the origins or in the patterns
         conditions_alias = set()
         # conditions_set = set()
         # We are going to use a list because when the set add elements,
         # it include them in order and breaks our pattern with AND, OR
-        conditions_set = list()
+        conditions_set = []
         conditions_indexes = enumerate(conditions_dict)
         conditions_length = len(conditions_dict) - 1
-        for lookup, property_tuple, match, connector, datatype \
-                in conditions_dict:
+        for condition_dict in conditions_dict:
+            lookup, property_tuple, match, connector, datatype = condition_dict
             # This is the option to have properties of another boxes
             if datatype == "property_box":
-                match_dict = dict()
+                match_dict = {}
                 # We catch exception of type IndexError, in case that we
                 # doesn't receive an appropiate array.
                 try:
@@ -493,10 +495,10 @@ class GraphDatabase(BlueprintsGraphDatabase):
                     # aggregate (DISTINCT slug.property_id)
                     # And also, we could have two match values for
                     # 'in between' lookups...
-                    match_results = list()
-                    match_elements = list()
-                    datatypes = list()
-                    if type(match) is not list:
+                    match_results = []
+                    match_elements = []
+                    datatypes = []
+                    if not isinstance(match, (tuple, list)):
                         match_elements.append(match)
                         datatypes.append(datatype)
                     else:
