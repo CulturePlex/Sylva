@@ -249,13 +249,13 @@ urlpatterns += patterns('sylva.views',  # noqa
 
     # url to filter a set of nodes
     url(r'^api/graphs/(?P<graph_slug>[\w-]+)'
-        '/types/nodes/(?P<type_slug>[\w-]+)/filter/$',
+        r'/types/nodes/(?P<type_slug>[\w-]+)/filter/$',
         data_api.NodesViewFilter.as_view(),
         name='api_nodes_filter'),
 
     # url to filter a set of relationships
     url(r'^api/graphs/(?P<graph_slug>[\w-]+)'
-        '/types/relationships/(?P<type_slug>[\w-]+)/filter/$',
+        r'/types/relationships/(?P<type_slug>[\w-]+)/filter/$',
         data_api.RelationshipsViewFilter.as_view(),
         name='api_relationships_filter'),
 )
