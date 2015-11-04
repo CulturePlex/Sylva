@@ -105,6 +105,9 @@ class GraphDatabase(BlueprintsGraphDatabase):
         except IndexError:
             return 0
 
+    def _escape(val):
+        return unicode(val).replace(u"`", u"\\`")
+
     def _prepare_script(self, for_node=True, label=None):
         """
         Creates part of the script for the cypher query.
@@ -118,19 +121,12 @@ class GraphDatabase(BlueprintsGraphDatabase):
             type = 'rel'
             index = self.ridx.name
         if isinstance(label, (list, tuple)):
-            if label:
-                label = """ OR """.join(['label:%s' % str(label_id) for label_id in label])
-            else:
-                """
-                It will never pass by here.
-                It was checked before call this method.
-                """
-                pass
+            label = """ OR """.join(['label:%s' % str(label_id)
+                                     for label_id in label])
+        elif label:
+            label = """label:%s""" % (label)
         else:
-            if label:
-                label = """label:%s""" % (label)
-            else:
-                label = """label:*"""
+            label = """label:*"""
         script = """start %s=%s:`%s`('%s') """ % (var, type, index, label)
         return script
 
@@ -187,10 +183,9 @@ class GraphDatabase(BlueprintsGraphDatabase):
         If "include_properties" is True, the second element in the tuple
         will be a dictionary containing the properties.
         """
-        rels = self.get_filtered_relationships(lookups=None, label=None,
-                                        include_properties=include_properties,
-                                        limit=limit, offset=offset,
-                                        order_by=order_by)
+        rels = self.get_filtered_relationships(
+            lookups=None, label=None, include_properties=include_properties,
+            limit=limit, offset=offset, order_by=order_by)
         for rel in rels:
             yield rel
 
@@ -250,7 +245,9 @@ class GraphDatabase(BlueprintsGraphDatabase):
         else:
             script = u"%s id(n)" % script
         if order_by:
-            script = u"%s order by n.`%s` %s " % (script, order_by[0][0].replace('`', '\`'), order_by[0][1])
+            script = u"%s order by n.`%s` %s " % (
+                script, order_by[0][0].replace(u'`', u'\\`'), order_by[0][1]
+            )
         page = 1000
         skip = offset or 0
         limit = limit or page
@@ -320,7 +317,9 @@ class GraphDatabase(BlueprintsGraphDatabase):
             script = u"%s return distinct id(r), %s, a, b" \
                      % (script, type_or_r)
         if order_by:
-            script = u"%s order by n.`%s` %s " % (script, order_by[0][0].replace('`', '\`'), order_by[0][1])
+            script = u"%s order by n.`%s` %s " % (
+                script, order_by[0][0].replace(u'`', u'\\`'), order_by[0][1]
+            )
         page = 1000
         skip = offset or 0
         limit = limit or page
@@ -388,12 +387,10 @@ class GraphDatabase(BlueprintsGraphDatabase):
                                                     order_by[1],
                                                     order_by[2])
             else:
-                script = u"%s order by `%s`.`%s` %s " % (script,
-                                                         alias.replace
-                                                         ('`', '\`'),
-                                                         order_by[1].replace
-                                                         ('`', '\`'),
-                                                         order_by[2])
+                script = u"%s order by `%s`.`%s` %s " % (
+                    script, alias.replace(u'`', u'\\`'),
+                    order_by[1].replace(u'`', u'\\`'),
+                    order_by[2])
         try:
             paged_script = "%s skip %s limit %s" % (script, skip, limit)
             result = cypher(query=paged_script, params=query_params)
@@ -671,8 +668,8 @@ class GraphDatabase(BlueprintsGraphDatabase):
                 if node_type == WILDCARD_TYPE:
                     node_type = '*'
                 origin = u"""`{alias}`=node:`{nidx}`('label:{type}')""".format(
-                    nidx=unicode(self.nidx.name).replace(u"`", u"\\`"),
-                    alias=unicode(alias).replace(u"`", u"\\`"),
+                    nidx=self._escape(self.nidx.name),
+                    alias=self._escape(alias),
                     type=node_type,
                 )
                 origins_set.add(origin)
@@ -680,18 +677,19 @@ class GraphDatabase(BlueprintsGraphDatabase):
                 relation_type = origin_dict["type_id"]
                 # wildcard type
                 if relation_type == WILDCARD_TYPE:
-                    origin = u"""`{alias}`=rel:`{ridx}`('graph:{graph_id}')""".format(
-                        ridx=unicode(self.ridx.name).replace(u"`", u"\\`"),
-                        alias=unicode(alias).replace(u"`", u"\\`"),
+                    _origin = u"""`{alias}`=rel:`{ridx}`('graph:{graph_id}')"""
+                    origin = _origin.format(
+                        ridx=self._escape(self.ridx.name),
+                        alias=self._escape(alias),
                         graph_id=self.graph_id,
                     )
                 # TODO: Why with not rel indices in START the query is faster?
                 else:
                     if alias in conditions_alias:
-                        origin = u"""`{alias}`=rel:`{ridx}`('label:{type}')""".format(
-                            ridx=unicode(self.ridx.name).replace(u"`",
-                                                                 u"\\`"),
-                            alias=unicode(alias).replace(u"`", u"\\`"),
+                        _origin = u"""`{alias}`=rel:`{ridx}`('label:{type}')"""
+                        origin = _origin.format(
+                            ridx=self._escape(self.ridx.name),
+                            alias=self._escape(alias),
                             type=relation_type,
                         )
                         origins_set.add(origin)
@@ -705,7 +703,7 @@ class GraphDatabase(BlueprintsGraphDatabase):
             alias = result_dict["alias"]
             if result_dict["properties"] is None:
                 result = u"`{0}`".format(
-                    unicode(alias).replace(u"`", u"\\`"))
+                    self._escape(alias))
                 results_set.add(result)
             else:
                 for prop in result_dict["properties"]:
@@ -715,8 +713,8 @@ class GraphDatabase(BlueprintsGraphDatabase):
                     if property_value:
                         if not property_aggregate and not only_ids:
                             result = u"`{0}`.`{1}`".format(
-                                unicode(alias).replace(u"`", u"\\`"),
-                                unicode(property_value).replace(u"`", u"\\`")
+                                self._escape(alias),
+                                self._escape(property_value)
                             )
                             results_set.add(result)
                         elif property_aggregate and not only_ids:
@@ -727,14 +725,13 @@ class GraphDatabase(BlueprintsGraphDatabase):
                                 result = u"{0}({1}`{2}`.`{3}`)".format(
                                     unicode(property_aggregate),
                                     unicode(distinct_clause),
-                                    unicode(alias).replace(u"`", u"\\`"),
-                                    unicode(property_value).replace(u"`",
-                                                                    u"\\`")
+                                    self._escape(alias),
+                                    self._escape(property_value)
                                 )
                                 results_set.add(result)
                         else:
                             result = u"ID(`{0}`)".format(
-                                unicode(alias).replace(u"`", u"\\`")
+                                self._escape(alias)
                             )
                             results_set.add(result)
         properties_results = u", ".join(results_set)
@@ -755,28 +752,27 @@ class GraphDatabase(BlueprintsGraphDatabase):
                 # wildcard type
                 if relation_type == -1:
                     pattern = u"(`{source}`)-[`{rel}`]-(`{target}`)".format(
-                        source=unicode(source).replace(u"`", u"\\`"),
-                        rel=unicode(relation).replace(u"`", u"\\`"),
-                        target=unicode(target).replace(u"`", u"\\`"),
+                        source=self._escape(source),
+                        rel=self._escape(relation),
+                        target=self._escape(target),
                     )
                 else:
                     if relation in conditions_alias:
                         pattern = (
                             u"(`{source}`)-[`{rel}`]-(`{target}`)".format(
-                                source=unicode(source).replace(u"`", u"\\`"),
-                                rel=unicode(relation).replace(u"`", u"\\`"),
-                                target=unicode(target).replace(u"`", u"\\`"),
+                                source=self._escape(source),
+                                rel=self._escape(relation),
+                                target=self._escape(target),
                             )
                         )
                     else:
                         pattern = (
                             u"(`{source}`)-[`{rel}`:`{rel_type}`]-(`{target}`)"
                             .format(
-                                source=unicode(source).replace(u"`", u"\\`"),
-                                rel=unicode(relation).replace(u"`", u"\\`"),
-                                rel_type=unicode(relation_type).replace(
-                                    u"`", u"\\`"),
-                                target=unicode(target).replace(u"`", u"\\`"),
+                                source=self._escape(source),
+                                rel=self._escape(relation),
+                                rel_type=self._escape(relation_type),
+                                target=self._escape(target),
                             )
                         )
                 patterns_set.add(pattern)

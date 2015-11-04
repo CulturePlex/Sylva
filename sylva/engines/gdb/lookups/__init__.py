@@ -46,7 +46,7 @@ class BaseQ(object):
             else:
                 all_matchs = ", ".join(self.matchs)
                 raise ValueError("Q objects must have at least a "
-                                 "lookup method(%s) and a match "
+                                 "lookup method ({}) and a match "
                                  "case".format(all_matchs))
 
     def is_valid(self):

@@ -23,7 +23,7 @@ from django.utils.translation import gettext as _
 from guardian.decorators import permission_required
 
 from sylva.decorators import is_enabled
-from graphs.models import Data, Graph
+from graphs.models import Graph
 from queries.grammar import QueryParser
 from schemas.models import NodeType, RelationshipType
 from queries.forms import (SaveQueryForm, QueryDeleteConfirmForm,

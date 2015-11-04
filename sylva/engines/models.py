@@ -111,9 +111,10 @@ class Instance(models.Model):
                 connection_string = "%s://%s/%s/" % (self.scheme, self.host,
                                                      self.path)
             if self.query:
-                connection_string = "%?%s" % (connection_string, self.query)
+                connection_string = "%s?%s" % (connection_string, self.query)
             if self.fragment:
-                connection_string = "%#%s" % (connection_string, self.fragment)
+                connection_string = "%s#%s" % (connection_string,
+                                               self.fragment)
         return connection_string
 
     def get_gdb(self, graph=None):
