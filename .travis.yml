@@ -9,10 +9,10 @@ cache:
 env:
   - NEO4J_VERSION="1.9.9" FIREFOX_VERSION="31.0esr" FIREFOX_PATH="firefox/firefox-bin"
 before_install:
-  - ./download_and_install_neo4j.sh $NEO4J_VERSION
-  - ./download_and_install_firefox.sh $FIREFOX_VERSION
+  - ./scripts/download_and_install_neo4j.sh $NEO4J_VERSION
+  - ./scripts/download_and_install_firefox.sh $FIREFOX_VERSION
 install:
-  - pip install -r requirements_test.txt
+  - pip install -r requirements/test.txt
   - pip install --allow-all-external argparse==1.2.1
   - gem install coveralls-lcov
 before_script:
@@ -32,10 +32,11 @@ script:
   - python sylva/manage.py compress --settings=sylva.test_settings
   - coverage run --source=sylva sylva/manage.py test accounts sylva.tests data engines graphs schemas reports --settings=sylva.test_settings
   - node_modules/karma/bin/karma start sylva/reports/static/app/js/karma.conf.js --single-run --browsers PhantomJS
+after_script:
+  - ./neo4j/bin/neo4j stop
+  - "sh -e /etc/init.d/xvfb stop"
 after_success:
   - coveralls-lcov -v -n sylva/reports/static/app/js/coverage/*/lcov.info > coverage.json
   - coveralls --merge=coverage.json
   - coveralls
-after_script:
-  - ./neo4j/bin/neo4j stop
-  - "sh -e /etc/init.d/xvfb stop"
+
