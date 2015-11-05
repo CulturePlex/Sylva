@@ -507,7 +507,7 @@
     <script>
       // TODO: Move this JS to individual file
       // Adding customs maps: https://github.com/makinacorpus/django-leaflet#in-forms
-      function spatialFieldCreator(type, zoom) {
+      function spatialFieldCreator(type) {
         return L.GeometryField.extend({
 
           sylvaLeafletControls: function() {
@@ -595,23 +595,25 @@
             map.fire('map:loadfield', {field: this, fieldid: this.options.fieldid});
 
             // Centering the map
-            if (type === 'point') {
-              $.each(map._layers, function(index, layer) {
-                if (layer._latlng) {
-                  map.setView(layer._latlng, zoom);
-                  return false;
-                }
-              });
+            var center = null;
+            $.each(map._layers, function(index, layer) {
+              if (layer._latlng) {
+                var dev = 0.03;
+                var point1 = [layer._latlng.lat + dev, layer._latlng.lng + dev];
+                var point2 = [layer._latlng.lat - dev, layer._latlng.lng - dev];
+                center =  [point1, point2];
+                return false;
 
-            } else {
-              $.each(map._layers, function(index, layer) {
-                if (layer._latlngs) {
-                  setTimeout(function() {
-                    map.fitBounds(layer._latlngs);
-                  }, 0);
-                  return false;
-                }
-              });
+              } else if (layer._latlngs) {
+                center = layer._latlngs;
+                return false;
+              }
+            });
+
+            if (center) {
+              setTimeout(function() {
+                map.fitBounds(center);
+              }, 0);
             }
 
             return this;
@@ -620,7 +622,7 @@
       }
 
       // Declaring map tools
-      var PointField = spatialFieldCreator('point', 13);
+      var PointField = spatialFieldCreator('point');
       var PathField = spatialFieldCreator('path');
       var AreaField = spatialFieldCreator('area');
       window.dispatchEvent(new Event('load'));
