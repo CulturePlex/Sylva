@@ -1058,6 +1058,7 @@ div.initial p:nth-child(3) {
     bottom: 10px;
     background-color: #FFFFFF;
     width: 98.2%;
+    z-index: 9999;
 }
 
 .to-right{

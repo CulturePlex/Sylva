@@ -258,9 +258,10 @@
   <script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/sigma-visualization.js"></script>
   <script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/modals.js"></script>
   <script type="text/javascript" src="{{ STATIC_PREFIX }}js/jquery.simplemodal-1.4.4.js"></script>
+
   {% if as_modal %}
-  <script type="text/javascript" src="{{ STATIC_PREFIX }}js/jquery.formsets.1.2.min.js"></script>
-  <script type="text/javascript" src="{{ STATIC_PREFIX }}js/jquery.tokeninput.js"></script>
+    <script type="text/javascript" src="{{ STATIC_PREFIX }}js/jquery.formsets.1.2.min.js"></script>
+    <script type="text/javascript" src="{{ STATIC_PREFIX }}js/jquery.tokeninput.js"></script>
   {% endif %}
 
   <!-- We are adding here jQueryUI manually because maybe it is already in the template. -->
@@ -500,111 +501,129 @@
 
       });
     }(jQuery));
+  </script>
 
-    // Adding customs maps: https://github.com/makinacorpus/django-leaflet#in-forms
-    function spatialFieldCreator(type, zoom) {
-      return L.GeometryField.extend({
+  {% compress js %}
+    <script>
+      // TODO: Move this JS to individual file
+      // Adding customs maps: https://github.com/makinacorpus/django-leaflet#in-forms
+      function spatialFieldCreator(type, zoom) {
+        return L.GeometryField.extend({
 
-        sylvaLeafletControls: function() {
-          var point, path, area = false;
+          sylvaLeafletControls: function() {
+            var point, path, area = false;
 
-          var edit = {
-            featureGroup: this.drawnItems
-          };
+            var edit = {
+              featureGroup: this.drawnItems
+            };
 
-          switch(type) {
-            case 'path':
-              path = true;
-              break;
-            case 'area':
-              area = true;
-              break;
-            case 'point':
-            default:
-              point = true;
-              edit.edit = false;
-          }
-
-          return {
-            edit: edit,
-            draw: {
-              marker: point,
-              polyline: path,
-              polygon: area,
-              circle: false,
-              rectangle: false
+            switch(type) {
+              case 'path':
+                path = true;
+                break;
+              case 'area':
+                area = true;
+                break;
+              case 'point':
+              default:
+                point = true;
+                edit.edit = false;
             }
-          };
-        },
 
-        addTo: function (map) {
-          this._map = map;
+            return {
+              edit: edit,
+              draw: {
+                marker: point,
+                polyline: path,
+                polygon: area,
+                circle: false,
+                rectangle: false
+              }
+            };
+          },
 
-          var store_opts = L.Util.extend(this.options, {defaults: map.defaults});
-          this.store = new this.options.field_store_class(this.options.fieldid, store_opts);
+          addTo: function (map) {
+            setTimeout(function () {
+              map.invalidateSize();
+            }, 0);
 
-          this.drawnItems = this._editionLayer();
-          map.addLayer(this.drawnItems);
+            this._map = map;
 
-          // Initialize the draw control and pass it the FeatureGroup of editable layers
-          var drawControl = this._drawControl = new L.Control.Draw(this.sylvaLeafletControls());
+            var store_opts = L.Util.extend(this.options, {defaults: map.defaults});
+            this.store = new this.options.field_store_class(this.options.fieldid, store_opts);
 
-          if (this.options.modifiable) {
-            map.addControl(drawControl);
-            L.DomUtil.addClass(drawControl._container, this.options.fieldid);
+            this.drawnItems = this._editionLayer();
+            map.addLayer(this.drawnItems);
 
-            // In case there is several draw controls on the same map (target map option)
-            map['drawControl' + this.options.fieldid] = drawControl;
-            // We use a flag to ignore events of other draw controls
-            for (var toolbar in drawControl._toolbars) {
-              drawControl._toolbars[toolbar].on('enable disable', function (e) {
-                this._acceptDrawEvents = e.type === 'enable';
+            // Initialize the draw control and pass it the FeatureGroup of editable layers
+            var drawControl = this._drawControl = new L.Control.Draw(this.sylvaLeafletControls());
+
+            if (this.options.modifiable) {
+              map.addControl(drawControl);
+              L.DomUtil.addClass(drawControl._container, this.options.fieldid);
+
+              // In case there is several draw controls on the same map (target map option)
+              map['drawControl' + this.options.fieldid] = drawControl;
+              // We use a flag to ignore events of other draw controls
+              for (var toolbar in drawControl._toolbars) {
+                drawControl._toolbars[toolbar].on('enable disable', function (e) {
+                  this._acceptDrawEvents = e.type === 'enable';
+                }, this);
+              }
+
+              map.on('draw:created draw:edited draw:deleted', function (e) {
+                // Ignore if coming from other Draw controls
+                if (!this._acceptDrawEvents)
+                  return;
+                // Call onCreated(), onEdited(), onDeleted()
+                var eventName = e.type.replace('draw:', ''),
+                  method = 'on' + eventName.charAt(0).toUpperCase() + eventName.slice(1);
+                this[method](e);
+              }, this);
+
+              // Flag for unsaved changes
+              map.on('draw:drawstart draw:editstart', function () {
+                if (this._acceptDrawEvents) this._unsavedChanges = true;
+              }, this);
+              map.on('draw:drawstop draw:editstop', function () {
+                if (this._acceptDrawEvents) this._unsavedChanges = false;
               }, this);
             }
 
-            map.on('draw:created draw:edited draw:deleted', function (e) {
-              // Ignore if coming from other Draw controls
-              if (!this._acceptDrawEvents)
-                return;
-              // Call onCreated(), onEdited(), onDeleted()
-              var eventName = e.type.replace('draw:', ''),
-                method = 'on' + eventName.charAt(0).toUpperCase() + eventName.slice(1);
-              this[method](e);
-            }, this);
+            this.load();
 
-            // Flag for unsaved changes
-            map.on('draw:drawstart draw:editstart', function () {
-              if (this._acceptDrawEvents) this._unsavedChanges = true;
-            }, this);
-            map.on('draw:drawstop draw:editstop', function () {
-              if (this._acceptDrawEvents) this._unsavedChanges = false;
-            }, this);
+            map.fire('map:loadfield', {field: this, fieldid: this.options.fieldid});
+
+            // Centering the map
+            if (type === 'point') {
+              $.each(map._layers, function(index, layer) {
+                if (layer._latlng) {
+                  map.setView(layer._latlng, zoom);
+                  return false;
+                }
+              });
+
+            } else {
+              $.each(map._layers, function(index, layer) {
+                if (layer._latlngs) {
+                  setTimeout(function() {
+                    map.fitBounds(layer._latlngs);
+                  }, 0);
+                  return false;
+                }
+              });
+            }
+
+            return this;
           }
+        });
+      }
 
-          this.load();
-
-          map.fire('map:loadfield', {field: this, fieldid: this.options.fieldid});
-
-          // In the case `type === 'point'` the map needs to be zoomed.
-          if (type === 'point') {
-
-            $.each(map._layers, function(ml) {
-              if (map._layers[ml]._latlng) {
-                map.setView(map._layers[ml]._latlng, zoom);
-                return false;
-              }
-            });
-
-          }
-
-          return this;
-        }
-      });
-    }
-
-    // Declaring map tools
-    PointField = spatialFieldCreator('point', 11);
-    PathField = spatialFieldCreator('path');
-    AreaField = spatialFieldCreator('area');
-  </script>
+      // Declaring map tools
+      var PointField = spatialFieldCreator('point', 13);
+      var PathField = spatialFieldCreator('path');
+      var AreaField = spatialFieldCreator('area');
+      window.dispatchEvent(new Event('load'));
+    </script>
+  {% endcompress %}
 {% endblock %}
