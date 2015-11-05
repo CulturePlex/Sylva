@@ -15,6 +15,64 @@ from schemas.models import (Schema, NodeType, RelationshipType, NodeProperty,
                             RelationshipProperty)
 
 
+# Utils: Methods for the API test
+def check_and_post_nodetype(test, url, data):
+    # First, we check the get method
+    response = test.client.get(url)
+
+    # We check that the request is correct
+    test.assertEqual(response.status_code, 200)
+    # We check that the results is an empty list
+    test.assertEqual(response.data, [])
+
+    # Then, we check the post method
+    response = test.client.post(url, data)
+
+    # We check that the request is correct
+    test.assertEqual(response.status_code, 201)
+    nodetype_name = response.data['name']
+    test.assertEqual(nodetype_name, test.nodetype_name)
+
+
+def check_and_post_relationshiptype(test, url, data_source, data_target):
+    response = test.client.post(url, data_source)
+    # We check that the request is correct
+    test.assertEqual(response.status_code, 201)
+    source_slug = response.data['slug']
+    response = test.client.post(url, data_target)
+    # We check that the request is correct
+    test.assertEqual(response.status_code, 201)
+    target_slug = response.data['slug']
+    data = {'name': test.relationshiptype_name,
+            'source': source_slug,
+            'target': target_slug}
+    url = reverse("api_relationship_types", args=[test.graph_slug])
+    # First, we check the get method
+    response = test.client.get(url)
+    # We check that the request is correct
+    test.assertEqual(response.status_code, 200)
+    # We check that the results is an empty list
+    test.assertEqual(response.data, [])
+    # Then, we check the post method
+    response = test.client.post(url, data)
+    # We check that the request is correct
+    test.assertEqual(response.status_code, 201)
+    relationshiptype_name = response.data['name']
+    test.assertEqual(relationshiptype_name, test.relationshiptype_name)
+    response = test.client.get(url)
+    relationshiptype_slug = response.data[0]['slug']
+    return (relationshiptype_slug, source_slug, target_slug)
+
+
+def create_property(test, url, data, property_name):
+    property_data_serialized = json.dumps(data)
+    response = test.client.post(url, property_data_serialized,
+                                format='json')
+    test.assertEqual(response.status_code, 201)
+    test.assertEqual(response.data['properties'][0]['name'], property_name)
+    return response.data['properties'][0]['id']
+
+
 class SchemaTest(TestCase):
     """
     A set of tests for testing Schemas.
@@ -304,28 +362,11 @@ class APISchemaTest(APITestCase):
     def test_api_nodetypes_post(self):
         data = {'name': self.nodetype_name}
         url = reverse("api_node_types", args=[self.graph_slug])
-
-        # First, we check the get method
-        response = self.client.get(url)
-
-        # We check that the request is correct
-        self.assertEqual(response.status_code, 200)
-        # We check that the results is an empty list
-        self.assertEqual(response.data, [])
-
-        # Then, we check the post method
-        response = self.client.post(url, data)
-
-        # We check that the request is correct
-        self.assertEqual(response.status_code, 201)
-        # We check that the results is an empty list()
-        nodetype_name = response.data['name']
-        self.assertEqual(nodetype_name, self.nodetype_name)
+        check_and_post_nodetype(self, url, data)
 
     def test_api_relationshiptypes_get(self):
         url = reverse("api_relationship_types", args=[self.graph_slug])
         response = self.client.get(url)
-
         # We check that the request is correct
         self.assertEqual(response.status_code, 200)
         # We check that the results is an empty list
@@ -338,63 +379,17 @@ class APISchemaTest(APITestCase):
         data_source = {'name': source_name}
         data_target = {'name': target_name}
         url = reverse("api_node_types", args=[self.graph_slug])
-
-        response = self.client.post(url, data_source)
-        # We check that the request is correct
-        self.assertEqual(response.status_code, 201)
-        source_slug = response.data['slug']
-
-        response = self.client.post(url, data_target)
-        # We check that the request is correct
-        self.assertEqual(response.status_code, 201)
-        target_slug = response.data['slug']
-
-        data = {'name': self.relationshiptype_name,
-                'source': source_slug,
-                'target': target_slug}
-        url = reverse("api_relationship_types", args=[self.graph_slug])
-
-        # First, we check the get method
-        response = self.client.get(url)
-
-        # We check that the request is correct
-        self.assertEqual(response.status_code, 200)
-        # We check that the results is an empty list
-        self.assertEqual(response.data, [])
-
-        # Then, we check the post method
-        response = self.client.post(url, data)
-
-        # We check that the request is correct
-        self.assertEqual(response.status_code, 201)
-        nodetype_name = response.data['name']
-        self.assertEqual(nodetype_name, self.relationshiptype_name)
+        check_and_post_relationshiptype(self, url, data_source, data_target)
 
     def test_api_nodetypes_nodetype_get(self):
         data = {'name': self.nodetype_name}
         url = reverse("api_node_types", args=[self.graph_slug])
-
-        # First, we check the get method
-        response = self.client.get(url)
-        # We check that the request is correct
-        self.assertEqual(response.status_code, 200)
-        # We check that the results is an empty list
-        self.assertEqual(response.data, [])
-        # Then, we check the post method
-        response = self.client.post(url, data)
-
-        # We check that the request is correct
-        self.assertEqual(response.status_code, 201)
-        nodetype_name = response.data['name']
-        self.assertEqual(nodetype_name, self.nodetype_name)
-
+        check_and_post_nodetype(self, url, data)
         # Let's get again the nodetypes and we select one of them
         response = self.client.get(url)
         nodetype_slug = response.data[0]['slug']
-
         url = reverse("api_node_type", args=[self.graph_slug, nodetype_slug])
         response = self.client.get(url)
-
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data['slug'], nodetype_slug)
         self.assertEqual(response.data['nodes_info'], [])
@@ -402,29 +397,12 @@ class APISchemaTest(APITestCase):
     def test_api_nodetypes_nodetype_delete(self):
         data = {'name': self.nodetype_name}
         url = reverse("api_node_types", args=[self.graph_slug])
-
-        # First, we check the get method
-        response = self.client.get(url)
-        # We check that the request is correct
-        self.assertEqual(response.status_code, 200)
-        # We check that the results is an empty list
-        self.assertEqual(response.data, [])
-
-        # Then, we check the post method
-        response = self.client.post(url, data)
-
-        # We check that the request is correct
-        self.assertEqual(response.status_code, 201)
-        nodetype_name = response.data['name']
-        self.assertEqual(nodetype_name, self.nodetype_name)
-
+        check_and_post_nodetype(self, url, data)
         # Let's get again the nodetypes and we select one of them
         response = self.client.get(url)
         nodetype_slug = response.data[0]['slug']
-
         url = reverse("api_node_type", args=[self.graph_slug, nodetype_slug])
         response = self.client.delete(url)
-
         self.assertEqual(response.status_code, 204)
         self.assertEqual(response.data, None)
 
@@ -435,35 +413,14 @@ class APISchemaTest(APITestCase):
         data_source = {'name': source_name}
         data_target = {'name': target_name}
         url = reverse("api_node_types", args=[self.graph_slug])
-
-        response = self.client.post(url, data_source)
-        # We check that the request is correct
-        self.assertEqual(response.status_code, 201)
-        source_slug = response.data['slug']
-
-        response = self.client.post(url, data_target)
-        # We check that the request is correct
-        self.assertEqual(response.status_code, 201)
-        target_slug = response.data['slug']
-
-        data = {'name': self.relationshiptype_name,
-                'source': source_slug,
-                'target': target_slug}
-        url = reverse("api_relationship_types", args=[self.graph_slug])
-
-        # Then, we check the post method
-        response = self.client.post(url, data)
-
-        data = {'name': self.relationshiptype_name}
-        relationshiptype_name = response.data['name']
-        self.assertEqual(relationshiptype_name, self.relationshiptype_name)
-
-        response = self.client.get(url)
-        relationshiptype_slug = response.data[0]['slug']
+        relationshiptype_slug, source_slug, target_slug = (
+            check_and_post_relationshiptype(self,
+                                            url,
+                                            data_source,
+                                            data_target))
         url = reverse("api_relationship_type",
                       args=[self.graph_slug, relationshiptype_slug])
         response = self.client.get(url)
-
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data['slug'], relationshiptype_slug)
         self.assertEqual(response.data['rels_info'], [])
@@ -475,87 +432,46 @@ class APISchemaTest(APITestCase):
         data_source = {'name': source_name}
         data_target = {'name': target_name}
         url = reverse("api_node_types", args=[self.graph_slug])
-
-        response = self.client.post(url, data_source)
-        # We check that the request is correct
-        self.assertEqual(response.status_code, 201)
-        source_slug = response.data['slug']
-
-        response = self.client.post(url, data_target)
-        # We check that the request is correct
-        self.assertEqual(response.status_code, 201)
-        target_slug = response.data['slug']
-
-        data = {'name': self.relationshiptype_name,
-                'source': source_slug,
-                'target': target_slug}
-        url = reverse("api_relationship_types", args=[self.graph_slug])
-
-        # Then, we check the post method
-        response = self.client.post(url, data)
-
-        data = {'name': self.relationshiptype_name}
-        relationshiptype_name = response.data['name']
-        self.assertEqual(relationshiptype_name, self.relationshiptype_name)
-
-        response = self.client.get(url)
-        relationshiptype_slug = response.data[0]['slug']
+        relationshiptype_slug, source_slug, target_slug = (
+            check_and_post_relationshiptype(self,
+                                            url,
+                                            data_source,
+                                            data_target))
         url = reverse("api_relationship_type",
                       args=[self.graph_slug, relationshiptype_slug])
         response = self.client.delete(url)
-
         self.assertEqual(response.status_code, 204)
         self.assertEqual(response.data, None)
 
     def test_api_nodetype_schema_get(self):
         data = {'name': self.nodetype_name}
         url = reverse("api_node_types", args=[self.graph_slug])
-        # Then, we check the post method
-        response = self.client.post(url, data)
-
-        # We check that the request is correct
-        self.assertEqual(response.status_code, 201)
-        nodetype_name = response.data['name']
-        self.assertEqual(nodetype_name, self.nodetype_name)
-
+        check_and_post_nodetype(self, url, data)
         # Let's get again the nodetypes and we select one of them
         response = self.client.get(url)
         nodetype_slug = response.data[0]['slug']
-
         url = reverse("api_node_type_schema",
                       args=[self.graph_slug, nodetype_slug])
         response = self.client.get(url)
-
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data['name'], self.nodetype_name)
 
     def test_api_nodetype_schema_patch(self):
         data = {'name': self.nodetype_name}
         url = reverse("api_node_types", args=[self.graph_slug])
-        # Then, we check the post method
-        response = self.client.post(url, data)
-
-        # We check that the request is correct
-        self.assertEqual(response.status_code, 201)
-        nodetype_name = response.data['name']
-        self.assertEqual(nodetype_name, self.nodetype_name)
-
+        check_and_post_nodetype(self, url, data)
         # Let's get again the nodetypes and we select one of them
         response = self.client.get(url)
         nodetype_slug = response.data[0]['slug']
         url = reverse("api_node_type_schema",
                       args=[self.graph_slug, nodetype_slug])
         response = self.client.get(url)
-
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data['name'], self.nodetype_name)
-
         nodetype_new_name = 'nodetypeNameChanged'
         data = {'name': nodetype_new_name}
-
         # And then, the patch to see the changes
         response = self.client.patch(url, data)
-
         # We check that the request is correct
         self.assertEqual(response.status_code, 201)
         # We check that the result has the same name
@@ -565,31 +481,19 @@ class APISchemaTest(APITestCase):
     def test_api_nodetype_schema_put(self):
         data = {'name': self.nodetype_name}
         url = reverse("api_node_types", args=[self.graph_slug])
-        # Then, we check the post method
-        response = self.client.post(url, data)
-
-        # We check that the request is correct
-        self.assertEqual(response.status_code, 201)
-        nodetype_name = response.data['name']
-        self.assertEqual(nodetype_name, self.nodetype_name)
-
+        check_and_post_nodetype(self, url, data)
         # Let's get again the nodetypes and we select one of them
         response = self.client.get(url)
         nodetype_slug = response.data[0]['slug']
-
         url = reverse("api_node_type_schema",
                       args=[self.graph_slug, nodetype_slug])
         response = self.client.get(url)
-
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data['name'], self.nodetype_name)
-
         nodetype_new_name = 'nodetypeNameChanged'
         data = {'name': nodetype_new_name}
-
         # And then, the patch to see the changes
         response = self.client.put(url, data)
-
         # We check that the request is correct
         self.assertEqual(response.status_code, 201)
         # We check that the result has the same name
@@ -603,115 +507,62 @@ class APISchemaTest(APITestCase):
         data_source = {'name': source_name}
         data_target = {'name': target_name}
         url = reverse("api_node_types", args=[self.graph_slug])
-
-        response = self.client.post(url, data_source)
-        # We check that the request is correct
-        self.assertEqual(response.status_code, 201)
-        source_slug = response.data['slug']
-
-        response = self.client.post(url, data_target)
-        # We check that the request is correct
-        self.assertEqual(response.status_code, 201)
-        target_slug = response.data['slug']
-
-        data = {'name': self.relationshiptype_name,
-                'source': source_slug,
-                'target': target_slug}
-        url = reverse("api_relationship_types", args=[self.graph_slug])
-
-        # Then, we check the post method
-        response = self.client.post(url, data)
-
-        data = {'name': self.relationshiptype_name}
-        relationshiptype_name = response.data['name']
-        self.assertEqual(relationshiptype_name, self.relationshiptype_name)
-
-        response = self.client.get(url)
-        relationshiptype_slug = response.data[0]['slug']
+        relationshiptype_slug, source_slug, target_slug = (
+            check_and_post_relationshiptype(self,
+                                            url,
+                                            data_source,
+                                            data_target))
         url = reverse("api_relationship_type_schema",
                       args=[self.graph_slug, relationshiptype_slug])
         response = self.client.get(url)
-
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data['name'], self.relationshiptype_name)
 
     def test_api_nodetype_properties_get(self):
         data = {'name': self.nodetype_name}
         url = reverse("api_node_types", args=[self.graph_slug])
-        # Then, we check the post method
-        response = self.client.post(url, data)
-        # We check that the request is correct
-        self.assertEqual(response.status_code, 201)
-        nodetype_name = response.data['name']
-        self.assertEqual(nodetype_name, self.nodetype_name)
-
+        check_and_post_nodetype(self, url, data)
         # Let's get again the nodetypes and we select one of them
         response = self.client.get(url)
         nodetype_slug = response.data[0]['slug']
         url = reverse("api_node_type_schema_properties",
                       args=[self.graph_slug, nodetype_slug])
         response = self.client.get(url)
-
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data['properties'], [])
 
     def test_api_nodetype_properties_post(self):
         data = {'name': self.nodetype_name}
         url = reverse("api_node_types", args=[self.graph_slug])
-        # Then, we check the post method
-        response = self.client.post(url, data)
-
-        # We check that the request is correct
-        self.assertEqual(response.status_code, 201)
-        nodetype_name = response.data['name']
-        self.assertEqual(nodetype_name, self.nodetype_name)
-
+        check_and_post_nodetype(self, url, data)
         # Let's get again the nodetypes and we select one of them
         response = self.client.get(url)
         nodetype_slug = response.data[0]['slug']
-
         url = reverse("api_node_type_schema_properties",
                       args=[self.graph_slug, nodetype_slug])
         response = self.client.get(url)
-
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data['properties'], [])
-
         property_name = 'prop_name'
         property_datatype = 'default'
         property_data = {
             'key': property_name,
             'datatype': property_datatype
         }
-        property_data_serialized = json.dumps(property_data)
-        response = self.client.post(url, property_data_serialized,
-                                    format='json')
-
-        self.assertEqual(response.status_code, 201)
-        self.assertEqual(response.data['properties'][0]['name'], property_name)
+        create_property(self, url, property_data, property_name)
 
     def test_api_nodetype_properties_put(self):
         data = {'name': self.nodetype_name}
         url = reverse("api_node_types", args=[self.graph_slug])
-        # Then, we check the post method
-        response = self.client.post(url, data)
-
-        # We check that the request is correct
-        self.assertEqual(response.status_code, 201)
-        nodetype_name = response.data['name']
-        self.assertEqual(nodetype_name, self.nodetype_name)
-
+        check_and_post_nodetype(self, url, data)
         # Let's get again the nodetypes and we select one of them
         response = self.client.get(url)
         nodetype_slug = response.data[0]['slug']
-
         url = reverse("api_node_type_schema_properties",
                       args=[self.graph_slug, nodetype_slug])
         response = self.client.get(url)
-
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data['properties'], [])
-
         # We create the property
         property_name = 'prop_name'
         property_datatype = 'default'
@@ -719,15 +570,8 @@ class APISchemaTest(APITestCase):
             'key': property_name,
             'datatype': property_datatype
         }
-        property_data_serialized = json.dumps(property_data)
-        response = self.client.post(url, property_data_serialized,
-                                    format='json')
-
-        self.assertEqual(response.status_code, 201)
-        self.assertEqual(response.data['properties'][0]['label'],
-                         property_name)
-        property_id = response.data['properties'][0]['id']
-
+        result_data = create_property(self, url, property_data, property_name)
+        property_id = result_data
         # We modify the property
         migration_flag = 'rename'
         properties_data = {}
@@ -751,14 +595,7 @@ class APISchemaTest(APITestCase):
     def test_api_nodetype_properties_patch(self):
         data = {'name': self.nodetype_name}
         url = reverse("api_node_types", args=[self.graph_slug])
-        # Then, we check the post method
-        response = self.client.post(url, data)
-
-        # We check that the request is correct
-        self.assertEqual(response.status_code, 201)
-        nodetype_name = response.data['name']
-        self.assertEqual(nodetype_name, self.nodetype_name)
-
+        check_and_post_nodetype(self, url, data)
         # Let's get again the nodetypes and we select one of them
         response = self.client.get(url)
         nodetype_slug = response.data[0]['slug']
@@ -769,7 +606,6 @@ class APISchemaTest(APITestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data['properties'], [])
-
         # We create the property
         property_name = 'prop_name'
         property_datatype = 'default'
@@ -777,15 +613,8 @@ class APISchemaTest(APITestCase):
             'key': property_name,
             'datatype': property_datatype
         }
-        property_data_serialized = json.dumps(property_data)
-        response = self.client.post(url, property_data_serialized,
-                                    format='json')
-
-        self.assertEqual(response.status_code, 201)
-        self.assertEqual(response.data['properties'][0]['label'],
-                         property_name)
-        property_id = response.data['properties'][0]['id']
-
+        result_data = create_property(self, url, property_data, property_name)
+        property_id = result_data
         # We modify the property
         migration_flag = 'rename'
         properties_data = {}
@@ -809,25 +638,15 @@ class APISchemaTest(APITestCase):
     def test_api_nodetype_properties_delete(self):
         data = {'name': self.nodetype_name}
         url = reverse("api_node_types", args=[self.graph_slug])
-        # Then, we check the post method
-        response = self.client.post(url, data)
-
-        # We check that the request is correct
-        self.assertEqual(response.status_code, 201)
-        nodetype_name = response.data['name']
-        self.assertEqual(nodetype_name, self.nodetype_name)
-
+        check_and_post_nodetype(self, url, data)
         # Let's get again the nodetypes and we select one of them
         response = self.client.get(url)
         nodetype_slug = response.data[0]['slug']
-
         url = reverse("api_node_type_schema_properties",
                       args=[self.graph_slug, nodetype_slug])
         response = self.client.get(url)
-
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data['properties'], [])
-
         # We create the property
         property_name = 'prop_name'
         property_datatype = 'default'
@@ -835,14 +654,7 @@ class APISchemaTest(APITestCase):
             'key': property_name,
             'datatype': property_datatype
         }
-        property_data_serialized = json.dumps(property_data)
-        response = self.client.post(url, property_data_serialized,
-                                    format='json')
-
-        self.assertEqual(response.status_code, 201)
-        self.assertEqual(response.data['properties'][0]['label'],
-                         property_name)
-
+        create_property(self, url, property_data, property_name)
         # We modify the property
         migration_flag = 'rename'
         properties_data = {}
