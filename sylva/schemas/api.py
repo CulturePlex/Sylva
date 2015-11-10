@@ -44,9 +44,8 @@ class NodeTypesView(APIView):
         """
         graph = get_object_or_404(Graph, slug=graph_slug)
         self.check_object_permissions(self.request, graph)
-
         # We get the data from the request
-        post_data = request.data
+        post_data = request.data.copy()
         # We get the schema id
         post_data['schema'] = graph.schema_id
 
@@ -83,7 +82,7 @@ class RelationshipTypesView(APIView):
         self.check_object_permissions(self.request, graph)
 
         # We get the data from the request
-        post_data = request.data
+        post_data = request.data.copy()
 
         source_slug = post_data['source']
         target_slug = post_data['target']
@@ -299,7 +298,7 @@ class NodeTypeSchemaPropertiesView(APIView):
         graph = get_object_or_404(Graph, slug=graph_slug)
         self.check_object_permissions(self.request, graph)
 
-        post_data = request.data
+        post_data = request.data.copy()
         if isinstance(post_data, (str, unicode)):
             # We check if we need to deserialize the object
             post_data = json.loads(post_data)
@@ -346,7 +345,7 @@ class NodeTypeSchemaPropertiesView(APIView):
         graph = get_object_or_404(Graph, slug=graph_slug)
         self.check_object_permissions(self.request, graph)
 
-        post_data = request.data
+        post_data = request.data.copy()
         if isinstance(post_data, (str, unicode)):
             # We check if we need to deserialize the object
             post_data = json.loads(post_data)
@@ -441,7 +440,7 @@ class NodeTypeSchemaPropertiesView(APIView):
         graph = get_object_or_404(Graph, slug=graph_slug)
         self.check_object_permissions(self.request, graph)
 
-        post_data = request.data
+        post_data = request.data.copy()
         if isinstance(post_data, (str, unicode)):
             # We check if we need to deserialize the object
             post_data = json.loads(post_data)
@@ -525,7 +524,7 @@ class NodeTypeSchemaPropertiesView(APIView):
         graph = get_object_or_404(Graph, slug=graph_slug)
         self.check_object_permissions(self.request, graph)
 
-        post_data = request.data
+        post_data = request.data.copy()
         if isinstance(post_data, (str, unicode)):
             # We check if we need to deserialize the object
             post_data = json.loads(post_data)
@@ -593,25 +592,18 @@ class RelationshipTypeSchemaPropertiesView(APIView):
         graph = get_object_or_404(Graph, slug=graph_slug)
         self.check_object_permissions(self.request, graph)
 
-        post_data = request.data
+        post_data = request.data.copy()
         # We need to get all the fields to create the property
 
         relationshiptype = get_object_or_404(RelationshipType,
                                              slug=type_slug,
                                              schema__graph__slug=graph_slug)
-
-        relationshipproperty = RelationshipProperty.objects.create(
-            **post_data.dict())
-        relationshipproperty.save()
-
-        serializer = RelationshipTypeSchemaPropertiesSerializer(
-            relationshiptype)
-
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-
+        if not isinstance(post_data, (dict)):
+            # We check if we need to deserialize the object
+            post_data = post_data.dict()
         try:
             post_data['relationship'] = relationshiptype
-            rel_property = RelationshipProperty(**post_data.dict())
+            rel_property = RelationshipProperty(**post_data)
             # We need to check if we have the datatype in the properties
             try:
                 datatype = post_data['datatype']
@@ -647,8 +639,7 @@ class RelationshipTypeSchemaPropertiesView(APIView):
         graph = get_object_or_404(Graph, slug=graph_slug)
         self.check_object_permissions(self.request, graph)
 
-        post_data = request.data
-
+        post_data = request.data.copy()
         relationshiptype = get_object_or_404(RelationshipType,
                                              slug=type_slug,
                                              schema__graph__slug=graph_slug)
@@ -742,8 +733,7 @@ class RelationshipTypeSchemaPropertiesView(APIView):
         graph = get_object_or_404(Graph, slug=graph_slug)
         self.check_object_permissions(self.request, graph)
 
-        post_data = request.data
-
+        post_data = request.data.copy()
         relationshiptype = get_object_or_404(RelationshipType,
                                              slug=type_slug,
                                              schema__graph__slug=graph_slug)
@@ -827,8 +817,7 @@ class RelationshipTypeSchemaPropertiesView(APIView):
         graph = get_object_or_404(Graph, slug=graph_slug)
         self.check_object_permissions(self.request, graph)
 
-        post_data = request.data
-
+        post_data = request.data.copy()
         relationshiptype = get_object_or_404(RelationshipType,
                                              slug=type_slug,
                                              schema__graph__slug=graph_slug)
