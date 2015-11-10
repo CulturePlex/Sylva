@@ -621,3 +621,141 @@ class APIDataTest(APITestCase):
                       args=[self.graph_slug, nodetype_slug, node_id])
         response = self.client.delete(url)
         self.assertEqual(response.status_code, 204)
+
+    def test_api_relationship_get(self):
+        # We create the nodetypes for the source and the target
+        source_name = self.nodetype_name + '_source'
+        target_name = self.nodetype_name + '_target'
+        data_source = {'name': source_name}
+        data_target = {'name': target_name}
+        url = reverse("api_node_types", args=[self.graph_slug])
+        relationshiptype_slug, source_slug, target_slug = (
+            check_relationships(self, url, data_source, data_target))
+        # # Creating the property for the nodetype
+        url = reverse("api_node_type_schema_properties",
+                      args=[self.graph_slug, source_slug])
+        property_name1 = 'prop1_name'
+        property_datatype = 'default'
+        property_data = {
+            'key': property_name1,
+            'datatype': property_datatype
+        }
+        create_property(self, url, property_data, property_name1)
+        url = reverse("api_node_type_schema_properties",
+                      args=[self.graph_slug, target_slug])
+        property_name2 = 'prop2_name'
+        property_datatype = 'default'
+        property_data = {
+            'key': property_name2,
+            'datatype': property_datatype
+        }
+        create_property(self, url, property_data, property_name2)
+        # # Creating the nodes
+        url = reverse("api_nodes",
+                      args=[self.graph_slug, source_slug])
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data['nodes'], [])
+        node_name1 = "nodeName1"
+        node_data1 = {property_name1: node_name1}
+        nodes_list = []
+        nodes_list.append(node_data1)
+        nodes_ids = create_nodes(self, url, nodes_list)
+        self.assertEqual(len(nodes_ids), 1)
+        source_id = nodes_ids[0]
+        url = reverse("api_nodes",
+                      args=[self.graph_slug, target_slug])
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data['nodes'], [])
+        node_name2 = "nodeName2"
+        node_data2 = {property_name2: node_name2}
+        nodes_list = []
+        nodes_list.append(node_data2)
+        nodes_ids = create_nodes(self, url, nodes_list)
+        self.assertEqual(len(nodes_ids), 1)
+        target_id = nodes_ids[0]
+        # # Creating the relationships
+        url = reverse("api_relationships",
+                      args=[self.graph_slug, relationshiptype_slug])
+        relationship_data = {'source_id': source_id, 'target_id': target_id}
+        rels_list = []
+        rels_list.append(relationship_data)
+        rels_ids = create_relationships(self, url, rels_list)
+        self.assertEqual(len(rels_ids), 1)
+        # We get one of the relationships
+        rel_id = rels_ids[0]
+        url = reverse("api_relationship",
+                      args=[self.graph_slug, relationshiptype_slug, rel_id])
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+
+    def test_api_relationship_delete(self):
+        # We create the nodetypes for the source and the target
+        source_name = self.nodetype_name + '_source'
+        target_name = self.nodetype_name + '_target'
+        data_source = {'name': source_name}
+        data_target = {'name': target_name}
+        url = reverse("api_node_types", args=[self.graph_slug])
+        relationshiptype_slug, source_slug, target_slug = (
+            check_relationships(self, url, data_source, data_target))
+        # # Creating the property for the nodetype
+        url = reverse("api_node_type_schema_properties",
+                      args=[self.graph_slug, source_slug])
+        property_name1 = 'prop1_name'
+        property_datatype = 'default'
+        property_data = {
+            'key': property_name1,
+            'datatype': property_datatype
+        }
+        create_property(self, url, property_data, property_name1)
+        url = reverse("api_node_type_schema_properties",
+                      args=[self.graph_slug, target_slug])
+        property_name2 = 'prop2_name'
+        property_datatype = 'default'
+        property_data = {
+            'key': property_name2,
+            'datatype': property_datatype
+        }
+        create_property(self, url, property_data, property_name2)
+        # # Creating the nodes
+        url = reverse("api_nodes",
+                      args=[self.graph_slug, source_slug])
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data['nodes'], [])
+        node_name1 = "nodeName1"
+        node_data1 = {property_name1: node_name1}
+        nodes_list = []
+        nodes_list.append(node_data1)
+        nodes_ids = create_nodes(self, url, nodes_list)
+        self.assertEqual(len(nodes_ids), 1)
+        source_id = nodes_ids[0]
+        url = reverse("api_nodes",
+                      args=[self.graph_slug, target_slug])
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data['nodes'], [])
+        node_name2 = "nodeName2"
+        node_data2 = {property_name2: node_name2}
+        nodes_list = []
+        nodes_list.append(node_data2)
+        nodes_ids = create_nodes(self, url, nodes_list)
+        self.assertEqual(len(nodes_ids), 1)
+        target_id = nodes_ids[0]
+        # # Creating the relationships
+        url = reverse("api_relationships",
+                      args=[self.graph_slug, relationshiptype_slug])
+        relationship_data = {'source_id': source_id, 'target_id': target_id}
+        rels_list = []
+        rels_list.append(relationship_data)
+        rels_ids = create_relationships(self, url, rels_list)
+        self.assertEqual(len(rels_ids), 1)
+        # We get one of the relationships
+        rel_id = rels_ids[0]
+        url = reverse("api_relationship",
+                      args=[self.graph_slug, relationshiptype_slug, rel_id])
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        response = self.client.delete(url)
+        self.assertEqual(response.status_code, 204)

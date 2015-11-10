@@ -298,12 +298,12 @@ class NodeTypeSchemaPropertiesView(APIView):
         graph = get_object_or_404(Graph, slug=graph_slug)
         self.check_object_permissions(self.request, graph)
 
-        post_data = request.data.copy()
+        post_data = request.data
         if isinstance(post_data, (str, unicode)):
             # We check if we need to deserialize the object
             post_data = json.loads(post_data)
         # We need to get all the fields to create the property
-
+        post_data = post_data.copy()
         nodetype = get_object_or_404(NodeType,
                                      slug=type_slug,
                                      schema__graph__slug=graph_slug)
@@ -345,11 +345,11 @@ class NodeTypeSchemaPropertiesView(APIView):
         graph = get_object_or_404(Graph, slug=graph_slug)
         self.check_object_permissions(self.request, graph)
 
-        post_data = request.data.copy()
+        post_data = request.data
         if isinstance(post_data, (str, unicode)):
             # We check if we need to deserialize the object
             post_data = json.loads(post_data)
-
+        post_data = post_data.copy()
         nodetype = get_object_or_404(NodeType,
                                      slug=type_slug,
                                      schema__graph__slug=graph_slug)
@@ -440,10 +440,11 @@ class NodeTypeSchemaPropertiesView(APIView):
         graph = get_object_or_404(Graph, slug=graph_slug)
         self.check_object_permissions(self.request, graph)
 
-        post_data = request.data.copy()
+        post_data = request.data
         if isinstance(post_data, (str, unicode)):
             # We check if we need to deserialize the object
             post_data = json.loads(post_data)
+        post_data = post_data.copy()
         nodetype = get_object_or_404(NodeType,
                                      slug=type_slug,
                                      schema__graph__slug=graph_slug)
@@ -524,10 +525,11 @@ class NodeTypeSchemaPropertiesView(APIView):
         graph = get_object_or_404(Graph, slug=graph_slug)
         self.check_object_permissions(self.request, graph)
 
-        post_data = request.data.copy()
+        post_data = request.data
         if isinstance(post_data, (str, unicode)):
             # We check if we need to deserialize the object
             post_data = json.loads(post_data)
+        post_data = post_data.copy()
         nodetype = get_object_or_404(NodeType,
                                      slug=type_slug,
                                      schema__graph__slug=graph_slug)
