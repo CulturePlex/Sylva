@@ -22,6 +22,7 @@ ITEM_FIELD_NAME = "_ITEM_ID"
 NULL_OPTION = u"---------"
 SOURCE = u"source"
 TARGET = u"target"
+EMPTY_GEOJSON = u'{"type": "MultiLineString", "coordinates": []}'
 
 
 class ItemDeleteConfirmForm(forms.Form):
@@ -185,18 +186,21 @@ class ItemForm(forms.Form):
                     field = forms.ChoiceField(**field_attrs)
             elif settings.ENABLE_SPATIAL and isinstance(itemtype, NodeType):
                 if item_property.datatype == datatype_dict["point"]:
+                    field_attrs['initial'] = EMPTY_GEOJSON
                     widget = LeafletPointWidget(attrs={
                        'loadevent': 'loadLeafletMap'
                     })
                     field_attrs["widget"] = widget
                     field = forms.CharField(**field_attrs)
                 elif item_property.datatype == datatype_dict["path"]:
+                    field_attrs['initial'] = EMPTY_GEOJSON
                     widget = LeafletPathWidget(attrs={
                        'loadevent': 'loadLeafletMap'
                     })
                     field_attrs["widget"] = widget
                     field = forms.CharField(**field_attrs)
                 elif item_property.datatype == datatype_dict["area"]:
+                    field_attrs['initial'] = EMPTY_GEOJSON
                     widget = LeafletAreaWidget(attrs={
                        'loadevent': 'loadLeafletMap'
                     })
