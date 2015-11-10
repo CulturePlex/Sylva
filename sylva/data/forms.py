@@ -185,15 +185,21 @@ class ItemForm(forms.Form):
                     field = forms.ChoiceField(**field_attrs)
             elif settings.ENABLE_SPATIAL and isinstance(itemtype, NodeType):
                 if item_property.datatype == datatype_dict["point"]:
-                    widget = LeafletPointWidget()
+                    widget = LeafletPointWidget(attrs={
+                       'loadevent': 'loadLeafletMap'
+                    })
                     field_attrs["widget"] = widget
                     field = forms.CharField(**field_attrs)
                 elif item_property.datatype == datatype_dict["path"]:
-                    widget = LeafletPathWidget()
+                    widget = LeafletPathWidget(attrs={
+                       'loadevent': 'loadLeafletMap'
+                    })
                     field_attrs["widget"] = widget
                     field = forms.CharField(**field_attrs)
                 elif item_property.datatype == datatype_dict["area"]:
-                    widget = LeafletAreaWidget()
+                    widget = LeafletAreaWidget(attrs={
+                       'loadevent': 'loadLeafletMap'
+                    })
                     field_attrs["widget"] = widget
                     field = forms.CharField(**field_attrs)
             if not field:
