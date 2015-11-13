@@ -20,7 +20,14 @@ except ImportError:
 
 
 WILDCARD_TYPE = -1
-AGGREGATES = ["Count", "Max", "Min", "Sum", "Average", "Deviation"]
+AGGREGATES = {
+    "Count": "count",
+    "Max": "max",
+    "Min": "min",
+    "Sum": "sum",
+    "Average": "avg",
+    "Deviation": "stdev"
+}
 
 
 class GraphDatabase(BlueprintsGraphDatabase):
@@ -514,7 +521,7 @@ class GraphDatabase(BlueprintsGraphDatabase):
                             match_first_element = match_splitted[0]
                             # We check if aggregate belongs to the aggregate
                             # set
-                            if match_first_element not in AGGREGATES:
+                            if match_first_element not in AGGREGATES.keys():
                                 slug = match_first_element
                                 prop = match_splitted[1]
                                 match_var, match_property = (
@@ -723,9 +730,9 @@ class GraphDatabase(BlueprintsGraphDatabase):
                             distinct_clause = ""
                             if property_distinct:
                                 distinct_clause = u"DISTINCT "
-                            if property_aggregate in AGGREGATES:
+                            if property_aggregate in AGGREGATES.keys():
                                 result = u"{0}({1}`{2}`.`{3}`)".format(
-                                    unicode(property_aggregate),
+                                    unicode(AGGREGATES[property_aggregate]),
                                     unicode(distinct_clause),
                                     self._escape(alias),
                                     self._escape(property_value)
