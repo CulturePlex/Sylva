@@ -1267,16 +1267,15 @@ class QueryTestCase(LiveServerTestCase):
         self.browser.execute_script(js_code)
         # We get the button to run the query and click it
         run_query(self)
-        # # We check the headers with the aliases
-        # headers = self.browser.find_by_xpath("//th[@class='header']/a/div")
-        # header1 = headers[0]
-        # spin_assert(lambda: self.assertEqual(header1.text,
-        #                                      u"Max (Bob's type 1.Number)"))
-        # # We check the text u"Bob's node"
-        # result_name = self.browser.find_by_xpath(
-        #     "//tr[@class='row-even']").first.text
-        # spin_assert(lambda: self.assertEqual(result_name, 1))
-        test_no_results(self)
+        # We check the headers with the aliases
+        headers = self.browser.find_by_xpath("//th[@class='header']/a/div")
+        header1 = headers[0]
+        spin_assert(lambda: self.assertEqual(header1.text,
+                                             u"Max (Bob's type 1.Number)"))
+        # We check the text u"Bob's node"
+        result_name = self.browser.find_by_xpath(
+            "//tr[@class='row-even']").first.text
+        spin_assert(lambda: self.assertEqual(result_name, u'1'))
         Graph.objects.get(name="Bob's graph").destroy()
 
     def test_query_builder_max_distinct(self):
@@ -1326,16 +1325,15 @@ class QueryTestCase(LiveServerTestCase):
         self.browser.execute_script(js_code)
         # We get the button to run the query and click it
         run_query(self)
-        # # We check the headers with the aliases
-        # headers = self.browser.find_by_xpath("//th[@class='header']/a/div")
-        # header1 = headers[0]
-        # spin_assert(lambda: self.assertEqual(
-        #    header1.text, u"Max Distinct(Bob's type 1.Number)"))
-        # # We check the text u"Bob's node"
-        # result_name = self.browser.find_by_xpath(
-        #     "//tr[@class='row-even']").first.text
-        # spin_assert(lambda: self.assertEqual(result_name, 1))
-        test_no_results(self)
+        # We check the headers with the aliases
+        headers = self.browser.find_by_xpath("//th[@class='header']/a/div")
+        header1 = headers[0]
+        spin_assert(lambda: self.assertEqual(header1.text,
+                                             u"Max (Bob's type 1.Number)"))
+        # We check the text u"Bob's node"
+        result_name = self.browser.find_by_xpath(
+            "//tr[@class='row-even']").first.text
+        spin_assert(lambda: self.assertEqual(result_name, u'1'))
         Graph.objects.get(name="Bob's graph").destroy()
 
     def test_query_builder_min_no_distinct(self):
@@ -1385,16 +1383,15 @@ class QueryTestCase(LiveServerTestCase):
         self.browser.execute_script(js_code)
         # We get the button to run the query and click it
         run_query(self)
-        # # We check the headers with the aliases
-        # headers = self.browser.find_by_xpath("//th[@class='header']/a/div")
-        # header1 = headers[0]
-        # spin_assert(lambda: self.assertEqual(header1.text,
-        #                                      u"Min (Bob's type 1.Number)"))
-        # # We check the text u"Bob's node"
-        # result_name = self.browser.find_by_xpath(
-        #     "//tr[@class='row-even']").first.text
-        # spin_assert(lambda: self.assertEqual(result_name, 1))
-        test_no_results(self)
+        # We check the headers with the aliases
+        headers = self.browser.find_by_xpath("//th[@class='header']/a/div")
+        header1 = headers[0]
+        spin_assert(lambda: self.assertEqual(header1.text,
+                                             u"Min (Bob's type 1.Number)"))
+        # We check the text u"Bob's node"
+        result_name = self.browser.find_by_xpath(
+            "//tr[@class='row-even']").first.text
+        spin_assert(lambda: self.assertEqual(result_name, u'1'))
         Graph.objects.get(name="Bob's graph").destroy()
 
     def test_query_builder_min_distinct(self):
@@ -1444,16 +1441,15 @@ class QueryTestCase(LiveServerTestCase):
         self.browser.execute_script(js_code)
         # We get the button to run the query and click it
         run_query(self)
-        # # We check the headers with the aliases
-        # headers = self.browser.find_by_xpath("//th[@class='header']/a/div")
-        # header1 = headers[0]
-        # spin_assert(lambda: self.assertEqual(
-        #    header1.text, u"Min Distinct(Bob's type 1.Number)"))
-        # # We check the text u"Bob's node"
-        # result_name = self.browser.find_by_xpath(
-        #     "//tr[@class='row-even']").first.text
-        # spin_assert(lambda: self.assertEqual(result_name, 1))
-        test_no_results(self)
+        # We check the headers with the aliases
+        headers = self.browser.find_by_xpath("//th[@class='header']/a/div")
+        header1 = headers[0]
+        spin_assert(lambda: self.assertEqual(header1.text,
+                                             u"Min (Bob's type 1.Number)"))
+        # We check the text u"Bob's node"
+        result_name = self.browser.find_by_xpath(
+            "//tr[@class='row-even']").first.text
+        spin_assert(lambda: self.assertEqual(result_name, u'1'))
         Graph.objects.get(name="Bob's graph").destroy()
 
     def test_query_builder_sum_no_distinct(self):
@@ -1503,16 +1499,15 @@ class QueryTestCase(LiveServerTestCase):
         self.browser.execute_script(js_code)
         # We get the button to run the query and click it
         run_query(self)
-        # # We check the headers with the aliases
-        # headers = self.browser.find_by_xpath("//th[@class='header']/a/div")
-        # header1 = headers[0]
-        # spin_assert(lambda: self.assertEqual(header1.text,
-        #                                      u"Sum (Bob's type 1.Number)"))
-        # # We check the text u"Bob's node"
-        # result_name = self.browser.find_by_xpath(
-        #     "//tr[@class='row-even']").first.text
-        # spin_assert(lambda: self.assertEqual(result_name, 1))
-        test_no_results(self)
+        # We check the headers with the aliases
+        headers = self.browser.find_by_xpath("//th[@class='header']/a/div")
+        header1 = headers[0]
+        spin_assert(lambda: self.assertEqual(header1.text,
+                                             u"Sum (Bob's type 1.Number)"))
+        # We check the text u"Bob's node"
+        result_name = self.browser.find_by_xpath(
+            "//tr[@class='row-even']").first.text
+        spin_assert(lambda: self.assertEqual(result_name, u'1'))
         Graph.objects.get(name="Bob's graph").destroy()
 
     def test_query_builder_sum_distinct(self):
@@ -1562,15 +1557,15 @@ class QueryTestCase(LiveServerTestCase):
         self.browser.execute_script(js_code)
         # We get the button to run the query and click it
         run_query(self)
-        # # We check the headers with the aliases
-        # headers = self.browser.find_by_xpath("//th[@class='header']/a/div")
-        # header1 = headers[0]
-        # spin_assert(lambda: self.assertEqual(
-        #    header1.text, u"Sum Distinct(Bob's type 1.Number)"))
-        # # We check the text u"Bob's node"
-        # result_name = self.browser.find_by_xpath(
-        #     "//tr[@class='row-even']").first.text
-        # spin_assert(lambda: self.assertEqual(result_name, 1))
+        # We check the headers with the aliases
+        headers = self.browser.find_by_xpath("//th[@class='header']/a/div")
+        header1 = headers[0]
+        spin_assert(lambda: self.assertEqual(
+            header1.text, u"Sum Distinct(Bob's type 1.Number)"))
+        # We check the text u"Bob's node"
+        result_name = self.browser.find_by_xpath(
+            "//tr[@class='row-even']").first.text
+        spin_assert(lambda: self.assertEqual(result_name, u'1'))
         test_no_results(self)
         Graph.objects.get(name="Bob's graph").destroy()
 
@@ -1621,16 +1616,15 @@ class QueryTestCase(LiveServerTestCase):
         self.browser.execute_script(js_code)
         # We get the button to run the query and click it
         run_query(self)
-        # # We check the headers with the aliases
-        # headers = self.browser.find_by_xpath("//th[@class='header']/a/div")
-        # header1 = headers[0]
-        # spin_assert(lambda: self.assertEqual(
-        #    header1.text, u"Average (Bob's type 1.Number)"))
-        # # We check the text u"Bob's node"
-        # result_name = self.browser.find_by_xpath(
-        #     "//tr[@class='row-even']").first.text
-        # spin_assert(lambda: self.assertEqual(result_name, 1))
-        test_no_results(self)
+        # We check the headers with the aliases
+        headers = self.browser.find_by_xpath("//th[@class='header']/a/div")
+        header1 = headers[0]
+        spin_assert(lambda: self.assertEqual(
+            header1.text, u"Average (Bob's type 1.Number)"))
+        # We check the text u"Bob's node"
+        result_name = self.browser.find_by_xpath(
+            "//tr[@class='row-even']").first.text
+        spin_assert(lambda: self.assertEqual(result_name, u'1.0'))
         Graph.objects.get(name="Bob's graph").destroy()
 
     def test_query_builder_avg_distinct(self):
@@ -1680,16 +1674,15 @@ class QueryTestCase(LiveServerTestCase):
         self.browser.execute_script(js_code)
         # We get the button to run the query and click it
         run_query(self)
-        # # We check the headers with the aliases
-        # headers = self.browser.find_by_xpath("//th[@class='header']/a/div")
-        # header1 = headers[0]
-        # spin_assert(lambda: self.assertEqual(
-        #    header1.text, u"Average Distinct(Bob's type 1.Number)"))
-        # # We check the text u"Bob's node"
-        # result_name = self.browser.find_by_xpath(
-        #     "//tr[@class='row-even']").first.text
-        # spin_assert(lambda: self.assertEqual(result_name, 1))
-        test_no_results(self)
+        # We check the headers with the aliases
+        headers = self.browser.find_by_xpath("//th[@class='header']/a/div")
+        header1 = headers[0]
+        spin_assert(lambda: self.assertEqual(
+            header1.text, u"Average (Bob's type 1.Number)"))
+        # We check the text u"Bob's node"
+        result_name = self.browser.find_by_xpath(
+            "//tr[@class='row-even']").first.text
+        spin_assert(lambda: self.assertEqual(result_name, u'1.0'))
         Graph.objects.get(name="Bob's graph").destroy()
 
     def test_query_builder_stdev_no_distinct(self):
