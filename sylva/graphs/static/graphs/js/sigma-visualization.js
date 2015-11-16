@@ -32,6 +32,8 @@
   var isDrawing = false;
   // True when the "Analytics" button is clicked.
   var isAnalyticsMode = false;
+  // True when the "Map" button is clicked.
+  var isMapMode = false;
   // True when the "Fullscreen" button is clicked.
   var isFullscreenByButton = false;
   // True when the nodes degrees are calculated.
@@ -156,7 +158,7 @@
 
 
       /* *****
-       * Analytics mode events.
+       * Analytics and map mode events.
        ***** */
 
       $('#sigma-go-analytics').on('click', function() {
@@ -165,6 +167,14 @@
 
       $('#sigma-exit-analytics').on('click', function() {
         that.exitAnalyticsMode();
+      });
+
+      $('#sigma-go-map').on('click', function() {
+        that.changeMapMode();
+      });
+
+      $('#sigma-exit-map').on('click', function() {
+        that.changeMapMode();
       });
 
       $('#sigma-go-fullscreen').on('click', function() {
@@ -1442,11 +1452,15 @@
 
       $('.analytics-mode').show();
 
+      // Showing map button, it's a special case :(
+      $('#sigma-go-map').removeClass('zoom-bottom-hide');
+      $('#sigma-go-map').addClass('zoom-bottom-show');
+
       if ($('#sigma-node-info').is(':checked')) {
         sigma.canvas.hovers.def = sigma.canvas.hovers.defBackup;
       }
 
-      // If there are new boxes here the will be created
+      // If there are new boxes here they will be created
       if (Object.keys(sylva.positions).length <
           $('.collapsible-header').length) {
         that.createCollapsiblesStructures();
@@ -1651,6 +1665,11 @@
 
       $('.analytics-mode').hide();
 
+      // Hiding map buttons, it's a special case :(
+      $('.zoom-bottom').removeClass('zoom-bottom-show');
+      $('.zoom-bottom').addClass('zoom-bottom-hide');
+      that.changeMapMode(true);
+
       if ($('#sigma-node-info').is(':checked')) {
         sigma.canvas.hovers.def = sigma.canvas.hovers.info;
       }
@@ -1683,6 +1702,44 @@
       $('#reportsMenu').off('click', that.callReportsModal);
     },
 
+    // Alternate between map an graph mode.
+    changeMapMode: function(exitAnalytics) {
+      if (!isMapMode && !exitAnalytics) {
+        $('#sigma-go-map').removeClass('zoom-bottom-show');
+        $('#sigma-go-map').addClass('zoom-bottom-hide');
+
+        $('#sigma-exit-map').removeClass('zoom-bottom-hide');
+        $('#sigma-exit-map').addClass('zoom-bottom-show');
+
+        isMapMode = true;
+        that.goMapMode();
+
+      } else if (isMapMode) {
+        $('#sigma-exit-map').removeClass('zoom-bottom-show');
+        $('#sigma-exit-map').addClass('zoom-bottom-hide');
+
+        $('#sigma-go-map').removeClass('zoom-bottom-hide');
+        $('#sigma-go-map').addClass('zoom-bottom-show');
+
+        isMapMode = false;
+        that.exitMapMode();
+      }
+    },
+
+    /* Change the visualization from Sigma to Leaflet.
+     * TODO: More doc.
+     */
+    goMapMode: function() {
+      console.log('Go map mode!');
+      sylva.Leaflet.init();
+    },
+
+    /* Change the visualization from Leaflet to Sigma.
+     * TODO: More doc.
+     */
+    exitMapMode: function() {
+      console.log('Exit map mode');
+    },
 
     /* *****
      * Functions for control the graph layout.

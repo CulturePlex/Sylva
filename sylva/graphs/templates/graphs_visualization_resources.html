@@ -22,6 +22,8 @@
       isSchemaEmpty: false
     };
   {% endif %}
+
+  sylva.spatialEnabled = JSON.parse('{{  OPTIONS.ENABLE_SPATIAL|escape_js}}');
 </script>
 
 {% compress js %}
@@ -32,6 +34,9 @@
   <script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/sigma/plugins/sigma.plugins.dragNodes.min.js"></script>
   <script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/sigma/plugins/sigma.plugins.neighborhoods.min.js"></script>
   <script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/sigma/plugins/sigma.renderers.customShapes.min.js"></script>
+
+  <script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/leaflet/leaflet-heat.js"></script>
+  <script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/leaflet/Leaflet.MakiMarkers.js"></script>
 
   <script type="text/javascript" src="{{ STATIC_PREFIX }}js/jquery-ui-1.10.4.js"></script>
   <script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/jquery/jquery.simulate.js"></script>
@@ -46,6 +51,7 @@
 
   <script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/visualizations.js"></script>
   <script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/sigma-visualization.js"></script>
+  <script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/leaflet-visualization.js"></script>
   <script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/modals.js"></script>
 
   <script type="text/javascript" src="{{ STATIC_PREFIX }}js/jqueryui.timepicker.js"></script>

@@ -98,6 +98,8 @@
         <a id="sigma-zoom-in" class="button fa fa-plus control-button zoom-left" title="{% trans "Zoom in" %}"></a>
         <a id="sigma-zoom-home" class="button fa fa-home control-button zoom-home" title="{% trans "Re-center graph" %}"></a>
         <a id="sigma-zoom-out" class="button fa fa-minus control-button zoom-right" title="{% trans "Zoom out" %}"></a>
+        <a id="sigma-go-map" class="button fa fa-map-o control-button zoom-bottom zoom-bottom-hide" title="{% trans "Go map mode" %}"></a>
+        <a id="sigma-exit-map" class="button control-button zoom-bottom zoom-bottom-hide" title="{% trans "Exit map mode" %}"></a>
       </div>
       <div class="sigma-control left analytics-mode" style="display: none;">
         <ul id="sigma-export-menu" class="dropit">
@@ -186,6 +188,11 @@
     {% endfor %}
   </div>
   {% endif %}
+</div>
+
+<div id="map" style="display: none;">
+  <div id="map-types">
+  </div>
 </div>
 
   <!-- Start of DOM elements working as memory system and debugging -->
