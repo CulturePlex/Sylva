@@ -99,7 +99,6 @@
         <a id="sigma-zoom-home" class="button fa fa-home control-button zoom-home" title="{% trans "Re-center graph" %}"></a>
         <a id="sigma-zoom-out" class="button fa fa-minus control-button zoom-right" title="{% trans "Zoom out" %}"></a>
         <a id="sigma-go-map" class="button fa fa-map-o control-button zoom-bottom zoom-bottom-hide" title="{% trans "Go map mode" %}"></a>
-        <a id="sigma-exit-map" class="button control-button zoom-bottom zoom-bottom-hide" title="{% trans "Exit map mode" %}"></a>
       </div>
       <div class="sigma-control left analytics-mode" style="display: none;">
         <ul id="sigma-export-menu" class="dropit">
@@ -131,6 +130,30 @@
     <canvas id="graph-support">{% trans "Your browser does not support graph visualization" %}</canvas>
   </div>
 </div>
+
+<div id="map-container" style="display: none;">
+
+  <!--
+  <div id="map-types">
+  </div>
+  -->
+
+  <!-- TODO: Think how to reuse Sigma's controls -->
+  <div id="map-controls">
+    <div class="map-control left">
+      <a id="map-export-image" class="button" title="{% trans "Save as image" %}">
+        {% trans "Save as image" %}
+      </a>
+    </div>
+    <div class="map-control right">
+      <a id="map-zoom-in" class="button fa fa-plus control-button zoom-left" title="{% trans "Zoom in" %}"></a>
+      <a id="map-zoom-home" class="button fa fa-home control-button zoom-home" title="{% trans "Re-center map" %}"></a>
+      <a id="map-zoom-out" class="button fa fa-minus control-button zoom-right" title="{% trans "Zoom out" %}"></a>
+      <a id="map-exit-map" class="button control-button zoom-bottom" title="{% trans "Exit map mode" %}"></a>
+    </div>
+  </div>
+</div>
+
 <div id="full-window-column" class="analytics-mode" style="display: none;">
   <div class="filters" style="height: 38px;"> <!-- Temporal heigth while 'filter select' is hidden -->
     <h2>{% trans "Filters" %}</h2>
@@ -188,11 +211,6 @@
     {% endfor %}
   </div>
   {% endif %}
-</div>
-
-<div id="map" style="display: none;">
-  <div id="map-types">
-  </div>
 </div>
 
   <!-- Start of DOM elements working as memory system and debugging -->

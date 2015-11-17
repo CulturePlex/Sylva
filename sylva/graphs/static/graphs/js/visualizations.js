@@ -168,8 +168,10 @@ sylva:true, alert:true */
         $('.analytics-mode').show();
 
         // Showing map button, it's a special case :(
-        $('#sigma-go-map').removeClass('zoom-bottom-hide');
-        $('#sigma-go-map').addClass('zoom-bottom-show');
+        if (sylva.spatialEnabled) {
+          $('#sigma-go-map').removeClass('zoom-bottom-hide');
+          $('#sigma-go-map').addClass('zoom-bottom-show');
+        }
 
         $('#sigma-go-fullscreen').hide();
         $('#graph-labels').hide();
@@ -291,8 +293,10 @@ sylva:true, alert:true */
         $('.analytics-mode').hide();
 
         // Hiding map buttons, it's a special case :(
-        $('#sigma-go-map').removeClass('zoom-bottom-show');
-        $('#sigma-go-map').addClass('zoom-bottom-hide');
+        if (sylva.spatialEnabled) {
+          $('#sigma-go-map').removeClass('zoom-bottom-show');
+          $('#sigma-go-map').addClass('zoom-bottom-hide');
+        }
 
         $('#sigma-go-analytics').show();
         $('#graph-node-info').show();

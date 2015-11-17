@@ -33,6 +33,36 @@
     <link type="text/css" rel="stylesheet" href="{{ STATIC_PREFIX }}css/jqueryui.1.8.18.css" />
   {% endcompress %}
 
+  <style>
+    #map {
+      width: 1200px;
+      height: 700px;
+
+      padding: 0;
+      margin-top: 10px;
+      margin-left: -20px;
+    }
+
+    #map-types {
+      position: absolute;
+      z-index: 1001;
+      border: none;
+      padding: 10px;
+      margin-right: 0;
+      height: auto;
+      width: auto;
+      margin-top: 0;
+      border-radius: 10px;
+      white-space: nowrap;
+      background-color: rgba(214, 231, 223, 0.8);
+    }
+
+    #map-types ul {
+      max-height: 279px;
+      overflow: hidden;
+    }
+  </style>
+
   <script type="text/javascript">
     sylva.jsValues = {
       isSchemaEmpty: JSON.parse('{{ is_schema_empty|escape_js }}'),

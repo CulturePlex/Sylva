@@ -34,6 +34,8 @@
   var isAnalyticsMode = false;
   // True when the "Map" button is clicked.
   var isMapMode = false;
+  // True when the "Map" has been created.
+  var mapCreated = false;
   // True when the "Fullscreen" button is clicked.
   var isFullscreenByButton = false;
   // True when the nodes degrees are calculated.
@@ -173,7 +175,7 @@
         that.changeMapMode();
       });
 
-      $('#sigma-exit-map').on('click', function() {
+      $('#map-exit-map').on('click', function() {
         that.changeMapMode();
       });
 
@@ -1184,7 +1186,7 @@
     },
 
     /* Update some sizes in analytics mode. This function will be called
-     * when changes in the size of the screen occurr, e.g., when the user
+     * when changes in the size of the screen occur, e.g., when the user
      * open the developers tools in analytics mode.
      * The parameter is used when you don't want that this function to
      * update the position of the floating boxes.
@@ -1221,6 +1223,9 @@
 
       $('#sigma-wrapper').width(width - analyticsSidebarWidth);
       $('#sigma-wrapper').height(height - headerHeight);
+
+      // This line is for the Leaflet map resizing
+      $('#map-container').trigger('customResize', width - analyticsSidebarWidth);
 
       $('#full-window-column').width(analyticsSidebarWidth - analyticsSidebarBorder);
       $('#full-window-column').height(height - headerHeight);
@@ -1329,7 +1334,7 @@
       $('#graph-controls-and-info').css({
         position: 'absolute',
         height: 'auto',
-        padding: '10px',
+        padding: '10px 10px 2px 10px',
         backgroundColor: 'rgba(255, 255, 255, 0.6)',
         borderBottomLeftRadius: '10px'
       });
@@ -1453,8 +1458,10 @@
       $('.analytics-mode').show();
 
       // Showing map button, it's a special case :(
-      $('#sigma-go-map').removeClass('zoom-bottom-hide');
-      $('#sigma-go-map').addClass('zoom-bottom-show');
+      if (sylva.spatialEnabled) {
+        $('#sigma-go-map').removeClass('zoom-bottom-hide');
+        $('#sigma-go-map').addClass('zoom-bottom-show');
+      }
 
       if ($('#sigma-node-info').is(':checked')) {
         sigma.canvas.hovers.def = sigma.canvas.hovers.defBackup;
@@ -1666,8 +1673,10 @@
       $('.analytics-mode').hide();
 
       // Hiding map buttons, it's a special case :(
-      $('.zoom-bottom').removeClass('zoom-bottom-show');
-      $('.zoom-bottom').addClass('zoom-bottom-hide');
+      if (sylva.spatialEnabled) {
+        $('#sigma-go-map').removeClass('zoom-bottom-show');
+        $('#sigma-go-map').addClass('zoom-bottom-hide');
+      }
       that.changeMapMode(true);
 
       if ($('#sigma-node-info').is(':checked')) {
@@ -1705,22 +1714,10 @@
     // Alternate between map an graph mode.
     changeMapMode: function(exitAnalytics) {
       if (!isMapMode && !exitAnalytics) {
-        $('#sigma-go-map').removeClass('zoom-bottom-show');
-        $('#sigma-go-map').addClass('zoom-bottom-hide');
-
-        $('#sigma-exit-map').removeClass('zoom-bottom-hide');
-        $('#sigma-exit-map').addClass('zoom-bottom-show');
-
         isMapMode = true;
         that.goMapMode();
 
       } else if (isMapMode) {
-        $('#sigma-exit-map').removeClass('zoom-bottom-show');
-        $('#sigma-exit-map').addClass('zoom-bottom-hide');
-
-        $('#sigma-go-map').removeClass('zoom-bottom-hide');
-        $('#sigma-go-map').addClass('zoom-bottom-show');
-
         isMapMode = false;
         that.exitMapMode();
       }
@@ -1730,15 +1727,24 @@
      * TODO: More doc.
      */
     goMapMode: function() {
-      console.log('Go map mode!');
-      sylva.Leaflet.init();
+      $('#canvas-container').hide();
+      $('#map-container').show();
+      if (!mapCreated) {
+        mapCreated = true;
+        sylva.Leaflet.init();
+
+      } else {
+        sylva.Leaflet.updateSizes();
+      }
     },
 
     /* Change the visualization from Leaflet to Sigma.
      * TODO: More doc.
      */
     exitMapMode: function() {
-      console.log('Exit map mode');
+      $('#map-container').hide();
+      $('#canvas-container').show();
+      that.updateSizes(true);
     },
 
     /* *****
@@ -2157,7 +2163,7 @@
       // An event for don't admit clicks in the "progress button".
       var stopClickPropagation = function(event) {
         event.stopImmediatePropagation();
-      }
+      };
       buttonText.on('click', stopClickPropagation);
 
       // And an event for don't exit the view.
@@ -2207,7 +2213,7 @@
        */
       var progressFilter = function(elements) {
         svg.append(elements);
-      }
+      };
 
       // Defining the promise.
       var promiseSVG = function() {
@@ -2303,7 +2309,7 @@
         return deferred.promise();
       };
 
-      // Runing the promise.
+      // Running the promise.
       promiseSVG().then(doneFilter, null, progressFilter);
     },
 

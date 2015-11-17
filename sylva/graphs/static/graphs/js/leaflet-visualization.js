@@ -15,6 +15,8 @@
 
   var that = null;
   var map = null;
+  var centerCoors = null;
+  var centerZoom = null;
   var features = null;
   var featuresColor = null;
   var visibleFeatures = null;
@@ -28,26 +30,68 @@
       // TODO: Remove this in a near future
       window.L_DISABLE_3D = true;
 
-      map = L.map('map').setView([0, 0], 2);
       // TODO: Get the tiles from the 'settings.py' file
+      map = L.map('map-container', {zoomControl: false});
       L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; <a href="https://openstreetmap.org/copyright">OpenStreetMap</a> contributors'
       }).addTo(map);
 
-      setTimeout(function () {
-        map.invalidateSize();
-      }, 0);
+      // Defining style after creation.
+      $('#map-container').css({
+        position: 'absolute',
+        bottom: 0,
+        top: 0,
+        width: $('#sigma-wrapper').width() + 'px'
+      });
 
-      $('#map').css({zIndex: 1001});
-
-      /*
+      /* TODO: Restore this when done.
       that.addNodes();
       that.createLegend();
       that.createCollapsibles();
       */
 
-      // Events!
+      // TODO: Redo this with real data.
+      centerCoors = [51.505, -0.09];
+      centerZoom = 13;
+      map.setView(centerCoors, centerZoom);
+
+      // Fitting map into div.
+      setTimeout(function () {
+        map.invalidateSize();
+      }, 0);
+
+      // Registering events!
       $('.show-hide-features').on('click', that.showHideFeatures);
+
+      // Resizing the map when 'sylva.Sigma.updateSizes()' is called.
+      $('#map-container').on('customResize', function(e, width) {
+        $('#map-container').width(width);
+        setTimeout(function () {
+          map.invalidateSize();
+        }, 0);
+      });
+
+      // Custom zoom controls.
+      $('#map-zoom-in').on('click', function() {
+        map.zoomIn();
+      });
+
+      $('#map-zoom-out').on('click', function() {
+        map.zoomOut();
+      });
+
+      $('#map-zoom-home').on('click', function() {
+        map.setView(centerCoors, centerZoom, {animate: true});
+      });
+
+      // Saving image.
+      $('#map-export-image').on('click', function(event) {
+        console.log('Saving map as image works whenever it wants, hardly ever.');
+        leafletImage(map, function(err, canvas) {
+          var imgData = canvas.toDataURL('image/png');
+          $(event.target).attr('href', imgData.replace('image/png', 'image/octet-stream'));
+        });
+      });
     },
 
     addNodes: function() {
@@ -311,7 +355,7 @@
 
     createCollapsibles: function() {
       var draggableSettings = {
-        containment: '#map',
+        containment: '#map-container',
         cursor: 'move',
         create: function(event, ui) {
           $('#' + event.target.id).css({
@@ -467,6 +511,12 @@
         var iElementUncle = iElement.parent().siblings('i');
         that.showHideFeaturesIndividually($(iElementUncle[0]));
       }
+    },
+
+    updateSizes: function() {
+      setTimeout(function () {
+        map.invalidateSize();
+      }, 0);
     }
 
   };
