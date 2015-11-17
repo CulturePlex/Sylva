@@ -1328,8 +1328,8 @@ class QueryTestCase(LiveServerTestCase):
         # We check the headers with the aliases
         headers = self.browser.find_by_xpath("//th[@class='header']/a/div")
         header1 = headers[0]
-        spin_assert(lambda: self.assertEqual(header1.text,
-                                             u"Max (Bob's type 1.Number)"))
+        spin_assert(lambda: self.assertEqual(
+            header1.text, u"Max Distinct(Bob's type 1.Number)"))
         # We check the text u"Bob's node"
         result_name = self.browser.find_by_xpath(
             "//tr[@class='row-even']").first.text
@@ -1444,8 +1444,8 @@ class QueryTestCase(LiveServerTestCase):
         # We check the headers with the aliases
         headers = self.browser.find_by_xpath("//th[@class='header']/a/div")
         header1 = headers[0]
-        spin_assert(lambda: self.assertEqual(header1.text,
-                                             u"Min (Bob's type 1.Number)"))
+        spin_assert(lambda: self.assertEqual(
+            header1.text, u"Min Distinct(Bob's type 1.Number)"))
         # We check the text u"Bob's node"
         result_name = self.browser.find_by_xpath(
             "//tr[@class='row-even']").first.text
@@ -1566,7 +1566,6 @@ class QueryTestCase(LiveServerTestCase):
         result_name = self.browser.find_by_xpath(
             "//tr[@class='row-even']").first.text
         spin_assert(lambda: self.assertEqual(result_name, u'1'))
-        test_no_results(self)
         Graph.objects.get(name="Bob's graph").destroy()
 
     def test_query_builder_avg_no_distinct(self):
@@ -1678,7 +1677,7 @@ class QueryTestCase(LiveServerTestCase):
         headers = self.browser.find_by_xpath("//th[@class='header']/a/div")
         header1 = headers[0]
         spin_assert(lambda: self.assertEqual(
-            header1.text, u"Average (Bob's type 1.Number)"))
+            header1.text, u"Average Distinct(Bob's type 1.Number)"))
         # We check the text u"Bob's node"
         result_name = self.browser.find_by_xpath(
             "//tr[@class='row-even']").first.text
