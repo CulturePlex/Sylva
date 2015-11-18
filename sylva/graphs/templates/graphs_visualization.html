@@ -141,8 +141,9 @@
   <!-- TODO: Think how to reuse Sigma's controls -->
   <div id="map-controls">
     <div class="map-control left">
-      <a id="map-export-image" class="button" title="{% trans "Save as image" %}">
+      <a id="map-export-image" class="button" title="{% trans "Save as image" %}" download="{{ graph.slug }}.png">
         {% trans "Save as image" %}
+        <i id="map-export-image-spinner"></i>
       </a>
     </div>
     <div class="map-control right">

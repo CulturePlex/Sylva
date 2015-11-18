@@ -85,13 +85,7 @@
       });
 
       // Saving image.
-      $('#map-export-image').on('click', function(event) {
-        console.log('Saving map as image works whenever it wants, hardly ever.');
-        leafletImage(map, function(err, canvas) {
-          var imgData = canvas.toDataURL('image/png');
-          $(event.target).attr('href', imgData.replace('image/png', 'image/octet-stream'));
-        });
-      });
+      $('#map-export-image').on('click', that.exportPNG);
     },
 
     addNodes: function() {
@@ -517,6 +511,47 @@
       setTimeout(function () {
         map.invalidateSize();
       }, 0);
+    },
+
+    exportPNG: function(event) {
+      // Prevent the event is triggered again.
+      event.stopImmediatePropagation();
+      $('#map-export-image').off('click', that.exportPNG);
+
+      // Prevent exiting the view.
+      window.onbeforeunload = function() {
+        return gettext('A image is being generated.');
+      };
+
+      // Adding an animation.
+      var button = $(event.target);
+      var spinner = button.children('i');
+      var buttonTextNode = event.target.childNodes[0];
+      var originalText = buttonTextNode.nodeValue;
+
+      buttonTextNode.nodeValue = gettext('Saving image') + ' ';
+      button.addClass('active');
+      spinner.addClass('fa fa-spinner fa-spin');
+
+      // Creating and saving image.
+      leafletImage(map, function(err, canvas) {
+        // Removing the animation and activating 'exit the view'.
+        spinner.removeClass('fa fa-spinner fa-spin');
+        button.removeClass('active');
+        buttonTextNode.nodeValue = originalText;
+        window.onbeforeunload = null;
+
+        // Creating the link for 'auto' click it.
+        var link = document.createElement('a');
+        var imgData = canvas.toDataURL('image/png');
+        link.href = imgData.replace('image/png', 'image/octet-stream');
+        link.download = $('#map-export-image').attr('download');
+        link.click();
+        link = null;
+
+        // Re attaching the main event.
+        $('#map-export-image').on('click', that.exportPNG);
+      });
     }
 
   };

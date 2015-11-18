@@ -2130,14 +2130,13 @@
       var height = $('#sigma-container').children().first().height();
       canvas.attr('width', width);
       canvas.attr('height', height);
-      $('#sigma-container').append(canvas);
       var canvasElem = canvas[0];
       var ctx = canvasElem.getContext('2d');
       ctx.globalCompositeOperation = 'source-over';
       ctx.drawImage($('.sigma-scene')[0], 0, 0);
       var imgData = canvasElem.toDataURL('image/png');
       $(this).attr('href', imgData.replace('image/png', 'image/octet-stream'));
-      canvas.remove();
+      canvas = null;
     },
 
     exportSVG: function() {
@@ -2203,9 +2202,8 @@
         var link = document.createElement('a');
         link.href = 'data:image/svg+xml;base64,' + svg;
         link.download = $('#sigma-export-svg').attr('download');
-        $(document.body).append(link);
         link.click();
-        link.remove(link);
+        link = null;
       };
 
       /* The "progress" callback/filter of the promise. Appends some SVG
