@@ -54,4 +54,12 @@ urlpatterns = patterns('graphs.views',
     # run queries and return the id of the result nodes
     url(r'^(?P<graph_slug>[\w-]+)/run_query/(?P<query_id>\d+)/$', 'run_query',
         name="run_query"),
+
+    # save a temporary image from a 'Base64' string of a map
+    url(r'^(?P<graph_slug>[\w-]+)/generate_map_image/$', 'generate_map_image',
+        name="generate_map_image"),
+
+    # get a temporary image from a 'Base64' string of a map
+    url(r'^(?P<graph_slug>[\w-]+)/map_image/(?P<image_ts>[\d.]+png)$',
+        'get_map_image', name="get_map_image"),
 )

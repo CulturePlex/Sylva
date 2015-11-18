@@ -535,22 +535,55 @@
 
       // Creating and saving image.
       leafletImage(map, function(err, canvas) {
-        // Removing the animation and activating 'exit the view'.
-        spinner.removeClass('fa fa-spinner fa-spin');
-        button.removeClass('active');
-        buttonTextNode.nodeValue = originalText;
-        window.onbeforeunload = null;
+        var base64Image = canvas.toDataURL('image/png');
+
+        // 2097152 is the max length for data URI in Chrome
+        if (base64Image.length <= (2097152 * 0.75)) {
+          console.log('Image smaller or equal than 1.5 MB in \'Base64\' format.');
+          var dataURI = base64Image.replace('image/png', 'image/octet-stream');
+          openDialog(dataURI);
+          done();
+
+        } else {
+          console.log('Image bigger than 1.5 MB in \'Base64\' format, sending it to the server.');
+          var jqxhr = $.ajax({
+            url: sylva.urls.generateMapImage,
+            type: 'POST',
+            data: {
+              base64Image: base64Image
+            },
+            dataType: 'json'
+          });
+          jqxhr.success(function (data) {
+            openDialog(data.url);
+          });
+          jqxhr.error(function () {
+            alert(gettext('Oops! The image couldn\'t be create. Please try again.'));
+          });
+          jqxhr.complete(function () {
+            done();
+          });
+        }
 
         // Creating the link for 'auto' click it.
-        var link = document.createElement('a');
-        var imgData = canvas.toDataURL('image/png');
-        link.href = imgData.replace('image/png', 'image/octet-stream');
-        link.download = $('#map-export-image').attr('download');
-        link.click();
-        link = null;
+        function openDialog(uri) {
+          var link = document.createElement('a');
+          link.href = uri;
+          link.download = $('#map-export-image').attr('download');
+          link.click();
+          link = null;
+        }
 
-        // Re attaching the main event.
-        $('#map-export-image').on('click', that.exportPNG);
+        // Removing the animation and activating 'exit the view'.
+        function done() {
+          spinner.removeClass('fa fa-spinner fa-spin');
+          button.removeClass('active');
+          buttonTextNode.nodeValue = originalText;
+          window.onbeforeunload = null;
+
+          // Re attaching the main event.
+          $('#map-export-image').on('click', that.exportPNG);
+        }
       });
     }
 

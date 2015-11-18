@@ -13,6 +13,10 @@ sylva:true, alert:true */
 
     sigma: function() {
       sylva.Sigma.start();
+    },
+
+    leaflet: function() {
+      sylva.Leaflet.init();
     }
 
   };

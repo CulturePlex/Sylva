@@ -4,6 +4,10 @@ try:
 except ImportError:
     import json  # NOQA
 
+import base64
+import os
+import time
+
 from django.db import transaction, IntegrityError
 from django.db.models import Q
 from django.conf import settings
@@ -83,7 +87,6 @@ def graph_view(request, graph_slug, node_id=None):
     graph = get_object_or_404(Graph, slug=graph_slug)
     is_graph_empty = graph.is_empty()
     is_schema_empty = graph.schema.is_empty()
-    view_graph_ajax_url = ''
     edit_nodetype_color_ajax_url = reverse(
         'schemas.views.schema_nodetype_edit_color', args=[graph.slug])
     edit_reltype_color_ajax_url = reverse(
@@ -91,6 +94,7 @@ def graph_view(request, graph_slug, node_id=None):
     graph_analytics_boxes_edit_position_url = reverse(
         'graph_analytics_boxes_edit_position', args=[graph.slug])
     run_query_url = reverse('run_query', args=[graph.slug, 0])[:-2]
+    generate_map_image_url = reverse('generate_map_image', args=[graph.slug])
     node = None
     if node_id:
         node = graph.nodes.get(node_id)
@@ -104,16 +108,16 @@ def graph_view(request, graph_slug, node_id=None):
                                "is_schema_empty": is_schema_empty,
                                "MAX_SIZE": settings.MAX_SIZE,
                                "node": node,
-                               "view_graph_ajax_url":
-                                  view_graph_ajax_url,
+                               "view_graph_ajax_url": view_graph_ajax_url,
                                "edit_nodetype_color_ajax_url":
                                   edit_nodetype_color_ajax_url,
                                "edit_reltype_color_ajax_url":
                                   edit_reltype_color_ajax_url,
                                "graph_analytics_boxes_edit_position_url":
                                   graph_analytics_boxes_edit_position_url,
-                               "run_query_url":
-                                  run_query_url},
+                               "run_query_url": run_query_url,
+                               "generate_map_image_url":
+                                   generate_map_image_url},
                               context_instance=RequestContext(request))
 
 
@@ -219,7 +223,6 @@ def graph_clone(request, graph_slug):
                 try:
                     new_graph.save()
                 except IntegrityError:
-                    import time
                     new_graph.name += " " + str(int(time.time()))
                     new_graph.save()
                 options = form.cleaned_data["options"]
@@ -388,7 +391,7 @@ def expand_node(request, graph_slug, node_id):
 @permission_required("graphs.view_graph", (Graph, "slug", "graph_slug"),
                      return_403=True)
 def graph_data(request, graph_slug, node_id=None):
-    if (request.is_ajax() or settings.DEBUG):
+    if request.is_ajax() or settings.DEBUG:
         graph = get_object_or_404(Graph, slug=graph_slug)
         node = None
         nodes_list = []
@@ -437,7 +440,7 @@ def graph_data(request, graph_slug, node_id=None):
 @permission_required("graphs.view_graph", (Graph, "slug", "graph_slug"),
                      return_403=True)
 def graph_analytics_boxes_edit_position(request, graph_slug):
-    if ((request.is_ajax() or settings.DEBUG) and request.POST):
+    if (request.is_ajax() or settings.DEBUG) and request.POST:
         data = request.POST.copy()
         params = None
         for key in data:
@@ -456,7 +459,7 @@ def graph_analytics_boxes_edit_position(request, graph_slug):
 @permission_required("graphs.view_graph", (Graph, "slug", "graph_slug"),
                      return_403=True)
 def run_query(request, graph_slug, query_id):
-    if (request.is_ajax() or settings.DEBUG):
+    if request.is_ajax() or settings.DEBUG:
         get_object_or_404(Graph, slug=graph_slug)  # Only for checking
         query = get_object_or_404(Query, id=query_id)
         try:
@@ -472,3 +475,55 @@ def run_query(request, graph_slug, query_id):
         return HttpResponse(json.dumps(response), status=200,
                             content_type='application/json')
     raise Http404(_("Error: Invalid request (expected an AJAX POST request)"))
+
+
+@permission_required("graphs.view_graph", (Graph, "slug", "graph_slug"),
+                     return_403=True)
+def generate_map_image(request, graph_slug):
+    if (request.is_ajax() or settings.DEBUG) and request.POST:
+        get_object_or_404(Graph, slug=graph_slug, )
+        data = request.POST.copy()
+        if 'base64Image' in data:
+            base64_image = data['base64Image'].split(',', 1)[1]
+            # Fixing possible error in padding
+            missing_padding = 4 - len(base64_image) % 4
+            if missing_padding:
+                base64_image += b'=' * missing_padding
+            image_recovered = base64.decodestring(base64_image)
+            # Creating filename and path
+            filename = str(time.time()) + '.png'
+            path = os.path.join(settings.MEDIA_ROOT, settings.MAP_IMAGES_PATH,
+                                graph_slug, filename)
+            # Creating path (if it doesn't exist) and file
+            if not os.path.exists(os.path.dirname(path)):
+                os.makedirs(os.path.dirname(path))
+            with open(path, 'wb') as f:
+                f.write(image_recovered)
+            # Reversing image url and responding
+            get_map_image_url =\
+                reverse('get_map_image', args=[graph_slug, filename])
+            response = {'url': get_map_image_url}
+            return HttpResponse(json.dumps(response), status=200,
+                                content_type='application/json')
+    raise Http404(_("Error: Invalid request (expected an AJAX POST request)"))
+
+
+@permission_required("graphs.view_graph", (Graph, "slug", "graph_slug"),
+                     return_403=True)
+def get_map_image(request, graph_slug, image_ts):
+    path = os.path.join(settings.MEDIA_ROOT, settings.MAP_IMAGES_PATH,
+                        graph_slug, image_ts)
+    try:
+        with open(path, "rb") as f:
+            image = f.read()
+        os.remove(path)
+        try:
+            os.rmdir(os.path.dirname(path))
+        except OSError:  # This error happens when the directory is not empty
+            pass
+        response = HttpResponse(image, mimetype="image/png")
+        response['Content-Disposition'] =\
+            'attachment; filename="' + graph_slug + '_map.png"'
+        return response
+    except IOError:
+        raise Http404(_("Error: Content not found"))
