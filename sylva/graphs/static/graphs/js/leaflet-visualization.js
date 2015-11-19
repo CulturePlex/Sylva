@@ -21,14 +21,13 @@
   var featuresColor = null;
   var visibleFeatures = null;
 
+  // TODO: Delete this.
+  var featureGroup = null;
+
   var Leaflet = {
 
-    // TODO: Use 'nodetype-id' instead of 'nodetype'
     init: function() {
       that = this;
-
-      // TODO: Remove this in a near future
-      window.L_DISABLE_3D = true;
 
       // TODO: Get the tiles from the 'settings.py' file
       map = L.map('map-container', {zoomControl: false});
@@ -44,16 +43,10 @@
         width: $('#sigma-wrapper').width() + 'px'
       });
 
-      /* TODO: Restore this when done.
+      // TODO: Redo this with proper and compatible (with Sigma) structures.
       that.addNodes();
       that.createLegend();
       that.createCollapsibles();
-      */
-
-      // TODO: Redo this with real data.
-      centerCoors = [51.505, -0.09];
-      centerZoom = 13;
-      map.setView(centerCoors, centerZoom);
 
       // Fitting map into div.
       setTimeout(function () {
@@ -80,8 +73,12 @@
         map.zoomOut();
       });
 
+      // TODO: Redo this with the real data.
       $('#map-zoom-home').on('click', function() {
-        map.setView(centerCoors, centerZoom, {animate: true});
+        // map.setView(centerCoors, centerZoom, {animate: true});
+        setTimeout(function() {
+          map.fitBounds(featureGroup.getBounds());
+        }, 0);
       });
 
       // Saving image.
@@ -244,7 +241,8 @@
       });
 
       // Centering the map
-      var featureGroup = L.featureGroup(featuresForBounding);
+      // TODO: This should be a new 'var'
+      featureGroup = L.featureGroup(featuresForBounding);
       setTimeout(function() {
         map.fitBounds(featureGroup.getBounds());
       }, 0);
@@ -354,7 +352,7 @@
         create: function(event, ui) {
           $('#' + event.target.id).css({
             top: 10,
-            left: 55
+            left: 10
           });
         },
         start: function(event, ui) {
