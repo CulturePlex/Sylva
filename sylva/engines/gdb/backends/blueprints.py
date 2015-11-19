@@ -50,8 +50,7 @@ class BlueprintsGraphDatabase(BaseGraphDatabase):
     def _get_public_properties(self, element):
         properties = {}
         for key in element.getPropertyKeys():
-            if not key.startswith('_') and not key.startswith(
-                    self.PRIVATE_PREFIX):
+            if not key.startswith(self.PRIVATE_PREFIX):
                 properties[key] = element.getProperty(key)
         return properties
 
@@ -81,35 +80,27 @@ class BlueprintsGraphDatabase(BaseGraphDatabase):
     def _delete_element_property(self, element, key, element_type=None):
         self._validate_property(key)
         self._check_property(element, key)
-        value = element.getProperty(key)
         element.removeProperty(key)
-        if value:
-            if element_type == VERTEX:
-                self.node_index.remove(key, value, element)
-            elif element_type == EDGE:
-                self.relationship_index.remove(key, value, element)
+        # value = element.getProperty(key)
+        # if value:
+        #     if element_type == VERTEX:
+        #         self.node_index.remove(key, value, element)
+        #     elif element_type == EDGE:
+        #         self.relationship_index.remove(key, value, element)
 
     def _get_element_properties(self, element):
         return self._get_public_properties(element)
 
     def _set_element_properties(self, element, properties, element_type=None):
-        for key in properties:
-            self._validate_property(key)
         for key in self._get_public_keys(element):
-            value = element.getProperty(key)
+            # value = element.getProperty(key)
             element.removeProperty(key)
-            if value:
-                if element_type == VERTEX:
-                    self.node_index.remove(key, value, element)
-                elif element_type == EDGE:
-                    self.relationship_index.remove(key, value, element)
-        for key, value in properties.iteritems():
-            element.setProperty(key, value)
             # if value:
             #     if element_type == VERTEX:
-            #         self.node_index.put(key, value, element)
+            #         self.node_index.remove(key, value, element)
             #     elif element_type == EDGE:
-            #         self.relationship_index.put(key, value, element)
+            #         self.relationship_index.remove(key, value, element)
+        self._update_element_properties(element, properties, element_type)
 
     def _update_element_properties(self, element, properties,
                                    element_type=None):
@@ -125,13 +116,13 @@ class BlueprintsGraphDatabase(BaseGraphDatabase):
 
     def _delete_element_properties(self, element, element_type=None):
         for key in self._get_public_keys(element):
-            value = element.getProperty(key)
+            # value = element.getProperty(key)
             element.removeProperty(key)
-            if value:
-                if element_type == VERTEX:
-                    self.node_index.remove(key, value, element)
-                elif element_type == EDGE:
-                    self.relationship_index.remove(key, value, element)
+            # if value:
+            #     if element_type == VERTEX:
+            #         self.node_index.remove(key, value, element)
+            #     elif element_type == EDGE:
+            #         self.relationship_index.remove(key, value, element)
 
     def create_node(self, label, properties=None):
         # Label must be a string

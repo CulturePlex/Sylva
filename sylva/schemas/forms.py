@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from django import forms
 from django.conf import settings
-from django.forms.models import inlineformset_factory
+from django.forms.models import BaseInlineFormSet, inlineformset_factory
 from django.utils.translation import gettext as _
 
 from schemas.models import (NodeType, NodeProperty,
@@ -67,13 +67,34 @@ class NodeTypeForm(forms.ModelForm):
         if not settings.OPTIONS.get("ENABLE_TYPE_VALIDATION_FORMS", False):
             exclude += ("validation", )
 
+
+class NodePropertyInlineFormSet(BaseInlineFormSet):
+
+    def clean(self):
+        super(NodePropertyInlineFormSet, self).clean()
+        keys = [f.cleaned_data['key']
+                for f in self.forms if 'key' in f.cleaned_data]
+        if len(set(keys)) != len(keys):
+            raise forms.ValidationError(_("There are duplicated keys."))
+        if settings.ENABLE_SPATIAL:
+            for key in ["bbox", "gtype"]:
+                if key in keys:
+                    raise forms.ValidationError(
+                        _("Sorry, property name '{}' reserved for maps. "
+                          "Please, choose a different one.".format(key)))
+
+
 if settings.OPTIONS.get("ENABLE_TYPE_VALIDATION_FORMS", False):
-    NodePropertyFormSet = inlineformset_factory(NodeType, NodeProperty,
-                                                extra=1, can_delete=True)
+    NodePropertyFormSet = inlineformset_factory(
+        NodeType, NodeProperty, extra=1, can_delete=True,
+        formset=NodePropertyInlineFormSet
+    )
 else:
-    NodePropertyFormSet = inlineformset_factory(NodeType, NodeProperty,
-                                                extra=1, can_delete=True,
-                                                exclude=["validation"])
+    NodePropertyFormSet = inlineformset_factory(
+        NodeType, NodeProperty,
+        extra=1, can_delete=True, exclude=["validation"],
+        formset=NodePropertyInlineFormSet
+    )
 
 
 class ElementTypeChangedForm(forms.Form):
@@ -153,4 +174,5 @@ else:
 
 
 class SchemaImportForm(forms.Form):
-    file = forms.FileField(help_text=_("Choose a JSON file previously exported"))
+    file = forms.FileField(
+        help_text=_("Choose a JSON file previously exported"))
