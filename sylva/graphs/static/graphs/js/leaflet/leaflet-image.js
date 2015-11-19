@@ -167,6 +167,15 @@ module.exports = function leafletImage(map, callback) {
     }
 
     function handlePathRoot(root, callback) {
+        // MOD: If root is a SVG we need to transform it to a canvas
+        var rootCanvas = null;
+        if (root.outerHTML.startsWith('<svg')) {
+            rootCanvas = document.createElement('canvas');
+            canvg(rootCanvas, root.outerHTML);
+        } else {
+            rootCanvas = root;
+        }
+
         var bounds = map.getPixelBounds(),
             origin = map.getPixelOrigin(),
             canvas = document.createElement('canvas');
@@ -174,7 +183,7 @@ module.exports = function leafletImage(map, callback) {
         canvas.height = dimensions.y;
         var ctx = canvas.getContext('2d');
         var pos = L.DomUtil.getPosition(root).subtract(bounds.min).add(origin);
-        ctx.drawImage(root, pos.x, pos.y);
+        ctx.drawImage(rootCanvas, pos.x, pos.y);
         callback(null, {
             canvas: canvas
         });
@@ -189,10 +198,16 @@ module.exports = function leafletImage(map, callback) {
             url = addCacheString(marker._icon.src),
             im = new Image(),
             options = marker.options.icon.options,
-            size = options.iconSize,
-            pos = pixelPoint.subtract(minPoint),
+            size = options.iconSize;
+
+        // MOD: Size can be an array, not a L.point().
+        if (size instanceof Array) {
+            size = L.point(size);
+        }
+
+        var pos = pixelPoint.subtract(minPoint),
             anchor = L.point(options.iconAnchor || size && size.divideBy(2, true)),
-            x = pos.x - size[0] + anchor.x,
+            x = pos.x - size.x + anchor.x,
             y = pos.y - anchor.y;
 
         canvas.width = dimensions.x;
@@ -200,7 +215,7 @@ module.exports = function leafletImage(map, callback) {
         im.crossOrigin = '';
 
         im.onload = function() {
-            ctx.drawImage(this, x, y, size[0], size[1]);
+            ctx.drawImage(this, x, y, size.x, size.y);
             callback(null, {
                 canvas: canvas
             });
