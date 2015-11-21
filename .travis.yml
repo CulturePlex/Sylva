@@ -28,15 +28,14 @@ before_script:
   - npm install karma-phantomjs-launcher
   - npm install karma-coverage
 script:
-  - python sylva/manage.py collectstatic --noinput --settings=sylva.test_settings
-  - python sylva/manage.py compress --settings=sylva.test_settings
+  - python sylva/manage.py collectstatic --noinput --settings=sylva.test_settings | tail -n 1 -f
+  - python sylva/manage.py compress --settings=sylva.test_settings | tail -n 1 -f
   - coverage run --source=sylva sylva/manage.py test accounts sylva.tests data engines graphs schemas reports --settings=sylva.test_settings
   - node_modules/karma/bin/karma start sylva/reports/static/app/js/karma.conf.js --single-run --browsers PhantomJS
-after_script:
-  - ./neo4j/bin/neo4j stop
-  - "sh -e /etc/init.d/xvfb stop"
 after_success:
   - coveralls-lcov -v -n sylva/reports/static/app/js/coverage/*/lcov.info > coverage.json
   - coveralls --merge=coverage.json
   - coveralls
-
+after_script:
+  - ./neo4j/bin/neo4j stop
+  - "sh -e /etc/init.d/xvfb stop"

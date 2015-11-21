@@ -780,6 +780,12 @@ class GraphDatabase(BlueprintsGraphDatabase):
             self.nidx.delete()
         if self.ridx in self.gdb.neograph.relationships.indexes.values():
             self.ridx.delete()
+        if settings.ENABLE_SPATIAL and self.sidx:
+            for sidx_key, sidx_dict in self.sidx.items():
+                index = sidx_dict["index"]
+                if index in self.gdb.neograph.nodes.indexes.values():
+                    index.delete()
+            self.sidx = {}
         self = None
 
     def analysis(self):
