@@ -392,27 +392,32 @@ class RelationshipsManager(BaseManager):
             include_properties=True)
 
     def filter(self, *lookups, **options):
-        if "label" in options:
-            label = options.get("label")
-            if not lookups:
-                eltos = RelationshipSequence(
-                    graph=self.graph, label=label,
-                    iterator_func=self.gdb.get_relationships_by_label,
-                    include_properties=True
-                )
-            else:
-                eltos = RelationshipSequence(
-                    graph=self.graph, label=label,
-                    lookups=lookups,
-                    iterator_func=self.gdb.get_filtered_relationships,
-                    include_properties=True
-                )
-        else:
+        try:
+            source_id = options.get("source").id
+            target_id = options.get("target").id
+        except AttributeError:
+            source_id = options.get("source_id")
+            target_id = options.get("target_id")
+        if lookups:
             eltos = RelationshipSequence(
-                graph=self.graph, label=label,
+                graph=self.graph,
+                label=options.get("label"),
                 lookups=lookups,
                 iterator_func=self.gdb.get_filtered_relationships,
-                include_properties=True
+                include_properties=True,
+                directed=options.get("directed", True),
+                source_id=source_id,
+                target_id=target_id,
+            )
+        else:
+            eltos = RelationshipSequence(
+                graph=self.graph,
+                label=options.get("label"),
+                iterator_func=self.gdb.get_relationships_by_label,
+                include_properties=True,
+                directed=options.get("directed", True),
+                source_id=source_id,
+                target_id=target_id,
             )
         return eltos
 

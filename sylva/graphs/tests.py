@@ -189,8 +189,10 @@ class GraphTest(TestCase):
         mySchema_clone = Schema.objects.create()
         nt = NodeType(id=2, name="test", schema=mySchema_clone)
         nt.save()
-        clone_graph = Graph.objects.create(name=cloneGraphName,
-            schema=mySchema_clone, owner=self.u)
+        clone_graph = Graph.objects.create(
+            name=cloneGraphName,
+            schema=mySchema_clone, owner=self.u
+        )
         self.assertIsNotNone(clone_graph)
         self.assertNotEqual(self.graph.name, clone_graph.name)
         self.graph.clone(clone_graph, clone_data=True)
@@ -208,11 +210,13 @@ class GraphTest(TestCase):
         self.assertTrue(login)
         response = self.c.get('/accounts/signin/')
         self.assertIsNotNone(response.content)
-        response = self.c.post('/accounts/signin/', {'username': 'john', 'password': 'hello'})
+        response = self.c.post(
+            '/accounts/signin/', {'username': 'john', 'password': 'hello'})
         self.assertEqual(response.status_code, 200)
         request = self.factory.get('/import/')
         request.user = self.u
-        self.assertIsNotNone(tools.views.graph_import_tool(request, self.graph.slug))
+        self.assertIsNotNone(
+            tools.views.graph_import_tool(request, self.graph.slug))
         Graph.objects.get(name=self.graphName).destroy()
 
     def test_graph_export(self):
@@ -224,7 +228,8 @@ class GraphTest(TestCase):
         self.assertTrue(login)
         response = self.c.get('/accounts/signin/')
         self.assertIsNotNone(response.content)
-        response = self.c.post('/accounts/signin/', {'username': 'john', 'password': 'hello'})
+        response = self.c.post(
+            '/accounts/signin/', {'username': 'john', 'password': 'hello'})
         self.assertEqual(response.status_code, 200)
         Graph.objects.get(name=self.graphName).destroy()
 
@@ -259,6 +264,8 @@ class RelationshipTest(TestCase):
         self.relationship = self.graph.relationships.create(
             node_1, node_2, self.relationship_label)
         self.relationship_id = self.relationship.id
+        self.source = node_1
+        self.target = node_2
 
     def test_relationship_creation(self):
         """
@@ -267,7 +274,6 @@ class RelationshipTest(TestCase):
         self.assertIsNotNone(self.relationship)
         self.assertIsNotNone(self.relationship.id)
         self.assertEqual(self.relationship.label, self.relationship_label)
-        Graph.objects.get(name="Bob's graph").destroy()
 
     def test_relationship_edition(self):
         """
@@ -284,7 +290,6 @@ class RelationshipTest(TestCase):
         self.relationship.set(self.property_key, self.property_value)
         self.assertEqual(self.relationship.get(
             self.property_key), self.property_value)
-        Graph.objects.get(name="Bob's graph").destroy()
 
     def test_relationship_deletion(self):
         """
@@ -298,7 +303,67 @@ class RelationshipTest(TestCase):
         except RelationshipDoesNotExist:
             exist = False
         self.assertEqual(exist, False)
-        Graph.objects.get(name="Bob's graph").destroy()
+
+    def test_filter_relationships(self):
+        self.assertIn(
+            self.relationship,
+            self.graph.relationships.filter(label=self.relationship_label)
+        )
+        self.assertIn(
+            self.relationship,
+            self.graph.relationships.filter(label=self.relationship_label,
+                                            source=self.source,
+                                            target=self.target))
+        self.assertIn(
+            self.relationship,
+            self.graph.relationships.filter(
+                label=self.relationship_label,
+                source=self.source))
+        self.assertIn(
+            self.relationship,
+            self.graph.relationships.filter(
+                label=self.relationship_label,
+                target=self.target))
+        self.assertIn(
+            self.relationship,
+            self.graph.relationships.filter(
+                label=self.relationship_label,
+                source_id=self.source.id, target_id=self.target.id))
+        self.assertIn(
+            self.relationship,
+            self.graph.relationships.filter(
+                label=self.relationship_label,
+                source_id=self.source.id))
+        self.assertIn(
+            self.relationship,
+            self.graph.relationships.filter(
+                label=self.relationship_label,
+                target_id=self.target.id))
+
+    def test_filter_relationships_by_label(self):
+        self.assertIn(self.relationship, self.graph.relationships.filter())
+        self.assertIn(self.relationship,
+                      self.graph.relationships.filter(source=self.source,
+                                                      target=self.target))
+        self.assertIn(self.relationship,
+                      self.graph.relationships.filter(source=self.source))
+        self.assertIn(self.relationship,
+                      self.graph.relationships.filter(target=self.target))
+        self.assertIn(
+            self.relationship,
+            self.graph.relationships.filter(
+                source_id=self.source.id, target_id=self.target.id))
+        self.assertIn(
+            self.relationship,
+            self.graph.relationships.filter(
+                source_id=self.source.id))
+        self.assertIn(
+            self.relationship,
+            self.graph.relationships.filter(
+                target_id=self.target.id))
+
+    def tearDown(self):
+        self.graph.destroy()
 
 
 class APIGraphTest(APITestCase):

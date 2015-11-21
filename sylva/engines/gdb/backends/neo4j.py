@@ -23,6 +23,7 @@ if settings.ENABLE_SPATIAL:
     # Any symbol would work
     SPATIAL_INDEX_KEY = "$"
     SPATIAL_INDEX_VALUE = "$"
+    SPATIAL_PROPERTY_NAMES = ("bbox", "gtype")
 
 
 WILDCARD_TYPE = -1
@@ -253,6 +254,9 @@ class GraphDatabase(BlueprintsGraphDatabase):
                     elto_id = properties.pop("_id")
                     elto_label = properties.pop("_label")
                     properties.pop("_graph", None)
+                    if settings.ENABLE_SPATIAL:
+                        for to_remove in SPATIAL_PROPERTY_NAMES:
+                            properties.pop(to_remove, None)
                     yield (elto_id, properties, elto_label)
             else:
                 for element in result["data"]:
@@ -272,20 +276,35 @@ class GraphDatabase(BlueprintsGraphDatabase):
                 break
 
     def get_relationships_by_label(self, label, include_properties=False,
+                                   source_id=None, target_id=None,
+                                   directed=True,
                                    limit=None, offset=None, order_by=None):
         return self.get_filtered_relationships(
             [], label=label, include_properties=include_properties,
+            source_id=source_id, target_id=target_id, directed=directed,
             limit=limit, offset=offset, order_by=order_by)
 
     def get_filtered_relationships(self, lookups, label=None,
                                    include_properties=None,
+                                   source_id=None, target_id=None,
+                                   directed=True,
                                    limit=None, offset=None, order_by=None):
         # Using Cypher
         cypher = self.cypher
         if isinstance(label, (list, tuple)) and not label:
             return
         script = self._prepare_script(for_node=False, label=label)
-        script = """%s match a-[r]->b """ % script
+        if source_id and target_id:
+            script = """%s, a=node(%s), b=node(%s)""" % (
+                script, source_id, target_id)
+        elif source_id and not target_id:
+            script = """%s, a=node(%s)""" % (script, source_id)
+        elif not source_id and target_id:
+            script = """%s, b=node(%s)""" % (script, target_id)
+        if directed:
+            script = """%s match (a)-[r]->(b) """ % script
+        else:
+            script = """%s match (a)-[r]-(b) """ % script
         where = None
         params = {}
         if lookups:
@@ -329,15 +348,19 @@ class GraphDatabase(BlueprintsGraphDatabase):
                     source_id = source_props.pop("_id")
                     source_label = source_props.pop("_label")
                     source_props.pop("_graph", None)
+                    target_props = element[3]["data"]
+                    target_id = target_props.pop("_id")
+                    target_label = target_props.pop("_label")
+                    target_props.pop("_graph", None)
+                    if settings.ENABLE_SPATIAL:
+                        for to_remove in SPATIAL_PROPERTY_NAMES:
+                            source_props.pop(to_remove, None)
+                            target_props.pop(to_remove, None)
                     source = {
                         "id": source_id,
                         "properties": source_props,
                         "label": source_label
                     }
-                    target_props = element[3]["data"]
-                    target_id = target_props.pop("_id")
-                    target_label = target_props.pop("_label")
-                    target_props.pop("_graph", None)
                     target = {
                         "id": target_id,
                         "properties": target_props,
@@ -974,7 +997,7 @@ class GraphDatabase(BlueprintsGraphDatabase):
     def get_node_properties(self, id):
         properties = super(GraphDatabase, self).get_node_properties(id)
         if settings.ENABLE_SPATIAL:
-            for to_remove in ["bbox", "gtype"]:
+            for to_remove in SPATIAL_PROPERTY_NAMES:
                 if to_remove in properties:
                     del properties[to_remove]
         return properties
