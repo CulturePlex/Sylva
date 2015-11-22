@@ -16,7 +16,8 @@ install:
   - pip install --allow-all-external argparse==1.2.1
   - gem install coveralls-lcov
 before_script:
-  - ./neo4j/bin/neo4j start
+  # Neo4j issue with 'start' https://github.com/neo4j/neo4j/issues/3414
+  - ./neo4j/bin/neo4j start-no-wait
   - "export DISPLAY=:99.0"
   - "sh -e /etc/init.d/xvfb start"
   - npm install node-gyp
