@@ -35,13 +35,14 @@ from queries.forms import (SaveQueryForm, QueryDeleteConfirmForm,
 
 AGGREGATE = 'aggregate'
 AGGREGATES = {
-    "count": "Count",
-    "max": "Max",
-    "min": "Min",
-    "sum": "Sum",
-    "avg": "Average",
-    "stdev": "Deviation"
+    "count": _("Count"),
+    "max": _("Max"),
+    "min": _("Min"),
+    "sum": _("Sum"),
+    "avg": _("Average"),
+    "stdev": _("Deviation")
 }
+
 ASC = 'asc'
 DEFAULT = 'default'
 DEFAULT_ROWS_NUMBER = 100
@@ -357,7 +358,7 @@ def queries_new_results(request, graph_slug):
         aggregate = order_by_field.split('(')[0]
         # We check if the aggregate has distinct clause
         aggregate = aggregate.split(' ')[0]
-        has_aggregate = aggregate in AGGREGATES.values()
+        has_aggregate = aggregate in AGGREGATES.keys()
         if has_aggregate:
             alias = AGGREGATE
             value = order_by_field.replace('`', '')
@@ -806,7 +807,7 @@ def queries_query_results(request, graph_slug, query_id):
         aggregate = order_by_field.split('(')[0]
         # We check if the aggregate has distinct clause
         aggregate = aggregate.split(' ')[0]
-        has_aggregate = aggregate in AGGREGATES
+        has_aggregate = aggregate in AGGREGATES.keys()
         if has_aggregate:
             alias = AGGREGATE
             value = order_by_field.replace('`', '')
@@ -905,7 +906,7 @@ def queries_query_results(request, graph_slug, query_id):
                 header_splitted = re.split('\)|\(|\\.| ', header)
                 header_first_element = header_splitted[0]
                 # We check if aggregate belongs to the aggregate set
-                if header_first_element not in AGGREGATES:
+                if header_first_element not in AGGREGATES.keys():
                     # We have the slug and the property
                     slug = header_first_element
                     prop = header_splitted[1]
@@ -952,12 +953,11 @@ def queries_query_results(request, graph_slug, query_id):
                 # In case that we had aggregate, we need to change it
                 if aggregate in AGGREGATES:
                     if distinct == 'Distinct':
-                        show_alias = '{0} {1}({2})'.format(aggregate,
-                                                           distinct,
-                                                           show_alias)
+                        show_alias = '{0} {1}({2})'.format(
+                            AGGREGATES[aggregate], distinct, show_alias)
                     else:
-                        show_alias = '{0} ({1})'.format(aggregate,
-                                                        show_alias)
+                        show_alias = '{0} ({1})'.format(
+                            AGGREGATES[aggregate], show_alias)
                 # Finally, we add the key-value to our dictionary
                 headers_final_results[header] = show_alias
         request.session['results_count'] = query_results_length - 1

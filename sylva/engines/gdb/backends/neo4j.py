@@ -28,12 +28,12 @@ if settings.ENABLE_SPATIAL:
 
 WILDCARD_TYPE = -1
 AGGREGATES = {
-    "Count": "count",
-    "Max": "max",
-    "Min": "min",
-    "Sum": "sum",
-    "Average": "avg",
-    "Deviation": "stdev"
+    "count": "count",
+    "max": "max",
+    "min": "min",
+    "sum": "sum",
+    "avg": "avg",
+    "stdev": "stdev"
 }
 
 

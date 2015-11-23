@@ -162,14 +162,14 @@ diagram.lookupsFtypes = {
     'aggregate': 'number'
 };
 
-diagram.aggregates = [
-    "Count",
-    "Max",
-    "Min",
-    "Sum",
-    "Average",
-    "Deviation"
-];
+diagram.aggregates = {
+    "count": "Count",
+    "max": "Max",
+    "min": "Min",
+    "sum": "Sum",
+    "avg": "Average",
+    "stdev": "Deviation"
+};
 
 (function($) {
     /**
@@ -1103,7 +1103,7 @@ diagram.aggregates = [
                             var titleDiv = $(elem).prev().parent().parent().parent().parent().prev();
                             var boxSlug = $(titleDiv).data('slug');
                             var boxAlias = $('select', titleDiv).val();
-                            
+
                             // We use the slug for the value and alias for the html
                             var orderByFieldVal = boxSlug + '.' + propertyValue;
                             var orderByFieldHTML = boxAlias + '.' + propertyValue;
@@ -1123,7 +1123,7 @@ diagram.aggregates = [
                     // properties
                     var propertyDatatype = $('option:selected', selectorBox + ' .select-property').attr('data-datatype');
                     $(selectorBox + ' .select-other-boxes-properties').attr('data-datatype', propertyDatatype);
-                    // We change the aggregate in the select for 
+                    // We change the aggregate in the select for
                     // properties of other boxes
                     var aggregates = $(selectorAggregate);
                     $.each(aggregates, function(index, elem) {
@@ -1156,11 +1156,11 @@ diagram.aggregates = [
                             if(idBox !== anotherIdBox) {
                                 var datatype = $(elem).attr('data-datatype');
                                 var $option = $('option[data-fieldid="' + fieldId + '"]', $(elem));
-                                // We get the value of the lookup input to 
+                                // We get the value of the lookup input to
                                 // check if we need to change it too.
                                 var $lookupInput = $option.parent().prev();
                                 var sameValue = $option.html() === $lookupInput.val();
-                                // Let's check if the value is already in the 
+                                // Let's check if the value is already in the
                                 // select
                                 var existsValue = $('option[value="' + newValue + '"]', $(elem)).length;
 
@@ -1200,7 +1200,7 @@ diagram.aggregates = [
                                             $option.attr('data-fieldid', fieldId);
                                             $option.attr('value', newValue);
                                             $option.html(newHTML);
-                                            // We check if we need to change the value 
+                                            // We check if we need to change the value
                                             // of the lookup  input
                                             if(sameValue) {
                                                 $('option[value="' + newValue + '"]', elem).change();
@@ -1210,7 +1210,7 @@ diagram.aggregates = [
                                         }
                                     }
                                 } else {
-                                    // If the types are distinct but we have 
+                                    // If the types are distinct but we have
                                     // the option, we remove it
                                     $option.remove();
                                 }
@@ -1249,7 +1249,7 @@ diagram.aggregates = [
 
                             if(notDistinctDatatype || defaultType) {
                                 var boxAlias = $(elem).data('boxalias');
-                                var propertyId = $('option:selected', elem).data('propertyid');    
+                                var propertyId = $('option:selected', elem).data('propertyid');
                                 var propertyValue = boxAlias + '.' + propertyId;
                                 var aggregate = $(elem).prev().val();
 
@@ -1353,7 +1353,7 @@ diagram.aggregates = [
                     var inputAlias = $("<INPUT>");
                     var classesInput = "select-nodetype-" + typeName + " edit-alias";
                     inputAlias.addClass(classesInput);
-                    // This attr is for the logical to get the fields for the 
+                    // This attr is for the logical to get the fields for the
                     // query
                     inputAlias.attr("selected", "selected");
                     inputAlias.attr("data-modelid", typeId);
@@ -1607,12 +1607,14 @@ diagram.aggregates = [
             });
             selectAggregate.append("<option class='option-aggregate' value='' selected='selected'>" + gettext("None") + "</option>");
 
-            for(var i = 0; i < diagram.aggregates.length; i++) {
-                // We append the aggregate and the aggregate Distinct
-                var aggregate = diagram.aggregates[i];
-                var aggregateDistinct = aggregate + " distinct";
-                selectAggregate.append("<option class='option-aggregate' value='" + aggregate + "' data-distinct='false'>" + gettext(aggregate) + "</option>");
-                selectAggregate.append("<option class='option-aggregate' value='" + aggregate + "' data-distinct='true'>" + gettext(aggregateDistinct) + "</option>");
+            for(key in diagram.aggregates) {
+                if(diagram.aggregates.hasOwnProperty(key)) {
+                    // We append the aggregate and the aggregate Distinct
+                    var aggregate = diagram.aggregates[key];
+                    var aggregateDistinct = aggregate + " distinct";
+                    selectAggregate.append("<option class='option-aggregate' value='" + key + "' data-distinct='false'>" + gettext(aggregate) + "</option>");
+                    selectAggregate.append("<option class='option-aggregate' value='" + key + "' data-distinct='true'>" + gettext(aggregateDistinct) + "</option>");
+                }
             }
 
             // We append the elements
@@ -1735,12 +1737,14 @@ diagram.aggregates = [
                 $(selectAggregate).prop('disabled', true);
                 selectAggregate.append("<option class='option-aggregate' value='' selected='selected'>" + gettext("None") + "</option>");
 
-                for(var i = 0; i < diagram.aggregates.length; i++) {
-                    // We append the aggregate and the aggregate Distinct
-                    var aggregate = diagram.aggregates[i];
-                    var aggregateDistinct = aggregate + " distinct";
-                    selectAggregate.append("<option class='option-aggregate' value='" + aggregate + "' data-distinct='false'>" + gettext(aggregate) + "</option>");
-                    selectAggregate.append("<option class='option-aggregate' value='" + aggregate + "' data-distinct='true'>" + gettext(aggregateDistinct) + "</option>");
+                for(key in diagram.aggregates) {
+                    if(diagram.aggregates.hasOwnProperty(key)) {
+                        // We append the aggregate and the aggregate Distinct
+                        var aggregate = diagram.aggregates[key];
+                        var aggregateDistinct = aggregate + " distinct";
+                        selectAggregate.append("<option class='option-aggregate' value='" + key + "' data-distinct='false'>" + gettext(aggregate) + "</option>");
+                        selectAggregate.append("<option class='option-aggregate' value='" + key + "' data-distinct='true'>" + gettext(aggregateDistinct) + "</option>");
+                    }
                 }
             }
 
@@ -2378,7 +2382,7 @@ diagram.aggregates = [
             var propertyField = $(property).next().next();
             // We need to avoid the cache value for this attribute
             var propertyFromAnotherBox = propertyField.attr('data-boxproperty');
-            // We need to take into account that te 'in between' lookup can 
+            // We need to take into account that te 'in between' lookup can
             // have two properties
             var propertyFromAnotherBox2 = propertyField.next().next().next().attr('data-boxproperty');
             var propertyValue = propertyField.val();
@@ -2469,7 +2473,8 @@ diagram.aggregates = [
                     // cypher so we need to store that useful fields.
                     // Let's check if we have an aggregate
                     var propSplit = propertyFromAnotherBox.split("(");
-                    var existsAgg = diagram.aggregates.indexOf(propSplit[0]);
+                    var aggValues = $.map(diagram.aggregates, function(value, key) { return value });
+                    var existsAgg = aggValues.indexOf(propSplit[0]);
                     if(existsAgg !== -1) {
                         // We have an aggregate and need to change the query,
                         // but we need the slug.property_name, not the
@@ -2477,7 +2482,7 @@ diagram.aggregates = [
                         var propertyWithValue = propertyField.data('withvalue');
                         meta_dict["with_statement"][propertyWithValue] = '`' + propertyWithValue + '`';
                     }
-                    // Also, we are going to include in the meta dict the 
+                    // Also, we are going to include in the meta dict the
                     // fieldId of the property, to get it back in case that
                     // the property is not selected or with conditions.
                     var selectOtherBoxes = $(property).next().next().next();
@@ -2503,7 +2508,8 @@ diagram.aggregates = [
                     // cypher so we need to store that useful fields.
                     // Let's check if we have an aggregate
                     var propSplit = propertyFromAnotherBox2.split("(");
-                    var existsAgg = diagram.aggregates.indexOf(propSplit[0]);
+                    var aggValues = $.map(diagram.aggregates, function(value, key) { return value });
+                    var existsAgg = aggValues.indexOf(propSplit[0]);
                     if(existsAgg !== -1) {
                         // We have an aggregate and need to change the query,
                         // but we need the slug.property_name, not the
@@ -2511,7 +2517,7 @@ diagram.aggregates = [
                         var propertyWithValue = propertyField.data('withvalue');
                         meta_dict["with_statement"][propertyWithValue] = '`' + propertyWithValue + '`';
                     }
-                    // Also, we are going to include in the meta dict the 
+                    // Also, we are going to include in the meta dict the
                     // fieldId of the property, to get it back in case that
                     // the property is not selected or with conditions.
                     var selectOtherBoxes = $(property).next().next().next();
@@ -2813,7 +2819,7 @@ diagram.aggregates = [
                         if(parseInt(fieldIndex) > counterFieldsForNodes) {
                             counterFieldsForNodes = parseInt(fieldIndex);
                         }
-                            
+
                         // Before to set the new index, we need to check if
                         // that index is already used in the boxes.
                         var existsIndex = $('#' + id + " #field" + fieldLoopCounter).length;
@@ -2916,7 +2922,7 @@ diagram.aggregates = [
                     if(typeof jsonDict["fieldsRels"] != "undefined") {
                         id = reltypes[key].id;
                         typename = reltypes[key].typename;
-                        
+
                         var counterTemp = parseInt(id.split("-")[1]);
                         if(counterTemp <= counter)
                             counter = counterTemp;
@@ -2983,7 +2989,7 @@ diagram.aggregates = [
 
         try {
             // We will check the conditions for the relationships
-            // We create a variable to set up the index for rels 
+            // We create a variable to set up the index for rels
             // fields
             var setCounterRelsIndex = 0;
             for(key in reltypes) {
@@ -3026,7 +3032,7 @@ diagram.aggregates = [
 
                             // We need to set the correct value for the id
                             var newFieldIndex = fieldsRels[i];
-                            
+
                             // Let's see if we need to change the index for
                             // the counter of rels fields
                             var newCounterValue = newFieldIndex.split('-')[1];
@@ -3101,7 +3107,7 @@ diagram.aggregates = [
             // diagram.savedFieldsForRels
             if(fieldsKey === key)
                 diagram.savedFieldsForRels = jsonDict["fieldsRels"];
-            
+
             // We need to set the diagram.fieldCounterRel to the last
             // element
             if(setCounterRelsIndex !== 0) {
@@ -4007,7 +4013,7 @@ diagram.aggregates = [
 
                 if(notDistinctDatatype || defaultType) {
                     var boxAlias = $(elem).data('boxalias');
-                    var propertyId = $('option:selected', elem).data('propertyid');    
+                    var propertyId = $('option:selected', elem).data('propertyid');
                     var propertyValue = boxAlias + '.' + propertyId;
                     var aggregate = $(elem).prev().val();
 
@@ -4416,7 +4422,7 @@ diagram.aggregates = [
         var value = slugAlias + '.' + propertyId;
         var label = showAlias + '.' + propertyValue;
         var otherBoxesProperties = $('option:selected', '.select-property');
-        
+
         // We define global variables to use them inside the each below
         window.slugValue = slugAlias;
         window.actualProperty = propertyValue;
@@ -4463,7 +4469,7 @@ diagram.aggregates = [
 
                     if(notDistinctDatatype || defaultType) {
                         var boxAlias = $(elem).data('boxalias');
-                        var propertyId = $('option:selected', elem).data('propertyid');    
+                        var propertyId = $('option:selected', elem).data('propertyid');
                         var propertyValue = boxAlias + '.' + propertyId;
                         var aggregate = $(elem).prev().val();
 
@@ -4651,7 +4657,7 @@ diagram.aggregates = [
                     });
 
                     // We need to take into account that we can have in between
-                    // lookups, so we could haver another select for other 
+                    // lookups, so we could haver another select for other
                     // boxes properties
                     var isThereAnotherSelect = $(elem).next().next().next().next().next().next().attr('class') === 'select-other-boxes-properties';
 
@@ -4747,8 +4753,8 @@ diagram.aggregates = [
                                     $(otherSelectBoxesProperties).append(optionBoxesProperty.clone(true));
                                 }
                             }
-                            
-                        }); 
+
+                        });
                     }
                 }
             }
@@ -4773,7 +4779,7 @@ diagram.aggregates = [
             "display": "inline"
         });
 
-        // If the select is hidden, we show the select for the other boxes 
+        // If the select is hidden, we show the select for the other boxes
         // properties
         var selectIsShowed = $('#' + fieldId + " .select-other-boxes-properties").css('display');
         var iconIsShowed = $('#' + fieldId + " .link-other-boxes-properties").css('display');
@@ -4966,12 +4972,12 @@ diagram.aggregates = [
         var $selectField = $this.prev();
         // We are going to set the value for the lookup input
         var $lookupInput = $selectField.prev();
-        
+
         // We hide the link
         $this.css('display', 'none');
         // And we show the select
         $selectField.css('display', 'inline');
-        // We restore the select field for a correct behaviour with the change 
+        // We restore the select field for a correct behaviour with the change
         // event
         $selectField.val("choose one");
 
@@ -4995,7 +5001,7 @@ diagram.aggregates = [
         var propValue = $(propSelected).val();
         var propHtml = $(propSelected).html();
         var propWithValue = $(propSelected).data('withvalue');
-    
+
         // We hide the select
         $this.css('display', 'none');
         // And we show the link
@@ -5180,7 +5186,7 @@ diagram.aggregates = [
                 var oldOptionValSplitted = oldOptionVal.split(".");
                 var oldOptionAlias = oldOptionValSplitted[0];
 
-                if(oldOptionAlias === oldAlias) {    
+                if(oldOptionAlias === oldAlias) {
                     // We change the value of the option
                     var newOptionVal = newAlias + "." + oldOptionValSplitted[1];
 
