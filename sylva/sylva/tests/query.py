@@ -762,7 +762,7 @@ class QueryTestCase(LiveServerTestCase):
         aggregate_name = self.browser.find_by_xpath(
             "//select[@class='select-aggregate']").first.value
         spin_assert(lambda: self.assertEqual(aggregate_name,
-                                             u"Count"))
+                                             u"count"))
         Graph.objects.get(name="Bob's graph").destroy()
 
     def test_query_builder_one_box_with_count_distinct(self):
@@ -896,7 +896,7 @@ class QueryTestCase(LiveServerTestCase):
         aggregate_name = self.browser.find_by_xpath(
             "//select[@class='select-aggregate']").first.value
         spin_assert(lambda: self.assertEqual(aggregate_name,
-                                             u"Count"))
+                                             u"count"))
         Graph.objects.get(name="Bob's graph").destroy()
 
     def test_query_builder_aggregate_run_and_go_back_distinct(self):
@@ -1000,9 +1000,9 @@ class QueryTestCase(LiveServerTestCase):
         aggregates_names = self.browser.find_by_xpath(
             "//select[@class='select-aggregate']")
         spin_assert(lambda: self.assertEqual(aggregates_names[0].value,
-                                             u"Count"))
+                                             u"count"))
         spin_assert(lambda: self.assertEqual(aggregates_names[1].value,
-                                             u"Min"))
+                                             u"min"))
         Graph.objects.get(name="Bob's graph").destroy()
 
     def test_query_builder_two_boxes_with_distinct_aggregates(self):
@@ -2735,13 +2735,13 @@ class QueryTestCase(LiveServerTestCase):
             "//a[@id='inlineAdvancedMode_bob-type']/i").first
         aggregate.click()
         js_code = '''
-            $('.select-aggregate option[value="Count"][data-distinct="false"]').prop('selected', 'selected').change()
+            $('.select-aggregate option[value="count"][data-distinct="false"]').prop('selected', 'selected').change()
         '''
         self.browser.execute_script(js_code)
         aggregate_name = self.browser.find_by_xpath(
             "//select[@class='select-aggregate']").first.value
         spin_assert(lambda: self.assertEqual(aggregate_name,
-                                             u"Count"))
+                                             u"count"))
         # We select the lookup equals
         lookup_option = self.browser.find_by_xpath(
             "//option[@class='lookup-option' and text()='equals']").first

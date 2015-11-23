@@ -1607,13 +1607,13 @@ diagram.aggregates = {
             });
             selectAggregate.append("<option class='option-aggregate' value='' selected='selected'>" + gettext("None") + "</option>");
 
-            for(key in diagram.aggregates) {
-                if(diagram.aggregates.hasOwnProperty(key)) {
+            for(aggregateKey in diagram.aggregates) {
+                if(diagram.aggregates.hasOwnProperty(aggregateKey)) {
                     // We append the aggregate and the aggregate Distinct
-                    var aggregate = diagram.aggregates[key];
+                    var aggregate = diagram.aggregates[aggregateKey];
                     var aggregateDistinct = aggregate + " distinct";
-                    selectAggregate.append("<option class='option-aggregate' value='" + key + "' data-distinct='false'>" + gettext(aggregate) + "</option>");
-                    selectAggregate.append("<option class='option-aggregate' value='" + key + "' data-distinct='true'>" + gettext(aggregateDistinct) + "</option>");
+                    selectAggregate.append("<option class='option-aggregate' value='" + aggregateKey + "' data-distinct='false'>" + gettext(aggregate) + "</option>");
+                    selectAggregate.append("<option class='option-aggregate' value='" + aggregateKey + "' data-distinct='true'>" + gettext(aggregateDistinct) + "</option>");
                 }
             }
 
@@ -1737,13 +1737,13 @@ diagram.aggregates = {
                 $(selectAggregate).prop('disabled', true);
                 selectAggregate.append("<option class='option-aggregate' value='' selected='selected'>" + gettext("None") + "</option>");
 
-                for(key in diagram.aggregates) {
-                    if(diagram.aggregates.hasOwnProperty(key)) {
+                for(aggregateKey in diagram.aggregates) {
+                    if(diagram.aggregates.hasOwnProperty(aggregateKey)) {
                         // We append the aggregate and the aggregate Distinct
-                        var aggregate = diagram.aggregates[key];
+                        var aggregate = diagram.aggregates[aggregateKey];
                         var aggregateDistinct = aggregate + " distinct";
-                        selectAggregate.append("<option class='option-aggregate' value='" + key + "' data-distinct='false'>" + gettext(aggregate) + "</option>");
-                        selectAggregate.append("<option class='option-aggregate' value='" + key + "' data-distinct='true'>" + gettext(aggregateDistinct) + "</option>");
+                        selectAggregate.append("<option class='option-aggregate' value='" + aggregateKey + "' data-distinct='false'>" + gettext(aggregate) + "</option>");
+                        selectAggregate.append("<option class='option-aggregate' value='" + aggregateKey + "' data-distinct='true'>" + gettext(aggregateDistinct) + "</option>");
                     }
                 }
             }
@@ -4457,7 +4457,9 @@ diagram.aggregates = {
             if(window.idBox !== idElemBox) {
                 var selectOtherBoxesProperties = $(elem).next().next().next();
                 // First, we check that the select it's not the new one.
-                if(selectOtherBoxesProperties[0] !== selectBoxesProperties[0]) {
+                var selectTag = selectOtherBoxesProperties.prop("tagName");
+                var isNotA = selectTag !== 'A';
+                if((selectOtherBoxesProperties[0] !== selectBoxesProperties[0]) && isNotA) {
                     var datatype = $('option:selected', elem).data('datatype');
                     // Now, we check if the datatype is equal
                     var notDistinctDatatype = diagram.lookupsFtypes[datatype] === diagram.lookupsFtypes[actualDatatype];
@@ -4553,8 +4555,11 @@ diagram.aggregates = {
 
             if(idBox !== idElemBox) {
                 var selectOtherBoxesProperties = $(elem).next().next().next();
-                // First, we check that the select it's not the new one.
-                if(selectOtherBoxesProperties[0] !== selectBoxesProperties[0]) {
+                // First, we check that the select it's not the new one
+                // and that the element is not a "A" element
+                var selectTag = selectOtherBoxesProperties.prop("tagName");
+                var isNotA = selectTag !== 'A';
+                if((selectOtherBoxesProperties[0] !== selectBoxesProperties[0]) && isNotA) {
                     // We remove the options of the allSelectsProperties that
                     // belong to this box. This is done to avoid duplicates and
                     // datatypes conflicts.
