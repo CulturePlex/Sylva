@@ -755,7 +755,7 @@ class QueryTestCase(LiveServerTestCase):
             "//a[@id='inlineAdvancedMode_bobs-type']/i").first
         aggregate.click()
         js_code = '''
-            $('.select-aggregate option[value="Count"][data-distinct="false"]')
+            $('.select-aggregate option[value="count"][data-distinct="false"]')
             .prop('selected', 'selected').change()
         '''
         self.browser.execute_script(js_code)
@@ -791,7 +791,7 @@ class QueryTestCase(LiveServerTestCase):
             "//a[@id='inlineAdvancedMode_bobs-type']/i").first
         aggregate.click()
         js_code = '''
-            $('.select-aggregate option[value="Count"][data-distinct="true"]')
+            $('.select-aggregate option[value="count"][data-distinct="true"]')
             .prop('selected', 'selected').change()
         '''
         self.browser.execute_script(js_code)
@@ -828,7 +828,7 @@ class QueryTestCase(LiveServerTestCase):
             "//a[@id='inlineAdvancedMode_bobs-type']/i").first
         aggregate.click()
         js_code = '''
-            $('.select-aggregate option[value="Count"][data-distinct="false"]')
+            $('.select-aggregate option[value="count"][data-distinct="false"]')
             .prop('selected', 'selected').change()
         '''
         self.browser.execute_script(js_code)
@@ -872,7 +872,7 @@ class QueryTestCase(LiveServerTestCase):
             "//a[@id='inlineAdvancedMode_bobs-type']/i").first
         aggregate.click()
         js_code = '''
-            $('.select-aggregate option[value="Count"][data-distinct="false"]')
+            $('.select-aggregate option[value="count"][data-distinct="false"]')
             .prop('selected', 'selected').change()
         '''
         self.browser.execute_script(js_code)
@@ -925,7 +925,7 @@ class QueryTestCase(LiveServerTestCase):
             "//a[@id='inlineAdvancedMode_bobs-type']/i").first
         aggregate.click()
         js_code = '''
-            $('.select-aggregate option[value="Count"][data-distinct="true"]')
+            $('.select-aggregate option[value="count"][data-distinct="true"]')
             .prop('selected', 'selected').change()
         '''
         self.browser.execute_script(js_code)
@@ -993,8 +993,8 @@ class QueryTestCase(LiveServerTestCase):
             "//div[@id='diagramBox-2-bobs-type']"
             "//a[@id='inlineAdvancedMode_bobs-type']/i").first.click()
         js_code = '''
-            $($('.select-aggregate option[value="Count"][data-distinct="false"]')[0]).prop('selected', 'selected').change();
-            $($('.select-aggregate option[value="Min"][data-distinct="false"]')[1]).prop('selected', 'selected').change();
+            $($('.select-aggregate option[value="count"][data-distinct="false"]')[0]).prop('selected', 'selected').change();
+            $($('.select-aggregate option[value="min"][data-distinct="false"]')[1]).prop('selected', 'selected').change();
         '''
         self.browser.execute_script(js_code)
         aggregates_names = self.browser.find_by_xpath(
@@ -1045,8 +1045,8 @@ class QueryTestCase(LiveServerTestCase):
             "//div[@id='diagramBox-2-bobs-type']"
             "//a[@id='inlineAdvancedMode_bobs-type']/i").first.click()
         js_code = '''
-            $($('.select-aggregate option[value="Count"][data-distinct="true"]')[0]).prop('selected', 'selected').change();
-            $($('.select-aggregate option[value="Min"][data-distinct="true"]')[1]).prop('selected', 'selected').change();
+            $($('.select-aggregate option[value="count"][data-distinct="true"]')[0]).prop('selected', 'selected').change();
+            $($('.select-aggregate option[value="min"][data-distinct="true"]')[1]).prop('selected', 'selected').change();
         '''
         self.browser.execute_script(js_code)
         aggregate_name1 = self.browser.evaluate_script(
@@ -1099,8 +1099,8 @@ class QueryTestCase(LiveServerTestCase):
             "//div[@id='diagramBox-2-bobs-type']"
             "//a[@id='inlineAdvancedMode_bobs-type']/i").first.click()
         js_code = '''
-            $($('.select-aggregate option[value="Count"][data-distinct="false"]')[0]).prop('selected', 'selected').change();
-            $($('.select-aggregate option[value="Min"][data-distinct="false"]')[1]).prop('selected', 'selected').change();
+            $($('.select-aggregate option[value="count"][data-distinct="false"]')[0]).prop('selected', 'selected').change();
+            $($('.select-aggregate option[value="min"][data-distinct="false"]')[1]).prop('selected', 'selected').change();
         '''
         self.browser.execute_script(js_code)
         # We get the button to run the query and click it
@@ -1180,8 +1180,8 @@ class QueryTestCase(LiveServerTestCase):
             "//div[@id='diagramBox-2-bobs-type']"
             "//a[@id='inlineAdvancedMode_bobs-type']/i").first.click()
         js_code = '''
-            $($('.select-aggregate option[value="Count"][data-distinct="true"]')[0]).prop('selected', 'selected').change();
-            $($('.select-aggregate option[value="Min"][data-distinct="true"]')[1]).prop('selected', 'selected').change();
+            $($('.select-aggregate option[value="count"][data-distinct="true"]')[0]).prop('selected', 'selected').change();
+            $($('.select-aggregate option[value="min"][data-distinct="true"]')[1]).prop('selected', 'selected').change();
         '''
         self.browser.execute_script(js_code)
         # We get the button to run the query and click it
@@ -1261,7 +1261,7 @@ class QueryTestCase(LiveServerTestCase):
             "//a[@id='inlineAdvancedMode_bobs-type']/i").first
         aggregate.click()
         js_code = '''
-            $('.select-aggregate option[value="Max"][data-distinct="false"]')
+            $('.select-aggregate option[value="max"][data-distinct="false"]')
             .prop('selected', 'selected').change()
         '''
         self.browser.execute_script(js_code)
@@ -1319,7 +1319,7 @@ class QueryTestCase(LiveServerTestCase):
             "//a[@id='inlineAdvancedMode_bobs-type']/i").first
         aggregate.click()
         js_code = '''
-            $('.select-aggregate option[value="Max"][data-distinct="true"]')
+            $('.select-aggregate option[value="max"][data-distinct="true"]')
             .prop('selected', 'selected').change()
         '''
         self.browser.execute_script(js_code)
@@ -1377,7 +1377,7 @@ class QueryTestCase(LiveServerTestCase):
             "//a[@id='inlineAdvancedMode_bobs-type']/i").first
         aggregate.click()
         js_code = '''
-            $('.select-aggregate option[value="Min"][data-distinct="false"]')
+            $('.select-aggregate option[value="min"][data-distinct="false"]')
             .prop('selected', 'selected').change()
         '''
         self.browser.execute_script(js_code)
@@ -1435,7 +1435,7 @@ class QueryTestCase(LiveServerTestCase):
             "//a[@id='inlineAdvancedMode_bobs-type']/i").first
         aggregate.click()
         js_code = '''
-            $('.select-aggregate option[value="Min"][data-distinct="true"]')
+            $('.select-aggregate option[value="min"][data-distinct="true"]')
             .prop('selected', 'selected').change()
         '''
         self.browser.execute_script(js_code)
@@ -1493,7 +1493,7 @@ class QueryTestCase(LiveServerTestCase):
             "//a[@id='inlineAdvancedMode_bobs-type']/i").first
         aggregate.click()
         js_code = '''
-            $('.select-aggregate option[value="Sum"][data-distinct="false"]')
+            $('.select-aggregate option[value="sum"][data-distinct="false"]')
             .prop('selected', 'selected').change()
         '''
         self.browser.execute_script(js_code)
@@ -1551,7 +1551,7 @@ class QueryTestCase(LiveServerTestCase):
             "//a[@id='inlineAdvancedMode_bobs-type']/i").first
         aggregate.click()
         js_code = '''
-            $('.select-aggregate option[value="Sum"][data-distinct="true"]')
+            $('.select-aggregate option[value="sum"][data-distinct="true"]')
             .prop('selected', 'selected').change()
         '''
         self.browser.execute_script(js_code)
@@ -1609,7 +1609,7 @@ class QueryTestCase(LiveServerTestCase):
             "//a[@id='inlineAdvancedMode_bobs-type']/i").first
         aggregate.click()
         js_code = '''
-            $('.select-aggregate option[value="Average"][data-distinct="false"]')
+            $('.select-aggregate option[value="avg"][data-distinct="false"]')
             .prop('selected', 'selected').change()
         '''
         self.browser.execute_script(js_code)
@@ -1667,7 +1667,7 @@ class QueryTestCase(LiveServerTestCase):
             "//a[@id='inlineAdvancedMode_bobs-type']/i").first
         aggregate.click()
         js_code = '''
-            $('.select-aggregate option[value="Average"][data-distinct="true"]')
+            $('.select-aggregate option[value="avg"][data-distinct="true"]')
             .prop('selected', 'selected').change()
         '''
         self.browser.execute_script(js_code)
@@ -1725,7 +1725,7 @@ class QueryTestCase(LiveServerTestCase):
             "//a[@id='inlineAdvancedMode_bobs-type']/i").first
         aggregate.click()
         js_code = '''
-            $('.select-aggregate option[value="Deviation"][data-distinct="false"]')
+            $('.select-aggregate option[value="stdev"][data-distinct="false"]')
             .prop('selected', 'selected').change()
         '''
         self.browser.execute_script(js_code)
@@ -1784,7 +1784,7 @@ class QueryTestCase(LiveServerTestCase):
             "//a[@id='inlineAdvancedMode_bobs-type']/i").first
         aggregate.click()
         js_code = '''
-            $('.select-aggregate option[value="Deviation"][data-distinct="true"]')
+            $('.select-aggregate option[value="stdev"][data-distinct="true"]')
             .prop('selected', 'selected').change()
         '''
         self.browser.execute_script(js_code)
