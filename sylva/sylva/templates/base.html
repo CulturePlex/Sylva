@@ -25,9 +25,9 @@
     {% endcompress %}
 
     <script>
-      // Settings for Leaflet, it need to be before that Leaflet loading.
+      // Settings for Leaflet, they need to be before that Leaflet loads.
       // L_PREFER_CANVAS = true;  // This one is for use the map in a canvas.
-      L_DISABLE_3D = true;
+      L_DISABLE_3D = true;  // This one is for avoiding map crashes in Chrome.
     </script>
 
     {% leaflet_js plugins="forms" %}

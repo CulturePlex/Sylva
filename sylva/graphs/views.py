@@ -4,8 +4,6 @@ try:
 except ImportError:
     import json  # NOQA
 
-import base64
-import os
 import time
 
 from django.db import transaction, IntegrityError
@@ -94,7 +92,6 @@ def graph_view(request, graph_slug, node_id=None):
     graph_analytics_boxes_edit_position_url = reverse(
         'graph_analytics_boxes_edit_position', args=[graph.slug])
     run_query_url = reverse('run_query', args=[graph.slug, 0])[:-2]
-    generate_map_image_url = reverse('generate_map_image', args=[graph.slug])
     node = None
     if node_id:
         node = graph.nodes.get(node_id)
@@ -115,9 +112,7 @@ def graph_view(request, graph_slug, node_id=None):
                                   edit_reltype_color_ajax_url,
                                "graph_analytics_boxes_edit_position_url":
                                   graph_analytics_boxes_edit_position_url,
-                               "run_query_url": run_query_url,
-                               "generate_map_image_url":
-                                   generate_map_image_url},
+                               "run_query_url": run_query_url},
                               context_instance=RequestContext(request))
 
 
@@ -475,55 +470,3 @@ def run_query(request, graph_slug, query_id):
         return HttpResponse(json.dumps(response), status=200,
                             content_type='application/json')
     raise Http404(_("Error: Invalid request (expected an AJAX POST request)"))
-
-
-@permission_required("graphs.view_graph", (Graph, "slug", "graph_slug"),
-                     return_403=True)
-def generate_map_image(request, graph_slug):
-    if (request.is_ajax() or settings.DEBUG) and request.POST:
-        get_object_or_404(Graph, slug=graph_slug, )
-        data = request.POST.copy()
-        if 'base64Image' in data:
-            base64_image = data['base64Image'].split(',', 1)[1]
-            # Fixing possible error in padding
-            missing_padding = 4 - len(base64_image) % 4
-            if missing_padding:
-                base64_image += b'=' * missing_padding
-            image_recovered = base64.decodestring(base64_image)
-            # Creating filename and path
-            filename = str(time.time()) + '.png'
-            path = os.path.join(settings.MEDIA_ROOT, settings.MAP_IMAGES_PATH,
-                                graph_slug, filename)
-            # Creating path (if it doesn't exist) and file
-            if not os.path.exists(os.path.dirname(path)):
-                os.makedirs(os.path.dirname(path))
-            with open(path, 'wb') as f:
-                f.write(image_recovered)
-            # Reversing image url and responding
-            get_map_image_url =\
-                reverse('get_map_image', args=[graph_slug, filename])
-            response = {'url': get_map_image_url}
-            return HttpResponse(json.dumps(response), status=200,
-                                content_type='application/json')
-    raise Http404(_("Error: Invalid request (expected an AJAX POST request)"))
-
-
-@permission_required("graphs.view_graph", (Graph, "slug", "graph_slug"),
-                     return_403=True)
-def get_map_image(request, graph_slug, image_ts):
-    path = os.path.join(settings.MEDIA_ROOT, settings.MAP_IMAGES_PATH,
-                        graph_slug, image_ts)
-    try:
-        with open(path, "rb") as f:
-            image = f.read()
-        os.remove(path)
-        try:
-            os.rmdir(os.path.dirname(path))
-        except OSError:  # This error happens when the directory is not empty
-            pass
-        response = HttpResponse(image, mimetype="image/png")
-        response['Content-Disposition'] =\
-            'attachment; filename="' + graph_slug + '_map.png"'
-        return response
-    except IOError:
-        raise Http404(_("Error: Content not found"))
