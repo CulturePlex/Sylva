@@ -512,96 +512,60 @@
     },
 
     exportPNG: function(event) {
-      // Prevent the event is triggered again.
-      event.stopImmediatePropagation();
-      $('#map-export-image').off('click', that.exportPNG);
-
-      // Prevent exiting the view.
-      window.onbeforeunload = function() {
-        return gettext('A image is being generated.');
-      };
-
-      // Adding an animation.
-      var button = $(event.target);
-      var spinner = button.children('i');
-      var buttonTextNode = event.target.childNodes[0];
-      var originalText = buttonTextNode.nodeValue;
-
-      buttonTextNode.nodeValue = gettext('Saving image') + ' ';
-      button.addClass('active');
-      spinner.addClass('fa fa-spinner fa-spin');
+      // Declare 'exportPNG' scope variables.
+      var button, spinner, buttonTextNode, originalText = null;
+      starting();
 
       // Creating and saving image.
       leafletImage(map, function(err, canvas) {
-        var contentType = 'image/png';
-        var base64Image = canvas.toDataURL(contentType);
-
-        // 2097152 is the max length for data URI in Chrome
-        if (base64Image.length <= (2097152 * 0.75)) {
-          console.log('Image smaller or equal than 1.5 MB in \'Base64\' format.');
-          var dataURI = base64Image.replace('image/png', 'image/octet-stream');
-          base64Image = null;  // Manual GC
-          openDialog(dataURI);
-          dataURI = null;  // Manual GC
+        canvas.toBlob(function(blob) {
+          openDialog(URL.createObjectURL(blob));
           done();
-
-        } else {
-          console.log('Image bigger than 1.5 MB in \'Base64\' format, creating BLOB.');
-          base64Image = base64Image.substring(22);  // Removing 'data:image/png;base64,'
-          var blob = b64toBlob(base64Image, contentType);
-          base64Image = null;  // Manual GC
-          var blobUrl = URL.createObjectURL(blob);
-          openDialog(blobUrl);
-          blob = null;  // Manual GC
-          done();
-        }
-
-        // Creating the link for 'auto' click it.
-        function openDialog(uri) {
-          var link = document.createElement('a');
-          link.href = uri;
-          uri = null;  // Manual GC
-          link.download = $('#map-export-image').attr('download');
-          link.click();
-          link = null;  // Manual GC
-        }
-
-        // Removing the animation and activating 'exit the view'.
-        function done() {
-          spinner.removeClass('fa fa-spinner fa-spin');
-          button.removeClass('active');
-          buttonTextNode.nodeValue = originalText;
-          window.onbeforeunload = null;
-
-          // Re attaching the main event.
-          $('#map-export-image').on('click', that.exportPNG);
-        }
-
-        // From http://stackoverflow.com/a/16245768
-        function b64toBlob(b64Data, contentType, sliceSize) {
-          contentType = contentType || '';
-          sliceSize = sliceSize || 512;
-
-          var byteCharacters = atob(b64Data);
-          var byteArrays = [];
-
-          for (var offset = 0; offset < byteCharacters.length; offset += sliceSize) {
-            var slice = byteCharacters.slice(offset, offset + sliceSize);
-
-            var byteNumbers = new Array(slice.length);
-            for (var i = 0; i < slice.length; i++) {
-              byteNumbers[i] = slice.charCodeAt(i);
-            }
-
-            var byteArray = new Uint8Array(byteNumbers);
-
-            byteArrays.push(byteArray);
-          }
-
-          var blob = new Blob(byteArrays, {type: contentType});
-          return blob;
-        }
+        }, 'image/png');
       });
+
+      // Prepare the events and the element animations.
+      function starting() {
+        // Prevent the event is triggered again.
+        event.stopImmediatePropagation();
+        $('#map-export-image').off('click', that.exportPNG);
+
+        // Prevent exiting the view.
+        window.onbeforeunload = function() {
+          return gettext('A image is being generated.');
+        };
+
+        // Adding an animation.
+        button = $(event.target);
+        spinner = button.children('i');
+        buttonTextNode = event.target.childNodes[0];
+        originalText = buttonTextNode.nodeValue;
+
+        buttonTextNode.nodeValue = gettext('Saving image') + ' ';
+        button.addClass('active');
+        spinner.addClass('fa fa-spinner fa-spin');
+      }
+
+      // Creating the link for 'auto' click it.
+      function openDialog(uri) {
+        var link = document.createElement('a');
+        link.href = uri;
+        uri = null;  // Manual GC
+        link.download = $('#map-export-image').attr('download');
+        link.click();
+        link = null;  // Manual GC
+      }
+
+      // Removing the animation and activating 'exit the view'.
+      function done() {
+        spinner.removeClass('fa fa-spinner fa-spin');
+        button.removeClass('active');
+        buttonTextNode.nodeValue = originalText;
+        window.onbeforeunload = null;
+
+        // Re attaching the main event.
+        $('#map-export-image').on('click', that.exportPNG);
+      }
     }
 
   };

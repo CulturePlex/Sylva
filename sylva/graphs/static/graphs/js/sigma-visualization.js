@@ -2124,19 +2124,20 @@
       });
     },
 
-    exportPNG: function() {
+    exportPNG: function(event) {
       var canvas = $('<canvas id="sigma-export-png-canvas">');
       var width = $('#sigma-container').children().first().width();
       var height = $('#sigma-container').children().first().height();
       canvas.attr('width', width);
       canvas.attr('height', height);
-      var canvasElem = canvas[0];
-      var ctx = canvasElem.getContext('2d');
+      canvas = canvas[0];
+      var ctx = canvas.getContext('2d');
       ctx.globalCompositeOperation = 'source-over';
       ctx.drawImage($('.sigma-scene')[0], 0, 0);
-      var imgData = canvasElem.toDataURL('image/png');
-      $(this).attr('href', imgData.replace('image/png', 'image/octet-stream'));
-      canvas = null;
+      canvas.toBlob(function(blob) {
+        $(event.target).attr('href', URL.createObjectURL(blob));
+        canvas = null;
+      }, 'image/png');
     },
 
     exportSVG: function() {
@@ -2172,7 +2173,7 @@
 
       // And here it is the animation for the "progress button".
       var progressButtonIntervalId = setInterval(function() {
-        /* If the next line is setted before, the 'hide event' of the 'dropit'
+        /* If the next line is set before, the 'hide event' of the 'dropit'
          * library will remove the class 'active';
          */
         buttonText.addClass('active');
@@ -2189,7 +2190,8 @@
       var doneFilter = function() {
         // Obtaining the XML string in Base64.
         svg = svg[0].outerHTML;
-        svg = btoa(svg);
+        svg = new Blob([svg], {type: 'image/svg+xml'});
+        // Now 'svg' is a Blob! But renamed it for saving space.
 
         // Stopping and clearing the "progress button" and the exit view event.
         clearInterval(progressButtonIntervalId);
@@ -2200,7 +2202,7 @@
 
         // Creating the link for "auto" click it.
         var link = document.createElement('a');
-        link.href = 'data:image/svg+xml;base64,' + svg;
+        link.href = URL.createObjectURL(svg);
         link.download = $('#sigma-export-svg').attr('download');
         link.click();
         link = null;

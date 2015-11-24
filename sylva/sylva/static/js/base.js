@@ -36,6 +36,53 @@ var calculateTextLength = function() {
   });
 };
 
+/* The next two blocks add a 'in development' capability to the HTML Canvas
+ * element: 'canvas.toBlob'.
+ */
+
+// From http://stackoverflow.com/a/16245768
+window.base64ToBlob = function(b64Data, contentType, sliceSize) {
+  contentType = contentType || '';
+  sliceSize = sliceSize || 512;
+
+  var byteCharacters = atob(b64Data);
+  var byteArrays = [];
+
+  for (var offset = 0; offset < byteCharacters.length; offset += sliceSize) {
+    var slice = byteCharacters.slice(offset, offset + sliceSize);
+
+    var byteNumbers = new Array(slice.length);
+    for (var i = 0; i < slice.length; i++) {
+      byteNumbers[i] = slice.charCodeAt(i);
+    }
+
+    var byteArray = new Uint8Array(byteNumbers);
+
+    byteArrays.push(byteArray);
+  }
+
+  var blob = new Blob(byteArrays, {type: contentType});
+  return blob;
+};
+
+if (!HTMLCanvasElement.prototype.toBlob) {
+ Object.defineProperty(HTMLCanvasElement.prototype, 'toBlob', {
+  value: function (callback, contentType, quality) {
+    contentType = contentType || 'image/png';
+
+    /*
+    var base64Image = this.toDataURL(contentType, quality);
+    base64Image = base64Image.split(',')[1];  // Removing 'data:image/png;base64,'
+    var blob = base64ToBlob(base64Image, contentType);
+    callback(blob);
+    */
+
+    // The previous comment in one line, for not creating garbage.
+    callback(base64ToBlob(this.toDataURL(contentType, quality).split(',')[1], contentType));
+  }
+ });
+}
+
 ;(function($) {
 
   // CSRF protection for all AJAX requests.
