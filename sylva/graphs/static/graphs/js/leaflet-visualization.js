@@ -485,8 +485,8 @@
         visibleFeatures[nodetype][property] = true;
       }
 
-      /* The next bock will 'show or hide' an element if all it's
-       * sub-elements are 'shown or hidden'.
+      /* The next bock will 'show or hide' an element (parent) if all it's
+       * sub-elements (children) are 'shown or hidden'.
        */
       var or = false;
       var and = true;
@@ -499,7 +499,13 @@
 
       var current = visibleFeatures[nodetype][property];
       var general = visibleFeatures[nodetype][GENERAL];
-      if (or === and && current !== general) {
+
+      var allChildrenClosedButParent = !or && !and && !current && general;
+      var allClosedButOneChild = or && !and && current && !general;
+      var onlyChildOpenButParentClosed = or && and && current && !general;
+
+      // Showing or hiding the parent element.
+      if (allChildrenClosedButParent || allClosedButOneChild || onlyChildOpenButParentClosed) {
         var iElementUncle = iElement.parent().siblings('i');
         that.showHideFeaturesIndividually($(iElementUncle[0]));
       }
