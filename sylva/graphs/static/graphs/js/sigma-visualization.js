@@ -1728,7 +1728,7 @@
      */
     goMapMode: function() {
       $('#canvas-container').hide();
-      $('#map-container').show();
+      $('#map-wrapper').show();
       if (!mapCreated) {
         mapCreated = true;
         sylva.Leaflet.init();
@@ -1742,7 +1742,7 @@
      * TODO: More doc.
      */
     exitMapMode: function() {
-      $('#map-container').hide();
+      $('#map-wrapper').hide();
       $('#canvas-container').show();
       that.updateSizes(true);
     },

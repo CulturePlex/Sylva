@@ -3053,6 +3053,14 @@ body :hover > a.headerlink {
     margin-bottom: 10px
 }
 
+.heat-disabled {
+    color: #8c8c8c;
+}
+
+.heat-activated {
+    color: #e25822;
+}
+
 /* END "map visualization" with Leaflet */
 
 /* Dropit menu for "Save as image" */

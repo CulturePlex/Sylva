@@ -9,7 +9,7 @@
  ****************************************************************************/
 
 ;(function(sylva, $, window, document, undefined) {
-  var CENTER = '_center_';
+  var CENTER = '_CENTER_';
   var GENERAL = '_GENERAL_';
   var MAX_TO_HEAT = 1000;
 
@@ -18,6 +18,8 @@
   var centerCoors = null;
   var centerZoom = null;
   var features = null;
+  var regularFeatures = null;
+  var heatFeatures = null;
   var featuresColor = null;
   var visibleFeatures = null;
 
@@ -36,12 +38,14 @@
       }).addTo(map);
 
       // Defining style after creation.
-      $('#map-container').css({
+      var mapDivsSytyle = {
         position: 'absolute',
         bottom: 0,
         top: 0,
         width: $('#sigma-wrapper').width() + 'px'
-      });
+      };
+      $('#map-wrapper').css(mapDivsSytyle);
+      $('#map-container').css(mapDivsSytyle);
 
       // TODO: Redo this with proper and compatible (with Sigma) structures.
       that.addNodes();
@@ -54,10 +58,15 @@
       }, 0);
 
       // Registering events!
+      // Show or hide a feature of a type
       $('.show-hide-features').on('click', that.showHideFeatures);
+
+      // Change the visualization of feature of type between regular or heat map
+      $('.heatmap-features').on('click', that.heatmapFeatures);
 
       // Resizing the map when 'sylva.Sigma.updateSizes()' is called.
       $('#map-container').on('customResize', function(e, width) {
+        $('#map-wrapper').width(width);
         $('#map-container').width(width);
         setTimeout(function () {
           map.invalidateSize();
@@ -87,6 +96,8 @@
 
     addNodes: function() {
       features = {};
+      regularFeatures = {};
+      heatFeatures = {};
       featuresColor = {};
       var featuresForBounding = [];
       var heatmapPopups = [];
@@ -135,6 +146,9 @@
             features[node.nodetype] = features[node.nodetype] || {};
             features[node.nodetype][name] = features[node.nodetype][name] || [];
 
+            regularFeatures[node.nodetype] = regularFeatures[node.nodetype] || {};
+            heatFeatures[node.nodetype] = heatFeatures[node.nodetype] || {};
+
             // Pushing the GeoJSON feature and other properties
             featuresColor[node.nodetype] = node.color;
             features[node.nodetype][name].push(feature);
@@ -164,77 +178,87 @@
       // Creating feature/layer groups and adding them to the map
       $.each(features, function(nodetype, properties) {
         $.each(properties, function(property, featuresArray) {
-
-          // Creating regular layer
+          // Creating regular layer if it has less nodes than 'MAX_TO_HEAT'
           if (featuresArray.length < MAX_TO_HEAT) {
-            features[nodetype][property] = L.featureGroup(featuresArray);
-
-          // Creating heat layer
-          } else {
-            // Creating the popup for the heatmaps
-            heatmapPopups.push({
-              bounds: L.featureGroup(featuresArray).getBounds(),
-              nodetype: nodetype,
-              property: property
-            });
-
-            var coorsArray = [];
-            $.each(featuresArray, function (index1, feature) {
-
-              // Simple markers (center points)
-              if (typeof feature.getLatLng === 'function') {
-                var latLng = feature.getLatLng();
-                coorsArray.push([latLng.lat, latLng.lng]);
-
-              // GeoJSONs
-              } else {
-                var pointCoordinates = feature.getLayers()[0].feature.geometry.coordinates;
-
-                // Points
-                if (typeof pointCoordinates[0] === "number") {
-                  coorsArray.push(pointCoordinates.reverse());
-
-                // Lines
-                } else {
-                  $.each(pointCoordinates, function (index2, lineCoordinates) {
-                    if (typeof lineCoordinates[0] === "number") {
-                      coorsArray.push(lineCoordinates.reverse());
-
-                    // Areas
-                    } else {
-                      $.each(lineCoordinates, function (index3, areaCoordinates) {
-                        coorsArray.push(areaCoordinates.reverse());
-                      });
-                    }
-                  });
-                }
-              }
-            });
-
-            // Really creating heat layer
-            features[nodetype][property] = L.heatLayer(coorsArray, {
-              radius: 10,
-              maxZoom: 20
-            });
+            regularFeatures[nodetype][property] = L.featureGroup(featuresArray);
           }
 
-          // Adding created layer (regular or heat) to the map
-          if (property !== CENTER) {
-            features[nodetype][property].addTo(map);
+          // Creating heat map layer if 'always'
+          // Creating the popup for the heat map layers
+          heatmapPopups.push({
+            bounds: L.featureGroup(featuresArray).getBounds(),
+            nodetype: nodetype,
+            property: property
+          });
+
+          var coorsArray = [];
+          $.each(featuresArray, function (index1, feature) {
+
+            // Simple markers (center points)
+            if (typeof feature.getLatLng === 'function') {
+              var latLng = feature.getLatLng();
+              coorsArray.push([latLng.lat, latLng.lng]);
+
+            // GeoJSONs
+            } else {
+              var pointCoordinates = feature.getLayers()[0].feature.geometry.coordinates;
+
+              // Points
+              if (typeof pointCoordinates[0] === "number") {
+                coorsArray.push(pointCoordinates.reverse());
+
+              // Lines
+              } else {
+                $.each(pointCoordinates, function (index2, lineCoordinates) {
+                  if (typeof lineCoordinates[0] === "number") {
+                    coorsArray.push(lineCoordinates.reverse());
+
+                  // Areas
+                  } else {
+                    $.each(lineCoordinates, function (index3, areaCoordinates) {
+                      coorsArray.push(areaCoordinates.reverse());
+                    });
+                  }
+                });
+              }
+            }
+          });
+
+          // Really creating heat layer
+          heatFeatures[nodetype][property] = L.heatLayer(coorsArray, {
+            radius: 10,
+            maxZoom: 18
+          });
+
+          // Adding created layers (regular [if its exists] or regular) to the features structures.
+          if (regularFeatures[nodetype][property]) {
+            features[nodetype][property] = regularFeatures[nodetype][property];
+          } else {
+            features[nodetype][property] = heatFeatures[nodetype][property];
           }
         })
       });
 
-      // More events! This one is for popups to appear in heatmap.
+      $.each(features, function(nodetype, properties) {
+        $.each(properties, function(property, feature) {
+          if (property !== CENTER) {
+            map.addLayer(feature);
+          }
+        });
+      });
+
+      // More events! This one is for popups to appear in heat map.
       map.on('click', function(event) {
         $.each(heatmapPopups, function(index, heatmapPopup) {
           if (heatmapPopup.bounds.contains(event.latlng)) {
             var showPopup = visibleFeatures[heatmapPopup.nodetype][heatmapPopup.property];
-            if (showPopup)
-            L.popup()
-              .setLatLng(event.latlng)
-              .setContent(heatmapPopup.nodetype + ' - ' + heatmapPopup.property)
-              .openOn(map);
+            var showPopup2 = features[heatmapPopup.nodetype][heatmapPopup.property] === heatFeatures[heatmapPopup.nodetype][heatmapPopup.property];
+            if (showPopup && showPopup2) {
+              L.popup()
+                .setLatLng(event.latlng)
+                .setContent(heatmapPopup.nodetype + ' - ' + heatmapPopup.property)
+                .openOn(map);
+            }
             return false;
           }
         })
@@ -307,6 +331,29 @@
             if (property !== CENTER) {
               visibleFeatures[type][property] = true;
 
+              var heatButton = $('<i>')
+                .addClass('fa fa-fire')
+                .addClass('heatmap-features')
+                .attr('data-action', 'activate')
+                .attr('data-nodetype', type)
+                .attr('data-property', property)
+                .css({
+                  marginLeft: '2px',
+                  marginRight: '3px',
+                  width: '1em',
+                  height: '1em',
+                  cursor: 'pointer',
+                  verticalAlign: '-2px'
+                });
+
+              // Checking if it's only a heat property
+              if (!regularFeatures[type][property]) {
+                heatButton.addClass('heat-disabled')
+                  .attr('data-action', 'disabled')
+                  .attr('title', gettext('This property has more than 1000 nodes.'))
+                  .css('cursor', 'not-allowed');
+              }
+
               var propertyElement = $('<span>')
                 .css({
                   display: 'block',
@@ -325,6 +372,7 @@
                     cursor: 'pointer',
                     verticalAlign: '-2px'
                   }))
+                .append(heatButton)
                 .append($('<span>')
                   .css({
                     paddingLeft: '0.3em',
@@ -458,7 +506,7 @@
       var property = iElement.attr('data-property');
       var action = iElement.attr('data-action');
 
-      if (action == "hide") {
+      if (action === "hide") {
         iElement.attr('data-action', 'show');
         iElement.removeClass('fa-eye');
         iElement.addClass('fa-eye-slash');
@@ -508,6 +556,29 @@
       if (allChildrenClosedButParent || allClosedButOneChild || onlyChildOpenButParentClosed) {
         var iElementUncle = iElement.parent().siblings('i');
         that.showHideFeaturesIndividually($(iElementUncle[0]));
+      }
+    },
+
+    heatmapFeatures: function() {
+      var nodetype = $(this).attr('data-nodetype');
+      var property = $(this).attr('data-property');
+      var action = $(this).attr('data-action');
+
+      if (action === 'activate') {
+        $(this).attr('data-action', 'deactivate');
+        $(this).addClass('heat-activated');
+
+        map.removeLayer(regularFeatures[nodetype][property]);
+        map.addLayer(heatFeatures[nodetype][property]);
+        features[nodetype][property] = heatFeatures[nodetype][property];
+
+      } else if (action === 'deactivate') {
+        $(this).attr('data-action', 'activate');
+        $(this).removeClass('heat-activated');
+
+        map.removeLayer(heatFeatures[nodetype][property]);
+        map.addLayer(regularFeatures[nodetype][property]);
+        features[nodetype][property] = regularFeatures[nodetype][property];
       }
     },
 
