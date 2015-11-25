@@ -2986,7 +2986,7 @@ body :hover > a.headerlink {
 
 #map-types {
     position: absolute;
-    z-index: 2001;
+    z-index: 1001;
     border: none;
     padding: 10px;
     margin-right: 0;
