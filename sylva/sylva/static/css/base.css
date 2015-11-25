@@ -3054,11 +3054,11 @@ body :hover > a.headerlink {
 }
 
 .heat-disabled {
-    color: #8c8c8c;
+    color: #f58e9d;
 }
 
 .heat-activated {
-    color: #e25822;
+    color: #f3120e;
 }
 
 /* END "map visualization" with Leaflet */

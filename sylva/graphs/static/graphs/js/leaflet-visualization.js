@@ -350,7 +350,7 @@
               if (!regularFeatures[type][property]) {
                 heatButton.addClass('heat-disabled')
                   .attr('data-action', 'disabled')
-                  .attr('title', gettext('This property has more than 1000 nodes.'))
+                  .attr('title', gettext("You can't turn off the heat visualization for this\nproperty because it has more than 1000 nodes."))
                   .css('cursor', 'not-allowed');
               }
 
