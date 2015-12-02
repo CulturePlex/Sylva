@@ -2749,7 +2749,7 @@ class QueryTestCase(LiveServerTestCase):
         # We select the F field
         f_field = self.browser.find_by_xpath(
             "//option[@class='option-other-boxes-properties' and "
-            "@value='Count(bob-type_1.1)']").first
+            "@value='count(bob-type_1.1)']").first
         f_field.click()
         # We run the query
         run_query(self)
