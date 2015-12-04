@@ -74,6 +74,7 @@ class GraphView(APIView):
         post_data['name'] = request.data.get('name', None)
 
         post_data['owner'] = graph.owner.pk
+        post_data['schema'] = graph.schema_id
 
         if post_data['name'] is None:
             post_data['name'] = graph.name
@@ -98,6 +99,7 @@ class GraphView(APIView):
         post_data['name'] = request.data.get('name', None)
 
         post_data['owner'] = graph.owner.pk
+        post_data['schema'] = graph.schema_id
 
         if post_data['name'] is None:
             post_data['name'] = graph.name

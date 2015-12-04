@@ -2763,5 +2763,5 @@ class QueryTestCase(LiveServerTestCase):
         lookup_input_value = self.browser.find_by_xpath(
             "//input[@class='lookup-value']")[0].value
         spin_assert(lambda: self.assertEqual(lookup_input_value,
-                                             u"Count(Bob type 1.Name1)"))
+                                             u"count(Bob type 1.Name1)"))
         Graph.objects.get(name="Bob's graph").destroy()
