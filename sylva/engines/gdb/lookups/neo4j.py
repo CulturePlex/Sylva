@@ -33,7 +33,7 @@ class Q(BaseQ):
             expression = None
         if self.lookup == "exact":
             lookup = u"="
-            match = u"{0}".format(self.match)
+            match = self.match
         elif self.lookup == "iexact":
             lookup = u"=~"
             match = u"(?i){0}".format(self.match)
@@ -57,7 +57,7 @@ class Q(BaseQ):
             match = u"(?i).*{0}".format(self.match)
         elif self.lookup == "regex":
             lookup = u"=~"
-            match = u"{0}".format(self.match)
+            match = self.match
         elif self.lookup == "iregex":
             lookup = u"=~"
             match = u"(?i){0}".format(self.match)
@@ -66,25 +66,25 @@ class Q(BaseQ):
             if self.datatype == 'date':
                 match = u"'{0}'".format(self.match)
             else:
-                match = u"{0}".format(self.match)
+                match = self.match
         elif self.lookup == "gte":
             lookup = u">"
             if self.datatype == 'date':
                 match = u"'{0}'".format(self.match)
             else:
-                match = u"{0}".format(self.match)
+                match = self.match
         elif self.lookup == "lt":
             lookup = u"<"
             if self.datatype == 'date':
                 match = u"'{0}'".format(self.match)
             else:
-                match = u"{0}".format(self.match)
+                match = self.match
         elif self.lookup == "lte":
             lookup = u"<"
             if self.datatype == 'date':
                 match = u"'{0}'".format(self.match)
             else:
-                match = u"{0}".format(self.match)
+                match = self.match
         elif self.lookup in ["in", "inrange"]:
             lookup = u"IN"
             match = u"[{0}]".format(u"', '".join([self._escape(m)
@@ -97,14 +97,16 @@ class Q(BaseQ):
             match = u"null"
         elif self.lookup in ["eq", "equals"]:
             lookup = u"="
-            match = u"{0}".format(self._escape(self.match))
+            match = self.match
         elif self.lookup in ["neq", "notequals"]:
             lookup = u"<>"
-            match = u"{0}".format(self._escape(self.match))
+            match = self.match
         else:
             lookup = self.lookup
             match = u""
         if expression is None:
+            # TODO: Check the datatype and escape if string type
+            # match = u"{0}".format(self._escape(self.match))
             return lookup, match
         else:
             return lookup, expression

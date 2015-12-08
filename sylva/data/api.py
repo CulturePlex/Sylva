@@ -20,20 +20,34 @@ from rest_framework.views import APIView
 class NodesViewFilter(APIView):
     permission_classes = (DataView, )
 
-    def get(self, request, graph_slug, type_slug, limit=None, offset=None,
-            format=None):
+    def _filter(self, data, request, graph_slug, type_slug, limit=None,
+                offset=None, format=None):
         graph = get_object_or_404(Graph, slug=graph_slug)
         nodetype = get_object_or_404(NodeType,
                                      slug=type_slug,
                                      schema__graph__slug=graph_slug)
         self.check_object_permissions(self.request, graph)
         lookups = []
-        for (prop, match) in self.request.query_params.items():
+        for (prop, match) in data.items():
+            # TODO: Extract data type from match and pass it to Q
+            # according to existing schemas datatypes
             lookup = graph.Q(property=prop, lookup="equals", match=match)
             lookups.append(lookup)
         filtered_nodes = nodetype.filter(*lookups)[offset:limit]
         serializer = NodesSerializer(filtered_nodes)
         return Response(serializer.data)
+
+    def get(self, request, graph_slug, type_slug, limit=None, offset=None,
+            format=None):
+        return self._filter(
+            self.request.query_params, request, graph_slug, type_slug,
+            limit, offset, format)
+
+    def post(self, request, graph_slug, type_slug, limit=None, offset=None,
+             format=None):
+        return self._filter(
+            self.request.data, request, graph_slug, type_slug,
+            limit, offset, format)
 
 
 class NodesView(APIView):
