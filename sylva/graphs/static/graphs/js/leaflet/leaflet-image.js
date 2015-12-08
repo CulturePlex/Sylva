@@ -195,11 +195,43 @@ module.exports = function leafletImage(map, callback) {
             pixelBounds = map.getPixelBounds(),
             minPoint = new L.Point(pixelBounds.min.x, pixelBounds.min.y),
             pixelPoint = map.project(marker.getLatLng()),
-            url = addCacheString(marker._icon.src),
             im = new Image(),
-            options = marker.options.icon.options,
-            size = options.iconSize;
+            url = null,
+            options = null,
+            size = null,
+            isDiv = false;
 
+        var finished = false;
+
+        // MOD: What if '_icon' is a 'L.divIcon'?
+        if (!marker._icon.src) {
+            html2canvas(marker._icon, {
+                onrendered: function(createdCanvas) {
+                    createdCanvas.toBlob(function(blob) {
+                        var jIcon = $(marker._icon);
+
+                        url = URL.createObjectURL(blob);
+                        options = 'anEmptyObject';
+                        size = [jIcon.width(), jIcon.height()];
+                        isDiv = true;
+
+                        handleMarkerLayerContinuation(size, pixelPoint, minPoint, options, canvas, im, ctx, callback, url, isDiv);
+                        finished = true;
+                    }, 'image/png');
+                }
+            });
+
+        } else {
+          url = addCacheString(marker._icon.src);
+          options = marker.options.icon.options;
+          size = options.iconSize;
+
+          handleMarkerLayerContinuation(size, pixelPoint, minPoint, options, canvas, im, ctx, callback, url, isDiv);
+          finished = true;
+        }
+    }
+
+    function handleMarkerLayerContinuation(size, pixelPoint, minPoint, options, canvas, im, ctx, callback, url, isDiv) {
         // MOD: Size can be an array, not a L.point().
         if (size instanceof Array) {
             size = L.point(size);
@@ -215,7 +247,20 @@ module.exports = function leafletImage(map, callback) {
         im.crossOrigin = '';
 
         im.onload = function() {
+            if (isDiv) {
+              ctx.save();
+              ctx.beginPath();
+              ctx.arc(x + size.x / 2, y + size.y / 2, size.x / 2, 0, Math.PI * 2, true);
+              ctx.closePath();
+              ctx.clip();
+            }
+
             ctx.drawImage(this, x, y, size.x, size.y);
+
+            if (isDiv) {
+              ctx.restore();
+            }
+
             callback(null, {
                 canvas: canvas
             });
@@ -225,6 +270,10 @@ module.exports = function leafletImage(map, callback) {
     }
 
     function addCacheString(url) {
+        if (url.substring(0, 4) === 'blob') {
+          return url;
+        }
+
         return url + ((url.match(/\?/)) ? '&' : '?') + 'cache=' + (+new Date());
     }
 };

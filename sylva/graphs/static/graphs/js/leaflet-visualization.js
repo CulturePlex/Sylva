@@ -22,6 +22,7 @@
   var heatFeatures = null;
   var featuresColor = null;
   var visibleFeatures = null;
+  var divIconsCache = null;
 
   // TODO: Delete this.
   var featureGroup = null;
@@ -99,6 +100,7 @@
       regularFeatures = {};
       heatFeatures = {};
       featuresColor = {};
+      divIconCache = {};
       var featuresForBounding = [];
       var heatmapPopups = [];
 
@@ -119,15 +121,12 @@
 
             // Adjusting the visualization to the type
             if (geoProperty.type === 'Point') {
-              var icon = L.MakiMarkers.icon({
-                icon: null,
-                color: node.color,
-                size: 'l'
-              });
               feature = L.geoJson(geoProperty, {
                 pointToLayer: function(feature, latlng) {
                   return L.marker(latlng, {
-                    icon: icon
+                    icon: that.createCircularIcon({
+                      color: node.color
+                    })
                   });
                 }
               });
@@ -161,13 +160,11 @@
         if (nodeFeatures.length > 0) {
           var nodeFeatureGroup = L.featureGroup(nodeFeatures);
           var center = nodeFeatureGroup.getBounds().getCenter();
-
-          var icon = L.MakiMarkers.icon({
-            icon: null,
-            color: node.color,
-            size: 'l'
+          var feature = L.marker(center, {
+            icon: that.createCircularIcon({
+              color: node.color
+            })
           });
-          var feature = L.marker(center, {icon: icon});
           feature.bindPopup(node.label);
 
           features[node.nodetype][CENTER] = features[node.nodetype][CENTER] || [];
@@ -643,6 +640,56 @@
         // Re attaching the main event.
         $('#map-export-image').on('click', that.exportPNG);
       }
+    },
+
+    // TODO: Cache icons!
+    createCircularIcon: function(options) {
+      /*
+       * Options are:
+       *   - color
+       *   - icon
+       *   - iconColor
+       *   - radius
+       */
+      options = options || {};
+      options.color = options.color || '#ff7dff';
+      options.iconColor = options.iconColor || '#505050';
+      options.radius = options.radius || 10;
+      options.diameter = options.radius * 2;
+
+      var cacheKey = [options.color, options.iconColor, options.icon, options.radius].join('-');
+      var divIcon;
+
+      if (divIconCache[cacheKey]) {
+        divIcon = divIconCache[cacheKey];
+
+      } else {
+        var icon = $('<div>').css({
+          width: options.diameter,
+          height: options.diameter,
+          textAlign: 'center',
+          display: 'table-cell',
+          verticalAlign: 'middle',
+          'border-radius': '50%',
+          backgroundColor: options.color,
+          color: options.iconColor
+        });
+
+        if (options.icon) {
+          icon.append($('<i>')
+            .addClass('fa fa-' + options.icon)
+          );
+        }
+
+        divIcon = icon[0].outerHTML;
+        divIconCache[cacheKey] = divIcon;
+      }
+
+      return L.divIcon({
+        html: divIcon,
+        className: 'sylva-map-icon',
+        iconSize: [options.diameter, options.diameter]
+      });
     }
 
   };
