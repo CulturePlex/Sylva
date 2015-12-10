@@ -2,6 +2,9 @@
 from engines.gdb.lookups import BaseQ, BaseF
 
 
+STRING_TYPES = [u'u', u's', u'x']
+
+
 class Q(BaseQ):
     # matchs = ("exact", "iexact",
     #           "contains", "icontains",
@@ -105,8 +108,9 @@ class Q(BaseQ):
             lookup = self.lookup
             match = u""
         if expression is None:
-            # TODO: Check the datatype and escape if string type
-            # match = u"{0}".format(self._escape(self.match))
+            # Check the datatype and escape if string type
+            if self.datatype in STRING_TYPES:
+                match = u"{0}".format(self._escape(self.match))
             return lookup, match
         else:
             return lookup, expression

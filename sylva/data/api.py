@@ -29,9 +29,11 @@ class NodesViewFilter(APIView):
         self.check_object_permissions(self.request, graph)
         lookups = []
         for (prop, match) in data.items():
-            # TODO: Extract data type from match and pass it to Q
+            # Extract data type from match and pass it to Q
             # according to existing schemas datatypes
-            lookup = graph.Q(property=prop, lookup="equals", match=match)
+            datatype = nodetype.properties.filter(key=prop).first().datatype
+            lookup = graph.Q(property=prop, lookup="equals", match=match,
+                             datatype=datatype)
             lookups.append(lookup)
         filtered_nodes = nodetype.filter(*lookups)[offset:limit]
         serializer = NodesSerializer(filtered_nodes)
