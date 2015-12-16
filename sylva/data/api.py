@@ -31,7 +31,8 @@ class NodesViewFilter(APIView):
         for (prop, match) in data.items():
             # Extract data type from match and pass it to Q
             # according to existing schemas datatypes
-            datatype = nodetype.properties.filter(key=prop).first().datatype
+            datatype = (nodetype.properties.filter(key=prop).first().
+                        get_datatype_value())
             lookup = graph.Q(property=prop, lookup="equals", match=match,
                              datatype=datatype)
             lookups.append(lookup)
