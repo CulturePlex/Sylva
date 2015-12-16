@@ -2,29 +2,6 @@
 # Based on: https://github.com/scholrly/lucene-querybuilder/blob/master/lucenequerybuilder/query.py
 
 
-# Datatypes to apply the default casting
-DATATYPES = {
-    u'default': unicode,
-    u'string': unicode,
-    u'boolean': bool,
-    u'number': int,
-    u'text': unicode,
-    u'date': str,
-    u'time': str,
-    u'choices': unicode,
-    u'float': float,
-    u'collaborator': unicode,
-    u'auto_now': str,
-    u'auto_now_add': str,
-    u'auto_increment': int,
-    u'auto_increment_update': int,
-    u'auto_user': unicode,
-    u'point': unicode,
-    u'path': unicode,
-    u'area': unicode,
-}
-
-
 class BaseQ(object):
     """
     Q is a query builder for the Neo4j Cypher language backend
@@ -43,6 +20,28 @@ class BaseQ(object):
               "in", "inrange", "isnull",
               "eq", "equals", "neq", "notequals")
 
+    # Datatypes to apply the default casting
+    DATATYPES = {
+        u'default': unicode,
+        u'string': unicode,
+        u'boolean': bool,
+        u'number': int,
+        u'text': unicode,
+        u'date': str,
+        u'time': str,
+        u'choices': unicode,
+        u'float': float,
+        u'collaborator': unicode,
+        u'auto_now': str,
+        u'auto_now_add': str,
+        u'auto_increment': int,
+        u'auto_increment_update': int,
+        u'auto_user': unicode,
+        u'point': unicode,
+        u'path': unicode,
+        u'area': unicode,
+    }
+
     def __init__(self, property=None, lookup=None, match=None,
                  nullable=None, var=None, datatype=None, **kwargs):
         self._and = None
@@ -56,7 +55,7 @@ class BaseQ(object):
         else:
             try:
                 # We apply the casting
-                casting_func = DATATYPES[self.datatype.lower()]
+                casting_func = self.DATATYPES[self.datatype.lower()]
                 self.match = casting_func(match)
             except AttributeError:
                 self.match = match
