@@ -3156,7 +3156,15 @@ diagram.aggregates = {
                 if(aggregates.hasOwnProperty(key)) {
                     var selector = $("#field" + key + " .select-aggregate");
                     var idBox = selector.parent().parent().parent().parent().parent().attr('id');
+                    var idBoxSplitted = idBox.split('-');
                     var typename = idBox.split('-')[2];
+                    if(idBoxSplitted.length > 3) {
+                        // We remove the first two elements to build the
+                        // correct type
+                        idBoxSplitted.splice(0, 1);
+                        idBoxSplitted.splice(0, 1);
+                        typename = idBoxSplitted.join("-");
+                    }
                     // We need to click only one time, because we don't want to
                     // hide the aggregates
                     if(idBox !== prevIdBox) {
