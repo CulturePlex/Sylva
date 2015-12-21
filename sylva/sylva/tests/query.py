@@ -2408,6 +2408,108 @@ class QueryTestCase(LiveServerTestCase):
         spin_assert(lambda: self.assertEqual(lookup_input_value2, u"Alice"))
         Graph.objects.get(name="Bob's graph").destroy()
 
+    def test_query_builder_lookups_numeric_type(self):
+        create_graph(self)
+        create_schema(self)
+        box_name = "Bob's type"
+        datatype = "n"
+        type_name = "Number"
+        type_value = 1
+        create_complex_type(self, box_name, datatype, type_name, type_value)
+        self.browser.find_by_id('dataMenu').first.click()
+        self.browser.find_by_xpath(
+            "//a[@class='dataOption new']").first.click()
+        text = self.browser.find_by_id('propertiesTitle').first.value
+        spin_assert(lambda: self.assertEqual(text, 'Properties'))
+        self.browser.find_by_name(type_name).first.fill(type_value)
+        self.browser.find_by_value("Save " + box_name).first.click()
+        text = self.browser.find_by_xpath(
+            "//div[@class='pagination']"
+            "/span[@class='pagination-info']").first.value
+        queries_menu(self)
+        create_query(self)
+        # We select a property
+        select_property = self.browser.find_by_xpath(
+            "//option[@class='option-property' and text()='Number']").first
+        select_property.click()
+        # We check if the value of the select is the value of the property
+        select_value = self.browser.find_by_xpath(
+            "//select[@class='select-property']").first.value
+        spin_assert(lambda: self.assertEqual(select_value, u"Number"))
+        # We check the property to return the property value
+        checkbox = self.browser.find_by_xpath(
+            "//div[@id='field1']//input[@class='checkbox-property']").first
+        checkbox.click()
+        # We get the button to run the query and click it
+        run_query(self)
+        # We check the text u"Bob's node"
+        result_name = self.browser.find_by_xpath(
+            "//tr[@class='row-even']").first.text
+        spin_assert(lambda: self.assertEqual(result_name, u"1"))
+        # We check that we have only one link, the header itself
+        links_len = len(self.browser.find_by_xpath("//th[@class='header']/a"))
+        spin_assert(lambda: self.assertEqual(links_len, 1))
+        # We click to get the order
+        header = self.browser.find_by_xpath(
+            "//th[@class='header']/a/div").first
+        header.click()
+        # We can check that rigth now we have two more links
+        links_len = len(self.browser.find_by_xpath("//th[@class='header']/a"))
+        spin_assert(lambda: self.assertEqual(links_len, 3))
+        # Right now, we are in the results view. Let's check it
+        Graph.objects.get(name="Bob's graph").destroy()
+
+    def test_query_builder_lookups_float_type(self):
+        create_graph(self)
+        create_schema(self)
+        box_name = "Bob's type"
+        datatype = "f"
+        type_name = "Float"
+        type_value = 1
+        create_complex_type(self, box_name, datatype, type_name, type_value)
+        self.browser.find_by_id('dataMenu').first.click()
+        self.browser.find_by_xpath(
+            "//a[@class='dataOption new']").first.click()
+        text = self.browser.find_by_id('propertiesTitle').first.value
+        spin_assert(lambda: self.assertEqual(text, 'Properties'))
+        self.browser.find_by_name(type_name).first.fill(type_value)
+        self.browser.find_by_value("Save " + box_name).first.click()
+        text = self.browser.find_by_xpath(
+            "//div[@class='pagination']"
+            "/span[@class='pagination-info']").first.value
+        queries_menu(self)
+        create_query(self)
+        # We select a property
+        select_property = self.browser.find_by_xpath(
+            "//option[@class='option-property' and text()='Float']").first
+        select_property.click()
+        # We check if the value of the select is the value of the property
+        select_value = self.browser.find_by_xpath(
+            "//select[@class='select-property']").first.value
+        spin_assert(lambda: self.assertEqual(select_value, u"Float"))
+        # We check the property to return the property value
+        checkbox = self.browser.find_by_xpath(
+            "//div[@id='field1']//input[@class='checkbox-property']").first
+        checkbox.click()
+        # We get the button to run the query and click it
+        run_query(self)
+        # We check the text u"Bob's node"
+        result_name = self.browser.find_by_xpath(
+            "//tr[@class='row-even']").first.text
+        spin_assert(lambda: self.assertEqual(result_name, u"1.0"))
+        # We check that we have only one link, the header itself
+        links_len = len(self.browser.find_by_xpath("//th[@class='header']/a"))
+        spin_assert(lambda: self.assertEqual(links_len, 1))
+        # We click to get the order
+        header = self.browser.find_by_xpath(
+            "//th[@class='header']/a/div").first
+        header.click()
+        # We can check that rigth now we have two more links
+        links_len = len(self.browser.find_by_xpath("//th[@class='header']/a"))
+        spin_assert(lambda: self.assertEqual(links_len, 3))
+        # Right now, we are in the results view. Let's check it
+        Graph.objects.get(name="Bob's graph").destroy()
+
     # Testing all the datatypes in node and relationship boxes
 
     def test_query_builder_datatypes_string_equals(self):
