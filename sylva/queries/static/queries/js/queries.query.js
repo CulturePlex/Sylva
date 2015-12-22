@@ -32,7 +32,6 @@ diagram.boxesValues = {};
  */
 
 // Relationship between the string name and the key used in the backend
-
 diagram.stringValues = {
     'em': gettext("matches"),
     'eq': gettext("equals"),
@@ -67,7 +66,6 @@ diagram.lookupsBackendValues = {
 }
 
 // All the options for the lookups
-
 diagram.lookupsAllValues = [
     diagram.stringValues['em'],
     diagram.stringValues['eq'],
@@ -87,7 +85,6 @@ diagram.lookupsAllValues = [
 
 // Set of specific values for the lookups for the types boolean,
 // choices, collaborator and auto_user
-
 diagram.lookupsSpecificValues = [
     diagram.stringValues['em'],
     diagram.stringValues['eq'],
@@ -97,7 +94,6 @@ diagram.lookupsSpecificValues = [
 ];
 
 // Set of specific values for the lookups for the numeric types
-
 diagram.lookupsNumberValues = [
     diagram.stringValues['em'],
     diagram.stringValues['eq'],
@@ -112,7 +108,6 @@ diagram.lookupsNumberValues = [
 ];
 
 // Set of specific values for the lookups for the text and string types
-
 diagram.lookupsTextValues = [
     diagram.stringValues['em'],
     diagram.stringValues['eq'],
@@ -169,6 +164,28 @@ diagram.aggregates = {
     "sum": "Sum",
     "avg": "Average",
     "stdev": "Deviation"
+};
+
+// Datatypes to apply the default casting
+diagram.datatypes = {
+    'default': 'string',
+    'string': 'string',
+    'boolean': 'boolean',
+    'number': 'number',
+    'text': 'string',
+    'date': 'string',
+    'time': 'string',
+    'choices': 'string',
+    'float': 'number',
+    'collaborator': 'string',
+    'auto_now': 'string',
+    'auto_now_add': 'string',
+    'auto_increment': 'number',
+    'auto_increment_update': 'string',
+    'auto_user': 'string',
+    'point': 'string',
+    'path': 'string',
+    'area': 'string'
 };
 
 (function($) {
@@ -2391,6 +2408,16 @@ diagram.aggregates = {
             var fieldId = $(property).parent().attr('id');
             var datatype = $('#' + fieldId + ' .select-property option:selected').data('datatype');
 
+            // We apply the casting function for the value
+            var castingType = diagram.datatypes[datatype];
+            if(castingType === 'string') {
+                propertyValue = String(propertyValue);
+            } else if(castingType === 'number') {
+                propertyValue = Number(propertyValue);
+            } else if(castingType === 'boolean') {
+                propertyValue = JSON.parse(propertyValue);
+            }
+
             // Treatment for the lookup 'has some value & has no value'
             if(lookup === 'isnull') {
                 propertyValue = true;
@@ -2403,6 +2430,17 @@ diagram.aggregates = {
             if(lookup === 'between') {
                 propertyValue1 = propertyValue;
                 propertyValue2 = $(property).next().next().next().next().next().val();
+
+                // We apply the casting function for the value
+                var castingType = diagram.datatypes[datatype];
+                if(castingType === 'string') {
+                    propertyValue2 = String(propertyValue2);
+                } else if(castingType === 'number') {
+                    propertyValue2 = Number(propertyValue2);
+                } else if(castingType === 'boolean') {
+                    propertyValue2 = JSON.parse(propertyValue2);
+                }
+
                 propertyValue = new Array(propertyValue1, propertyValue2);
                 datatype = new Array(datatype, datatype);
             }
