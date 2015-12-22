@@ -454,6 +454,10 @@ def queries_new_results(request, graph_slug):
                 # Let's build the header for the user
                 # We append the elements to join them to get the alias to show
                 join_list.append(alias)
+                # Let's check if the prop contains '!' at the end. This symbol
+                # is used by neo4j to treat None values.
+                if prop[-1] == '!':
+                    prop = prop[:-1]
                 join_list.append(prop)
                 show_alias = ".".join(join_list)
                 # In case that we had aggregate, we need to change it
@@ -948,6 +952,10 @@ def queries_query_results(request, graph_slug, query_id):
                 # Let's build the header for the user
                 # We append the elements to join them to get the alias to show
                 join_list.append(alias)
+                # Let's check if the prop contains '!' at the end. This symbol
+                # is used by neo4j to treat None values.
+                if prop[-1] == '!':
+                    prop = prop[:-1]
                 join_list.append(prop)
                 show_alias = ".".join(join_list)
                 # In case that we had aggregate, we need to change it
