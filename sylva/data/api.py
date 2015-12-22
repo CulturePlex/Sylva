@@ -148,11 +148,22 @@ class RelationshipsViewFilter(APIView):
                                              schema__graph__slug=graph_slug)
         self.check_object_permissions(self.request, graph)
         lookups = []
+        options = {}
         # TODO: Check the Q object for relationships
         for (prop, match) in self.request.query_params.items():
-            lookup = graph.Q(property=prop, lookup="equals", match=match)
-            lookups.append(lookup)
-        filtered_rels = relationshiptype.filter(*lookups)[offset:limit]
+            if prop != 'source_id' and prop != 'target_id':
+                lookup = graph.Q(property=prop, lookup="equals", match=match)
+                lookups.append(lookup)
+        # We get the source_id and the target_id
+        try:
+            source_id = self.request.query_params['source_id']
+            target_id = self.request.query_params['target_id']
+            options['source_id'] = int(source_id)
+            options['target_id'] = int(target_id)
+        except:
+            pass
+        filtered_rels = relationshiptype.filter(
+            *lookups, **options)[offset:limit]
         serializer = RelationshipsSerializer(filtered_rels)
         return Response(serializer.data)
 

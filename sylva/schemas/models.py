@@ -402,10 +402,15 @@ class RelationshipType(BaseType):
         else:
             return []
 
-    def filter(self, *lookups):
+    def filter(self, *lookups, **options):
         if self.id:
-            return self.schema.graph.relationships.filter(*lookups,
-                                                          label=self.id)
+            if options:
+                options['label'] = self.id
+                return self.schema.graph.relationships.filter(
+                    *lookups, **options)
+            else:
+                return self.schema.graph.relationships.filter(
+                    *lookups, label=self.id)
         else:
             return []
 
