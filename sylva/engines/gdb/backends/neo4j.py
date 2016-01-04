@@ -725,7 +725,7 @@ class GraphDatabase(BlueprintsGraphDatabase):
                     property_distinct = prop["distinct"]
                     if property_value:
                         if not property_aggregate and not only_ids:
-                            result = u"`{0}`.`{1}`!".format(
+                            result = u"`{0}`.`{1}`".format(
                                 self._escape(alias),
                                 self._escape(property_value)
                             )
@@ -735,7 +735,7 @@ class GraphDatabase(BlueprintsGraphDatabase):
                             if property_distinct:
                                 distinct_clause = u"DISTINCT "
                             if property_aggregate in AGGREGATES.keys():
-                                result = u"{0}({1}`{2}`.`{3}`!)".format(
+                                result = u"{0}({1}`{2}`.`{3}`)".format(
                                     unicode(AGGREGATES[property_aggregate]),
                                     unicode(distinct_clause),
                                     self._escape(alias),
