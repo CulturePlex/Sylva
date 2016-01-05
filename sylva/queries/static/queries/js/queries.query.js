@@ -2194,7 +2194,7 @@ diagram.datatypes = {
                     endpoint: [
                     "Rectangle",
                         {
-                            width: 360,
+                            width: 391,
                             height: 23,
                             cssClass: 'query-box-endpoint-target'
                         }
@@ -2243,16 +2243,22 @@ diagram.datatypes = {
             var uuidSource = relation + "-source";
             var uuidTarget = "";
 
-            // We check the number of boxes of that type that we already have
-            $.each(elems, function(index, elem) {
-                var elemId = $(elem).attr('id');
-                if(elemId != undefined) {
-                    var filter = new RegExp(".-" + targetType);
-                    if(elemId.match(filter)) {
-                        numberOfBoxes++;
+            // We check if the type is wildcard or not
+            if(name === "WildcardRel") {
+                numberOfBoxes = elems.length - 1;
+            } else {
+                // We check the number of boxes of that type that we already
+                // have
+                $.each(elems, function(index, elem) {
+                    var elemId = $(elem).attr('id');
+                    if(elemId != undefined) {
+                        var filter = new RegExp(".-" + targetType);
+                        if(elemId.match(filter)) {
+                            numberOfBoxes++;
+                        }
                     }
-                }
-            });
+                });
+            }
 
             // If we have 1 at least, we do nothing. In another case we load a
             // box of that type and create a relationship.
@@ -2343,7 +2349,7 @@ diagram.datatypes = {
 
             // We check if the type is wildcard
             if(name == "WildcardRel")
-                   name = "wildcard";
+                name = "wildcard";
             // We remove the relation row in the source box
             var idDivRelSourceBox = "#div-" + sourceId + "-" + name;
             $(idDivRelSourceBox).remove();
@@ -2993,7 +2999,7 @@ diagram.datatypes = {
 
                 // We check if the relationship is of type wildcard
                 if(relationValue == "WildcardRel")
-                   relationName = "wildcard";
+                    relationName = "wildcard";
 
                 var uuidSource = sourceId + '-' + relationName + '-source';
                 var uuidTarget = targetId + '-target';
@@ -5078,7 +5084,7 @@ diagram.datatypes = {
 
         // We check if the type is wildcard
         if(name == "WildcardRel")
-               name = "wildcard";
+            name = "wildcard";
 
         // We remove the relation row in the source box
         var idDivRelSourceBox = "#div-" + sourceId + "-" + name;
@@ -5289,6 +5295,7 @@ diagram.datatypes = {
 
             $('.endpoint-image').css('visibility', 'visible');
             info.targetEndpoint.removeClass("dragActive");
+            info.targetEndpoint.removeClass("dragActiveAgg");
             info.targetEndpoint.removeClass("dropHover");
 
             // We check if we have more than one box to show the selects for the alias
@@ -5300,6 +5307,7 @@ diagram.datatypes = {
                     'margin-left': '0px'
                 });
                 endpoint.removeClass("dragActive");
+                endpoint.removeClass("dragActiveAgg");
                 endpoint.removeClass("dropHover");
                 var selector = '#' + endpoint.elementId + ' .title';
                 $(selector).on('mouseover', function() {
@@ -5360,11 +5368,8 @@ diagram.datatypes = {
 
                     if(boxWidth == "470px") {
                         // We select the endpoint to change the width and
-                        // position it correctly
-                        $(".dragActive").css({
-                            'width': '470px',
-                            'margin-left': '-40px'
-                        });
+                        // position correctly
+                        endpoint.addClass("dragActiveAgg");
                     }
 
                     var selector = '#' + endpoint.elementId + ' .title';
@@ -5394,6 +5399,7 @@ diagram.datatypes = {
             });
 
             endpoint.removeClass("dragActive");
+            endpoint.removeClass("dragActiveAgg");
 
             var selector = '#' + endpoint.elementId + ' .title';
 
