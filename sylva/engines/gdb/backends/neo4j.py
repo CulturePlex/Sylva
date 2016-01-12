@@ -482,107 +482,24 @@ class GraphDatabase(BlueprintsGraphDatabase):
         return q, query_params
 
     def _query_generator_conditions(self, conditions_dict):
-        query_params = {}
         # This list is used to control when use the index for the relationship,
         # in the origins or in the patterns
         conditions_alias = set()
-        # conditions_set = set()
-        # We are going to use a list because when the set add elements,
-        # it include them in order and breaks our pattern with AND, OR
-        conditions_set = []
-        conditions_indexes = enumerate(conditions_dict)
-        conditions_length = len(conditions_dict) - 1
+        elems = q_lookup_builder()
         for condition_dict in conditions_dict:
             lookup, property_tuple, match, connector, datatype = condition_dict
+            conditions_alias.add(property_tuple[1])
             # This is the option to have properties of another boxes
             if datatype == "property_box":
-                match_dict = {}
                 # We catch exception of type IndexError, in case that we
                 # doesn't receive an appropiate array.
                 try:
-                    # The match can be defined in three different ways:
-                    # slug.property_id
-                    # aggregate (slug.property_id)
-                    # aggregate (DISTINCT slug.property_id)
-                    # And also, we could have two match values for
-                    # 'in between' lookups...
-                    match_results = []
-                    match_elements = []
-                    datatypes = []
-                    if not isinstance(match, (tuple, list)):
-                        match_elements.append(match)
-                        datatypes.append(datatype)
-                    else:
-                        match_elements = match
-                        datatypes = datatype
-                    index = 0
-                    while index < len(match_elements):
-                        match_element = match_elements[index]
-                        if datatypes[index] == 'property_box':
-                            # Let's check what definition we have...
-                            match_splitted = re.split('\)|\(|\\.| ',
-                                                      match_element)
-                            match_first_element = match_splitted[0]
-                            # We check if aggregate belongs to the aggregate
-                            # set
-                            if match_first_element not in AGGREGATES.keys():
-                                slug = match_first_element
-                                prop = match_splitted[1]
-                                match_var, match_property = (
-                                    self._get_slug_and_prop(slug, prop))
-                                # Finally, we assign the correct values to the
-                                # dict
-                                match_dict['var'] = match_var
-                                match_dict['property'] = match_property
-                                match = match_dict
-                            else:
-                                # We have aggregate
-                                aggregate = match_first_element
-                                match_second_element = match_splitted[1]
-                                # We check if we already have the distinct
-                                # clause
-                                if match_second_element != 'DISTINCT':
-                                    # We get the slug and the property
-                                    slug = match_second_element
-                                    prop = match_splitted[2]
-                                    match_var, match_property = (
-                                        self._get_slug_and_prop(slug, prop))
-                                    # Once we have the slug and the prop, we
-                                    # build the
-                                    # aggregate again
-                                    agg_field = u"{0}({1}.{2})".format(
-                                        aggregate, match_var, match_property)
-                                    match_dict['aggregate'] = agg_field
-                                    match = match_dict
-                                else:
-                                    # We have distinct, slug and the property
-                                    distinct = match_second_element
-                                    # We get the slug and the property
-                                    slug = match_splitted[2]
-                                    prop = match_splitted[3]
-                                    match_var, match_property = (
-                                        self._get_slug_and_prop(slug, prop))
-                                    # Once we have the slug and the prop, we
-                                    # build the aggregate again
-                                    agg_field = (
-                                        u"{0}({1} {2}.{3})".format(
-                                            aggregate, distinct, match_var,
-                                            match_property))
-                                    match_dict['aggregate'] = agg_field
-                                    match = match_dict
-                        else:
-                            match = match_element
-                        index = index + 1
-                        match_results.append(match)
-                    if len(match_results) == 1:
-                        match = match_results[0]
-                    else:
-                        match = match_results
+                    match = self._query_generator_f_expression(match, datatype)
                 except IndexError:
-                    match_dict['var'] = ""
-                    match_dict['property'] = ""
-                    match = match_dict
-
+                    match = {
+                        "var": "",
+                        "property": "",
+                    }
             if lookup == "between":
                 gte = q_lookup_builder(property=property_tuple[2],
                                        lookup="gte",
@@ -596,22 +513,7 @@ class GraphDatabase(BlueprintsGraphDatabase):
                                        nullable=True,
                                        var=property_tuple[1],
                                        datatype=datatype[1])
-                gte_query_objects = gte.get_query_objects(params=query_params)
-                lte_query_objects = lte.get_query_objects(params=query_params)
-                gte_condition = gte_query_objects[0]
-                gte_params = gte_query_objects[1]
-                lte_condition = lte_query_objects[0]
-                lte_params = lte_query_objects[1]
-                # conditions_set.add(unicode(gte_condition))
-                if gte_condition not in conditions_set:
-                    conditions_set.append(unicode(gte_condition))
-                query_params.update(gte_params)
-                # conditions_set.add(unicode(lte_condition))
-                if lte_condition not in conditions_set:
-                    conditions_set.append(unicode(lte_condition))
-                query_params.update(lte_params)
-                # We append the two property in the list
-                conditions_alias.add(property_tuple[1])
+                q_element = (gte & lte)
             elif lookup == 'idoesnotcontain':
                 q_element = ~q_lookup_builder(property=property_tuple[2],
                                               lookup="icontains",
@@ -619,16 +521,6 @@ class GraphDatabase(BlueprintsGraphDatabase):
                                               nullable=True,
                                               var=property_tuple[1],
                                               datatype=datatype)
-                query_objects = q_element.get_query_objects(
-                    params=query_params)
-                condition = query_objects[0]
-                params = query_objects[1]
-                # conditions_set.add(unicode(condition))
-                if condition not in conditions_set:
-                    conditions_set.append(unicode(condition))
-                query_params.update(params)
-                # We append the two property in the list
-                conditions_alias.add(property_tuple[1])
             else:
                 q_element = q_lookup_builder(property=property_tuple[2],
                                              lookup=lookup,
@@ -636,40 +528,88 @@ class GraphDatabase(BlueprintsGraphDatabase):
                                              nullable=True,
                                              var=property_tuple[1],
                                              datatype=datatype)
-                query_objects = q_element.get_query_objects(
-                    params=query_params)
-                condition = query_objects[0]
-                params = query_objects[1]
-                # conditions_set.add(unicode(condition))
-                if condition not in conditions_set:
-                    conditions_set.append(unicode(condition))
-                # Uncomment this line to see the difference between use
-                # query params or use the q_element
-                # conditions_set.add(unicode(q_element))
-                query_params.update(params)
-                # We append the two property in the list
-                conditions_alias.add(property_tuple[1])
-            if connector != 'not':
-                # We have to get the next element to keep the concordance
-                elem = conditions_indexes.next()
-                connector = u' {} '.format(connector.upper())
-                # conditions_set.add(connector)
-                conditions_set.append(connector)
-            elif connector == 'not':
-                elem = conditions_indexes.next()
-                if elem[0] < conditions_length:
-                    connector = u' AND '
-                    # conditions_set.add(connector)
-                    conditions_set.append(connector)
-        # We check if we have only one condition and one operator
-        if len(conditions_set) > 0:
-            conditions_last_index = len(conditions_set) - 1
-            conditions_last_element = conditions_set[conditions_last_index]
-            if (conditions_last_element == ' AND ' or
-                    conditions_last_element == ' OR '):
-                conditions_set.pop()
-        conditions = u" ".join(conditions_set)
-        return (conditions, query_params, conditions_alias)
+            if connector.upper() == "OR":
+                elems |= q_element
+            else:
+                elems &= q_element
+        conditions, query_params = elems.get_query_objects()
+        return (conditions.strip(), query_params, conditions_alias)
+
+    def _query_generator_f_expression(self, f_match, datatype):
+        match_dict = {}
+        # The match can be defined in three different ways:
+        # slug.property_id
+        # aggregate (slug.property_id)
+        # aggregate (DISTINCT slug.property_id)
+        # And also, we could have two match values for
+        # 'in between' lookups...
+        match_results = []
+        match_elements = []
+        datatypes = []
+        if not isinstance(f_match, (tuple, list)):
+            match_elements.append(f_match)
+            datatypes.append(datatype)
+        else:
+            match_elements = f_match
+            datatypes = datatype
+        index = 0
+        while index < len(match_elements):
+            match_element = match_elements[index]
+            if datatypes[index] == 'property_box':
+                # Let's check what definition we have...
+                match_splitted = re.split('\)|\(|\\.| ', match_element)
+                match_first_element = match_splitted[0]
+                # We check if aggregate belongs to the aggregate set
+                if match_first_element not in AGGREGATES.keys():
+                    slug = match_first_element
+                    prop = match_splitted[1]
+                    match_var, match_prop = self._get_slug_and_prop(
+                        slug, prop)
+                    # Finally, we assign the correct values to the dict
+                    match_dict['var'] = match_var
+                    match_dict['property'] = match_prop
+                    match = match_dict
+                else:
+                    # We have aggregate
+                    aggregate = match_first_element
+                    match_second_element = match_splitted[1]
+                    # We check if we already have the distinct clause
+                    if match_second_element != 'DISTINCT':
+                        # We get the slug and the property
+                        slug = match_second_element
+                        prop = match_splitted[2]
+                        match_var, match_prop = self._get_slug_and_prop(
+                            slug, prop)
+                        # Once we have the slug and the prop, we build the
+                        # aggregate again
+                        agg_field = u"{0}({1}.{2})".format(
+                            aggregate, match_var, match_prop)
+                        match_dict['aggregate'] = agg_field
+                        match = match_dict
+                    else:
+                        # We have distinct, slug and the property
+                        distinct = match_second_element
+                        # We get the slug and the property
+                        slug = match_splitted[2]
+                        prop = match_splitted[3]
+                        match_var, match_prop = self._get_slug_and_prop(
+                            slug, prop)
+                        # Once we have the slug and the prop, we
+                        # build the aggregate again
+                        agg_field = (u"{0}({1} {2}.{3})".format(
+                            aggregate, distinct, match_var,
+                            match_prop))
+                        match_dict['aggregate'] = agg_field
+                        match = match_dict
+            else:
+                match = match_element
+            index = index + 1
+            match_results.append(match)
+        if len(match_results) == 1:
+            match = match_results[0]
+        else:
+            match = match_results
+        return match
 
     def _query_generator_origins(self, origins_dict, conditions_alias):
         origins_set = set()

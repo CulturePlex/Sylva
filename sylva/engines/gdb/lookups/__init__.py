@@ -77,7 +77,7 @@ class BaseQ(object):
                                  "case".format(all_matchs))
 
     def is_valid(self):
-        return ((self.property and self.lookup and self.match) or
+        return ((self.property and self.lookup and self.match is not None) or
                 (self._and or self._or or self._not))
 
     def _make_and(q1, q2):
