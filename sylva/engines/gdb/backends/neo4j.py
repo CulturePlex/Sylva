@@ -587,11 +587,13 @@ class GraphDatabase(BlueprintsGraphDatabase):
                 gte = q_lookup_builder(property=property_tuple[2],
                                        lookup="gte",
                                        match=match[0],
+                                       nullable=True,
                                        var=property_tuple[1],
                                        datatype=datatype[0])
                 lte = q_lookup_builder(property=property_tuple[2],
                                        lookup="lte",
                                        match=match[1],
+                                       nullable=True,
                                        var=property_tuple[1],
                                        datatype=datatype[1])
                 gte_query_objects = gte.get_query_objects(params=query_params)
@@ -614,6 +616,7 @@ class GraphDatabase(BlueprintsGraphDatabase):
                 q_element = ~q_lookup_builder(property=property_tuple[2],
                                               lookup="icontains",
                                               match=match,
+                                              nullable=True,
                                               var=property_tuple[1],
                                               datatype=datatype)
                 query_objects = q_element.get_query_objects(
@@ -630,6 +633,7 @@ class GraphDatabase(BlueprintsGraphDatabase):
                 q_element = q_lookup_builder(property=property_tuple[2],
                                              lookup=lookup,
                                              match=match,
+                                             nullable=True,
                                              var=property_tuple[1],
                                              datatype=datatype)
                 query_objects = q_element.get_query_objects(
