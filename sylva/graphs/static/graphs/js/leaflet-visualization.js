@@ -22,7 +22,7 @@
   var heatFeatures = null;
   var featuresColor = null;
   var visibleFeatures = null;
-  var divIconsCache = null;
+  var divIconCache = null;
 
   // TODO: Delete this.
   var featureGroup = null;
@@ -48,7 +48,7 @@
       $('#map-wrapper').css(mapDivsSytyle);
       $('#map-container').css(mapDivsSytyle);
 
-      // TODO: Redo this with proper and compatible (with Sigma) structures.
+      // TODO: Redo this with proper and compatible (with Sigma) structures, (IDs and that stuff).
       that.addNodes();
       that.createLegend();
       that.createCollapsibles();
@@ -642,7 +642,12 @@
       }
     },
 
-    // TODO: Cache icons!
+    /*
+     * Future TODO:
+     * Improve the cache keys using the nodetype id. Also create CSS classes
+     * with that id with the uncommon style between nodetypes. Changing the
+     * color or the size of the nodes of the same class will be a lot quicker.
+     */
     createCircularIcon: function(options) {
       /*
        * Options are:
@@ -664,16 +669,14 @@
         divIcon = divIconCache[cacheKey];
 
       } else {
-        var icon = $('<div>').css({
-          width: options.diameter,
-          height: options.diameter,
-          textAlign: 'center',
-          display: 'table-cell',
-          verticalAlign: 'middle',
-          'border-radius': '50%',
-          backgroundColor: options.color,
-          color: options.iconColor
-        });
+        var icon = $('<div>')
+          .addClass('sylva-map-icon')
+          .css({
+            width: options.diameter,
+            height: options.diameter,
+            backgroundColor: options.color,
+            color: options.iconColor
+          });
 
         if (options.icon) {
           icon.append($('<i>')
@@ -687,7 +690,7 @@
 
       return L.divIcon({
         html: divIcon,
-        className: 'sylva-map-icon',
+        className: 'sylva-map-icon-wrapper',
         iconSize: [options.diameter, options.diameter]
       });
     }

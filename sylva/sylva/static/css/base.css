@@ -3061,7 +3061,14 @@ body :hover > a.headerlink {
     color: #f3120e;
 }
 
-.sylva-map-icon {  /* Full transparent white */
+.sylva-map-icon {
+    text-align: center;
+    display: table-cell;
+    vertical-align: middle;
+    border-radius: 50%;
+}
+
+.sylva-map-icon-wrapper {  /* Full transparent white */
     background-color: rgba(255, 255, 255, 0);
 }
 
