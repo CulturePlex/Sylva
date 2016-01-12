@@ -44,7 +44,7 @@
                     {{ graph.get_collaborators|length }} <a title="{% trans "Collaborators" %}" href="{% url "graph_collaborators" graph.slug %}">{% trans "collaborators" %}</a>
                 </span>
                 <span class="graph-queries">
-                    {% trans "No queries yet" %}
+                    {{ graph.queries.count }} <a title="{% trans "Queries" %}" href="{% url "queries_list" graph.slug %}">{% trans "queries" %}</a>
                 </span>
                 <span class="graph-instance">
                     {{ graph.data.total_storage|filesizeformat }}
