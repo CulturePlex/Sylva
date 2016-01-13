@@ -105,13 +105,8 @@ class Q(BaseQ):
             lookup = self.lookup
             match = u""
         if expression is None:
-            # Check the datatype and escape if string type
-            try:
-                datatype = self.DATATYPES[self.datatype]
-                if datatype in [str, unicode]:
-                    match = u"{0}".format(self._escape(self.match))
-            except:
-                pass
+            # TODO: Check the datatype and escape if string type
+            # match = u"{0}".format(self._escape(self.match))
             return lookup, match
         else:
             return lookup, expression

@@ -1111,19 +1111,19 @@ class QueryTestCase(LiveServerTestCase):
         header2 = headers[0]
         header1 = headers[1]
         spin_assert(lambda: self.assertEqual(
-            header1.text,
+            header2.text,
             u"Count (Bob's type 1.Name)"))
         spin_assert(lambda: self.assertEqual(
-            header2.text,
+            header1.text,
             u"Min (Bob's type 2.Name)"))
         # We check that the value is correct
         results_name = self.browser.find_by_xpath(
             "//tr[@class='row-even']/td")
         result_name2 = results_name[0].text
         result_name1 = results_name[1].text
-        spin_assert(lambda: self.assertEqual(result_name1,
-                                             u"1"))
         spin_assert(lambda: self.assertEqual(result_name2,
+                                             u"1"))
+        spin_assert(lambda: self.assertEqual(result_name1,
                                              u"Bob's node"))
         # We navigate to the query builder view
         breadcrumb_new = self.browser.find_by_xpath(
@@ -1191,19 +1191,19 @@ class QueryTestCase(LiveServerTestCase):
         header2 = headers[0]
         header1 = headers[1]
         spin_assert(lambda: self.assertEqual(
-            header1.text,
+            header2.text,
             u"Count Distinct(Bob's type 1.Name)"))
         spin_assert(lambda: self.assertEqual(
-            header2.text,
+            header1.text,
             u"Min Distinct(Bob's type 2.Name)"))
         # We check that the value is correct
         results_name = self.browser.find_by_xpath(
             "//tr[@class='row-even']/td")
         result_name2 = results_name[0].text
         result_name1 = results_name[1].text
-        spin_assert(lambda: self.assertEqual(result_name1,
-                                             u"1"))
         spin_assert(lambda: self.assertEqual(result_name2,
+                                             u"1"))
+        spin_assert(lambda: self.assertEqual(result_name1,
                                              u"Bob's node"))
         # We navigate to the query builder view
         breadcrumb_new = self.browser.find_by_xpath(
@@ -2592,7 +2592,7 @@ class QueryTestCase(LiveServerTestCase):
         run_query(self)
         # Right now, we are in the results view. Let's check it
         result = self.browser.find_by_xpath(
-            "//div[@class='shorten-text']").first
+            "//div[@class='shorten-text']")[1]
         bobs_type = u"Bob type 1.Name1"
         spin_assert(lambda: self.assertEqual(result.value, bobs_type))
         # We navigate to the query builder view

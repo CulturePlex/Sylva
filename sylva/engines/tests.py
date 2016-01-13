@@ -8,19 +8,14 @@ except ImportError:
 from django.conf import settings
 from django.test import TestCase
 
-from engines.gdb.utils import get_connection_string
 from engines.models import Instance
 from graphs.models import Graph, User
 from data.models import Data
 
 
-gdb_properties = settings.GRAPHDATABASES["tests"]
-connection_string = get_connection_string(gdb_properties)
-
-
 def create_and_get_gdb(test):
-    port = gdb_properties['PORT']
-    path = gdb_properties['NAME']
+    port = test.instancePort
+    path = test.instancePath
     instance = Instance(name=test.instanceName, engine=test.instanceEngine,
                         port=port, path=path, owner=test.user)
     instance.save()
@@ -216,8 +211,8 @@ class LookupsTestSuite(TestCase):
                                           owner=self.user)
         self.instanceName = "instanceNeo4j"
         self.instanceEngine = "engines.gdb.backends.neo4j"
-        self.instancePort = "7474"
-        self.instancePath = "db/data"
+        self.instancePort = "7373"
+        self.instancePath = "db/sylva"
         # Lookups property and match
         self.property = 'property1'
         self.match = 'match'
@@ -235,8 +230,9 @@ class LookupsTestSuite(TestCase):
         cypher = gdb.cypher
         cypher(q=script, params=query_params)
         self.assertEqual(
-            u"START `property_1`=node:`1_nodes`('label:2') WHERE `property_1`."
-            u"`ejemplo` = {p0} RETURN DISTINCT `property_1`.`Name`", script)
+            u"START `property_1`=node:`1_nodes`('label:2') "
+            u"WHERE (`property_1`.`ejemplo`! = {p0}) "
+            u"RETURN DISTINCT `property_1`.`Name`!", script)
         # lookup creation test
         lookup = self.graph.Q(property=self.property,
                               lookup="exact",
@@ -256,8 +252,9 @@ class LookupsTestSuite(TestCase):
         cypher = gdb.cypher
         cypher(q=script, params=query_params)
         self.assertEqual(
-            u"START `property_1`=node:`1_nodes`('label:2') WHERE `property_1`."
-            u"`ejemplo` =~ {p0} RETURN DISTINCT `property_1`.`Name`", script)
+            u"START `property_1`=node:`1_nodes`('label:2') "
+            u"WHERE (`property_1`.`ejemplo`! =~ {p0}) "
+            u"RETURN DISTINCT `property_1`.`Name`!", script)
         # lookup creation test
         lookup = self.graph.Q(property=self.property,
                               lookup="iexact",
@@ -277,8 +274,9 @@ class LookupsTestSuite(TestCase):
         cypher = gdb.cypher
         cypher(q=script, params=query_params)
         self.assertEqual(
-            u"START `property_1`=node:`1_nodes`('label:2') WHERE `property_1`."
-            u"`ejemplo` =~ {p0} RETURN DISTINCT `property_1`.`Name`", script)
+            u"START `property_1`=node:`1_nodes`('label:2') "
+            u"WHERE (`property_1`.`ejemplo`! =~ {p0}) "
+            u"RETURN DISTINCT `property_1`.`Name`!", script)
         # lookup objects
         lookup = self.graph.Q(property=self.property,
                               lookup="contains",
@@ -298,8 +296,9 @@ class LookupsTestSuite(TestCase):
         cypher = gdb.cypher
         cypher(q=script, params=query_params)
         self.assertEqual(
-            u"START `property_1`=node:`1_nodes`('label:2') WHERE `property_1`."
-            u"`ejemplo` =~ {p0} RETURN DISTINCT `property_1`.`Name`", script)
+            u"START `property_1`=node:`1_nodes`('label:2') "
+            u"WHERE (`property_1`.`ejemplo`! =~ {p0}) "
+            u"RETURN DISTINCT `property_1`.`Name`!", script)
         # lookup creation test
         lookup = self.graph.Q(property=self.property,
                               lookup="icontains",
@@ -319,8 +318,9 @@ class LookupsTestSuite(TestCase):
         cypher = gdb.cypher
         cypher(q=script, params=query_params)
         self.assertEqual(
-            u"START `property_1`=node:`1_nodes`('label:2') WHERE `property_1`."
-            u"`ejemplo` =~ {p0} RETURN DISTINCT `property_1`.`Name`", script)
+            u"START `property_1`=node:`1_nodes`('label:2') "
+            u"WHERE (`property_1`.`ejemplo`! =~ {p0}) "
+            u"RETURN DISTINCT `property_1`.`Name`!", script)
         lookup = self.graph.Q(property=self.property,
                               lookup="startswith",
                               match=self.match)
@@ -339,8 +339,9 @@ class LookupsTestSuite(TestCase):
         cypher = gdb.cypher
         cypher(q=script, params=query_params)
         self.assertEqual(
-            u"START `property_1`=node:`1_nodes`('label:2') WHERE `property_1`."
-            u"`ejemplo` =~ {p0} RETURN DISTINCT `property_1`.`Name`", script)
+            u"START `property_1`=node:`1_nodes`('label:2') "
+            u"WHERE (`property_1`.`ejemplo`! =~ {p0}) "
+            u"RETURN DISTINCT `property_1`.`Name`!", script)
         # lookup creation test
         lookup = self.graph.Q(property=self.property,
                               lookup="istartswith",
@@ -360,8 +361,9 @@ class LookupsTestSuite(TestCase):
         cypher = gdb.cypher
         cypher(q=script, params=query_params)
         self.assertEqual(
-            u"START `property_1`=node:`1_nodes`('label:2') WHERE `property_1`."
-            u"`ejemplo` =~ {p0} RETURN DISTINCT `property_1`.`Name`", script)
+            u"START `property_1`=node:`1_nodes`('label:2') "
+            u"WHERE (`property_1`.`ejemplo`! =~ {p0}) "
+            u"RETURN DISTINCT `property_1`.`Name`!", script)
         # lookup creation test
         lookup = self.graph.Q(property=self.property,
                               lookup="endswith",
@@ -381,8 +383,9 @@ class LookupsTestSuite(TestCase):
         cypher = gdb.cypher
         cypher(q=script, params=query_params)
         self.assertEqual(
-            u"START `property_1`=node:`1_nodes`('label:2') WHERE `property_1`."
-            u"`ejemplo` =~ {p0} RETURN DISTINCT `property_1`.`Name`", script)
+            u"START `property_1`=node:`1_nodes`('label:2') "
+            u"WHERE (`property_1`.`ejemplo`! =~ {p0}) "
+            u"RETURN DISTINCT `property_1`.`Name`!", script)
         # lookup creation test
         lookup = self.graph.Q(property=self.property,
                               lookup="iendswith",
@@ -403,8 +406,9 @@ class LookupsTestSuite(TestCase):
         cypher = gdb.cypher
         cypher(q=script, params=query_params)
         self.assertEqual(
-            u"START `property_1`=node:`1_nodes`('label:2') WHERE `property_1`."
-            u"`ejemplo` =~ {p0} RETURN DISTINCT `property_1`.`Name`", script)
+            u"START `property_1`=node:`1_nodes`('label:2') "
+            u"WHERE (`property_1`.`ejemplo`! =~ {p0}) "
+            u"RETURN DISTINCT `property_1`.`Name`!", script)
         # lookup creation test
         lookup = self.graph.Q(property=self.property,
                               lookup="regex",
@@ -424,8 +428,9 @@ class LookupsTestSuite(TestCase):
         cypher = gdb.cypher
         cypher(q=script, params=query_params)
         self.assertEqual(
-            u"START `property_1`=node:`1_nodes`('label:2') WHERE `property_1`."
-            u"`ejemplo` =~ {p0} RETURN DISTINCT `property_1`.`Name`", script)
+            u"START `property_1`=node:`1_nodes`('label:2') "
+            u"WHERE (`property_1`.`ejemplo`! =~ {p0}) "
+            u"RETURN DISTINCT `property_1`.`Name`!", script)
         # lookup creation test
         lookup = self.graph.Q(property=self.property,
                               lookup="iregex",
@@ -445,8 +450,9 @@ class LookupsTestSuite(TestCase):
         cypher = gdb.cypher
         cypher(q=script, params=query_params)
         self.assertEqual(
-            u"START `property_1`=node:`1_nodes`('label:2') WHERE `property_1`."
-            u"`ejemplo` > {p0} RETURN DISTINCT `property_1`.`Name`", script)
+            u"START `property_1`=node:`1_nodes`('label:2') "
+            u"WHERE (`property_1`.`ejemplo`! > {p0}) "
+            u"RETURN DISTINCT `property_1`.`Name`!", script)
         # lookup creation test
         lookup = self.graph.Q(property=self.property,
                               lookup=">",
@@ -468,8 +474,9 @@ class LookupsTestSuite(TestCase):
         cypher = gdb.cypher
         cypher(q=script, params=query_params)
         self.assertEqual(
-            u"START `property_1`=node:`1_nodes`('label:2') WHERE `property_1`."
-            u"`ejemplo` > {p0} RETURN DISTINCT `property_1`.`Name`", script)
+            u"START `property_1`=node:`1_nodes`('label:2') "
+            u"WHERE (`property_1`.`ejemplo`! > {p0}) "
+            u"RETURN DISTINCT `property_1`.`Name`!", script)
         # lookup creation test
         lookup = self.graph.Q(property=self.property,
                               lookup=">",
@@ -478,7 +485,7 @@ class LookupsTestSuite(TestCase):
         query = lookup.get_query_objects()[0]
         match = lookup.get_query_objects()[1]
         self.assertEqual(query, u'`n`.`property1` > {p0}')
-        self.assertEqual(match['p0'], u"")
+        self.assertEqual(match['p0'], u'')
 
     def test_lookups_gte_regular(self):
         # cypher test
@@ -490,8 +497,9 @@ class LookupsTestSuite(TestCase):
         cypher = gdb.cypher
         cypher(q=script, params=query_params)
         self.assertEqual(
-            u"START `property_1`=node:`1_nodes`('label:2') WHERE `property_1`."
-            u"`ejemplo` > {p0} RETURN DISTINCT `property_1`.`Name`", script)
+            u"START `property_1`=node:`1_nodes`('label:2') "
+            u"WHERE (`property_1`.`ejemplo`! > {p0}) "
+            u"RETURN DISTINCT `property_1`.`Name`!", script)
         # lookup creation test
         lookup = self.graph.Q(property=self.property,
                               lookup=">=",
@@ -512,8 +520,9 @@ class LookupsTestSuite(TestCase):
         cypher = gdb.cypher
         cypher(q=script, params=query_params)
         self.assertEqual(
-            u"START `property_1`=node:`1_nodes`('label:2') WHERE `property_1`."
-            u"`ejemplo` > {p0} RETURN DISTINCT `property_1`.`Name`", script)
+            u"START `property_1`=node:`1_nodes`('label:2') "
+            u"WHERE (`property_1`.`ejemplo`! > {p0}) "
+            u"RETURN DISTINCT `property_1`.`Name`!", script)
         # lookup creation test
         lookup = self.graph.Q(property=self.property,
                               lookup=">=",
@@ -522,7 +531,7 @@ class LookupsTestSuite(TestCase):
         query = lookup.get_query_objects()[0]
         match = lookup.get_query_objects()[1]
         self.assertEqual(query, u'`n`.`property1` >= {p0}')
-        self.assertEqual(match['p0'], u"")
+        self.assertEqual(match['p0'], u'')
 
     def test_lookups_lt_regular(self):
         # cypher test
@@ -534,8 +543,9 @@ class LookupsTestSuite(TestCase):
         cypher = gdb.cypher
         cypher(q=script, params=query_params)
         self.assertEqual(
-            u"START `property_1`=node:`1_nodes`('label:2') WHERE `property_1`."
-            u"`ejemplo` < {p0} RETURN DISTINCT `property_1`.`Name`", script)
+            u"START `property_1`=node:`1_nodes`('label:2') "
+            u"WHERE (`property_1`.`ejemplo`! < {p0}) "
+            u"RETURN DISTINCT `property_1`.`Name`!", script)
         # lookup creation test
         lookup = self.graph.Q(property=self.property,
                               lookup="<",
@@ -556,8 +566,9 @@ class LookupsTestSuite(TestCase):
         cypher = gdb.cypher
         cypher(q=script, params=query_params)
         self.assertEqual(
-            u"START `property_1`=node:`1_nodes`('label:2') WHERE `property_1`."
-            u"`ejemplo` < {p0} RETURN DISTINCT `property_1`.`Name`", script)
+            u"START `property_1`=node:`1_nodes`('label:2') "
+            u"WHERE (`property_1`.`ejemplo`! < {p0}) "
+            u"RETURN DISTINCT `property_1`.`Name`!", script)
         # lookup creation test
         lookup = self.graph.Q(property=self.property,
                               lookup="<",
@@ -566,7 +577,7 @@ class LookupsTestSuite(TestCase):
         query = lookup.get_query_objects()[0]
         match = lookup.get_query_objects()[1]
         self.assertEqual(query, u'`n`.`property1` < {p0}')
-        self.assertEqual(match['p0'], u"")
+        self.assertEqual(match['p0'], u'')
 
     def test_lookups_lte_regular(self):
         # cypher test
@@ -578,8 +589,9 @@ class LookupsTestSuite(TestCase):
         cypher = gdb.cypher
         cypher(q=script, params=query_params)
         self.assertEqual(
-            u"START `property_1`=node:`1_nodes`('label:2') WHERE `property_1`."
-            u"`ejemplo` < {p0} RETURN DISTINCT `property_1`.`Name`", script)
+            u"START `property_1`=node:`1_nodes`('label:2') "
+            u"WHERE (`property_1`.`ejemplo`! < {p0}) "
+            u"RETURN DISTINCT `property_1`.`Name`!", script)
         # lookup creation test
         lookup = self.graph.Q(property=self.property,
                               lookup="<=",
@@ -600,8 +612,9 @@ class LookupsTestSuite(TestCase):
         cypher = gdb.cypher
         cypher(q=script, params=query_params)
         self.assertEqual(
-            u"START `property_1`=node:`1_nodes`('label:2') WHERE `property_1`."
-            u"`ejemplo` < {p0} RETURN DISTINCT `property_1`.`Name`", script)
+            u"START `property_1`=node:`1_nodes`('label:2') "
+            u"WHERE (`property_1`.`ejemplo`! < {p0}) "
+            u"RETURN DISTINCT `property_1`.`Name`!", script)
         # lookup creation test
         lookup = self.graph.Q(property=self.property,
                               lookup="<=",
@@ -610,7 +623,7 @@ class LookupsTestSuite(TestCase):
         query = lookup.get_query_objects()[0]
         match = lookup.get_query_objects()[1]
         self.assertEqual(query, u'`n`.`property1` <= {p0}')
-        self.assertEqual(match['p0'], u"")
+        self.assertEqual(match['p0'], u'')
 
     def test_lookups_in(self):
         # cypher test
@@ -622,8 +635,9 @@ class LookupsTestSuite(TestCase):
         cypher = gdb.cypher
         cypher(q=script, params=query_params)
         self.assertEqual(
-            u"START `property_1`=node:`1_nodes`('label:2') WHERE `property_1`."
-            u"`ejemplo` IN {p0} RETURN DISTINCT `property_1`.`Name`", script)
+            u"START `property_1`=node:`1_nodes`('label:2') "
+            u"WHERE (`property_1`.`ejemplo`! IN {p0}) "
+            u"RETURN DISTINCT `property_1`.`Name`!", script)
         # lookup creation test
         lookup = self.graph.Q(property=self.property,
                               lookup="in",
@@ -643,8 +657,9 @@ class LookupsTestSuite(TestCase):
         cypher = gdb.cypher
         cypher(q=script, params=query_params)
         self.assertEqual(
-            u"START `property_1`=node:`1_nodes`('label:2') WHERE `property_1`."
-            u"`ejemplo` IN {p0} RETURN DISTINCT `property_1`.`Name`", script)
+            u"START `property_1`=node:`1_nodes`('label:2') "
+            u"WHERE (`property_1`.`ejemplo`! IN {p0}) "
+            u"RETURN DISTINCT `property_1`.`Name`!", script)
         # lookup creation test
         lookup = self.graph.Q(property=self.property,
                               lookup="inrange",
@@ -664,8 +679,9 @@ class LookupsTestSuite(TestCase):
         cypher = gdb.cypher
         cypher(q=script, params=query_params)
         self.assertEqual(
-            u"START `property_1`=node:`1_nodes`('label:2') WHERE `property_1`."
-            u"`ejemplo` = {p0} RETURN DISTINCT `property_1`.`Name`", script)
+            u"START `property_1`=node:`1_nodes`('label:2') "
+            u"WHERE (`property_1`.`ejemplo`! = {p0}) "
+            u"RETURN DISTINCT `property_1`.`Name`!", script)
         # lookup creation test
         lookup = self.graph.Q(property=self.property,
                               lookup="isnull",
@@ -685,8 +701,9 @@ class LookupsTestSuite(TestCase):
         cypher = gdb.cypher
         cypher(q=script, params=query_params)
         self.assertEqual(
-            u"START `property_1`=node:`1_nodes`('label:2') WHERE `property_1`."
-            u"`ejemplo` = {p0} RETURN DISTINCT `property_1`.`Name`", script)
+            u"START `property_1`=node:`1_nodes`('label:2') "
+            u"WHERE (`property_1`.`ejemplo`! = {p0}) "
+            u"RETURN DISTINCT `property_1`.`Name`!", script)
         # lookup creation test
         lookup = self.graph.Q(property=self.property,
                               lookup="isnull",
@@ -706,8 +723,9 @@ class LookupsTestSuite(TestCase):
         cypher = gdb.cypher
         cypher(q=script, params=query_params)
         self.assertEqual(
-            u"START `property_1`=node:`1_nodes`('label:2') WHERE `property_1`."
-            u"`ejemplo` = {p0} RETURN DISTINCT `property_1`.`Name`", script)
+            u"START `property_1`=node:`1_nodes`('label:2') "
+            u"WHERE (`property_1`.`ejemplo`! = {p0}) "
+            u"RETURN DISTINCT `property_1`.`Name`!", script)
         # lookup creation test
         lookup = self.graph.Q(property=self.property,
                               lookup="equals",
@@ -727,8 +745,9 @@ class LookupsTestSuite(TestCase):
         cypher = gdb.cypher
         cypher(q=script, params=query_params)
         self.assertEqual(
-            u"START `property_1`=node:`1_nodes`('label:2') WHERE `property_1`."
-            u"`ejemplo` <> {p0} RETURN DISTINCT `property_1`.`Name`", script)
+            u"START `property_1`=node:`1_nodes`('label:2') "
+            u"WHERE (`property_1`.`ejemplo`! <> {p0}) "
+            u"RETURN DISTINCT `property_1`.`Name`!", script)
         # lookup creation test
         lookup = self.graph.Q(property=self.property,
                               lookup="neq",
@@ -748,8 +767,9 @@ class LookupsTestSuite(TestCase):
         cypher = gdb.cypher
         cypher(q=script, params=query_params)
         self.assertEqual(
-            u"START `property_1`=node:`1_nodes`('label:2') WHERE `property_1`."
-            u"`ejemplo` <> {p0} RETURN DISTINCT `property_1`.`Name`", script)
+            u"START `property_1`=node:`1_nodes`('label:2') "
+            u"WHERE (`property_1`.`ejemplo`! <> {p0}) "
+            u"RETURN DISTINCT `property_1`.`Name`!", script)
         # lookup creation test
         lookup = self.graph.Q(property=self.property,
                               lookup="notequals",
