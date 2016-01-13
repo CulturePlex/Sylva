@@ -96,7 +96,7 @@ class DataNodeTestCase(LiveServerTestCase):
         self.browser.find_by_value("Save Bob's type").first.click()
         # Delete the relationship
         self.browser.find_by_xpath("//td[@class='dataList']/a[@class='edit']").first.click()
-        self.browser.find_by_xpath("//span[@class='all-relationships incoming-relationships i_bobs_rel1-relationships']//a[@class='delete-row initial-form floating']").first.click()
+        self.browser.find_by_xpath("//span[@class='all-relationships outgoing-relationships o_bobs_rel1-relationships']/span/a[@class='delete-row initial-form floating']").first.click()
         self.browser.find_by_value("Save Bob's type").first.click()
         self.browser.find_link_by_href('/graphs/bobs-graph/').first.click()
         text = self.browser.find_by_xpath("//div[@class='flags-block']/span[@class='graph-relationships']").first.value
