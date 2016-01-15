@@ -87,7 +87,8 @@ def create_complex_type(test, box_name, datatype, type_name, type_value):
     else:
         datatype_selection = test.browser.find_by_xpath(
             "//select[@id='id_properties-0-datatype']"
-            "/optgroup[@label='" + label + "']/option[@value='" + datatype + "']")
+            "/optgroup[@label='" + label + "']/option[@value='" +
+            datatype + "']")
     datatype_selection.first.click()
     test.browser.find_by_name('properties-0-default').first.fill(
         type_value)
@@ -125,7 +126,8 @@ def create_allowed_relationship(test, box_name, target_name,
     else:
         datatype_selection = test.browser.find_by_xpath(
             "//select[@id='id_properties-0-datatype']"
-            "/optgroup[@label='" + label + "']/option[@value='" + datatype + "']")
+            "/optgroup[@label='" + label + "']/option[@value='" +
+            datatype + "']")
     datatype_selection.first.click()
     test.browser.find_by_name('properties-0-default').first.fill(
         type_value)
@@ -160,6 +162,127 @@ def create_complex_data(test, box_name, type_name, type_value):
     text = test.browser.find_by_xpath(
         "//div[@class='pagination']"
         "/span[@class='pagination-info']").first.value
+
+
+def nodetypes_and_relationship_template(test, datatype, datatype_rel,
+                                        typename, value_node1, value_node2,
+                                        value_rel):
+    create_graph(test)
+    create_schema(test)
+    box_name1 = "Bob type"
+    box_name2 = "Alice type"
+    # Bob with String type
+    datatype = datatype
+    type_name1 = typename + "1"
+    type_value = value_node1
+    create_complex_type(test, box_name1, datatype, type_name1, type_value)
+    create_complex_data(test, box_name1, type_name1, type_value)
+    # Alice with String type
+    datatype = datatype
+    type_name2 = typename + "2"
+    type_value = value_node2
+    # We navigate to the schema view
+    test.browser.find_link_by_href('/schemas/bobs-graph/').first.click()
+    create_complex_type(test, box_name2, datatype, type_name2, type_value)
+    create_complex_data(test, box_name2, type_name2, type_value)
+    # We navigate to the schema view
+    test.browser.find_link_by_href('/schemas/bobs-graph/').first.click()
+    # Relationship between them
+    rel_name = "Rel"
+    target_name = value_node1
+    datatype = datatype_rel
+    type_name3 = typename + "3"
+    type_value = value_rel
+    create_allowed_relationship(test, box_name2, target_name, rel_name,
+                                datatype, type_name3, type_value)
+    # We navigate to the queries menu
+    queries_menu(test)
+    # We create two boxes
+    new_query_button = test.browser.find_by_id('create-query').first
+    new_query_button.click()
+    diagram_title = test.browser.find_by_id('diagramTitle').first.value
+    spin_assert(lambda: test.assertEqual(diagram_title, "Diagram"))
+    node_type = test.browser.find_by_xpath(
+        "//table[@id='node-types']/tbody/tr/td/a")[1]
+    node_type_text = node_type.value
+    node_type.click()
+    # This node type name is the name that we use in the create_type method
+    spin_assert(lambda: test.assertEqual(node_type_text, "Bob type"))
+    # We create the relationship
+    # We need to execute these javascript commands
+    js_code = "$('.select-rel').val('rel').change();"
+    test.browser.execute_script(js_code)
+    js_code = "$('#inlineShowHideLink_rel').click();"
+    test.browser.execute_script(js_code)
+    # We select the properties
+    select_property1 = test.browser.find_by_xpath(
+        "//option[@class='option-property' and text()='" +
+        type_name1 + "']").first
+    select_property1.click()
+    select_property2 = test.browser.find_by_xpath(
+        "//option[@class='option-property' and text()='" +
+        type_name2 + "']").first
+    select_property2.click()
+    select_property3 = test.browser.find_by_xpath(
+        "//option[@class='option-property' and text()='" +
+        type_name3 + "']").first
+    select_property3.click()
+    # We check the property to return the property value
+    checkbox1 = test.browser.find_by_xpath(
+        "//input[@class='checkbox-property']")[0]
+    checkbox1.click()
+    checkbox2 = test.browser.find_by_xpath(
+        "//input[@class='checkbox-property']")[1]
+    checkbox2.click()
+    checkbox3 = test.browser.find_by_xpath(
+        "//input[@class='checkbox-property']")[2]
+    checkbox3.click()
+    # We select the lookup equals
+    lookup_option1 = test.browser.find_by_xpath(
+        "//option[@class='lookup-option' and text()='equals']")[0]
+    lookup_option1.click()
+    lookup_option2 = test.browser.find_by_xpath(
+        "//option[@class='lookup-option' and text()='equals']")[1]
+    lookup_option2.click()
+    lookup_option3 = test.browser.find_by_xpath(
+        "//option[@class='lookup-option' and text()='equals']")[2]
+    lookup_option3.click()
+    # We fill the input for the lookup value
+    lookup_input_value1 = test.browser.find_by_xpath(
+        "//input[@class='lookup-value']")[0].fill(
+        value_node1)
+    lookup_input_value2 = test.browser.find_by_xpath(
+        "//input[@class='lookup-value']")[1].fill(
+        value_node2)
+    lookup_input_value3 = test.browser.find_by_xpath(
+        "//input[@class='lookup-value']")[2].fill(
+        value_rel)
+    # We need to click outside for a correct behaviour of the input field
+    test.browser.find_by_xpath("//div[@id='diagram']").first.click()
+    # We run the query
+    run_query(test)
+    # Right now, we are in the results view. Let's check it
+    results = test.browser.find_by_xpath(
+        "//tr[@class='row-even']/td")
+    spin_assert(lambda: test.assertEqual(results[0].value, value_node2))
+    spin_assert(lambda: test.assertEqual(results[1].value, unicode(value_rel)))
+    spin_assert(lambda: test.assertEqual(results[2].value, value_node1))
+    # We navigate to the query builder view
+    breadcrumb_new = test.browser.find_by_xpath(
+        "//header[@class='global']/h2/a")[2]
+    breadcrumb_new.click()
+    # We check if the values are loaded right
+    lookup_input_value1 = test.browser.find_by_xpath(
+        "//input[@class='lookup-value']")[0].value
+    spin_assert(lambda: test.assertEqual(lookup_input_value1, value_node1))
+    lookup_input_value2 = test.browser.find_by_xpath(
+        "//input[@class='lookup-value']")[1].value
+    spin_assert(lambda: test.assertEqual(lookup_input_value2, value_node2))
+    lookup_input_value3 = test.browser.find_by_xpath(
+        "//input[@class='lookup-value']")[2].value
+    spin_assert(lambda: test.assertEqual(lookup_input_value3,
+                                         unicode(value_rel)))
+    Graph.objects.get(name="Bob's graph").destroy()
 
 
 class QueryTestCase(LiveServerTestCase):
@@ -2512,193 +2635,38 @@ class QueryTestCase(LiveServerTestCase):
 
     # Testing all the datatypes in node and relationship boxes
 
-    def test_query_builder_datatypes_string_equals(self):
-        create_graph(self)
-        create_schema(self)
-        box_name1 = "Bob type"
-        box_name2 = "Alice type"
-        # Bob with String type
-        datatype = "s"
-        type_name = "Name1"
-        type_value = "Bob"
-        create_complex_type(self, box_name1, datatype, type_name, type_value)
-        create_complex_data(self, box_name1, type_name, type_value)
-        # Alice with String type
-        datatype = "s"
-        type_name = "Name2"
-        type_value = "Alice"
-        # We navigate to the schema view
-        self.browser.find_link_by_href('/schemas/bobs-graph/').first.click()
-        create_complex_type(self, box_name2, datatype, type_name, type_value)
-        create_complex_data(self, box_name2, type_name, type_value)
-        # We navigate to the schema view
-        self.browser.find_link_by_href('/schemas/bobs-graph/').first.click()
-        # Relationship between them
-        rel_name = "Rel"
-        target_name = "Bob"
-        datatype = "s"
-        type_name = "Name3"
-        type_value = "Bob"
-        create_allowed_relationship(self, box_name2, target_name, rel_name,
-                                    datatype, type_name, type_value)
-        # We navigate to the queries menu
-        queries_menu(self)
-        # We create two boxes
-        new_query_button = self.browser.find_by_id('create-query').first
-        new_query_button.click()
-        diagram_title = self.browser.find_by_id('diagramTitle').first.value
-        spin_assert(lambda: self.assertEqual(diagram_title, "Diagram"))
-        node_type = self.browser.find_by_xpath(
-            "//table[@id='node-types']/tbody/tr/td/a")[1]
-        node_type_text = node_type.value
-        node_type.click()
-        # This node type name is the name that we use in the create_type method
-        spin_assert(lambda: self.assertEqual(node_type_text, "Bob type"))
-        # We create the relationship
-        # We need to execute these javascript commands
-        js_code = "$('.select-rel').val('rel').change();"
-        self.browser.execute_script(js_code)
-        # We select the properties
-        select_property1 = self.browser.find_by_xpath(
-            "//option[@class='option-property' and text()='Name1']").first
-        select_property1.click()
-        select_property2 = self.browser.find_by_xpath(
-            "//option[@class='option-property' and text()='Name2']").first
-        select_property2.click()
-        # We check the property to return the property value
-        checkbox1 = self.browser.find_by_xpath(
-            "//input[@class='checkbox-property']")[0]
-        checkbox1.click()
-        checkbox2 = self.browser.find_by_xpath(
-            "//input[@class='checkbox-property']")[1]
-        checkbox2.click()
-        # We select the lookup equals
-        lookup_option1 = self.browser.find_by_xpath(
-            "//option[@class='lookup-option' and text()='equals']")[0]
-        lookup_option1.click()
-        lookup_option2 = self.browser.find_by_xpath(
-            "//option[@class='lookup-option' and text()='equals']")[1]
-        lookup_option2.click()
-        # We fill the input for the lookup value
-        lookup_input_value1 = self.browser.find_by_xpath(
-            "//input[@class='lookup-value']")[0].fill(
-            u"Bob")
-        lookup_input_value2 = self.browser.find_by_xpath(
-            "//input[@class='lookup-value']")[1].fill(
-            u"Alice")
-        # We need to click outside for a correct behaviour of the input field
-        self.browser.find_by_xpath("//div[@id='diagram']").first.click()
-        # We run the query
-        run_query(self)
-        # Right now, we are in the results view. Let's check it
-        result = self.browser.find_by_xpath(
-            "//div[@class='shorten-text']")[1]
-        bobs_type = u"Bob type 1.Name1"
-        spin_assert(lambda: self.assertEqual(result.value, bobs_type))
-        # We navigate to the query builder view
-        breadcrumb_new = self.browser.find_by_xpath(
-            "//header[@class='global']/h2/a")[2]
-        breadcrumb_new.click()
-        # We check if the values are loaded right
-        lookup_input_value1 = self.browser.find_by_xpath(
-            "//input[@class='lookup-value']")[0].value
-        spin_assert(lambda: self.assertEqual(lookup_input_value1, u"Bob"))
-        lookup_input_value2 = self.browser.find_by_xpath(
-            "//input[@class='lookup-value']")[1].value
-        spin_assert(lambda: self.assertEqual(lookup_input_value2, u"Alice"))
-        Graph.objects.get(name="Bob's graph").destroy()
-
     def test_query_builder_datatypes_string_relationship(self):
-        create_graph(self)
-        create_schema(self)
-        box_name1 = "Bob type"
-        box_name2 = "Alice type"
-        # Bob with String type
         datatype = "s"
-        type_name = "Name1"
-        type_value = "Bob"
-        create_complex_type(self, box_name1, datatype, type_name, type_value)
-        create_complex_data(self, box_name1, type_name, type_value)
-        # Alice with String type
+        datatype_rel = "s"
+        typename = "Name"
+        value_node1 = "Bob"
+        value_node2 = "Alice"
+        value_rel = "Rel"
+        nodetypes_and_relationship_template(
+            self, datatype, datatype_rel, typename,
+            value_node1, value_node2, value_rel)
+
+    def test_query_builder_datatypes_number_relationship(self):
         datatype = "s"
-        type_name = "Name2"
-        type_value = "Alice"
-        # We navigate to the schema view
-        self.browser.find_link_by_href('/schemas/bobs-graph/').first.click()
-        create_complex_type(self, box_name2, datatype, type_name, type_value)
-        create_complex_data(self, box_name2, type_name, type_value)
-        # We navigate to the schema view
-        self.browser.find_link_by_href('/schemas/bobs-graph/').first.click()
-        # Relationship between them
-        rel_name = "Rel"
-        target_name = "Bob"
+        datatype_rel = "n"
+        typename = "Name"
+        value_node1 = "Bob"
+        value_node2 = "Alice"
+        value_rel = 1
+        nodetypes_and_relationship_template(
+            self, datatype, datatype_rel, typename,
+            value_node1, value_node2, value_rel)
+
+    def test_query_builder_datatypes_float_relationship(self):
         datatype = "s"
-        type_name = "Name3"
-        type_value = "Bob"
-        create_allowed_relationship(self, box_name2, target_name, rel_name,
-                                    datatype, type_name, type_value)
-        # We navigate to the queries menu
-        queries_menu(self)
-        # We create two boxes
-        new_query_button = self.browser.find_by_id('create-query').first
-        new_query_button.click()
-        diagram_title = self.browser.find_by_id('diagramTitle').first.value
-        spin_assert(lambda: self.assertEqual(diagram_title, "Diagram"))
-        node_type = self.browser.find_by_xpath(
-            "//table[@id='node-types']/tbody/tr/td/a")[1]
-        node_type_text = node_type.value
-        node_type.click()
-        # This node type name is the name that we use in the create_type method
-        spin_assert(lambda: self.assertEqual(node_type_text, "Bob type"))
-        # We create the relationship
-        # We need to execute these javascript commands
-        js_code = "$('.select-rel').val('rel').change();"
-        self.browser.execute_script(js_code)
-        js_code = "$('#inlineShowHideLink_rel').click();"
-        self.browser.execute_script(js_code)
-        # We select the properties
-        select_property1 = self.browser.find_by_xpath(
-            "//option[@class='option-property' and text()='Name1']").first
-        select_property1.click()
-        select_property2 = self.browser.find_by_xpath(
-            "//option[@class='option-property' and text()='Name2']").first
-        select_property2.click()
-        select_property3 = self.browser.find_by_xpath(
-            "//option[@class='option-property' and text()='Name3']").first
-        select_property3.click()
-        # We check the property to return the property value
-        checkbox1 = self.browser.find_by_xpath(
-            "//input[@class='checkbox-property']")[0]
-        checkbox1.click()
-        checkbox2 = self.browser.find_by_xpath(
-            "//input[@class='checkbox-property']")[1]
-        checkbox2.click()
-        checkbox3 = self.browser.find_by_xpath(
-            "//input[@class='checkbox-property']")[2]
-        checkbox3.click()
-        # We select the lookup equals
-        lookup_option = self.browser.find_by_xpath(
-            "//option[@class='lookup-option' and text()='equals']")[2]
-        lookup_option.click()
-        # We fill the input for the lookup value
-        lookup_input_value = self.browser.find_by_xpath(
-            "//input[@class='lookup-value']")[2].fill(
-            u"Rel")
-        # We need to click outside for a correct behaviour of the input field
-        self.browser.find_by_xpath("//div[@id='diagram']").first.click()
-        # We run the query
-        run_query(self)
-        # Right now, we are in the results view. Let's check it
-        test_no_results(self)
-        # We navigate to the query builder view
-        breadcrumb_new = self.browser.find_by_xpath(
-            "//header[@class='global']/h2/a")[2]
-        breadcrumb_new.click()
-        # We check if the values are loaded right
-        lookup_input_value = self.browser.find_by_xpath(
-            "//input[@class='lookup-value']")[2].value
-        spin_assert(lambda: self.assertEqual(lookup_input_value, u"Rel"))
-        Graph.objects.get(name="Bob's graph").destroy()
+        datatype_rel = "f"
+        typename = "Name"
+        value_node1 = "Bob"
+        value_node2 = "Alice"
+        value_rel = 1.0
+        nodetypes_and_relationship_template(
+            self, datatype, datatype_rel, typename,
+            value_node1, value_node2, value_rel)
 
     # F fields
 

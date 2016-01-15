@@ -39,7 +39,7 @@ def get_query_dict(lookup, datatype=None):
         u'conditions': [
             [lookup,
                 [u'property', u'property_1', u'ejemplo'],
-                u'pepe',
+                u'condition',
                 u'not',
                 datatype]
         ],
@@ -685,7 +685,7 @@ class LookupsTestSuite(TestCase):
         # lookup creation test
         lookup = self.graph.Q(property=self.property,
                               lookup="isnull",
-                              match=self.match)
+                              match=True)
         query = lookup.get_query_objects()[0]
         match = lookup.get_query_objects()[1]
         self.assertEqual(query, u'`n`.`property1` = {p0}')
@@ -707,10 +707,10 @@ class LookupsTestSuite(TestCase):
         # lookup creation test
         lookup = self.graph.Q(property=self.property,
                               lookup="isnull",
-                              match=self.match)
+                              match=False)
         query = lookup.get_query_objects()[0]
         match = lookup.get_query_objects()[1]
-        self.assertEqual(query, u'`n`.`property1` = {p0}')
+        self.assertEqual(query, u'`n`.`property1` <> {p0}')
         self.assertEqual(match['p0'], u"null")
 
     def test_lookups_equals(self):
