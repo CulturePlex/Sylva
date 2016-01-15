@@ -490,7 +490,10 @@ class GraphDatabase(BlueprintsGraphDatabase):
             lookup, property_tuple, match, connector, datatype = condition_dict
             conditions_alias.add(property_tuple[1])
             # This is the option to have properties of another boxes
-            if datatype == "property_box":
+            # We need to check 'property_box' too for the old queries
+            f_expression = (datatype == 'f_expression' or
+                            datatype == 'property_box')
+            if f_expression:
                 # We catch exception of type IndexError, in case that we
                 # doesn't receive an appropiate array.
                 try:
@@ -555,7 +558,10 @@ class GraphDatabase(BlueprintsGraphDatabase):
         index = 0
         while index < len(match_elements):
             match_element = match_elements[index]
-            if datatypes[index] == 'property_box':
+            # We need to check 'property_box' too for the old queries
+            f_expression = (datatypes[index] == 'f_expression' or
+                            datatypes[index] == 'property_box')
+            if f_expression:
                 # Let's check what definition we have...
                 match_splitted = re.split('\)|\(|\\.| ', match_element)
                 match_first_element = match_splitted[0]

@@ -2499,7 +2499,7 @@ diagram.datatypes = {
             var andOrVal = $('#' + andOrId + ' .and-or-option select').val();
 
             if((lookup != "undefined") && (lookup != null)) {
-                // We use the key word 'property_box' to know that we have
+                // We use the key word 'f_expression' to know that we have
                 // a property from another box
                 if(propertyFromAnotherBox !== undefined) {
                     // Let's treat the property to check that there's no
@@ -2507,10 +2507,10 @@ diagram.datatypes = {
                     // We need to check if we have an 'in between' lookup
                     if(propertyValue instanceof Array) {
                         propertyValue[0] = propertyFromAnotherBox;
-                        datatype[0] = 'property_box';
+                        datatype[0] = 'f_expression';
                     } else {
                         propertyValue = propertyFromAnotherBox;
-                        datatype = 'property_box';
+                        datatype = 'f_expression';
                     }
                     // We need to check if we have aggregates in the
                     // conditions. In that case, our query has a different
@@ -2542,10 +2542,10 @@ diagram.datatypes = {
                     // We need to check if we have an 'in between' lookup
                     if(propertyValue instanceof Array) {
                         propertyValue[1] = propertyFromAnotherBox2;
-                        datatype[1] = 'property_box';
+                        datatype[1] = 'f_expression';
                     } else {
                         propertyValue = propertyFromAnotherBox2;
-                        datatype = 'property_box';
+                        datatype = 'f_expression';
                     }
                     // We need to check if we have aggregates in the
                     // conditions. In that case, our query has a different
