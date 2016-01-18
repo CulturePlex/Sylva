@@ -56,6 +56,89 @@ ORDER_DIR_ASC = ''
 ORDER_DIR_DESC = '-'
 
 
+def _treat_headers(headers_query_results, aliases):
+    headers_final_results = dict()
+    # We need to split the headers by '.' to separate the alias from
+    # the property
+    for header in headers_query_results:
+        join_list = []
+        # header_splitted = header.split('.')
+
+        # The headers can be defined in three different ways:
+        # slug.property
+        # aggregate (slug.property)
+        # aggregate distinct(slug.property)
+
+        # Let's define some variables
+        aggregate = ''
+        distinct = ''
+        slug = ''
+        prop = ''
+        # Let's check what definition we have...
+        header_splitted = re.split('\)|\(|\\.| ', header)
+        header_first_element = header_splitted[0]
+        # We check if aggregate belongs to the aggregate set
+        if header_first_element not in AGGREGATES.keys():
+            # We have the slug and the property
+            slug = header_first_element
+            prop = header_splitted[1]
+        else:
+            # We have aggregate, let's get the other elements
+            aggregate = header_first_element
+            header_second_element = header_splitted[1]
+            # We check if we already have the distinct clause
+            if header_second_element != 'DISTINCT':
+                # We have the slug and the property
+                slug = header_second_element
+                prop = header_splitted[2]
+            else:
+                # We have distinct, slug and the property
+                distinct = u'Distinct'
+                slug = header_splitted[2]
+                prop = header_splitted[3]
+        # We need to check if the alias field exists. Old queries...
+        try:
+            alias = aliases[slug]['alias']
+        except KeyError:
+            alias = slug
+            # Also, we need to check if prop is really the prop because
+            # with the split method, we could have splitted the index
+            # of the alias
+            try:
+                # We cast to int to check if the prop is the index
+                # (It throws ValueError exception in that case)
+                alias_index_list = list()
+                alias_index_list.append(alias)
+                alias_index_list.append(prop)
+                alias = " ".join(alias_index_list)
+
+                prop = header_splitted[2]
+            except ValueError:
+                # If there is a ValueError exception, the prop is
+                # correct
+                pass
+        # Let's build the header for the user
+        # We append the elements to join them to get the alias to show
+        join_list.append(alias)
+        # Let's check if the prop contains '!' at the end. This symbol
+        # is used by neo4j to treat None values.
+        if prop[-1] == '!':
+            prop = prop[:-1]
+        join_list.append(prop)
+        show_alias = ".".join(join_list)
+        # In case that we had aggregate, we need to change it
+        if aggregate in AGGREGATES.keys():
+            if distinct == 'Distinct':
+                show_alias = '{0} {1}({2})'.format(
+                    AGGREGATES[aggregate], distinct, show_alias)
+            else:
+                show_alias = '{0} ({1})'.format(
+                    AGGREGATES[aggregate], show_alias)
+        # Finally, we add the key-value to our dictionary
+        headers_final_results[header] = show_alias
+    return headers_final_results
+
+
 @is_enabled(settings.ENABLE_QUERIES)
 @login_required
 @permission_required("graphs.view_graph_queries",
@@ -361,6 +444,10 @@ def queries_new_results(request, graph_slug):
         has_aggregate = aggregate in AGGREGATES.keys()
         if has_aggregate:
             alias = AGGREGATE
+            # We check the '!' symbol for a correct order
+            if order_by_field[-2] != '!':
+                order_by_field = (
+                    order_by_field[0:-1] + '!' + order_by_field[-1])
             value = order_by_field.replace('`', '')
             order_by = (alias, value, order_dir)
         else:
@@ -368,6 +455,8 @@ def queries_new_results(request, graph_slug):
             order_by_values = order_by_field.split('.')
             alias = order_by_values[0]
             prop = order_by_values[1]
+            if prop[-1] == '!':
+                prop = prop[:-1]
             order_by = (alias, prop, order_dir)
         query_results = graph.query(query_dict,
                                     order_by=order_by, headers=headers)
@@ -408,68 +497,8 @@ def queries_new_results(request, graph_slug):
             else:
                 aliases = query_aliases['types']
             headers_query_results = query_results[0]
-            # We need to split the headers by '.' to separate the alias from
-            # the property
-            for header in headers_query_results:
-                join_list = []
-                # header_splitted = header.split('.')
-
-                # The headers can be defined in three different ways:
-                # slug.property
-                # aggregate (slug.property)
-                # aggregate distinct(slug.property)
-
-                # Let's define some variables
-                aggregate = ''
-                distinct = ''
-                slug = ''
-                prop = ''
-                # Let's check what definition we have...
-                header_splitted = re.split('\)|\(|\\.| ', header)
-                header_first_element = header_splitted[0]
-                # We check if aggregate belongs to the aggregate set
-                if header_first_element not in AGGREGATES.keys():
-                    # We have the slug and the property
-                    slug = header_first_element
-                    prop = header_splitted[1]
-                else:
-                    # We have aggregate, let's get the other elements
-                    aggregate = header_first_element
-                    header_second_element = header_splitted[1]
-                    # We check if we already have the distinct clause
-                    if header_second_element != 'DISTINCT':
-                        # We have the slug and the property
-                        slug = header_second_element
-                        prop = header_splitted[2]
-                    else:
-                        # We have distinct, slug and the property
-                        distinct = u'Distinct'
-                        slug = header_splitted[2]
-                        prop = header_splitted[3]
-                # We need to check if the alias field exists. Old queries...
-                try:
-                    alias = aliases[slug]['alias']
-                except KeyError:
-                    alias = slug
-                # Let's build the header for the user
-                # We append the elements to join them to get the alias to show
-                join_list.append(alias)
-                # Let's check if the prop contains '!' at the end. This symbol
-                # is used by neo4j to treat None values.
-                if prop[-1] == '!':
-                    prop = prop[:-1]
-                join_list.append(prop)
-                show_alias = ".".join(join_list)
-                # In case that we had aggregate, we need to change it
-                if aggregate in AGGREGATES.keys():
-                    if distinct == 'Distinct':
-                        show_alias = '{0} {1}({2})'.format(
-                            AGGREGATES[aggregate], distinct, show_alias)
-                    else:
-                        show_alias = '{0} ({1})'.format(
-                            AGGREGATES[aggregate], show_alias)
-                # Finally, we add the key-value to our dictionary
-                headers_final_results[header] = show_alias
+            headers_final_results = _treat_headers(headers_query_results,
+                                                   aliases)
         request.session['results_count'] = query_results_length - 1
         query_results = query_results[1:]
     else:
@@ -814,6 +843,10 @@ def queries_query_results(request, graph_slug, query_id):
         has_aggregate = aggregate in AGGREGATES.keys()
         if has_aggregate:
             alias = AGGREGATE
+            # We check the '!' symbol for a correct order
+            if order_by_field[-2] != '!':
+                order_by_field = (
+                    order_by_field[0:-1] + '!' + order_by_field[-1])
             value = order_by_field.replace('`', '')
             order_by = (alias, value, order_dir)
         else:
@@ -821,6 +854,8 @@ def queries_query_results(request, graph_slug, query_id):
             order_by_values = order_by_field.split('.')
             alias = order_by_values[0]
             prop = order_by_values[1]
+            if prop[-1] == '!':
+                prop = prop[:-1]
             order_by = (alias, prop, order_dir)
         if different_queries and (
                 query.id == request.session.get('query_id', None)):
@@ -890,84 +925,8 @@ def queries_query_results(request, graph_slug, query_id):
             else:
                 aliases = query_aliases['types']
             headers_query_results = query_results[0]
-            # We need to split the headers by '.' to separate the alias from
-            # the property
-            for header in headers_query_results:
-                join_list = []
-                # header_splitted = header.split('.')
-
-                # The headers can be defined in three different ways:
-                # slug.property
-                # aggregate (slug.property)
-                # aggregate distinct(slug.property)
-
-                # Let's define some variables
-                aggregate = ''
-                distinct = ''
-                slug = ''
-                prop = ''
-                # Let's check what definition we have...
-                header_splitted = re.split('\)|\(|\\.| ', header)
-                header_first_element = header_splitted[0]
-                # We check if aggregate belongs to the aggregate set
-                if header_first_element not in AGGREGATES.keys():
-                    # We have the slug and the property
-                    slug = header_first_element
-                    prop = header_splitted[1]
-                else:
-                    # We have aggregate, let's get the other elements
-                    aggregate = header_first_element
-                    header_second_element = header_splitted[1]
-                    # We check if we already have the distinct clause
-                    if header_second_element != 'DISTINCT':
-                        # We have the slug and the property
-                        slug = header_second_element
-                        prop = header_splitted[2]
-                    else:
-                        # We have distinct, slug and the property
-                        distinct = u'Distinct'
-                        slug = header_splitted[2]
-                        prop = header_splitted[3]
-                # We need to check if the alias field exists. Old queries...
-                try:
-                    alias = aliases[slug]['alias']
-                except KeyError:
-                    alias = slug
-                    # Also, we need to check if prop is really the prop because
-                    # with the split method, we could have splitted the index
-                    # of the alias
-                    try:
-                        # We cast to int to check if the prop is the index
-                        # (It throws ValueError exception in that case)
-                        alias_index_list = list()
-                        alias_index_list.append(alias)
-                        alias_index_list.append(prop)
-                        alias = " ".join(alias_index_list)
-
-                        prop = header_splitted[2]
-                    except ValueError:
-                        # If there is a ValueError exception, the prop is
-                        # correct
-                        pass
-                # Let's build the header for the user
-                # We append the elements to join them to get the alias to show
-                join_list.append(alias)
-                # Let's check if the prop contains '!' at the end. This symbol
-                # is used by neo4j to treat None values.
-                if prop[-1] == '!':
-                    prop = prop[:-1]
-                join_list.append(prop)
-                show_alias = ".".join(join_list)
-                # In case that we had aggregate, we need to change it
-                if aggregate in AGGREGATES:
-                    if distinct == 'Distinct':
-                        show_alias = '{0} {1}({2})'.format(
-                            AGGREGATES[aggregate], distinct, show_alias)
-                    else:
-                        show_alias = '{0} ({1})'.format(
-                            AGGREGATES[aggregate], show_alias)
-                # Finally, we add the key-value to our dictionary
-                headers_final_results[header] = show_alias
+            headers_final_results = _treat_headers(headers_query_results,
+                                                   aliases)
         request.session['results_count'] = query_results_length - 1
         query_results = query_results[1:]
     else:

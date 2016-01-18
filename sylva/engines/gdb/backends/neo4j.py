@@ -386,6 +386,7 @@ class GraphDatabase(BlueprintsGraphDatabase):
 
     def query(self, query_dict, limit=None, offset=None, order_by=None,
               headers=None, only_ids=None):
+
         results_list = []
         script, query_params = self._query_generator(query_dict, only_ids)
         cypher = self.cypher
@@ -400,7 +401,7 @@ class GraphDatabase(BlueprintsGraphDatabase):
                                                     order_by[1],
                                                     order_by[2])
             else:
-                script = u"%s order by `%s`.`%s` %s " % (
+                script = u"%s order by `%s`.`%s`! %s " % (
                     script, alias.replace(u'`', u'\\`'),
                     order_by[1].replace(u'`', u'\\`'),
                     order_by[2])

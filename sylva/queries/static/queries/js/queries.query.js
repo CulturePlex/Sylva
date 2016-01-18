@@ -3282,7 +3282,15 @@ diagram.datatypes = {
                     var aggregateDistinct = aggregatesRels[key][1];
                     var idBox = aggregatesRels[key][2];
                     var selector = $("#" + key + " .select-aggregate");
+                    var idBoxSplitted = idBox.split('-');
                     var typename = idBox.split('-')[2];
+                    if(idBoxSplitted.length > 3) {
+                        // We remove the first two elements to build the
+                        // correct type
+                        idBoxSplitted.splice(0, 1);
+                        idBoxSplitted.splice(0, 1);
+                        typename = idBoxSplitted.join("-");
+                    }
                     // We need to click only one time, because we don't want to
                     // hide the aggregates
                     if(idBox !== prevIdBox) {
