@@ -56,6 +56,9 @@ class BaseQ(object):
             try:
                 # We apply the casting
                 casting_func = self.DATATYPES[self.datatype.lower()]
+                # If the lookup is 'isnull', the casting is always to boolean
+                if self.lookup == 'isnull':
+                    casting_func = bool
                 self.match = casting_func(match)
             except AttributeError:
                 self.match = match

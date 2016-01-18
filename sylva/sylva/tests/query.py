@@ -2652,7 +2652,7 @@ class QueryTestCase(LiveServerTestCase):
         typename = "Name"
         value_node1 = "Bob"
         value_node2 = "Alice"
-        value_rel = 1
+        value_rel = '1'
         nodetypes_and_relationship_template(
             self, datatype, datatype_rel, typename,
             value_node1, value_node2, value_rel)
@@ -2663,7 +2663,7 @@ class QueryTestCase(LiveServerTestCase):
         typename = "Name"
         value_node1 = "Bob"
         value_node2 = "Alice"
-        value_rel = 1.0
+        value_rel = '1.5'
         nodetypes_and_relationship_template(
             self, datatype, datatype_rel, typename,
             value_node1, value_node2, value_rel)
