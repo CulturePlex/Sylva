@@ -221,6 +221,118 @@ diagram.datatypes = {
         jsPlumb.Defaults.DragOptions = {cursor: 'pointer', zIndex: 2000};
         jsPlumb.Defaults.Container = diagram.Container;
 
+        /* f_expressions helper functions */
+
+        /**
+         * Check the type to restart the boxes properties for f_expression
+         * - datatype
+         * - actualDatatype
+         */
+        diagram.f_expression_correct_type = function(datatype, actualDatatype) {
+            // We check the datatype
+            var notDistinctDatatype = diagram.lookupsFtypes[datatype] === diagram.lookupsFtypes[actualDatatype];
+            var defaultType = (datatype === 'default') ||
+                              (actualDatatype === 'default');
+            // We need to take into account the "choose one"
+            var notChooseOne = datatype !== undefined;
+            defaultType = defaultType && notChooseOne;
+
+            return notDistinctDatatype || defaultType;
+        };
+
+        /**
+         * Create the option as f_expression for a box property
+         * - elem
+         * - value
+         * - slug
+         * - propertyValue
+         * - withValue
+         * - datatype
+         * - fieldId
+         * - htmlValue
+         */
+        diagram.f_expression_box_option = function(value, slug, propertyValue, withValue, datatype, fieldId, htmlValue) {
+            // The option for the selects
+            var optionBoxesProperty = $("<OPTION>");
+            optionBoxesProperty.addClass('option-other-boxes-properties');
+            optionBoxesProperty.attr('id', value);
+            // We add the slug value to manage the option using this field
+            optionBoxesProperty.attr('data-slugvalue', slug);
+            optionBoxesProperty.attr('data-propname', propertyValue);
+            optionBoxesProperty.attr('data-withvalue', withValue);
+            optionBoxesProperty.attr('data-datatype', datatype);
+            optionBoxesProperty.attr('data-fieldid', fieldId);
+            optionBoxesProperty.attr('value', value);
+            optionBoxesProperty.html(htmlValue);
+
+            return optionBoxesProperty;
+        };
+
+        /**
+         * Check if we have an aggregate and act consequently
+         * - elem
+         * - aggregate
+         * - propertyValue
+         * - selectBoxesProperties
+         */
+        diagram.f_expression_check_aggregate = function(elem, aggregate, propertyValue, selectBoxesProperties) {
+            var containsElem = false;
+            // Let's check if we have aggregate
+            if(aggregate !== "") {
+                var distinctValue = "";
+                var distinctHTML = "";
+                var distinct = $('option:selected', $(elem).prev()).data('distinct');
+                if(distinct) {
+                    distinctValue = "DISTINCT ";
+                    distinctHTML = " Distinct";
+                }
+
+                propertyValue = aggregate + '(' + distinctValue + propertyValue + ')';
+            }
+
+            // And now, we check that the select does not contains
+            // the element
+            $('option', selectBoxesProperties).filter(
+                function(index, oldOption) {
+                    if($(oldOption).val() === propertyValue)
+                        containsElem = true;
+                }
+            );
+
+            return containsElem;
+        };
+
+        /**
+         * Check if we have an aggregate to create values properly
+         * - elem
+         * - aggregate
+         * - value
+         * - label
+         * - withValue
+         */
+        diagram.f_expression_check_aggregate_to_create_it = function(elem, aggregate, value, label, withValue) {
+            // Let's check if we have aggregate
+            if(aggregate !== "") {
+                var distinctValue = "";
+                var distinctHTML = "";
+                var distinct = $('option:selected', $(elem).prev()).data('distinct');
+                if(distinct) {
+                    distinctValue = "DISTINCT ";
+                    distinctHTML = " Distinct";
+                }
+
+                value = aggregate + '(' + distinctValue + value + ')';
+                label = aggregate + distinctHTML + '(' + label + ')';
+                withValue = aggregate + '(' + distinctValue + withValue + ')';
+            }
+
+            return {
+                value: value,
+                label: label,
+                withValue: withValue
+            };
+        };
+
         /**
          * Adds a new model box with its fields
          * - graphName
@@ -642,10 +754,6 @@ diagram.datatypes = {
                     $(selectorAggregate).css({
                         "display": "inline"
                     });
-                    // We change the margin left of the relationships remove icon
-                    $(selectorRemoveRelation).css({
-                        'margin-left': '336px'
-                    });
                 } else {
                     if(isThereInBetween) {
                         $(selectorBox).css({
@@ -661,13 +769,15 @@ diagram.datatypes = {
                     $(selectorAggregate).css({
                         "display": "none"
                     });
-                    // We change the margin left of the relationships remove icon
-                    $(selectorRemoveRelation).css({
-                        'margin-left': '261px'
-                    });
                     // We change the value of the aggregate
                     $(selectorAggregate).val('');
                 }
+
+                // We change the position of the relation icon to remove it
+                var margin = $(selectorBox).width() - 130;
+                $(selectorRemoveRelation).css({
+                    'margin-left': margin
+                });
             });
 
             // Edit/select button in the corner of the box and its
@@ -1078,10 +1188,6 @@ diagram.datatypes = {
                     $(selectorAggregate).css({
                         "display": "inline"
                     });
-                    // We change the margin left of the relationships remove icon
-                    $(selectorRemoveRelation).css({
-                        'margin-left': '336px'
-                    });
                 } else {
                     // We need the aggregate value in case that we need to
                     // change the option in the order by select
@@ -1100,10 +1206,6 @@ diagram.datatypes = {
                     // We show the advanced options
                     $(selectorAggregate).css({
                         "display": "none"
-                    });
-                    // We change the margin left of the relationships remove icon
-                    $(selectorRemoveRelation).css({
-                        'margin-left': '261px'
                     });
                     // We change the value of the aggregate
                     $(selectorAggregate).val('');
@@ -1181,31 +1283,14 @@ diagram.datatypes = {
                                 // select
                                 var existsValue = $('option[value="' + newValue + '"]', $(elem)).length;
 
-                                // We check the datatype
-                                var notDistinctDatatype = diagram.lookupsFtypes[datatype] === diagram.lookupsFtypes[actualDatatype];
-                                var defaultType = (datatype === 'default') ||
-                                                  (actualDatatype === 'default');
-                                // We need to take into account the "choose one"
-                                var notChooseOne = datatype !== undefined;
-                                defaultType = defaultType && notChooseOne;
-                                if(notDistinctDatatype || defaultType) {
+                                var f_correct_type = diagram.f_expression_correct_type(datatype, actualDatatype);
+                                if(f_correct_type) {
                                     // If exists, we remove it.
                                     if(existsValue > 0) {
                                         $option.remove();
                                     } else {
                                         if($option.length === 0) {
-                                            var optionBoxesProperty = $("<OPTION>");
-                                            optionBoxesProperty.addClass('option-other-boxes-properties');
-                                            optionBoxesProperty.attr('id', newValue);
-                                            // We add the slug value to manage the option using this field
-                                            optionBoxesProperty.attr('data-slugvalue', boxSlug);
-                                            optionBoxesProperty.attr('data-propname', propName);
-                                            optionBoxesProperty.attr('data-withvalue', newWithValue);
-                                            optionBoxesProperty.attr('data-datatype', datatype);
-                                            optionBoxesProperty.attr('data-fieldid', fieldId);
-                                            optionBoxesProperty.attr('value', newValue);
-                                            optionBoxesProperty.html(newHTML);
-
+                                            var optionBoxesProperty = diagram.f_expression_box_option(newValue, boxSlug, propName, newWithValue, datatype, fieldId, newHTML);
                                             $(elem).append(optionBoxesProperty);
                                         } else {
                                             $option.attr('id', newValue);
@@ -1256,41 +1341,15 @@ diagram.datatypes = {
 
                         if(window.idBox !== idElemBox) {
                             var datatype = $('option:selected', elem).data('datatype');
-                            // Now, we check if the datatype is equal
-                            var notDistinctDatatype = diagram.lookupsFtypes[datatype] === diagram.lookupsFtypes[actualDatatype];
-                            var defaultType = (datatype === 'default') ||
-                                              (actualDatatype === 'default');
-                            // We need to take into account the "choose one"
-                            var notChooseOne = datatype !== undefined;
-                            defaultType = defaultType && notChooseOne;
-
-                            if(notDistinctDatatype || defaultType) {
+                            var f_correct_type = diagram.f_expression_correct_type(datatype, actualDatatype);
+                            if(f_correct_type) {
                                 var boxAlias = $(elem).data('boxalias');
                                 var propertyId = $('option:selected', elem).data('propertyid');
                                 var propertyValue = boxAlias + '.' + propertyId;
                                 var aggregate = $(elem).prev().val();
 
-                                // Let's check if we have aggregate
-                                if(aggregate !== "") {
-                                    var distinctValue = "";
-                                    var distinctHTML = "";
-                                    var distinct = $('option:selected', $(elem).prev()).data('distinct');
-                                    if(distinct) {
-                                        distinctValue = "DISTINCT ";
-                                        distinctHTML = " Distinct";
-                                    }
-
-                                    propertyValue = aggregate + '(' + distinctValue + propertyValue + ')';
-                                }
-
-                                // And now, we check that the select does not contains
-                                // the element
-                                $('option', selectBoxesProperties).filter(
-                                    function(index, oldOption) {
-                                        if($(oldOption).val() === propertyValue)
-                                            containsElem = true;
-                                    }
-                                );
+                                // Let's check if we have an aggregate
+                                var containsElem = diagram.f_expression_check_aggregate(elem, aggregate, propertyValue, selectBoxesProperties);
 
                                 if(!containsElem) {
                                     var idBox = $(elem).parent().parent().parent().parent().parent().attr('id');
@@ -1304,34 +1363,13 @@ diagram.datatypes = {
                                     var label = showAlias + '.' + propertyValue;
                                     var withValue = slugAlias + '.' + propertyValue;
 
-                                    // Let's check if we have aggregate
-                                    if(aggregate !== "") {
-                                        var distinctValue = "";
-                                        var distinctHTML = "";
-                                        var distinct = $('option:selected', $(elem).prev()).data('distinct');
-                                        if(distinct) {
-                                            distinctValue = "DISTINCT ";
-                                            distinctHTML = " Distinct";
-                                        }
+                                    // If we have aggregate, change the values
+                                    var aggregate_values = diagram.f_expression_check_aggregate_to_create_it(elem, aggregate, value, label, withValue);
+                                    value = aggregate_values.value;
+                                    label = aggregate_values.label;
+                                    withValue = aggregate_values.withValue;
 
-                                        value = aggregate + '(' + distinctValue + value + ')';
-                                        label = aggregate + distinctHTML + '(' + label + ')';
-                                        withValue = aggregate + '(' + distinctValue + withValue + ')';
-                                    }
-
-                                    // The new option for the selects
-                                    var optionBoxesProperty = $("<OPTION>");
-                                    optionBoxesProperty.addClass('option-other-boxes-properties');
-                                    optionBoxesProperty.attr('id', value);
-                                    // We add the slug value to manage the option using this field
-                                    optionBoxesProperty.attr('data-slugvalue', slugAlias);
-                                    optionBoxesProperty.attr('data-propname', propertyValue);
-                                    optionBoxesProperty.attr('data-withvalue', withValue);
-                                    optionBoxesProperty.attr('data-datatype', datatype);
-                                    optionBoxesProperty.attr('data-fieldid', fieldId);
-                                    optionBoxesProperty.attr('value', value);
-                                    optionBoxesProperty.html(label);
-
+                                    var optionBoxesProperty = diagram.f_expression_box_option(value, slugAlias, propertyValue, withValue, datatype, fieldId, label);
                                     $(selectBoxesProperties).append(optionBoxesProperty);
                                 }
                             }
@@ -1339,6 +1377,11 @@ diagram.datatypes = {
                     });
 
                 }
+                // We change the position of the relation icon to remove it
+                var margin = $(selectorBox).width() - 130;
+                $(selectorRemoveRelation).css({
+                    'margin-left': margin
+                });
 
                 jsPlumb.repaintEverything();
             });
@@ -2661,9 +2704,6 @@ diagram.datatypes = {
             // We get the selectors for every component to build
             // the json correctly
             var relationSelector = $('#' + relationId + ' .title');
-            if(relationSelector.length == 0) {
-                alert("There's been an error in the relationship " + sourceId + "-" + targetId + ". Please remove it and try again");
-            }
 
             var relationSlug = $('#' + relationId + ' .title').data('slug');
             var relationAlias = $('#' + relationId + ' .title').children().filter('input, select').val();
@@ -2748,7 +2788,7 @@ diagram.datatypes = {
             sortingParams = jsonDict["sortingParams"];
             meta = jsonDict["query"]["meta"];
         } catch(error) {
-            console.log("Error setting up variables. Try#1");
+            console.log(gettext("Error setting up variables. Try#1"));
             console.log(error.stack);
         }
         var fieldIndex = 0;
@@ -2773,7 +2813,7 @@ diagram.datatypes = {
                 }
             }
         } catch(error) {
-            console.log("Error setting up node and relationship types. Try#2");
+            console.log(gettext("Error setting up node and relationship types. Try#2"));
             console.log(error.stack);
         }
 
@@ -2802,7 +2842,7 @@ diagram.datatypes = {
                 conditionsDict[alias].push(conditionsArray);
             }
         } catch(error) {
-            console.log("Error loading conditions. Try#3");
+            console.log(gettext("Error loading conditions. Try#3"));
             console.log(error.stack);
         }
 
@@ -2953,7 +2993,7 @@ diagram.datatypes = {
             if(fieldsKey === key)
                 diagram.fieldsForNodes = jsonDict["fields"];
         } catch(error) {
-            console.log("Error loading boxes for nodes. Try#4");
+            console.log(gettext("Error loading boxes for nodes. Try#4"));
             console.log(error.stack);
         }
 
@@ -3027,7 +3067,7 @@ diagram.datatypes = {
                 diagram.loadQueryWithAlias(idRelBox, relationAlias, labelRel, false)
             }
         } catch(error) {
-            console.log("Error loading relationships between boxes. Try#5");
+            console.log(gettext("Error loading relationships between boxes. Try#5"));
             console.log(error.stack);
         }
 
@@ -3158,7 +3198,7 @@ diagram.datatypes = {
                 diagram.fieldRelsCounter = setCounterRelsIndex;
             }
         } catch(error) {
-            console.log("Error loading boxes for relationships. Try#6");
+            console.log(gettext("Error loading boxes for relationships. Try#6"));
             console.log(error.stack);
         }
 
@@ -3188,7 +3228,7 @@ diagram.datatypes = {
                 }
             }
         } catch(error) {
-            console.log("Error setting up checkboxes to return. Try#7");
+            console.log(gettext("Error setting up checkboxes to return. Try#7"));
             console.log(error.stack);
         }
 
@@ -3228,7 +3268,7 @@ diagram.datatypes = {
                 }
             }
         } catch(error) {
-            console.log("Error loading aggregates for nodes. Try#8");
+            console.log(gettext("Error loading aggregates for nodes. Try#8"));
             console.log(error.stack);
         }
 
@@ -3260,7 +3300,7 @@ diagram.datatypes = {
                 }
             }
         } catch(error) {
-            console.log("Error loading aggregates for relationships. Try#9");
+            console.log(gettext("Error loading aggregates for relationships. Try#9"));
             console.log(error.stack);
         }
 
@@ -3339,7 +3379,7 @@ diagram.datatypes = {
                 }
             }
         } catch(error) {
-            console.log("Error loading F fields. Try#10");
+            console.log(gettext("Error loading F fields. Try#10"));
             console.log(error.stack);
         }
 
@@ -3360,7 +3400,7 @@ diagram.datatypes = {
                 }
             }
         } catch(error) {
-            console.log("Error setting up order params. Try#11");
+            console.log(gettext("Error setting up order params. Try#11"));
             console.log(error.stack);
         }
 
@@ -3612,6 +3652,14 @@ diagram.datatypes = {
         var slug = $('#' + idBox + ' .title').data('slug');
         var fieldIndex = diagram.fieldsForNodes[slug].indexOf(fieldId);
         diagram.fieldsForNodes[slug].splice(fieldIndex, 1);
+
+        // We check if the checkbox is checked
+        var fieldCheckBox = $('.checkbox-property', '#' + fieldId);
+        var isChecked = fieldCheckBox.is(':checked') === true;
+        if(isChecked) {
+            fieldCheckBox.click();
+            fieldCheckBox.attr("disabled", true);
+        }
     });
 
     /**
@@ -3974,58 +4022,30 @@ diagram.datatypes = {
                     var withValue = slugAlias + '.' + propertyValue;
                     var aggregate = $(prop).prev().val();
 
-                    // Let's check if an aggregate exists
-                    if(aggregate !== "") {
+                    // If we have aggregate, change the values
+                    var tempValue = value;
+                    var aggregate_values = diagram.f_expression_check_aggregate_to_create_it(elem, aggregate, value, label, withValue);
+                    value = aggregate_values.value;
+                    label = aggregate_values.label;
+                    withValue = aggregate_values.withValue;
+                    // If we have changed the values because an aggregate
+                    // we need to change the datatype
+                    if(tempValue !== value) {
                         datatype = 'number'
-                        var distinctValue = "";
-                        var distinctHTML = "";
-                        var distinct = $('option:selected', $(prop).prev()).data('distinct');
-
-                        if(distinct) {
-                            distinctValue = "DISTINCT ";
-                            distinctHTML = " Distinct";
-                        }
-
-                        var newValue = aggregate + '(' + distinctValue + value + ')';
-                        var newHTML = aggregate + distinctHTML + '(' + label + ')';
-                        var newWithValue = aggregate + '(' + distinctValue + withValue + ')';
-
-                    } else if(aggregate == '') {
-                        var newValue = value;
-                        var newHTML = label;
-                        var newWithValue = withValue;
                     }
 
-                    var notDistinctDatatype = diagram.lookupsFtypes[datatype] === diagram.lookupsFtypes[actualDatatype];
-                    var defaultType = (datatype === 'default') ||
-                                      (actualDatatype === 'default');
-                    // We need to take into account the "choose one"
-                    var notChooseOne = datatype !== undefined;
-                    defaultType = defaultType && notChooseOne;
-
-                    if(notDistinctDatatype || defaultType) {
-                        // The new option for the selects
-                        var optionBoxesProperty = $("<OPTION>");
-                        optionBoxesProperty.addClass('option-other-boxes-properties');
-                        optionBoxesProperty.attr('id', newValue);
-                        // We add the slug value to manage the option using this field
-                        optionBoxesProperty.attr('data-slugvalue', slugAlias);
-                        optionBoxesProperty.attr('data-propname', propertyValue);
-                        optionBoxesProperty.attr('data-withvalue', newWithValue);
-                        optionBoxesProperty.attr('data-datatype', datatype);
-                        optionBoxesProperty.attr('data-fieldid', fieldId);
-
-                        optionBoxesProperty.attr('value', newValue);
-                        optionBoxesProperty.html(newHTML);
-
+                    var f_correct_type = diagram.f_expression_correct_type(datatype, actualDatatype);
+                    if(f_correct_type) {
+                        var optionBoxesProperty = diagram.f_expression_box_option(value, slugAlias, propertyValue, withValue, datatype, fieldId, label);
                         $(elem).append(optionBoxesProperty);
+
                         // We check if we need to change the value of the
                         // lookup input
                         if(sameValue) {
                             if(fieldId === fieldToChange) {
-                                $(elem).val(newValue).change();
-                                $(elem).prev().attr('data-withvalue', newValue);
-                                $(elem).prev().val(newHTML);
+                                $(elem).val(value).change();
+                                $(elem).prev().attr('data-withvalue', value);
+                                $(elem).prev().val(label);
                             }
                         }
                     }
@@ -4055,41 +4075,15 @@ diagram.datatypes = {
 
             if(window.idBox !== idElemBox) {
                 var datatype = $('option:selected', elem).data('datatype');
-                // Now, we check if the datatype is equal
-                var notDistinctDatatype = diagram.lookupsFtypes[datatype] === diagram.lookupsFtypes[actualDatatype];
-                var defaultType = (datatype === 'default') ||
-                                  (actualDatatype === 'default');
-                // We need to take into account the "choose one"
-                var notChooseOne = datatype !== undefined;
-                defaultType = defaultType && notChooseOne;
-
-                if(notDistinctDatatype || defaultType) {
+                var f_correct_type = diagram.f_expression_correct_type(datatype, actualDatatype);
+                if(f_correct_type) {
                     var boxAlias = $(elem).data('boxalias');
                     var propertyId = $('option:selected', elem).data('propertyid');
                     var propertyValue = boxAlias + '.' + propertyId;
                     var aggregate = $(elem).prev().val();
 
-                    // Let's check if we have aggregate
-                    if(aggregate !== "") {
-                        var distinctValue = "";
-                        var distinctHTML = "";
-                        var distinct = $('option:selected', $(elem).prev()).data('distinct');
-                        if(distinct) {
-                            distinctValue = "DISTINCT ";
-                            distinctHTML = " Distinct";
-                        }
-
-                        propertyValue = aggregate + '(' + distinctValue + propertyValue + ')';
-                    }
-
-                    // And now, we check that the select does not contains
-                    // the element
-                    $('option', selectBoxesProperties).filter(
-                        function(index, oldOption) {
-                            if($(oldOption).val() === propertyValue)
-                                containsElem = true;
-                        }
-                    );
+                    // Let's check if we have an aggregate
+                    var containsElem = diagram.f_expression_check_aggregate(elem, aggregate, propertyValue, selectBoxesProperties);
 
                     if(!containsElem) {
                         var idBox = $(elem).parent().parent().parent().parent().parent().attr('id');
@@ -4103,34 +4097,13 @@ diagram.datatypes = {
                         var label = showAlias + '.' + propertyValue;
                         var withValue = slugAlias + '.' + propertyValue;
 
-                        // Let's check if we have aggregate
-                        if(aggregate !== "") {
-                            var distinctValue = "";
-                            var distinctHTML = "";
-                            var distinct = $('option:selected', $(elem).prev()).data('distinct');
-                            if(distinct) {
-                                distinctValue = "DISTINCT ";
-                                distinctHTML = " Distinct";
-                            }
+                        // If we have aggregate, change the values
+                        var aggregate_values = diagram.f_expression_check_aggregate_to_create_it(elem, aggregate, value, label, withValue);
+                        value = aggregate_values.value;
+                        label = aggregate_values.label;
+                        withValue = aggregate_values.withValue;
 
-                            value = aggregate + '(' + distinctValue + value + ')';
-                            label = aggregate + distinctHTML + '(' + label + ')';
-                            withValue = aggregate + '(' + distinctValue + withValue + ')';
-                        }
-
-                        // The new option for the selects
-                        var optionBoxesProperty = $("<OPTION>");
-                        optionBoxesProperty.addClass('option-other-boxes-properties');
-                        optionBoxesProperty.attr('id', value);
-                        // We add the slug value to manage the option using this field
-                        optionBoxesProperty.attr('data-slugvalue', slugAlias);
-                        optionBoxesProperty.attr('data-propname', propertyValue);
-                        optionBoxesProperty.attr('data-withvalue', withValue);
-                        optionBoxesProperty.attr('data-datatype', datatype);
-                        optionBoxesProperty.attr('data-fieldid', fieldId);
-                        optionBoxesProperty.attr('value', value);
-                        optionBoxesProperty.html(label);
-
+                        var optionBoxesProperty = diagram.f_expression_box_option(value, slugAlias, propertyValue, withValue, datatype, fieldId, label);
                         $(selectBoxesProperties).append(optionBoxesProperty);
                     }
                 }
@@ -4475,7 +4448,7 @@ diagram.datatypes = {
         var label = showAlias + '.' + propertyValue;
         var otherBoxesProperties = $('option:selected', '.select-property');
 
-        // We define global variables to use them inside the each below
+        // We define global variables to use them inside the 'each' below
         window.slugValue = slugAlias;
         window.actualProperty = propertyValue;
         window.actualDatatype = datatype;
@@ -4513,41 +4486,15 @@ diagram.datatypes = {
                 var isNotA = selectTag !== 'A';
                 if((selectOtherBoxesProperties[0] !== selectBoxesProperties[0]) && isNotA) {
                     var datatype = $('option:selected', elem).data('datatype');
-                    // Now, we check if the datatype is equal
-                    var notDistinctDatatype = diagram.lookupsFtypes[datatype] === diagram.lookupsFtypes[actualDatatype];
-                    var defaultType = (datatype === 'default') ||
-                                      (actualDatatype === 'default');
-                    // We need to take into account the "choose one"
-                    var notChooseOne = datatype !== undefined;
-                    defaultType = defaultType && notChooseOne;
-
-                    if(notDistinctDatatype || defaultType) {
+                    var f_correct_type = diagram.f_expression_correct_type(datatype, actualDatatype);
+                    if(f_correct_type) {
                         var boxAlias = $(elem).data('boxalias');
                         var propertyId = $('option:selected', elem).data('propertyid');
                         var propertyValue = boxAlias + '.' + propertyId;
                         var aggregate = $(elem).prev().val();
 
-                        // Let's check if we have aggregate
-                        if(aggregate !== "") {
-                            var distinctValue = "";
-                            var distinctHTML = "";
-                            var distinct = $('option:selected', $(elem).prev()).data('distinct');
-                            if(distinct) {
-                                distinctValue = "DISTINCT ";
-                                distinctHTML = " Distinct";
-                            }
-
-                            propertyValue = aggregate + '(' + distinctValue + propertyValue + ')';
-                        }
-
-                        // And now, we check that the select does not contains
-                        // the element
-                        $('option', selectBoxesProperties).filter(
-                            function(index, oldOption) {
-                                if($(oldOption).val() === propertyValue)
-                                    containsElem = true;
-                            }
-                        );
+                        // Let's check if we have an aggregate
+                        var containsElem = diagram.f_expression_check_aggregate(elem, aggregate, propertyValue, selectBoxesProperties);
 
                         if(!containsElem) {
                             var idBox = $(elem).parent().parent().parent().parent().parent().attr('id');
@@ -4561,34 +4508,13 @@ diagram.datatypes = {
                             var label = showAlias + '.' + propertyValue;
                             var withValue = slugAlias + '.' + propertyValue;
 
-                            // Let's check if we have aggregate
-                            if(aggregate !== "") {
-                                var distinctValue = "";
-                                var distinctHTML = "";
-                                var distinct = $('option:selected', $(elem).prev()).data('distinct');
-                                if(distinct) {
-                                    distinctValue = "DISTINCT ";
-                                    distinctHTML = " Distinct";
-                                }
+                            // If we have aggregate, change the values
+                            var aggregate_values = diagram.f_expression_check_aggregate_to_create_it(elem, aggregate, value, label, withValue);
+                            value = aggregate_values.value;
+                            label = aggregate_values.label;
+                            withValue = aggregate_values.withValue;
 
-                                value = aggregate + '(' + distinctValue + value + ')';
-                                label = aggregate + distinctHTML + '(' + label + ')';
-                                withValue = aggregate + '(' + distinctValue + withValue + ')';
-                            }
-
-                            // The new option for the selects
-                            var optionBoxesProperty = $("<OPTION>");
-                            optionBoxesProperty.addClass('option-other-boxes-properties');
-                            optionBoxesProperty.attr('id', value);
-                            // We add the slug value to manage the option using this field
-                            optionBoxesProperty.attr('data-slugvalue', slugAlias);
-                            optionBoxesProperty.attr('data-propname', propertyValue);
-                            optionBoxesProperty.attr('data-withvalue', withValue);
-                            optionBoxesProperty.attr('data-datatype', datatype);
-                            optionBoxesProperty.attr('data-fieldid', fieldId);
-                            optionBoxesProperty.attr('value', value);
-                            optionBoxesProperty.html(label);
-
+                            var optionBoxesProperty = diagram.f_expression_box_option(value, slugAlias, propertyValue, withValue, datatype, fieldId, label);
                             $(selectBoxesProperties).append(optionBoxesProperty);
                         }
                     }
@@ -4636,27 +4562,8 @@ diagram.datatypes = {
                         var propertyValue = slugPropValue;
                         var aggregate = $(elem).prev().val();
 
-                        // Let's check if we have aggregate
-                        if(aggregate !== "") {
-                            var distinctValue = "";
-                            var distinctHTML = "";
-                            var distinct = $('option:selected', $(elem).prev()).data('distinct');
-                            if(distinct) {
-                                distinctValue = "DISTINCT ";
-                                distinctHTML = " Distinct";
-                            }
-
-                            propertyValue = aggregate + '(' + distinctValue + propertyValue + ')';
-                        }
-
-                        // And now, we check that the select does not
-                        // contains the element
-                        $('option', selectOtherBoxesProperties).filter(
-                            function(index, oldOption) {
-                                if($(oldOption).val() === propertyValue)
-                                    containsElem = true;
-                            }
-                        );
+                        // Let's check if we have an aggregate
+                        var containsElem = diagram.f_expression_check_aggregate(elem, aggregate, propertyValue, selectOtherBoxesProperties);
 
                         if(!containsElem) {
                             var idBox = $(propSelected).parent().parent().parent().parent().parent().attr('id');
@@ -4670,44 +4577,21 @@ diagram.datatypes = {
                             var label = showAlias + '.' + propertyValue;
                             var withValue = slugAlias + '.' + propertyValue;
 
-                            // Let's check if we have aggregate
-                            var aggregate = $(propSelected).prev().val();
-                            if(aggregate !== "") {
-                                datatype = 'number';
-                                var distinctValue = "";
-                                var distinctHTML = "";
-                                var distinct = $('option:selected', $(propSelected).prev()).data('distinct');
-                                if(distinct) {
-                                    distinctValue = "DISTINCT ";
-                                    distinctHTML = " Distinct";
-                                }
-
-                                value = aggregate + '(' + distinctValue + value + ')';
-                                label = aggregate + distinctHTML + '(' + label + ')';
-                                withValue = aggregate + '(' + distinctValue + withValue + ')';
+                            // If we have aggregate, change the values
+                            var tempValue = value;
+                            var aggregate_values = diagram.f_expression_check_aggregate_to_create_it(elem, aggregate, value, label, withValue);
+                            value = aggregate_values.value;
+                            label = aggregate_values.label;
+                            withValue = aggregate_values.withValue;
+                            // If we have changed the values because an
+                            // aggregate we need to change the datatype
+                            if(tempValue !== value) {
+                                datatype = 'number'
                             }
 
-                            var notDistinctDatatype = diagram.lookupsFtypes[datatype] === diagram.lookupsFtypes[propDatatype];
-                            var defaultType = (datatype === 'default') ||
-                                              (propDatatype === 'default');
-                            // We need to take into account the "choose one"
-                            var notChooseOne = datatype !== undefined;
-                            defaultType = defaultType && notChooseOne;
-
-                            if(notDistinctDatatype || defaultType) {
-                                // The new option for the selects
-                                var optionBoxesProperty = $("<OPTION>");
-                                optionBoxesProperty.addClass('option-other-boxes-properties');
-                                optionBoxesProperty.attr('id', value);
-                                // We add the slug value to manage the option using this field
-                                optionBoxesProperty.attr('data-slugvalue', slugAlias);
-                                optionBoxesProperty.attr('data-propname', propertyValue);
-                                optionBoxesProperty.attr('data-withvalue', withValue);
-                                optionBoxesProperty.attr('data-datatype', datatype);
-                                optionBoxesProperty.attr('data-fieldid', fieldId);
-                                optionBoxesProperty.attr('value', value);
-                                optionBoxesProperty.html(label);
-
+                            var f_correct_type = diagram.f_expression_correct_type(datatype, actualDatatype);
+                            if(f_correct_type) {
+                                var optionBoxesProperty = diagram.f_expression_box_option(value, slugAlias, propertyValue, withValue, datatype, fieldId, label);
                                 $(selectOtherBoxesProperties).append(optionBoxesProperty.clone(true));
                             }
                         }
@@ -4744,27 +4628,8 @@ diagram.datatypes = {
                                 var propertyValue = slugPropValue;
                                 var aggregate = $(elem).prev().val();
 
-                                // Let's check if we have aggregate
-                                if(aggregate !== "") {
-                                    var distinctValue = "";
-                                    var distinctHTML = "";
-                                    var distinct = $('option:selected', $(elem).prev()).data('distinct');
-                                    if(distinct) {
-                                        distinctValue = "DISTINCT ";
-                                        distinctHTML = " Distinct";
-                                    }
-
-                                    propertyValue = aggregate + '(' + distinctValue + propertyValue + ')';
-                                }
-
-                                // And now, we check that the select does not
-                                // contains the element
-                                $('option', otherSelectBoxesProperties).filter(
-                                    function(index, oldOption) {
-                                        if($(oldOption).val() === propertyValue)
-                                            containsElem = true;
-                                    }
-                                );
+                                // Let's check if we have an aggregate
+                                var containsElem = diagram.f_expression_check_aggregate(elem, aggregate, propertyValue, otherselectBoxesProperties);
 
                                 if(!containsElem) {
                                     var idBox = $(propSelected).parent().parent().parent().parent().parent().attr('id');
@@ -4779,34 +4644,13 @@ diagram.datatypes = {
                                     var withValue = slugAlias + '.' + propertyValue;
                                     var aggregate = $(propSelected).prev().val();
 
-                                    // Let's check if we have aggregate
-                                    if(aggregate !== "") {
-                                        var distinctValue = "";
-                                        var distinctHTML = "";
-                                        var distinct = $('option:selected', $(propSelected).prev()).data('distinct');
-                                        if(distinct) {
-                                            distinctValue = "DISTINCT ";
-                                            distinctHTML = " Distinct";
-                                        }
+                                    // If we have aggregate, change the values
+                                    var aggregate_values = diagram.f_expression_check_aggregate_to_create_it(elem, aggregate, value, label, withValue);
+                                    value = aggregate_values.value;
+                                    label = aggregate_values.label;
+                                    withValue = aggregate_values.withValue;
 
-                                        value = aggregate + '(' + distinctValue + value + ')';
-                                        label = aggregate + distinctHTML + '(' + label + ')';
-                                        withValue = aggregate + '(' + distinctValue + withValue + ')';
-                                    }
-
-                                    // The new option for the selects
-                                    var optionBoxesProperty = $("<OPTION>");
-                                    optionBoxesProperty.addClass('option-other-boxes-properties');
-                                    optionBoxesProperty.attr('id', value);
-                                    // We add the slug value to manage the option using this field
-                                    optionBoxesProperty.attr('data-slugvalue', slugAlias);
-                                    optionBoxesProperty.attr('data-propname', propertyValue);
-                                    optionBoxesProperty.attr('data-withvalue', withValue);
-                                    optionBoxesProperty.attr('data-datatype', datatype);
-                                    optionBoxesProperty.attr('data-fieldid', fieldId);
-                                    optionBoxesProperty.attr('value', value);
-                                    optionBoxesProperty.html(label);
-
+                                    var optionBoxesProperty = diagram.f_expression_box_option(value, slugAlias, propertyValue, withValue, datatype, fieldId, label);
                                     $(otherSelectBoxesProperties).append(optionBoxesProperty.clone(true));
                                 }
                             }
@@ -4869,6 +4713,7 @@ diagram.datatypes = {
             // We reset the width of the box. We need to take
             // into account if we have some aggregates selected.
             var boxLookups = $('#' + idBox + ' .select-lookup');
+
             var isThereInBetween = false;
 
             $.each(boxLookups, function(index, elem) {
@@ -5022,6 +4867,15 @@ diagram.datatypes = {
                 }
             }
         }
+
+        // We change the position of the relation icon to remove it
+        var selectorRemoveRelation = '#' + idBox + " #remove-relation-icon";
+        var margin = $('#' + idBox).width() - 130;
+        $(selectorRemoveRelation).css({
+            'margin-left': margin
+        });
+
+        jsPlumb.repaintEverything();
     });
 
     $("#diagramContainer").on('click', '.link-other-boxes-properties', function() {
@@ -5469,11 +5323,12 @@ diagram.datatypes = {
      */
     $(document).on('click', '#save-query', function(event) {
         var queryElements = diagram.saveQuery();
+        var dummyExampleDate = '1918-12-01';
         // We are going to assign the values for the elements of the form
         var numberOfResults = $('.content-table tr').length;
 
         $('#id_results_count').val(numberOfResults);
-        $('#id_last_run').val('1918-12-01');
+        $('#id_last_run').val(dummyExampleDate);
         $('#id_query_dict').val(JSON.stringify(queryElements['query']));
         $('#id_query_aliases').val(JSON.stringify(queryElements['aliases']));
         $('#id_query_fields').val(JSON.stringify(queryElements['fields']));
