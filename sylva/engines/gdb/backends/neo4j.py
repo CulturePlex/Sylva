@@ -492,9 +492,7 @@ class GraphDatabase(BlueprintsGraphDatabase):
             conditions_alias.add(property_tuple[1])
             # This is the option to have properties of another boxes
             # We need to check 'property_box' too for the old queries
-            f_expression = (datatype == 'f_expression' or
-                            datatype == 'property_box')
-            if f_expression:
+            if datatype in ['f_expression', 'property_box']:
                 # We catch exception of type IndexError, in case that we
                 # doesn't receive an appropiate array.
                 try:
@@ -560,9 +558,7 @@ class GraphDatabase(BlueprintsGraphDatabase):
         while index < len(match_elements):
             match_element = match_elements[index]
             # We need to check 'property_box' too for the old queries
-            f_expression = (datatypes[index] == 'f_expression' or
-                            datatypes[index] == 'property_box')
-            if f_expression:
+            if datatypes[index] in ['f_expression', 'property_box']:
                 # Let's check what definition we have...
                 match_splitted = re.split('\)|\(|\\.| ', match_element)
                 match_first_element = match_splitted[0]
@@ -744,22 +740,22 @@ class GraphDatabase(BlueprintsGraphDatabase):
 
     def destroy(self):
         """Delete nodes, relationships, and even indices"""
-        all_rels = self.get_all_relationships(include_properties=False)
-        for rel_id, props, label in all_rels:
-            self.delete_relationship(rel_id)
-        all_nodes = self.get_all_nodes(include_properties=False)
-        for node_id, props, label in all_nodes:
-            self.delete_node(node_id)
-        if self.nidx in self.gdb.neograph.nodes.indexes.values():
-            self.nidx.delete()
-        if self.ridx in self.gdb.neograph.relationships.indexes.values():
-            self.ridx.delete()
         if settings.ENABLE_SPATIAL and self.sidx:
             for sidx_key, sidx_dict in self.sidx.items():
                 index = sidx_dict["index"]
                 if index in self.gdb.neograph.nodes.indexes.values():
                     index.delete()
             self.sidx = {}
+        if self.ridx in self.gdb.neograph.relationships.indexes.values():
+            self.ridx.delete()
+        if self.nidx in self.gdb.neograph.nodes.indexes.values():
+            self.nidx.delete()
+        all_rels = self.get_all_relationships(include_properties=False)
+        for rel_id, props, label in all_rels:
+            self.delete_relationship(rel_id)
+        all_nodes = self.get_all_nodes(include_properties=False)
+        for node_id, props, label in all_nodes:
+            self.delete_node(node_id)
         self = None
 
     def analysis(self):
