@@ -272,7 +272,7 @@ class GraphDatabase(BlueprintsGraphDatabase):
             source_id=source_id, target_id=target_id, directed=directed,
             limit=limit, offset=offset, order_by=order_by)
 
-    def _get_filtered_relationships_properties(element):
+    def _get_filtered_relationships_properties(self, element):
         properties = element[1]["data"]
         properties.pop("_id")
         properties.pop("_graph", None)
