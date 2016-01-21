@@ -3045,8 +3045,8 @@ body :hover > a.headerlink {
 
 #map-export-image {
     height: 15px;
-    padding-top: 2px;
-    padding-bottom: 8px;
+    padding-top: 5px;
+    padding-bottom: 5px;
     margin-left: -10px;
     margin-top: 3px;
     margin-bottom: 10px
