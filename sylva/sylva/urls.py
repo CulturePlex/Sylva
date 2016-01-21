@@ -58,9 +58,6 @@ urlpatterns += patterns('',  # noqa
     # graphs
     url(r'^graphs/', include('graphs.urls')),
 
-    # maps
-    url(r'^maps/', include('maps.urls')),
-
     # schemas
     url(r'^schemas/', include('schemas.urls')),
 

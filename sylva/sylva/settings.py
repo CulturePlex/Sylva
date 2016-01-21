@@ -189,7 +189,6 @@ INSTALLED_APPS = (
     'sylva',
     'data',
     'graphs',
-    'maps',
     'schemas',
     'engines',
     'tools',

@@ -4,13 +4,6 @@
         <span>{% trans "Graph" %}</span>
     </a>
 </li>
-{% if OPTIONS.ENABLE_SPATIAL %}
-    <li>
-        <a href="{% url "map_view" graph.slug %}" class="no-menu {% if on == "map" %}text{% else %}link{% endif %}" title="{% trans "Access to the map view of the graph" %}">
-            <span>{% trans "Map" %}</span>
-        </a>
-    </li>
-{% endif %}
 <li>
 <!--    href="{% url "nodes_list" graph.slug %}"-->
 <!--    <a id="dataMenu" href="{% url "nodes_list" graph.slug %}" class="inline {% if on == "nodes" %}text{% else %}link{% endif %}">-->
