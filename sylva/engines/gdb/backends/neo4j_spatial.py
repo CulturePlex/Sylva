@@ -34,7 +34,7 @@ class GraphDatabase(Neo4jGraphDatabase):
             properties.pop(to_remove, None)
         return (elto_id, properties, elto_label)
 
-    def _get_filtered_relationships_properties(element):
+    def _get_filtered_relationships_properties(self, element):
         properties = element[1]["data"]
         properties.pop("_id")
         properties.pop("_graph", None)
