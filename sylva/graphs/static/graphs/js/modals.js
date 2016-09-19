@@ -128,7 +128,7 @@
       });
     },
 
-    // It handles the obtainig of the HTML that the modal will show.
+    // It handles the obtaining of the HTML that the modal will show.
     prepareModal: function(url, showOverlay, modalActions, extraParams) {
 
       if(showOverlay)

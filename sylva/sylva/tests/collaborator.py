@@ -1,15 +1,14 @@
+import os
 import socket
 from time import sleep
 
 from django.test import LiveServerTestCase
 
-from splinter import Browser
-
 from user import signup, signin, logout
 from dashboard import create_graph, create_schema, create_type, create_data
 from graphs.models import Graph
 
-from utils import spin_assert, spin_click
+from utils import spin_assert, spin_click, Browser
 
 GRAPH_VIEW = 'chk_graph_view_graph'
 GRAPH_CHANGE = 'chk_graph_change_graph'
@@ -59,7 +58,7 @@ class CollaboratorTestCase(LiveServerTestCase):
     """
 
     def setUp(self):
-        self.browser = Browser()
+        self.browser = Browser(firefox_path=os.getenv('FIREFOX_PATH', None))
         socket.setdefaulttimeout(30)
 
     def tearDown(self):

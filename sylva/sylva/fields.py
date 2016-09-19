@@ -72,7 +72,7 @@ def _slug_strip(value, separator=None):
 class AutoSlugField(fields.SlugField):
     """Auto slug field, creates unique slug for model."""
 
-    def __init__(self, populate_from=[], populate_separator=u"-",
+    def __init__(self, populate_from=None, populate_separator=u"-",
                  *args, **kwargs):
         """Create auto slug field.
 
@@ -88,6 +88,7 @@ class AutoSlugField(fields.SlugField):
 
         :type populate_from: sequence
         """
+        populate_from = populate_from or []
         self.populate_from = populate_from
         self.populate_separator = populate_separator
         kwargs["blank"] = True
@@ -122,4 +123,4 @@ add_introspection_rules([
             "populate_separator": ["populate_separator", {"default": u"-"}],
         },
     ),
-], ["^sylva\.fields\.AutoSlugField"])
+], [r"^sylva\.fields\.AutoSlugField"])

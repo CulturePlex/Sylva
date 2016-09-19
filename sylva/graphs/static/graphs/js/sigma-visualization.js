@@ -10,7 +10,7 @@
 
 ;(function(sylva, sigma, $, window, document, undefined) {
 
-  // The that variable, substituion of this.
+  // The that variable, substitution of this.
   var that = null;
   // The sigma instance and its camera.
   var sigInst = null;
@@ -21,10 +21,10 @@
   var timeout = 0;
   // setTimeout id.
   var timeout_id = 0;
-  // Arrays with the IDs of the visible elments.
+  // Arrays with the IDs of the visible elements.
   var visibleNodeIds = [];
   var visibleRelIds = [];
-  // It's used for check if a ColorPicker for relatinships exists.
+  // It's used for check if a ColorPicker for relationships exists.
   var relColorPicker = null;
   // A variable for containing the Tool object of Paper.js.
   var paperTool = null;
@@ -32,11 +32,15 @@
   var isDrawing = false;
   // True when the "Analytics" button is clicked.
   var isAnalyticsMode = false;
+  // True when the "Map" button is clicked.
+  var isMapMode = false;
+  // True when the "Map" has been created.
+  var mapCreated = false;
   // True when the "Fullscreen" button is clicked.
   var isFullscreenByButton = false;
   // True when the nodes degrees are calculated.
   var degreesCalculated = false;
-  // It's used when the user select a diferent edge shape than the original.
+  // It's used when the user select a different edge shape than the original.
   var defaultEdgeShapeSaved = false;
   // It saves the selected state of a node when is edited in the modal form.
   var wasDeletedNodeSelected = false;
@@ -55,7 +59,7 @@
   var degreeMultiplier = 2;
   var sizeMultiplier = defaultMultiplier;
   /* It saves the change of the 'graph controls and info' box, because there
-   * are some problems in the browsers for mantatin the same after the
+   * are some problems in the browsers for maintain the same after the
    * 'window.resize' event.
    */
   var graphControlsAndInfoWidth = 0;
@@ -156,7 +160,7 @@
 
 
       /* *****
-       * Analytics mode events.
+       * Analytics and map mode events.
        ***** */
 
       $('#sigma-go-analytics').on('click', function() {
@@ -165,6 +169,14 @@
 
       $('#sigma-exit-analytics').on('click', function() {
         that.exitAnalyticsMode();
+      });
+
+      $('#sigma-go-map').on('click', function() {
+        that.changeMapMode();
+      });
+
+      $('#map-exit-map').on('click', function() {
+        that.changeMapMode();
       });
 
       $('#sigma-go-fullscreen').on('click', function() {
@@ -1174,7 +1186,7 @@
     },
 
     /* Update some sizes in analytics mode. This function will be called
-     * when changes in the size of the screen occurr, e.g., when the user
+     * when changes in the size of the screen occur, e.g., when the user
      * open the developers tools in analytics mode.
      * The parameter is used when you don't want that this function to
      * update the position of the floating boxes.
@@ -1211,6 +1223,9 @@
 
       $('#sigma-wrapper').width(width - analyticsSidebarWidth);
       $('#sigma-wrapper').height(height - headerHeight);
+
+      // This line is for the Leaflet map resizing
+      $('#map-container').trigger('customResize', width - analyticsSidebarWidth);
 
       $('#full-window-column').width(analyticsSidebarWidth - analyticsSidebarBorder);
       $('#full-window-column').height(height - headerHeight);
@@ -1319,7 +1334,7 @@
       $('#graph-controls-and-info').css({
         position: 'absolute',
         height: 'auto',
-        padding: '10px',
+        padding: '10px 10px 2px 10px',
         backgroundColor: 'rgba(255, 255, 255, 0.6)',
         borderBottomLeftRadius: '10px'
       });
@@ -1442,11 +1457,17 @@
 
       $('.analytics-mode').show();
 
+      // Showing map button, it's a special case :(
+      if (sylva.spatialEnabled) {
+        $('#sigma-go-map').removeClass('zoom-bottom-hide');
+        $('#sigma-go-map').addClass('zoom-bottom-show');
+      }
+
       if ($('#sigma-node-info').is(':checked')) {
         sigma.canvas.hovers.def = sigma.canvas.hovers.defBackup;
       }
 
-      // If there are new boxes here the will be created
+      // If there are new boxes here they will be created
       if (Object.keys(sylva.positions).length <
           $('.collapsible-header').length) {
         that.createCollapsiblesStructures();
@@ -1489,10 +1510,10 @@
           $('#' + event.target.id).accordion('disable');
           highestZIndex++;
           $('#' + event.target.id).css({
-            zIndex: highestZIndex,
+            zIndex: highestZIndex
           });
         },
-        drag: function( event, ui ) {
+        drag: function(event, ui) {
           $(document).scrollTop(0);
           $(document).scrollLeft(0);
         },
@@ -1525,7 +1546,7 @@
         activate: function(event, ui) {
           highestZIndex++;
           $('#' + event.target.id).css({
-            zIndex: highestZIndex,
+            zIndex: highestZIndex
           });
 
           // This lines control the arrow icon.
@@ -1651,6 +1672,13 @@
 
       $('.analytics-mode').hide();
 
+      // Hiding map buttons, it's a special case :(
+      if (sylva.spatialEnabled) {
+        $('#sigma-go-map').removeClass('zoom-bottom-show');
+        $('#sigma-go-map').addClass('zoom-bottom-hide');
+      }
+      that.changeMapMode(true);
+
       if ($('#sigma-node-info').is(':checked')) {
         sigma.canvas.hovers.def = sigma.canvas.hovers.info;
       }
@@ -1683,6 +1711,41 @@
       $('#reportsMenu').off('click', that.callReportsModal);
     },
 
+    // Alternate between map an graph mode.
+    changeMapMode: function(exitAnalytics) {
+      if (!isMapMode && !exitAnalytics) {
+        isMapMode = true;
+        that.goMapMode();
+
+      } else if (isMapMode) {
+        isMapMode = false;
+        that.exitMapMode();
+      }
+    },
+
+    /* Change the visualization from Sigma to Leaflet.
+     * TODO: More doc.
+     */
+    goMapMode: function() {
+      $('#canvas-container').hide();
+      $('#map-wrapper').show();
+      if (!mapCreated) {
+        mapCreated = true;
+        sylva.Leaflet.init();
+
+      } else {
+        sylva.Leaflet.updateSizes();
+      }
+    },
+
+    /* Change the visualization from Leaflet to Sigma.
+     * TODO: More doc.
+     */
+    exitMapMode: function() {
+      $('#map-wrapper').hide();
+      $('#canvas-container').show();
+      that.updateSizes(true);
+    },
 
     /* *****
      * Functions for control the graph layout.
@@ -2061,20 +2124,20 @@
       });
     },
 
-    exportPNG: function() {
+    exportPNG: function(event) {
       var canvas = $('<canvas id="sigma-export-png-canvas">');
       var width = $('#sigma-container').children().first().width();
       var height = $('#sigma-container').children().first().height();
       canvas.attr('width', width);
       canvas.attr('height', height);
-      $('#sigma-container').append(canvas);
-      var canvasElem = canvas[0];
-      var ctx = canvasElem.getContext('2d');
+      canvas = canvas[0];
+      var ctx = canvas.getContext('2d');
       ctx.globalCompositeOperation = 'source-over';
       ctx.drawImage($('.sigma-scene')[0], 0, 0);
-      var imgData = canvasElem.toDataURL('image/png');
-      $(this).attr('href', imgData.replace('image/png', 'image/octet-stream'));
-      canvas.remove();
+      canvas.toBlob(function(blob) {
+        $(event.target).attr('href', URL.createObjectURL(blob));
+        canvas = null;
+      }, 'image/png');
     },
 
     exportSVG: function() {
@@ -2100,7 +2163,7 @@
       // An event for don't admit clicks in the "progress button".
       var stopClickPropagation = function(event) {
         event.stopImmediatePropagation();
-      }
+      };
       buttonText.on('click', stopClickPropagation);
 
       // And an event for don't exit the view.
@@ -2110,7 +2173,7 @@
 
       // And here it is the animation for the "progress button".
       var progressButtonIntervalId = setInterval(function() {
-        /* If the next line is setted before, the 'hide event' of the 'dropit'
+        /* If the next line is set before, the 'hide event' of the 'dropit'
          * library will remove the class 'active';
          */
         buttonText.addClass('active');
@@ -2127,7 +2190,8 @@
       var doneFilter = function() {
         // Obtaining the XML string in Base64.
         svg = svg[0].outerHTML;
-        svg = btoa(svg);
+        svg = new Blob([svg], {type: 'image/svg+xml'});
+        // Now 'svg' is a Blob! But renamed it for saving space.
 
         // Stopping and clearing the "progress button" and the exit view event.
         clearInterval(progressButtonIntervalId);
@@ -2138,11 +2202,10 @@
 
         // Creating the link for "auto" click it.
         var link = document.createElement('a');
-        link.href = 'data:image/svg+xml;base64,' + svg;
+        link.href = URL.createObjectURL(svg);
         link.download = $('#sigma-export-svg').attr('download');
-        $(document.body).append(link);
         link.click();
-        link.remove(link);
+        link = null;
       };
 
       /* The "progress" callback/filter of the promise. Appends some SVG
@@ -2150,7 +2213,7 @@
        */
       var progressFilter = function(elements) {
         svg.append(elements);
-      }
+      };
 
       // Defining the promise.
       var promiseSVG = function() {
@@ -2246,7 +2309,7 @@
         return deferred.promise();
       };
 
-      // Runing the promise.
+      // Running the promise.
       promiseSVG().then(doneFilter, null, progressFilter);
     },
 
@@ -2547,7 +2610,7 @@
     },
 
     /* It moves the draggable graph controls inside the canvas if they are
-     * outside in any monent.
+     * outside in any moment.
      */
     putBoxesInsideCanvas: function() {
       canSaveBoxes = false;

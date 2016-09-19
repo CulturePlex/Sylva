@@ -243,3 +243,9 @@
 .dragActive {
     box-shadow: 0 0 1em 0.75em #AEAA78;
 }
+
+.dragActiveAgg {
+    box-shadow: 0 0 1em 0.75em #AEAA78;
+    width: 470px !important;
+    margin-left: -40px !important;
+}

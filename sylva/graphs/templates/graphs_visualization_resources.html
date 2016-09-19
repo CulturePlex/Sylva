@@ -1,6 +1,5 @@
 {% load converter_filters compress %}
 
-
 <script type="text/javascript">
   sylva.urls = {
     nodesView: "{% url "nodes_view" graph.slug 0 %}",
@@ -23,6 +22,8 @@
       isSchemaEmpty: false
     };
   {% endif %}
+
+  sylva.spatialEnabled = JSON.parse('{{  OPTIONS.ENABLE_SPATIAL|escape_js}}');
 </script>
 
 {% compress js %}
@@ -34,6 +35,9 @@
   <script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/sigma/plugins/sigma.plugins.neighborhoods.min.js"></script>
   <script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/sigma/plugins/sigma.renderers.customShapes.min.js"></script>
 
+  <script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/leaflet/leaflet-heat.js"></script>
+  <script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/leaflet/leaflet-image.js"></script>
+
   <script type="text/javascript" src="{{ STATIC_PREFIX }}js/jquery-ui-1.10.4.js"></script>
   <script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/jquery/jquery.simulate.js"></script>
 
@@ -43,10 +47,15 @@
   <script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/colpick/rgbcolor.js"></script>
   <script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/jquery/jquery.xcolor.js"></script>
 
+  <script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/canvg/StackBlur.js"></script>
+  <script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/canvg/canvg.js"></script>
+  <script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/canvg/html2canvas.js"></script>
+
   <script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/paper/paper-core.min.js"></script>
 
   <script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/visualizations.js"></script>
   <script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/sigma-visualization.js"></script>
+  <script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/leaflet-visualization.js"></script>
   <script type="text/javascript" src="{{ STATIC_PREFIX }}graphs/js/modals.js"></script>
 
   <script type="text/javascript" src="{{ STATIC_PREFIX }}js/jqueryui.timepicker.js"></script>

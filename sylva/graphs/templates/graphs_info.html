@@ -1,4 +1,4 @@
-{% load i18n %}
+{% load i18n settings %}
     <div class="graph-item">
         {% if show_edit %}
         <span class="graph-title"><a title="{% trans "Edit properties" %}" href="{% url "graph_edit" graph.slug %}?remove=true">{{ graph.name|truncatewords_html:7 }}</a></span>
@@ -44,7 +44,12 @@
                     {{ graph.get_collaborators|length }} <a title="{% trans "Collaborators" %}" href="{% url "graph_collaborators" graph.slug %}">{% trans "collaborators" %}</a>
                 </span>
                 <span class="graph-queries">
-                    {% trans "No queries yet" %}
+                    {% get_setting ENABLE_QUERIES as graph_queries %}
+                    {% if graph_queries %}
+                        {{ graph.queries.count }} <a title="{% trans "Queries" %}" href="{% url "queries_list" graph.slug %}">{% trans "queries" %}</a>
+                    {% else %}
+                        {% trans "No queries yet" %}
+                    {% endif %}
                 </span>
                 <span class="graph-instance">
                     {{ graph.data.total_storage|filesizeformat }}

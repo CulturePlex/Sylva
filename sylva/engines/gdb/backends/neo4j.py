@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 import re
 
+from django.conf import settings
 from django.template.defaultfilters import slugify
-from lucenequerybuilder import Q
-from neo4jrestclient.exceptions import NotFoundError
-from pyblueprints.neo4j import Neo4jIndexableGraph as Neo4jGraphDatabase
+
+from pyblueprints.neo4j import (
+    Neo4jTransactionalIndexableGraph as Neo4jGraphDatabase)
 from pyblueprints.neo4j import Neo4jDatabaseConnectionError
 
 from engines.gdb.backends import (GraphDatabaseConnectionError,
@@ -16,9 +17,15 @@ try:
 except ImportError:
     Analysis = None
 
-
 WILDCARD_TYPE = -1
-AGGREGATES = ["Count", "Max", "Min", "Sum", "Average", "Deviation"]
+AGGREGATES = {
+    "count": "count",
+    "max": "max",
+    "min": "min",
+    "sum": "sum",
+    "avg": "avg",
+    "stdev": "stdev"
+}
 
 
 class GraphDatabase(BlueprintsGraphDatabase):
@@ -37,8 +44,9 @@ class GraphDatabase(BlueprintsGraphDatabase):
         self.setup_indexes()
         self._nidx = None
         self._ridx = None
-        self._gremlin = None
         self._cypher = None
+        self._spatial = None
+        self.transaction = getattr(self.gdb.neograph, "transaction", None)
 
     def _get_nidx(self):
         if not self._nidx:
@@ -52,25 +60,29 @@ class GraphDatabase(BlueprintsGraphDatabase):
         return self._ridx
     ridx = property(_get_ridx)
 
-    def _get_gremlin(self):
-        if not self._gremlin:
-            plugin = self.gdb.neograph.extensions.GremlinPlugin.execute_script
-            self._gremlin = plugin
-        return self._gremlin
-    gremlin = property(_get_gremlin)
-
     def _get_cypher(self):
         if not self._cypher:
-            plugin = self.gdb.neograph.extensions.CypherPlugin.execute_query
-            self._cypher = plugin
+            # Look for the native Cypher endpoint first
+            try:
+                cypher_func = self.gdb.neograph.query
+            except AttributeError:
+                func = self.gdb.neograph.extensions.CypherPlugin.execute_query
+
+                def cypher_func(q, params=None, **kwargs):
+                    return func(query=q, params=params, **kwargs)
+
+            self._cypher = cypher_func
         return self._cypher
     cypher = property(_get_cypher)
 
     def _clean_count(self, count):
         try:
             return count["data"][0][0]
-        except IndexError:
+        except (IndexError, KeyError):
             return 0
+
+    def _escape(self, val):
+        return unicode(val).replace(u"`", u"\\`")
 
     def _prepare_script(self, for_node=True, label=None):
         """
@@ -78,27 +90,20 @@ class GraphDatabase(BlueprintsGraphDatabase):
         """
         if for_node:
             var = 'n'
-            type = 'node'
+            var_type = 'node'
             index = self.nidx.name
         else:
             var = 'r'
-            type = 'rel'
+            var_type = 'rel'
             index = self.ridx.name
         if isinstance(label, (list, tuple)):
-            if label:
-                label = """ OR """.join(['label:%s' % str(label_id) for label_id in label])
-            else:
-                """
-                It will never pass by here.
-                It was checked before call this method.
-                """
-                pass
+            label = """ OR """.join(['label:%s' % str(label_id)
+                                     for label_id in label])
+        elif label:
+            label = """label:%s""" % (label)
         else:
-            if label:
-                label = """label:%s""" % (label)
-            else:
-                label = """label:*"""
-        script = """start %s=%s:`%s`('%s') """ % (var, type, index, label)
+            label = """label:*"""
+        script = """start %s=%s:`%s`('%s') """ % (var, var_type, index, label)
         return script
 
     def get_nodes_count(self, label=None):
@@ -113,7 +118,7 @@ class GraphDatabase(BlueprintsGraphDatabase):
             return 0
         script = self._prepare_script(for_node=True, label=label)
         script = """%s return count(n)""" % script
-        count = self.cypher(query=script)
+        count = self.cypher(q=script)
         return self._clean_count(count)
 
     def get_relationships_count(self, label=None):
@@ -128,7 +133,7 @@ class GraphDatabase(BlueprintsGraphDatabase):
             return 0
         script = self._prepare_script(for_node=False, label=label)
         script = """%s return count(r)""" % script
-        count = self.cypher(query=script)
+        count = self.cypher(q=script)
         return self._clean_count(count)
 
     def get_all_nodes(self, include_properties=False, limit=None, offset=None,
@@ -154,10 +159,9 @@ class GraphDatabase(BlueprintsGraphDatabase):
         If "include_properties" is True, the second element in the tuple
         will be a dictionary containing the properties.
         """
-        rels = self.get_filtered_relationships(lookups=None, label=None,
-                                        include_properties=include_properties,
-                                        limit=limit, offset=offset,
-                                        order_by=order_by)
+        rels = self.get_filtered_relationships(
+            lookups=None, label=None, include_properties=include_properties,
+            limit=limit, offset=offset, order_by=order_by)
         for rel in rels:
             yield rel
 
@@ -169,19 +173,22 @@ class GraphDatabase(BlueprintsGraphDatabase):
         If "outgoing" is True, it only counts the ids for outgoing ones.
         If "label" is provided, relationships will be filtered.
         """
-        gremlin = self.gremlin
-        script = """g.idx("%s")[[id:"%s"]]""" % (self.nidx.name, id)
+        # Using Cypher
+        if isinstance(label, (list, tuple)) and not label:
+            return 0
+        if self.ridx not in self.gdb.neograph.relationships.indexes.values():
+            return 0
+        # """start %s=%s:`%s`('%s') """ % (var, type, index, label)
+        script = self._prepare_script(for_node=False, label=label)
         if incoming:
-            script = u"%s.inE" % script
+            script = u"%s match (n)<-[r]-()" % script
         elif outgoing:
-            script = u"%s.outE" % script
+            script = u"%s match (n)-[r]->()" % script
         else:
             # Same effect that incoming=True, outgoing=True
-            script = u"%s.bothE" % script
-        if label:
-            script = u"%s.filter{it.label==""}" % label
-        script = u"%s.count()" % script
-        count = gremlin(script=script)
+            script = u"%s (n)-[r]-()" % script
+        script = """%s return count(r)""" % script
+        count = self.cypher(q=script)
         return self._clean_count(count)
 
     def get_nodes_by_label(self, label, include_properties=False,
@@ -191,6 +198,13 @@ class GraphDatabase(BlueprintsGraphDatabase):
                                        limit=limit, offset=offset,
                                        order_by=order_by)
 
+    def _get_filtered_nodes_properties(self, element):
+        properties = element[1]["data"]
+        elto_id = properties.pop("_id")
+        elto_label = properties.pop("_label")
+        properties.pop("_graph", None)
+        return (elto_id, properties, elto_label)
+
     def get_filtered_nodes(self, lookups, label=None, include_properties=None,
                            limit=None, offset=None, order_by=None):
         # Using Cypher
@@ -199,7 +213,7 @@ class GraphDatabase(BlueprintsGraphDatabase):
             return
         script = self._prepare_script(for_node=True, label=label)
         where = None
-        params = []
+        params = {}
         if lookups:
             wheres = q_lookup_builder()
             for lookup in lookups:
@@ -217,23 +231,21 @@ class GraphDatabase(BlueprintsGraphDatabase):
         else:
             script = u"%s id(n)" % script
         if order_by:
-            script = u"%s order by n.`%s` %s " % (script, order_by[0][0].replace('`', '\`'), order_by[0][1])
+            script = u"%s order by n.`%s` %s " % (
+                script, order_by[0][0].replace(u'`', u'\\`'), order_by[0][1]
+            )
         page = 1000
         skip = offset or 0
         limit = limit or page
         try:
             paged_script = "%s skip %s limit %s" % (script, skip, limit)
-            result = cypher(query=paged_script, params=params)
+            result = cypher(q=paged_script, params=params)
         except:
             result = None
         while result and "data" in result:
             if include_properties:
                 for element in result["data"]:
-                    properties = element[1]["data"]
-                    elto_id = properties.pop("_id")
-                    elto_label = properties.pop("_label")
-                    properties.pop("_graph", None)
-                    yield (elto_id, properties, elto_label)
+                    yield self._get_filtered_nodes_properties(element)
             else:
                 for element in result["data"]:
                     if len(element) > 1:
@@ -245,29 +257,69 @@ class GraphDatabase(BlueprintsGraphDatabase):
                 try:
                     paged_script = "%s skip %s limit %s" % (script, skip,
                                                             limit)
-                    result = cypher(query=paged_script, params=params)
+                    result = cypher(q=paged_script, params=params)
                 except:
                     result = None
             else:
                 break
 
     def get_relationships_by_label(self, label, include_properties=False,
+                                   source_id=None, target_id=None,
+                                   directed=True,
                                    limit=None, offset=None, order_by=None):
         return self.get_filtered_relationships(
             [], label=label, include_properties=include_properties,
+            source_id=source_id, target_id=target_id, directed=directed,
             limit=limit, offset=offset, order_by=order_by)
+
+    def _get_filtered_relationships_properties(self, element):
+        properties = element[1]["data"]
+        properties.pop("_id")
+        properties.pop("_graph", None)
+        elto_label = properties.pop("_label")
+        source_props = element[2]["data"]
+        source_id = source_props.pop("_id")
+        source_label = source_props.pop("_label")
+        source_props.pop("_graph", None)
+        target_props = element[3]["data"]
+        target_id = target_props.pop("_id")
+        target_label = target_props.pop("_label")
+        target_props.pop("_graph", None)
+        source = {
+            "id": source_id,
+            "properties": source_props,
+            "label": source_label
+        }
+        target = {
+            "id": target_id,
+            "properties": target_props,
+            "label": target_label
+        }
+        return (element[0], properties, elto_label, source, target)
 
     def get_filtered_relationships(self, lookups, label=None,
                                    include_properties=None,
+                                   source_id=None, target_id=None,
+                                   directed=True,
                                    limit=None, offset=None, order_by=None):
         # Using Cypher
         cypher = self.cypher
         if isinstance(label, (list, tuple)) and not label:
             return
         script = self._prepare_script(for_node=False, label=label)
-        script = """%s match a-[r]->b """ % script
+        if source_id and target_id:
+            script = """%s, a=node(%s), b=node(%s)""" % (
+                script, source_id, target_id)
+        elif source_id and not target_id:
+            script = """%s, a=node(%s)""" % (script, source_id)
+        elif not source_id and target_id:
+            script = """%s, b=node(%s)""" % (script, target_id)
+        if directed:
+            script = """%s match (a)-[r]->(b) """ % script
+        else:
+            script = """%s match (a)-[r]-(b) """ % script
         where = None
-        params = []
+        params = {}
         if lookups:
             wheres = q_lookup_builder()
             for lookup in lookups:
@@ -287,41 +339,21 @@ class GraphDatabase(BlueprintsGraphDatabase):
             script = u"%s return distinct id(r), %s, a, b" \
                      % (script, type_or_r)
         if order_by:
-            script = u"%s order by n.`%s` %s " % (script, order_by[0][0].replace('`', '\`'), order_by[0][1])
+            script = u"%s order by n.`%s` %s " % (
+                script, order_by[0][0].replace(u'`', u'\\`'), order_by[0][1]
+            )
         page = 1000
         skip = offset or 0
         limit = limit or page
         try:
             paged_script = "%s skip %s limit %s" % (script, skip, limit)
-            result = cypher(query=paged_script, params=params)
+            result = cypher(q=paged_script, params=params)
         except:
             result = None
         while result and "data" in result and len(result["data"]) > 0:
             if include_properties:
                 for element in result["data"]:
-                    properties = element[1]["data"]
-                    properties.pop("_id")
-                    properties.pop("_graph", None)
-                    elto_label = properties.pop("_label")
-                    source_props = element[2]["data"]
-                    source_id = source_props.pop("_id")
-                    source_label = source_props.pop("_label")
-                    source_props.pop("_graph", None)
-                    source = {
-                        "id": source_id,
-                        "properties": source_props,
-                        "label": source_label
-                    }
-                    target_props = element[3]["data"]
-                    target_id = target_props.pop("_id")
-                    target_label = target_props.pop("_label")
-                    target_props.pop("_graph", None)
-                    target = {
-                        "id": target_id,
-                        "properties": target_props,
-                        "label": target_label
-                    }
-                    yield (element[0], properties, elto_label, source, target)
+                    yield self._get_filtered_relationships_properties(element)
             else:
                 for element in result["data"]:
                     yield (element[0], None, element[1])
@@ -330,7 +362,7 @@ class GraphDatabase(BlueprintsGraphDatabase):
                 try:
                     paged_script = "%s skip %s limit %s" % (script, skip,
                                                             limit)
-                    result = cypher(query=paged_script, params=params)
+                    result = cypher(q=paged_script, params=params)
                 except:
                     result = None
             else:
@@ -341,6 +373,7 @@ class GraphDatabase(BlueprintsGraphDatabase):
 
     def query(self, query_dict, limit=None, offset=None, order_by=None,
               headers=None, only_ids=None):
+
         results_list = []
         script, query_params = self._query_generator(query_dict, only_ids)
         cypher = self.cypher
@@ -355,15 +388,13 @@ class GraphDatabase(BlueprintsGraphDatabase):
                                                     order_by[1],
                                                     order_by[2])
             else:
-                script = u"%s order by `%s`.`%s` %s " % (script,
-                                                         alias.replace
-                                                         ('`', '\`'),
-                                                         order_by[1].replace
-                                                         ('`', '\`'),
-                                                         order_by[2])
+                script = u"%s order by `%s`.`%s`! %s " % (
+                    script, alias.replace(u'`', u'\\`'),
+                    order_by[1].replace(u'`', u'\\`'),
+                    order_by[2])
         try:
             paged_script = "%s skip %s limit %s" % (script, skip, limit)
-            result = cypher(query=paged_script, params=query_params)
+            result = cypher(q=paged_script, params=query_params)
         except:
             result = None
         if headers is True and result and "columns" in result:
@@ -379,7 +410,7 @@ class GraphDatabase(BlueprintsGraphDatabase):
                 try:
                     paged_script = "%s skip %s limit %s" % (script, skip,
                                                             limit)
-                    result = cypher(query=paged_script, params=query_params)
+                    result = cypher(q=paged_script, params=query_params)
                 except:
                     result = None
             else:
@@ -439,190 +470,136 @@ class GraphDatabase(BlueprintsGraphDatabase):
         return q, query_params
 
     def _query_generator_conditions(self, conditions_dict):
-        query_params = dict()
         # This list is used to control when use the index for the relationship,
         # in the origins or in the patterns
         conditions_alias = set()
-        # conditions_set = set()
-        # We are going to use a list because when the set add elements,
-        # it include them in order and breaks our pattern with AND, OR
-        conditions_set = list()
-        conditions_indexes = enumerate(conditions_dict)
-        conditions_length = len(conditions_dict) - 1
-        for lookup, property_tuple, match, connector, datatype \
-                in conditions_dict:
+        elems = q_lookup_builder()
+        for condition_dict in conditions_dict:
+            lookup, property_tuple, match, connector, datatype = condition_dict
+            conditions_alias.add(property_tuple[1])
             # This is the option to have properties of another boxes
-            if datatype == "property_box":
-                match_dict = dict()
+            # We need to check 'property_box' too for the old queries
+            if datatype in ['f_expression', 'property_box']:
                 # We catch exception of type IndexError, in case that we
                 # doesn't receive an appropiate array.
                 try:
-                    # The match can be defined in three different ways:
-                    # slug.property_id
-                    # aggregate (slug.property_id)
-                    # aggregate (DISTINCT slug.property_id)
-                    # And also, we could have two match values for
-                    # 'in between' lookups...
-                    match_results = list()
-                    match_elements = list()
-                    datatypes = list()
-                    if type(match) is not list:
-                        match_elements.append(match)
-                        datatypes.append(datatype)
-                    else:
-                        match_elements = match
-                        datatypes = datatype
-                    index = 0
-                    while index < len(match_elements):
-                        match_element = match_elements[index]
-                        if datatypes[index] == 'property_box':
-                            # Let's check what definition we have...
-                            match_splitted = re.split('\)|\(|\\.| ',
-                                                      match_element)
-                            match_first_element = match_splitted[0]
-                            # We check if aggregate belongs to the aggregate
-                            # set
-                            if match_first_element not in AGGREGATES:
-                                slug = match_first_element
-                                prop = match_splitted[1]
-                                match_var, match_property = (
-                                    self._get_slug_and_prop(slug, prop))
-                                # Finally, we assign the correct values to the
-                                # dict
-                                match_dict['var'] = match_var
-                                match_dict['property'] = match_property
-                                match = match_dict
-                            else:
-                                # We have aggregate
-                                aggregate = match_first_element
-                                match_second_element = match_splitted[1]
-                                # We check if we already have the distinct
-                                # clause
-                                if match_second_element != 'DISTINCT':
-                                    # We get the slug and the property
-                                    slug = match_second_element
-                                    prop = match_splitted[2]
-                                    match_var, match_property = (
-                                        self._get_slug_and_prop(slug, prop))
-                                    # Once we have the slug and the prop, we
-                                    # build the
-                                    # aggregate again
-                                    agg_field = u"{0}({1}.{2})".format(
-                                        aggregate, match_var, match_property)
-                                    match_dict['aggregate'] = agg_field
-                                    match = match_dict
-                                else:
-                                    # We have distinct, slug and the property
-                                    distinct = match_second_element
-                                    # We get the slug and the property
-                                    slug = match_splitted[2]
-                                    prop = match_splitted[3]
-                                    match_var, match_property = (
-                                        self._get_slug_and_prop(slug, prop))
-                                    # Once we have the slug and the prop, we
-                                    # build the aggregate again
-                                    agg_field = (
-                                        u"{0}({1} {2}.{3})".format(
-                                            aggregate, distinct, match_var,
-                                            match_property))
-                                    match_dict['aggregate'] = agg_field
-                                    match = match_dict
-                        else:
-                            match = match_element
-                        index = index + 1
-                        match_results.append(match)
-                    if len(match_results) == 1:
-                        match = match_results[0]
-                    else:
-                        match = match_results
+                    match = self._query_generator_f_expression(match, datatype)
                 except IndexError:
-                    match_dict['var'] = ""
-                    match_dict['property'] = ""
-                    match = match_dict
-
+                    match = {
+                        "var": "",
+                        "property": "",
+                    }
             if lookup == "between":
                 gte = q_lookup_builder(property=property_tuple[2],
                                        lookup="gte",
                                        match=match[0],
+                                       nullable=True,
                                        var=property_tuple[1],
                                        datatype=datatype[0])
                 lte = q_lookup_builder(property=property_tuple[2],
                                        lookup="lte",
                                        match=match[1],
+                                       nullable=True,
                                        var=property_tuple[1],
                                        datatype=datatype[1])
-                gte_query_objects = gte.get_query_objects(params=query_params)
-                lte_query_objects = lte.get_query_objects(params=query_params)
-                gte_condition = gte_query_objects[0]
-                gte_params = gte_query_objects[1]
-                lte_condition = lte_query_objects[0]
-                lte_params = lte_query_objects[1]
-                # conditions_set.add(unicode(gte_condition))
-                if gte_condition not in conditions_set:
-                    conditions_set.append(unicode(gte_condition))
-                query_params.update(gte_params)
-                # conditions_set.add(unicode(lte_condition))
-                if lte_condition not in conditions_set:
-                    conditions_set.append(unicode(lte_condition))
-                query_params.update(lte_params)
-                # We append the two property in the list
-                conditions_alias.add(property_tuple[1])
+                q_element = (gte & lte)
             elif lookup == 'idoesnotcontain':
                 q_element = ~q_lookup_builder(property=property_tuple[2],
                                               lookup="icontains",
                                               match=match,
+                                              nullable=True,
                                               var=property_tuple[1],
                                               datatype=datatype)
-                query_objects = q_element.get_query_objects(
-                    params=query_params)
-                condition = query_objects[0]
-                params = query_objects[1]
-                # conditions_set.add(unicode(condition))
-                if condition not in conditions_set:
-                    conditions_set.append(unicode(condition))
-                query_params.update(params)
-                # We append the two property in the list
-                conditions_alias.add(property_tuple[1])
             else:
                 q_element = q_lookup_builder(property=property_tuple[2],
                                              lookup=lookup,
                                              match=match,
+                                             nullable=True,
                                              var=property_tuple[1],
                                              datatype=datatype)
-                query_objects = q_element.get_query_objects(
-                    params=query_params)
-                condition = query_objects[0]
-                params = query_objects[1]
-                # conditions_set.add(unicode(condition))
-                if condition not in conditions_set:
-                    conditions_set.append(unicode(condition))
-                # Uncomment this line to see the difference between use
-                # query params or use the q_element
-                # conditions_set.add(unicode(q_element))
-                query_params.update(params)
-                # We append the two property in the list
-                conditions_alias.add(property_tuple[1])
-            if connector != 'not':
-                # We have to get the next element to keep the concordance
-                elem = conditions_indexes.next()
-                connector = u' {} '.format(connector.upper())
-                # conditions_set.add(connector)
-                conditions_set.append(connector)
-            elif connector == 'not':
-                elem = conditions_indexes.next()
-                if elem[0] < conditions_length:
-                    connector = u' AND '
-                    # conditions_set.add(connector)
-                    conditions_set.append(connector)
-        # We check if we have only one condition and one operator
-        if len(conditions_set) > 0:
-            conditions_last_index = len(conditions_set) - 1
-            conditions_last_element = conditions_set[conditions_last_index]
-            if (conditions_last_element == ' AND ' or
-                    conditions_last_element == ' OR '):
-                conditions_set.pop()
-        conditions = u" ".join(conditions_set)
-        return (conditions, query_params, conditions_alias)
+            if connector.upper() == "OR":
+                elems |= q_element
+            else:
+                elems &= q_element
+        conditions, query_params = elems.get_query_objects()
+        return (conditions.strip(), query_params, conditions_alias)
+
+    def _query_generator_f_expression(self, f_match, datatype):
+        match_dict = {}
+        # The match can be defined in three different ways:
+        # slug.property_id
+        # aggregate (slug.property_id)
+        # aggregate (DISTINCT slug.property_id)
+        # And also, we could have two match values for
+        # 'in between' lookups...
+        match_results = []
+        match_elements = []
+        datatypes = []
+        if not isinstance(f_match, (tuple, list)):
+            match_elements.append(f_match)
+            datatypes.append(datatype)
+        else:
+            match_elements = f_match
+            datatypes = datatype
+        index = 0
+        while index < len(match_elements):
+            match_element = match_elements[index]
+            # We need to check 'property_box' too for the old queries
+            if datatypes[index] in ['f_expression', 'property_box']:
+                # Let's check what definition we have...
+                match_splitted = re.split('\)|\(|\\.| ', match_element)
+                match_first_element = match_splitted[0]
+                # We check if aggregate belongs to the aggregate set
+                if match_first_element not in AGGREGATES.keys():
+                    slug = match_first_element
+                    prop = match_splitted[1]
+                    match_var, match_prop = self._get_slug_and_prop(
+                        slug, prop)
+                    # Finally, we assign the correct values to the dict
+                    match_dict['var'] = match_var
+                    match_dict['property'] = match_prop
+                    match = match_dict
+                else:
+                    # We have aggregate
+                    aggregate = match_first_element
+                    match_second_element = match_splitted[1]
+                    # We check if we already have the distinct clause
+                    if match_second_element != 'DISTINCT':
+                        # We get the slug and the property
+                        slug = match_second_element
+                        prop = match_splitted[2]
+                        match_var, match_prop = self._get_slug_and_prop(
+                            slug, prop)
+                        # Once we have the slug and the prop, we build the
+                        # aggregate again
+                        agg_field = u"{0}({1}.{2})".format(
+                            aggregate, match_var, match_prop)
+                        match_dict['aggregate'] = agg_field
+                        match = match_dict
+                    else:
+                        # We have distinct, slug and the property
+                        distinct = match_second_element
+                        # We get the slug and the property
+                        slug = match_splitted[2]
+                        prop = match_splitted[3]
+                        match_var, match_prop = self._get_slug_and_prop(
+                            slug, prop)
+                        # Once we have the slug and the prop, we
+                        # build the aggregate again
+                        agg_field = (u"{0}({1} {2}.{3})".format(
+                            aggregate, distinct, match_var,
+                            match_prop))
+                        match_dict['aggregate'] = agg_field
+                        match = match_dict
+            else:
+                match = match_element
+            index = index + 1
+            match_results.append(match)
+        if len(match_results) == 1:
+            match = match_results[0]
+        else:
+            match = match_results
+        return match
 
     def _query_generator_origins(self, origins_dict, conditions_alias):
         origins_set = set()
@@ -638,8 +615,8 @@ class GraphDatabase(BlueprintsGraphDatabase):
                 if node_type == WILDCARD_TYPE:
                     node_type = '*'
                 origin = u"""`{alias}`=node:`{nidx}`('label:{type}')""".format(
-                    nidx=unicode(self.nidx.name).replace(u"`", u"\\`"),
-                    alias=unicode(alias).replace(u"`", u"\\`"),
+                    nidx=self._escape(self.nidx.name),
+                    alias=self._escape(alias),
                     type=node_type,
                 )
                 origins_set.add(origin)
@@ -647,18 +624,19 @@ class GraphDatabase(BlueprintsGraphDatabase):
                 relation_type = origin_dict["type_id"]
                 # wildcard type
                 if relation_type == WILDCARD_TYPE:
-                    origin = u"""`{alias}`=rel:`{ridx}`('graph:{graph_id}')""".format(
-                        ridx=unicode(self.ridx.name).replace(u"`", u"\\`"),
-                        alias=unicode(alias).replace(u"`", u"\\`"),
+                    _origin = u"""`{alias}`=rel:`{ridx}`('graph:{graph_id}')"""
+                    origin = _origin.format(
+                        ridx=self._escape(self.ridx.name),
+                        alias=self._escape(alias),
                         graph_id=self.graph_id,
                     )
                 # TODO: Why with not rel indices in START the query is faster?
                 else:
                     if alias in conditions_alias:
-                        origin = u"""`{alias}`=rel:`{ridx}`('label:{type}')""".format(
-                            ridx=unicode(self.ridx.name).replace(u"`",
-                                                                 u"\\`"),
-                            alias=unicode(alias).replace(u"`", u"\\`"),
+                        _origin = u"""`{alias}`=rel:`{ridx}`('label:{type}')"""
+                        origin = _origin.format(
+                            ridx=self._escape(self.ridx.name),
+                            alias=self._escape(alias),
                             type=relation_type,
                         )
                         origins_set.add(origin)
@@ -672,7 +650,7 @@ class GraphDatabase(BlueprintsGraphDatabase):
             alias = result_dict["alias"]
             if result_dict["properties"] is None:
                 result = u"`{0}`".format(
-                    unicode(alias).replace(u"`", u"\\`"))
+                    self._escape(alias))
                 results_set.add(result)
             else:
                 for prop in result_dict["properties"]:
@@ -681,27 +659,26 @@ class GraphDatabase(BlueprintsGraphDatabase):
                     property_distinct = prop["distinct"]
                     if property_value:
                         if not property_aggregate and not only_ids:
-                            result = u"`{0}`.`{1}`".format(
-                                unicode(alias).replace(u"`", u"\\`"),
-                                unicode(property_value).replace(u"`", u"\\`")
+                            result = u"`{0}`.`{1}`!".format(
+                                self._escape(alias),
+                                self._escape(property_value)
                             )
                             results_set.add(result)
                         elif property_aggregate and not only_ids:
                             distinct_clause = ""
                             if property_distinct:
                                 distinct_clause = u"DISTINCT "
-                            if property_aggregate in AGGREGATES:
-                                result = u"{0}({1}`{2}`.`{3}`)".format(
-                                    unicode(property_aggregate),
+                            if property_aggregate in AGGREGATES.keys():
+                                result = u"{0}({1}`{2}`.`{3}`!)".format(
+                                    unicode(AGGREGATES[property_aggregate]),
                                     unicode(distinct_clause),
-                                    unicode(alias).replace(u"`", u"\\`"),
-                                    unicode(property_value).replace(u"`",
-                                                                    u"\\`")
+                                    self._escape(alias),
+                                    self._escape(property_value)
                                 )
                                 results_set.add(result)
                         else:
                             result = u"ID(`{0}`)".format(
-                                unicode(alias).replace(u"`", u"\\`")
+                                self._escape(alias)
                             )
                             results_set.add(result)
         properties_results = u", ".join(results_set)
@@ -722,28 +699,27 @@ class GraphDatabase(BlueprintsGraphDatabase):
                 # wildcard type
                 if relation_type == -1:
                     pattern = u"(`{source}`)-[`{rel}`]-(`{target}`)".format(
-                        source=unicode(source).replace(u"`", u"\\`"),
-                        rel=unicode(relation).replace(u"`", u"\\`"),
-                        target=unicode(target).replace(u"`", u"\\`"),
+                        source=self._escape(source),
+                        rel=self._escape(relation),
+                        target=self._escape(target),
                     )
                 else:
                     if relation in conditions_alias:
                         pattern = (
                             u"(`{source}`)-[`{rel}`]-(`{target}`)".format(
-                                source=unicode(source).replace(u"`", u"\\`"),
-                                rel=unicode(relation).replace(u"`", u"\\`"),
-                                target=unicode(target).replace(u"`", u"\\`"),
+                                source=self._escape(source),
+                                rel=self._escape(relation),
+                                target=self._escape(target),
                             )
                         )
                     else:
                         pattern = (
                             u"(`{source}`)-[`{rel}`:`{rel_type}`]-(`{target}`)"
                             .format(
-                                source=unicode(source).replace(u"`", u"\\`"),
-                                rel=unicode(relation).replace(u"`", u"\\`"),
-                                rel_type=unicode(relation_type).replace(
-                                    u"`", u"\\`"),
-                                target=unicode(target).replace(u"`", u"\\`"),
+                                source=self._escape(source),
+                                rel=self._escape(relation),
+                                rel_type=self._escape(relation_type),
+                                target=self._escape(target),
                             )
                         )
                 patterns_set.add(pattern)
@@ -751,20 +727,20 @@ class GraphDatabase(BlueprintsGraphDatabase):
 
     def destroy(self):
         """Delete nodes, relationships, and even indices"""
+        if self.ridx in self.gdb.neograph.relationships.indexes.values():
+            self.ridx.delete()
+        if self.nidx in self.gdb.neograph.nodes.indexes.values():
+            self.nidx.delete()
         all_rels = self.get_all_relationships(include_properties=False)
         for rel_id, props, label in all_rels:
             self.delete_relationship(rel_id)
         all_nodes = self.get_all_nodes(include_properties=False)
         for node_id, props, label in all_nodes:
             self.delete_node(node_id)
-        if self.nidx in self.gdb.neograph.nodes.indexes.values():
-            self.nidx.delete()
-        if self.ridx in self.gdb.neograph.relationships.indexes.values():
-            self.ridx.delete()
         self = None
 
     def analysis(self):
-        if Analysis is not None:
+        if settings.ENABLE_ANALYTICS and Analysis is not None:
             return Analysis()
         else:
             return None

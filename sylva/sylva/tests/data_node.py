@@ -1,3 +1,4 @@
+import os
 import requests
 import socket
 from time import sleep
@@ -7,13 +8,11 @@ from StringIO import StringIO
 
 from django.test import LiveServerTestCase
 
-from splinter import Browser
-
 from user import signup, signin, logout
 from dashboard import create_graph, create_schema, create_type, create_data
 from graphs.models import Graph
 
-from utils import spin_assert
+from utils import spin_assert, Browser
 
 
 def create_node(test, name):
@@ -40,7 +39,7 @@ class DataNodeTestCase(LiveServerTestCase):
     """
 
     def setUp(self):
-        self.browser = Browser()
+        self.browser = Browser(firefox_path=os.getenv('FIREFOX_PATH', None))
         socket.setdefaulttimeout(30)
         signup(self, 'bob', 'bob@cultureplex.ca', 'bob_secret')
         signin(self, 'bob', 'bob_secret')
@@ -97,7 +96,7 @@ class DataNodeTestCase(LiveServerTestCase):
         self.browser.find_by_value("Save Bob's type").first.click()
         # Delete the relationship
         self.browser.find_by_xpath("//td[@class='dataList']/a[@class='edit']").first.click()
-        self.browser.find_by_xpath("//span[@class='all-relationships incoming-relationships i_bobs_rel1-relationships']//a[@class='delete-row initial-form floating']").first.click()
+        self.browser.find_by_xpath("//span[@class='all-relationships outgoing-relationships o_bobs_rel1-relationships']/span/a[@class='delete-row initial-form floating']").first.click()
         self.browser.find_by_value("Save Bob's type").first.click()
         self.browser.find_link_by_href('/graphs/bobs-graph/').first.click()
         text = self.browser.find_by_xpath("//div[@class='flags-block']/span[@class='graph-relationships']").first.value

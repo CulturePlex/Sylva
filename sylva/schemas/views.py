@@ -681,7 +681,7 @@ def schema_nodetype_edit_color(request, graph_slug):
 @permission_required("schemas.change_schema",
                      (Schema, "graph__slug", "graph_slug"), return_403=True)
 def schema_reltype_edit_color(request, graph_slug):
-    if ((request.is_ajax() or settings.DEBUG) and request.POST):
+    if (request.is_ajax() or settings.DEBUG) and request.POST:
         data = request.POST.copy()
         data = json.loads(data.keys()[0])
         if 'everyRelationship' in data:

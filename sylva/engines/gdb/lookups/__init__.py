@@ -20,6 +20,28 @@ class BaseQ(object):
               "in", "inrange", "isnull",
               "eq", "equals", "neq", "notequals")
 
+    # Datatypes to apply the default casting
+    DATATYPES = {
+        u'default': unicode,
+        u'string': unicode,
+        u'boolean': bool,
+        u'number': int,
+        u'text': unicode,
+        u'date': str,
+        u'time': str,
+        u'choices': unicode,
+        u'float': float,
+        u'collaborator': unicode,
+        u'auto_now': str,
+        u'auto_now_add': str,
+        u'auto_increment': int,
+        u'auto_increment_update': int,
+        u'auto_user': unicode,
+        u'point': unicode,
+        u'path': unicode,
+        u'area': unicode,
+    }
+
     def __init__(self, property=None, lookup=None, match=None,
                  nullable=None, var=None, datatype=None, **kwargs):
         self._and = None
@@ -27,16 +49,24 @@ class BaseQ(object):
         self._not = None
         self.property = property
         self.lookup = lookup
+        self.datatype = datatype
         if isinstance(match, dict):
             self.match = self._expression(match)
         else:
-            self.match = match
+            try:
+                # We apply the casting
+                casting_func = self.DATATYPES[self.datatype.lower()]
+                # If the lookup is 'isnull', the casting is always to boolean
+                if self.lookup == 'isnull':
+                    casting_func = bool
+                self.match = casting_func(match)
+            except AttributeError:
+                self.match = match
         self.nullable = nullable
         if var is None:
             self.var = u"n"
         else:
             self.var = var
-        self.datatype = datatype
         if property and (self.lookup is None or self.match is None):
             for m in self.matchs:
                 if m in kwargs:
@@ -46,11 +76,11 @@ class BaseQ(object):
             else:
                 all_matchs = ", ".join(self.matchs)
                 raise ValueError("Q objects must have at least a "
-                                 "lookup method(%s) and a match "
+                                 "lookup method ({}) and a match "
                                  "case".format(all_matchs))
 
     def is_valid(self):
-        return ((self.property and self.lookup and self.match) or
+        return ((self.property and self.lookup and self.match is not None) or
                 (self._and or self._or or self._not))
 
     def _make_and(q1, q2):

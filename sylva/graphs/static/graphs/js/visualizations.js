@@ -13,6 +13,10 @@ sylva:true, alert:true */
 
     sigma: function() {
       sylva.Sigma.start();
+    },
+
+    leaflet: function() {
+      sylva.Leaflet.init();
     }
 
   };
@@ -83,7 +87,7 @@ sylva:true, alert:true */
         spinner.stop();
 
         // Full graph
-        sylva.graph = data.graph
+        sylva.graph = data.graph;
 
         // Other data
         sylva.nodetypes = data.nodetypes;
@@ -128,7 +132,7 @@ sylva:true, alert:true */
           $('#graph-controls').show();
           $('#canvas-box').css({
             "display": "none"
-          })
+          });
 
           $('#sigma-go-analytics').click();
         }
@@ -166,6 +170,12 @@ sylva:true, alert:true */
 
         // Let's start with the needed operations
         $('.analytics-mode').show();
+
+        // Showing map button, it's a special case :(
+        if (sylva.spatialEnabled) {
+          $('#sigma-go-map').removeClass('zoom-bottom-hide');
+          $('#sigma-go-map').addClass('zoom-bottom-show');
+        }
 
         $('#sigma-go-fullscreen').hide();
         $('#graph-labels').hide();
@@ -285,6 +295,12 @@ sylva:true, alert:true */
 
         // Let's start with the needed operations
         $('.analytics-mode').hide();
+
+        // Hiding map buttons, it's a special case :(
+        if (sylva.spatialEnabled) {
+          $('#sigma-go-map').removeClass('zoom-bottom-show');
+          $('#sigma-go-map').addClass('zoom-bottom-hide');
+        }
 
         $('#sigma-go-analytics').show();
         $('#graph-node-info').show();

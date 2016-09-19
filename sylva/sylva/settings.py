@@ -92,6 +92,9 @@ MEDIA_ROOT = os.path.join(PROJECT_ROOT, 'media')
 # Examples: "http://media.lawrence.com/media/", "http://example.com/media/"
 MEDIA_URL = '/media/'
 
+# A piece of the path for saving temporary map images.
+MAP_IMAGES_PATH = 'map_images'
+
 # Absolute path to the directory static files should be collected to.
 # Don't put anything in this directory yourself; store your static files
 # in apps' "static/" subdirectories and in STATICFILES_DIRS.
@@ -119,7 +122,7 @@ STATICFILES_FINDERS = (
 )
 
 # Make this unique, and don't share it with anybody.
-SECRET_KEY = '9s-jun0(l@mv(up-3v3#25sk#6=#g1&%ojnsus7y*nttqq_pr6'
+SECRET_KEY = '9s-jun0(l@mv(up-3v3#25sk#6=#g1&%ojnsus7y*nttqq_pr6'  # noqa
 
 # List of callables that know how to import templates from various sources.
 TEMPLATE_LOADERS = (
@@ -197,7 +200,9 @@ INSTALLED_APPS = (
     'reports',
     'analytics',
     'compressor',
-    'djcelery',
+    'leaflet',
+    'rest_framework',
+    'rest_framework.authtoken',
 )
 
 AUTHENTICATION_BACKENDS = (
@@ -205,6 +210,21 @@ AUTHENTICATION_BACKENDS = (
     'guardian.backends.ObjectPermissionBackend',
     'django.contrib.auth.backends.ModelBackend',
 )
+
+# Rest framework configuration
+REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
+    ),
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.TokenAuthentication',
+    ),
+    'DEFAULT_FILTER_BACKENDS': (
+        'rest_framework.filters.BaseFilterBackend',
+    ),
+    'PAGE_SIZE': 10
+}
 
 ANONYMOUS_USER_ID = -1
 AUTH_PROFILE_MODULE = "accounts.UserProfile"
@@ -324,6 +344,7 @@ ENABLE_QUERIES = False
 ENABLE_REPORTS = False
 ENABLE_REPORTS_PDF = False
 ENABLE_ANALYTICS = False
+ENABLE_SPATIAL = False
 ACTIVATION_EMAIL_BETA_MESSAGE = True
 MAINTENANCE_MODE = False
 
@@ -349,6 +370,7 @@ OPTIONS = {
     "ENABLE_REPORTS": ENABLE_REPORTS,
     "ENABLE_REPORTS_PDF": ENABLE_REPORTS_PDF,
     "ENABLE_ANALYTICS": ENABLE_ANALYTICS,
+    "ENABLE_SPATIAL": ENABLE_SPATIAL,
     "MAINTENANCE_MODE": MAINTENANCE_MODE,
     "PREVIEW_NODES": PREVIEW_NODES,
     "DEFAULT_FROM_EMAIL": DEFAULT_FROM_EMAIL,

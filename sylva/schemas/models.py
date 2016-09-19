@@ -402,10 +402,15 @@ class RelationshipType(BaseType):
         else:
             return []
 
-    def filter(self, *lookups):
+    def filter(self, *lookups, **options):
         if self.id:
-            return self.schema.graph.relationships.filter(*lookups,
-                                                          label=self.id)
+            if options:
+                options['label'] = self.id
+                return self.schema.graph.relationships.filter(
+                    *lookups, **options)
+            else:
+                return self.schema.graph.relationships.filter(
+                    *lookups, label=self.id)
         else:
             return []
 
@@ -465,9 +470,6 @@ class BaseProperty(models.Model):
             (u'e', _(u'Auto user')),
         )),
     )
-    datatype = models.CharField(_('data type'),
-                                max_length=1, choices=DATATYPE_CHOICES,
-                                default=u"u")
     required = models.BooleanField(_('is required?'), default=False)
     display = models.BooleanField(_('use as label'), default=False)
     description = models.TextField(_('description'), blank=True, null=True)
@@ -540,6 +542,30 @@ class BaseProperty(models.Model):
 
 
 class NodeProperty(BaseProperty):
+    DATATYPE_CHOICES = BaseProperty.DATATYPE_CHOICES
+    if settings.ENABLE_SPATIAL:
+        DATATYPE_CHOICES += (
+            (_("Spatial"), (
+                (u'p', _(u'Point')),
+                (u'l', _(u'Path')),
+                (u'm', _(u'Area')),
+            )),
+        )
+    datatype = models.CharField(_('data type'),
+                                max_length=1, choices=DATATYPE_CHOICES,
+                                default=u"u")
+
+    def get_datatype_dict(self):
+        datatypes = super(NodeProperty, self).get_datatype_dict()
+        if settings.ENABLE_SPATIAL:
+            spatial_datatypes = {
+                "point": u"p",
+                "path": u"l",
+                "area": u"m",
+            }
+            datatypes.update(spatial_datatypes)
+        return datatypes
+
     node = models.ForeignKey(NodeType, verbose_name=_('node'),
                              related_name="properties")
 
@@ -549,6 +575,10 @@ class NodeProperty(BaseProperty):
 
 
 class RelationshipProperty(BaseProperty):
+    datatype = models.CharField(_('data type'),
+                                max_length=1, choices=BaseProperty.DATATYPE_CHOICES,
+                                default=u"u")
+
     relationship = models.ForeignKey(RelationshipType,
                                      verbose_name=_('relationship'),
                                      related_name="properties")

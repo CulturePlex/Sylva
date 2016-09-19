@@ -76,6 +76,7 @@
     <div class="content2-second">
     {% endif %}
         <h2 id="propertiesTitle">{% trans "Properties" %}</h2>
+        {{ formset.non_form_errors }}
         <table cellspacing="0" class="itemtype-properties-table" width="100%">
             <tbody class="dynamic">
             {{ formset.management_form }}

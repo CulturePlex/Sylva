@@ -1058,6 +1058,7 @@ div.initial p:nth-child(3) {
     bottom: 10px;
     background-color: #FFFFFF;
     width: 98.2%;
+    z-index: 9999;
 }
 
 .to-right{
@@ -1248,7 +1249,6 @@ div.initial p:nth-child(3) {
     height: 16px;
     display: block;
     margin-left: 10px;
-    font-style: italic;
 }
 
 .graph-relationships {
@@ -1901,6 +1901,32 @@ table.content-table {
     -webkit-border-top-left-radius: 0;
     -webkit-border-bottom-left-radius: 0;
     margin-left: -2px;
+}
+
+.zoom-bottom {
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+    -moz-border-top-left-radius: 0;
+    -moz-border-top-right-radius: 0;
+    -webkit-border-top-left-radius: 0;
+    -webkit-border-top-right-radius: 0;
+
+    display: none !important;
+    margin-top: -8.5px !important;
+    width: 7px;
+}
+
+.zoom-bottom-hide {
+    display: none !important;
+}
+
+.zoom-bottom-show {
+    display: block !important;
+}
+
+#sigma-go-map {
+    padding-left: 3.5px !important;
+    padding-right: 11.5px !important;
 }
 
 div[id^='collorpicker_'] {
@@ -2955,6 +2981,97 @@ body :hover > a.headerlink {
 
 /* END Queries */
 
+/* "Map visualization" with Leaflet */
+
+#map-types {
+    position: absolute;
+    z-index: 1001;
+    border: none;
+    padding: 10px;
+    margin-right: 0;
+    height: auto;
+    width: auto;
+    margin-top: 0;
+    border-radius: 10px;
+    white-space: nowrap;
+    background-color: rgba(214, 231, 223, 0.8);
+}
+
+#map-types ul {
+    max-height: 279px;
+    overflow: hidden;
+}
+
+#map-controls {
+    position: relative;
+    display: block;
+    float: right;
+    z-index: 10;
+
+    height: auto;
+    padding: 10px 10px 4px 10px;
+    border-bottom-left-radius: 10px;
+    background-color: rgba(255, 255, 255, 0.6);
+
+    font-size: 13px;
+    font-weight: normal;
+}
+
+.map-control {
+    display: inline;
+    margin-left: 12px;
+}
+
+.map-control.left {
+    float: left;
+}
+
+.map-control.right {
+    float: right;
+}
+
+.map-control a.button {
+    color: #348E82;
+    margin-top: 3px;
+    margin-bottom: 10px;
+}
+
+#map-exit-map {
+    display: block !important;
+    background: #D6E7DF url(../img/connections.png) no-repeat 45% 45%/75%;
+    padding-left: 4px !important;
+    padding-right: 11px !important;
+}
+
+#map-export-image {
+    height: 15px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    margin-left: -10px;
+    margin-top: 3px;
+    margin-bottom: 10px
+}
+
+.heat-disabled {
+    color: #348E82;
+}
+
+.heat-activated {
+    color: #f3120e;
+}
+
+.sylva-map-icon {
+    text-align: center;
+    display: table-cell;
+    vertical-align: middle;
+    border-radius: 50%;
+}
+
+.sylva-map-icon-wrapper {  /* Full transparent white */
+    background-color: rgba(255, 255, 255, 0);
+}
+
+/* END "map visualization" with Leaflet */
 
 /* Dropit menu for "Save as image" */
 
@@ -3006,6 +3123,5 @@ body :hover > a.headerlink {
     border-bottom-left-radius: 5px;
     border-bottom-rigth-radius: 5px;
 }
-
 
 /* END Dropit menu */

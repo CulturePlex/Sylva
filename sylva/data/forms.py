@@ -11,13 +11,18 @@ from django.forms.models import inlineformset_factory
 from django.template.defaultfilters import slugify
 from django.utils.translation import gettext as _
 
+from leaflet.forms.widgets import LeafletWidget
+import geojson
+
 from data.models import MediaNode, MediaFile, MediaLink
+from schemas.models import NodeType
 from schemas.models import RelationshipType
 
 ITEM_FIELD_NAME = "_ITEM_ID"
 NULL_OPTION = u"---------"
 SOURCE = u"source"
 TARGET = u"target"
+EMPTY_GEOJSON = u'{"type": "MultiLineString", "coordinates": []}'
 
 
 class ItemDeleteConfirmForm(forms.Form):
@@ -87,11 +92,12 @@ class ItemForm(forms.Form):
                 "help_text": item_property.description,
             }
             auto_increment_update = datatype_dict["auto_increment_update"]
+            field = None
             if item_property.datatype == datatype_dict["date"]:
                 widget = forms.TextInput(attrs={"class": "date"})
                 field_attrs["widget"] = widget
                 field = forms.DateField(**field_attrs)
-            if item_property.datatype == datatype_dict["time"]:
+            elif item_property.datatype == datatype_dict["time"]:
                 widget = forms.TextInput(attrs={"class": "time"})
                 field_attrs["widget"] = widget
                 field = forms.TimeField(**field_attrs)
@@ -140,7 +146,7 @@ class ItemForm(forms.Form):
                 widget = forms.TextInput(attrs={"readonly": "readonly"})
                 field_attrs["widget"] = widget
                 field = forms.CharField(**field_attrs)
-            elif (item_property.datatype == auto_increment_update):
+            elif item_property.datatype == auto_increment_update:
                 if not item_property.default:
                     field_attrs["initial"] = '0'
                 widget = forms.TextInput(attrs={"readonly": "readonly"})
@@ -178,7 +184,29 @@ class ItemForm(forms.Form):
                         slug_value = slugify(initial[item_property.key])
                         initial[item_property.key] = slug_value
                     field = forms.ChoiceField(**field_attrs)
-            else:
+            elif settings.ENABLE_SPATIAL and isinstance(itemtype, NodeType):
+                if item_property.datatype == datatype_dict["point"]:
+                    field_attrs['initial'] = EMPTY_GEOJSON
+                    widget = LeafletPointWidget(attrs={
+                       'loadevent': 'loadLeafletMap'
+                    })
+                    field_attrs["widget"] = widget
+                    field = forms.CharField(**field_attrs)
+                elif item_property.datatype == datatype_dict["path"]:
+                    field_attrs['initial'] = EMPTY_GEOJSON
+                    widget = LeafletPathWidget(attrs={
+                       'loadevent': 'loadLeafletMap'
+                    })
+                    field_attrs["widget"] = widget
+                    field = forms.CharField(**field_attrs)
+                elif item_property.datatype == datatype_dict["area"]:
+                    field_attrs['initial'] = EMPTY_GEOJSON
+                    widget = LeafletAreaWidget(attrs={
+                       'loadevent': 'loadLeafletMap'
+                    })
+                    field_attrs["widget"] = widget
+                    field = forms.CharField(**field_attrs)
+            if not field:
                 field = forms.CharField(**field_attrs)
             self.fields[item_property.key] = field
         if initial and ITEM_FIELD_NAME in initial:
@@ -250,8 +278,39 @@ class ItemForm(forms.Form):
                     cleaned_data[key] = value
             elif choice_property.required:
                 msg = _("This field is required and "
-                        "must have some value selected")
+                        "must have some value selected.")
                 self._errors[key] = self.error_class([msg])
+            else:
+                cleaned_data[key] = u""
+        # Extra check for spatial fields
+        spatial_properties = self.itemtype.properties.filter(
+            datatype__in=["p", "l", "m"])
+        for spatial_property in spatial_properties:
+            key = spatial_property.key
+            if key in cleaned_data and cleaned_data[key]:
+                try:
+                    field = geojson.loads(cleaned_data[key])
+                except ValueError:
+                    msg = _("This field is required to "
+                            "be in a valid JSON format.")
+                    self._errors[key] = self.error_class([msg])
+                else:
+                    validity = geojson.is_valid(field)
+                    is_not_valid = validity['valid'] == 'no'
+                    if is_not_valid and spatial_property.datatype == u'p':
+                        msg = _("This field is required to "
+                                "be a valid GeoJSON point.")
+                    elif is_not_valid and spatial_property.datatype == u'l':
+                        msg = _("This field is required to "
+                                "be a valid GeoJSON path.")
+                    elif is_not_valid and spatial_property.datatype == u'm':
+                        msg = _("This field is required to "
+                                "be a valid GeoJSON area.")
+                    elif is_not_valid:
+                        msg = _("This field is required to "
+                                "be a valid GeoJSON.")
+                    if is_not_valid:
+                        self._errors[key] = self.error_class([msg])
             else:
                 cleaned_data[key] = u""
         return cleaned_data
@@ -564,3 +623,15 @@ MediaFileFormSet = inlineformset_factory(MediaNode, MediaFile,
 
 MediaLinkFormSet = inlineformset_factory(MediaNode, MediaLink,
                                          extra=1, can_delete=True)
+
+
+class LeafletPointWidget(LeafletWidget):
+    geometry_field_class = 'PointField'
+
+
+class LeafletPathWidget(LeafletWidget):
+    geometry_field_class = 'PathField'
+
+
+class LeafletAreaWidget(LeafletWidget):
+    geometry_field_class = 'AreaField'

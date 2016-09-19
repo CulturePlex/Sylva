@@ -1,10 +1,10 @@
-#-*- coding:utf-8 -*-
-
-from django.test import TestCase
-
-from django.contrib.auth import authenticate
-from django.test.client import Client, RequestFactory
+# -*- coding:utf-8 -*-
 from django.contrib.auth.models import User
+from django.core.urlresolvers import reverse
+from django.contrib.auth import authenticate
+from django.test import TestCase
+from django.test.client import Client, RequestFactory
+from rest_framework.test import APIClient, APITestCase, APIRequestFactory
 
 from graphs.models import Graph
 from graphs.mixins import RelationshipDoesNotExist
@@ -18,7 +18,8 @@ class GraphTest(TestCase):
     def setUp(self):
         self.factory = RequestFactory()
         self.c = Client()
-        self.u = User.objects.create(username='john', password='doe', is_active=True, is_staff=True)
+        self.u = User.objects.create(username='john', password='doe',
+                                     is_active=True, is_staff=True)
         self.u.set_password('hello')
         self.u.save()
         mySchema = Schema.objects.create()
@@ -31,7 +32,7 @@ class GraphTest(TestCase):
         self.unicode_properties = {u"property": u"value with spaces"}
         self.graphName = "graphTest"
         self.graph = Graph.objects.create(name=self.graphName,
-            schema=mySchema, owner=self.u)
+                                          schema=mySchema, owner=self.u)
 
     def test_graph_creation(self):
         """
@@ -188,8 +189,10 @@ class GraphTest(TestCase):
         mySchema_clone = Schema.objects.create()
         nt = NodeType(id=2, name="test", schema=mySchema_clone)
         nt.save()
-        clone_graph = Graph.objects.create(name=cloneGraphName,
-            schema=mySchema_clone, owner=self.u)
+        clone_graph = Graph.objects.create(
+            name=cloneGraphName,
+            schema=mySchema_clone, owner=self.u
+        )
         self.assertIsNotNone(clone_graph)
         self.assertNotEqual(self.graph.name, clone_graph.name)
         self.graph.clone(clone_graph, clone_data=True)
@@ -207,11 +210,13 @@ class GraphTest(TestCase):
         self.assertTrue(login)
         response = self.c.get('/accounts/signin/')
         self.assertIsNotNone(response.content)
-        response = self.c.post('/accounts/signin/', {'username': 'john', 'password': 'hello'})
+        response = self.c.post(
+            '/accounts/signin/', {'username': 'john', 'password': 'hello'})
         self.assertEqual(response.status_code, 200)
         request = self.factory.get('/import/')
         request.user = self.u
-        self.assertIsNotNone(tools.views.graph_import_tool(request, self.graph.slug))
+        self.assertIsNotNone(
+            tools.views.graph_import_tool(request, self.graph.slug))
         Graph.objects.get(name=self.graphName).destroy()
 
     def test_graph_export(self):
@@ -223,7 +228,8 @@ class GraphTest(TestCase):
         self.assertTrue(login)
         response = self.c.get('/accounts/signin/')
         self.assertIsNotNone(response.content)
-        response = self.c.post('/accounts/signin/', {'username': 'john', 'password': 'hello'})
+        response = self.c.post(
+            '/accounts/signin/', {'username': 'john', 'password': 'hello'})
         self.assertEqual(response.status_code, 200)
         Graph.objects.get(name=self.graphName).destroy()
 
@@ -258,6 +264,8 @@ class RelationshipTest(TestCase):
         self.relationship = self.graph.relationships.create(
             node_1, node_2, self.relationship_label)
         self.relationship_id = self.relationship.id
+        self.source = node_1
+        self.target = node_2
 
     def test_relationship_creation(self):
         """
@@ -266,7 +274,6 @@ class RelationshipTest(TestCase):
         self.assertIsNotNone(self.relationship)
         self.assertIsNotNone(self.relationship.id)
         self.assertEqual(self.relationship.label, self.relationship_label)
-        Graph.objects.get(name="Bob's graph").destroy()
 
     def test_relationship_edition(self):
         """
@@ -283,7 +290,6 @@ class RelationshipTest(TestCase):
         self.relationship.set(self.property_key, self.property_value)
         self.assertEqual(self.relationship.get(
             self.property_key), self.property_value)
-        Graph.objects.get(name="Bob's graph").destroy()
 
     def test_relationship_deletion(self):
         """
@@ -297,4 +303,195 @@ class RelationshipTest(TestCase):
         except RelationshipDoesNotExist:
             exist = False
         self.assertEqual(exist, False)
-        Graph.objects.get(name="Bob's graph").destroy()
+
+    def test_filter_relationships(self):
+        self.assertIn(
+            self.relationship,
+            self.graph.relationships.filter(label=self.relationship_label)
+        )
+        self.assertIn(
+            self.relationship,
+            self.graph.relationships.filter(label=self.relationship_label,
+                                            source=self.source,
+                                            target=self.target))
+        self.assertIn(
+            self.relationship,
+            self.graph.relationships.filter(
+                label=self.relationship_label,
+                source=self.source))
+        self.assertIn(
+            self.relationship,
+            self.graph.relationships.filter(
+                label=self.relationship_label,
+                target=self.target))
+        self.assertIn(
+            self.relationship,
+            self.graph.relationships.filter(
+                label=self.relationship_label,
+                source_id=self.source.id, target_id=self.target.id))
+        self.assertIn(
+            self.relationship,
+            self.graph.relationships.filter(
+                label=self.relationship_label,
+                source_id=self.source.id))
+        self.assertIn(
+            self.relationship,
+            self.graph.relationships.filter(
+                label=self.relationship_label,
+                target_id=self.target.id))
+
+    def test_filter_relationships_by_label(self):
+        self.assertIn(self.relationship, self.graph.relationships.filter())
+        self.assertIn(self.relationship,
+                      self.graph.relationships.filter(source=self.source,
+                                                      target=self.target))
+        self.assertIn(self.relationship,
+                      self.graph.relationships.filter(source=self.source))
+        self.assertIn(self.relationship,
+                      self.graph.relationships.filter(target=self.target))
+        self.assertIn(
+            self.relationship,
+            self.graph.relationships.filter(
+                source_id=self.source.id, target_id=self.target.id))
+        self.assertIn(
+            self.relationship,
+            self.graph.relationships.filter(
+                source_id=self.source.id))
+        self.assertIn(
+            self.relationship,
+            self.graph.relationships.filter(
+                target_id=self.target.id))
+
+    def tearDown(self):
+        self.graph.destroy()
+
+
+class APIGraphTest(APITestCase):
+    def setUp(self):
+        # We register a user
+        self.user = User.objects.create(username='john', password='doe',
+                                        is_active=True, is_staff=True)
+        self.user.save()
+
+        # We login with the new user
+        self.client = APIClient()
+        self.client.force_authenticate(user=self.user)
+
+        self.factory = APIRequestFactory()
+
+        # Let's store some names for our graph for testing purposes
+        self.graph_name = "graphTest"
+        self.graph_name_changed = "graphTestChanged"
+
+    def tearDown(self):
+        self.client.logout()
+
+    def test_api_graphs_get_empty(self):
+        url = reverse("api_graphs")
+        response = self.client.get(url)
+
+        # We check that the request is correct
+        self.assertEqual(response.status_code, 200)
+        # We check that the results is an empty list
+        self.assertEqual(response.data, [])
+
+    def test_api_graphs_get_graphs(self):
+        Graph.objects.create(name=self.graph_name, owner=self.user)
+
+        url = reverse("api_graphs")
+        response = self.client.get(url)
+
+        # We check that the request is correct
+        self.assertEqual(response.status_code, 200)
+        # We check that the results contains the graph
+        # The response.data contains a list with the graphs
+        response_graph_name = response.data[0]['name']
+        self.assertEqual(response_graph_name, self.graph_name)
+
+    def test_api_graphs_post(self):
+        data = {'name': self.graph_name}
+
+        url = reverse("api_graphs")
+        response = self.client.post(url, data)
+
+        # We check that the request is correct
+        self.assertEqual(response.status_code, 201)
+        # We check that the results contains the graph
+        # The response.data contains a list with the graphs
+        response_graph_name = response.data['name']
+        self.assertEqual(response_graph_name, self.graph_name)
+
+    def test_api_graph_get(self):
+        graph = Graph.objects.create(name=self.graph_name, owner=self.user)
+        graph_slug = graph.slug
+
+        url = reverse("api_graph", args=[graph_slug])
+        response = self.client.get(url)
+
+        # We check that the request is correct
+        self.assertEqual(response.status_code, 200)
+        # We check that the result has the same name
+        response_graph_name = response.data['name']
+        self.assertEqual(response_graph_name, self.graph_name)
+
+    def test_api_graph_delete(self):
+        graph = Graph.objects.create(name=self.graph_name, owner=self.user)
+        graph_slug = graph.slug
+
+        url = reverse("api_graph", args=[graph_slug])
+        response = self.client.delete(url)
+
+        # We check that the request is correct
+        self.assertEqual(response.status_code, 204)
+        # We check that the result returns a None object
+        self.assertEqual(response.data, None)
+
+    def test_api_graph_patch(self):
+        data = {'name': self.graph_name_changed}
+        graph = Graph.objects.create(name=self.graph_name, owner=self.user)
+        graph_slug = graph.slug
+
+        url = reverse("api_graph", args=[graph_slug])
+
+        # First, we check a get request
+        response = self.client.get(url)
+
+        # We check that the request is correct
+        self.assertEqual(response.status_code, 200)
+        # We check that the result has the same name
+        response_graph_name = response.data['name']
+        self.assertEqual(response_graph_name, self.graph_name)
+
+        # And then, the patch to see the changes
+        response = self.client.patch(url, data)
+
+        # We check that the request is correct
+        self.assertEqual(response.status_code, 201)
+        # We check that the result has the same name
+        response_graph_name = response.data['name']
+        self.assertEqual(response_graph_name, self.graph_name_changed)
+
+    def test_api_graph_put(self):
+        data = {}
+        graph = Graph.objects.create(name=self.graph_name, owner=self.user)
+        graph_slug = graph.slug
+
+        url = reverse("api_graph", args=[graph_slug])
+
+        # First, we check a get request
+        response = self.client.get(url)
+
+        # We check that the request is correct
+        self.assertEqual(response.status_code, 200)
+        # We check that the result has the same name
+        response_graph_name = response.data['name']
+        self.assertEqual(response_graph_name, self.graph_name)
+
+        # And then, the patch to see the changes
+        response = self.client.put(url, data)
+
+        # We check that the request is correct
+        self.assertEqual(response.status_code, 201)
+        # We check that the result has the same name
+        response_graph_name = response.data['last_modified']
+        self.assertEqual(response_graph_name, None)
