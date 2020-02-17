@@ -2,7 +2,7 @@ Django==1.6.7
 GraphLab-Create==0.3.0
 Parsley==1.1
 Pillow==2.4.0
-PyYAML==3.10
+PyYAML==5.1
 Shapely==1.5.13
 South==1.0.2
 amqp==1.4.5
